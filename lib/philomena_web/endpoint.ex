@@ -40,7 +40,9 @@ defmodule PhilomenaWeb.Endpoint do
   plug Plug.Session,
     store: :cookie,
     key: "_philomena_key",
-    signing_salt: "YoFrfZr1"
+    signing_salt: "signed cookie",
+    encryption_salt: "authenticated encrypted cookie"
 
+  plug PhilomenaWeb.Plugs.RenderTime
   plug PhilomenaWeb.Router
 end

@@ -11,6 +11,17 @@ database_url =
     For example: ecto://USER:PASS@HOST/DATABASE
     """
 
+config :bcrypt_elixir,
+  log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS") || "12")
+
+config :philomena,
+  password_pepper:
+    System.get_env("PASSWORD_PEPPER") ||
+      raise("""
+      environment variable PASSWORD_PEPPER is missing.
+      You can generate one by calling: mix phx.gen.secret
+      """)
+
 config :philomena, Philomena.Repo,
   # ssl: true,
   url: database_url,
@@ -25,7 +36,8 @@ secret_key_base =
 
 config :philomena, PhilomenaWeb.Endpoint,
   http: [:inet6, port: String.to_integer(System.get_env("PORT") || "4000")],
-  secret_key_base: secret_key_base
+  secret_key_base: secret_key_base,
+  server: true
 
 # ## Using releases (Elixir v1.9+)
 #
