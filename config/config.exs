@@ -13,6 +13,10 @@ config :philomena,
 config :philomena,
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP"
 
+config :philomena, :pow,
+  user: Philomena.Users.User,
+  repo: Philomena.Repo
+
 config :bcrypt_elixir,
   log_rounds: 12
 
