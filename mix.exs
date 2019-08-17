@@ -46,7 +46,9 @@ defmodule Philomena.MixProject do
       {:phoenix_slime, "~> 0.12.0"},
       {:ecto_network, "~> 1.1"},
       {:pow, "~> 1.0.11"},
-      {:bcrypt_elixir, "~> 2.0"}
+      {:bcrypt_elixir, "~> 2.0"},
+      {:pot, "~> 0.10.1"},
+      {:secure_compare, "~> 0.1.0"}
     ]
   end
 

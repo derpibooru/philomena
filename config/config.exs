@@ -15,7 +15,9 @@ config :philomena,
 
 config :philomena, :pow,
   user: Philomena.Users.User,
-  repo: Philomena.Repo
+  repo: Philomena.Repo,
+  extensions: [PhilomenaWeb.HaltTotp],
+  controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks
 
 config :bcrypt_elixir,
   log_rounds: 12

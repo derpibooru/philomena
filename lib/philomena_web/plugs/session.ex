@@ -15,13 +15,13 @@ defmodule Philomena.Plugs.Session do
   end
 
   def create(conn, user, _config) do
-    user = session_value(user)
+    value = session_value(user)
 
     conn =
       conn
       |> Conn.fetch_session()
-      |> Conn.put_session(@session_key, user)
-    
+      |> Conn.put_session(@session_key, value)
+
     {conn, user}
   end
 
@@ -34,14 +34,14 @@ defmodule Philomena.Plugs.Session do
   defp maybe_load_user(conn, {:ok, user}) do
     with {:ok, [user_id, hash]} <- Jason.decode(user),
          %User{} = user <- Repo.get(User, user_id),
-         ^hash <- binary_part(user.encrypted_password, 0, 25)
-    do
+         true <- SecureCompare.compare(hash, binary_part(user.encrypted_password, 0, 25)) do
       {conn, user}
     else
       _ ->
         {conn, nil}
     end
   end
+
   defp maybe_load_user(conn, _) do
     {conn, nil}
   end

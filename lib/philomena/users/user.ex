@@ -20,6 +20,7 @@ defmodule Philomena.Users.User do
     field :last_sign_in_at, :naive_datetime
     field :current_sign_in_ip, EctoNetwork.INET
     field :last_sign_in_ip, EctoNetwork.INET
+    field :otp_required_for_login, :boolean
     field :name, :string
 
     pow_user_fields()
