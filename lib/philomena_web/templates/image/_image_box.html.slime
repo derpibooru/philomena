@@ -1,0 +1,18 @@
+.media-box data-image-id=@image.id
+  .media-box__header.media-box__header--link-row data-image-id=@image.id
+    a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
+      span.fave-span title='Fave!'
+        i.fa.fa-star
+      span.favorites title='Favorites' data-image-id=@image.id = @image.faves_count
+    a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
+      i.fa.fa-arrow-up title='Yay!'
+    span.score title='Score' data-image-id=@image.id = @image.score
+    a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
+      i.fa.fa-arrow-down title='Neigh!'
+    a.interaction--comments href="/#{@image.id}#comments" title='Comments'
+      i.fa.fa-comments
+      span.comments_count data-image-id=@image.id = @image.comments_count
+    a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
+      i.fa.fa-eye-slash title='Hide'
+  .media-box__content.media-box__content--large.flex.flex--centered.flex--center-distributed
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image

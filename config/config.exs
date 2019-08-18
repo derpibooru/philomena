@@ -8,10 +8,9 @@
 use Mix.Config
 
 config :philomena,
-  ecto_repos: [Philomena.Repo]
-
-config :philomena,
-  password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP"
+  ecto_repos: [Philomena.Repo],
+  password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
+  image_url_root: "/img"
 
 config :philomena, :pow,
   user: Philomena.Users.User,

@@ -15,12 +15,8 @@ config :bcrypt_elixir,
   log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS") || "12")
 
 config :philomena,
-  password_pepper:
-    System.get_env("PASSWORD_PEPPER") ||
-      raise("""
-      environment variable PASSWORD_PEPPER is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """)
+  password_pepper: System.get_env("PASSWORD_PEPPER"),
+  image_url_root: System.get_env("IMAGE_URL_ROOT")
 
 config :philomena, Philomena.Repo,
   # ssl: true,

@@ -24,6 +24,8 @@ defmodule PhilomenaWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    resources "/images", ImageController, only: [:index, :show]
   end
 
   # Other scopes may use custom stacks.

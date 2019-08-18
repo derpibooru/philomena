@@ -1,0 +1,20 @@
+.image-container.thumb
+  = cond do
+    - @image.duplicate_id ->
+      .media-box__overlay
+        strong Marked Duplicate
+    - @image.destroyed_content ->
+      .media-box__overlay
+        strong Destroyed Content
+    - @image.hidden_from_users ->
+      .media-box__overlay
+        strong Deleted:
+        =< @image.deletion_reason
+    - true ->
+
+  .media-box__overlay.js-spoiler-info-overlay
+  a href="/#{@image.id}"
+    = if @image.thumbnails_generated do
+      picture: img src=thumb_url(@image, false, :thumb)
+    - else
+      | Thumbnails not yet generated
