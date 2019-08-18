@@ -1,0 +1,2 @@
+= for tag <- @tags do
+  = render PhilomenaWeb.TagView, "_tag.html", tag: tag

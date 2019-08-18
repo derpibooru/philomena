@@ -1,0 +1,22 @@
+= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image
+= render PhilomenaWeb.ImageView, "_image_page.html", image: @image
+
+.layout--narrow
+  .image-description
+    div
+      p
+        | Description:
+      .image-description__text
+        = @image.description
+  .js-tagsauce id="image_tags_and_source_#{@image.id}"
+    .tagsauce
+      .block
+        | Tags:
+      = render PhilomenaWeb.TagView, "_tag_list.html", tags: @image.tags
+  .block
+    .flex.flex--wrap#image-source
+      ' Source:
+      = if !!@image.source_url and @image.source_url != "" do
+        a href=@image.source_url = @image.source_url
+      - else
+        em> not provided yet

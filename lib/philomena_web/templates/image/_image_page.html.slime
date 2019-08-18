@@ -1,0 +1,13 @@
+.center--layout--flex
+  = if @image.thumbnails_generated do
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :full
+  - else
+    #thumbnails-not-yet-generated.block.block--fixed.block--warning.layout--narrow
+      h3 Just a moment
+      p The image should appear in a few minutes; report it otherwise.
+      p Implications might have added tags, so check them in the meanwhile.
+
+  = if !@image.processed and @image.thumbnails_generated do
+    br
+    #image-being-optimized.block.block--fixed.block--warning.layout--narrow
+      | This image is being processed to optimize the filesize. It should finish shortly.

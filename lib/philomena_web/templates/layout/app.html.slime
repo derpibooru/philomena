@@ -23,6 +23,6 @@ html lang="en"
     #container
       = render PhilomenaWeb.LayoutView, "_header.html", assigns
       = render PhilomenaWeb.LayoutView, "_flash_warnings.html", assigns
-      main#content class="layout--narrow"
+      main#content class="layout--wide"
         = render @view_module, @view_template, assigns
       = render PhilomenaWeb.LayoutView, "_footer.html", assigns

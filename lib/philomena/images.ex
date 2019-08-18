@@ -18,7 +18,7 @@ defmodule Philomena.Images do
 
   """
   def list_images do
-    Repo.all(Image |> where(hidden_from_users: false) |> limit(25))
+    Repo.all(Image |> where(hidden_from_users: false) |> order_by(desc: :created_at) |> limit(25))
   end
 
   @doc """
@@ -35,7 +35,9 @@ defmodule Philomena.Images do
       ** (Ecto.NoResultsError)
 
   """
-  def get_image!(id), do: Repo.get!(Image, id)
+  def get_image!(id) do
+    Repo.one!(Image |> where(id: ^id) |> preload(:tags))
+  end
 
   @doc """
   Creates a image.

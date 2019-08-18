@@ -1,0 +1,24 @@
+<h1>Listing Tags</h1>
+
+<table>
+  <thead>
+    <tr>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for tag <- @tags do %>
+    <tr>
+
+      <td>
+        <%= link "Show", to: Routes.tag_path(@conn, :show, tag) %>
+        <%= link "Edit", to: Routes.tag_path(@conn, :edit, tag) %>
+        <%= link "Delete", to: Routes.tag_path(@conn, :delete, tag), method: :delete, data: [confirm: "Are you sure?"] %>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Tag", to: Routes.tag_path(@conn, :new) %></span>

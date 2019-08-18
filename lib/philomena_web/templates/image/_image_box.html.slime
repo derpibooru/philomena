@@ -15,4 +15,4 @@
     a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-eye-slash title='Hide'
   .media-box__content.media-box__content--large.flex.flex--centered.flex--center-distributed
-    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :thumb

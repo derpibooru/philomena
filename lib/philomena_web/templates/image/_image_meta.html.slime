@@ -1,0 +1,67 @@
+.block.block__header
+  .flex.flex--wrap.image-metabar.center--layout id="image_meta_#{@image.id}"
+    .stretched-mobile-links
+      a.js-prev href="/" title="Previous Image (j)"
+        i.fa.fa-chevron-left
+      a.js-up href="/" title="Find this image in the global image list (i)"
+        i.fa.fa-chevron-up
+      a.js-next href="/" title="Next Image (k)"
+        i.fa.fa-chevron-right
+      a.js-rand href="/" title="Random (r)"
+        i.fa.fa-random
+    .stretched-mobile-links
+      a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
+        span.favorites> title="Favorites" data-image-id=@image.id = @image.faves_count
+        span.fave-span title="Fave!"
+          i.fa.fa-star
+      a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
+        span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
+        span.upvote-span title="Yay!"
+          i.fa.fa-arrow-up
+      span.score.block__header__title data-image-id=@image.id = @image.score
+      a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
+        span.downvote-span title="Neigh!"
+          i.fa.fa-arrow-down
+        span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
+      a.interaction--comments href="#comments" title="Comments"
+        i.fa.fa-comments
+        span.comments_count< data-image-id=@image.id = @image.comments_count
+      a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
+        span.hide-span title="Hide"
+          i.fa.fa-eye-slash
+    .stretched-mobile-links
+      a href="/" title="Related Images"
+        i.fa.fa-sitemap>
+        span.hide-limited-desktop.hide-mobile Related
+    .stretched-mobile-links
+      a href="#{pretty_url(@image, false, false)}" rel="nofollow" title="View (tags in filename)"
+        i.fa.fa-eye>
+        | View
+      a href="#{pretty_url(@image, true, false)}" rel="nofollow" title="View (no tags in filename)"
+        i.fa.fa-eye>
+        | VS
+      a href="#{pretty_url(@image, false, true)}" rel="nofollow" title="Download (tags in filename)"
+        i.fa.fa-download>
+        | Download
+      a href="#{pretty_url(@image, true, true)}" title="Download (no tags in filename)"
+        i.fa.fa-download>
+        | DS
+  .image-metabar.flex.flex--wrap.block__header--user-credit.center--layout#extrameta
+    div
+      | Uploaded
+      =<> PhilomenaWeb.AppView.pretty_time(@image.created_at)
+    span.image-size
+      | &nbsp;
+      = @image.image_width
+      | x
+      = @image.image_height
+      =<> String.upcase(@image.image_format)
+      - size_kb = div(@image.image_size, 1024)
+      - size_mb = Float.round(size_kb / 1024.0, 2)
+      span title="#{size_kb} kB"
+        = if size_kb <= 1024 do
+          => size_kb
+          | kB
+        - else
+          => size_mb
+          | MB

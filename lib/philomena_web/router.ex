@@ -26,6 +26,9 @@ defmodule PhilomenaWeb.Router do
     get "/", PageController, :index
 
     resources "/images", ImageController, only: [:index, :show]
+    resources "/tags", TagController, only: [:index, :show]
+
+    get "/:id", ImageController, :show
   end
 
   # Other scopes may use custom stacks.
