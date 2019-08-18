@@ -1,0 +1,26 @@
+
+#imagespns {
+  border: $border;
+  padding: 2px 10px;
+  background: $background_odd_color;
+  text-align: center;
+  .subtext {
+    font-size: 10px;
+  }
+  .spnstxt {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: $foreground_half_color;
+    margin: 2px;
+    margin-bottom: 4px;
+  }
+  img {
+    max-width: 729px;
+    width: 100%;
+    height: auto;
+  }
+}
+
+.table--adverts__image {
+  width: 730px;
+}

@@ -1,0 +1,33 @@
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown .dropdown__content {
+  position: absolute;
+  display: none;
+
+  /* align at top left (e.g., tag margins) */
+  top: 100%;
+  left: 0;
+}
+
+.dropdown__content.dropdown__content-right {
+  left: inherit;
+  right: 0;
+}
+
+/* Our child should be a block element */
+.dropdown .dropdown__content > *:not(.hidden) {
+  display: block;
+  white-space: nowrap;
+}
+
+.dropdown:hover .dropdown__content {
+  /* show it */
+  display: block;
+  /* dropdowns should be at least as big as the button */
+  min-width: 100%;
+  /* and shouldn't sit below content */
+  z-index: 999;
+}

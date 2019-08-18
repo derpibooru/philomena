@@ -1,0 +1,216 @@
+.block {
+  margin-bottom: $block_spacing;
+  .success {
+    background-color: $success_color;
+  }
+
+  .warning {
+    background-color: $warning_color;
+  }
+
+  .danger {
+    background-color: $danger_color;
+  }
+}
+
+.block__content, .block__tab {
+  border-left: 1px solid $border_color;
+  border-right: 1px solid $border_color;
+  background: $background_color;
+  padding: $block_spacing;
+}
+
+.block__content img, .block__tab img {
+  max-width: 100%;
+}
+
+.block__content:first-child {
+  border-top: 1px solid $border_color;
+}
+
+.block__content:last-child, .block__tab:not(.hidden) {
+  border-bottom: 1px solid $border_color;
+}
+
+.block__header {
+  font-size: 14px;
+  line-height: $block_header_height;
+  background: $block_header_color;
+  color: $foreground_color;
+}
+
+//FIXME This whole area has problems with structure, things are too coupled
+.block__header--sub {
+  @extend .block__header;
+  line-height: $block_header_sub_height;
+  a {
+    padding-left: $header_spacing/2;
+    padding-right: $header_spacing/2;
+  }
+}
+
+.block__header--user-credit {
+  box-sizing: border-box;
+  line-height: 20px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 4px;
+}
+
+.block__header--single-item {
+  @extend .block__header;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.block__header--single-item, .block__header__item, .block__header a {
+  padding-left: $header_spacing;
+  padding-right: $header_spacing;
+}
+
+a.block__header--single-item, .block__header a {
+  color: $block_header_link_text_color;
+  display: inline-block;
+  cursor: pointer;
+  font-weight: bold;
+  &:hover {
+    background: $block_header_hover_color;
+    color: $block_header_link_text_hover_color;
+  }
+}
+
+.block__header a {
+  background: $block_header_color;
+}
+
+.block__header__title {
+  font-size: 14px;
+  margin: 0;
+  padding: 0 ($header_spacing / 2) 0 $header_spacing;
+}
+
+.block__header--light {
+  background: $block_header_light_color;
+  a {
+    background: $block_header_light_color;
+    color: $block_header_light_link_text_color;
+    &:hover {
+      background: $block_header_light_hover_color;
+      color: $block_header_light_link_text_hover_color;
+    }
+  }
+}
+
+.block__header--js-tabbed {
+  @extend .block__header--light;
+  background: transparent;
+
+  border-bottom: $border;
+  a {
+    border-top: $border;
+    /* hide the bottom border for tab links */
+    margin-bottom: -1px;
+    border-bottom: 1px solid $block_header_light_color;
+  }
+  a:hover {
+    border-color: $block_header_light_hover_color;
+  }
+  a:first-child { border-left: $border; }
+  a:last-child { border-right: $border; }
+
+  a.selected, a.selected:hover {
+    cursor: default;
+    color: $foreground_color;
+    background: $background_color;
+    border-color: $block_header_light_color;
+    border-bottom: 1px solid $background_color;
+  }
+}
+
+/* Fixed blocks do not have header and content */
+.block--fixed {
+  padding: 6px $header_spacing;
+  background: $background_color;
+  border: $border;
+}
+
+.block--fixed--sub {
+  padding: 3px $header_spacing;
+}
+
+.block--no-margin {
+  margin: 0;
+}
+
+.block--success {
+  background: $success_light_color;
+  border-color: $success_color;
+}
+
+.block--warning {
+  background: $warning_light_color;
+  border-color: $warning_color;
+}
+
+.block--danger {
+  background: $danger_light_color;
+  border-color: $danger_color;
+}
+
+.block--primary {
+  background: $primary_light_color;
+  border-color: $primary_color;
+}
+
+/* Somewhat dirty workaround for <h*> margins */
+
+.block__content, .block__tab, .block--fixed {
+  > h1, > h2, > h3, > h4, > h5, > h6 {
+    margin-top: 6px;
+  }
+}
+
+.block__header__dropdown-tab:hover > a {
+  background-color: $block_header_hover_color;
+  color: $block_header_link_text_hover_color;
+}
+
+/* Table-like lists */
+.block__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-bottom: $border;
+
+  &:not(:last-child) { margin-bottom: 6px; }
+
+  a.block__list__link {
+    width: 100%;
+    display: block;
+    box-sizing: border-box;
+    border: $border;
+    margin-bottom: -1px; /* collapse borders */
+
+    background: $background_color;
+  }
+
+  a.block__list__link.primary {
+    background: $primary_light_color;
+    border-color: $primary_color;
+  }
+
+  a.block__list__link:hover, a.block__list__link.active {
+    background: $success_light_color;
+    border-color: $success_color;
+  }
+
+  a.block__list__link.active:hover {
+    background: $danger_light_color;
+    border-color: $danger_color;
+  }
+
+  a.block__list__link.hidden {
+    display: none;
+  }
+}

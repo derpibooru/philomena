@@ -1,0 +1,34 @@
+nav#burger
+  a href="/"
+    i.fa-fw.favicon-home<>
+    ' Home
+  a href="/images/new"
+    i.fa.fa-fw.fa-upload<>
+    ' Upload
+  a href="/forums"
+    i.fas.fa-fw.fa-pen-square<>
+    ' Forums
+  a href="/tags"
+    i.fa.fa-fw.fa-tag<>
+    ' Tags
+  a href="/filters"
+    i.fa.fa-fw.fa-filter<>
+    ' Filters
+  a href="/lists"
+    i.fa.fa-fw.fa-list<>
+    ' Rankings
+  a href="/galleries"
+    i.fa.fa-fw.fa-image<>
+    ' Galleries
+  a href="/lists/recent_comments"
+    i.fa.fa-fw.fa-comments<>
+    ' Comments
+  a href="/commissions"
+    i.fa.fa-fw.fa-address-card<>
+    ' Commissions
+  a href="/channels"
+    i.fa.fa-fw.fa-podcast<>
+    ' Channels
+  a href="/pages/donations"
+    i.fa.fa-fw.fa-heart<>
+    ' Donate

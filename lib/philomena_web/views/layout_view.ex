@@ -6,4 +6,10 @@ defmodule PhilomenaWeb.LayoutView do
     |> Float.round(3)
     |> Float.to_string()
   end
+
+  def hostname() do
+    {:ok, host} = :inet.gethostname()
+    
+    host |> to_string
+  end
 end

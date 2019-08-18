@@ -1,0 +1,10 @@
+footer#footer
+  #serving_info
+    ' Powered by the 
+    a href="https://github.com/derpibooru/philomena" philomena project
+    br
+    ' Served by
+    => hostname()
+    | (
+    = render_time(@conn)
+    | ms)

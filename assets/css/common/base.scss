@@ -1,0 +1,401 @@
+/*
+ * This file contains base styles that are overridden by custom stylesheets. These stylesheets need
+ * to be placed in this directory, and they are imported at the bottom of the file.
+ *
+ * Define rules that are not supposed to be overridden after the @import at the bottom of the file.
+ *
+ * NOTE: do not enable require_self and require_tree because it imports things the wrong way around!
+ * = require_self
+ * = require_tree .
+*/
+
+@import "global";
+
+@import "../../node_modules/font-awesome/scss/font-awesome.scss";
+@import "../../node_modules/normalize-scss/sass/_normalize.scss";
+
+body {
+  background-color: $background_color;
+  color: $foreground_color;
+  font-family: $font_family_base;
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: normal;
+  text-rendering: optimizeLegibility;
+  margin-bottom: 0.62em;
+}
+
+h1 { font-size: 24px; }
+
+h2 { font-size: 22px; }
+
+h3 { font-size: 19px; }
+
+h4 {
+  font-size: 17px;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+// Slightly dirty, no clean way to strip top margins off headers tho
+.remove-top-margin {
+  margin-top: 0;
+}
+
+h5 {
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  font-size: 15px;
+}
+
+h6 {
+  font-size: 10px;
+  margin: 2px;
+  margin-bottom: 0;
+}
+
+p {
+  hyphens: none;
+  margin-top: 4px;
+  margin-bottom: 6px;
+  margin-left: 2px;
+}
+
+pre {
+  background-color: $meta_color;
+  padding: 10px;
+  font-size: 11px;
+  font-family: $font_family_monospace;
+}
+
+a, a:active, a:visited {
+  color: $link_color;
+  text-decoration: none;
+}
+
+a:hover {
+  color: $link_hover_color;
+}
+
+img {
+  margin: 0;
+  border: 0;
+  vertical-align: bottom;
+}
+
+.clearfix {
+  clear: both;
+  height: 0;
+}
+
+/* Child selectors, as opposed to flat BEM classes, are justified in this case.
+ * HTML tables are bulky to begin with; adding .table__row and .table__cell to every
+ * item will hinder the development speed and decrease readability. */
+.table {
+  padding-left: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  border: $border;
+
+  th {
+    font-weight: bold;
+    text-align: left;
+    padding: 5px;
+    &.center {
+      text-align: center;
+    }
+  }
+
+  > thead > tr {
+    background: $background_color;
+  }
+
+  > tbody {
+    border: $border;
+    > tr {
+      @include even-odd;
+    }
+  }
+
+  td {
+    padding: 5px;
+  }
+}
+
+.table__tiny-column {
+  width: 50px;
+}
+
+.border-vertical {
+  border-top: 2px solid $border_color;
+}
+
+.background-success {
+  background-color: $success_light_color;
+}
+
+.background-warning {
+  background-color: $warning_light_color;
+}
+
+.background-danger {
+  background-color: $danger_light_color;
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: $border_color;
+}
+
+#error_explanation {
+  margin: 1em 0;
+  background: $warning_light_color;
+  border: 1px solid $warning_color;
+  padding: 0.62em;
+  li {
+    margin: 3px;
+    margin-left: 15px;
+  }
+  h2 {
+    font-size: 19px;
+  }
+}
+
+//rules page. API page also borrows stuff from here
+.rule {
+  padding: 5px;
+  h2 {
+    background: $background_odd_color;
+    border: $border;
+    padding: 5px;
+    padding-bottom: 7px;
+  }
+  h2.important {
+    background: $danger_light_color;
+    border-color: $danger_color;
+  }
+  // Make HTML lists with multi-line text readable
+  ul {
+    margin: 0;
+    padding: 5px 20px;
+  }
+  li {
+    padding: 5px 0;
+  }
+}
+
+.walloftext {
+  font-size: 14px;
+
+  @media (max-width: 900px) {
+    width: 95%;
+  }
+}
+
+//textile
+blockquote {
+  margin: 1em 2em;
+  border: 1px dotted $foreground_color;
+  padding: 1em;
+  background-color: inherit;
+}
+
+.spoiler {
+  background-color: $admin_links_hover_color;
+  color: $admin_links_hover_color;
+
+  a {
+    color: $admin_links_hover_color;
+  }
+
+  &:not(:hover) > .image-show-container {
+    background: $admin_links_hover_color;
+
+    > * {
+      visibility: hidden;
+    }
+  }
+}
+
+.spoiler:hover, .spoiler-revealed {
+  background-color: $admin_links_color;
+  color: $foreground_color;
+  a {
+    color: $link_color;
+  }
+  a:hover {
+    color: $link_dark_color;
+  }
+}
+
+.spoiler, .spoiler-revealed {
+  .imgspoiler {
+    background-color: $admin_links_hover_color;
+    img {
+      visibility: hidden;
+    }
+  }
+
+  .imgspoiler:hover, .imgspoiler-revealed {
+    background-color: $admin_links_color;
+    img {
+      visibility: visible;
+    }
+  }
+
+  .imgspoiler, .imgspoiler-revealed {
+    display: inline-block;
+    max-width: 100%;
+  }
+}
+
+.textile-syntax-reference {
+  margin-bottom: 6px;
+}
+
+//donations
+.donate-button {
+  background: 0;
+  border: 0;
+  margin-left: 170px;
+}
+
+.button_to {
+  display: inline;
+}
+
+/* User titles (admin/mod/assistant) and channel states (live/off air) */
+.label {
+  padding: 4px;
+  overflow-y: hidden;
+}
+
+.label--small {
+  font-size: 9px;
+  overflow: hidden;
+}
+
+.label--block {
+  display: inline-block;
+  margin: 2px 6px 6px 0;
+}
+
+.label--narrow {
+  padding: 0 2px;
+}
+
+.label--success {
+  background: $success_light_color;
+  border: 1px solid $success_color;
+}
+
+.label--danger {
+  background: $danger_light_color;
+  border: 1px solid $danger_color;
+}
+
+.label--warning {
+  background: $warning_light_color;
+  border: 1px solid $warning_color;
+}
+
+.label--purple {
+  background: $assistant_color;
+  border: 1px solid $assistant_border_color;
+}
+
+.label--primary {
+  background: $primary_light_color;
+  border: 1px solid $primary_color;
+}
+
+.large-text {
+  font-size: 15px;
+}
+
+.small-text {
+  font-size: 10px;
+}
+
+.page-current {
+  padding: $header_spacing;
+}
+
+i.favicon-home {
+  background-image: url("/favicon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+
+// changelog
+.commit-sha {
+  @extend .label--purple;
+  padding: 2px;
+  font-size: 12px;
+  font-family: $font_family_monospace;
+  vertical-align: top;
+}
+
+.commit-message {
+  display: block;
+}
+
+span.stat {
+  font-size: 18px;
+}
+
+.seamless-frame {
+  border: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+@import "barline";
+@import "blocks";
+@import "burger";
+@import "buttons";
+@import "dropdown";
+@import "forms";
+@import "header";
+@import "layout";
+@import "media";
+@import "shame";
+@import "text";
+
+@import "views/adverts";
+@import "views/badges";
+@import "views/channels";
+@import "views/comments";
+@import "views/commissions";
+@import "views/communications";
+@import "views/duplicate_reports";
+@import "views/filters";
+@import "views/galleries";
+@import "views/images";
+@import "views/pages";
+@import "views/polls";
+@import "views/posts";
+@import "views/profiles";
+@import "views/search";
+@import "views/tags";
+
+.no-overflow {
+  overflow: hidden;
+}
+
+.no-overflow-x {
+  overflow-x: hidden;
+}
+
+.hidden {
+  display: none !important;
+}

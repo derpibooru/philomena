@@ -1,24 +1,19 @@
 {
-  "repository": {},
-  "license": "MIT",
   "scripts": {
-    "deploy": "webpack --mode production",
-    "watch": "webpack --mode development --watch"
+    "deploy": "brunch build --production",
+    "watch": "brunch watch --stdin"
   },
   "dependencies": {
-    "phoenix": "file:../deps/phoenix",
-    "phoenix_html": "file:../deps/phoenix_html"
+    "brunch": "^2.10.17",
+    "copycat-brunch": "^1.1.1",
+    "font-awesome": "^4.7.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/preset-env": "^7.0.0",
-    "babel-loader": "^8.0.0",
-    "copy-webpack-plugin": "^5.0.4",
-    "css-loader": "^3.2.0",
-    "mini-css-extract-plugin": "^0.8.0",
-    "optimize-css-assets-webpack-plugin": "^5.0.3",
-    "uglifyjs-webpack-plugin": "^2.2.0",
-    "webpack": "4.39.2",
-    "webpack-cli": "^3.3.6"
+    "acorn": "^7.0.0",
+    "autoprefixer": "^9.5.1",
+    "normalize-scss": "^7.0.1",
+    "rollup-brunch": "git+https://github.com/liamwhite/rollup-brunch#31967fc",
+    "sass-brunch": "git+https://github.com/brunch/sass-brunch#e9c0bfe",
+    "uglify-js-brunch": "^2.10.0"
   }
 }

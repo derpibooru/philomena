@@ -1,0 +1,44 @@
+.hide-mobile
+  .dropdown.header__dropdown
+    a.header__link href="/images"
+      | Images
+      span data-click-preventdefault="true"
+        i.fa.fa-caret-down<
+    .dropdown__content
+      a.header__link href="/"
+        | Random
+  .dropdown.header__dropdown
+    a.header__link href="/activity"
+      | Activity
+      span data-click-preventdefault="true"
+        i.fa.fa-caret-down<
+    .dropdown__content
+      a.header__link href="/lists"
+        | Rankings
+      a.header__link href="/lists/recent_comments"
+        | Comments
+  .dropdown.header__dropdown
+    a.header__link href="/forums"
+      | Forums
+      span data-click-preventdefault="true"
+        i.fa.fa-caret-down<
+    .dropdown__content
+      a.header__link href='/posts'
+        i.fa.fa-fw.fa-search>
+        | Post Search
+  .dropdown.header__dropdown
+    a.header__link href="/tags"
+      | Tags
+      span data-click-preventdefault="true"
+        i.fa.fa-caret-down<
+    .dropdown__content
+      a.header__link href="/tags/ratings"
+        | Ratings
+      a.header__link href="/pages/tags"
+        | Guidelines
+      a.header__link href="/tags/aliases"
+        | Aliased
+  a.header__link href='/galleries'
+    | Galleries
+  a.header__link href='/commissions'
+    | Commissions

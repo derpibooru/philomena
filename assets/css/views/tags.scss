@@ -1,0 +1,165 @@
+
+// Tagsinput
+.tagsinput {
+  display: block;
+  background: $background_color;
+  border: 1px solid $meta_border_color;
+  box-sizing: border-box;
+  height: 10.6em;
+  overflow: auto;
+  padding: 5px;
+  resize: both;
+}
+
+.tagsinput .tag {
+  font-family: $font_family_base;
+}
+
+.tagsinput.js-taginput {
+  height: auto;
+  min-height: 7.33em;
+  max-height: 50vh;
+  padding-bottom: 0;
+  margin-bottom: 4px;
+}
+
+.tagsinput.js-taginput .input {
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+// Autocomplete
+.autocomplete__list {
+  cursor: pointer;
+  display: inline-block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.autocomplete__item {
+  background: $base_color;
+  color: $text_light_color;
+  padding: 5px;
+}
+
+.autocomplete__item--selected {
+  background: $text_light_color;
+  color: $base_color;
+}
+
+// Tags
+.tag {
+  border: 1px solid;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  padding: 5px;
+}
+
+.tag a {
+  color: inherit;
+}
+
+.tag__count {
+  color: $foreground-color;
+  font-weight: normal;
+}
+
+.tag__dropdown__link {
+  background-color: $meta_color;
+  padding: 5px;
+  &:hover {
+    background-color: $tag_dropdown_hover_background;
+  }
+}
+
+.tag {
+  background: $tag_normal_background;
+  border-color: $tag_normal_border;
+  color: $tag_normal_color;
+  &[data-tag-category="rating"] {
+    background: $tag_category_rating_background;
+    border-color: $tag_category_rating_border;
+    color: $tag_category_rating_color;
+  }
+  &[data-tag-category="spoiler"] {
+    background: $tag_category_spoiler_background;
+    border-color: $tag_category_spoiler_border;
+    color: $tag_category_spoiler_color;
+  }
+  &[data-tag-category="origin"] {
+    background: $tag_category_origin_background;
+    border-color: $tag_category_origin_border;
+    color: $tag_category_origin_color;
+  }
+  &[data-tag-category="oc"] {
+    background: $tag_category_oc_background;
+    border-color: $tag_category_oc_border;
+    color: $tag_category_oc_color;
+  }
+  &[data-tag-category="error"] {
+    background: $tag_category_error_background;
+    border-color: $tag_category_error_border;
+    color: $tag_category_error_color;
+  }
+  &[data-tag-category="character"] {
+    background: $tag_category_character_background;
+    border-color: $tag_category_character_border;
+    color: $tag_category_character_color;
+  }
+  &[data-tag-category="content-official"] {
+    background: $tag_category_content_official_background;
+    border-color: $tag_category_content_official_border;
+    color: $tag_category_content_official_color;
+  }
+  &[data-tag-category="content-fanmade"] {
+    background: $tag_category_content_fanmade_background;
+    border-color: $tag_category_content_fanmade_border;
+    color: $tag_category_content_fanmade_color;
+  }
+}
+
+// Quick Tag Table
+.quick-tag-table__tab {
+  > div {
+    display: inline-block;
+    padding: 0 6px;
+    vertical-align: top;
+    border-right: $border;
+    border-left: $border;
+  }
+  > div:last-child {
+    border-right: none;
+  }
+}
+
+span.quick-tag-table__tab-separator {
+  background: $background_color;
+  border: $border;
+  border-bottom: 0;
+  display: inline-block;
+}
+
+.tag-image--constrained {
+  width: 50px;
+  height: 50px;
+}
+
+.tag-info__category {
+  margin-left: 20px;
+}
+
+.tag-info__heading {
+  margin: 8px 0;
+}
+
+.tag-info__list {
+  margin: 0;
+  padding-left: 30px;
+}

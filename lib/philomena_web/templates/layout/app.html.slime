@@ -3,22 +3,26 @@ html lang="en"
   head
     meta charset="utf-8"
     meta http-equiv="X-UA-Compatible" content="IE=edge"
-    meta name="viewport" content="width=device-width, initial-scale=1.0"
-    title 
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title
       = if assigns[:title] do
         => assigns[:title]
         ' - Philomena
       - else
         ' Philomena
     link rel="stylesheet" href=Routes.static_path(@conn, "/css/app.css")
-  body
-    = if @current_user do
-      p
-        ' Welcome
-        = @current_user.name
-    = render @view_module, @view_template, assigns
-    p
-      ' Rendered in
-      => render_time(@conn)
-      ' ms
-    script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js")
+    link rel="icon" href="/favicon.ico" type="image/x-icon"
+    link rel="icon" href="/favicon.svg" type="image/svg+xml"
+    meta name="generator" content="philomena"
+    meta name="theme-color" content="#618fc3"
+    meta name="format-detection" content="telephone=no"
+    meta name="robots" content="noindex, nofollow"
+    script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
+  body data-theme="default"
+    = render PhilomenaWeb.LayoutView, "_burger.html", assigns
+    #container
+      = render PhilomenaWeb.LayoutView, "_header.html", assigns
+      = render PhilomenaWeb.LayoutView, "_flash_warnings.html", assigns
+      main#content class="layout--narrow"
+        = render @view_module, @view_template, assigns
+      = render PhilomenaWeb.LayoutView, "_footer.html", assigns

@@ -1,0 +1,289 @@
+.header {
+  background: $header_color;
+}
+
+.header__force-right {
+  margin-left: auto;
+}
+
+$search_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMjE2IDgzMnEwLTE4NS0xMzEuNS0zMTYuNXQtMzE2LjUtMTMxLjUtMzE2LjUgMTMxLjUtMTMxLjUgMzE2LjUgMTMxLjUgMzE2LjUgMzE2LjUgMTMxLjUgMzE2LjUtMTMxLjUgMTMxLjUtMzE2LjV6bTUxMiA4MzJxMCA1Mi0zOCA5MHQtOTAgMzhxLTU0IDAtOTAtMzhsLTM0My0zNDJxLTE3OSAxMjQtMzk5IDEyNC0xNDMgMC0yNzMuNS01NS41dC0yMjUtMTUwLTE1MC0yMjUtNTUuNS0yNzMuNSA1NS41LTI3My41IDE1MC0yMjUgMjI1LTE1MCAyNzMuNS01NS41IDI3My41IDU1LjUgMjI1IDE1MCAxNTAgMjI1IDU1LjUgMjczLjVxMCAyMjAtMTI0IDM5OWwzNDMgMzQzcTM3IDM3IDM3IDkweiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==");
+$camera_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik04OTYgNjcycTExOSAwIDIwMy41IDg0LjV0ODQuNSAyMDMuNS04NC41IDIwMy41LTIwMy41IDg0LjUtMjAzLjUtODQuNS04NC41LTIwMy41IDg0LjUtMjAzLjUgMjAzLjUtODQuNXptNzA0LTQxNnExMDYgMCAxODEgNzV0NzUgMTgxdjg5NnEwIDEwNi03NSAxODF0LTE4MSA3NWgtMTQwOHEtMTA2IDAtMTgxLTc1dC03NS0xODF2LTg5NnEwLTEwNiA3NS0xODF0MTgxLTc1aDIyNGw1MS0xMzZxMTktNDkgNjkuNS04NC41dDEwMy41LTM1LjVoNTEycTUzIDAgMTAzLjUgMzUuNXQ2OS41IDg0LjVsNTEgMTM2aDIyNHptLTcwNCAxMTUycTE4NSAwIDMxNi41LTEzMS41dDEzMS41LTMxNi41LTEzMS41LTMxNi41LTMxNi41LTEzMS41LTMxNi41IDEzMS41LTEzMS41IDMxNi41IDEzMS41IDMxNi41IDMxNi41IDEzMS41eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==");
+$help_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMDg4IDEyNTZ2MjQwcTAgMTYtMTIgMjh0LTI4IDEyaC0yNDBxLTE2IDAtMjgtMTJ0LTEyLTI4di0yNDBxMC0xNiAxMi0yOHQyOC0xMmgyNDBxMTYgMCAyOCAxMnQxMiAyOHptMzE2LTYwMHEwIDU0LTE1LjUgMTAxdC0zNSA3Ni41LTU1IDU5LjUtNTcuNSA0My41LTYxIDM1LjVxLTQxIDIzLTY4LjUgNjV0LTI3LjUgNjdxMCAxNy0xMiAzMi41dC0yOCAxNS41aC0yNDBxLTE1IDAtMjUuNS0xOC41dC0xMC41LTM3LjV2LTQ1cTAtODMgNjUtMTU2LjV0MTQzLTEwOC41cTU5LTI3IDg0LTU2dDI1LTc2cTAtNDItNDYuNS03NHQtMTA3LjUtMzJxLTY1IDAtMTA4IDI5LTM1IDI1LTEwNyAxMTUtMTMgMTYtMzEgMTYtMTIgMC0yNS04bC0xNjQtMTI1cS0xMy0xMC0xNS41LTI1dDUuNS0yOHExNjAtMjY2IDQ2NC0yNjYgODAgMCAxNjEgMzF0MTQ2IDgzIDEwNiAxMjcuNSA0MSAxNTguNXoiIGZpbGw9IiNmZmYiLz48L3N2Zz4=");
+$notification_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik05MTIgMTY5NnEwLTE2LTE2LTE2LTU5IDAtMTAxLjUtNDIuNXQtNDIuNS0xMDEuNXEwLTE2LTE2LTE2dC0xNiAxNnEwIDczIDUxLjUgMTI0LjV0MTI0LjUgNTEuNXExNiAwIDE2LTE2em04MTYtMjg4cTAgNTItMzggOTB0LTkwIDM4aC00NDhxMCAxMDYtNzUgMTgxdC0xODEgNzUtMTgxLTc1LTc1LTE4MWgtNDQ4cS01MiAwLTkwLTM4dC0zOC05MHE1MC00MiA5MS04OHQ4NS0xMTkuNSA3NC41LTE1OC41IDUwLTIwNiAxOS41LTI2MHEwLTE1MiAxMTctMjgyLjV0MzA3LTE1OC41cS04LTE5LTgtMzkgMC00MCAyOC02OHQ2OC0yOCA2OCAyOCAyOCA2OHEwIDIwLTggMzkgMTkwIDI4IDMwNyAxNTguNXQxMTcgMjgyLjVxMCAxMzkgMTkuNSAyNjB0NTAgMjA2IDc0LjUgMTU4LjUgODUgMTE5LjUgOTEgODh6IiBmaWxsPSIjZmZmIi8+PC9zdmc+");
+$message_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xNzkyIDcxMHY3OTRxMCA2Ni00NyAxMTN0LTExMyA0N2gtMTQ3MnEtNjYgMC0xMTMtNDd0LTQ3LTExM3YtNzk0cTQ0IDQ5IDEwMSA4NyAzNjIgMjQ2IDQ5NyAzNDUgNTcgNDIgOTIuNSA2NS41dDk0LjUgNDggMTEwIDI0LjVoMnE1MSAwIDExMC0yNC41dDk0LjUtNDggOTIuNS02NS41cTE3MC0xMjMgNDk4LTM0NSA1Ny0zOSAxMDAtODd6bTAtMjk0cTAgNzktNDkgMTUxdC0xMjIgMTIzcS0zNzYgMjYxLTQ2OCAzMjUtMTAgNy00Mi41IDMwLjV0LTU0IDM4LTUyIDMyLjUtNTcuNSAyNy01MCA5aC0ycS0yMyAwLTUwLTl0LTU3LjUtMjctNTItMzIuNS01NC0zOC00Mi41LTMwLjVxLTkxLTY0LTI2Mi0xODIuNXQtMjA1LTE0Mi41cS02Mi00Mi0xMTctMTE1LjV0LTU1LTEzNi41cTAtNzggNDEuNS0xMzB0MTE4LjUtNTJoMTQ3MnE2NSAwIDExMi41IDQ3dDQ3LjUgMTEzeiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==");
+$message_unread_icon: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTc5MiIgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xNzkyIDcxMHY3OTRxMCA2Ni00NyAxMTN0LTExMyA0N2gtMTQ3MnEtNjYgMC0xMTMtNDd0LTQ3LTExM3YtNzk0cTQ0IDQ5IDEwMSA4NyAzNjIgMjQ2IDQ5NyAzNDUgNTcgNDIgOTIuNSA2NS41dDk0LjUgNDggMTEwIDI0LjVoMnE1MSAwIDExMC0yNC41dDk0LjUtNDggOTIuNS02NS41cTE3MC0xMjMgNDk4LTM0NSA1Ny0zOSAxMDAtODd6bTAtMjk0cTAgNzktNDkgMTUxdC0xMjIgMTIzcS0zNzYgMjYxLTQ2OCAzMjUtMTAgNy00Mi41IDMwLjV0LTU0IDM4LTUyIDMyLjUtNTcuNSAyNy01MCA5aC0ycS0yMyAwLTUwLTl0LTU3LjUtMjctNTItMzIuNS01NC0zOC00Mi41LTMwLjVxLTkxLTY0LTI2Mi0xODIuNXQtMjA1LTE0Mi41cS02Mi00Mi0xMTctMTE1LjV0LTU1LTEzNi41cTAtNzggNDEuNS0xMzB0MTE4LjUtNTJoMTQ3MnE2NSAwIDExMi41IDQ3dDQ3LjUgMTEzeiIgZmlsbD0iI2Y4MCIvPjwvc3ZnPgo=");
+
+i.fa-embedded--search {
+  background: $search_icon center 0px / 16px 16px no-repeat;
+  padding-left: 16px;
+}
+
+i.fa-embedded--camera {
+  background: $camera_icon center 1px / 16px 16px no-repeat;
+  padding-left: 28px;
+}
+
+i.fa-embedded--help {
+  background: $help_icon 4px -1px / 19px 19px no-repeat;
+  padding-left: 28px;
+}
+
+i.fa-embedded--notification {
+  background: $notification_icon center / 15px 15px no-repeat;
+  padding-left: 16px;
+}
+
+[data-notification-count="0"] {
+  display: none !important;
+}
+
+i.fa-embedded--message {
+  background: $message_icon center / 16px 16px no-repeat;
+  padding-left: 16px;
+}
+
+i.fa-embedded--unread-message {
+  background: $message_unread_icon center / 16px 16px no-repeat;
+  padding-left: 16px;
+}
+
+// For text preceded by an icon
+.fa__text {
+  padding-left: 6px;
+}
+
+a.header__link {
+  display: inline-block;
+  padding: 0 $header_spacing;
+  line-height: $header_height;
+  font-size: $header_font_size;
+  color: $text_light_color;
+  background: $header_color;
+  flex-shrink: 0;
+}
+
+a.header__link:hover, .header__dropdown:hover > a {
+  cursor: pointer;
+  background-color: $header_hover_color;
+}
+
+.header__input, .header__input:focus {
+  padding: 0 $header_field_spacing;
+  border: none;
+  height: $header_field_height;
+
+  background: $header_field_color;
+  color: $text_light_color;
+
+  text-overflow: ellipsis;
+
+  /* reset rounded borders on iOS/Safari */
+  border-radius: 0;
+}
+
+span.header__counter {
+  @include number-wrap($header_hover_color);
+}
+
+select.header__input, select.header__input:focus {
+  /* in case of <select>, a mere border-radius: 0; rule is not sufficient */
+  appearance: none;
+  /* setting "appearance: none;" removes dropdown arrow; the solution is to create a custom one:
+   * (based on http://stackoverflow.com/a/28274325) the first two items create left and right triangles
+   * that match up to create an arrow, the third one specifies dropdown background */
+  background: linear-gradient(45deg, transparent 50%, $text_light_color 50%) calc(100% - 15px) 12px / 5px 5px no-repeat,
+              linear-gradient(135deg, $text_light_color 50%, transparent 50%) calc(100% - 10px) 12px / 5px 5px no-repeat;
+  background-color: $header_field_color;
+  /* prevent the custom arrow from overlapping the content */
+  padding-right: 25px;
+  &:hover {
+    cursor: pointer;
+    background-color: $header_field_hover_color;
+  }
+
+  /* Remove dropdown arrow in IE11 - not needed in Edge */
+  &::-ms-expand {
+    display: none;
+  }
+}
+
+.header__input--search {
+  width: 18vw;
+  max-width: 300px;
+}
+
+.header__search__button {
+  border: none;
+  // Chrome loves extra padding for some reason
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: $header_field_height;
+
+  background: $header_field_color;
+  color: $text_light_color;
+
+  &:hover {
+    cursor: pointer;
+    background: $header_field_hover_color;
+  }
+}
+
+.header__filter-form {
+  max-width: 15em; /* prevent long filter names from causing overflow */
+  margin: $header_field_vertical_spacing $header_field_spacing;
+}
+
+a.header__link-user {
+  display: flex;
+  padding: $header_field_vertical_spacing $header_field_spacing;
+}
+
+span.header__link-user__dropdown-arrow {
+  padding: 0 9px;
+  background: linear-gradient(45deg, transparent 50%, $text_light_color 50%) calc(100% - 5px) 12px / 5px 5px no-repeat,
+              linear-gradient(135deg, $text_light_color 50%, transparent 50%) calc(100%) 12px / 5px 5px no-repeat;
+  background-color: $header_color;
+}
+
+span.header__link-user__dropdown-arrow:hover,
+.header__dropdown:hover span.header__link-user__dropdown-arrow {
+  background-color: $header_hover_color;
+}
+
+.header--secondary {
+  background: $header_secondary_color;
+  line-height: $header_sub_height;
+
+  a {
+    line-height: $header_sub_height;
+    color: $foreground_color;
+    background: $header_secondary_color;
+  }
+
+  a:hover, .header__dropdown:hover > a {
+    background-color: $header_secondary_hover_color;
+  }
+
+  div {
+    height: $header_sub_height;
+  }
+
+  span.header__counter {
+    @include number-wrap($header_secondary_hover_color);
+  }
+
+}
+
+span.header__counter__admin {
+  @include number-wrap($header_admin_hover_color);
+}
+
+.header--secondary__admin-links {
+  margin-right: $header_spacing;
+  background: $header_admin_color;
+
+  a {
+    background: $header_admin_color;
+  }
+  a:hover {
+    background: $header_admin_hover_color;
+  }
+}
+
+/* Flash notices */
+
+.flash {
+  line-height: $header_field_height;
+}
+
+.flash--site-notice {
+  background: $site_notice_color;
+  color: $text_light_color;
+  a, a:active, a:visited {
+    text-decoration: underline;
+    color: $site_notice_link_color;
+  }
+  a:hover {
+    color: $site_notice_link_hover_color;
+  }
+}
+
+.flash--warning {
+  color: $foreground_color;
+  background: $warning_light_color;
+}
+
+.flash--success {
+  color: $foreground_color;
+  background: $success_light_color;
+}
+
+/* Mobile layout */
+
+@media (max-width: $min_px_width_for_desktop_layout) {
+  .header > div {
+    height: auto;
+  }
+
+  .header__search {
+    width: 100%;
+    order: 1; /* sets the item to be displayed after .header__row__right, i.e. on a new line */
+  }
+
+  .header__input--search {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  select.header__input, select.header__input:focus {
+    /* Using an absolute max-width resolves an issue with
+     * Chrome on small viewports, where a long filter
+     * name would cause a new row to be added. */
+    max-width: 100px;
+  }
+
+  .header--secondary__admin-links {
+    margin: 0;
+  }
+
+  .flash {
+    padding: 0 6px;
+  }
+
+  span.header__counter__admin {
+    margin-left: 1vw;
+    padding: 0 1vw;
+  }
+}
+
+/* Desktop layout */
+
+@media (min-width: $min_px_width_for_desktop_layout) {
+  .header > div, .flash {
+    box-sizing: border-box;
+  }
+
+  .flash {
+    width: 100%;
+    padding-left: $layout_side_margin;
+    padding-right: $layout_side_margin;
+  }
+
+  .layout--center-aligned {
+    .header > div {
+      padding-left: $centered_layout_side_margin;
+      padding-right: $centered_layout_side_margin;
+    }
+
+    .flash {
+      padding-left: $centered_layout_side_margin + $header_spacing;
+      padding-right: $centered_layout_side_margin + $header_spacing;
+    }
+  }
+}
+
+@media (max-width: $max_px_width_for_limited_desktop_layout) and (min-width: $min_px_width_for_desktop_layout) {
+  .header > div {
+    height: auto;
+  }
+}

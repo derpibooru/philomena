@@ -1,0 +1,146 @@
+/*
+ * Darker theme
+ */
+
+// ///////////////////////////////////
+// ///// SECTION 1 - MAIN COLORS /////
+// ///////////////////////////////////
+
+$background_color: #1d242f !default;
+$page_background_color: #141a24 !default;
+$foreground_color: #e0e0e0 !default;
+
+$base_color: #546c99 !default;
+
+$primary_light_color: #1a4c6b !default;
+$success_light_color: #144714 !default;
+$danger_light_color: #66211f !default;
+$warning_light_color: #7d4825 !default;
+
+$meta_color: #191f2a !default;
+
+$header_color: #284371 !default;
+$header_field_color: #1c3252 !default;
+$header_secondary_color: #1d2b44 !default;
+$header_admin_color: #3b1d1d !default;
+
+$block_header_color: #2e3a52 !default;
+$block_header_link_text_color: #4f95db !default;
+
+$block_header_light_color: #252d3c !default;
+$block_header_light_link_text_color: #6198c2 !default;
+
+$border_color: #2d3649 !default;
+
+$media_box_color: #3d4657 !default;
+
+$link_color: #478acc !default;
+$link_hover_color: #b099dd !default;
+
+$fave_color: #a18e27 !default;
+$vote_up_color: #5b9b26 !default;
+$vote_down_color: #da3412 !default;
+$hide_color: #da3412 !default;
+
+$assistant_color: #511b4e !default;
+
+$tag_normal_color: #4aa158 !default;
+$tag_category_rating_color: #418dd9 !default;
+$tag_category_spoiler_color: #d49b39 !default;
+$tag_category_origin_color: #6f66d6 !default;
+$tag_category_oc_color: #b157b7 !default;
+$tag_category_error_color: #d45460 !default;
+$tag_category_character_color: #4aaabf !default;
+$tag_category_content_official_color: #b9b541 !default;
+$tag_category_content_fanmade_color: #cc8eb5 !default;
+
+$commission_category_color: #e07b27 !default;
+
+$site_notice_color: #07070a !default;
+
+// //////////////////////////////////////
+// ///// SECTION 2 - DERIVED COLORS /////
+// //////////////////////////////////////
+
+$text_light_color: $foreground_color !default;
+
+$primary_color: saturate(lighten($primary_light_color, 5%), 4%) !default;
+$success_color: lighten($success_light_color, 4%) !default;
+$danger_color: lighten($danger_light_color, 5%) !default;
+$warning_color: lighten($warning_light_color, 6%) !default;
+
+$header_hover_color: darken($header_color, 8%) !default;
+$header_field_hover_color: darken($header_hover_color, 4%) !default;
+$header_secondary_hover_color: darken($header_secondary_color, 4%) !default;
+
+$header_admin_hover_color: darken($header_admin_color, 5%) !default;
+
+$block_header_hover_color: adjust_hue(saturate(darken($block_header_color, 4%), 4%), -3deg) !default;
+$block_header_link_text_hover_color: adjust_hue(desaturate(darken($block_header_link_text_color, 3%), 20%), 6deg) !default;
+
+$block_header_light_hover_color: adjust_hue(saturate(darken($block_header_light_color, 4%), 10%), -4deg) !default;
+$block_header_light_link_text_hover_color: adjust_hue(desaturate(darken($block_header_light_link_text_color, 2%), 10%), 8deg) !default;
+
+$media_box_hover_color: darken($media_box_color, 4%) !default;
+$media_box_header_link_text_hover_color: desaturate(darken($link_color, 3%), 18%) !default;
+
+$link_dark_color: mix($link_color, $foreground_color, 70%) !default;
+$link_dark_hover_color: mix($link_hover_color, $foreground_color, 70%) !default;
+
+$image_show_link_color: $link_dark_color;
+$image_show_link_hover_color: $link_dark_hover_color;
+
+$image_overlay_color: $foreground_color !default;
+$image_overlay_background: darken($background_color, 30%) !default;
+
+$assistant_border_color: lighten($assistant_color, 8%) !default;
+
+$background_odd_color: darken($background_color, 3%) !default;
+$background_even_color: $background_color !default;
+
+$success_odd_color: desaturate(darken($success_color, 9%), 2%) !default;
+$success_even_color: saturate(darken($success_light_color, 2%), 2%) !default;
+$warning_odd_color: saturate(darken($warning_color, 19%), 10%) !default;
+$warning_even_color: saturate(darken($warning_light_color, 7%), 7%) !default;
+$danger_odd_color: desaturate(darken($danger_color, 16%), 2%) !default;
+$danger_even_color: darken($danger_light_color, 6%) !default;
+
+$input_color_active: lighten($meta_color, 5%) !default;
+$input_border_active: desaturate(lighten($base_color, 2%), 10%) !default;
+
+$tag_normal_background: darken($tag_normal_color, 29%) !default;
+$tag_normal_border: darken($tag_normal_color, 18%) !default;
+$tag_category_rating_background: darken($tag_category_rating_color, 35%) !default;
+$tag_category_rating_border: desaturate(darken($tag_category_rating_color, 20%), 10%) !default;
+$tag_category_spoiler_background: darken($tag_category_spoiler_color, 34%) !default;
+$tag_category_spoiler_border: darken($tag_category_spoiler_color, 23%) !default;
+$tag_category_origin_background: darken($tag_category_origin_color, 40%) !default;
+$tag_category_origin_border: desaturate(darken($tag_category_origin_color, 22%), 28%) !default;
+$tag_category_oc_background: darken($tag_category_oc_color, 33%) !default;
+$tag_category_oc_border: darken($tag_category_oc_color, 15%) !default;
+$tag_category_error_background: desaturate(darken($tag_category_error_color, 38%), 6%) !default;
+$tag_category_error_border: darken($tag_category_error_color, 22%) !default;
+$tag_category_character_background: darken($tag_category_character_color, 33%) !default;
+$tag_category_character_border: darken($tag_category_character_color, 20%) !default;
+$tag_category_content_official_background: desaturate(darken($tag_category_content_official_color, 29%), 2%) !default;
+$tag_category_content_official_border: darken($tag_category_content_official_color, 20%) !default;
+$tag_category_content_fanmade_background: darken($tag_category_content_fanmade_color, 40%) !default;
+$tag_category_content_fanmade_border: desaturate(darken($tag_category_content_fanmade_color, 20%), 10%) !default;
+
+$commission_category_background: darken($commission_category_color, 36%) !default;
+$commission_category_border: darken($commission_category_color, 25%) !default;
+
+$site_notice_link_color: desaturate(lighten($block_header_link_text_color, 8%), 20%) !default;
+$site_notice_link_hover_color: darken($site_notice_link_color, 8%) !default;
+
+/* Import 'common/global' to initialize the remaining properties.
+ * Override the ones that do not satisfy the theme below the declaration. */
+
+@import "common/global";
+
+$button_primary_border_color: saturate(lighten($primary_light_color, 14%), 22%) !default;
+$button_success_border_color: saturate(lighten($success_light_color, 9%), 10%) !default;
+$button_warning_border_color: saturate(lighten($warning_light_color, 12%), 10%) !default;
+$button_danger_border_color: saturate(lighten($danger_light_color, 18%), 6%) !default;
+
+@import "common/base";

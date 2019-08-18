@@ -1,0 +1,91 @@
+header.header
+  .flex.flex--centered.flex--start-bunched.flex--maybe-wrap
+    .flex.flex--centered
+      #js-burger-toggle.hide-desktop
+        a.header__link href='#'
+          i.fa.fa-bars
+      a.header__link href='/'
+        i.fa.fw.favicon-home
+        span.fa__text.hide-limited-desktop.hide-mobile
+          ' Philomena
+      a.header__link.hide-mobile href="/images/new" title="Upload"
+        i.fa.fa-upload
+
+    form.header__search.flex.flex--no-wrap.flex--centered action="/search" method="get"
+      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=assigns[:search_query] placeholder="Search" autocapitalize="none"
+
+      button.header__search__button type="submit" title='Search'
+        i.fa-embedded--search
+      a.header__search__button href="/search/reverse" title="Search using an image"
+        i.fa-embedded--camera
+      a.header__search__button href="/search/syntax" title="Search syntax help"
+        i.fa-embedded--help
+
+    .flex.flex--centered.flex--no-wrap.header__force-right
+      = if @current_user do
+        - notification_count = 0
+        a.header__link href="/notifications" title="Notifications"
+          i.fa-embedded--notification>
+          span.js-notification-ticker.fa__text.header__counter data-notification-count=notification_count = notification_count
+
+        a.header__link href="/conversations" title="Conversations"
+          i.fa-embedded--message>
+          span.fa-embedded__text.header__counter.hidden = "0"
+
+        a.header__link.hide-mobile href="/filters" title="Filters"
+          i.fa.fa-filter
+          span.hide-limited-desktop< Filters
+        .dropdown.header__dropdown
+          a.header__link.header__link-user href="/"
+            /= user_avatar(@current_user, 'avatar--28px'.freeze, @current_user.name)
+            span.header__link-user__dropdown-arrow.hide-mobile data-click-preventdefault="true"
+          nav.dropdown__content.dropdown__content-right.hide-mobile.js-burger-links
+            a.header__link href="/profiles"
+              = @current_user.name
+            a.header__link href='/search?q=my:watched'
+              i.fa.fa-fw.fa-eye>
+              | Watched
+            a.header__link href='/search?q=my:faves'
+              i.fa.fa-fw.fa-star>
+              | Faves
+            a.header__link href='/search?q=my:upvotes'
+              i.fa.fa-fw.fa-arrow-up>
+              | Upvotes
+            a.header__link href='/search?q=my:uploads'
+              i.fa.fa-fw.fa-upload>
+              | Uploads
+            a.header__link href='/lists/my_comments'
+              i.fa.fa-fw.fa-comments>
+              | Comments
+            a.header__link href="/posts/posted"
+              i.fas.fa-fw.fa-pen-square>
+              | Posts
+            a.header__link href='/user_links'
+              i.fa.fa-fw.fa-link>
+              | Links
+            a.header__link href='/settings/edit'
+              i.fa.fa-fw.fa-cogs>
+              | Settings
+            a.header__link href="/conversations"
+              i.fa.fa-fw.fa-envelope>
+              | Messages
+            a.header__link href="/session" data-method='delete'
+              i.fas.fa-fw.fa-sign-out-alt>
+              | Logout
+      - else
+        a.header__link.hide-mobile href="/filters"
+          | Filters
+        span.js-burger-links.hide-mobile
+          a.header__link href='/settings/edit'
+            i.fa.fa-fw.fa-cogs.hide-desktop>
+            | Settings
+        a.header__link href="/registration/new"
+          | Register
+        a.header__link href="/session/new"
+          | Login
+
+nav.header.header--secondary
+  .flex.flex--centered.flex--spaced-out.flex--wrap
+    = render PhilomenaWeb.LayoutView, "_header_navigation.html", assigns
+    /- if current_user.try(:staff?)
+      include _header_staff_links.html

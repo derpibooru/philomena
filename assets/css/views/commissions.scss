@@ -1,0 +1,38 @@
+
+// Category Tag
+.commission__category {
+  border: 1px solid;
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  padding: 5px;
+  background: $commission_category_background;
+  border-color: $commission_category_border;
+  color: $commission_category_color;
+}
+
+.commission__block_body {
+  word-wrap: break-word;
+}
+
+.commission__category a {
+  color: inherit;
+}
+
+.commission__listing_body {
+  overflow: hidden;
+}
+
+.commission__listing_artist {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.commission__listing__body_text {
+  img { max-width: 100%; }
+  word-wrap: break-word;
+  margin-top: 3px;
+  margin-bottom: 6px;
+}
