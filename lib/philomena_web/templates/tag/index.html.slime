@@ -1,0 +1,1 @@
+= render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags

@@ -18,7 +18,7 @@ defmodule Philomena.Tags do
 
   """
   def list_tags do
-    Repo.all(Tag)
+    Repo.all(Tag |> order_by(desc: :images_count) |> limit(250))
   end
 
   @doc """
