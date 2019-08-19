@@ -3,6 +3,9 @@ defmodule Philomena.Tags.Tag do
   import Ecto.Changeset
 
   schema "tags" do
+    belongs_to :aliased_tag, Philomena.Tags.Tag, source: :aliased_tag_id
+    has_many :aliases, Philomena.Tags.Tag, foreign_key: :aliased_tag_id
+
     field :slug, :string
     field :name, :string
     field :category, :string

@@ -9,6 +9,7 @@ use Mix.Config
 
 config :philomena,
   ecto_repos: [Philomena.Repo],
+  elasticsearch_url: "http://localhost:9200",
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
   image_url_root: "/img"
 
@@ -20,6 +21,9 @@ config :philomena, :pow,
 
 config :bcrypt_elixir,
   log_rounds: 12
+
+config :elastix,
+  json_codec: Jason
 
 # Configures the endpoint
 config :philomena, PhilomenaWeb.Endpoint,

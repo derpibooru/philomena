@@ -1,11 +1,26 @@
 defmodule Philomena.Images.Image do
   use Ecto.Schema
+
+  use Philomena.Elasticsearch,
+    definition: Philomena.Images.Elasticsearch,
+    index_name: "images"
+
   import Ecto.Changeset
 
   schema "images" do
     belongs_to :user, Philomena.Users.User
     belongs_to :deleter, Philomena.Users.User, source: :deleted_by_id
-    many_to_many :tags, Philomena.Tags.Tag, join_through: "image_taggings"
+    has_many :upvotes, Philomena.Images.Vote, where: [up: true]
+    has_many :downvotes, Philomena.Images.Vote, where: [up: false]
+    has_many :faves, Philomena.Images.Fave
+    has_many :hides, Philomena.Images.Hide
+    has_many :taggings, Philomena.Images.Tagging
+    has_many :gallery_interactions, Philomena.Galleries.Interaction
+    has_many :tags, through: [:taggings, :tag]
+    has_many :upvoters, through: [:upvotes, :user]
+    has_many :downvoters, through: [:downvotes, :user]
+    has_many :favers, through: [:faves, :user]
+    has_many :hiders, through: [:hides, :user]
 
     field :image, :string
     field :image_name, :string

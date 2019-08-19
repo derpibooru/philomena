@@ -24,9 +24,9 @@ fi
 # Necessary for apt and elasticsearch to succeed
 install_packages apt-transport-https default-jre-headless
 
-if [ ! -f /etc/apt/sources.list.d/elasticsearch-7.x.list ]; then
+if [ ! -f /etc/apt/sources.list.d/elasticsearch-6.x.list ]; then
     add_key https://packages.elastic.co/GPG-KEY-elasticsearch
-    echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" > /etc/apt/sources.list.d/elasticsearch-7.x.list
+    echo "deb https://artifacts.elastic.co/packages/6.x/apt stable main" > /etc/apt/sources.list.d/elasticsearch-6.x.list
 fi
 
 if [ ! -f /etc/apt/sources.list.d/pgdg.list ]; then

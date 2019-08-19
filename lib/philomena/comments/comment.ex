@@ -3,7 +3,6 @@ defmodule Philomena.Comments.Comment do
   import Ecto.Changeset
 
   schema "comments" do
-
     timestamps()
   end
 

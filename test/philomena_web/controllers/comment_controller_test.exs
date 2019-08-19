@@ -75,6 +75,7 @@ defmodule PhilomenaWeb.CommentControllerTest do
     test "deletes chosen comment", %{conn: conn, comment: comment} do
       conn = delete(conn, Routes.comment_path(conn, :delete, comment))
       assert redirected_to(conn) == Routes.comment_path(conn, :index)
+
       assert_error_sent 404, fn ->
         get(conn, Routes.comment_path(conn, :show, comment))
       end
