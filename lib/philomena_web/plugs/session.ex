@@ -1,4 +1,4 @@
-defmodule Philomena.Plugs.Session do
+defmodule PhilomenaWeb.Plugs.Session do
   use Pow.Plug.Base
 
   alias Plug.Conn

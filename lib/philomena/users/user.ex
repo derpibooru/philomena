@@ -9,6 +9,8 @@ defmodule Philomena.Users.User do
   import Ecto.Changeset
 
   schema "users" do
+    belongs_to :current_filter, Philomena.Filters.Filter
+
     field :email, :string
     field :encrypted_password, :string
     field :password_hash, :string, source: :encrypted_password

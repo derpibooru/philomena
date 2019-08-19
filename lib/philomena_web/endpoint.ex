@@ -43,8 +43,8 @@ defmodule PhilomenaWeb.Endpoint do
     signing_salt: "signed cookie",
     encryption_salt: "authenticated encrypted cookie"
 
-  plug Philomena.Plugs.Session, otp_app: :philomena
-
+  plug PhilomenaWeb.Plugs.Session, otp_app: :philomena
   plug PhilomenaWeb.Plugs.RenderTime
+  plug PhilomenaWeb.Plugs.CurrentFilter
   plug PhilomenaWeb.Router
 end
