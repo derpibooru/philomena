@@ -33,11 +33,16 @@ defmodule Philomena.Search.Lexer do
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
     |> ignore()
 
+  int =
+    integer(min: 1)
+    |> label("an integer, such as `-100' or `5'")
+
   number =
     optional(ascii_char('-+'))
     |> ascii_char([?0..?9])
     |> times(min: 1)
     |> optional(ascii_char('.') |> ascii_char([?0..?9]) |> times(min: 1))
+    |> label("a real number, such as `-2.71828' or `10'")
     |> reduce(:to_number)
 
   bool =
@@ -45,38 +50,54 @@ defmodule Philomena.Search.Lexer do
       string("true"),
       string("false")
     ])
+    |> label("a boolean, such as `false'")
     |> reduce({Jason, :decode!, []})
 
   ipv4_octet =
     ascii_string([?0..?9], min: 1, max: 3)
 
-  ipv4_mask =
-    string("/")
-    |> ascii_string([?0..?9], min: 1, max: 2)
-
   ipv4_address =
-    concat(ipv4_octet, string("."))
+    times(ipv4_octet |> string("."), 3)
     |> concat(ipv4_octet)
-    |> string(".")
-    |> concat(ipv4_octet)
-    |> string(".")
-    |> concat(ipv4_octet)
-
-  ipv4_cidr =
-    concat(ipv4_address, optional(ipv4_mask))
 
   ipv6_hexadectet =
     ascii_string('0123456789abcdefABCDEF', min: 1, max: 4)
 
-  ipv6_mask =
+  ipv6_ls32 =
+    choice([
+      ipv6_hexadectet |> string(":") |> concat(ipv6_hexadectet),
+      ipv4_address
+    ])
+
+  ipv6_fragment =
+    ipv6_hexadectet |> string(":")
+
+  ipv6_address =
+    choice([
+      times(ipv6_fragment, 6) |> concat(ipv6_ls32),
+      string("::") |> times(ipv6_fragment, 5) |> concat(ipv6_ls32),
+      optional(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
+      optional(times(ipv6_fragment, max: 1) |> concat(ipv6_hexadectet)) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+      optional(times(ipv6_fragment, max: 2) |> concat(ipv6_hexadectet)) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+      optional(times(ipv6_fragment, max: 3) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      optional(times(ipv6_fragment, max: 4) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_ls32),
+      optional(times(ipv6_fragment, max: 5) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_hexadectet),
+      optional(times(ipv6_fragment, max: 6) |> concat(ipv6_hexadectet)) |> string("::")
+    ])
+
+  cidr_prefix =
     string("/")
     |> ascii_string([?0..?9], min: 1, max: 3)
 
-  ipv4_mapped_ipv6 =
-    string("::ffff:")
-    |> concat(ipv4_address)
-
-  # ipv6_address = # todo
+  ip_address =
+    choice([
+      ipv4_address,
+      ipv6_address
+    ])
+    |> optional(cidr_prefix)
+    |> reduce({Enum, :join, []})
+    |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
+    |> unwrap_and_tag(:ip)
 
   year = integer(4)
   month = integer(2)
@@ -121,6 +142,7 @@ defmodule Philomena.Search.Lexer do
         )
       )
     )
+    |> label("an RFC3339 date and optional time, such as `2019-08-01'")
     |> tag(:date)
 
   timezone_part =
@@ -153,6 +175,7 @@ defmodule Philomena.Search.Lexer do
       string("year") |> optional(string("s")) |> replace(31556952)
     ])
     |> ignore(string(" ago"))
+    |> label("a relative date, such as `3 days ago'")
     |> tag(:relative_date)
 
   date =
