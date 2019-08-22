@@ -1,6 +1,11 @@
 defmodule Philomena.Search.Lexer do
   def lex(input) do
-    accept(input |> to_charlist, :outer)
+    {:ok, accept(input |> to_charlist, :outer)}
+  rescue
+    e in ArgumentError ->
+      {:error, e.message}
+    _ ->
+      {:error, "Parsing error."}
   end
 
   #
@@ -33,8 +38,8 @@ defmodule Philomena.Search.Lexer do
   # Quoted term state
   #
 
-  defp accept([?\\, c] ++ rest, term, :quoted_term), do: accept(rest, term <> <<c::utf8>>, :quoted_term)
-  defp accept([?\\], _term, :quoted_term), do: raise ArgumentError, "Unpaired backslash."
+  defp accept('\\"' ++ rest, term, :quoted_term), do: accept(rest, term <> "\"", :quoted_term)
+  defp accept('\\', _term, :quoted_term), do: raise ArgumentError, "Unpaired backslash."
   defp accept('"' ++ rest, term, :quoted_term), do: [{:term, term} | accept(rest, :outer)]
   defp accept([c] ++ rest, term, :quoted_term), do: accept(rest, term <> <<c::utf8>>, :quoted_term)
   defp accept([], _term, :quoted_term), do: raise ArgumentError, "Imbalanced quotes."
@@ -43,22 +48,22 @@ defmodule Philomena.Search.Lexer do
   # Term state
   #
 
-  defp accept([?\\, c] ++ rest, term, depth, :term), do: accept(rest, term <> <<c::utf8>>, depth, :term)
+  defp accept([?\\, c] ++ rest, term, depth, :term) when c in '()\\', do: accept(rest, term <> <<c::utf8>>, depth, :term)
   defp accept('\\', _term, _depth, :term), do: raise ArgumentError, "Unpaired backslash."
   defp accept('(' ++ rest, term, depth, :term), do: accept(rest, term <> "(", depth + 1, :term)
-  defp accept(')' ++ rest, term, 0, :term), do: [{:term, term}, {:rparen, ")"} | accept(rest, :outer)]
+  defp accept(')' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:rparen, ")"} | accept(rest, :outer)]
   defp accept(')' ++ rest, term, depth, :term), do: accept(rest, term <> ")", depth - 1, :term)
-  defp accept(' AND' ++ rest, term, 0, :term), do: [{:term, term}, {:and, "AND"} | accept(rest, :outer)]
-  defp accept(' OR' ++ rest, term, 0, :term), do: [{:term, term}, {:or, "OR"} | accept(rest, :outer)]
-  defp accept(' &&' ++ rest, term, 0, :term), do: [{:term, term}, {:and, "&&"} | accept(rest, :outer)]
-  defp accept(' ||' ++ rest, term, 0, :term), do: [{:term, term}, {:or, "||"} | accept(rest, :outer)]
-  defp accept(',' ++ rest, term, 0, :term), do: [{:term, term}, {:and, ","} | accept(rest, :outer)]
+  defp accept(' AND' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:and, "AND"} | accept(rest, :outer)]
+  defp accept(' OR' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:or, "OR"} | accept(rest, :outer)]
+  defp accept(' &&' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:and, "&&"} | accept(rest, :outer)]
+  defp accept(' ||' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:or, "||"} | accept(rest, :outer)]
+  defp accept(',' ++ rest, term, 0, :term), do: [{:term, String.trim(term)}, {:and, ","} | accept(rest, :outer)]
   defp accept([?^, c] ++ rest, term, 0, :term) when c in '+-0123456789', do: [{:term, term}, {:boost, "^"} | accept([c | rest], :float)]
   defp accept([?~, c] ++ rest, term, 0, :term) when c in '+-0123456789', do: [{:term, term}, {:fuzz, "~"} | accept([c | rest], :float)]
   defp accept('^' ++ rest, term, depth, :term), do: accept(rest, term <> "^", depth, :term)
   defp accept('~' ++ rest, term, depth, :term), do: accept(rest, term <> "~", depth, :term)
   defp accept([c] ++ rest, term, depth, :term), do: accept(rest, term <> <<c::utf8>>, depth, :term)
-  defp accept([], term, 0, :term), do: [term: term, eof: "$"]
+  defp accept([], term, 0, :term), do: [term: String.trim(term), eof: "$"]
   defp accept([], _term, _depth, :term), do: raise ArgumentError, "Imbalanced parentheses."
 
   #
@@ -79,6 +84,7 @@ defmodule Philomena.Search.Lexer do
   defp accept(',' ++ rest, term, :float_w), do: [{:float, to_number(term)}, {:and, ","} | accept(rest, :outer)]
   defp accept('^' ++ rest, term, :float_w), do: [{:float, to_number(term)}, {:boost, "^"} | accept(rest, :float)]
   defp accept('~' ++ rest, term, :float_w), do: [{:float, to_number(term)}, {:fuzz, "~"} | accept(rest, :float)]
+  defp accept(' ' ++ rest, term, :float_w), do: [{:float, to_number(term)} | accept(rest, :outer)]
   defp accept([], term, :float_w), do: [float: to_number(term), eof: "$"]
   defp accept(_input, _term, :float_w), do: raise ArgumentError, "Expected a number."
 
@@ -91,6 +97,7 @@ defmodule Philomena.Search.Lexer do
   defp accept(',' ++ rest, term, :float_f), do: [{:float, to_number(term)}, {:and, ","} | accept(rest, :outer)]
   defp accept('^' ++ rest, term, :float_f), do: [{:float, to_number(term)}, {:boost, "^"} | accept(rest, :float)]
   defp accept('~' ++ rest, term, :float_f), do: [{:float, to_number(term)}, {:fuzz, "~"} | accept(rest, :float)]
+  defp accept(' ' ++ rest, term, :float_f), do: [{:float, to_number(term)} | accept(rest, :outer)]
   defp accept([], term, :float_f), do: [float: to_number(term), eof: "$"]
   defp accept(_input, _term, :float_f), do: raise ArgumentError, "Expected a number."
 

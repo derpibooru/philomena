@@ -49,7 +49,8 @@ defmodule Philomena.MixProject do
       {:bcrypt_elixir, "~> 2.0"},
       {:pot, "~> 0.10.1"},
       {:secure_compare, "~> 0.1.0"},
-      {:elastix, "~> 0.7.1"}
+      {:elastix, "~> 0.7.1"},
+      {:nimble_parsec, "~> 0.5.1"},
     ]
   end
 
