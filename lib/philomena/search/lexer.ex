@@ -91,37 +91,54 @@ defmodule Philomena.Search.Lexer do
   ymd_sep = ignore(string("-"))
   hms_sep = ignore(string(":"))
   iso8601_sep = ignore(choice([string("T"), string("t"), space]))
-  iso8601_tzsep = choice([string("+"), string("-")])
+  iso8601_tzsep =
+    choice([
+      string("+") |> replace(1),
+      string("-") |> replace(-1)
+    ])
   zulu = ignore(choice([string("Z"), string("z")]))
 
-  """
-  absolute_date =
+  date_part =
     year
     |> optional(
-      concat(ymd_sep, month)
+      ymd_sep
+      |> concat(month)
       |> optional(
-        concat(ymd_sep, day)
+        ymd_sep
+        |> concat(day)
         |> optional(
-          concat(iso8601_sep, hour)
+          iso8601_sep
           |> optional(
-            concat(hms_sep, minute)
+            hour
             |> optional(
-              concat(hms_sep, second)
+              hms_sep
+              |> concat(minute)
+              |> optional(
+                concat(hms_sep, second)
+              )
             )
           )
         )
       )
     )
-    |> optional(
-      choice([
-        concat(iso8601_tzsep, tz_hour)
-        |> optional(
-          concat(hms_sep, tz_minute)
-        ),
-        zulu
-      ])
-    )
-  """
+    |> tag(:date)
+
+  timezone_part =
+    choice([
+      iso8601_tzsep
+      |> concat(tz_hour)
+      |> optional(
+        hms_sep
+        |> concat(tz_minute)
+      )
+      |> tag(:timezone),
+      zulu
+    ])
+
+  absolute_date =
+    date_part
+    |> optional(timezone_part)
+    |> tag(:absolute_date)
 
   relative_date =
     integer(min: 1)
@@ -139,10 +156,10 @@ defmodule Philomena.Search.Lexer do
     |> tag(:relative_date)
 
   date =
-    # choice([
-      # absolute_date,
+    choice([
+      absolute_date,
       relative_date
-    # ])
+    ])
 
   boost = ignore(string("^")) |> unwrap_and_tag(number, :boost)
   fuzz = ignore(string("~")) |> unwrap_and_tag(number, :fuzz)
