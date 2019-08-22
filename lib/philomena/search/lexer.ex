@@ -8,6 +8,7 @@ defmodule Philomena.Search.Lexer do
     cond do
       is_float(float_val) ->
         float_val
+
       is_integer(int_val) ->
         int_val
     end
@@ -44,7 +45,7 @@ defmodule Philomena.Search.Lexer do
 
   quot = string("\"")
 
-  quoted_term = 
+  quoted_term =
     ignore(quot)
     |> choice([
       ignore(string("\\")) |> string("\""),
@@ -57,47 +58,51 @@ defmodule Philomena.Search.Lexer do
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:term)
 
-  stop_words = choice([
-    string("\\") |> eos(),
-    string(","),
-    concat(space, l_and),
-    concat(space, l_or),
-    concat(space, l_not),
-    rparen,
-    fuzz,
-    boost
-  ])
+  stop_words =
+    choice([
+      string("\\") |> eos(),
+      string(","),
+      concat(space, l_and),
+      concat(space, l_or),
+      concat(space, l_not),
+      rparen,
+      fuzz,
+      boost
+    ])
 
-  defcombinatorp :simple_term,
+  defcombinatorp(
+    :simple_term,
     lookahead_not(stop_words)
     |> choice([
       string("\\") |> utf8_char([]),
       string("(") |> parsec(:simple_term) |> string(")"),
-      utf8_char([]),
+      utf8_char([])
     ])
     |> times(min: 1)
+  )
 
   unquoted_term =
     parsec(:simple_term)
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:term)
 
-  outer = choice([
-    l_and,
-    l_or,
-    l_not,
-    lparen,
-    rparen,
-    boost,
-    fuzz,
-    space,
-    quoted_term,
-    unquoted_term
-  ])
+  outer =
+    choice([
+      l_and,
+      l_or,
+      l_not,
+      lparen,
+      rparen,
+      boost,
+      fuzz,
+      space,
+      quoted_term,
+      unquoted_term
+    ])
 
   search =
     times(outer, min: 1)
     |> eos()
 
-  defparsec :search, search
+  defparsec(:search, search)
 end
