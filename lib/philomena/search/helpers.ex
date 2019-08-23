@@ -13,11 +13,4 @@ defmodule Philomena.Search.Helpers do
         int_val
     end
   end
-
-  def reverse_times(combinator \\ empty(), to_repeat, opts) do
-    max = opts[:max]
-
-    combinator
-    |> choice((for x <- max..1, do: times(to_repeat, x)) ++ [empty()])
-  end
 end

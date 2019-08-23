@@ -42,11 +42,27 @@ defmodule Philomena.Search.Lexer do
     |> reduce({Jason, :decode!, []})
 
   ipv4_octet =
-    ascii_string([?0..?9], min: 1, max: 3)
+    choice([
+      ascii_char('2') |> ascii_char('5') |> ascii_char([?0..?5]),
+      ascii_char('2') |> ascii_char([?0..?4]) |> ascii_char([?0..?9]),
+      ascii_char('1') |> ascii_char([?0..?9]) |> ascii_char([?0..?9]),
+      ascii_char([?1..?9]) |> ascii_char([?0..?9]),
+      ascii_char([?0..?9])
+    ])
+    |> reduce({List, :to_string, []})
 
   ipv4_address =
     times(ipv4_octet |> string("."), 3)
     |> concat(ipv4_octet)
+
+  ipv4_prefix =
+    ascii_char('/')
+    |> choice([
+      ascii_char('3') |> ascii_char([?0..?2]),
+      ascii_char([?1..?2]) |> ascii_char([?0..?9]),
+      ascii_char([?0..?9])
+    ])
+    |> reduce({List, :to_string, []})
 
   ipv6_hexadectet =
     ascii_string('0123456789abcdefABCDEF', min: 1, max: 4)
@@ -68,40 +84,64 @@ defmodule Philomena.Search.Lexer do
       ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
       string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
       
-      times(ipv6_fragment, max: 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+      ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
       string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
 
-      times(ipv6_fragment, max: 2) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+      ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
       string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
 
-      times(ipv6_fragment, max: 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      ipv6_hexadectet |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
       string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
 
-      times(ipv6_fragment, max: 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      ipv6_hexadectet |> string("::") |> concat(ipv6_ls32),
       string("::") |> concat(ipv6_ls32),
 
-      times(ipv6_fragment, max: 5) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      times(ipv6_fragment, 5) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      ipv6_hexadectet |> string("::") |> concat(ipv6_hexadectet),
       string("::") |> concat(ipv6_hexadectet),
 
-      times(ipv6_fragment, max: 6) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 6) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 5) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::"),
+      times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::"),
+      ipv6_hexadectet |> string("::"),
       string("::")
     ])
 
-  cidr_prefix =
-    string("/")
-    |> ascii_string([?0..?9], min: 1, max: 3)
+  ipv6_prefix =
+    ascii_char('/')
+    |> choice([
+      ascii_char('1') |> ascii_char('2') |> ascii_char([?0..?8]),
+      ascii_char('1') |> ascii_char([?0..?1]) |> ascii_char([?0..?9]),
+      ascii_char([?1..?9]) |> ascii_char([?0..?9]),
+      ascii_char([?0..?9])
+    ])
+    |> reduce({List, :to_string, []})
 
   ip_address =
     choice([
-      ipv4_address,
-      ipv6_address
+      ipv4_address |> optional(ipv4_prefix),
+      ipv6_address |> optional(ipv6_prefix)
     ])
-    |> optional(cidr_prefix)
     |> reduce({Enum, :join, []})
     |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
     |> unwrap_and_tag(:ip)
-
-  defparsec :ip, ipv6_address
 
   year = integer(4)
   month = integer(2)
