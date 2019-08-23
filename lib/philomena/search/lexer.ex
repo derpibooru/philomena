@@ -1,18 +1,6 @@
 defmodule Philomena.Search.Lexer do
   import NimbleParsec
-
-  defp to_number(term) do
-    {float_val, _} = :string.to_float(term)
-    {int_val, _} = :string.to_integer(term)
-
-    cond do
-      is_float(float_val) ->
-        float_val
-
-      is_integer(int_val) ->
-        int_val
-    end
-  end
+  import Philomena.Search.Helpers
 
   l_and =
     choice([string("AND"), string("&&"), string(",")])
@@ -76,13 +64,27 @@ defmodule Philomena.Search.Lexer do
     choice([
       times(ipv6_fragment, 6) |> concat(ipv6_ls32),
       string("::") |> times(ipv6_fragment, 5) |> concat(ipv6_ls32),
-      optional(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
-      optional(times(ipv6_fragment, max: 1) |> concat(ipv6_hexadectet)) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
-      optional(times(ipv6_fragment, max: 2) |> concat(ipv6_hexadectet)) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
-      optional(times(ipv6_fragment, max: 3) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
-      optional(times(ipv6_fragment, max: 4) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_ls32),
-      optional(times(ipv6_fragment, max: 5) |> concat(ipv6_hexadectet)) |> string("::") |> concat(ipv6_hexadectet),
-      optional(times(ipv6_fragment, max: 6) |> concat(ipv6_hexadectet)) |> string("::")
+
+      ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
+      string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
+      
+      times(ipv6_fragment, max: 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+      string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+
+      times(ipv6_fragment, max: 2) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+      string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+
+      times(ipv6_fragment, max: 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+      string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+
+      times(ipv6_fragment, max: 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
+      string("::") |> concat(ipv6_ls32),
+
+      times(ipv6_fragment, max: 5) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+      string("::") |> concat(ipv6_hexadectet),
+
+      times(ipv6_fragment, max: 6) |> concat(ipv6_hexadectet) |> string("::"),
+      string("::")
     ])
 
   cidr_prefix =
@@ -98,6 +100,8 @@ defmodule Philomena.Search.Lexer do
     |> reduce({Enum, :join, []})
     |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
     |> unwrap_and_tag(:ip)
+
+  defparsec :ip, ipv6_address
 
   year = integer(4)
   month = integer(2)
