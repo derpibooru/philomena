@@ -13,4 +13,18 @@ defmodule Philomena.Search.Helpers do
         int_val
     end
   end
+
+  def full_choice(combinator \\ empty(), choices)
+
+  def full_choice(combinator, []) do
+    combinator |> eos()
+  end
+
+  def full_choice(combinator, [choice]) do
+    combinator |> concat(choice)
+  end
+
+  def full_choice(combinator, choices) do
+    choice(combinator, choices)
+  end
 end
