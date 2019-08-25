@@ -1,13 +1,13 @@
 defmodule Philomena.Search.Lexer do
   defmacro __using__(opts) do
-    literal_fields = Keyword.get(opts, :literal, [])
-    ngram_fields   = Keyword.get(opts, :ngram, [])
-    bool_fields    = Keyword.get(opts, :bool, [])
-    date_fields    = Keyword.get(opts, :date, [])
-    float_fields   = Keyword.get(opts, :float, [])
-    int_fields     = Keyword.get(opts, :int, [])
-    ip_fields      = Keyword.get(opts, :ip, [])
-    custom_fields  = Keyword.get(opts, :custom, [])
+    literal_fields = Keyword.get(opts, :literal, []) |> Macro.expand(__CALLER__)
+    ngram_fields   = Keyword.get(opts, :ngram, []) |> Macro.expand(__CALLER__)
+    bool_fields    = Keyword.get(opts, :bool, []) |> Macro.expand(__CALLER__)
+    date_fields    = Keyword.get(opts, :date, []) |> Macro.expand(__CALLER__)
+    float_fields   = Keyword.get(opts, :float, []) |> Macro.expand(__CALLER__)
+    int_fields     = Keyword.get(opts, :int, []) |> Macro.expand(__CALLER__)
+    ip_fields      = Keyword.get(opts, :ip, []) |> Macro.expand(__CALLER__)
+    custom_fields  = Keyword.get(opts, :custom, []) |> Macro.expand(__CALLER__)
 
     quote location: :keep do
       import NimbleParsec
@@ -33,7 +33,12 @@ defmodule Philomena.Search.Lexer do
         |> ignore()
 
       int =
-        integer(min: 1)
+        optional(ascii_char('-+'))
+        |> ascii_char([?0..?9])
+        |> times(min: 1)
+        |> reduce({List, :to_string, []})
+        |> reduce(:to_number)
+        |> unwrap_and_tag(:int)
         |> label("an integer, such as `-100' or `5'")
 
       number =
@@ -41,8 +46,10 @@ defmodule Philomena.Search.Lexer do
         |> ascii_char([?0..?9])
         |> times(min: 1)
         |> optional(ascii_char('.') |> ascii_char([?0..?9]) |> times(min: 1))
-        |> label("a real number, such as `-2.71828' or `10'")
+        |> reduce({List, :to_string, []})
         |> reduce(:to_number)
+        |> unwrap_and_tag(:number)
+        |> label("a real number, such as `-2.71828' or `10'")
 
       bool =
         choice([
@@ -167,11 +174,7 @@ defmodule Philomena.Search.Lexer do
       ymd_sep = ignore(string("-"))
       hms_sep = ignore(string(":"))
       iso8601_sep = ignore(choice([string("T"), string("t"), space]))
-      iso8601_tzsep =
-        choice([
-          string("+") |> replace(1),
-          string("-") |> replace(-1)
-        ])
+      iso8601_tzsep = choice([string("+"), string("-")])
       zulu = ignore(choice([string("Z"), string("z")]))
 
       date_part =
@@ -197,7 +200,6 @@ defmodule Philomena.Search.Lexer do
             )
           )
         )
-        |> label("an RFC3339 date and optional time, such as `2019-08-01'")
         |> tag(:date)
 
       timezone_part =
@@ -215,7 +217,9 @@ defmodule Philomena.Search.Lexer do
       absolute_date =
         date_part
         |> optional(timezone_part)
-        |> tag(:absolute_date)
+        |> reduce(:absolute_datetime)
+        |> unwrap_and_tag(:date)
+        |> label("an RFC3339 date and optional time, such as `2019-08-01'")
 
       relative_date =
         integer(min: 1)
@@ -226,12 +230,13 @@ defmodule Philomena.Search.Lexer do
           string("hour") |> optional(string("s")) |> replace(3600),
           string("day") |> optional(string("s")) |> replace(86400),
           string("week") |> optional(string("s")) |> replace(604800),
-          string("month") |> optional(string("s")) |> replace(2629746),
-          string("year") |> optional(string("s")) |> replace(31556952)
+          string("month") |> optional(string("s")) |> replace(2592000),
+          string("year") |> optional(string("s")) |> replace(31536000)
         ])
         |> ignore(string(" ago"))
+        |> reduce(:relative_datetime)
+        |> unwrap_and_tag(:date)
         |> label("a relative date, such as `3 days ago'")
-        |> tag(:relative_date)
 
       date =
         choice([
@@ -261,27 +266,32 @@ defmodule Philomena.Search.Lexer do
 
       bool_value =
         full_choice(unquote(for f <- bool_fields, do: [string: f]))
+        |> unwrap_and_tag(:bool_field)
         |> concat(eq)
         |> concat(bool)
 
       date_value =
         full_choice(unquote(for f <- date_fields, do: [string: f]))
+        |> unwrap_and_tag(:date_field)
         |> concat(range_relation)
         |> concat(date)
 
       float_value =
         full_choice(unquote(for f <- float_fields, do: [string: f]))
+        |> unwrap_and_tag(:float_field)
         |> concat(range_relation)
         |> concat(number)
 
       int_value =
         full_choice(unquote(for f <- int_fields, do: [string: f]))
+        |> unwrap_and_tag(:int_field)
         |> concat(range_relation)
         |> concat(int)
 
       ip_value =
         full_choice(unquote(for f <- ip_fields, do: [string: f]))
-        |> concat(eq)
+        |> unwrap_and_tag(:ip_field)
+        |> ignore(eq)
         |> concat(ip_address)
 
       numeric =
@@ -302,7 +312,6 @@ defmodule Philomena.Search.Lexer do
           string(","),
           concat(space, l_and),
           concat(space, l_or),
-          concat(space, l_not),
           rparen,
           fuzz,
           boost
@@ -317,11 +326,12 @@ defmodule Philomena.Search.Lexer do
           utf8_char([])
         ])
         |> times(min: 1)
-        |> reduce({List, :to_string, []})
-        |> unwrap_and_tag(:text)
       )
 
-      text = parsec(:text)
+      text =
+        parsec(:text)
+        |> reduce({List, :to_string, []})
+        |> unwrap_and_tag(:text)
 
       quoted_text =
         choice([
@@ -336,51 +346,54 @@ defmodule Philomena.Search.Lexer do
 
       literal =
         full_choice(unquote(for f <- literal_fields, do: [string: f]))
+        |> unwrap_and_tag(:literal_field)
         |> ignore(eq)
         |> concat(text)
-        |> tag(:literal)
 
       ngram =
         full_choice(unquote(for f <- ngram_fields, do: [string: f]))
+        |> unwrap_and_tag(:ngram_field)
         |> ignore(eq)
         |> concat(text)
-        |> tag(:ngram)
 
       custom =
         full_choice(unquote(for f <- custom_fields, do: [string: f]))
+        |> unwrap_and_tag(:custom_field)
         |> ignore(string(":"))
         |> concat(text)
 
       quoted_literal =
         ignore(quot)
         |> full_choice(unquote(for f <- literal_fields, do: [string: f]))
+        |> unwrap_and_tag(:literal_field)
         |> ignore(eq)
         |> concat(quoted_text)
         |> ignore(quot)
-        |> tag(:literal)
 
       quoted_ngram =
         ignore(quot)
         |> full_choice(unquote(for f <- ngram_fields, do: [string: f]))
+        |> unwrap_and_tag(:ngram_field)
         |> ignore(eq)
         |> concat(quoted_text)
         |> ignore(quot)
-        |> tag(:ngram)
 
       quoted_custom =
         ignore(quot)
         |> full_choice(unquote(for f <- custom_fields, do: [string: f]))
+        |> unwrap_and_tag(:custom_field)
         |> ignore(string(":"))
         |> concat(quoted_text)
         |> ignore(quot)
-        |> tag(:custom)
 
       default =
         text
         |> tag(:default)
 
       quoted_default =
-        quoted_text
+        ignore(quot)
+        |> concat(quoted_text)
+        |> ignore(quot)
         |> tag(:default)
 
       term =
@@ -414,7 +427,7 @@ defmodule Philomena.Search.Lexer do
         times(outer, min: 1)
         |> eos()
 
-      defparsec(:search, search)
+      defparsec :search, search
     end
   end
 end
