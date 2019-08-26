@@ -259,8 +259,15 @@ defmodule Philomena.Search.Lexer do
           gte
         ])
 
-      boost = ignore(string("^")) |> unwrap_and_tag(number, :boost)
-      fuzz = ignore(string("~")) |> unwrap_and_tag(number, :fuzz)
+      boost =
+        string("^")
+        |> unwrap_and_tag(:boost)
+        |> concat(number)
+
+      fuzz =
+        string("~")
+        |> unwrap_and_tag(:fuzz)
+        |> concat(number)
 
       quot = string("\"")
 
