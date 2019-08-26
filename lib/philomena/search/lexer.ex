@@ -34,8 +34,7 @@ defmodule Philomena.Search.Lexer do
 
       int =
         optional(ascii_char('-+'))
-        |> ascii_char([?0..?9])
-        |> times(min: 1)
+        |> ascii_string([?0..?9], min: 1)
         |> reduce({List, :to_string, []})
         |> reduce(:to_number)
         |> unwrap_and_tag(:int)
@@ -43,9 +42,8 @@ defmodule Philomena.Search.Lexer do
 
       number =
         optional(ascii_char('-+'))
-        |> ascii_char([?0..?9])
-        |> times(min: 1)
-        |> optional(ascii_char('.') |> ascii_char([?0..?9]) |> times(min: 1))
+        |> ascii_string([?0..?9], min: 1)
+        |> optional(ascii_char('.') |> ascii_string([?0..?9], min: 1))
         |> reduce({List, :to_string, []})
         |> reduce(:to_number)
         |> unwrap_and_tag(:number)
@@ -381,13 +379,13 @@ defmodule Philomena.Search.Lexer do
       literal =
         full_choice(unquote(for f <- literal_fields, do: [string: f]))
         |> unwrap_and_tag(:literal_field)
-        |> ignore(eq)
+        |> concat(eq)
         |> concat(text)
 
       ngram =
         full_choice(unquote(for f <- ngram_fields, do: [string: f]))
         |> unwrap_and_tag(:ngram_field)
-        |> ignore(eq)
+        |> concat(eq)
         |> concat(text)
 
       custom =
@@ -400,7 +398,7 @@ defmodule Philomena.Search.Lexer do
         ignore(quot)
         |> full_choice(unquote(for f <- literal_fields, do: [string: f]))
         |> unwrap_and_tag(:literal_field)
-        |> ignore(eq)
+        |> concat(eq)
         |> concat(quoted_text)
         |> ignore(quot)
 
@@ -408,7 +406,7 @@ defmodule Philomena.Search.Lexer do
         ignore(quot)
         |> full_choice(unquote(for f <- ngram_fields, do: [string: f]))
         |> unwrap_and_tag(:ngram_field)
-        |> ignore(eq)
+        |> concat(eq)
         |> concat(quoted_text)
         |> ignore(quot)
 
