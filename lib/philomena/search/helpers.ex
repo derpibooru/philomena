@@ -17,14 +17,14 @@ defmodule Philomena.Search.Helpers do
   defp build_datetime(naive, tz_off, tz_hour, tz_minute) do
     # Unbelievable that there is no way to build this with integer arguments.
 
-    tz_hour = 
+    tz_hour =
       tz_hour
-      |> Integer.to_string
+      |> Integer.to_string()
       |> String.pad_leading(2, "0")
 
     tz_minute =
       tz_minute
-      |> Integer.to_string
+      |> Integer.to_string()
       |> String.pad_leading(2, "0")
 
     iso8601_string = "#{NaiveDateTime.to_iso8601(naive)}#{tz_off}#{tz_hour}#{tz_minute}"
@@ -40,13 +40,13 @@ defmodule Philomena.Search.Helpers do
 
   defp date_bounds([year]) do
     lower = %NaiveDateTime{year: year, month: 1, day: 1, hour: 0, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 31536000, :second)
+    upper = NaiveDateTime.add(lower, 31_536_000, :second)
     [lower, upper]
   end
 
   defp date_bounds([year, month]) do
     lower = %NaiveDateTime{year: year, month: month, day: 1, hour: 0, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 2592000, :second)
+    upper = NaiveDateTime.add(lower, 2_592_000, :second)
     [lower, upper]
   end
 
@@ -63,13 +63,29 @@ defmodule Philomena.Search.Helpers do
   end
 
   defp date_bounds([year, month, day, hour, minute]) do
-    lower = %NaiveDateTime{year: year, month: month, day: day, hour: hour, minute: minute, second: 0}
+    lower = %NaiveDateTime{
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
+      second: 0
+    }
+
     upper = NaiveDateTime.add(lower, 60, :second)
     [lower, upper]
   end
 
   defp date_bounds([year, month, day, hour, minute, second]) do
-    lower = %NaiveDateTime{year: year, month: month, day: day, hour: hour, minute: minute, second: second}
+    lower = %NaiveDateTime{
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
+      second: second
+    }
+
     upper = NaiveDateTime.add(lower, 1, :second)
     [lower, upper]
   end

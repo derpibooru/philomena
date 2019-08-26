@@ -1,13 +1,13 @@
 defmodule Philomena.Search.Lexer do
   defmacro __using__(opts) do
     literal_fields = Keyword.get(opts, :literal, []) |> Macro.expand(__CALLER__)
-    ngram_fields   = Keyword.get(opts, :ngram, []) |> Macro.expand(__CALLER__)
-    bool_fields    = Keyword.get(opts, :bool, []) |> Macro.expand(__CALLER__)
-    date_fields    = Keyword.get(opts, :date, []) |> Macro.expand(__CALLER__)
-    float_fields   = Keyword.get(opts, :float, []) |> Macro.expand(__CALLER__)
-    int_fields     = Keyword.get(opts, :int, []) |> Macro.expand(__CALLER__)
-    ip_fields      = Keyword.get(opts, :ip, []) |> Macro.expand(__CALLER__)
-    custom_fields  = Keyword.get(opts, :custom, []) |> Macro.expand(__CALLER__)
+    ngram_fields = Keyword.get(opts, :ngram, []) |> Macro.expand(__CALLER__)
+    bool_fields = Keyword.get(opts, :bool, []) |> Macro.expand(__CALLER__)
+    date_fields = Keyword.get(opts, :date, []) |> Macro.expand(__CALLER__)
+    float_fields = Keyword.get(opts, :float, []) |> Macro.expand(__CALLER__)
+    int_fields = Keyword.get(opts, :int, []) |> Macro.expand(__CALLER__)
+    ip_fields = Keyword.get(opts, :ip, []) |> Macro.expand(__CALLER__)
+    custom_fields = Keyword.get(opts, :custom, []) |> Macro.expand(__CALLER__)
 
     quote location: :keep do
       import NimbleParsec
@@ -82,8 +82,7 @@ defmodule Philomena.Search.Lexer do
         ])
         |> reduce({List, :to_string, []})
 
-      ipv6_hexadectet =
-        ascii_string('0123456789abcdefABCDEF', min: 1, max: 4)
+      ipv6_hexadectet = ascii_string('0123456789abcdefABCDEF', min: 1, max: 4)
 
       ipv6_ls32 =
         choice([
@@ -91,47 +90,78 @@ defmodule Philomena.Search.Lexer do
           ipv4_address
         ])
 
-      ipv6_fragment =
-        ipv6_hexadectet |> string(":")
+      ipv6_fragment = ipv6_hexadectet |> string(":")
 
       ipv6_address =
         choice([
           times(ipv6_fragment, 6) |> concat(ipv6_ls32),
           string("::") |> times(ipv6_fragment, 5) |> concat(ipv6_ls32),
-
           ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
           string("::") |> times(ipv6_fragment, 4) |> concat(ipv6_ls32),
-          
-          times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
+          times(ipv6_fragment, 1)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> times(ipv6_fragment, 3)
+          |> concat(ipv6_ls32),
           ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
           string("::") |> times(ipv6_fragment, 3) |> concat(ipv6_ls32),
-
-          times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
-          times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
+          times(ipv6_fragment, 2)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> times(ipv6_fragment, 2)
+          |> concat(ipv6_ls32),
+          times(ipv6_fragment, 1)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> times(ipv6_fragment, 2)
+          |> concat(ipv6_ls32),
           ipv6_hexadectet |> string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
           string("::") |> times(ipv6_fragment, 2) |> concat(ipv6_ls32),
-
-          times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
-          times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
-          times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
+          times(ipv6_fragment, 3)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_fragment)
+          |> concat(ipv6_ls32),
+          times(ipv6_fragment, 2)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_fragment)
+          |> concat(ipv6_ls32),
+          times(ipv6_fragment, 1)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_fragment)
+          |> concat(ipv6_ls32),
           ipv6_hexadectet |> string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
           string("::") |> concat(ipv6_fragment) |> concat(ipv6_ls32),
-
           times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
           times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
           times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
           times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_ls32),
           ipv6_hexadectet |> string("::") |> concat(ipv6_ls32),
           string("::") |> concat(ipv6_ls32),
-
-          times(ipv6_fragment, 5) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
-          times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
-          times(ipv6_fragment, 3) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
-          times(ipv6_fragment, 2) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
-          times(ipv6_fragment, 1) |> concat(ipv6_hexadectet) |> string("::") |> concat(ipv6_hexadectet),
+          times(ipv6_fragment, 5)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_hexadectet),
+          times(ipv6_fragment, 4)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_hexadectet),
+          times(ipv6_fragment, 3)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_hexadectet),
+          times(ipv6_fragment, 2)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_hexadectet),
+          times(ipv6_fragment, 1)
+          |> concat(ipv6_hexadectet)
+          |> string("::")
+          |> concat(ipv6_hexadectet),
           ipv6_hexadectet |> string("::") |> concat(ipv6_hexadectet),
           string("::") |> concat(ipv6_hexadectet),
-
           times(ipv6_fragment, 6) |> concat(ipv6_hexadectet) |> string("::"),
           times(ipv6_fragment, 5) |> concat(ipv6_hexadectet) |> string("::"),
           times(ipv6_fragment, 4) |> concat(ipv6_hexadectet) |> string("::"),
@@ -164,7 +194,7 @@ defmodule Philomena.Search.Lexer do
       year = integer(4)
       month = integer(2)
       day = integer(2)
-      
+
       hour = integer(2)
       minute = integer(2)
       second = integer(2)
@@ -192,9 +222,7 @@ defmodule Philomena.Search.Lexer do
                 |> optional(
                   hms_sep
                   |> concat(minute)
-                  |> optional(
-                    concat(hms_sep, second)
-                  )
+                  |> optional(concat(hms_sep, second))
                 )
               )
             )
@@ -229,9 +257,9 @@ defmodule Philomena.Search.Lexer do
           string("minute") |> optional(string("s")) |> replace(60),
           string("hour") |> optional(string("s")) |> replace(3600),
           string("day") |> optional(string("s")) |> replace(86400),
-          string("week") |> optional(string("s")) |> replace(604800),
-          string("month") |> optional(string("s")) |> replace(2592000),
-          string("year") |> optional(string("s")) |> replace(31536000)
+          string("week") |> optional(string("s")) |> replace(604_800),
+          string("month") |> optional(string("s")) |> replace(2_592_000),
+          string("year") |> optional(string("s")) |> replace(31_536_000)
         ])
         |> ignore(string(" ago"))
         |> reduce(:relative_datetime)
@@ -310,8 +338,7 @@ defmodule Philomena.Search.Lexer do
           ip_value
         ])
 
-      quoted_numeric =
-        ignore(quot) |> concat(numeric) |> ignore(quot)
+      quoted_numeric = ignore(quot) |> concat(numeric) |> ignore(quot)
 
       stop_words =
         choice([
@@ -434,7 +461,7 @@ defmodule Philomena.Search.Lexer do
         times(outer, min: 1)
         |> eos()
 
-      defparsec :search, search
+      defparsec(:search, search)
     end
   end
 end
