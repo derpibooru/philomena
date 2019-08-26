@@ -156,16 +156,55 @@ defmodule Philomena.Search.Parser do
         {%{range: %{field => %{gte: lower, lte: higher}}}, r_tokens}
 
       [{:ngram_field, field}, {:eq, _}, {:text, value} | r_tokens] ->
-        {%{match: %{field => value}}, r_tokens}
+        value = process_term(value)
+
+        if contains_wildcard?(value) do
+          {%{wildcard: %{field => unescape_wildcard(value)}}, r_tokens}
+        else
+          {%{match: %{field => unescape_regular(value)}}, r_tokens}
+        end
+
+      [{:literal_field, field}, {:eq, _}, {:text, value} | r_tokens] ->
+        value = process_term(value)
+
+        if contains_wildcard?(value) do
+          {%{wildcard: %{field => unescape_wildcard(value)}}, r_tokens}
+        else
+          {%{term: %{field => unescape_regular(value)}}, r_tokens}
+        end
 
       [{_field_type, field}, {:eq, _}, {_value_type, value} | r_tokens] ->
         {%{term: %{field => value}}, r_tokens}
 
       [{:default, [text: value]} | r_tokens] ->
-        {%{term: %{ctx[:default_field] => value}}, r_tokens}
+        value = process_term(value)
+
+        if contains_wildcard?(value) do
+          {%{wildcard: %{ctx[:default_field] => unescape_wildcard(value)}}, r_tokens}
+        else
+          {%{term: %{ctx[:default_field] => unescape_regular(value)}}, r_tokens}
+        end
 
       _ ->
         raise ArgumentError, "Expected a term"
     end
+  end
+
+  defp contains_wildcard?(value) do
+    String.match?(value, ~r/(?<!\\)(?:\\\\)*[\*\?]/)
+  end
+
+  defp unescape_wildcard(value) do
+    # '*' and '?' are wildcard characters in the right context;
+    # don't unescape them.
+    Regex.replace(~r/(?<!\\)(?:\\)*([^\\\*\?])/, value, "\\1")
+  end
+
+  defp unescape_regular(value) do
+    Regex.replace(~r/(?<!\\)(?:\\)*(.)/, value, "\\1")
+  end
+
+  defp process_term(term) do
+    term |> String.trim() |> String.downcase()
   end
 end
