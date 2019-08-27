@@ -1,5 +1,5 @@
 defmodule Philomena.Search.Lexer do
-  defmacro __using__(opts) do
+  defmacro deflexer(name, opts) do
     literal_fields = Keyword.get(opts, :literal, []) |> Macro.expand(__CALLER__)
     ngram_fields = Keyword.get(opts, :ngram, []) |> Macro.expand(__CALLER__)
     bool_fields = Keyword.get(opts, :bool, []) |> Macro.expand(__CALLER__)
@@ -8,9 +8,8 @@ defmodule Philomena.Search.Lexer do
     int_fields = Keyword.get(opts, :int, []) |> Macro.expand(__CALLER__)
     ip_fields = Keyword.get(opts, :ip, []) |> Macro.expand(__CALLER__)
     custom_fields = Keyword.get(opts, :custom, []) |> Macro.expand(__CALLER__)
-    lexer_name = :"#{Keyword.fetch!(opts, :name)}_lexer"
 
-    quote do
+    quote location: :keep do
       import NimbleParsec
       import Philomena.Search.Helpers
 
@@ -342,29 +341,30 @@ defmodule Philomena.Search.Lexer do
       quoted_numeric = ignore(quot) |> concat(numeric) |> ignore(quot)
 
       stop_words =
-        choice([
+        repeat(space)
+        |> choice([
           string("\\") |> eos(),
           string(","),
-          concat(space, l_and),
-          concat(space, l_or),
+          l_and,
+          l_or,
           rparen,
           fuzz,
           boost
         ])
 
       defcombinatorp(
-        :text,
+        unquote(:"#{name}_text"),
         lookahead_not(stop_words)
         |> choice([
           string("\\") |> utf8_char([]),
-          string("(") |> parsec(:text) |> string(")"),
+          string("(") |> parsec(unquote(:"#{name}_text")) |> string(")"),
           utf8_char([])
         ])
         |> times(min: 1)
       )
 
       text =
-        parsec(:text)
+        parsec(unquote(:"#{name}_text"))
         |> reduce({List, :to_string, []})
         |> unwrap_and_tag(:text)
 
@@ -462,7 +462,7 @@ defmodule Philomena.Search.Lexer do
         times(outer, min: 1)
         |> eos()
 
-      defparsec(unquote(lexer_name), search)
+      defparsec(unquote(:"#{name}_lexer"), search)
     end
   end
 end

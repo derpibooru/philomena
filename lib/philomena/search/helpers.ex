@@ -125,4 +125,22 @@ defmodule Philomena.Search.Helpers do
   def full_choice(combinator, choices) do
     choice(combinator, choices)
   end
+
+  def contains_wildcard?(value) do
+    String.match?(value, ~r/(?<!\\)(?:\\\\)*[\*\?]/)
+  end
+
+  def unescape_wildcard(value) do
+    # '*' and '?' are wildcard characters in the right context;
+    # don't unescape them.
+    Regex.replace(~r/(?<!\\)(?:\\)*([^\\\*\?])/, value, "\\1")
+  end
+
+  def unescape_regular(value) do
+    Regex.replace(~r/(?<!\\)(?:\\)*(.)/, value, "\\1")
+  end
+
+  def process_term(term) do
+    term |> String.trim() |> String.downcase()
+  end
 end
