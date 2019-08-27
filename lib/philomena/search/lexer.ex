@@ -8,8 +8,9 @@ defmodule Philomena.Search.Lexer do
     int_fields = Keyword.get(opts, :int, []) |> Macro.expand(__CALLER__)
     ip_fields = Keyword.get(opts, :ip, []) |> Macro.expand(__CALLER__)
     custom_fields = Keyword.get(opts, :custom, []) |> Macro.expand(__CALLER__)
+    lexer_name = :"#{Keyword.fetch!(opts, :name)}_lexer"
 
-    quote location: :keep do
+    quote do
       import NimbleParsec
       import Philomena.Search.Helpers
 
@@ -181,10 +182,10 @@ defmodule Philomena.Search.Lexer do
         |> reduce({List, :to_string, []})
 
       ip_address =
-        choice([
-          ipv4_address |> optional(ipv4_prefix),
-          ipv6_address |> optional(ipv6_prefix)
-        ])
+        #choice([
+          ipv4_address |> optional(ipv4_prefix)#,
+          #ipv6_address |> optional(ipv6_prefix)
+        #])
         |> reduce({Enum, :join, []})
         |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
         |> unwrap_and_tag(:ip)
@@ -459,7 +460,7 @@ defmodule Philomena.Search.Lexer do
         times(outer, min: 1)
         |> eos()
 
-      defparsec(:search, search)
+      defparsec(unquote(lexer_name), search)
     end
   end
 end
