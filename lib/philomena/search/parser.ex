@@ -8,7 +8,7 @@ defmodule Philomena.Search.Parser do
       import Philomena.Search.Lexer
       import Philomena.Search.Helpers
 
-      deflexer unquote(name), unquote(opts)
+      deflexer(unquote(name), unquote(opts))
 
       def unquote(:"#{name}_parser")(ctx, input) do
         with {:ok, tree, _1, _2, _3, _4} <- unquote(:"#{name}_lexer")(input) do
@@ -23,12 +23,12 @@ defmodule Philomena.Search.Parser do
         {tree, []} = unquote(:"#{name}_top")(ctx, tokens)
 
         {:ok, tree}
-      #rescue
-      #  e in ArgumentError ->
-      #    {:error, e.message}
+        # rescue
+        #  e in ArgumentError ->
+        #    {:error, e.message}
 
-      #  _ ->
-      #    {:error, "Parsing error."}
+        #  _ ->
+        #    {:error, "Parsing error."}
       end
 
       #
@@ -120,7 +120,12 @@ defmodule Philomena.Search.Parser do
         case tokens do
           [{:int_field, field}, {:eq, _}, {:int, value}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
             {%{
-               range: %{unquote(:"#{name}_alias")(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}
+               range: %{
+                 unquote(:"#{name}_alias")(field) => %{
+                   gte: trunc(value - fuzz),
+                   lte: trunc(value + fuzz)
+                 }
+               }
              }, r_tokens}
 
           [
@@ -131,7 +136,12 @@ defmodule Philomena.Search.Parser do
             {:number, fuzz} | r_tokens
           ] ->
             {%{
-               range: %{unquote(:"#{name}_alias")(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}
+               range: %{
+                 unquote(:"#{name}_alias")(field) => %{
+                   gte: trunc(value - fuzz),
+                   lte: trunc(value + fuzz)
+                 }
+               }
              }, r_tokens}
 
           [
@@ -141,7 +151,8 @@ defmodule Philomena.Search.Parser do
             {:fuzz, _},
             {:number, fuzz} | r_tokens
           ] ->
-            {%{fuzzy: %{unquote(:"#{name}_alias")(field) => %{value: value, fuzziness: fuzz}}}, r_tokens}
+            {%{fuzzy: %{unquote(:"#{name}_alias")(field) => %{value: value, fuzziness: fuzz}}},
+             r_tokens}
 
           [
             {:ngram_field, field},
@@ -150,7 +161,8 @@ defmodule Philomena.Search.Parser do
             {:fuzz, _},
             {:number, fuzz} | r_tokens
           ] ->
-            {%{fuzzy: %{unquote(:"#{name}_alias")(field) => %{value: value, fuzziness: fuzz}}}, r_tokens}
+            {%{fuzzy: %{unquote(:"#{name}_alias")(field) => %{value: value, fuzziness: fuzz}}},
+             r_tokens}
 
           [{:default, [text: value]}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
             {%{fuzzy: %{unquote(default_field) => %{value: value, fuzziness: fuzz}}}, r_tokens}
@@ -196,13 +208,15 @@ defmodule Philomena.Search.Parser do
       defp unquote(:"#{name}_term")(_ctx, tokens) do
         case tokens do
           [{:date_field, field}, {:eq, _}, {:date, [lower, higher]} | r_tokens] ->
-            {%{range: %{unquote(:"#{name}_alias")(field) => %{gte: lower, lte: higher}}}, r_tokens}
+            {%{range: %{unquote(:"#{name}_alias")(field) => %{gte: lower, lte: higher}}},
+             r_tokens}
 
           [{:ngram_field, field}, {:eq, _}, {:text, value} | r_tokens] ->
             value = process_term(value)
 
             if contains_wildcard?(value) do
-              {%{wildcard: %{unquote(:"#{name}_alias")(field) => unescape_wildcard(value)}}, r_tokens}
+              {%{wildcard: %{unquote(:"#{name}_alias")(field) => unescape_wildcard(value)}},
+               r_tokens}
             else
               {%{match: %{unquote(:"#{name}_alias")(field) => unescape_regular(value)}}, r_tokens}
             end
@@ -211,7 +225,8 @@ defmodule Philomena.Search.Parser do
             value = process_term(value)
 
             if contains_wildcard?(value) do
-              {%{wildcard: %{unquote(:"#{name}_alias")(field) => unescape_wildcard(value)}}, r_tokens}
+              {%{wildcard: %{unquote(:"#{name}_alias")(field) => unescape_wildcard(value)}},
+               r_tokens}
             else
               {%{term: %{unquote(:"#{name}_alias")(field) => unescape_regular(value)}}, r_tokens}
             end
