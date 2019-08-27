@@ -181,11 +181,13 @@ defmodule Philomena.Search.Lexer do
         ])
         |> reduce({List, :to_string, []})
 
+      # choice([
+      # ,
       ip_address =
-        #choice([
-          ipv4_address |> optional(ipv4_prefix)#,
-          #ipv6_address |> optional(ipv6_prefix)
-        #])
+        ipv4_address
+        |> optional(ipv4_prefix)
+        # ipv6_address |> optional(ipv6_prefix)
+        # ])
         |> reduce({Enum, :join, []})
         |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
         |> unwrap_and_tag(:ip)

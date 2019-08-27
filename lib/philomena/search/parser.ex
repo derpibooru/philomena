@@ -120,15 +120,37 @@ defmodule Philomena.Search.Parser do
       defp search_fuzz(ctx, tokens) do
         case tokens do
           [{:int_field, field}, {:eq, _}, {:int, value}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
-            {%{range: %{try_alias(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}}, r_tokens}
+            {%{
+               range: %{try_alias(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}
+             }, r_tokens}
 
-          [{:float_field, field}, {:eq, _}, {:float, value}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
-            {%{range: %{try_alias(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}}, r_tokens}
+          [
+            {:float_field, field},
+            {:eq, _},
+            {:float, value},
+            {:fuzz, _},
+            {:number, fuzz} | r_tokens
+          ] ->
+            {%{
+               range: %{try_alias(field) => %{gte: trunc(value - fuzz), lte: trunc(value + fuzz)}}
+             }, r_tokens}
 
-          [{:literal_field, field}, {:eq, _}, {:text, value}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
+          [
+            {:literal_field, field},
+            {:eq, _},
+            {:text, value},
+            {:fuzz, _},
+            {:number, fuzz} | r_tokens
+          ] ->
             {%{fuzzy: %{try_alias(field) => %{value: value, fuzziness: fuzz}}}, r_tokens}
 
-          [{:ngram_field, field}, {:eq, _}, {:text, value}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
+          [
+            {:ngram_field, field},
+            {:eq, _},
+            {:text, value},
+            {:fuzz, _},
+            {:number, fuzz} | r_tokens
+          ] ->
             {%{fuzzy: %{try_alias(field) => %{value: value, fuzziness: fuzz}}}, r_tokens}
 
           [{:default, [text: value]}, {:fuzz, _}, {:number, fuzz} | r_tokens] ->
