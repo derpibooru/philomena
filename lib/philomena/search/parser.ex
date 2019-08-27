@@ -15,9 +15,6 @@ defmodule Philomena.Search.Parser do
         else
           {:error, msg, _1, _2, _3, _4} ->
             {:error, msg}
-
-          {:error, msg} ->
-            {:error, msg}
         end
       end
 
@@ -36,6 +33,7 @@ defmodule Philomena.Search.Parser do
       #
       # Predictive LL(k) parser for search grammar
       #
+
       defp search_top(ctx, tokens), do: search_or(ctx, tokens)
 
       #
@@ -45,7 +43,7 @@ defmodule Philomena.Search.Parser do
       defp search_or(ctx, tokens) do
         case search_and(ctx, tokens) do
           {left, [{:or, _} | r_tokens]} ->
-            {right, rest} = search_top(ctx, r_tokens)
+            {right, rest} = search_or(ctx, r_tokens)
             {%{bool: %{should: [left, right]}}, rest}
 
           {child, rest} ->
@@ -60,7 +58,7 @@ defmodule Philomena.Search.Parser do
       defp search_and(ctx, tokens) do
         case search_boost(ctx, tokens) do
           {left, [{:and, _} | r_tokens]} ->
-            {right, rest} = search_top(ctx, r_tokens)
+            {right, rest} = search_and(ctx, r_tokens)
             {%{bool: %{must: [left, right]}}, rest}
 
           {child, rest} ->
