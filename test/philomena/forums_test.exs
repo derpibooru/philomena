@@ -230,4 +230,118 @@ defmodule Philomena.ForumsTest do
       assert %Ecto.Changeset{} = Forums.change_subscription(subscription)
     end
   end
+
+  describe "polls" do
+    alias Philomena.Forums.Polls
+
+    @valid_attrs %{}
+    @update_attrs %{}
+    @invalid_attrs %{}
+
+    def polls_fixture(attrs \\ %{}) do
+      {:ok, polls} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Forums.create_polls()
+
+      polls
+    end
+
+    test "list_polls/0 returns all polls" do
+      polls = polls_fixture()
+      assert Forums.list_polls() == [polls]
+    end
+
+    test "get_polls!/1 returns the polls with given id" do
+      polls = polls_fixture()
+      assert Forums.get_polls!(polls.id) == polls
+    end
+
+    test "create_polls/1 with valid data creates a polls" do
+      assert {:ok, %Polls{} = polls} = Forums.create_polls(@valid_attrs)
+    end
+
+    test "create_polls/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Forums.create_polls(@invalid_attrs)
+    end
+
+    test "update_polls/2 with valid data updates the polls" do
+      polls = polls_fixture()
+      assert {:ok, %Polls{} = polls} = Forums.update_polls(polls, @update_attrs)
+    end
+
+    test "update_polls/2 with invalid data returns error changeset" do
+      polls = polls_fixture()
+      assert {:error, %Ecto.Changeset{}} = Forums.update_polls(polls, @invalid_attrs)
+      assert polls == Forums.get_polls!(polls.id)
+    end
+
+    test "delete_polls/1 deletes the polls" do
+      polls = polls_fixture()
+      assert {:ok, %Polls{}} = Forums.delete_polls(polls)
+      assert_raise Ecto.NoResultsError, fn -> Forums.get_polls!(polls.id) end
+    end
+
+    test "change_polls/1 returns a polls changeset" do
+      polls = polls_fixture()
+      assert %Ecto.Changeset{} = Forums.change_polls(polls)
+    end
+  end
+
+  describe "poll_votes" do
+    alias Philomena.Forums.PollVote
+
+    @valid_attrs %{}
+    @update_attrs %{}
+    @invalid_attrs %{}
+
+    def poll_vote_fixture(attrs \\ %{}) do
+      {:ok, poll_vote} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Forums.create_poll_vote()
+
+      poll_vote
+    end
+
+    test "list_poll_votes/0 returns all poll_votes" do
+      poll_vote = poll_vote_fixture()
+      assert Forums.list_poll_votes() == [poll_vote]
+    end
+
+    test "get_poll_vote!/1 returns the poll_vote with given id" do
+      poll_vote = poll_vote_fixture()
+      assert Forums.get_poll_vote!(poll_vote.id) == poll_vote
+    end
+
+    test "create_poll_vote/1 with valid data creates a poll_vote" do
+      assert {:ok, %PollVote{} = poll_vote} = Forums.create_poll_vote(@valid_attrs)
+    end
+
+    test "create_poll_vote/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Forums.create_poll_vote(@invalid_attrs)
+    end
+
+    test "update_poll_vote/2 with valid data updates the poll_vote" do
+      poll_vote = poll_vote_fixture()
+      assert {:ok, %PollVote{} = poll_vote} = Forums.update_poll_vote(poll_vote, @update_attrs)
+    end
+
+    test "update_poll_vote/2 with invalid data returns error changeset" do
+      poll_vote = poll_vote_fixture()
+      assert {:error, %Ecto.Changeset{}} = Forums.update_poll_vote(poll_vote, @invalid_attrs)
+      assert poll_vote == Forums.get_poll_vote!(poll_vote.id)
+    end
+
+    test "delete_poll_vote/1 deletes the poll_vote" do
+      poll_vote = poll_vote_fixture()
+      assert {:ok, %PollVote{}} = Forums.delete_poll_vote(poll_vote)
+      assert_raise Ecto.NoResultsError, fn -> Forums.get_poll_vote!(poll_vote.id) end
+    end
+
+    test "change_poll_vote/1 returns a poll_vote changeset" do
+      poll_vote = poll_vote_fixture()
+      assert %Ecto.Changeset{} = Forums.change_poll_vote(poll_vote)
+    end
+  end
 end
