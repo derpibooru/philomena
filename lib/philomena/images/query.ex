@@ -1,5 +1,7 @@
 defmodule Philomena.Images.Query do
   import Philomena.Search.Parser
+  import Philomena.Search.String
+  alias Philomena.Repo
 
   defparser("anonymous",
     int:
@@ -43,9 +45,44 @@ defmodule Philomena.Images.Query do
         %{user: %{id: id}}, "downvotes" ->
           %{term: %{downvoter_ids: id}}
 
-        %{user: _u}, "watched" ->
-          # todo
-          %{query: %{match_all: %{}}}
+        %{watch: true}, "watched" ->
+          raise ArgumentError, "Recursive watchlists are not allowed."
+
+        %{user: user} = ctx, "watched" ->
+          ctx = Map.merge(ctx, %{watch: true})
+
+          tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
+
+          {:ok, include_query} =
+            Philomena.Images.Query.user_parser(ctx, user.watched_images_query |> normalize())
+
+          {:ok, exclude_query} =
+            Philomena.Images.Query.user_parser(
+              ctx,
+              user.watched_images_exclude_query |> normalize()
+            )
+
+          should = [tag_include, include_query]
+          must_not = [exclude_query]
+
+          must_not =
+            if user.no_spoilered_in_watched do
+              user = user |> Repo.preload(:current_filter)
+
+              tag_exclude = %{terms: %{tag_ids: user.current_filter.spoilered_tag_ids}}
+
+              {:ok, spoiler_query} =
+                Philomena.Images.Query.user_parser(
+                  ctx,
+                  user.current_filter.spoilered_complex_str |> normalize()
+                )
+
+              [tag_exclude, spoiler_query | must_not]
+            else
+              must_not
+            end
+
+          %{bool: %{should: should, must_not: must_not}}
       end
     },
     aliases: %{
@@ -80,9 +117,44 @@ defmodule Philomena.Images.Query do
         %{user: %{id: id}}, "downvotes" ->
           %{term: %{downvoter_ids: id}}
 
-        %{user: _u}, "watched" ->
-          # todo
-          %{query: %{match_all: %{}}}
+        %{watch: true}, "watched" ->
+          raise ArgumentError, "Recursive watchlists are not allowed."
+
+        %{user: user} = ctx, "watched" ->
+          ctx = Map.merge(ctx, %{watch: true})
+
+          tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
+
+          {:ok, include_query} =
+            Philomena.Images.Query.moderator_parser(ctx, user.watched_images_query |> normalize())
+
+          {:ok, exclude_query} =
+            Philomena.Images.Query.moderator_parser(
+              ctx,
+              user.watched_images_exclude_query |> normalize()
+            )
+
+          should = [tag_include, include_query]
+          must_not = [exclude_query]
+
+          must_not =
+            if user.no_spoilered_in_watched do
+              user = user |> Repo.preload(:current_filter)
+
+              tag_exclude = %{terms: %{tag_ids: user.current_filter.spoilered_tag_ids}}
+
+              {:ok, spoiler_query} =
+                Philomena.Images.Query.moderator_parser(
+                  ctx,
+                  user.current_filter.spoilered_complex_str |> normalize()
+                )
+
+              [tag_exclude, spoiler_query | must_not]
+            else
+              must_not
+            end
+
+          %{bool: %{should: should, must_not: must_not}}
       end
     },
     aliases: %{
