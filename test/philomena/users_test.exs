@@ -96,7 +96,9 @@ defmodule Philomena.UsersTest do
 
     test "update_fingerprints/2 with valid data updates the fingerprints" do
       fingerprints = fingerprints_fixture()
-      assert {:ok, %Fingerprints{} = fingerprints} = Users.update_fingerprints(fingerprints, @update_attrs)
+
+      assert {:ok, %Fingerprints{} = fingerprints} =
+               Users.update_fingerprints(fingerprints, @update_attrs)
     end
 
     test "update_fingerprints/2 with invalid data returns error changeset" do
@@ -210,7 +212,9 @@ defmodule Philomena.UsersTest do
 
     test "update_name_change/2 with valid data updates the name_change" do
       name_change = name_change_fixture()
-      assert {:ok, %NameChange{} = name_change} = Users.update_name_change(name_change, @update_attrs)
+
+      assert {:ok, %NameChange{} = name_change} =
+               Users.update_name_change(name_change, @update_attrs)
     end
 
     test "update_name_change/2 with invalid data returns error changeset" do

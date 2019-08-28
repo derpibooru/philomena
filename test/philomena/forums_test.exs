@@ -210,12 +210,17 @@ defmodule Philomena.ForumsTest do
 
     test "update_subscription/2 with valid data updates the subscription" do
       subscription = subscription_fixture()
-      assert {:ok, %Subscription{} = subscription} = Forums.update_subscription(subscription, @update_attrs)
+
+      assert {:ok, %Subscription{} = subscription} =
+               Forums.update_subscription(subscription, @update_attrs)
     end
 
     test "update_subscription/2 with invalid data returns error changeset" do
       subscription = subscription_fixture()
-      assert {:error, %Ecto.Changeset{}} = Forums.update_subscription(subscription, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Forums.update_subscription(subscription, @invalid_attrs)
+
       assert subscription == Forums.get_subscription!(subscription.id)
     end
 
@@ -372,7 +377,8 @@ defmodule Philomena.ForumsTest do
     end
 
     test "create_topic_subscription/1 with valid data creates a topic_subscription" do
-      assert {:ok, %TopicSubscription{} = topic_subscription} = Forums.create_topic_subscription(@valid_attrs)
+      assert {:ok, %TopicSubscription{} = topic_subscription} =
+               Forums.create_topic_subscription(@valid_attrs)
     end
 
     test "create_topic_subscription/1 with invalid data returns error changeset" do
@@ -381,19 +387,27 @@ defmodule Philomena.ForumsTest do
 
     test "update_topic_subscription/2 with valid data updates the topic_subscription" do
       topic_subscription = topic_subscription_fixture()
-      assert {:ok, %TopicSubscription{} = topic_subscription} = Forums.update_topic_subscription(topic_subscription, @update_attrs)
+
+      assert {:ok, %TopicSubscription{} = topic_subscription} =
+               Forums.update_topic_subscription(topic_subscription, @update_attrs)
     end
 
     test "update_topic_subscription/2 with invalid data returns error changeset" do
       topic_subscription = topic_subscription_fixture()
-      assert {:error, %Ecto.Changeset{}} = Forums.update_topic_subscription(topic_subscription, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Forums.update_topic_subscription(topic_subscription, @invalid_attrs)
+
       assert topic_subscription == Forums.get_topic_subscription!(topic_subscription.id)
     end
 
     test "delete_topic_subscription/1 deletes the topic_subscription" do
       topic_subscription = topic_subscription_fixture()
       assert {:ok, %TopicSubscription{}} = Forums.delete_topic_subscription(topic_subscription)
-      assert_raise Ecto.NoResultsError, fn -> Forums.get_topic_subscription!(topic_subscription.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Forums.get_topic_subscription!(topic_subscription.id)
+      end
     end
 
     test "change_topic_subscription/1 returns a topic_subscription changeset" do

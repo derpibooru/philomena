@@ -6,7 +6,7 @@ defmodule Philomena.Images.Intensities do
 
   schema "image_intensities" do
     belongs_to :image, Philomena.Images.Image, primary_key: true
-    
+
     field :nw, :float
     field :ne, :float
     field :sw, :float

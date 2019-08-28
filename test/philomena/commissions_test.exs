@@ -39,12 +39,17 @@ defmodule Philomena.CommissionsTest do
 
     test "update_commission/2 with valid data updates the commission" do
       commission = commission_fixture()
-      assert {:ok, %Commission{} = commission} = Commissions.update_commission(commission, @update_attrs)
+
+      assert {:ok, %Commission{} = commission} =
+               Commissions.update_commission(commission, @update_attrs)
     end
 
     test "update_commission/2 with invalid data returns error changeset" do
       commission = commission_fixture()
-      assert {:error, %Ecto.Changeset{}} = Commissions.update_commission(commission, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Commissions.update_commission(commission, @invalid_attrs)
+
       assert commission == Commissions.get_commission!(commission.id)
     end
 

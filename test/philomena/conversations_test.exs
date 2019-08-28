@@ -30,7 +30,8 @@ defmodule Philomena.ConversationsTest do
     end
 
     test "create_conversation/1 with valid data creates a conversation" do
-      assert {:ok, %Conversation{} = conversation} = Conversations.create_conversation(@valid_attrs)
+      assert {:ok, %Conversation{} = conversation} =
+               Conversations.create_conversation(@valid_attrs)
     end
 
     test "create_conversation/1 with invalid data returns error changeset" do
@@ -39,12 +40,17 @@ defmodule Philomena.ConversationsTest do
 
     test "update_conversation/2 with valid data updates the conversation" do
       conversation = conversation_fixture()
-      assert {:ok, %Conversation{} = conversation} = Conversations.update_conversation(conversation, @update_attrs)
+
+      assert {:ok, %Conversation{} = conversation} =
+               Conversations.update_conversation(conversation, @update_attrs)
     end
 
     test "update_conversation/2 with invalid data returns error changeset" do
       conversation = conversation_fixture()
-      assert {:error, %Ecto.Changeset{}} = Conversations.update_conversation(conversation, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Conversations.update_conversation(conversation, @invalid_attrs)
+
       assert conversation == Conversations.get_conversation!(conversation.id)
     end
 

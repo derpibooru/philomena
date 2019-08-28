@@ -153,7 +153,9 @@ defmodule Philomena.ImagesTest do
 
     test "update_intensities/2 with valid data updates the intensities" do
       intensities = intensities_fixture()
-      assert {:ok, %Intensities{} = intensities} = Images.update_intensities(intensities, @update_attrs)
+
+      assert {:ok, %Intensities{} = intensities} =
+               Images.update_intensities(intensities, @update_attrs)
     end
 
     test "update_intensities/2 with invalid data returns error changeset" do
@@ -210,12 +212,17 @@ defmodule Philomena.ImagesTest do
 
     test "update_subscription/2 with valid data updates the subscription" do
       subscription = subscription_fixture()
-      assert {:ok, %Subscription{} = subscription} = Images.update_subscription(subscription, @update_attrs)
+
+      assert {:ok, %Subscription{} = subscription} =
+               Images.update_subscription(subscription, @update_attrs)
     end
 
     test "update_subscription/2 with invalid data returns error changeset" do
       subscription = subscription_fixture()
-      assert {:error, %Ecto.Changeset{}} = Images.update_subscription(subscription, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Images.update_subscription(subscription, @invalid_attrs)
+
       assert subscription == Images.get_subscription!(subscription.id)
     end
 
@@ -267,12 +274,17 @@ defmodule Philomena.ImagesTest do
 
     test "update_source_change/2 with valid data updates the source_change" do
       source_change = source_change_fixture()
-      assert {:ok, %SourceChange{} = source_change} = Images.update_source_change(source_change, @update_attrs)
+
+      assert {:ok, %SourceChange{} = source_change} =
+               Images.update_source_change(source_change, @update_attrs)
     end
 
     test "update_source_change/2 with invalid data returns error changeset" do
       source_change = source_change_fixture()
-      assert {:error, %Ecto.Changeset{}} = Images.update_source_change(source_change, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Images.update_source_change(source_change, @invalid_attrs)
+
       assert source_change == Images.get_source_change!(source_change.id)
     end
 
@@ -324,7 +336,9 @@ defmodule Philomena.ImagesTest do
 
     test "update_tag_change/2 with valid data updates the tag_change" do
       tag_change = tag_change_fixture()
-      assert {:ok, %TagChange{} = tag_change} = Images.update_tag_change(tag_change, @update_attrs)
+
+      assert {:ok, %TagChange{} = tag_change} =
+               Images.update_tag_change(tag_change, @update_attrs)
     end
 
     test "update_tag_change/2 with invalid data returns error changeset" do

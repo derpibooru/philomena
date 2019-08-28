@@ -39,7 +39,9 @@ defmodule Philomena.BansTest do
 
     test "update_fingerprint/2 with valid data updates the fingerprint" do
       fingerprint = fingerprint_fixture()
-      assert {:ok, %Fingerprint{} = fingerprint} = Bans.update_fingerprint(fingerprint, @update_attrs)
+
+      assert {:ok, %Fingerprint{} = fingerprint} =
+               Bans.update_fingerprint(fingerprint, @update_attrs)
     end
 
     test "update_fingerprint/2 with invalid data returns error changeset" do

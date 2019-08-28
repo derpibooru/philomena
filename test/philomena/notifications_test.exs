@@ -30,7 +30,8 @@ defmodule Philomena.NotificationsTest do
     end
 
     test "create_notification/1 with valid data creates a notification" do
-      assert {:ok, %Notification{} = notification} = Notifications.create_notification(@valid_attrs)
+      assert {:ok, %Notification{} = notification} =
+               Notifications.create_notification(@valid_attrs)
     end
 
     test "create_notification/1 with invalid data returns error changeset" do
@@ -39,12 +40,17 @@ defmodule Philomena.NotificationsTest do
 
     test "update_notification/2 with valid data updates the notification" do
       notification = notification_fixture()
-      assert {:ok, %Notification{} = notification} = Notifications.update_notification(notification, @update_attrs)
+
+      assert {:ok, %Notification{} = notification} =
+               Notifications.update_notification(notification, @update_attrs)
     end
 
     test "update_notification/2 with invalid data returns error changeset" do
       notification = notification_fixture()
-      assert {:error, %Ecto.Changeset{}} = Notifications.update_notification(notification, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Notifications.update_notification(notification, @invalid_attrs)
+
       assert notification == Notifications.get_notification!(notification.id)
     end
 
@@ -87,28 +93,40 @@ defmodule Philomena.NotificationsTest do
     end
 
     test "create_unread_notification/1 with valid data creates a unread_notification" do
-      assert {:ok, %UnreadNotification{} = unread_notification} = Notifications.create_unread_notification(@valid_attrs)
+      assert {:ok, %UnreadNotification{} = unread_notification} =
+               Notifications.create_unread_notification(@valid_attrs)
     end
 
     test "create_unread_notification/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Notifications.create_unread_notification(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               Notifications.create_unread_notification(@invalid_attrs)
     end
 
     test "update_unread_notification/2 with valid data updates the unread_notification" do
       unread_notification = unread_notification_fixture()
-      assert {:ok, %UnreadNotification{} = unread_notification} = Notifications.update_unread_notification(unread_notification, @update_attrs)
+
+      assert {:ok, %UnreadNotification{} = unread_notification} =
+               Notifications.update_unread_notification(unread_notification, @update_attrs)
     end
 
     test "update_unread_notification/2 with invalid data returns error changeset" do
       unread_notification = unread_notification_fixture()
-      assert {:error, %Ecto.Changeset{}} = Notifications.update_unread_notification(unread_notification, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Notifications.update_unread_notification(unread_notification, @invalid_attrs)
+
       assert unread_notification == Notifications.get_unread_notification!(unread_notification.id)
     end
 
     test "delete_unread_notification/1 deletes the unread_notification" do
       unread_notification = unread_notification_fixture()
-      assert {:ok, %UnreadNotification{}} = Notifications.delete_unread_notification(unread_notification)
-      assert_raise Ecto.NoResultsError, fn -> Notifications.get_unread_notification!(unread_notification.id) end
+
+      assert {:ok, %UnreadNotification{}} =
+               Notifications.delete_unread_notification(unread_notification)
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Notifications.get_unread_notification!(unread_notification.id)
+      end
     end
 
     test "change_unread_notification/1 returns a unread_notification changeset" do

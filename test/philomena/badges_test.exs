@@ -96,7 +96,9 @@ defmodule Philomena.BadgesTest do
 
     test "update_badge_award/2 with valid data updates the badge_award" do
       badge_award = badge_award_fixture()
-      assert {:ok, %BadgeAward{} = badge_award} = Badges.update_badge_award(badge_award, @update_attrs)
+
+      assert {:ok, %BadgeAward{} = badge_award} =
+               Badges.update_badge_award(badge_award, @update_attrs)
     end
 
     test "update_badge_award/2 with invalid data returns error changeset" do

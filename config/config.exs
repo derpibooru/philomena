@@ -32,8 +32,7 @@ config :philomena, PhilomenaWeb.Endpoint,
   render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]
 
-config :philomena, :generators,
-  migration: false
+config :philomena, :generators, migration: false
 
 config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,

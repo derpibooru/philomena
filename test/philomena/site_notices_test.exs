@@ -39,12 +39,17 @@ defmodule Philomena.SiteNoticesTest do
 
     test "update_site_notice/2 with valid data updates the site_notice" do
       site_notice = site_notice_fixture()
-      assert {:ok, %SiteNotice{} = site_notice} = SiteNotices.update_site_notice(site_notice, @update_attrs)
+
+      assert {:ok, %SiteNotice{} = site_notice} =
+               SiteNotices.update_site_notice(site_notice, @update_attrs)
     end
 
     test "update_site_notice/2 with invalid data returns error changeset" do
       site_notice = site_notice_fixture()
-      assert {:error, %Ecto.Changeset{}} = SiteNotices.update_site_notice(site_notice, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               SiteNotices.update_site_notice(site_notice, @invalid_attrs)
+
       assert site_notice == SiteNotices.get_site_notice!(site_notice.id)
     end
 

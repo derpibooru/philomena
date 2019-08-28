@@ -39,7 +39,9 @@ defmodule Philomena.DnpEntriesTest do
 
     test "update_dnp_entry/2 with valid data updates the dnp_entry" do
       dnp_entry = dnp_entry_fixture()
-      assert {:ok, %DnpEntry{} = dnp_entry} = DnpEntries.update_dnp_entry(dnp_entry, @update_attrs)
+
+      assert {:ok, %DnpEntry{} = dnp_entry} =
+               DnpEntries.update_dnp_entry(dnp_entry, @update_attrs)
     end
 
     test "update_dnp_entry/2 with invalid data returns error changeset" do

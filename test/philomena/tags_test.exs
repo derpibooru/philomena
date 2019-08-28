@@ -96,7 +96,9 @@ defmodule Philomena.TagsTest do
 
     test "update_implication/2 with valid data updates the implication" do
       implication = implication_fixture()
-      assert {:ok, %Implication{} = implication} = Tags.update_implication(implication, @update_attrs)
+
+      assert {:ok, %Implication{} = implication} =
+               Tags.update_implication(implication, @update_attrs)
     end
 
     test "update_implication/2 with invalid data returns error changeset" do

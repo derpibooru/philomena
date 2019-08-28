@@ -7,7 +7,7 @@ defmodule Philomena.Conversations.Message do
     belongs_to :from, Philomena.Users.User
 
     field :body, :string
-    
+
     timestamps(inserted_at: :created_at)
   end
 

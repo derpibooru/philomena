@@ -3,7 +3,6 @@ defmodule Philomena.Forums.PollVote do
   import Ecto.Changeset
 
   schema "poll_votes" do
-
     timestamps()
   end
 

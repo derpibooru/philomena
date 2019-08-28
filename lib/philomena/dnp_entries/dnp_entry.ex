@@ -6,7 +6,7 @@ defmodule Philomena.DnpEntries.DnpEntry do
     belongs_to :requesting_user, Philomena.Users.User
     belongs_to :modifying_user, Philomena.Users.User
     belongs_to :tag, Philomena.Tags.Tag
-  
+
     field :aasm_state, :string, default: "requested"
     field :dnp_type, :string
     field :conditions, :string
