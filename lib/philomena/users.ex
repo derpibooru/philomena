@@ -389,4 +389,292 @@ defmodule Philomena.Users do
   def change_link(%Link{} = link) do
     Link.changeset(link, %{})
   end
+
+  alias Philomena.Users.NameChange
+
+  @doc """
+  Returns the list of user_name_changes.
+
+  ## Examples
+
+      iex> list_user_name_changes()
+      [%NameChange{}, ...]
+
+  """
+  def list_user_name_changes do
+    Repo.all(NameChange)
+  end
+
+  @doc """
+  Gets a single name_change.
+
+  Raises `Ecto.NoResultsError` if the Name change does not exist.
+
+  ## Examples
+
+      iex> get_name_change!(123)
+      %NameChange{}
+
+      iex> get_name_change!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_name_change!(id), do: Repo.get!(NameChange, id)
+
+  @doc """
+  Creates a name_change.
+
+  ## Examples
+
+      iex> create_name_change(%{field: value})
+      {:ok, %NameChange{}}
+
+      iex> create_name_change(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_name_change(attrs \\ %{}) do
+    %NameChange{}
+    |> NameChange.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a name_change.
+
+  ## Examples
+
+      iex> update_name_change(name_change, %{field: new_value})
+      {:ok, %NameChange{}}
+
+      iex> update_name_change(name_change, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_name_change(%NameChange{} = name_change, attrs) do
+    name_change
+    |> NameChange.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a NameChange.
+
+  ## Examples
+
+      iex> delete_name_change(name_change)
+      {:ok, %NameChange{}}
+
+      iex> delete_name_change(name_change)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_name_change(%NameChange{} = name_change) do
+    Repo.delete(name_change)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking name_change changes.
+
+  ## Examples
+
+      iex> change_name_change(name_change)
+      %Ecto.Changeset{source: %NameChange{}}
+
+  """
+  def change_name_change(%NameChange{} = name_change) do
+    NameChange.changeset(name_change, %{})
+  end
+
+  alias Philomena.Users.Statistic
+
+  @doc """
+  Returns the list of user_statistics.
+
+  ## Examples
+
+      iex> list_user_statistics()
+      [%Statistic{}, ...]
+
+  """
+  def list_user_statistics do
+    Repo.all(Statistic)
+  end
+
+  @doc """
+  Gets a single statistic.
+
+  Raises `Ecto.NoResultsError` if the Statistic does not exist.
+
+  ## Examples
+
+      iex> get_statistic!(123)
+      %Statistic{}
+
+      iex> get_statistic!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_statistic!(id), do: Repo.get!(Statistic, id)
+
+  @doc """
+  Creates a statistic.
+
+  ## Examples
+
+      iex> create_statistic(%{field: value})
+      {:ok, %Statistic{}}
+
+      iex> create_statistic(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_statistic(attrs \\ %{}) do
+    %Statistic{}
+    |> Statistic.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a statistic.
+
+  ## Examples
+
+      iex> update_statistic(statistic, %{field: new_value})
+      {:ok, %Statistic{}}
+
+      iex> update_statistic(statistic, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_statistic(%Statistic{} = statistic, attrs) do
+    statistic
+    |> Statistic.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a Statistic.
+
+  ## Examples
+
+      iex> delete_statistic(statistic)
+      {:ok, %Statistic{}}
+
+      iex> delete_statistic(statistic)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_statistic(%Statistic{} = statistic) do
+    Repo.delete(statistic)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking statistic changes.
+
+  ## Examples
+
+      iex> change_statistic(statistic)
+      %Ecto.Changeset{source: %Statistic{}}
+
+  """
+  def change_statistic(%Statistic{} = statistic) do
+    Statistic.changeset(statistic, %{})
+  end
+
+  alias Philomena.Users.Whitelist
+
+  @doc """
+  Returns the list of user_whitelists.
+
+  ## Examples
+
+      iex> list_user_whitelists()
+      [%Whitelist{}, ...]
+
+  """
+  def list_user_whitelists do
+    Repo.all(Whitelist)
+  end
+
+  @doc """
+  Gets a single whitelist.
+
+  Raises `Ecto.NoResultsError` if the Whitelist does not exist.
+
+  ## Examples
+
+      iex> get_whitelist!(123)
+      %Whitelist{}
+
+      iex> get_whitelist!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_whitelist!(id), do: Repo.get!(Whitelist, id)
+
+  @doc """
+  Creates a whitelist.
+
+  ## Examples
+
+      iex> create_whitelist(%{field: value})
+      {:ok, %Whitelist{}}
+
+      iex> create_whitelist(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_whitelist(attrs \\ %{}) do
+    %Whitelist{}
+    |> Whitelist.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a whitelist.
+
+  ## Examples
+
+      iex> update_whitelist(whitelist, %{field: new_value})
+      {:ok, %Whitelist{}}
+
+      iex> update_whitelist(whitelist, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_whitelist(%Whitelist{} = whitelist, attrs) do
+    whitelist
+    |> Whitelist.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a Whitelist.
+
+  ## Examples
+
+      iex> delete_whitelist(whitelist)
+      {:ok, %Whitelist{}}
+
+      iex> delete_whitelist(whitelist)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_whitelist(%Whitelist{} = whitelist) do
+    Repo.delete(whitelist)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking whitelist changes.
+
+  ## Examples
+
+      iex> change_whitelist(whitelist)
+      %Ecto.Changeset{source: %Whitelist{}}
+
+  """
+  def change_whitelist(%Whitelist{} = whitelist) do
+    Whitelist.changeset(whitelist, %{})
+  end
 end
