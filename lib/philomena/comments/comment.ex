@@ -4,7 +4,7 @@ defmodule Philomena.Comments.Comment do
 
   schema "comments" do
     belongs_to :user, Philomena.Users.User
-    belongs_to :image, Philomena.Images.Images
+    belongs_to :image, Philomena.Images.Image
     belongs_to :deleted_by, Philomena.Users.User
 
     field :body, :string
