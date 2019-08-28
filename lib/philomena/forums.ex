@@ -581,4 +581,100 @@ defmodule Philomena.Forums do
   def change_poll_vote(%PollVote{} = poll_vote) do
     PollVote.changeset(poll_vote, %{})
   end
+
+  alias Philomena.Forums.TopicSubscription
+
+  @doc """
+  Returns the list of topic_subscriptions.
+
+  ## Examples
+
+      iex> list_topic_subscriptions()
+      [%TopicSubscription{}, ...]
+
+  """
+  def list_topic_subscriptions do
+    Repo.all(TopicSubscription)
+  end
+
+  @doc """
+  Gets a single topic_subscription.
+
+  Raises `Ecto.NoResultsError` if the Topic subscription does not exist.
+
+  ## Examples
+
+      iex> get_topic_subscription!(123)
+      %TopicSubscription{}
+
+      iex> get_topic_subscription!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_topic_subscription!(id), do: Repo.get!(TopicSubscription, id)
+
+  @doc """
+  Creates a topic_subscription.
+
+  ## Examples
+
+      iex> create_topic_subscription(%{field: value})
+      {:ok, %TopicSubscription{}}
+
+      iex> create_topic_subscription(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_topic_subscription(attrs \\ %{}) do
+    %TopicSubscription{}
+    |> TopicSubscription.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a topic_subscription.
+
+  ## Examples
+
+      iex> update_topic_subscription(topic_subscription, %{field: new_value})
+      {:ok, %TopicSubscription{}}
+
+      iex> update_topic_subscription(topic_subscription, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_topic_subscription(%TopicSubscription{} = topic_subscription, attrs) do
+    topic_subscription
+    |> TopicSubscription.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a TopicSubscription.
+
+  ## Examples
+
+      iex> delete_topic_subscription(topic_subscription)
+      {:ok, %TopicSubscription{}}
+
+      iex> delete_topic_subscription(topic_subscription)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_topic_subscription(%TopicSubscription{} = topic_subscription) do
+    Repo.delete(topic_subscription)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking topic_subscription changes.
+
+  ## Examples
+
+      iex> change_topic_subscription(topic_subscription)
+      %Ecto.Changeset{source: %TopicSubscription{}}
+
+  """
+  def change_topic_subscription(%TopicSubscription{} = topic_subscription) do
+    TopicSubscription.changeset(topic_subscription, %{})
+  end
 end

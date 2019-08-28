@@ -344,4 +344,61 @@ defmodule Philomena.ForumsTest do
       assert %Ecto.Changeset{} = Forums.change_poll_vote(poll_vote)
     end
   end
+
+  describe "topic_subscriptions" do
+    alias Philomena.Forums.TopicSubscription
+
+    @valid_attrs %{}
+    @update_attrs %{}
+    @invalid_attrs %{}
+
+    def topic_subscription_fixture(attrs \\ %{}) do
+      {:ok, topic_subscription} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Forums.create_topic_subscription()
+
+      topic_subscription
+    end
+
+    test "list_topic_subscriptions/0 returns all topic_subscriptions" do
+      topic_subscription = topic_subscription_fixture()
+      assert Forums.list_topic_subscriptions() == [topic_subscription]
+    end
+
+    test "get_topic_subscription!/1 returns the topic_subscription with given id" do
+      topic_subscription = topic_subscription_fixture()
+      assert Forums.get_topic_subscription!(topic_subscription.id) == topic_subscription
+    end
+
+    test "create_topic_subscription/1 with valid data creates a topic_subscription" do
+      assert {:ok, %TopicSubscription{} = topic_subscription} = Forums.create_topic_subscription(@valid_attrs)
+    end
+
+    test "create_topic_subscription/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Forums.create_topic_subscription(@invalid_attrs)
+    end
+
+    test "update_topic_subscription/2 with valid data updates the topic_subscription" do
+      topic_subscription = topic_subscription_fixture()
+      assert {:ok, %TopicSubscription{} = topic_subscription} = Forums.update_topic_subscription(topic_subscription, @update_attrs)
+    end
+
+    test "update_topic_subscription/2 with invalid data returns error changeset" do
+      topic_subscription = topic_subscription_fixture()
+      assert {:error, %Ecto.Changeset{}} = Forums.update_topic_subscription(topic_subscription, @invalid_attrs)
+      assert topic_subscription == Forums.get_topic_subscription!(topic_subscription.id)
+    end
+
+    test "delete_topic_subscription/1 deletes the topic_subscription" do
+      topic_subscription = topic_subscription_fixture()
+      assert {:ok, %TopicSubscription{}} = Forums.delete_topic_subscription(topic_subscription)
+      assert_raise Ecto.NoResultsError, fn -> Forums.get_topic_subscription!(topic_subscription.id) end
+    end
+
+    test "change_topic_subscription/1 returns a topic_subscription changeset" do
+      topic_subscription = topic_subscription_fixture()
+      assert %Ecto.Changeset{} = Forums.change_topic_subscription(topic_subscription)
+    end
+  end
 end
