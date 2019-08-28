@@ -198,7 +198,7 @@ defmodule Philomena.Users do
     Ip.changeset(ip, %{})
   end
 
-  alias Philomena.Users.Fingerprints
+  alias Philomena.Users.Fingerprint
 
   @doc """
   Returns the list of user_fingerprints.
@@ -206,28 +206,28 @@ defmodule Philomena.Users do
   ## Examples
 
       iex> list_user_fingerprints()
-      [%Fingerprints{}, ...]
+      [%Fingerprint{}, ...]
 
   """
   def list_user_fingerprints do
-    Repo.all(Fingerprints)
+    Repo.all(Fingerprint)
   end
 
   @doc """
   Gets a single fingerprints.
 
-  Raises `Ecto.NoResultsError` if the Fingerprints does not exist.
+  Raises `Ecto.NoResultsError` if the Fingerprint does not exist.
 
   ## Examples
 
       iex> get_fingerprints!(123)
-      %Fingerprints{}
+      %Fingerprint{}
 
       iex> get_fingerprints!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_fingerprints!(id), do: Repo.get!(Fingerprints, id)
+  def get_fingerprints!(id), do: Repo.get!(Fingerprint, id)
 
   @doc """
   Creates a fingerprints.
@@ -235,15 +235,15 @@ defmodule Philomena.Users do
   ## Examples
 
       iex> create_fingerprints(%{field: value})
-      {:ok, %Fingerprints{}}
+      {:ok, %Fingerprint{}}
 
       iex> create_fingerprints(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_fingerprints(attrs \\ %{}) do
-    %Fingerprints{}
-    |> Fingerprints.changeset(attrs)
+    %Fingerprint{}
+    |> Fingerprint.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -253,31 +253,31 @@ defmodule Philomena.Users do
   ## Examples
 
       iex> update_fingerprints(fingerprints, %{field: new_value})
-      {:ok, %Fingerprints{}}
+      {:ok, %Fingerprint{}}
 
       iex> update_fingerprints(fingerprints, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_fingerprints(%Fingerprints{} = fingerprints, attrs) do
+  def update_fingerprints(%Fingerprint{} = fingerprints, attrs) do
     fingerprints
-    |> Fingerprints.changeset(attrs)
+    |> Fingerprint.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a Fingerprints.
+  Deletes a Fingerprint.
 
   ## Examples
 
       iex> delete_fingerprints(fingerprints)
-      {:ok, %Fingerprints{}}
+      {:ok, %Fingerprint{}}
 
       iex> delete_fingerprints(fingerprints)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_fingerprints(%Fingerprints{} = fingerprints) do
+  def delete_fingerprints(%Fingerprint{} = fingerprints) do
     Repo.delete(fingerprints)
   end
 
@@ -287,10 +287,10 @@ defmodule Philomena.Users do
   ## Examples
 
       iex> change_fingerprints(fingerprints)
-      %Ecto.Changeset{source: %Fingerprints{}}
+      %Ecto.Changeset{source: %Fingerprint{}}
 
   """
-  def change_fingerprints(%Fingerprints{} = fingerprints) do
-    Fingerprints.changeset(fingerprints, %{})
+  def change_fingerprints(%Fingerprint{} = fingerprints) do
+    Fingerprint.changeset(fingerprints, %{})
   end
 end

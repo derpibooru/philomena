@@ -1,4 +1,4 @@
-defmodule Philomena.Users.Fingerprints do
+defmodule Philomena.Users.Fingerprint do
   use Ecto.Schema
   import Ecto.Changeset
 
