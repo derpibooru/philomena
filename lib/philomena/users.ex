@@ -101,4 +101,196 @@ defmodule Philomena.Users do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  alias Philomena.Users.Ip
+
+  @doc """
+  Returns the list of user_ips.
+
+  ## Examples
+
+      iex> list_user_ips()
+      [%Ip{}, ...]
+
+  """
+  def list_user_ips do
+    Repo.all(Ip)
+  end
+
+  @doc """
+  Gets a single ip.
+
+  Raises `Ecto.NoResultsError` if the Ip does not exist.
+
+  ## Examples
+
+      iex> get_ip!(123)
+      %Ip{}
+
+      iex> get_ip!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_ip!(id), do: Repo.get!(Ip, id)
+
+  @doc """
+  Creates a ip.
+
+  ## Examples
+
+      iex> create_ip(%{field: value})
+      {:ok, %Ip{}}
+
+      iex> create_ip(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_ip(attrs \\ %{}) do
+    %Ip{}
+    |> Ip.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a ip.
+
+  ## Examples
+
+      iex> update_ip(ip, %{field: new_value})
+      {:ok, %Ip{}}
+
+      iex> update_ip(ip, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_ip(%Ip{} = ip, attrs) do
+    ip
+    |> Ip.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a Ip.
+
+  ## Examples
+
+      iex> delete_ip(ip)
+      {:ok, %Ip{}}
+
+      iex> delete_ip(ip)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_ip(%Ip{} = ip) do
+    Repo.delete(ip)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking ip changes.
+
+  ## Examples
+
+      iex> change_ip(ip)
+      %Ecto.Changeset{source: %Ip{}}
+
+  """
+  def change_ip(%Ip{} = ip) do
+    Ip.changeset(ip, %{})
+  end
+
+  alias Philomena.Users.Fingerprints
+
+  @doc """
+  Returns the list of user_fingerprints.
+
+  ## Examples
+
+      iex> list_user_fingerprints()
+      [%Fingerprints{}, ...]
+
+  """
+  def list_user_fingerprints do
+    Repo.all(Fingerprints)
+  end
+
+  @doc """
+  Gets a single fingerprints.
+
+  Raises `Ecto.NoResultsError` if the Fingerprints does not exist.
+
+  ## Examples
+
+      iex> get_fingerprints!(123)
+      %Fingerprints{}
+
+      iex> get_fingerprints!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_fingerprints!(id), do: Repo.get!(Fingerprints, id)
+
+  @doc """
+  Creates a fingerprints.
+
+  ## Examples
+
+      iex> create_fingerprints(%{field: value})
+      {:ok, %Fingerprints{}}
+
+      iex> create_fingerprints(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_fingerprints(attrs \\ %{}) do
+    %Fingerprints{}
+    |> Fingerprints.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a fingerprints.
+
+  ## Examples
+
+      iex> update_fingerprints(fingerprints, %{field: new_value})
+      {:ok, %Fingerprints{}}
+
+      iex> update_fingerprints(fingerprints, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_fingerprints(%Fingerprints{} = fingerprints, attrs) do
+    fingerprints
+    |> Fingerprints.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a Fingerprints.
+
+  ## Examples
+
+      iex> delete_fingerprints(fingerprints)
+      {:ok, %Fingerprints{}}
+
+      iex> delete_fingerprints(fingerprints)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_fingerprints(%Fingerprints{} = fingerprints) do
+    Repo.delete(fingerprints)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking fingerprints changes.
+
+  ## Examples
+
+      iex> change_fingerprints(fingerprints)
+      %Ecto.Changeset{source: %Fingerprints{}}
+
+  """
+  def change_fingerprints(%Fingerprints{} = fingerprints) do
+    Fingerprints.changeset(fingerprints, %{})
+  end
 end
