@@ -101,4 +101,100 @@ defmodule Philomena.Notifications do
   def change_notification(%Notification{} = notification) do
     Notification.changeset(notification, %{})
   end
+
+  alias Philomena.Notifications.UnreadNotification
+
+  @doc """
+  Returns the list of unread_notifications.
+
+  ## Examples
+
+      iex> list_unread_notifications()
+      [%UnreadNotification{}, ...]
+
+  """
+  def list_unread_notifications do
+    Repo.all(UnreadNotification)
+  end
+
+  @doc """
+  Gets a single unread_notification.
+
+  Raises `Ecto.NoResultsError` if the Unread notification does not exist.
+
+  ## Examples
+
+      iex> get_unread_notification!(123)
+      %UnreadNotification{}
+
+      iex> get_unread_notification!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_unread_notification!(id), do: Repo.get!(UnreadNotification, id)
+
+  @doc """
+  Creates a unread_notification.
+
+  ## Examples
+
+      iex> create_unread_notification(%{field: value})
+      {:ok, %UnreadNotification{}}
+
+      iex> create_unread_notification(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_unread_notification(attrs \\ %{}) do
+    %UnreadNotification{}
+    |> UnreadNotification.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a unread_notification.
+
+  ## Examples
+
+      iex> update_unread_notification(unread_notification, %{field: new_value})
+      {:ok, %UnreadNotification{}}
+
+      iex> update_unread_notification(unread_notification, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_unread_notification(%UnreadNotification{} = unread_notification, attrs) do
+    unread_notification
+    |> UnreadNotification.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a UnreadNotification.
+
+  ## Examples
+
+      iex> delete_unread_notification(unread_notification)
+      {:ok, %UnreadNotification{}}
+
+      iex> delete_unread_notification(unread_notification)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_unread_notification(%UnreadNotification{} = unread_notification) do
+    Repo.delete(unread_notification)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking unread_notification changes.
+
+  ## Examples
+
+      iex> change_unread_notification(unread_notification)
+      %Ecto.Changeset{source: %UnreadNotification{}}
+
+  """
+  def change_unread_notification(%UnreadNotification{} = unread_notification) do
+    UnreadNotification.changeset(unread_notification, %{})
+  end
 end
