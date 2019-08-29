@@ -459,7 +459,7 @@ defmodule Philomena.Search.Lexer do
         ])
 
       search =
-        times(outer, min: 1)
+        repeat(outer)
         |> eos()
 
       defparsec(unquote(:"#{name}_lexer"), search)

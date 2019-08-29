@@ -170,4 +170,22 @@ defmodule Philomena.Images.Query do
     },
     default: "namespaced_tags.name"
   )
+
+  def compile(user, query_string, watch \\ false) do
+    query_string = query_string || ""
+
+    case user do
+      nil ->
+        anonymous_parser(%{user: nil, watch: watch}, query_string)
+
+      %{role: role} when role in ~W(user assistant) ->
+        user_parser(%{user: user, watch: watch}, query_string)
+
+      %{role: role} when role in ~W(moderator admin) ->
+        moderator_parser(%{user: user, watch: watch}, query_string)
+
+      _ ->
+        raise ArgumentError, "Unknown user role."
+    end
+  end
 end

@@ -35,6 +35,8 @@ defmodule Philomena.Search.Parser do
       # Predictive LL(k) parser for search grammar
       #
 
+      defp unquote(:"#{name}_top")(_ctx, []), do: {%{match_none: %{}}, []}
+
       defp unquote(:"#{name}_top")(ctx, tokens), do: unquote(:"#{name}_or")(ctx, tokens)
 
       #

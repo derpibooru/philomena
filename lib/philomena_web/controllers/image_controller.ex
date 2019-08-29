@@ -4,22 +4,15 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.{Images, Images.Image}
   import Ecto.Query
 
+  plug ImageFilter
+
   def index(conn, _params) do
+    query = conn.assigns[:compiled_filter]
     images =
       Image.search_records(
         %{
-          query: %{
-            bool: %{
-              must_not: %{
-                terms: %{
-                  tag_ids: conn.assigns[:current_filter].hidden_tag_ids
-                }
-              }
-            }
-          },
-          sort: %{
-            created_at: :desc
-          }
+          query: %{bool: %{must_not: query}},
+          sort: %{created_at: :desc}
         },
         Image |> preload(:tags)
       )

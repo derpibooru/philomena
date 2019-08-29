@@ -24,6 +24,7 @@ defmodule PhilomenaWeb do
       import Plug.Conn
       import PhilomenaWeb.Gettext
       alias PhilomenaWeb.Router.Helpers, as: Routes
+      alias PhilomenaWeb.Plugs.ImageFilter
     end
   end
 
