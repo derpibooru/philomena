@@ -25,7 +25,13 @@ defmodule Philomena.Elasticsearch do
       def index_document(doc) do
         data = unquote(definition).as_json(doc)
 
-        Elastix.Document.index(unquote(elastic_url), unquote(index_name), [unquote(doc_type)], data.id, data)
+        Elastix.Document.index(
+          unquote(elastic_url),
+          unquote(index_name),
+          [unquote(doc_type)],
+          data.id,
+          data
+        )
       end
 
       def reindex(ecto_query, batch_size \\ 1000) do

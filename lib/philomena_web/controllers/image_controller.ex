@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def index(conn, _params) do
     query = conn.assigns[:compiled_filter]
+
     images =
       Image.search_records(
         %{
