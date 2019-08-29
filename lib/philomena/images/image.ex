@@ -3,7 +3,8 @@ defmodule Philomena.Images.Image do
 
   use Philomena.Elasticsearch,
     definition: Philomena.Images.Elasticsearch,
-    index_name: "images"
+    index_name: "images",
+    doc_type: "image"
 
   import Ecto.Changeset
 

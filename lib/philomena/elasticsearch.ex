@@ -2,6 +2,7 @@ defmodule Philomena.Elasticsearch do
   defmacro __using__(opts) do
     definition = Keyword.fetch!(opts, :definition)
     index_name = Keyword.fetch!(opts, :index_name)
+    doc_type = Keyword.fetch!(opts, :doc_type)
 
     elastic_url = Application.get_env(:philomena, :elasticsearch_url)
 
@@ -24,7 +25,7 @@ defmodule Philomena.Elasticsearch do
       def index_document(doc) do
         data = unquote(definition).as_json(doc)
 
-        Elastix.Document.index(unquote(elastic_url), unquote(index_name), ["_doc"], data.id, data)
+        Elastix.Document.index(unquote(elastic_url), unquote(index_name), [unquote(doc_type)], data.id, data)
       end
 
       def reindex(ecto_query, batch_size \\ 1000) do
@@ -51,7 +52,7 @@ defmodule Philomena.Elasticsearch do
             doc = unquote(definition).as_json(m)
 
             [
-              %{index: %{_index: unquote(index_name), _type: "_doc", _id: doc.id}},
+              %{index: %{_index: unquote(index_name), _type: unquote(doc_type), _id: doc.id}},
               doc
             ]
           end)
@@ -79,7 +80,7 @@ defmodule Philomena.Elasticsearch do
           Elastix.Search.search(
             unquote(elastic_url),
             unquote(index_name),
-            ["_doc"],
+            [unquote(doc_type)],
             elastic_query
           )
 
