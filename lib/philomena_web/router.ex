@@ -27,6 +27,7 @@ defmodule PhilomenaWeb.Router do
 
     resources "/images", ImageController, only: [:index, :show]
     resources "/tags", TagController, only: [:index, :show]
+    resources "/search", SearchController, only: [:index]
 
     get "/:id", ImageController, :show
   end
