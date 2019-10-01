@@ -3,8 +3,8 @@ defmodule Philomena.Forums.Forum do
   import Ecto.Changeset
 
   schema "forums" do
-    belongs_to :last_post, Philomena.Forums.Post
-    belongs_to :last_topic, Philomena.Forums.Topic
+    belongs_to :last_post, Philomena.Posts.Post
+    belongs_to :last_topic, Philomena.Topics.Topic
 
     field :name, :string
     field :short_name, :string

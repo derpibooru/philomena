@@ -1,5 +1,5 @@
 defmodule PhilomenaWeb.AppView do
-  use PhilomenaWeb, :view
+  use Phoenix.HTML
 
   @time_strings %{
     seconds: "less than a minute",
@@ -42,5 +42,9 @@ defmodule PhilomenaWeb.AppView do
       end
 
     content_tag(:time, "#{words} #{relation}", datetime: time |> NaiveDateTime.to_iso8601())
+  end
+
+  def can?(conn, action, model) do
+    Canada.Can.can?(conn.assigns.current_user, action, model)
   end
 end

@@ -49,7 +49,7 @@
   .image-metabar.flex.flex--wrap.block__header--user-credit.center--layout#extrameta
     div
       | Uploaded
-      =<> PhilomenaWeb.AppView.pretty_time(@image.created_at)
+      =<> pretty_time(@image.created_at)
     span.image-size
       | &nbsp;
       = @image.image_width

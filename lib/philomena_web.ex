@@ -43,6 +43,9 @@ defmodule PhilomenaWeb do
       import PhilomenaWeb.ErrorHelpers
       import PhilomenaWeb.Gettext
       alias PhilomenaWeb.Router.Helpers, as: Routes
+
+      # Wrong way around for convenience
+      import PhilomenaWeb.AppView
     end
   end
 
