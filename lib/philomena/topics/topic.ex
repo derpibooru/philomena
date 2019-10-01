@@ -1,4 +1,4 @@
-defmodule Philomena.Forums.Topic do
+defmodule Philomena.Topics.Topic do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -6,7 +6,7 @@ defmodule Philomena.Forums.Topic do
     belongs_to :user, Philomena.Users.User
     belongs_to :deleted_by, Philomena.Users.User
     belongs_to :locked_by, Philomena.Users.User
-    belongs_to :last_post, Philomena.Forums.Post
+    belongs_to :last_post, Philomena.Posts.Post
 
     field :title, :string
     field :post_count, :integer, default: 0

@@ -1,10 +1,10 @@
-defmodule Philomena.Forums.Post do
+defmodule Philomena.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
   schema "posts" do
     belongs_to :user, Philomena.Users.User
-    belongs_to :topic, Philomena.Forums.Topic
+    belongs_to :topic, Philomena.Topics.Topic
     belongs_to :deleted_by, Philomena.Users.User
 
     field :body, :string
