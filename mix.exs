@@ -50,7 +50,8 @@ defmodule Philomena.MixProject do
       {:pot, "~> 0.10.1"},
       {:secure_compare, "~> 0.1.0"},
       {:elastix, "~> 0.7.1"},
-      {:nimble_parsec, "~> 0.5.1"}
+      {:nimble_parsec, "~> 0.5.1"},
+      {:canary, "~> 1.1.1"}
     ]
   end
 

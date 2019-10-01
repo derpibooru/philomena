@@ -39,12 +39,17 @@ defmodule Philomena.PollOptionsTest do
 
     test "update_poll_option/2 with valid data updates the poll_option" do
       poll_option = poll_option_fixture()
-      assert {:ok, %PollOption{} = poll_option} = PollOptions.update_poll_option(poll_option, @update_attrs)
+
+      assert {:ok, %PollOption{} = poll_option} =
+               PollOptions.update_poll_option(poll_option, @update_attrs)
     end
 
     test "update_poll_option/2 with invalid data returns error changeset" do
       poll_option = poll_option_fixture()
-      assert {:error, %Ecto.Changeset{}} = PollOptions.update_poll_option(poll_option, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               PollOptions.update_poll_option(poll_option, @invalid_attrs)
+
       assert poll_option == PollOptions.get_poll_option!(poll_option.id)
     end
 
