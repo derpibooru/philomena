@@ -1,8 +1,0 @@
-<h1>Show Tag</h1>
-
-<ul>
-
-</ul>
-
-<span><%= link "Edit", to: Routes.tag_path(@conn, :edit, @tag) %></span>
-<span><%= link "Back", to: Routes.tag_path(@conn, :index) %></span>

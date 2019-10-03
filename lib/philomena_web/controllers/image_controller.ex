@@ -1,10 +1,11 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images, Images.Image}
+  alias Philomena.{Images.Image}
   import Ecto.Query
 
   plug ImageFilter
+  plug :load_and_authorize_resource, model: Image, only: :show, preload: :tags
 
   def index(conn, _params) do
     query = conn.assigns.compiled_filter
@@ -21,8 +22,7 @@ defmodule PhilomenaWeb.ImageController do
     render(conn, "index.html", images: images)
   end
 
-  def show(conn, %{"id" => id}) do
-    image = Images.get_image!(id)
-    render(conn, "show.html", image: image)
+  def show(conn, %{"id" => _id}) do
+    render(conn, "show.html", image: conn.assigns.image)
   end
 end

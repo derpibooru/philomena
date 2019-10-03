@@ -35,7 +35,7 @@ defmodule Philomena.Tags do
       ** (Ecto.NoResultsError)
 
   """
-  def get_tag!(id), do: Repo.get!(Tag, id)
+  def get_tag!(slug), do: Repo.get_by!(Tag, slug: slug)
 
   @doc """
   Creates a tag.

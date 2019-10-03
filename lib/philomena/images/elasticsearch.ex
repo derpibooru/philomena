@@ -8,7 +8,7 @@ defmodule Philomena.Images.Elasticsearch do
         }
       },
       mappings: %{
-        _doc: %{
+        image: %{
           _all: %{enabled: false},
           dynamic: false,
           properties: %{
@@ -76,6 +76,10 @@ defmodule Philomena.Images.Elasticsearch do
     }
   end
 
+  # preload([
+  #   :user, :deleter, :gallery_interactions, :upvoters, :downvoters, :favers,
+  #   :hiders, tags: [:aliases, :aliased_tag]
+  # ])
   def as_json(image) do
     %{
       id: image.id,

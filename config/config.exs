@@ -25,6 +25,9 @@ config :bcrypt_elixir,
 config :elastix,
   json_codec: Jason
 
+config :canary,
+  repo: Philomena.Repo
+
 # Configures the endpoint
 config :philomena, PhilomenaWeb.Endpoint,
   url: [host: "localhost"],
