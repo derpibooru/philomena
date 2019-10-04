@@ -1,7 +1,7 @@
 defmodule Philomena.Search.Parser do
   defmacro defparser(name, opts) do
-    field_transforms = Keyword.get(opts, :transforms, %{}) |> Macro.escape
-    field_aliases = Keyword.get(opts, :aliases, %{}) |> Macro.escape
+    field_transforms = Keyword.get(opts, :transforms, Macro.escape(%{}))
+    field_aliases = Keyword.get(opts, :aliases, Macro.escape(%{}))
     default_field = Keyword.fetch!(opts, :default)
 
     quote location: :keep do
