@@ -1,0 +1,12 @@
+.block__content.flex.alternating-color
+  .flex__shrink.spacing-right
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny
+  .flex__grow
+    a href="/#{@comment.image.id}#comment_#{@comment.id}"
+      | #
+      => @comment.image.id
+    ' by
+    span.hyphenate-breaks
+      = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment
+    br
+    = pretty_time(@comment.created_at)

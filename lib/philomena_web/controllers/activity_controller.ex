@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ActivityController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images, Images.Image, Images.Feature, Channels.Channel, Topics.Topic, Forums.Forum}
+  alias Philomena.{Images, Images.Image, Images.Feature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -41,6 +41,26 @@ defmodule PhilomenaWeb.ActivityController do
           sort: [%{score: :desc}, %{first_seen_at: :desc}]
         },
         Image |> preload([:tags])
+      )
+
+    comments =
+      Comment.search_records(
+        %{
+          query: %{
+            bool: %{
+              must: %{
+                range: %{posted_at: %{gt: "now-1w"}}
+              },
+              must_not: [
+                %{terms: %{image_tag_ids: conn.assigns.current_filter.hidden_tag_ids}},
+                %{term: %{hidden_from_users: true}}
+              ]
+            }
+          },
+          size: 6,
+          sort: %{posted_at: :desc}
+        },
+        Comment |> preload([:user, :image])
       )
 
     watched = if !!user do
@@ -91,6 +111,7 @@ defmodule PhilomenaWeb.ActivityController do
       conn,
       "index.html",
       images: images,
+      comments: comments,
       top_scoring: top_scoring,
       watched: watched,
       featured_image: featured_image,

@@ -2,6 +2,11 @@ defmodule Philomena.Comments.Comment do
   use Ecto.Schema
   import Ecto.Changeset
 
+  use Philomena.Elasticsearch,
+    definition: Philomena.Comments.Elasticsearch,
+    index_name: "comments",
+    doc_type: "comment"
+
   schema "comments" do
     belongs_to :user, Philomena.Users.User
     belongs_to :image, Philomena.Images.Image
