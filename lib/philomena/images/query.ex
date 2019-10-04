@@ -1,7 +1,6 @@
 defmodule Philomena.Images.Query do
   import Philomena.Search.Parser
   import Philomena.Search.String
-  alias Philomena.Repo
 
   defparser("anonymous",
     int:

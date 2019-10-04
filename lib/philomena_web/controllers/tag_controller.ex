@@ -1,13 +1,24 @@
 defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Tags}
+  alias Philomena.{Images.Image, Tags, Tags.Tag}
   import Ecto.Query
 
   plug ImageFilter
 
-  def index(conn, _params) do
-    tags = Tags.list_tags()
+  def index(conn, params) do
+    {:ok, query} = Tags.Query.compile(params["tq"] || "*")
+
+    tags =
+      Tag.search_records(
+        %{
+          query: query,
+          size: 250,
+          sort: [%{images: :desc}, %{name: :asc}]
+        },
+        Tag
+      )
+
     render(conn, "index.html", tags: tags)
   end
 
