@@ -48,8 +48,10 @@
         | DS
   .image-metabar.flex.flex--wrap.block__header--user-credit.center--layout#extrameta
     div
-      | Uploaded
-      =<> pretty_time(@image.created_at)
+      ' Uploaded
+      => pretty_time(@image.created_at)
+      ' by
+      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image
     span.image-size
       | &nbsp;
       = @image.image_width

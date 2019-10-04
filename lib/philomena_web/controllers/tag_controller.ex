@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.TagController do
           },
           sort: %{created_at: :desc}
         },
-        Image |> preload(:tags)
+        Image |> preload([:tags, :user])
       )
 
     render(conn, "show.html", tag: tag, images: images)

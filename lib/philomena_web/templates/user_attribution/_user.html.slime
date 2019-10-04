@@ -1,0 +1,2 @@
+= if !!@object.user do
+  strong<>= @object.user.name

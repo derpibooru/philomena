@@ -1,0 +1,5 @@
+= if !!@object.user and !@object.anonymous do
+  strong<> = @object.user.name
+- else
+  strong<>
+    ' Background Pony
