@@ -80,7 +80,7 @@ defmodule PhilomenaWeb.ActivityController do
       Topic
       |> join(:inner, [t], f in Forum, on: [id: t.forum_id])
       |> where([t, _f], t.hidden_from_users == false)
-      |> where([t, _f], not ilike(t.title, "NSFW"))
+      |> where([t, _f], fragment("? !~ ?", t.title, "NSFW"))
       |> where([_t, f], f.access_level == "normal")
       |> order_by(desc: :last_replied_to_at)
       |> preload([:forum, last_post: :user])
