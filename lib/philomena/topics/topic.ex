@@ -7,6 +7,7 @@ defmodule Philomena.Topics.Topic do
     belongs_to :deleted_by, Philomena.Users.User
     belongs_to :locked_by, Philomena.Users.User
     belongs_to :last_post, Philomena.Posts.Post
+    belongs_to :forum, Philomena.Forums.Forum
 
     field :title, :string
     field :post_count, :integer, default: 0

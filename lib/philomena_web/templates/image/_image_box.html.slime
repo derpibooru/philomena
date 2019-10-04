@@ -1,3 +1,14 @@
+elixir:
+  size =
+    case @size do
+      :thumb ->
+        "media-box__content--large"
+      :medium ->
+        "media-box__content--featured"
+      _ ->
+        "media-box__content--small"
+    end
+
 .media-box data-image-id=@image.id
   .media-box__header.media-box__header--link-row data-image-id=@image.id
     a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
@@ -14,5 +25,5 @@
       span.comments_count data-image-id=@image.id = @image.comments_count
     a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-eye-slash title='Hide'
-  .media-box__content.media-box__content--large.flex.flex--centered.flex--center-distributed
-    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :thumb
+  .media-box__content.flex.flex--centered.flex--center-distributed class=size
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: @size

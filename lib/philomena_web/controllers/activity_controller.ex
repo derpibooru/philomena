@@ -21,6 +21,7 @@ defmodule PhilomenaWeb.ActivityController do
               must: image_query
             }
           },
+          size: 25,
           sort: %{created_at: :desc}
         },
         Image |> preload([:tags])
@@ -42,8 +43,8 @@ defmodule PhilomenaWeb.ActivityController do
         Image |> preload([:tags])
       )
 
-    watched = if user do
-      {:ok, watched_query} = if !!user, do: Images.Query.compile(user, "my:watched")
+    watched = if !!user do
+      {:ok, watched_query} = Images.Query.compile(user, "my:watched")
 
       Image.search_records(
         %{
@@ -53,6 +54,7 @@ defmodule PhilomenaWeb.ActivityController do
               must: watched_query
             }
           },
+          size: 25,
           sort: %{created_at: :desc}
         },
         Image |> preload([:tags])
@@ -66,23 +68,24 @@ defmodule PhilomenaWeb.ActivityController do
       |> limit(1)
       |> Repo.one()
 
-    #streams =
-    #  Channel
-    #  |> where([c], c.nsfw  == false)
-    #  |> where([c], not is_nil(c.last_fetched_at))
-    #  |> order_by(desc: :is_live, asc: :title)
-    #  |> limit(6)
-    #  |> Repo.all()
+    streams =
+      Channel
+      |> where([c], c.nsfw  == false)
+      |> where([c], not is_nil(c.last_fetched_at))
+      |> order_by(desc: :is_live, asc: :title)
+      |> limit(6)
+      |> Repo.all()
 
     topics =
       Topic
-      |> join(:inner, [t], f in Forum, on: [forum_id: f.id])
+      |> join(:inner, [t], f in Forum, on: [id: t.forum_id])
       |> where([t, _f], t.hidden_from_users == false)
       |> where([t, _f], not ilike(t.title, "NSFW"))
       |> where([_t, f], f.access_level == "normal")
       |> order_by(desc: :last_replied_to_at)
       |> preload([:forum, last_post: :user])
       |> limit(6)
+      |> Repo.all()
 
     render(
       conn,
@@ -91,7 +94,7 @@ defmodule PhilomenaWeb.ActivityController do
       top_scoring: top_scoring,
       watched: watched,
       featured_image: featured_image,
-      #streams: streams,
+      streams: streams,
       topics: topics
     )
   end
