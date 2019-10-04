@@ -12,6 +12,7 @@
       span.channel-strip__state.label.label--narrow.label--success
         ' LIVE NOW
       br
+      => @channel.viewers
       = if @channel.viewers == 1, do: "viewer", else: "viewers"
     - else
       span.channel-strip__state.label.label--narrow.label--danger
