@@ -63,7 +63,7 @@ defmodule PhilomenaWeb.ActivityController do
 
     featured_image =
       Image
-      |> join(:inner, [i], f in Feature, on: [id: i.id])
+      |> join(:inner, [i], f in Feature, on: [image_id: i.id])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
       |> Repo.one()
