@@ -1,4 +1,4 @@
-defmodule Philomena.Images.Features do
+defmodule Philomena.Images.Feature do
   use Ecto.Schema
   import Ecto.Changeset
 

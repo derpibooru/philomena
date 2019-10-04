@@ -14,16 +14,16 @@ defmodule PhilomenaWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/" do
-    pipe_through :browser
-
-    pow_routes()
-  end
+  #scope "/" do
+  #  pipe_through :browser
+  #
+  #  pow_routes()
+  #end
 
   scope "/", PhilomenaWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    get "/", ActivityController, :index
 
     resources "/images", ImageController, only: [:index, :show]
     resources "/tags", TagController, only: [:index, :show]

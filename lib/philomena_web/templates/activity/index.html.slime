@@ -1,0 +1,46 @@
+.column-layout
+  aside.column-layout__left#activity-side
+    = if @featured_image do
+      .center
+        h4.remove-top-margin Featured Image
+        = render PhilomenaWeb.ImageView, "index.html", images: [@featured_image]
+    .block.block--fixed.block--fixed--sub.block--success.center.hide-mobile
+      ' Enjoy the site?
+      a href="/pages/donations"
+        ' Become a patron or donate!
+    .block.block--fixed.block--fixed--sub.center.hide-mobile
+      | Issues? Want to chat?
+      a< href="/pages/contact" Contact us!
+    .block.hide-mobile
+      .block__content.flex.flex--centered.flex--wrap.image-flex-grid
+        = render PhilomenaWeb.ImageView, "index.html", images: @top_scoring
+      /a.block__header--single-item.center href=search_path(q: '*', sf: 'score', sd: 'desc') All Time Top Scoring
+      /a.block__header--single-item.center href='/lists' More Lists
+    .block.hide-mobile
+      a.block__header--single-item.center href="/channels"
+        ' Streams
+      /= render partial: 'channels/channel_strip', collection: @streams
+    .block.hide-mobile
+      a.block__header--single-item.center href="/forums"
+        ' Forum Activity
+      /= render partial: 'topics/topic_slim', collection: @topics
+    .block.hide-mobile
+      a.block__header--single-item.center href="/lists/recent_comments"
+        ' Recent Comments
+      /= render partial: 'comments/comment_activitypage', collection: @comments
+      /a.block__header--single-item.center href=search_path(q: 'first_seen_at.gt:3 days ago', sf: 'comments', sd: 'desc') Most Commented-on Images
+
+  .column-layout__main
+    /- @pagination_params = { params: { controller: :images, action: :index } }
+    = render PhilomenaWeb.ImageView, "index.html", images: @images
+    = if !!@watched and @watched != [] do
+      .block
+        .block__header
+          span.block__header__title
+            ' Watched Images
+          a href="/search?q=my:watched" title="Browse Watched Images"
+            i.fa.fa-eye>
+            span.hide-mobile
+              ' Browse Watched Images
+        .block__content.js-resizable-media-container
+          = render PhilomenaWeb.ImageView, "index.html", images: @watched

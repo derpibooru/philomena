@@ -104,7 +104,7 @@ defmodule Philomena.Images do
     Image.changeset(image, %{})
   end
 
-  alias Philomena.Images.Features
+  alias Philomena.Images.Feature
 
   @doc """
   Returns the list of image_features.
@@ -112,28 +112,28 @@ defmodule Philomena.Images do
   ## Examples
 
       iex> list_image_features()
-      [%Features{}, ...]
+      [%Feature{}, ...]
 
   """
   def list_image_features do
-    Repo.all(Features)
+    Repo.all(Feature)
   end
 
   @doc """
   Gets a single features.
 
-  Raises `Ecto.NoResultsError` if the Features does not exist.
+  Raises `Ecto.NoResultsError` if the Feature does not exist.
 
   ## Examples
 
       iex> get_features!(123)
-      %Features{}
+      %Feature{}
 
       iex> get_features!(456)
       ** (Ecto.NoResultsError)
 
   """
-  def get_features!(id), do: Repo.get!(Features, id)
+  def get_features!(id), do: Repo.get!(Feature, id)
 
   @doc """
   Creates a features.
@@ -141,15 +141,15 @@ defmodule Philomena.Images do
   ## Examples
 
       iex> create_features(%{field: value})
-      {:ok, %Features{}}
+      {:ok, %Feature{}}
 
       iex> create_features(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_features(attrs \\ %{}) do
-    %Features{}
-    |> Features.changeset(attrs)
+    %Feature{}
+    |> Feature.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -159,31 +159,31 @@ defmodule Philomena.Images do
   ## Examples
 
       iex> update_features(features, %{field: new_value})
-      {:ok, %Features{}}
+      {:ok, %Feature{}}
 
       iex> update_features(features, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_features(%Features{} = features, attrs) do
+  def update_features(%Feature{} = features, attrs) do
     features
-    |> Features.changeset(attrs)
+    |> Feature.changeset(attrs)
     |> Repo.update()
   end
 
   @doc """
-  Deletes a Features.
+  Deletes a Feature.
 
   ## Examples
 
       iex> delete_features(features)
-      {:ok, %Features{}}
+      {:ok, %Feature{}}
 
       iex> delete_features(features)
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_features(%Features{} = features) do
+  def delete_features(%Feature{} = features) do
     Repo.delete(features)
   end
 
@@ -193,11 +193,11 @@ defmodule Philomena.Images do
   ## Examples
 
       iex> change_features(features)
-      %Ecto.Changeset{source: %Features{}}
+      %Ecto.Changeset{source: %Feature{}}
 
   """
-  def change_features(%Features{} = features) do
-    Features.changeset(features, %{})
+  def change_features(%Feature{} = features) do
+    Feature.changeset(features, %{})
   end
 
   alias Philomena.Images.Intensities
