@@ -1,6 +1,18 @@
 defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
+  def thumb_urls(image, show_hidden) do
+    %{
+      thumb_tiny: thumb_url(image, show_hidden, :thumb_tiny),
+      thumb_small: thumb_url(image, show_hidden, :thumb_small),
+      thumb: thumb_url(image, show_hidden, :thumb),
+      small: thumb_url(image, show_hidden, :small),
+      medium: thumb_url(image, show_hidden, :medium),
+      large: thumb_url(image, show_hidden, :large),
+      full: thumb_url(image, show_hidden, :full)
+    }
+  end
+
   def thumb_url(image, show_hidden, name) do
     %{year: year, month: month, day: day} = image.created_at
     deleted = image.hidden_from_users

@@ -26,3 +26,5 @@ html lang="en"
       main#content class="layout--wide"
         = render @view_module, @view_template, assigns
       = render PhilomenaWeb.LayoutView, "_footer.html", assigns
+      eex:
+        <div class="js-datastore" data-hidden-filter="" data-spoilered-filter="" data-hidden-tag-list="[]" data-spoilered-tag-list="[]"></div>
