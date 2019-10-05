@@ -1,15 +1,17 @@
-// We need to import the CSS so that webpack will load it.
-// The MiniCssExtractPlugin is used to separate it out into
-// its own CSS file.
-
-// webpack automatically bundles all modules in your
-// entry points. Those entry points can be configured
-// in "webpack.config.js".
-//
-// Import dependencies
+// This is a manifest file that'll be compiled into including all the files listed below.
+// Add new JavaScript/Coffee code in separate files in this directory and they'll automatically
+// be included in the compiled file accessible from http://example.com/assets/application.js
+// It's not advisable to add code directly here, but if you do, it'll appear at the bottom of the
+// the compiled file.
 //
 
-// Import local files
-//
-// Local files can be imported directly using relative paths, for example:
-// import socket from "./socket"
+// Third-party code, polyfills
+import './vendor/promise.polyfill';
+import './vendor/fetch.polyfill';
+import './vendor/closest.polyfill';
+import './vendor/customevent.polyfill';
+import './vendor/es6.polyfill';
+
+// Our code
+import './ujs';
+import './when-ready';
