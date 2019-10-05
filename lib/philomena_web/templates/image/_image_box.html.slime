@@ -1,5 +1,5 @@
 elixir:
-  size =
+  size_class =
     case @size do
       :thumb ->
         "media-box__content--large"
@@ -9,8 +9,16 @@ elixir:
         "media-box__content--small"
     end
 
+  header_class =
+    case @size do
+      :thumb_small ->
+        "media-box__header--small"
+      _ ->
+        nil
+    end
+
 .media-box data-image-id=@image.id
-  .media-box__header.media-box__header--link-row data-image-id=@image.id
+  .media-box__header.media-box__header--link-row class=header_class data-image-id=@image.id
     a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
       span.fave-span title='Fave!'
         i.fa.fa-star
@@ -25,5 +33,5 @@ elixir:
       span.comments_count data-image-id=@image.id = @image.comments_count
     a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-eye-slash title='Hide'
-  .media-box__content.flex.flex--centered.flex--center-distributed class=size
+  .media-box__content.flex.flex--centered.flex--center-distributed class=size_class
     = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: @size
