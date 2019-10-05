@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image}
+  alias Philomena.{Images.Image, Comments.Comment}
+  alias Philomena.Repo
   import Ecto.Query
 
   plug ImageFilter
@@ -23,6 +24,14 @@ defmodule PhilomenaWeb.ImageController do
   end
 
   def show(conn, %{"id" => _id}) do
-    render(conn, "show.html", image: conn.assigns.image)
+    comments =
+      Comment
+      |> where(image_id: ^conn.assigns.image.id)
+      |> preload([:user, :image])
+      |> order_by(desc: :created_at)
+      |> limit(25)
+      |> Repo.all()
+
+    render(conn, "show.html", image: conn.assigns.image, comments: comments)
   end
 end

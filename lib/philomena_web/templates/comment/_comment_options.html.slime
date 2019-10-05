@@ -1,0 +1,31 @@
+div
+  ' Posted
+  => pretty_time(@comment.created_at)
+  /=<> link_to new_report_path(reportable_class: 'Comment', reportable_id: comment.id), class: 'communication__interaction' do
+  /  i.fa.fa-flag
+  /  =<> 'Report'
+  /- if comment.edited_at && can?(:read, comment)
+  /  br
+  /  a href=image_comment_history_path(comment.image, comment)
+  /    | Edited
+  /    =<> friendly_time(comment.edited_at)
+  /    - if comment.edit_reason.present?
+  /      | because:
+  /      =<> comment.edit_reason
+div
+  - link_path = "/images/#{@comment.image.id}#comment_#{@comment.id}"
+  a.communication__interaction title="Link to comment" href=link_path
+    i.fa.fa-link>
+    ' Link
+  /=<> link_to link_path, 'data-author': safe_author(comment), 'data-reply-url': link_path, 'data-post': (comment.hidden_from_users ? '' : comment.body), class: 'communication__interaction post-reply post-reply-quote' do
+  a.communication__interaction.post-reply.post-reply-quote href=link_path data-reply-url=link_path data-author="" data-post=""
+    i.fa.fa-quote-right>
+    ' Quote
+  /=<> link_to link_path, 'data-author': safe_author(comment), 'data-reply-url': link_path, class: 'communication__interaction post-reply' do
+  a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=""
+    i.fa.fa-reply
+    ' Reply
+  /span.owner-options.hidden
+  /  strong =<> link_to edit_image_comment_path(comment.image, comment), class: 'communication__interaction' do
+  /    i.fas.fa-edit
+  /    ' Edit

@@ -1,0 +1,48 @@
+article.block.communication id="comment_#{@comment.id}"
+  .block__content.flex.flex--no-wrap
+    .flex__fixed.spacing-right
+      /=<> user_avatar((comment.user if comment.user_visible?), 'avatar--100px', comment.author)
+    .flex__grow.communication__body
+      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment
+      .communication__body__text
+        /- if comment.hidden_from_users
+        /  strong.comment_deleted
+        /    | Deletion reason:
+        /    =<> comment.deletion_reason
+        /    - if can?(:read, comment)
+        /      | (
+        /      = comment.deleted_by.try(:name) || 'Orbital Friendship Cannon'
+        /      | )
+        /    br
+        /    - if comment.destroyed_content
+        /      | This comment's contents have been destroyed.
+        /      br
+        /= if can?(:read, @comment)
+        = if !@comment.hidden_from_users do
+          =<> @comment.body
+
+  .block__content.communication__options
+    .flex.flex--wrap.flex--spaced-out
+      = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment
+    /- if can?(:hide, Comment)
+    /  .js-staff-action
+    /    - if !comment.hidden_from_users && !comment.destroyed_content
+    /      =<> link_to '#', class: 'communication__interaction togglable-delete-form-link', 'data-click-toggle': "#inline-del-form-comment-#{comment.id}" do
+    /        i.fa.fa-times
+    /        =<> 'Delete'
+    /    - elsif comment.hidden_from_users && !comment.destroyed_content
+    /      =<> link_to image_comment_hide_path(comment.image, comment), data: { confirm: t('are_you_sure') }, method: :delete, class: 'communication__interaction' do
+    /        i.fa.fa-check
+    /        =<> 'Restore'
+    /      - if can?(:manage, Comment)
+    /        =<> link_to image_comment_path(comment.image, comment), method: :delete, data: { confirm: t('are_you_sure') }, class: 'communication__interaction' do
+    /          i.fa.fa-times
+    /          =<> 'Delete Contents'
+    /    - if can?(:manage, Comment)
+    /      .communication__info
+    /        =<> link_to_ip(comment.ip)
+    /      .communication__info
+    /        =<> link_to_fingerprint(comment.fingerprint, comment.user_agent)
+    /  = form_tag image_comment_hide_path(comment.image, comment), class: 'togglable-delete-form hidden flex', id: "inline-del-form-comment-#{comment.id}"
+    /    = text_field_tag :deletion_reason, nil, class: 'input input--wide', placeholder: 'Deletion Reason', id: "inline-del-reason-comment-#{comment.id}", required: true
+    /    = submit_tag 'Delete', class: 'button'

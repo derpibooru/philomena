@@ -20,3 +20,8 @@
         a href=@image.source_url = @image.source_url
       - else
         em> not provided yet
+
+  h4 Comments
+  #comments data-current-url="" data-loaded="true"
+    = for comment <- @comments do
+      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment
