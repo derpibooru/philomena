@@ -6,8 +6,6 @@ defmodule PhilomenaWeb.SearchController do
 
   import Ecto.Query
 
-  plug ImageFilter
-
   def index(conn, params) do
     filter = conn.assigns[:compiled_filter]
     user = conn |> Plug.current_user()

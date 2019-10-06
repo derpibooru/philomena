@@ -4,8 +4,6 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.{Images.Image, Tags, Tags.Tag}
   import Ecto.Query
 
-  plug ImageFilter
-
   def index(conn, params) do
     {:ok, query} = Tags.Query.compile(params["tq"] || "*")
 

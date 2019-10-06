@@ -5,7 +5,6 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug ImageFilter
   plug :load_and_authorize_resource, model: Image, only: :show, preload: [:tags, :user]
 
   def index(conn, _params) do

@@ -5,8 +5,6 @@ defmodule PhilomenaWeb.ActivityController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug ImageFilter
-
   def index(conn, _params) do
     user = conn.assigns.current_user
     filter = conn.assigns.compiled_filter
