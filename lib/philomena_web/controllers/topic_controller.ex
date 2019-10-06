@@ -6,9 +6,17 @@ defmodule PhilomenaWeb.TopicController do
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
-  plug :load_and_authorize_resource, model: Topic, id_name: "id", id_field: "slug", preload: :user
 
-  def show(conn, %{"id" => _id}) do
+  def show(conn, %{"id" => slug}) do
+    forum = conn.assigns.forum
+    topic =
+      Topic
+      |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
+      |> preload(:user)
+      |> Repo.one()
+
+    conn = conn |> assign(:topic, topic)
+
     posts =
       Post
       |> where(topic_id: ^conn.assigns.topic.id)
