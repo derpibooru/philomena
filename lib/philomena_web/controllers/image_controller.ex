@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.ImageController do
     images =
       Image.search_records(
         %{
-          query: %{bool: %{must_not: query}},
+          query: %{bool: %{must_not: [query, %{term: %{hidden_from_users: true}}]}},
           sort: %{created_at: :desc}
         },
         Image |> preload([:tags, :user])

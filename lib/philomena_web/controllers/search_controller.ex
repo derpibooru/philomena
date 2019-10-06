@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.SearchController do
       images =
         Image.search_records(
           %{
-            query: %{bool: %{must: query, must_not: filter}},
+            query: %{bool: %{must: query, must_not: [filter, %{term: %{hidden_from_users: true}}]}},
             sort: %{created_at: :desc}
           },
           Image |> preload(:tags)
