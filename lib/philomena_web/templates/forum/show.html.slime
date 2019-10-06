@@ -1,0 +1,58 @@
+h1 = @forum.name
+.block
+  .block__header
+    => link("Forums", to: Routes.forum_path(@conn, :index))
+    ' &raquo;
+    => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
+    /= icon_link 'New Topic', 'fas fa-fw fa-pen-square', new_forum_topic_path(@forum)
+    /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path(forum_id: @forum.id)
+    span.spacing-left
+      => @forum.topic_count
+      ' topics
+  .block__header--sub.block__header--light
+    /- if @forum.topic_count >= Topic.topics_per_page do
+    /  = paginate @topics
+    span.block__header__title = @forum.description
+    /- if current_user
+    /  = subscription_link(@forum, current_user)
+    /- else
+    /  | Login to subscribe to new threads
+  .block__content
+    table.table.table--communication-list
+      thead
+        tr
+          th.table--communication-list__name Topic
+          th.table--communication-list__stats.hide-mobile Views
+          th.table--communication-list__stats.hide-mobile Posts
+          th.table--communication-list__last-post Last Post
+      tbody
+        = for topic <- @topics do
+          tr
+            td.table--communication-list__name
+              = if topic.sticky do
+                i.fa.fa-thumbtack
+              = if topic.locked_at do
+                i.fa.fa-lock
+              = if topic.poll do
+                i.fas.fa-poll-h
+              =< link(topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, topic))
+              .small-text
+                ' Posted
+                => pretty_time(topic.created_at)
+                ' by
+                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic
+            td.table--communication-list__stats.hide-mobile = topic.view_count
+            td.table--communication-list__stats.hide-mobile = topic.post_count
+            td.table--communication-list__last-post
+              = if topic.last_post do
+                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, @forum, topic, post_id: topic.last_post) <> "post_#{topic.last_post.id}")
+                ' by
+                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post
+                br
+                => pretty_time(topic.last_post.created_at)
+  /= if @forum.topic_count >= Topic.topics_per_page do
+  /  .block__header.block__header--light
+  /    = paginate @topics
+
+/- if current_user
+/  = render partial: 'topics/form'

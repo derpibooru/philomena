@@ -2,6 +2,7 @@ defmodule Philomena.Forums.Forum do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Phoenix.Param, key: :short_name}
   schema "forums" do
     belongs_to :last_post, Philomena.Posts.Post
     belongs_to :last_topic, Philomena.Topics.Topic

@@ -1,0 +1,36 @@
+article.block.communication id="post_#{@post.id}"
+  .block__content.flex.flex--no-wrap
+    .flex__fixed.spacing-right
+      /=<> user_avatar((post.user if post.user_visible?), 'avatar--100px', post.author)
+    .flex__grow.communication__body
+      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post
+      .communication__body__text
+        = if !@post.hidden_from_users do
+          =<> @post.body
+
+  .block__content.communication__options
+    .flex.flex--wrap.flex--spaced-out
+      = render PhilomenaWeb.PostView, "_post_options.html", conn: @conn, post: @post
+
+    /- if can?(:hide, Post)
+    /  .js-staff-action
+    /    - if !post.hidden_from_users && !post.destroyed_content
+    /      =<> link_to '#', class: 'communication__interaction togglable-delete-form-link', 'data-click-toggle': "#inline-del-form-post-#{post.id}" do
+    /        i.fa.fa-times
+    /        =<> 'Delete'
+    /    - elsif post.hidden_from_users && !post.destroyed_content
+    /      =<> link_to forum_topic_post_hide_path(post.topic.forum, post.topic, post), data: { confirm: t('are_you_sure') }, method: :delete, class: 'communication__interaction' do
+    /        i.fa.fa-check
+    /        =<> 'Restore'
+    /      - if can?(:manage, Post)
+    /        =<> link_to forum_topic_post_path(post.topic.forum, post.topic, post, deletion_reason: post.deletion_reason), method: :delete, data: { confirm: t('are_you_sure') }, class: 'communication__interaction' do
+    /          i.fa.fa-times
+    /          =<> 'Delete Contents'
+    /    - if can?(:manage, Post)
+    /      .communication__info
+    /        =<> link_to_ip(post.ip)
+    /      .communication__info
+    /        =<> link_to_fingerprint(post.fingerprint, post.user_agent)
+    /  = form_tag forum_topic_post_hide_path(post.topic.forum, post.topic, post), class: 'togglable-delete-form hidden flex', id: "inline-del-form-post-#{post.id}"
+    /    = text_field_tag :deletion_reason, nil, class: 'input input--wide', placeholder: 'Deletion Reason', id: "inline-del-reason-post-#{post.id}", required: true
+    /    = submit_tag 'Delete', class: 'button'

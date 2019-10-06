@@ -1,0 +1,31 @@
+div
+  ' Posted
+  => pretty_time(@post.created_at)
+  /=<> link_to new_report_path(reportable_class: 'Post', reportable_id: post.id), class: 'communication__interaction' do
+  /  i.fa.fa-flag
+  /  =<> 'Report'
+  /- if post.edited_at && can?(:read, post)
+  /  br
+  /  a href=forum_topic_post_history_path(post.topic.forum, post.topic, post)
+  /    | Edited
+  /    =<> friendly_time(post.edited_at)
+  /    - if post.edit_reason.present?
+  /      | because:
+  /      =<> post.edit_reason
+div
+  - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "post_#{@post.id}"
+  a.communication__interaction title="Link to post" href=link_path
+    i.fa.fa-link>
+    ' Link
+  /=<> link_to link_path, 'data-author': safe_author(post), 'data-reply-url': link_path, 'data-post': (post.hidden_from_users ? '' : post.body), class: 'communication__interaction post-reply post-reply-quote' do
+  a.communication__interaction.post-reply.post-reply-quote href=link_path data-reply-url=link_path data-author="" data-post=""
+    i.fa.fa-quote-right>
+    ' Quote
+  /=<> link_to link_path, 'data-author': safe_author(post), 'data-reply-url': link_path, class: 'communication__interaction post-reply' do
+  a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=""
+    i.fa.fa-reply
+    ' Reply
+  /span.owner-options.hidden
+  /  strong =<> link_to edit_forum_topic_post_path(post.topic.forum, post.topic, post), class: 'communication__interaction' do
+  /    i.fas.fa-edit
+  /    ' Edit

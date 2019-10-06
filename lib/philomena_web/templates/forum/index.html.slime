@@ -1,0 +1,33 @@
+h1 Discussion Forums
+.block
+  .block__header
+    /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path
+    span.block__header__item
+      => @topic_count
+      ' topics
+  .block__content
+    table.table.table--communication-list
+      thead
+        tr
+          th.table--communication-list__name Forum
+          th.table--communication-list__stats.hide-mobile Topics
+          th.table--communication-list__stats.hide-mobile Posts
+          th.table--communication-list__last-post Last Post
+      tbody
+        = for forum <- @forums do
+          tr
+            td.table--communication-list__name
+              => link(forum.name, to: Routes.forum_path(@conn, :show, forum))
+              .small-text = forum.description
+            td.table--communication-list__stats.hide-mobile = forum.topic_count
+            td.table--communication-list__stats.hide-mobile = forum.post_count
+            td.table--communication-list__last-post
+              = if forum.last_post do
+                strong
+                  => link(forum.last_post.topic.title, to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic))
+                br
+                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic, post_id: forum.last_post.id))
+                ' by
+                => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: forum.last_post
+                br
+                => pretty_time(forum.last_post.created_at)
