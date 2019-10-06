@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.TopicController do
     posts =
       Post
       |> where(topic_id: ^conn.assigns.topic.id)
-      |> order_by(asc: :created_at, asc: :id)
+      |> order_by(asc: :created_at)
       |> preload([:user, topic: :forum])
       |> limit(25)
       |> Repo.all()
