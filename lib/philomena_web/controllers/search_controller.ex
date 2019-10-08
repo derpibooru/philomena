@@ -22,15 +22,12 @@ defmodule PhilomenaWeb.SearchController do
         )
 
       conn
-      |> put_view(PhilomenaWeb.ImageView)
       |> render("index.html", images: images, search_query: params["q"])
     else
-      {:error, msg} ->
+      {:error, _msg} ->
         conn
-        |> put_view(PhilomenaWeb.ImageView)
         |> render("index.html",
           images: [],
-          error: msg,
           search_query: params["q"]
         )
     end

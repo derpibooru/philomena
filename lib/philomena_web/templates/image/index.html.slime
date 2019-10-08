@@ -1,6 +1,7 @@
 - header = assigns[:header] || ""
 - route = assigns[:route] || fn p -> Routes.image_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route
+- params = assigns[:params] || []
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: params
 - info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
 .block#imagelist-container

@@ -1,0 +1,1 @@
+= render PhilomenaWeb.ImageView, "index.html", images: @images, route: fn p -> Routes.search_path(@conn, :index, p) end, params: [q: @search_query]
