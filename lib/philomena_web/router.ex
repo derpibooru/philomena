@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.Router do
     plug :protect_from_forgery
     plug :put_secure_browser_headers
     plug PhilomenaWeb.Plugs.ImageFilter
+    plug PhilomenaWeb.Plugs.Pagination
   end
 
   pipeline :api do
@@ -26,6 +27,7 @@ defmodule PhilomenaWeb.Router do
 
     get "/", ActivityController, :index
 
+    resources "/activity", ActivityController, only: [:index]
     resources "/images", ImageController, only: [:index, :show]
     resources "/tags", TagController, only: [:index, :show]
     resources "/search", SearchController, only: [:index]

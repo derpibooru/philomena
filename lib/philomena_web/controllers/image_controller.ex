@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.ImageController do
           query: %{bool: %{must_not: [query, %{term: %{hidden_from_users: true}}]}},
           sort: %{created_at: :desc}
         },
+        conn.assigns.pagination,
         Image |> preload([:tags, :user])
       )
 

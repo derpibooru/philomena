@@ -38,7 +38,7 @@
         ' Most Commented-on Images
 
   .column-layout__main
-    = render PhilomenaWeb.ImageView, "index.html", images: @images, size: :thumb
+    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images, size: :thumb
     = if !!@watched and @watched != [] do
       .block
         .block__header
@@ -49,4 +49,4 @@
             span.hide-mobile
               ' Browse Watched Images
         .block__content.js-resizable-media-container
-          = render PhilomenaWeb.ImageView, "index.html", images: @watched, size: :thumb_small
+          = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @watched, size: :thumb_small

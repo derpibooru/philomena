@@ -19,9 +19,9 @@ defmodule PhilomenaWeb.ActivityController do
               must: image_query
             }
           },
-          size: 25,
           sort: %{created_at: :desc}
         },
+        %{page_number: 1, page_size: 25},
         Image |> preload([:tags])
       )
 
@@ -34,10 +34,9 @@ defmodule PhilomenaWeb.ActivityController do
               must: %{range: %{first_seen_at: %{gt: "now-3d"}}}
             }
           },
-          size: 4,
-          from: :rand.uniform(26) - 1,
           sort: [%{score: :desc}, %{first_seen_at: :desc}]
         },
+        %{page_number: :rand.uniform(6), page_size: 4},
         Image |> preload([:tags])
       )
 
@@ -55,9 +54,9 @@ defmodule PhilomenaWeb.ActivityController do
               ]
             }
           },
-          size: 6,
           sort: %{posted_at: :desc}
         },
+        %{page_number: 1, page_size: 6},
         Comment |> preload([:user, :image])
       )
 
@@ -72,9 +71,9 @@ defmodule PhilomenaWeb.ActivityController do
               must: watched_query
             }
           },
-          size: 25,
           sort: %{created_at: :desc}
         },
+        %{page_number: 1, page_size: 25},
         Image |> preload([:tags])
       )
     end

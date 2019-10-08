@@ -9,6 +9,7 @@ defmodule Philomena.Elasticsearch do
     quote do
       alias Philomena.Repo
       import Ecto.Query, warn: false
+      require Logger
 
       def create_index! do
         Elastix.Index.create(
@@ -81,7 +82,11 @@ defmodule Philomena.Elasticsearch do
         reindex(ecto_query, batch_size, ids)
       end
 
-      def search_results(elastic_query) do
+      def search_results(elastic_query, pagination_params \\ %{}) do
+        page_number = pagination_params[:page_number] || 1
+        page_size = pagination_params[:page_size] || 25
+        elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
+
         {:ok, %{body: results, status_code: 200}} =
           Elastix.Search.search(
             unquote(elastic_url),
@@ -90,16 +95,32 @@ defmodule Philomena.Elasticsearch do
             elastic_query
           )
 
-        results
+        time = results["took"]
+        count = results["hits"]["total"]
+        entries = results["hits"]["hits"] |> Enum.map(&String.to_integer(&1["_id"]))
+
+        Logger.debug("[Elasticsearch] Query took #{time}ms")
+
+        %Scrivener.Page{
+          entries: entries,
+          page_number: page_number,
+          page_size: page_size,
+          total_entries: count,
+          total_pages: div(count + page_size - 1, page_size)
+        }
       end
 
-      def search_records(elastic_query, ecto_query \\ __MODULE__) do
-        results = search_results(elastic_query)
+      def search_records(elastic_query, pagination_params \\ %{}, ecto_query \\ __MODULE__) do
+        page = search_results(elastic_query, pagination_params)
+        ids = page.entries
 
-        ids = results["hits"]["hits"] |> Enum.map(&String.to_integer(&1["_id"]))
-        records = ecto_query |> where([m], m.id in ^ids) |> Repo.all()
+        records =
+          ecto_query
+          |> where([m], m.id in ^ids)
+          |> Repo.all()
+          |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
 
-        records |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
+        %{page | entries: records}
       end
     end
   end

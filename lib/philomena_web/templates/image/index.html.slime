@@ -1,4 +1,25 @@
+- header = assigns[:header] || ""
+- route = assigns[:route] || fn p -> Routes.image_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route
+- info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
+
 .block#imagelist-container
+  section.block__header.flex
+    h1.block__header__title.hide-mobile
+      => header
+    = pagination
+
   .block__content.js-resizable-media-container
     = for image <- @images do
       = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: assigns[:size] || :thumb
+
+  .block__header.block__header--light.flex
+    = pagination
+
+    span.block__header__title
+      = info
+    .flex__right
+      a href="/settings/edit" title="Display Settings"
+        i.fa.fa-cog
+        span.hide-mobile.hide-limited-desktop<>
+          ' Display Settings

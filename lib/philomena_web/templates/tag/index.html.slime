@@ -1,1 +1,6 @@
 = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags
+  .block
+    .block__header.block__header--light.flex
+      = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: fn p -> Routes.tag_path(@conn, :index, p) end
+      span.block__header__title
+        = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @tags

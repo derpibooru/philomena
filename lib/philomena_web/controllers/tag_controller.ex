@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.TagController do
           size: 250,
           sort: [%{images: :desc}, %{name: :asc}]
         },
+        %{conn.assigns.pagination | page_size: 250},
         Tag
       )
 
@@ -36,6 +37,7 @@ defmodule PhilomenaWeb.TagController do
           },
           sort: %{created_at: :desc}
         },
+        conn.assigns.pagination,
         Image |> preload([:tags, :user])
       )
 
