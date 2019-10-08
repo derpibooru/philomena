@@ -16,10 +16,12 @@ defmodule PhilomenaWeb.TopicController do
       |> Repo.one()
 
     conn = conn |> assign(:topic, topic)
+    %{page_number: page, page_size: page_size} = conn.assigns.pagination
 
     posts =
       Post
       |> where(topic_id: ^conn.assigns.topic.id)
+      |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :created_at)
       |> preload([:user, topic: :forum])
       |> Repo.paginate(conn.assigns.scrivener)
