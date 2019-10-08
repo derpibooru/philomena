@@ -22,8 +22,7 @@ defmodule PhilomenaWeb.TopicController do
       |> where(topic_id: ^conn.assigns.topic.id)
       |> order_by(asc: :created_at)
       |> preload([:user, topic: :forum])
-      |> limit(25)
-      |> Repo.all()
+      |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "show.html", posts: posts)
   end

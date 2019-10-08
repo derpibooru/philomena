@@ -27,8 +27,7 @@ defmodule PhilomenaWeb.ForumController do
       |> where(hidden_from_users: false)
       |> order_by(desc: :sticky, desc: :last_replied_to_at)
       |> preload([:poll, :forum, :user, last_post: :user])
-      |> limit(25)
-      |> Repo.all()
+      |> Repo.paginate(page: conn.assigns.scrivener)
 
     render(conn, "show.html", forum: conn.assigns.forum, topics: topics)
   end

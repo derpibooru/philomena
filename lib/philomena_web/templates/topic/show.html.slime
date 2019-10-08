@@ -1,3 +1,5 @@
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
+
 h1 = @topic.title
 / Header section
 .block
@@ -11,8 +13,8 @@ h1 = @topic.title
     /  i.fa.fa-fw.fa-search>
     /  | Search Posts
   .flex.flex--wrap.block__header.block__header--light
-    /.flex--fixed
-    /  = paginate @posts
+    .flex--fixed
+      = pagination
     .flex--fixed.block__header__item
       ' Started by
       => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic
@@ -42,7 +44,9 @@ h1 = @topic.title
     /.js-editable-posts data-editable=editable_communications(@posts).to_json
 
     / Footer section
-    /.block: .block__header.block__header--light = paginate @posts
+    .block
+      .block__header.block__header--light
+        = pagination
 
     / Post form
     = if @topic.post_count < 200_000 do

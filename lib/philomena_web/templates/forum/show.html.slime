@@ -1,3 +1,5 @@
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @topics, route: fn p -> Routes.forum_path(@conn, :show, @forum, p) end
+
 h1 = @forum.name
 .block
   .block__header
@@ -10,8 +12,7 @@ h1 = @forum.name
       => @forum.topic_count
       ' topics
   .block__header--sub.block__header--light
-    /- if @forum.topic_count >= Topic.topics_per_page do
-    /  = paginate @topics
+    = pagination
     span.block__header__title = @forum.description
     /- if current_user
     /  = subscription_link(@forum, current_user)
@@ -50,9 +51,8 @@ h1 = @forum.name
                 = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post
                 br
                 => pretty_time(topic.last_post.created_at)
-  /= if @forum.topic_count >= Topic.topics_per_page do
-  /  .block__header.block__header--light
-  /    = paginate @topics
+  .block__header.block__header--light
+   = pagination
 
 /- if current_user
 /  = render partial: 'topics/form'

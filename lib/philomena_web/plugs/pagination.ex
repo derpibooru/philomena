@@ -31,5 +31,6 @@ defmodule PhilomenaWeb.Plugs.Pagination do
 
     conn
     |> assign(:pagination, %{page_number: page_number, page_size: page_size})
+    |> assign(:scrivener, [page: page_number, page_size: page_size])
   end
 end
