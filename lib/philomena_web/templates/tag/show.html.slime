@@ -1,1 +1,1 @@
-= render PhilomenaWeb.ImageView, "index.html", images: @images
+= render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images
