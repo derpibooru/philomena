@@ -1,0 +1,38 @@
+.filter
+  h3
+    = @filter.name
+
+  = if @filter.user do
+    p
+      ' Maintained by
+      = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter
+      ' .
+
+  .filter-options
+    ul
+      li
+        ' Spoilers
+        = length(@filter.spoilered_tag_ids)
+        ' , hides
+        = length(@filter.hidden_tag_ids)
+
+      li
+        = link("View this filter", to: Routes.filter_path(@conn, :show, @filter), class: "button")
+
+      = if @filter.id == @conn.assigns.current_filter.id do
+        li
+          strong Your current filter
+      - else
+        li
+          = form_for nil, Routes.filter_current_path(@conn, :update, @filter), [method: "put", class: "button_to"], fn f ->
+            = submit "Use this filter", class: "button"
+
+      /- if can?(:edit, filter) && current_user && filter.user_id == current_user.id
+      /  li = link_to 'Edit this filter', edit_filter_path(filter), class: 'button'
+      /  - if can?(:delete, filter) && current_user && filter.user_id == current_user.id
+      /    li = button_to 'Delete this filter', filter_path(filter), data: { confirm: 'Are you sure you want to delete this filter?' }, method: :delete, class: 'button'
+      /- elsif can? :create, Filter
+      /  li = link_to 'Copy and Customize this filter', new_filter_path(based_on_filter_id: filter.id), class: 'button'
+    p
+      em
+        = @filter.description

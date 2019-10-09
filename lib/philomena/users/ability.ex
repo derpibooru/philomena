@@ -3,6 +3,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
+  alias Philomena.Filters.Filter
 
   # Admins can do anything
   def can?(%User{role: "admin"}, _action, _model), do: true
@@ -10,6 +11,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   #
   # Moderators can...
   #
+
+  # View filters
+  def can?(%User{role: "moderator"}, :show, %Filter{}), do: true
 
   # View images
   def can?(%User{role: "moderator"}, :show, %Image{}), do: true
@@ -34,6 +38,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   #
   # Users and anonymous users can...
   #
+
+  # View filters they own and system filters
+  def can?(_user, :show, %Filter{system: true}), do: true
+  def can?(%User{id: id}, :show, %Filter{user_id: id}), do: true
 
   # View non-deleted images
   def can?(_user, action, Image)

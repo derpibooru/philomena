@@ -74,7 +74,9 @@ header.header
               | Logout
       - else
         a.header__link.hide-mobile href="/filters"
-          | Filters
+          | Filters (
+          = @current_filter.name
+          | )
         span.js-burger-links.hide-mobile
           a.header__link href='/settings/edit'
             i.fa.fa-fw.fa-cogs.hide-desktop>

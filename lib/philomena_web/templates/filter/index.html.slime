@@ -1,0 +1,40 @@
+.walloftext
+  .block.block--fixed.block--warning
+    h2 Content Safety
+    p
+      ' By default, content that is safe and suitable for all ages is all you'll see on the site, and how most of our users browse. The default filters focus on art, so filter out things like memes and what some users would consider "spam".
+    p
+      ' Filters let you customize what content you see on the site. This means that with the appropriate filter selected, you can access content which is not suitable for everyone, such as sexually explicit, grimdark or gory material.
+    p
+      strong
+        ' By changing away from the default filters, you accept you are legally permitted to view this content in your jurisdiction. If in doubt, stick with the recommended default filters.
+  h1 Browsing Filters
+  p
+    ' Images posted on the site are tagged, allowing you to easily search for content. You can also filter out content you'd rather not see using filters. Filters are sets of tags - spoilered tags and hidden tags. Spoilers are images that show up as thumbnails instead of the image, letting you click through and find out more about an image before deciding to view it or not. Hidden tags will simply hide images.
+  p
+    ' There are set of global filters to pick from which cover some common use-cases.
+    ' If you're logged in you can also customize these filters and make your own, as well as quickly switch (via the menu on every page) between them.
+
+  h2 So how do these work?
+  p
+    ' You can select any filter you can see. This will become your
+    strong 
+      ' active filter
+    ' and will affect how you see the site. You can edit filters if you own them - you can create a filter from scratch with the link under "My Filters" (if you're logged in, of course) or by clicking "Customize", which will copy an existing filter for you to edit.
+  p
+    ' By default all the filters you create are private and only visible by you. You can have as many as you like and switch between them instantly with no limits. You can also create a public filter, which can be seen and used by any user on the site, allowing you to share useful filters with others.
+
+  h2 My Filters
+  = if @current_user do
+    /- if can? :create, Filter
+    /  p
+    /    => link_to 'Click here to make a new filter from scratch', new_filter_path
+    /    | or click "Copy and Customize" on a global or shared filter to use as a starting point.
+    /= render partial: 'filter_list', locals: { filters: @user_filters }
+  - else
+    p
+      ' If you're logged in, you can create and maintain custom filters here.
+
+  h2 Global Filters
+  = for filter <- @system_filters do
+    = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter

@@ -35,6 +35,11 @@ defmodule PhilomenaWeb.Router do
       resources "/topics", TopicController, only: [:show]
     end
 
+    scope "/filters", Filter, as: :filter do
+      resources "/current", CurrentController, only: [:update], singular: true
+    end
+    resources "/filters", FilterController, only: [:index, :show]
+
     get "/:id", ImageController, :show
   end
 
