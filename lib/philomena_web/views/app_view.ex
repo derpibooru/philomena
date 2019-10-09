@@ -47,4 +47,32 @@ defmodule PhilomenaWeb.AppView do
   def can?(conn, action, model) do
     Canada.Can.can?(conn.assigns.current_user, action, model)
   end
+
+  def number_with_delimiter(number) do
+    number
+    |> to_charlist()
+    |> Enum.reverse()
+    |> Enum.chunk_every(3)
+    |> Enum.map(&Enum.reverse(&1))
+    |> Enum.reverse()
+    |> Enum.join(",")
+  end
+
+  def pluralize(singular, plural, count) do
+    if count == 1 do
+      singular
+    else
+      plural
+    end
+  end
+
+  def button_to(text, route, args) do
+    method = Keyword.get(args, :method, "get")
+    class = Keyword.get(args, :class, nil)
+    data = Keyword.get(args, :data, [])
+
+    form_for(nil, route, [method: method, class: "button_to"], fn _f ->
+      submit text, class: class, data: data
+    end)
+  end
 end

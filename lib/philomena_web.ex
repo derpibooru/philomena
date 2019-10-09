@@ -25,6 +25,7 @@ defmodule PhilomenaWeb do
       import PhilomenaWeb.Gettext
       import Canary.Plugs
       alias PhilomenaWeb.Router.Helpers, as: Routes
+      alias PhilomenaWeb.Plugs.RequireUser
     end
   end
 

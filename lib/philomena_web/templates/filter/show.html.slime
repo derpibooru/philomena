@@ -1,0 +1,69 @@
+h1
+  ' Viewing full filter details for
+  = @filter.name
+
+.filter
+  .filter-options
+    ul
+      li
+        ' Spoilers
+        => number_with_delimiter(length(@filter.spoilered_tag_ids))
+        => pluralize("tag", "tags", length(@filter.spoilered_tag_ids))
+        ' and hides
+        => number_with_delimiter(length(@filter.hidden_tag_ids))
+        => pluralize("tag", "tags", length(@filter.hidden_tag_ids))
+
+      = if @filter.id == @conn.assigns.current_filter.id do
+        li
+          strong Your current filter
+      - else
+        li
+          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, @filter), method: "put", class: "button"
+
+      = if can?(@conn, :edit, @filter) do
+        li
+          = link("Edit this filter", to: Routes.filter_path(@conn, :edit, @filter))
+
+      = if can?(@conn, :delete, @filter) do
+        = button_to "Destroy this filter", Routes.filter_path(@conn, :delete, @filter), method: "delete", class: "button", data: [confirm: "Are you sure?"]
+
+  = if @filter.user do
+    p.filter-maintainer
+      ' This filter is maintained by
+      = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter
+      ' .
+
+  p.filter-description
+    = @filter.description
+
+  = if length(@spoilered_tags) > 0 or !!@filter.spoilered_complex_str do
+    h5 This filter spoilers...
+
+    = for tag <- @spoilered_tags do
+      = render PhilomenaWeb.TagView, "_tag.html", tag: tag
+
+    p Complex filter:
+    pre.spoiler-filter-code
+      = @filter.spoilered_complex_str
+
+  - else
+    p This filter doesn't spoiler any tags.
+
+
+  = if length(@hidden_tags) > 0 or !!@filter.hidden_complex_str do
+    h5 This filter hides...
+
+    = for tag <- @hidden_tags do
+      = render PhilomenaWeb.TagView, "_tag.html", tag: tag
+
+    p Complex filter:
+    pre.spoiler-filter-code
+      = @filter.hidden_complex_str
+
+  - else
+    p This filter doesn't hide any tags.
+
+
+
+/p = link("Report filter to moderators", new_report_path(reportable_class: 'filter', reportable_id: @filter.id)
+p = link("Back to filters", to: Routes.filter_path(@conn, :index))

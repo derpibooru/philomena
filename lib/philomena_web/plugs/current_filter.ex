@@ -5,7 +5,6 @@ defmodule PhilomenaWeb.Plugs.CurrentFilter do
   alias Philomena.{Filters, Filters.Filter}
   alias Philomena.Repo
   alias Pow.Plug
-
   # No options
   def init([]), do: false
 
