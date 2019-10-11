@@ -57,7 +57,7 @@ defmodule PhilomenaWeb.ActivityController do
           sort: %{posted_at: :desc}
         },
         %{page_number: 1, page_size: 6},
-        Comment |> preload([:user, :image])
+        Comment |> preload([:user, image: [:tags]])
       )
 
     watched = if !!user do
