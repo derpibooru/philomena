@@ -43,4 +43,25 @@ defmodule PhilomenaWeb.ImageView do
   def image_url_root do
     Application.get_env(:philomena, :image_url_root)
   end
+
+  def image_container(image, size, block) do
+    data = [
+      image_id: image.id,
+      image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
+      score: image.score,
+      faves: image.faves_count,
+      upvotes: image.upvotes_count,
+      downvotes: image.downvotes_count,
+      comment_count: image.comments_count,
+      created_at: NaiveDateTime.to_iso8601(image.created_at),
+      source_url: image.source_url,
+      uris: Jason.encode!(thumb_urls(image, false)),
+      width: image.image_width,
+      height: image.image_height,
+      aspect_ratio: image.image_aspect_ratio,
+      size: size
+    ]
+
+    content_tag(:div, block.(), class: "image-container #{size}", data: data)
+  end
 end

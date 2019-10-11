@@ -1,4 +1,4 @@
-.image-container class=@size data-image-tags="[]" data-size=@size data-uris=Jason.encode!(thumb_urls(@image, false))
+= image_container @image, @size, fn ->
   = cond do
     - @image.duplicate_id ->
       .media-box__overlay
@@ -15,6 +15,18 @@
   .media-box__overlay.js-spoiler-info-overlay
   a href="/#{@image.id}"
     = if @image.thumbnails_generated do
-      picture: img src=thumb_url(@image, false, @size)
+      - uris = thumb_urls(@image, false)
+      - vid = @image.image_mime_type == "video/webm"
+      - tags = Enum.map(@image.tags, & &1.name) |> Enum.sort() |> Enum.join(", ")
+      - alt = "Size: #{@image.image_width}x#{@image.image_height} | Tagged: #{tags}"
+
+      = if vid do
+        video alt=alt autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
+          source src=uris[@size] type="video/webm"
+          source src=String.replace(uris[@size], ".webm", ".mp4") type="video/mp4"
+      - else
+        picture
+          img alt=alt src=thumb_url(@image, false, @size) srcset="#{uris[@size]} 1x, #{uris[:medium]} 2x"
+
     - else
       | Thumbnails not yet generated

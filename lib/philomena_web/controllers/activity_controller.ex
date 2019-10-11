@@ -83,6 +83,7 @@ defmodule PhilomenaWeb.ActivityController do
       |> join(:inner, [i], f in Feature, on: [image_id: i.id])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
+      |> preload([:tags])
       |> Repo.one()
 
     streams =
