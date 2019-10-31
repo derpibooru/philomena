@@ -16,7 +16,8 @@ config :philomena,
 config :philomena, :pow,
   user: Philomena.Users.User,
   repo: Philomena.Repo,
-  extensions: [PhilomenaWeb.HaltTotp],
+  web_module: PhilomenaWeb,
+  extensions: [PowResetPassword, PowPersistentSession, PowMultiFactor],
   controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks
 
 config :bcrypt_elixir,

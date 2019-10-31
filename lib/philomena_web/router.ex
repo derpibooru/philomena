@@ -16,11 +16,11 @@ defmodule PhilomenaWeb.Router do
     plug :accepts, ["json"]
   end
 
-  #scope "/" do
-  #  pipe_through :browser
-  #
-  #  pow_routes()
-  #end
+  scope "/" do
+    pipe_through :browser
+  
+    pow_routes()
+  end
 
   scope "/", PhilomenaWeb do
     pipe_through :browser

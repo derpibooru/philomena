@@ -11,9 +11,10 @@ defmodule Philomena.Application do
       # Start the Ecto repository
       Philomena.Repo,
       # Start the endpoint when the application starts
-      PhilomenaWeb.Endpoint
+      PhilomenaWeb.Endpoint,
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
+      Pow.Store.Backend.MnesiaCache
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

@@ -6,6 +6,9 @@ defmodule Philomena.Users.User do
   use Pow.Ecto.Schema,
     password_hash_methods: {&Password.hash_pwd_salt/1, &Password.verify_pass/2}
 
+  use Pow.Extension.Ecto.Schema,
+    extensions: [PowResetPassword]
+
   import Ecto.Changeset
 
   schema "users" do
@@ -100,6 +103,7 @@ defmodule Philomena.Users.User do
   def changeset(user, attrs) do
     user
     |> pow_changeset(attrs)
+    |> pow_extension_changeset(attrs)
     |> cast(attrs, [])
     |> validate_required([])
   end

@@ -53,12 +53,12 @@ defmodule Philomena.Images.Query do
           tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
 
           {:ok, include_query} =
-            Philomena.Images.Query.user_parser(ctx, user.watched_images_query |> normalize())
+            Philomena.Images.Query.user_parser(ctx, user.watched_images_query_str |> normalize())
 
           {:ok, exclude_query} =
             Philomena.Images.Query.user_parser(
               ctx,
-              user.watched_images_exclude_query |> normalize()
+              user.watched_images_exclude_str |> normalize()
             )
 
           should = [tag_include, include_query]
@@ -125,12 +125,12 @@ defmodule Philomena.Images.Query do
           tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
 
           {:ok, include_query} =
-            Philomena.Images.Query.moderator_parser(ctx, user.watched_images_query |> normalize())
+            Philomena.Images.Query.moderator_parser(ctx, user.watched_images_query_str |> normalize())
 
           {:ok, exclude_query} =
             Philomena.Images.Query.moderator_parser(
               ctx,
-              user.watched_images_exclude_query |> normalize()
+              user.watched_images_exclude_str |> normalize()
             )
 
           should = [tag_include, include_query]

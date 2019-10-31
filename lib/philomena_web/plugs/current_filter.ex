@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Plugs.CurrentFilter do
 
     filter =
       if user do
-        user = user |> preload(:current_filter)
+        user = user |> Repo.preload(:current_filter)
         user.current_filter
       else
         filter_id = conn |> get_session(:filter_id)
