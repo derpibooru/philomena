@@ -16,6 +16,7 @@ config :bcrypt_elixir,
 
 config :philomena,
   password_pepper: System.get_env("PASSWORD_PEPPER"),
+  otp_secret_key: System.get_env("OTP_SECRET_KEY"),
   image_url_root: System.get_env("IMAGE_URL_ROOT")
 
 config :philomena, Philomena.Repo,

@@ -106,5 +106,22 @@ defmodule Philomena.Users.User do
     |> pow_extension_changeset(attrs)
     |> cast(attrs, [])
     |> validate_required([])
+    |> put_otp_secret()
   end
+
+  def otp_secret(%{encrypted_otp_secret: x} = user) when x not in [nil, ""] do
+    Philomena.Users.Encryptor.decrypt_model(
+      user.encrypted_otp_secret,
+      user.encrypted_otp_secret_iv,
+      user.encrypted_otp_secret_salt
+    )
+  end
+
+  def otp_secret(_user), do: nil
+
+  defp put_otp_secret(%{valid?: true} = changeset) do
+
+  end
+
+  defp put_otp_secret(changeset), do: changeset
 end

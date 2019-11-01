@@ -53,7 +53,8 @@ defmodule Philomena.MixProject do
       {:nimble_parsec, "~> 0.5.1"},
       {:canary, "~> 1.1.1"},
       {:scrivener_ecto, "~> 2.0"},
-      {:elixir2fa, "~> 0.1.0"}
+      {:elixir2fa, "~> 0.1.0"},
+      {:pbkdf2, "~> 2.0"}
     ]
   end
 
