@@ -1,11 +1,16 @@
 defmodule Search.LiteralParser do
   import NimbleParsec
+  import Search.Helpers
 
-  defp trim([term]), do: String.trim(term)
+  float =
+    ascii_string([?0..?9], min: 1)
+    |> optional(ascii_char('.') |> ascii_string([?0..?9], min: 1))
+    |> reduce({List, :to_string, []})
+    |> reduce(:to_number)
 
   edit_distance =
     ignore(string("~"))
-    |> integer(min: 1)
+    |> concat(float)
     |> unwrap_and_tag(:fuzz)
     |> eos()
 
@@ -24,7 +29,6 @@ defmodule Search.LiteralParser do
     ])
     |> repeat()
     |> reduce({List, :to_string, []})
-    |> reduce(:trim)
     |> unwrap_and_tag(:literal)
     |> optional(edit_distance)
     |> eos()
@@ -40,7 +44,6 @@ defmodule Search.LiteralParser do
     ])
     |> repeat()
     |> reduce({List, :to_string, []})
-    |> reduce(:trim)
     |> unwrap_and_tag(:wildcard)
     |> ignore(optional(edit_distance))
     |> eos()

@@ -42,7 +42,14 @@ defmodule Search.Parser do
     %{parser | __fields__: Map.new(fields)}
   end
 
-  def parse(%Parser{} = parser, input, context \\ nil) do
+  def parse(parser, input, context \\ nil)
+
+  # Empty search should emit a match_none.
+  def parse(_parser, "", _context) do
+    {:ok, %{match_none: %{}}}
+  end
+
+  def parse(%Parser{} = parser, input, context) do
     parser = %{parser | __data__: context}
 
     with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
@@ -51,7 +58,7 @@ defmodule Search.Parser do
       {:ok, tree}
     else
       {:ok, {_tree, tokens}} ->
-        {:error, "Junk at end of expression: " <> debug_tokens(tokens)}
+        {:error, "junk at end of expression: " <> debug_tokens(tokens)}
 
       {:error, msg, start_pos, _1, _2, _3} ->
         {:error, msg <> ", starting at: " <> start_pos}
@@ -60,7 +67,7 @@ defmodule Search.Parser do
         {:error, msg}
 
       _ ->
-        {:error, "Search parsing error."}
+        {:error, "unknown parsing error"}
     end
   end
 
@@ -113,8 +120,8 @@ defmodule Search.Parser do
       {:ok, {child, r_tokens}} ->
         {:ok, {%{bool: %{must_not: child}}, r_tokens}}
 
-      err ->
-        err
+      value ->
+        value
     end
   end
 
@@ -128,8 +135,8 @@ defmodule Search.Parser do
       {:ok, {_child, _tokens}} ->
         {:error, "Imbalanced parentheses."}
 
-      err ->
-        err
+      value ->
+        value
     end
   end
 
@@ -245,7 +252,7 @@ defmodule Search.Parser do
 
 
   defp field_type(parser, [{DateParser, field_name}, range: :eq, date: [lower, upper]]),
-    do: {:ok, {%{range: %{field(parser, field_name) => %{gte: lower, lte: upper}}}, []}}
+    do: {:ok, {%{range: %{field(parser, field_name) => %{gte: lower, lt: upper}}}, []}}
 
   defp field_type(parser, [{DateParser, field_name}, range: r, date: [_lower, upper]]) when r in [:lte, :gt],
     do: {:ok, {%{range: %{field(parser, field_name) => %{r => upper}}}, []}}
