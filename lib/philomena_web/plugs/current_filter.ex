@@ -1,6 +1,5 @@
 defmodule PhilomenaWeb.Plugs.CurrentFilter do
   import Plug.Conn
-  import Ecto.Query
 
   alias Philomena.{Filters, Filters.Filter}
   alias Philomena.Repo
@@ -22,7 +21,7 @@ defmodule PhilomenaWeb.Plugs.CurrentFilter do
 
         filter = if filter_id, do: Repo.get(Filter, filter_id) 
 
-        filter = filter || Filters.default_filter()
+        filter || Filters.default_filter()
       end
 
     conn

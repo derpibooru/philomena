@@ -1,0 +1,2 @@
+h2 Editing Filter
+= render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: Routes.filter_path(@conn, :update, @filter)

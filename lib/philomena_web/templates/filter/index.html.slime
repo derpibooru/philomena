@@ -26,11 +26,10 @@
 
   h2 My Filters
   = if @current_user do
-    /- if can? :create, Filter
-    /  p
-    /    => link_to 'Click here to make a new filter from scratch', new_filter_path
-    /    | or click "Copy and Customize" on a global or shared filter to use as a starting point.
-    /= render partial: 'filter_list', locals: { filters: @user_filters }
+    p
+      = link("Click here to make a new filter from scratch", to: Routes.filter_path(@conn, :new))
+    = for filter <- @my_filters do
+      = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
   - else
     p
       ' If you're logged in, you can create and maintain custom filters here.

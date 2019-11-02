@@ -1,0 +1,56 @@
+.form
+  = form_for @filter, @route, fn f ->
+    .field
+      = text_input f, :name, class: "input input--wide", placeholder: "Name"
+    .fieldlabel
+      ' This is a friendly name for this filter - it should be short and descriptive.
+    .field
+      = textarea f, :description, class: "input input--wide", placeholder: "Description"
+    .fieldlabel
+      ' Here you can describe your filter in a bit more detail.
+
+
+    .field
+      = label f, :spoilered_tag_list, "Spoilered Tags"
+      br
+      = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :spoilered_tag_list, type: "edit"
+    .fieldlabel
+      ' These tags will spoiler the images they're associated with.
+    .field
+      = label f, :spoilered_complex_str, "Complex Spoiler Filter"
+      br
+      = textarea f, :spoilered_complex_str, class: "input input--wide",  autocapitalize: "none"
+    .fieldlabel
+      p
+        ' Use the search syntax here to specify an additional filter.
+        ' For multiple filters, separate with a newline (or use the OR operator). Search fields excepting
+        code<> faved_by
+        ' are supported. See the search syntax guide
+        ' for more information.
+      p
+        strong> WARNING:
+        ' This filter is applied along with your tag filters. Tag filters may spoiler images that you mean to filter more precisely here. Double-check to make sure they don't interfere.
+
+
+    .field
+      = label f, :hidden_tag_list, "Hidden Tags"
+      br
+      = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :hidden_tag_list, type: "edit"
+    .fieldlabel
+      ' These tags will hide images entirely from the site; if you go directly to an image, it will spoiler it.
+    .field
+      = label f, :hidden_complex_str, "Complex Hide Filter"
+      br
+      = textarea f, :hidden_complex_str, class: "input input--wide",  autocapitalize: "none"
+    .fieldlabel
+      p
+        ' Use the search syntax here to specify an additional filter.
+        ' For multiple filters, separate with a newline (or use the OR operator). Search fields excepting
+        code<> faved_by
+        ' are supported. See the search syntax guide
+        ' for more information.
+      p
+        strong> WARNING:
+        ' This filter is applied along with your tag filters. Tag filters may hide images that you mean to filter more precisely here. Double-check to make sure they don't interfere.
+
+      = submit "Save Filter", class: "button"

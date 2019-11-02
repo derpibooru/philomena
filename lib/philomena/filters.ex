@@ -64,8 +64,8 @@ defmodule Philomena.Filters do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_filter(attrs \\ %{}) do
-    %Filter{}
+  def create_filter(user, attrs \\ %{}) do
+    %Filter{user_id: user.id}
     |> Filter.changeset(attrs)
     |> Repo.insert()
   end

@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.FilterController do
   end
 
   def edit(conn, _params) do
-    filter = conn.assigns.filter
+    filter = conn.assigns.filter |> Filter.assign_tag_lists()
     changeset = Filters.change_filter(filter)
 
     render(conn, "edit.html", filter: filter, changeset: changeset)

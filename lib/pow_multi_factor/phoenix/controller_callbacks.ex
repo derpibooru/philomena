@@ -25,29 +25,29 @@ defmodule PowMultiFactor.Phoenix.ControllerCallbacks do
   alias Pow.Plug
   alias PowMultiFactor.Plug, as: PowMultiFactorPlug
 
-  def before_respond(Pow.Phoenix.SessionController, :create, {:ok, conn}, _config) do
+  def before_respond(Pow.Phoenix.SessionController, :create, {:ok, conn}, config) do
     return_path = routes(conn).session_path(conn, :new)
 
-    clear_unauthorized(conn, {:ok, conn}, return_path)
+    clear_unauthorized(conn, config, {:ok, conn}, return_path)
   end
 
-  def before_respond(Pow.Phoenix.RegistrationController, :update, {:ok, user, conn}, _config) do
+  def before_respond(Pow.Phoenix.RegistrationController, :update, {:ok, user, conn}, config) do
     return_path = routes(conn).registration_path(conn, :edit)
 
-    halt_unauthorized(conn, {:ok, user, conn}, return_path)
+    halt_unauthorized(conn, config, {:ok, user, conn}, return_path)
   end
 
-  defp clear_unauthorized(conn, success_response, return_path) do
-    case PowMultiFactorPlug.mfa_unauthorized?(conn) do
-      true  -> clear_auth(conn) |> go_back(return_path)
-      false -> success_response
+  defp clear_unauthorized(conn, config, success_response, return_path) do
+    case PowMultiFactorPlug.mfa_authorized?(conn, config) do
+      false -> clear_auth(conn) |> go_back(return_path)
+      true  -> success_response
     end
   end
 
-  defp halt_unauthorized(conn, success_response, return_path) do
-    case PowMultiFactorPlug.mfa_unauthorized?(conn) do
-      true  -> go_back(conn, return_path)
-      false -> success_response
+  defp halt_unauthorized(conn, config, success_response, return_path) do
+    case PowMultiFactorPlug.mfa_authorized?(conn, config) do
+      false -> go_back(conn, return_path)
+      true  -> success_response
     end
   end
 
