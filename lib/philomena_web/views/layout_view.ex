@@ -1,8 +1,6 @@
 defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
-  alias Philomena.Search
-
   def render_time(conn) do
     (Time.diff(Time.utc_now(), conn.assigns[:start_time], :microsecond) / 1000.0)
     |> Float.round(3)
