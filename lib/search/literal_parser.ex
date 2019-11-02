@@ -1,6 +1,8 @@
 defmodule Search.LiteralParser do
   import NimbleParsec
 
+  defp trim([term]), do: String.trim(term)
+
   edit_distance =
     ignore(string("~"))
     |> integer(min: 1)
@@ -22,6 +24,7 @@ defmodule Search.LiteralParser do
     ])
     |> repeat()
     |> reduce({List, :to_string, []})
+    |> reduce(:trim)
     |> unwrap_and_tag(:literal)
     |> optional(edit_distance)
     |> eos()
@@ -37,6 +40,7 @@ defmodule Search.LiteralParser do
     ])
     |> repeat()
     |> reduce({List, :to_string, []})
+    |> reduce(:trim)
     |> unwrap_and_tag(:wildcard)
     |> ignore(optional(edit_distance))
     |> eos()

@@ -29,7 +29,6 @@ defmodule Search.Lexer do
     |> ignore()
 
   quot = string("\"")
-  backslash = string("\\")
 
   boost =
     ignore(string("^"))
@@ -39,7 +38,6 @@ defmodule Search.Lexer do
   stop_words =
     repeat(space)
     |> choice([
-      backslash |> eos(),
       l_and,
       l_or,
       rparen,
@@ -60,20 +58,21 @@ defmodule Search.Lexer do
   text =
     parsec(:dirty_text)
     |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:text)
+    |> unwrap_and_tag(:term)
+    |> label("a term, like `safe'")
 
   quoted_text =
     ignore(quot)
-    |> choice([
+    |> repeat(choice([
       ignore(string("\\")) |> string("\""),
       ignore(string("\\")) |> string("\\"),
       string("\\") |> utf8_char([]),
       utf8_char(not: ?")
-    ])
-    |> repeat()
+    ]))
     |> ignore(quot)
     |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:text)
+    |> unwrap_and_tag(:term)
+    |> label(~s|a term enclosed in quotes, like `"/)^3^(\\\\"'|)
 
   term =
     choice([

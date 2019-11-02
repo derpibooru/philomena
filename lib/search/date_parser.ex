@@ -182,6 +182,7 @@ defmodule Search.DateParser do
       relative_date
     ])
     |> eos()
+    |> label("a RFC3339 datetime fragment, like `2019-01-01', or relative date, like `3 days ago'")
 
   defparsec :parse, date
 end

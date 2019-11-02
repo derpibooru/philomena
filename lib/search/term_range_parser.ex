@@ -1,11 +1,12 @@
 defmodule Search.TermRangeParser do
+  alias Search.LiteralParser
 
   # Unfortunately, we can't use NimbleParsec here. It requires
   # the compiler, and we're not in a macro environment.
 
   def parse(input, fields, default_field) do
     tokens =
-      Enum.find_value(fields, fn {p, f} ->
+      Enum.find_value(fields, fn {f, p} ->
         field(input, f, p)
       end)
 

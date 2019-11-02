@@ -25,6 +25,7 @@ defmodule Search.FloatParser do
       float |> unwrap_and_tag(:float)
     ])
     |> eos()
+    |> label("a real number, like `2.7182818' or `-10'")
 
   defparsec :parse, float_parser
 end

@@ -18,6 +18,7 @@ defmodule Search.IntParser do
       int |> unwrap_and_tag(:int)
     ])
     |> eos()
+    |> label("an integer, like `3' or `-10'")
 
   defparsec :parse, int_parser
 end

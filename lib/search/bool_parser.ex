@@ -8,6 +8,7 @@ defmodule Search.BoolParser do
     ])
     |> unwrap_and_tag(:bool)
     |> eos()
+    |> label("a boolean, like `true' or `false'")
 
   defparsec :parse, bool
 end

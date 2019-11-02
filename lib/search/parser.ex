@@ -30,14 +30,14 @@ defmodule Search.Parser do
   def parser(options) do
     parser = struct(Parser, options)
     fields =
-      Enum.map(parser.bool_fields, fn f -> {BoolParser, f} end) ++
-      Enum.map(parser.date_fields, fn f -> {DateParser, f} end) ++
-      Enum.map(parser.float_fields, fn f -> {FloatParser, f} end) ++
-      Enum.map(parser.int_fields, fn f -> {IntParser, f} end) ++
-      Enum.map(parser.ip_fields, fn f -> {IpParser, f} end) ++
-      Enum.map(parser.literal_fields, fn f -> {LiteralParser, f} end) ++
-      Enum.map(parser.ngram_fields, fn f -> {NgramParser, f} end) ++
-      Enum.map(parser.custom_fields, fn f -> {:custom_field, f} end)
+      Enum.map(parser.bool_fields, fn f -> {f, BoolParser} end) ++
+      Enum.map(parser.date_fields, fn f -> {f, DateParser} end) ++
+      Enum.map(parser.float_fields, fn f -> {f, FloatParser} end) ++
+      Enum.map(parser.int_fields, fn f -> {f, IntParser} end) ++
+      Enum.map(parser.ip_fields, fn f -> {f, IpParser} end) ++
+      Enum.map(parser.literal_fields, fn f -> {f, LiteralParser} end) ++
+      Enum.map(parser.ngram_fields, fn f -> {f, NgramParser} end) ++
+      Enum.map(parser.custom_fields, fn f -> {f, :custom_field} end)
 
     %{parser | __fields__: Map.new(fields)}
   end
@@ -50,9 +50,24 @@ defmodule Search.Parser do
     do
       {:ok, tree}
     else
+      {:ok, {_tree, tokens}} ->
+        {:error, "Junk at end of expression: " <> debug_tokens(tokens)}
+
+      {:error, msg, start_pos, _1, _2, _3} ->
+        {:error, msg <> ", starting at: " <> start_pos}
+
+      {:error, msg} ->
+        {:error, msg}
+
       _ ->
         {:error, "Search parsing error."}
     end
+  end
+
+  defp debug_tokens(tokens) do
+    tokens
+    |> Enum.map(fn {_k, v} -> v end)
+    |> Enum.join("")
   end
 
   #
@@ -62,22 +77,22 @@ defmodule Search.Parser do
   defp search_top(parser, tokens), do: search_or(parser, tokens)
 
   defp search_or(parser, tokens) do
-    case search_and(parser, tokens) do
-      {:ok, {left, [{:or, _} | r_tokens]}} ->
-        {right, rest} = search_or(parser, r_tokens)
-        {:ok, {%{bool: %{should: [left, right]}}, rest}}
-
+    with {:ok, {left, [{:or, _} | r_tokens]}} <- search_and(parser, tokens),
+         {:ok, {right, rest}} <- search_or(parser, r_tokens)
+    do
+      {:ok, {%{bool: %{should: [left, right]}}, rest}}
+    else
       value ->
         value
     end
   end
 
   defp search_and(parser, tokens) do
-    case search_boost(parser, tokens) do
-      {:ok, {left, [{:and, _} | r_tokens]}} ->
-        {right, rest} = search_or(parser, r_tokens)
-        {:ok, {%{bool: %{must: [left, right]}}, rest}}
-
+    with {:ok, {left, [{:and, _} | r_tokens]}} <- search_boost(parser, tokens),
+         {:ok, {right, rest}} <- search_and(parser, r_tokens)
+    do
+      {:ok, {%{bool: %{must: [left, right]}}, rest}}
+    else
       value ->
         value
     end
@@ -135,6 +150,9 @@ defmodule Search.Parser do
         err
     end
   end
+
+  defp search_field(_parser, _tokens), do:
+    {:error, "Expected a term."}
 
   #
   # Predictive LL(k) RD parser for search terms in parent grammar
