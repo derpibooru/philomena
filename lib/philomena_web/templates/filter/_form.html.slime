@@ -1,7 +1,12 @@
 .form
   = form_for @filter, @route, fn f ->
+    = if @filter.action do
+      #error_explanation
+        ' Oops, something went wrong! Please check the errors below.
+
     .field
       = text_input f, :name, class: "input input--wide", placeholder: "Name"
+      = error_tag f, :name
     .fieldlabel
       ' This is a friendly name for this filter - it should be short and descriptive.
     .field
@@ -20,6 +25,8 @@
       = label f, :spoilered_complex_str, "Complex Spoiler Filter"
       br
       = textarea f, :spoilered_complex_str, class: "input input--wide",  autocapitalize: "none"
+      br
+      = error_tag f, :spoilered_complex_str
     .fieldlabel
       p
         ' Use the search syntax here to specify an additional filter.
@@ -42,6 +49,8 @@
       = label f, :hidden_complex_str, "Complex Hide Filter"
       br
       = textarea f, :hidden_complex_str, class: "input input--wide",  autocapitalize: "none"
+      br
+      = error_tag f, :hidden_complex_str
     .fieldlabel
       p
         ' Use the search syntax here to specify an additional filter.

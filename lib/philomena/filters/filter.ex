@@ -105,19 +105,15 @@ defmodule Philomena.Filters.Filter do
 
   defp validate_search(changeset, field) do
     user_id = get_field(changeset, :user_id)
+    user = if user_id, do: User |> Repo.get!(user_id)
 
-    if user_id do
-      user = User |> Repo.get!(user_id)
-      output = Query.user_parser(user, get_field(changeset, field))
+    output = Query.compile(user, get_field(changeset, field))
 
-      case output do
-        {:ok, _} -> changeset
-        _ ->
-          changeset
-          |> add_error(field, "is invalid")
-      end
-    else
-      changeset
+    case output do
+      {:ok, _} -> changeset
+      _ ->
+        changeset
+        |> add_error(field, "is invalid")
     end
   end
 

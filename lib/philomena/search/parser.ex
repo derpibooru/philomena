@@ -23,12 +23,12 @@ defmodule Philomena.Search.Parser do
         {tree, []} = unquote(:"#{name}_top")(ctx, tokens)
 
         {:ok, tree}
-        # rescue
-        #  e in ArgumentError ->
-        #    {:error, e.message}
+        rescue
+          e in ArgumentError ->
+            {:error, e.message}
 
-        #  _ ->
-        #    {:error, "Parsing error."}
+          _ ->
+            {:error, "Parsing error."}
       end
 
       #

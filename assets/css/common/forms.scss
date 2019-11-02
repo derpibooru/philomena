@@ -86,6 +86,11 @@ textarea {
   background: $danger_color;
 }
 
+span.help-block {
+  background: $danger_color;
+  display: block;
+}
+
 /* hform is used for 30em inline 2-element textinput/button forms */
 .hform .field {
   display: flex;
