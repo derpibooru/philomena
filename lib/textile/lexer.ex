@@ -2,6 +2,7 @@ defmodule Textile.Lexer do
   import NimbleParsec
   import Textile.Helpers
   import Textile.MarkupLexer
+  import Textile.UrlLexer
 
 
   # Structural tags
@@ -53,7 +54,67 @@ defmodule Textile.Lexer do
     string("[/spoiler]")
     |> unwrap_and_tag(:spoiler_close)
 
-  markup = markup_segment(eos())
 
-  defparsec :markup, markup
+  # Images
+
+
+  image_url_with_title =
+    url_ending_in(string("("))
+    |> unwrap_and_tag(:image_url)
+    |> concat(
+      ignore(string("("))
+      |> repeat(utf8_char(not: ?)))
+      |> ignore(string(")"))
+      |> lookahead(string("!"))
+      |> reduce({List, :to_string, []})
+      |> unwrap_and_tag(:image_title)
+    )
+
+  image_url_without_title =
+    url_ending_in(string("!"))
+    |> unwrap_and_tag(:image_url)
+
+  image_url =
+    choice([
+      image_url_with_title,
+      image_url_without_title
+    ])
+
+  bracketed_image_with_link =
+    ignore(string("[!"))
+    |> concat(image_url)
+    |> ignore(string("!:"))
+    |> concat(
+      url_ending_in(string("]"))
+      |> unwrap_and_tag(:image_link_url)
+    )
+
+  bracketed_image_without_link =
+    ignore(string("[!"))
+    |> concat(image_url)
+    |> ignore(string("!]"))
+
+  image_with_link =
+    ignore(string("!"))
+    |> concat(image_url)
+    |> ignore(string("!:"))
+    |> concat(
+      url_ending_in(space())
+      |> unwrap_and_tag(:image_link_url)
+    )
+
+  image_without_link =
+    ignore(string("!"))
+    |> concat(image_url)
+    |> ignore(string("!"))
+
+  image =
+    choice([
+      bracketed_image_with_link,
+      bracketed_image_without_link,
+      image_with_link,
+      image_without_link
+    ])
+
+  defparsec :image, image
 end

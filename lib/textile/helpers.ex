@@ -17,7 +17,7 @@ defmodule Textile.Helpers do
   def special_characters do
     choice([
       space(),
-      utf8_char('#$%&(),-./:;<=?[\\]^`|~\'')
+      utf8_char('#$%&(),./:;<=?\\`|\'')
     ])
   end
 

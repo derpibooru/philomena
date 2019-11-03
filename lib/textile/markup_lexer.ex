@@ -118,12 +118,12 @@ defmodule Textile.MarkupLexer do
         b_sup_close,
         b_del_close,
         b_sub_close,
-        b_close,
-        i_close,
       ])
 
     markup_closing_tags =
       choice([
+        b_close,
+        i_close,
         strong_close,
         em_close,
         code_close,
@@ -131,6 +131,14 @@ defmodule Textile.MarkupLexer do
         sup_close,
         del_close,
         sub_close
+      ])
+
+    markup_tags =
+      choice([
+        bracketed_markup_opening_tags,
+        bracketed_markup_closing_tags,
+        markup_opening_tags,
+        markup_closing_tags
       ])
 
     markup_at_start =
@@ -142,12 +150,10 @@ defmodule Textile.MarkupLexer do
     markup_element =
       lookahead_not(ending_sequence)
       |> choice([
+        bracketed_markup_closing_tags,
+        bracketed_markup_opening_tags |> lookahead_not(space()),
         special_characters() |> concat(markup_opening_tags),
-        bracketed_markup_opening_tags,
-        # utf8 char which is not a space followed by a closing tag followed by a special or the end
-        utf8_char([]) |> lookahead_not(space()) |> concat(markup_closing_tags) |> lookahead(choice([special_characters(), ending_sequence])),
-        utf8_char([]) |> concat(bracketed_markup_closing_tags),
-        literal,
+        markup_closing_tags |> choice([special_characters(), ending_sequence]),
         utf8_char([])
       ])
 
