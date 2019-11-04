@@ -172,5 +172,36 @@ defmodule Textile.Lexer do
       unbracketed_link
     ])
 
-  defparsec :link, link
+
+  # Textile
+
+
+  {markup_start, markup_element} = markup_ending_in(eos())
+
+  textile_main =
+    choice([
+      bracketed_literal,
+      blockquote_open_cite,
+      blockquote_open,
+      blockquote_close,
+      spoiler_open,
+      spoiler_close,
+      link,
+      image,
+      markup_element
+    ])
+
+  textile_start =
+    choice([
+      textile_main,
+      markup_start
+    ])
+
+  textile =
+    optional(textile_start)
+    |> repeat(textile_main)
+    |> eos()
+
+
+  defparsec :lex, textile
 end

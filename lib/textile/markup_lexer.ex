@@ -133,14 +133,6 @@ defmodule Textile.MarkupLexer do
         sub_close
       ])
 
-    markup_tags =
-      choice([
-        bracketed_markup_opening_tags,
-        bracketed_markup_closing_tags,
-        markup_opening_tags,
-        markup_closing_tags
-      ])
-
     markup_at_start =
       choice([
         markup_opening_tags,
@@ -150,6 +142,7 @@ defmodule Textile.MarkupLexer do
     markup_element =
       lookahead_not(ending_sequence)
       |> choice([
+        literal,
         bracketed_markup_closing_tags,
         bracketed_markup_opening_tags |> lookahead_not(space()),
         special_characters() |> concat(markup_opening_tags),
