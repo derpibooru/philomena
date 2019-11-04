@@ -116,5 +116,61 @@ defmodule Textile.Lexer do
       image_without_link
     ])
 
-  defparsec :image, image
+
+  # Links
+
+
+  {link_markup_start, link_markup_element} = markup_ending_in(string("\""))
+
+  link_contents_start =
+    choice([
+      image,
+      link_markup_start,
+    ])
+
+  link_contents_element =
+    choice([
+      image,
+      link_markup_element
+    ])
+
+  link_contents =
+    optional(link_contents_start)
+    |> repeat(link_contents_element)
+
+  bracketed_link_end =
+    string("\":")
+    |> unwrap_and_tag(:link_end)
+    |> concat(
+      url_ending_in(string("]"))
+      |> unwrap_and_tag(:link_url)
+    )
+
+  bracketed_link =
+    string("[\"")
+    |> unwrap_and_tag(:link_start)
+    |> concat(link_contents)
+    |> concat(bracketed_link_end)
+
+  unbracketed_link_end =
+    string("\":")
+    |> unwrap_and_tag(:link_end)
+    |> concat(
+      url_ending_in(space())
+      |> unwrap_and_tag(:link_url)
+    )
+
+  unbracketed_link =
+    string("\"")
+    |> unwrap_and_tag(:link_start)
+    |> concat(link_contents)
+    |> concat(unbracketed_link_end)
+
+  link =
+    choice([
+      bracketed_link,
+      unbracketed_link
+    ])
+
+  defparsec :link, link
 end

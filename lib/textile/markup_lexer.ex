@@ -4,7 +4,7 @@ defmodule Textile.MarkupLexer do
 
   # Markup tags
 
-  def markup_segment(ending_sequence) do
+  def markup_ending_in(ending_sequence) do
 
     # The literal tag is special, because
     # 1. It needs to capture everything inside it as a distinct token.
@@ -157,7 +157,6 @@ defmodule Textile.MarkupLexer do
         utf8_char([])
       ])
 
-    optional(markup_at_start)
-    |> repeat(markup_element)
+    {markup_at_start, markup_element}
   end
 end
