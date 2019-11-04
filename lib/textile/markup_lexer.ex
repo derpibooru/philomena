@@ -5,6 +5,13 @@ defmodule Textile.MarkupLexer do
   # Markup tags
 
   def markup_ending_in(ending_sequence) do
+    double_newline =
+      string("\n\n")
+      |> unwrap_and_tag(:double_newline)
+
+    newline =
+      string("\n")
+      |> unwrap_and_tag(:newline)
 
     # The literal tag is special, because
     # 1. It needs to capture everything inside it as a distinct token.
@@ -147,6 +154,8 @@ defmodule Textile.MarkupLexer do
         bracketed_markup_opening_tags |> lookahead_not(space()),
         special_characters() |> concat(markup_opening_tags),
         markup_closing_tags |> choice([special_characters(), ending_sequence]),
+        double_newline,
+        newline,
         utf8_char([])
       ])
 
