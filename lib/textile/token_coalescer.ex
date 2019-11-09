@@ -10,6 +10,6 @@ defmodule Textile.TokenCoalescer do
 
       t ->
         t
-    )
+    end)
   end
 end
