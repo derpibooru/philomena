@@ -1,6 +1,5 @@
 defmodule Textile.Parser do
   import Textile.ParserHelpers
-  import Phoenix.HTML
 
   alias Textile.{
     Lexer,
@@ -9,7 +8,6 @@ defmodule Textile.Parser do
   }
 
   defstruct [
-    reductions: [],
     image_transform: nil
   ]
 
@@ -129,7 +127,7 @@ defmodule Textile.Parser do
       {:ok, [markup: ~s|<blockquote author="#{escape_html(author)}">|] ++ tree ++ [markup: ~s|</blockquote>|], r2_tokens}
     else
       _ ->
-        {:ok, [text: ~s|[bq="#{author}"]|], r_tokens}
+        {:ok, [text: escape_nl2br(~s|[bq="#{author}"]|)], r_tokens}
     end
   end
 
@@ -138,7 +136,7 @@ defmodule Textile.Parser do
       {:ok, [markup: ~s|<blockquote>|] ++ tree ++ [markup: ~s|</blockquote>|], r2_tokens}
     else
       _ ->
-        {:ok, [text: escape_html(open)], r_tokens}
+        {:ok, [text: escape_nl2br(open)], r_tokens}
     end
   end
 
@@ -155,7 +153,7 @@ defmodule Textile.Parser do
       {:ok, [markup: ~s|<span class="spoiler">|] ++ tree ++ [markup: ~s|</span>|], r2_tokens}
     else
       _ ->
-        {:ok, [text: escape_html(open)], r_tokens}
+        {:ok, [text: escape_nl2br(open)], r_tokens}
     end
   end
 
@@ -172,7 +170,7 @@ defmodule Textile.Parser do
       {:ok, [markup: ~s|<a href="#{escape_html(url)}">|] ++ tree ++ [markup: ~s|</a>|], r2_tokens}
     else
       _ ->
-        {:ok, [text: escape_html(start)], r_tokens}
+        {:ok, [text: escape_nl2br(start)], r_tokens}
     end
   end
 
@@ -305,16 +303,4 @@ defmodule Textile.Parser do
 
   defp text(_parser, _tokens),
     do: {:error, "Expected text"}
-
-
-  defp escape_nl2br(text) do
-    text
-    |> String.split("\n", trim: true)
-    |> Enum.map(&escape_html(&1))
-    |> Enum.join("<br/>")
-  end
-
-  defp escape_html(text) do
-    html_escape(text) |> safe_to_string()
-  end
 end

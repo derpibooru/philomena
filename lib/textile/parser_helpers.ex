@@ -1,4 +1,6 @@
 defmodule Textile.ParserHelpers do
+  import Phoenix.HTML
+
   defmacro attribute_parser(name, open_token, close_token, open_tag, close_tag) do
     quote do
       defp unquote(name)(parser, [{unquote(open_token), open} | r_tokens]) do
@@ -22,5 +24,16 @@ defmodule Textile.ParserHelpers do
       defp unquote(name)(_parser, _tokens),
         do: {:error, "Expected #{unquote(name)} tag"}
     end
+  end
+
+  def escape_nl2br(text) do
+    text
+    |> String.split("\n", trim: true)
+    |> Enum.map(&escape_html(&1))
+    |> Enum.join("<br/>")
+  end
+
+  def escape_html(text) do
+    html_escape(text) |> safe_to_string()
   end
 end
