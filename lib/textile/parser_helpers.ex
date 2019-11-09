@@ -5,7 +5,7 @@ defmodule Textile.ParserHelpers do
     quote do
       defp unquote(name)(parser, [{unquote(open_token), open} | r_tokens]) do
         with {:ok, tree, [{unquote(close_token), _close} | r2_tokens]} <- well_formed(parser, r_tokens) do
-          {:ok, [markup: unquote(open_tag)] ++ tree ++ [markup: unquote(close_tag)], r2_tokens}
+          {:ok, [{:markup, unquote(open_tag)}, tree, {:markup, unquote(close_tag)}], r2_tokens}
         else
           _ ->
             {:ok, [text: escape_html(open)], r_tokens}
@@ -14,7 +14,7 @@ defmodule Textile.ParserHelpers do
 
       defp unquote(name)(parser, [{unquote(:"b_#{open_token}"), open} | r_tokens]) do
         with {:ok, tree, [{unquote(:"b_#{close_token}"), _close} | r2_tokens]} <- well_formed(parser, r_tokens) do
-          {:ok, [markup: unquote(open_tag)] ++ tree ++ [markup: unquote(close_tag)], r2_tokens}
+          {:ok, [{:markup, unquote(open_tag)}, tree, {:markup, unquote(close_tag)}], r2_tokens}
         else
           _ ->
             {:ok, [text: escape_html(open)], r_tokens}

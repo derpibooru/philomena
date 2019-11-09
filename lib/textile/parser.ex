@@ -13,8 +13,9 @@ defmodule Textile.Parser do
 
   def parse(%Parser{} = parser, input) do
     with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
-         tokens <- TokenCoalescer.coalesce(tokens),
-         {:ok, tree, []} <- textile_top(parser, tokens)
+         tokens <- TokenCoalescer.coalesce_lex(tokens),
+         {:ok, tree, []} <- textile_top(parser, tokens),
+         tree <- TokenCoalescer.coalesce_parse(tree)
     do
       tree
     else
@@ -38,7 +39,7 @@ defmodule Textile.Parser do
          false <- tree == [],
          {:ok, next_tree, r2_tokens} <- textile_top(parser, r_tokens)
     do
-      {:ok, tree ++ next_tree, r2_tokens}
+      {:ok, [tree, next_tree], r2_tokens}
     else
       _ ->
         [{_token, string} | r_tokens] = tokens
@@ -55,7 +56,7 @@ defmodule Textile.Parser do
   defp well_formed_including_paragraphs(_parser, []), do: {:ok, [], []}
   defp well_formed_including_paragraphs(parser, [{:double_newline, _nl} | r_tokens]) do
     with {:ok, tree, r2_tokens} <- well_formed_including_paragraphs(parser, r_tokens) do
-      {:ok, [markup: "<br/><br/>"] ++ tree, r2_tokens}
+      {:ok, [{:markup, "<br/><br/>"}, tree], r2_tokens}
     else
       _ ->
         {:ok, [], r_tokens}
@@ -66,7 +67,7 @@ defmodule Textile.Parser do
     with {:ok, tree, r_tokens} <- markup(parser, tokens),
          {:ok, next_tree, r2_tokens} <- well_formed_including_paragraphs(parser, r_tokens)
     do
-      {:ok, tree ++ next_tree, r2_tokens}
+      {:ok, [tree, next_tree], r2_tokens}
     else
       _ ->
         {:ok, [], tokens}
@@ -80,7 +81,7 @@ defmodule Textile.Parser do
     case markup(parser, tokens) do
       {:ok, tree, r_tokens} ->
         {:ok, next_tree, r2_tokens} = well_formed(parser, r_tokens)
-        {:ok, tree ++ next_tree, r2_tokens}
+        {:ok, [tree, next_tree], r2_tokens}
 
       _ ->
         {:ok, [], tokens}
@@ -124,7 +125,7 @@ defmodule Textile.Parser do
   #
   defp blockquote(parser, [{:blockquote_open_cite, author} | r_tokens]) do
     with {:ok, tree, [{:blockquote_close, _close} | r2_tokens]} <- well_formed_including_paragraphs(parser, r_tokens) do
-      {:ok, [markup: ~s|<blockquote author="#{escape_html(author)}">|] ++ tree ++ [markup: ~s|</blockquote>|], r2_tokens}
+      {:ok, [{:markup, ~s|<blockquote author="#{escape_html(author)}">|}, tree, {:markup, ~s|</blockquote>|}], r2_tokens}
     else
       _ ->
         {:ok, [text: escape_nl2br(~s|[bq="#{author}"]|)], r_tokens}
@@ -133,7 +134,7 @@ defmodule Textile.Parser do
 
   defp blockquote(parser, [{:blockquote_open, open} | r_tokens]) do
     with {:ok, tree, [{:blockquote_close, _close} | r2_tokens]} <- well_formed_including_paragraphs(parser, r_tokens) do
-      {:ok, [markup: ~s|<blockquote>|] ++ tree ++ [markup: ~s|</blockquote>|], r2_tokens}
+      {:ok, [{:markup, ~s|<blockquote>|}, tree, {:markup, ~s|</blockquote>|}], r2_tokens}
     else
       _ ->
         {:ok, [text: escape_nl2br(open)], r_tokens}
@@ -150,7 +151,7 @@ defmodule Textile.Parser do
   #
   defp spoiler(parser, [{:spoiler_open, open} | r_tokens]) do
     with {:ok, tree, [{:spoiler_close, _close} | r2_tokens]} <- well_formed_including_paragraphs(parser, r_tokens) do
-      {:ok, [markup: ~s|<span class="spoiler">|] ++ tree ++ [markup: ~s|</span>|], r2_tokens}
+      {:ok, [{:markup, ~s|<span class="spoiler">|}, tree, {:markup, ~s|</span>|}], r2_tokens}
     else
       _ ->
         {:ok, [text: escape_nl2br(open)], r_tokens}
@@ -167,7 +168,7 @@ defmodule Textile.Parser do
   #
   defp link(parser, [{:link_start, start} | r_tokens]) do
     with {:ok, tree, [{:link_end, _end}, {:link_url, url} | r2_tokens]} <- well_formed_including_paragraphs(parser, r_tokens) do
-      {:ok, [markup: ~s|<a href="#{escape_html(url)}">|] ++ tree ++ [markup: ~s|</a>|], r2_tokens}
+      {:ok, [{:markup, ~s|<a href="#{escape_html(url)}">|}, tree, {:markup, ~s|</a>|}], r2_tokens}
     else
       _ ->
         {:ok, [text: escape_nl2br(start)], r_tokens}
