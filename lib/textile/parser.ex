@@ -1,7 +1,6 @@
 defmodule Textile.Parser do
   import Textile.ParserHelpers
   import Phoenix.HTML
-  require IEx
 
   alias Textile.{
     Lexer,
@@ -38,6 +37,7 @@ defmodule Textile.Parser do
   defp textile_top(_parser, []), do: {:ok, [], []}
   defp textile_top(parser, tokens) do
     with {:ok, tree, r_tokens} <- well_formed_including_paragraphs(parser, tokens),
+         false <- tree == [],
          {:ok, next_tree, r2_tokens} <- textile_top(parser, r_tokens)
     do
       {:ok, tree ++ next_tree, r2_tokens}
@@ -97,8 +97,6 @@ defmodule Textile.Parser do
   #   bracketed_literal | text;
   #
   defp markup(parser, tokens) do
-    IEx.pry
-
     markups = [
       &blockquote/2, &spoiler/2, &link/2, &image/2, &bold/2, &italic/2, &strong/2,
       &emphasis/2, &code/2, &inserted/2, &superscript/2, &deleted/2, &subscript/2,
