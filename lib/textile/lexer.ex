@@ -178,7 +178,7 @@ defmodule Textile.Lexer do
 
   {markup_start, markup_element} = markup_ending_in(eos())
 
-  textile_main =
+  textile_default =
     choice([
       bracketed_literal,
       blockquote_open_cite,
@@ -187,13 +187,18 @@ defmodule Textile.Lexer do
       spoiler_open,
       spoiler_close,
       link,
-      image,
+      image
+    ])
+
+  textile_main =
+    choice([
+      textile_default,
       markup_element
     ])
 
   textile_start =
     choice([
-      textile_main,
+      textile_default,
       markup_start
     ])
 
