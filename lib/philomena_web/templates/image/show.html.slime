@@ -23,5 +23,5 @@
 
   h4 Comments
   #comments data-current-url="" data-loaded="true"
-    = for comment <- @comments do
-      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment
+    = for {comment, body} <- @comments do
+      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body

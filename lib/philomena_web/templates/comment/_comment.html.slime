@@ -19,7 +19,7 @@ article.block.communication id="comment_#{@comment.id}"
         /      br
         /= if can?(:read, @comment)
         = if !@comment.hidden_from_users do
-          =<> @comment.body
+          ==<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out

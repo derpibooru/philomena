@@ -6,7 +6,7 @@ article.block.communication id="post_#{@post.id}"
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post
       .communication__body__text
         = if !@post.hidden_from_users do
-          =<> @post.body
+          ==<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out

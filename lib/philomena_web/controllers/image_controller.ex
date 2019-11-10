@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Comments.Comment}
+  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -31,6 +31,13 @@ defmodule PhilomenaWeb.ImageController do
       |> order_by(desc: :created_at)
       |> limit(25)
       |> Repo.all()
+
+    rendered =
+      comments
+      |> Renderer.render_collection()
+
+    comments =
+      Enum.zip(comments, rendered)
 
     render(conn, "show.html", image: conn.assigns.image, comments: comments)
   end

@@ -17,7 +17,10 @@ config :bcrypt_elixir,
 config :philomena,
   password_pepper: System.get_env("PASSWORD_PEPPER"),
   otp_secret_key: System.get_env("OTP_SECRET_KEY"),
-  image_url_root: System.get_env("IMAGE_URL_ROOT")
+  image_url_root: System.get_env("IMAGE_URL_ROOT"),
+  camo_host: System.get_env("CAMO_HOST"),
+  camo_key: System.get_env("CAMO_KEY"),
+  cdn_host: System.get_env("CDN_HOST")
 
 config :philomena, Philomena.Repo,
   # ssl: true,

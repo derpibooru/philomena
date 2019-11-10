@@ -13,6 +13,13 @@ defmodule Textile.MarkupLexer do
       string("\n")
       |> unwrap_and_tag(:newline)
 
+    preceding_whitespace =
+      choice([
+        double_newline,
+        newline,
+        special_characters()
+      ])
+
     # The literal tag is special, because
     # 1. It needs to capture everything inside it as a distinct token.
     # 2. It can be surrounded by markup on all sides.
@@ -152,8 +159,8 @@ defmodule Textile.MarkupLexer do
         literal,
         bracketed_markup_closing_tags,
         bracketed_markup_opening_tags |> lookahead_not(space()),
-        special_characters() |> concat(markup_opening_tags),
-        markup_closing_tags |> choice([special_characters(), ending_sequence]),
+        preceding_whitespace |> concat(markup_opening_tags),
+        markup_closing_tags |> lookahead(choice([special_characters(), ending_sequence])),
         double_newline,
         newline,
         utf8_char([])

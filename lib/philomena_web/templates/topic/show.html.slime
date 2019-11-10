@@ -35,8 +35,8 @@ h1 = @topic.title
   / The actual posts
   .posts-area
     .post-list
-      = for post <- @posts, !post.destroyed_content do
-        = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post
+      = for {post, body} <- @posts, !post.destroyed_content do
+        = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
 
       /include ../adverts/_box.html.slim
 

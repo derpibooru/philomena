@@ -143,6 +143,7 @@ defmodule Textile.Lexer do
     |> unwrap_and_tag(:link_end)
     |> concat(
       url_ending_in(string("]"))
+      |> ignore(string("]"))
       |> unwrap_and_tag(:link_url)
     )
 

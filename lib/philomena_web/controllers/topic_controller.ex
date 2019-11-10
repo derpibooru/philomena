@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post}
+  alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -25,6 +25,12 @@ defmodule PhilomenaWeb.TopicController do
       |> order_by(asc: :created_at)
       |> preload([:user, topic: :forum])
       |> Repo.all()
+
+    rendered =
+      Renderer.render_collection(posts)
+
+    posts =
+      Enum.zip(posts, rendered)
 
     posts =
       %Scrivener.Page{
