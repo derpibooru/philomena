@@ -10,16 +10,13 @@
         == @description
   .js-tagsauce id="image_tags_and_source_#{@image.id}"
     .tagsauce
-      .block
-        | Tags:
       = render PhilomenaWeb.TagView, "_tag_list.html", tags: @image.tags
   .block
     .flex.flex--wrap#image-source
-      ' Source:
       = if !!@image.source_url and @image.source_url != "" do
         a href=@image.source_url = @image.source_url
       - else
-        em> not provided yet
+        em> no source provided yet
 
   h4 Comments
   #comments data-current-url="" data-loaded="true"
