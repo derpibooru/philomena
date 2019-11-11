@@ -2,4 +2,5 @@
   strong<> = @object.user.name
 - else
   strong<>
-    ' Background Pony
+    | Background Pony #
+    = anonymous_name(@object)

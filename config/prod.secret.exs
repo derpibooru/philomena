@@ -15,6 +15,7 @@ config :bcrypt_elixir,
   log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS") || "12")
 
 config :philomena,
+  anonymous_name_salt: System.get_env("ANONYMOUS_NAME_SALT"),
   password_pepper: System.get_env("PASSWORD_PEPPER"),
   otp_secret_key: System.get_env("OTP_SECRET_KEY"),
   image_url_root: System.get_env("IMAGE_URL_ROOT"),
