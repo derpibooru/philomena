@@ -17,7 +17,9 @@ defmodule PhilomenaWeb.UserAttributionView do
   end
 
   def user_avatar(object, class \\ "avatar--100px") do
-    if object.user.avatar do
+    user = object.user
+
+    if user and user.avatar do
       img_tag(avatar_url_root() <> object.user.avatar, class: class)
     else
       anonymous_avatar(object, class)
