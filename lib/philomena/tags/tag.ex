@@ -35,20 +35,4 @@ defmodule Philomena.Tags.Tag do
     |> cast(attrs, [])
     |> validate_required([])
   end
-
-  def display_order do
-    Philomena.Tags.Tag
-    |> order_by(
-      [t],
-      asc: t.category == "spoiler",
-      asc: t.category == "content-official",
-      asc: t.category == "content-fanmade",
-      asc: t.category == "species",
-      asc: t.category == "oc",
-      asc: t.category == "character",
-      asc: t.category == "origin",
-      asc: t.category == "rating",
-      asc: t.name
-    )
-  end
 end

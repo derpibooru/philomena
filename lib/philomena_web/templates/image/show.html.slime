@@ -10,7 +10,7 @@
         == @description
   .js-tagsauce id="image_tags_and_source_#{@image.id}"
     .tagsauce
-      = render PhilomenaWeb.TagView, "_tag_list.html", tags: @image.tags
+      = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags)
   .block
     .flex.flex--wrap#image-source
       = if !!@image.source_url and @image.source_url != "" do
