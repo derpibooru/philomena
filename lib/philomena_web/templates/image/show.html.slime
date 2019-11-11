@@ -7,7 +7,7 @@
       p
         | Description:
       .image-description__text
-        = @image.description
+        == @description
   .js-tagsauce id="image_tags_and_source_#{@image.id}"
     .tagsauce
       .block

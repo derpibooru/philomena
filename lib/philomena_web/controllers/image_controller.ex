@@ -39,6 +39,10 @@ defmodule PhilomenaWeb.ImageController do
     comments =
       Enum.zip(comments, rendered)
 
-    render(conn, "show.html", image: conn.assigns.image, comments: comments)
+    description =
+      %{body: conn.assigns.image.description}
+      |> Renderer.render_one()
+
+    render(conn, "show.html", image: conn.assigns.image, comments: comments, description: description)
   end
 end
