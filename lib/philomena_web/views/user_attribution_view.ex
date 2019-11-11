@@ -16,15 +16,14 @@ defmodule PhilomenaWeb.UserAttributionView do
     img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/no_avatar.svg"), class: class)
   end
 
-  def user_avatar(object, class \\ "avatar--100px") do
-    user = object.user
+  def user_avatar(object, class \\ "avatar--100px")
 
-    if user && user.avatar do
-      img_tag(avatar_url_root() <> object.user.avatar, class: class)
-    else
-      anonymous_avatar(object, class)
-    end
-  end
+  def user_avatar(%{user: nil} = object, class),
+    do: anonymous_avatar(object, class)
+  def user_avatar(%{user: %{avatar: nil}} = object, class),
+    do: anonymous_avatar(object, class)
+  def user_avatar(%{user: %{avatar: avatar}}, class),
+    do: img_tag(avatar_url_root() <> avatar, class: class)
 
   defp avatar_url_root do
     Application.get_env(:philomena, :avatar_url_root)
