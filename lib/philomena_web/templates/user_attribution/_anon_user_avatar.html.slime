@@ -1,0 +1,4 @@
+= if !!@object.user and !@object.anonymous do
+  = anonymous_avatar(@object)
+- else
+  = user_avatar(@object)

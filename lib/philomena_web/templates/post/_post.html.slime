@@ -1,7 +1,7 @@
 article.block.communication id="post_#{@post.id}"
   .block__content.flex.flex--no-wrap
     .flex__fixed.spacing-right
-      /=<> user_avatar((post.user if post.user_visible?), 'avatar--100px', post.author)
+      = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post
     .flex__grow.communication__body
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post
       .communication__body__text
