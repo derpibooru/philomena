@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.TopicController do
 
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
-  def show(conn, %{"id" => slug}) do
+  def show(conn, %{"id" => slug} = params) do
     forum = conn.assigns.forum
     topic =
       Topic
@@ -17,6 +17,16 @@ defmodule PhilomenaWeb.TopicController do
 
     conn = conn |> assign(:topic, topic)
     %{page_number: page} = conn.assigns.pagination
+
+    page =
+      with {post_id, _extra} <- Integer.parse(params["post_id"] || ""),
+           [post] <- Post |> where(id: ^post_id) |> Repo.all()
+      do
+        div(post.topic_position, 25) + 1
+      else
+        _ ->
+          page
+      end
 
     posts =
       Post

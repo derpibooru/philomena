@@ -26,7 +26,7 @@ h1 Discussion Forums
                 strong
                   => link(forum.last_post.topic.title, to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic))
                 br
-                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic, post_id: forum.last_post.id))
+                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic, post_id: forum.last_post.id) <> "#post_#{forum.last_post.id}")
                 ' by
                 => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: forum.last_post
                 br

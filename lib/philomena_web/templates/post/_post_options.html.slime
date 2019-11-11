@@ -13,7 +13,7 @@ div
   /      | because:
   /      =<> post.edit_reason
 div
-  - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "post_#{@post.id}"
+  - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "#post_#{@post.id}"
   a.communication__interaction title="Link to post" href=link_path
     i.fa.fa-link>
     ' Link
