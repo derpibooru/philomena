@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.UserAttributionView do
   def user_avatar(%{user: %{avatar: nil}} = object, class),
     do: anonymous_avatar(object, class)
   def user_avatar(%{user: %{avatar: avatar}}, class),
-    do: img_tag(avatar_url_root() <> avatar, class: class)
+    do: img_tag(avatar_url_root() <> "/" <> avatar, class: class)
 
   defp avatar_url_root do
     Application.get_env(:philomena, :avatar_url_root)
