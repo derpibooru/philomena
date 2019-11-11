@@ -126,6 +126,8 @@ $tag_category_content_official_background: desaturate(darken($tag_category_conte
 $tag_category_content_official_border: darken($tag_category_content_official_color, 20%) !default;
 $tag_category_content_fanmade_background: darken($tag_category_content_fanmade_color, 40%) !default;
 $tag_category_content_fanmade_border: desaturate(darken($tag_category_content_fanmade_color, 20%), 10%) !default;
+$tag_category_species_background: darken($tag_category_species_color, 35%) !default;
+$tag_category_species_border: desaturate(darken($tag_category_species_color, 20%), 10%) !default;
 
 $commission_category_background: darken($commission_category_color, 36%) !default;
 $commission_category_border: darken($commission_category_color, 25%) !default;

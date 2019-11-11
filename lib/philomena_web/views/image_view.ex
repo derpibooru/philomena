@@ -68,14 +68,14 @@ defmodule PhilomenaWeb.ImageView do
   def display_order(tags) do
     tags
     |> Enum.sort_by(&{
-      &1.category != "spoiler",
-      &1.category != "content-official",
-      &1.category != "content-fanmade",
-      &1.category != "species",
-      &1.category != "oc",
-      &1.category != "character",
-      &1.category != "origin",
       &1.category != "rating",
+      &1.category != "origin",
+      &1.category != "character",
+      &1.category != "oc",
+      &1.category != "species",
+      &1.category != "content-fanmade",
+      &1.category != "content-official",
+      &1.category != "spoiler",
       &1.name
     })
   end
