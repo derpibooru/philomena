@@ -9,7 +9,7 @@ defmodule Camo.Image do
       camo_uri = %URI{
         host: camo_host(),
         path: "/" <> camo_digest,
-        query: input,
+        query: URI.encode_query(url: input),
         scheme: "https"
       }
 
