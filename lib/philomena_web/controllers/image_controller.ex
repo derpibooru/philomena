@@ -1,11 +1,11 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
+  alias Philomena.{Images.Image, Comments.Comment, Tags.Tag, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Image, only: :show, preload: [:tags, :user]
+  plug :load_and_authorize_resource, model: Image, only: :show, preload: [:user, tags: Tag.display_order()]
 
   def index(conn, _params) do
     query = conn.assigns.compiled_filter
