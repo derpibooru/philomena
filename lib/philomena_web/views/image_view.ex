@@ -44,8 +44,8 @@ defmodule PhilomenaWeb.ImageView do
     Application.get_env(:philomena, :image_url_root)
   end
 
-  def image_container(image, size, block) do
-    data = [
+  def image_container_data(image, size) do
+    [
       image_id: image.id,
       image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
       score: image.score,
@@ -61,8 +61,10 @@ defmodule PhilomenaWeb.ImageView do
       aspect_ratio: image.image_aspect_ratio,
       size: size
     ]
+  end
 
-    content_tag(:div, block.(), class: "image-container #{size}", data: data)
+  def image_container(image, size, block) do
+    content_tag(:div, block.(), class: "image-container #{size}", data: image_container_data(image, size))
   end
 
   def display_order(tags) do

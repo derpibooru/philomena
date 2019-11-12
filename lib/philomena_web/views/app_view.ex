@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.AppView do
   def pretty_time(time) do
     seconds = NaiveDateTime.diff(NaiveDateTime.utc_now(), time, :second)
     relation = if seconds < 0, do: "from now", else: "ago"
-    time = time |> DateTime.from_naive!("Etc/UTC")
+    time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
 
     seconds = abs(seconds)
     minutes = abs(div(seconds, 60))
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.AppView do
         true -> String.replace(@time_strings[:years], "%d", to_string(years))
       end
 
-    content_tag(:time, "#{words} #{relation}", datetime: time |> DateTime.to_iso8601())
+    content_tag(:time, "#{words} #{relation}", datetime: time, title: time)
   end
 
   def can?(conn, action, model) do
