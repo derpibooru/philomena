@@ -46,7 +46,7 @@
           .flex__grow.center
             .badge = badge_image(award.badge, alt: award.label, width: "32", height: "32")
             br
-              = (award.badge_name || award.badge.title)
+              = award_title(award)
           .flex__grow.center
             = pretty_time(award.awarded_on)
 

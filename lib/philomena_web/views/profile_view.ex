@@ -10,6 +10,13 @@ defmodule PhilomenaWeb.ProfileView do
     img_tag(badge_url_root() <> "/" <> badge.image, options)
   end
 
+  def award_title(%{badge_name: nil} = award),
+    do: award.badge.title
+  def award_title(%{badge_name: ""} = award),
+    do: award.badge.title
+  def award_title(award),
+    do: award.badge_name
+
   defp badge_url_root do
     Application.get_env(:philomena, :badge_url_root)
   end
