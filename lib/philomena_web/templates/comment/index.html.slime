@@ -1,0 +1,14 @@
+elixir:
+  route = fn p -> Routes.comment_path(@conn, :index, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
+
+.block
+  .block__header
+    = pagination
+
+= for {comment, body} <- @comments do
+  = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
+
+.block
+  .block__header.block__header--light
+    = pagination

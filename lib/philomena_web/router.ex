@@ -36,6 +36,7 @@ defmodule PhilomenaWeb.Router do
     resources "/forums", ForumController, only: [:index, :show] do
       resources "/topics", TopicController, only: [:show]
     end
+    resources "/comments", CommentController, only: [:index]
 
     scope "/filters", Filter, as: :filter do
       resources "/current", CurrentController, only: [:update], singular: true
