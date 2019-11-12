@@ -6,14 +6,14 @@ defmodule PhilomenaWeb.Image.CommentController do
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
-  plug :load_and_authorize_resource, model: Comment, only: [:show], preload: [:image, :user]
+  plug :load_and_authorize_resource, model: Comment, only: [:show], preload: [:image, user: [awards: :badge]]
 
   def index(conn, _params) do
     comments =
       Comment
       |> where(image_id: ^conn.assigns.image.id)
       |> order_by(desc: :created_at)
-      |> preload([:image, :user])
+      |> preload([:image, user: [awards: :badge]])
       |> Repo.paginate(conn.assigns.scrivener)
 
     rendered =

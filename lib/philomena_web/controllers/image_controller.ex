@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Image, only: :show, preload: [:user, :tags]
+  plug :load_and_authorize_resource, model: Image, only: :show, preload: [:tags, user: [awards: :badge]]
 
   def index(conn, _params) do
     query = conn.assigns.compiled_filter
@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.ImageController do
     comments =
       Comment
       |> where(image_id: ^conn.assigns.image.id)
-      |> preload([:user, :image])
+      |> preload([:image, user: [awards: :badge]])
       |> order_by(desc: :created_at)
       |> limit(25)
       |> Repo.paginate(conn.assigns.scrivener)

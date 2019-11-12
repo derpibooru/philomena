@@ -1,6 +1,8 @@
 = if !!@object.user and !@object.anonymous do
   strong<>
     = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
+  = if assigns[:awards] do
+    = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
 - else
   strong<>
     | Background Pony #
