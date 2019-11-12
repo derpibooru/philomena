@@ -44,9 +44,9 @@
       = for award <- award_order(@user.awards) do
         .block__content.flex.flex--centered.flex--center-distributed.alternating-color.no-overflow title=award.label
           .flex__grow.center
-            .badge = badge_image(award.badge, alt: award.label, size: "32")
+            .badge = badge_image(award.badge, alt: award.label, width: "32", height: "32")
             br
-              = award.badge_name || badge.title
+              = (award.badge_name || award.badge.title)
           .flex__grow.center
             = pretty_time(award.awarded_on)
 
