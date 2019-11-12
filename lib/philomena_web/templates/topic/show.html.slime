@@ -17,7 +17,7 @@ h1 = @topic.title
       = pagination
     .flex--fixed.block__header__item
       ' Started by
-      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic
+      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic, conn: @conn
     .flex--fixed.block__header__item
       ' Posted
       =< pretty_time(@topic.created_at)

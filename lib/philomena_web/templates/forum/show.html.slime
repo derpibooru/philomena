@@ -41,14 +41,14 @@ h1 = @forum.name
                 ' Posted
                 => pretty_time(topic.created_at)
                 ' by
-                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic
+                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic, conn: @conn
             td.table--communication-list__stats.hide-mobile = topic.view_count
             td.table--communication-list__stats.hide-mobile = topic.post_count
             td.table--communication-list__last-post
               = if topic.last_post do
                 => link("Go to post", to: Routes.forum_topic_path(@conn, :show, @forum, topic, post_id: topic.last_post) <> "#post_#{topic.last_post.id}")
                 ' by
-                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post
+                = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post, conn: @conn
                 br
                 => pretty_time(topic.last_post.created_at)
   .block__header.block__header--light

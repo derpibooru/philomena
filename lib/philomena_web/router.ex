@@ -39,6 +39,7 @@ defmodule PhilomenaWeb.Router do
       resources "/current", CurrentController, only: [:update], singular: true
     end
     resources "/filters", FilterController
+    resources "/profiles", ProfileController, only: [:show]
 
     get "/:id", ImageController, :show
   end

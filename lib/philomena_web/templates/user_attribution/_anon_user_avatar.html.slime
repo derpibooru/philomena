@@ -1,4 +1,4 @@
 = if !!@object.user and !@object.anonymous do
-  = user_avatar(@object)
+  = user_avatar(@object, assigns[:class] || "avatar--100px")
 - else
-  = anonymous_avatar(@object)
+  = anonymous_avatar(@object, assigns[:class] || "avatar--100px")

@@ -11,7 +11,15 @@ defmodule Philomena.Users.User do
 
   import Ecto.Changeset
 
+  @derive {Phoenix.Param, key: :slug}
+
   schema "users" do
+    has_many :links, Philomena.Users.Link
+    has_many :verified_links, Philomena.Users.Link, where: [aasm_state: "verified"]
+    has_many :public_links, Philomena.Users.Link, where: [public: true, aasm_state: "verified"]
+    has_many :galleries, Philomena.Galleries.Gallery
+    has_many :awards, Philomena.Badges.Award
+
     belongs_to :current_filter, Philomena.Filters.Filter
     belongs_to :deleted_by_user, Philomena.Users.User
 

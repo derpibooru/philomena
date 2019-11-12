@@ -13,7 +13,8 @@ config :philomena,
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
   image_url_root: "/img",
-  avatar_url_root: "/avatars"
+  avatar_url_root: "/avatars",
+  badge_url_root: "/media"
 
 config :philomena, :pow,
   user: Philomena.Users.User,

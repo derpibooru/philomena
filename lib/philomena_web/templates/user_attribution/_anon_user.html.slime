@@ -1,5 +1,6 @@
 = if !!@object.user and !@object.anonymous do
-  strong<> = @object.user.name
+  strong<>
+    = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
 - else
   strong<>
     | Background Pony #

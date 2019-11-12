@@ -30,7 +30,7 @@ h1
   = if @filter.user do
     p.filter-maintainer
       ' This filter is maintained by
-      = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter
+      = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter, conn: @conn
       ' .
 
   p.filter-description

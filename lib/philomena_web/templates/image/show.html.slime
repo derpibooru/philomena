@@ -1,5 +1,5 @@
-= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image
-= render PhilomenaWeb.ImageView, "_image_page.html", image: @image
+= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, conn: @conn
+= render PhilomenaWeb.ImageView, "_image_page.html", image: @image, conn: @conn
 
 .layout--narrow
   .image-description
@@ -10,7 +10,7 @@
         == @description
   .js-tagsauce id="image_tags_and_source_#{@image.id}"
     .tagsauce
-      = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags)
+      = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags), conn: @conn
   .block
     .flex.flex--wrap#image-source
       = if !!@image.source_url and @image.source_url != "" do
@@ -21,4 +21,4 @@
   h4 Comments
   #comments data-current-url="" data-loaded="true"
     = for {comment, body} <- @comments do
-      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body
+      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn

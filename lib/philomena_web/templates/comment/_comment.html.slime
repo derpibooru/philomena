@@ -1,9 +1,9 @@
 article.block.communication id="comment_#{@comment.id}"
   .block__content.flex.flex--no-wrap
     .flex__fixed.spacing-right
-      = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment
+      = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
     .flex__grow.communication__body
-      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment
+      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, conn: @conn
       .communication__body__text
         /- if comment.hidden_from_users
         /  strong.comment_deleted
@@ -23,7 +23,7 @@ article.block.communication id="comment_#{@comment.id}"
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
-      = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment
+      = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment, conn: @conn
     /- if can?(:hide, Comment)
     /  .js-staff-action
     /    - if !comment.hidden_from_users && !comment.destroyed_content

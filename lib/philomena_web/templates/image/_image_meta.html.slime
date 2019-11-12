@@ -51,7 +51,7 @@
       ' Uploaded
       => pretty_time(@image.created_at)
       ' by
-      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image
+      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, conn: @conn
     span.image-size
       | &nbsp;
       = @image.image_width

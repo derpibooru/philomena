@@ -7,6 +7,6 @@
       => @comment.image.id
     ' by
     span.hyphenate-breaks
-      = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment
+      = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, conn: @conn
     br
     = pretty_time(@comment.created_at)

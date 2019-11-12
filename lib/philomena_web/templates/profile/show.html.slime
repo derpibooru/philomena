@@ -1,0 +1,55 @@
+.profile-top
+  .profile-top__avatar
+    = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @user}, class: "avatar--125px"
+  .profile-top__name-and-links
+    div
+      h1.profile-top__name-header
+        = @user.name
+        | 's profile
+      span
+        ' Member since
+        = pretty_time(@user.created_at)
+
+    .profile-top__options
+      ul.profile-top__options__column
+        li = link("Send message", to: "#")
+        li = link("Our conversations", to: "#")
+        li = link("Report this user", to: "#")
+
+      ul.profile-top__options__column
+        li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))
+        li = link("Comments", to: "#")
+        li = link("Posts", to: "#")
+
+      ul.profile-top__options__column
+        li = link("Favorites", to: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}"))
+        li = link("Tag changes", to: "#")
+        li = link("Source changes", to: "#")
+
+.column-layout
+  .column-layout__left
+    .block
+      .block__header
+        span.block__header__title User Links
+      = for link <- @user.public_links do
+        .block__content.alternating-color.break-word
+          .center
+            = if link.tag do
+              .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag
+            = link(link.uri, to: link.uri)
+
+    .block
+      .block__header
+        span.block__header__title Badges
+      = for award <- award_order(@user.awards) do
+        .block__content.flex.flex--centered.flex--center-distributed.alternating-color.no-overflow title=award.label
+          .flex__grow.center
+            .badge = badge_image(award.badge, alt: award.label, size: "32")
+            br
+              = award.badge_name || badge.title
+          .flex__grow.center
+            = pretty_time(award.awarded_on)
+
+  .column-layout__main
+    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Uploads", images: @recent_uploads, view_all_path: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}")
+    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Favorites", images: @recent_faves, view_all_path: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}")
