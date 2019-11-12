@@ -30,14 +30,14 @@ defmodule PhilomenaWeb.ImageController do
       |> preload([:user, :image])
       |> order_by(desc: :created_at)
       |> limit(25)
-      |> Repo.all()
+      |> Repo.paginate(conn.assigns.scrivener)
 
     rendered =
-      comments
+      comments.entries
       |> Renderer.render_collection()
 
     comments =
-      Enum.zip(comments, rendered)
+      %{comments | entries: Enum.zip(comments.entries, rendered)}
 
     description =
       %{body: conn.assigns.image.description}

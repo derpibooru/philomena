@@ -19,6 +19,5 @@
         em> no source provided yet
 
   h4 Comments
-  #comments data-current-url="" data-loaded="true"
-    = for {comment, body} <- @comments do
-      = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
+  #comments data-current-url=Routes.image_comment_path(@conn, :index, @image, page: 1) data-loaded="true"
+    = render PhilomenaWeb.Image.CommentView, "index.html", image: @image, comments: @comments, conn: @conn

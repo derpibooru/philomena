@@ -58,8 +58,7 @@ function loadParentPost(event) {
     // If the regex matched, get the image and comment ID
     const [ , imageId, commentId ] = commentMatches;
 
-    // Use .html because the default response is JSON
-    fetchHtml(`/images/${imageId}/comments/${commentId}.html`)
+    fetchHtml(`/images/${imageId}/comments/${commentId}`)
       .then(handleError)
       .then(data => {
         clearParentPost(clickedLink, fullComment);

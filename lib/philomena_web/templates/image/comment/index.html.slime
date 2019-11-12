@@ -1,0 +1,20 @@
+elixir:
+  route = fn p -> Routes.image_comment_path(@conn, :index, @image, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
+
+.block
+  .block__header
+    =<> pagination
+    span.block__header__title
+      =<> @image.comments_count
+      => pluralize("comment", "comments", @image.comments_count)
+      ' posted
+    button.button#js-refresh-comments title="Refresh" data-disable-with="..."
+      span.hide-mobile<> Refresh
+
+= for {comment, body} <- @comments do
+  = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
+
+.block
+  .block__header.block__header--light
+    = pagination
