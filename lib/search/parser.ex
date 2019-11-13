@@ -66,8 +66,9 @@ defmodule Search.Parser do
       {:error, msg} ->
         {:error, msg}
 
-      _ ->
-        {:error, "unknown parsing error"}
+      err ->
+        err
+        #{:error, "unknown parsing error"}
     end
   end
 

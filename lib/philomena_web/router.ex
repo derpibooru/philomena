@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Router do
   use PhilomenaWeb, :router
   use Pow.Phoenix.Router
+  use Pow.Extension.Phoenix.Router, otp_app: :philomena
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,14 +17,28 @@ defmodule PhilomenaWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :ensure_totp do
+    plug PhilomenaWeb.Plugs.TotpPlug
+  end
+
   scope "/" do
-    pipe_through :browser
+    pipe_through [:browser, :ensure_totp]
   
-    #pow_routes()
+    pow_routes()
+    pow_extension_routes()
   end
 
   scope "/", PhilomenaWeb do
-    pipe_through :browser
+    pipe_through [:browser, :ensure_totp]
+
+    # Additional routes for TOTP
+    scope "/registration", Registration, as: :registration do
+      resources "/totp", TotpController, only: [:edit, :update], singleton: true
+    end
+
+    scope "/session", Session, as: :session do
+      resources "/totp", TotpController, only: [:new, :create], singleton: true
+    end
 
     get "/", ActivityController, :index
 
@@ -39,7 +54,7 @@ defmodule PhilomenaWeb.Router do
     resources "/comments", CommentController, only: [:index]
 
     scope "/filters", Filter, as: :filter do
-      resources "/current", CurrentController, only: [:update], singular: true
+      resources "/current", CurrentController, only: [:update], singleton: true
     end
     resources "/filters", FilterController
     resources "/profiles", ProfileController, only: [:show]

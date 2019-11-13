@@ -1,8 +1,7 @@
 defmodule PhilomenaWeb.ProfileController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images, Images.Image, Comments.Comment, Posts.Post, Users.User, Users.Link}
-  alias Philomena.Repo
+  alias Philomena.{Images, Images.Image, Users.User}
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [awards: :badge, public_links: :tag]

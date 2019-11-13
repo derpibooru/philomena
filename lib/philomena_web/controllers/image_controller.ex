@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Comments.Comment, Tags.Tag, Textile.Renderer}
+  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 

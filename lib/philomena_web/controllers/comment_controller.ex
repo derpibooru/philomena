@@ -1,8 +1,7 @@
 defmodule PhilomenaWeb.CommentController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
-  alias Philomena.Repo
+  alias Philomena.{Comments.Comment, Textile.Renderer}
   import Ecto.Query
 
   def index(conn, _params) do

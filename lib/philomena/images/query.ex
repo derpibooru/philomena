@@ -51,7 +51,7 @@ defmodule Philomena.Images.Query do
         must_not
       end
 
-    %{bool: %{should: should, must_not: must_not}}
+    {:ok, %{bool: %{should: should, must_not: must_not}}}
   end
 
   def user_my_transform(_ctx, _value),

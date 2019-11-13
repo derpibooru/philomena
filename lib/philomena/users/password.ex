@@ -1,13 +1,13 @@
 defmodule Philomena.Users.Password do
   def hash_pwd_salt(password, opts \\ []) do
-    pepper = Application.get_env(:philomena, :password_pepper)
-
-    Bcrypt.hash_pwd_salt(<<password::binary, pepper::binary>>, opts)
+    Bcrypt.hash_pwd_salt(<<password::binary, password_pepper()::binary>>, opts)
   end
 
   def verify_pass(password, stored_hash) do
-    pepper = Application.get_env(:philomena, :password_pepper)
+    Bcrypt.verify_pass(<<password::binary, password_pepper()::binary>>, stored_hash)
+  end
 
-    Bcrypt.verify_pass(<<password::binary, pepper::binary>>, stored_hash)
+  defp password_pepper do
+    Application.get_env(:philomena, :password_pepper)
   end
 end

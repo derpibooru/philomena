@@ -7,7 +7,7 @@ defmodule Philomena.Users.User do
     password_hash_methods: {&Password.hash_pwd_salt/1, &Password.verify_pass/2}
 
   use Pow.Extension.Ecto.Schema,
-    extensions: [PowResetPassword]
+    extensions: [PowResetPassword, PowPersistentSession]
 
   import Ecto.Changeset
 
@@ -17,7 +17,7 @@ defmodule Philomena.Users.User do
     has_many :links, Philomena.Users.Link
     has_many :verified_links, Philomena.Users.Link, where: [aasm_state: "verified"]
     has_many :public_links, Philomena.Users.Link, where: [public: true, aasm_state: "verified"]
-    has_many :galleries, Philomena.Galleries.Gallery
+    has_many :galleries, Philomena.Galleries.Gallery, foreign_key: :creator_id
     has_many :awards, Philomena.Badges.Award
 
     belongs_to :current_filter, Philomena.Filters.Filter
@@ -116,24 +116,97 @@ defmodule Philomena.Users.User do
     |> validate_required([])
   end
 
-  def otp_secret(%{encrypted_otp_secret: x} = user) when x not in [nil, ""] do
-    Philomena.Users.Encryptor.decrypt_model(
-      user.encrypted_otp_secret,
-      user.encrypted_otp_secret_iv,
-      user.encrypted_otp_secret_salt
-    )
-  end
-
-  def otp_secret(_user), do: nil
-
-  def put_otp_secret(user_or_changeset, secret) do
+  def create_totp_secret_changeset(user) do
+    secret = :crypto.strong_rand_bytes(15) |> Base.encode32()
     data = Philomena.Users.Encryptor.encrypt_model(secret)
 
-    user_or_changeset
+    user
     |> change(%{
       encrypted_otp_secret: data.secret,
       encrypted_otp_secret_iv: data.iv,
       encrypted_otp_secret_salt: data.salt
     })
+  end
+
+  def consume_totp_token_changeset(user, token) do
+    cond do
+      totp_valid?(user, token) ->
+        user
+        |> change(%{consumed_timestep: token})
+
+      backup_code_valid?(user, token) ->
+        user
+        |> change(%{otp_backup_codes: remove_backup_code(user, token)})
+
+      true ->
+        user
+        |> add_error(:consumed_timestep, "invalid token")
+    end
+  end
+
+  def totp_changeset(user, params, backup_codes) do
+    token = to_string(params["twofactor_token"])
+
+    case user.otp_required_for_login do
+      true ->
+        # User wants to disable TOTP
+        user
+        |> pow_current_password_changeset(params)
+        |> consume_totp_token_changeset(token)
+        |> disable_totp_changeset()
+
+      false ->
+        # User wants to enable TOTP
+        user
+        |> pow_current_password_changeset(params)
+        |> consume_totp_token_changeset(token)
+        |> enable_totp_changeset(backup_codes)
+    end
+  end
+
+  def random_backup_codes do
+    (1..10)
+    |> Enum.map(fn _i ->
+      :crypto.strong_rand_bytes(6) |> Base.encode16(case: :lower)
+    end)
+  end
+
+
+  defp enable_totp_changeset(user, backup_codes) do
+    hashed_codes =
+      backup_codes
+      |> Enum.map(&Password.hash_pwd_salt/1)
+
+    user
+    |> change(%{
+      otp_required_for_login: true,
+      otp_backup_codes: hashed_codes
+    })
+  end
+
+  defp disable_totp_changeset(user) do
+    user
+    |> change(%{
+      otp_required_for_login: false,
+      otp_backup_codes: []
+    })
+  end
+
+  defp totp_valid?(user, token),
+    do: :pot.valid_totp(token, otp_secret(user), window: 60)
+
+  defp backup_code_valid?(user, token),
+    do: Enum.any?(user.otp_backup_codes, &Password.verify_pass(token, &1))
+
+  defp remove_backup_code(user, token),
+    do: user.otp_backup_codes |> Enum.reject(&Password.verify_pass(token, &1))
+
+
+  defp otp_secret(user) do
+    Philomena.Users.Encryptor.decrypt_model(
+      user.encrypted_otp_secret,
+      user.encrypted_otp_secret_iv,
+      user.encrypted_otp_secret_salt
+    )
   end
 end
