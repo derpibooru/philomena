@@ -37,7 +37,7 @@ header.header
           span.hide-limited-desktop< Filters
         .dropdown.header__dropdown
           a.header__link.header__link-user href="/"
-            /= user_avatar(@current_user, 'avatar--28px'.freeze, @current_user.name)
+            = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, class: "avatar--28px"
             span.header__link-user__dropdown-arrow.hide-mobile data-click-preventdefault="true"
           nav.dropdown__content.dropdown__content-right.hide-mobile.js-burger-links
             a.header__link href="/profiles"

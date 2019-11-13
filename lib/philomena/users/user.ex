@@ -4,7 +4,8 @@ defmodule Philomena.Users.User do
   use Ecto.Schema
 
   use Pow.Ecto.Schema,
-    password_hash_methods: {&Password.hash_pwd_salt/1, &Password.verify_pass/2}
+    password_hash_methods: {&Password.hash_pwd_salt/1, &Password.verify_pass/2},
+    password_min_length: 6
 
   use Pow.Extension.Ecto.Schema,
     extensions: [PowResetPassword, PowPersistentSession]
@@ -128,44 +129,43 @@ defmodule Philomena.Users.User do
     })
   end
 
-  def consume_totp_token_changeset(user, token) do
+  def consume_totp_token_changeset(changeset, params) do
+    changeset = change(changeset, %{})
+    user = changeset.data
+    token = extract_token(params)
+
     cond do
       totp_valid?(user, token) ->
-        user
-        |> change(%{consumed_timestep: token})
+        changeset
+        |> change(%{consumed_timestep: String.to_integer(token)})
 
       backup_code_valid?(user, token) ->
-        user
+        changeset
         |> change(%{otp_backup_codes: remove_backup_code(user, token)})
 
       true ->
-        user
+        changeset
         |> add_error(:consumed_timestep, "invalid token")
     end
   end
 
-  def totp_changeset(user, params, backup_codes) do
-    token =
-      case params do
-        %{"user" => %{"twofactor_token" => t}} ->
-          to_string(t)
-
-        _ ->
-          ""
-      end
+  def totp_changeset(changeset, params, backup_codes) do
+    changeset = change(changeset, %{})
+    user = changeset.data
+    token = extract_token(params)
 
     case user.otp_required_for_login do
       true ->
         # User wants to disable TOTP
-        user
-        |> pow_current_password_changeset(params)
+        changeset
+        |> pow_password_changeset(params)
         |> consume_totp_token_changeset(token)
         |> disable_totp_changeset()
 
-      false ->
+      _falsy ->
         # User wants to enable TOTP
-        user
-        |> pow_current_password_changeset(params)
+        changeset
+        |> pow_password_changeset(params)
         |> consume_totp_token_changeset(token)
         |> enable_totp_changeset(backup_codes)
     end
@@ -225,6 +225,12 @@ defmodule Philomena.Users.User do
       otp_backup_codes: []
     })
   end
+
+  defp extract_token(%{"user" => %{"twofactor_token" => t}}),
+    do: to_string(t)
+
+  defp extract_token(_params),
+    do: ""
 
   defp totp_valid?(user, token),
     do: :pot.valid_totp(token, totp_secret(user), window: 60)

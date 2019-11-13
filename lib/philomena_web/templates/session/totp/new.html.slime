@@ -1,0 +1,8 @@
+h1 Two Factor Authentication
+
+= form_for @changeset, Routes.session_totp_path(@conn, :create), [as: :user, method: "post"], fn f ->
+  .field
+    h4 Please enter your 2FA code
+    = text_input f, :twofactor_token, class: "input", placeholder: "6-digit code", required: true, autofocus: true, autocomplete: "off"
+
+  = submit "Sign in", class: "button"
