@@ -17,8 +17,11 @@ defmodule PhilomenaWeb.Session.TotpController do
     |> Repo.update()
     |> case do
       {:error, _changeset} ->
+        {:ok, conn} =
+          conn
+          |> Pow.Plug.clear_authenticated_user()
+
         conn
-        |> Pow.Plug.clear_authenticated_user()
         |> put_flash(:error, "Sorry, invalid TOTP token entered. Please sign in again.")
         |> redirect(to: Routes.pow_session_path(conn, :new))
 

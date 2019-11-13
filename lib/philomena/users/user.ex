@@ -145,7 +145,7 @@ defmodule Philomena.Users.User do
 
       true ->
         changeset
-        |> add_error(:consumed_timestep, "invalid token")
+        |> add_error(:twofactor_token, "Invalid token")
     end
   end
 

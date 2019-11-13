@@ -111,7 +111,7 @@ defmodule Philomena.Captcha do
     }
   end
 
-  def valid_solution?(<<"cp_", _rest::binary>> = solution_id, solution) do
+  def valid_solution?(<<"cp_", _rest::binary>> = solution_id, solution) when is_map(solution) do
     # Delete key immediately. This may race, but should
     # have minimal impact if the race succeeds.
     with {:ok, sol} <- Redix.command(:redix, ["GET", solution_id]),
