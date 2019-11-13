@@ -54,7 +54,8 @@ defmodule Philomena.MixProject do
       {:canary, "~> 1.1.1"},
       {:scrivener_ecto, "~> 2.0"},
       {:pbkdf2, "~> 2.0"},
-      {:qrcode, "~> 0.1.5"}
+      {:qrcode, "~> 0.1.5"},
+      {:redix, "~> 0.10.2"}
     ]
   end
 

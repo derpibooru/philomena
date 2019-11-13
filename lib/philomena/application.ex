@@ -14,7 +14,8 @@ defmodule Philomena.Application do
       PhilomenaWeb.Endpoint,
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
-      Pow.Store.Backend.MnesiaCache
+      Pow.Store.Backend.MnesiaCache,
+      {Redix, name: :redix}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
