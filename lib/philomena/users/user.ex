@@ -145,7 +145,14 @@ defmodule Philomena.Users.User do
   end
 
   def totp_changeset(user, params, backup_codes) do
-    token = to_string(params["twofactor_token"])
+    token =
+      case params do
+        %{"user" => %{"twofactor_token" => t}} ->
+          to_string(t)
+
+        _ ->
+          ""
+      end
 
     case user.otp_required_for_login do
       true ->
@@ -171,6 +178,33 @@ defmodule Philomena.Users.User do
     end)
   end
 
+  def totp_qrcode(user) do
+    secret = totp_secret(user)
+    provisioning_uri = %URI{
+      scheme: "otpauth",
+      host: "totp",
+      path: "/Derpibooru:" <> user.email,
+      query: URI.encode_query(%{
+        secret: secret,
+        issuer: "Derpibooru"
+      })
+    }
+
+    png =
+      QRCode.to_png(URI.to_string(provisioning_uri))
+      |> Base.encode64()
+
+    "data:image/png;base64," <> png
+  end
+
+  def totp_secret(user) do
+    Philomena.Users.Encryptor.decrypt_model(
+      user.encrypted_otp_secret,
+      user.encrypted_otp_secret_iv,
+      user.encrypted_otp_secret_salt
+    )
+  end
+
 
   defp enable_totp_changeset(user, backup_codes) do
     hashed_codes =
@@ -193,20 +227,11 @@ defmodule Philomena.Users.User do
   end
 
   defp totp_valid?(user, token),
-    do: :pot.valid_totp(token, otp_secret(user), window: 60)
+    do: :pot.valid_totp(token, totp_secret(user), window: 60)
 
   defp backup_code_valid?(user, token),
     do: Enum.any?(user.otp_backup_codes, &Password.verify_pass(token, &1))
 
   defp remove_backup_code(user, token),
     do: user.otp_backup_codes |> Enum.reject(&Password.verify_pass(token, &1))
-
-
-  defp otp_secret(user) do
-    Philomena.Users.Encryptor.decrypt_model(
-      user.encrypted_otp_secret,
-      user.encrypted_otp_secret_iv,
-      user.encrypted_otp_secret_salt
-    )
-  end
 end

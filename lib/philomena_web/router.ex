@@ -21,6 +21,11 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.Plugs.TotpPlug
   end
 
+  pipeline :protected do
+    plug Pow.Plug.RequireAuthenticated,
+      error_handler: Pow.Phoenix.PlugErrorHandler
+  end
+
   scope "/" do
     pipe_through [:browser, :ensure_totp]
   
@@ -33,10 +38,12 @@ defmodule PhilomenaWeb.Router do
 
     # Additional routes for TOTP
     scope "/registration", Registration, as: :registration do
+      pipe_through :protected
       resources "/totp", TotpController, only: [:edit, :update], singleton: true
     end
 
     scope "/session", Session, as: :session do
+      pipe_through :protected
       resources "/totp", TotpController, only: [:new, :create], singleton: true
     end
 

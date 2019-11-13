@@ -2,8 +2,7 @@ import { $$, makeEl, findFirstTextNode } from './utils/dom';
 import { fire, delegate } from './utils/events';
 
 const headers = () => ({
-  Accept: 'text/javascript',
-  'X-CSRF-Token': window.booru.csrfToken
+  'x-csrf-token': window.booru.csrfToken
 });
 
 function confirm(event, target) {
@@ -39,7 +38,7 @@ function linkMethod(event, target) {
   event.preventDefault();
 
   const form   = makeEl('form',  { action: target.href, method: 'POST' });
-  const csrf   = makeEl('input', { type: 'hidden', name: window.booru.csrfParam, value: window.booru.csrfToken });
+  const csrf   = makeEl('input', { type: 'hidden', name: '_csrf_token', value: window.booru.csrfToken });
   const method = makeEl('input', { type: 'hidden', name: '_method', value: target.dataset.method });
 
   document.body.appendChild(form);

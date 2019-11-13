@@ -18,20 +18,24 @@ defmodule PhilomenaWeb.Registration.TotpController do
 
       _ ->
         changeset = Pow.Plug.change_user(conn)
-        render(conn, "edit.html", changeset: changeset)
+        secret = User.totp_secret(user)
+        qrcode = User.totp_qrcode(user)
+        render(conn, "edit.html", changeset: changeset, totp_secret: secret, totp_qrcode: qrcode)
     end
   end
 
   def update(conn, params) do
     backup_codes = User.random_backup_codes()
+    user = Pow.Plug.current_user(conn)
 
-    conn
-    |> Pow.Plug.current_user()
+    user
     |> User.totp_changeset(params, backup_codes)
     |> Repo.update()
     |> case do
       {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+        secret = User.totp_secret(user)
+        qrcode = User.totp_qrcode(user)
+        render(conn, "edit.html", changeset: changeset, totp_secret: secret, totp_qrcode: qrcode)
       
       {:ok, user} ->
         conn

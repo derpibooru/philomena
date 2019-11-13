@@ -99,7 +99,7 @@ function loadBooruData() {
   initializeFilters();
 
   // CSRF
-  // TODO
+  window.booru.csrfToken = $('meta[name="csrf-token"]').content;
 }
 
 function BooruOnRails() {
