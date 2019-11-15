@@ -127,4 +127,11 @@ defmodule Philomena.Captcha do
 
   def valid_solution?(_solution_id, _solution),
     do: false
+
+  def valid_solution?(%{"captcha" => %{"id" => id, "sln" => solution}}) do
+    valid_solution?(id, solution)
+  end
+
+  def valid_solution?(_params),
+    do: false
 end

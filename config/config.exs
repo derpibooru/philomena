@@ -21,9 +21,10 @@ config :philomena, :pow,
   repo: Philomena.Repo,
   web_module: PhilomenaWeb,
   users_context: Philomena.Users,
-  extensions: [PowResetPassword, PowLockout, PowPersistentSession],
+  extensions: [PowResetPassword, PowLockout, PowCaptcha, PowPersistentSession],
   controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks,
-  mailer_backend: PhilomenaWeb.PowMailer
+  mailer_backend: PhilomenaWeb.PowMailer,
+  captcha_verifier: Philomena.Captcha
 
 config :bcrypt_elixir,
   log_rounds: 12

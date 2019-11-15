@@ -1,6 +1,6 @@
 defmodule PowLockout.Phoenix.ControllerCallbacks do
   @moduledoc """
-  Controller callback logic for e-mail confirmation.
+  Controller callback logic for account lockout.
 
   ### User is locked out
 

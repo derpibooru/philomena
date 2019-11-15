@@ -17,4 +17,4 @@ div
       label> for="captcha_sln[#{i}]"
         | Name of pony with cutie mark #
         = i
-      = select :captcha, "sln[#{i}]", options, class: "input"
+      = select :captcha, "sln[#{i}]", options, class: "input", name: "captcha[sln][#{i}]"
