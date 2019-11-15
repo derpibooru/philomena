@@ -169,7 +169,7 @@ defmodule Search.Parser do
   defp field_top(parser, tokens), do: field_term(parser, tokens)
 
   defp field_term(parser, [custom_field: field_name, range: :eq, value: value]) do
-    case parser.transforms[field_name].(parser.__data__, value) do
+    case parser.transforms[field_name].(parser.__data__, String.trim(value)) do
       {:ok, child} ->
         {:ok, {child, []}}
 
