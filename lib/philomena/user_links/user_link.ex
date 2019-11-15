@@ -1,4 +1,4 @@
-defmodule Philomena.Users.Link do
+defmodule Philomena.UserLinks.UserLink do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -21,8 +21,8 @@ defmodule Philomena.Users.Link do
   end
 
   @doc false
-  def changeset(link, attrs) do
-    link
+  def changeset(user_link, attrs) do
+    user_link
     |> cast(attrs, [])
     |> validate_required([])
   end

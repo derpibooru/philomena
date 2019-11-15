@@ -1,4 +1,4 @@
-defmodule Philomena.Users.Whitelist do
+defmodule Philomena.UserWhitelists.UserWhitelist do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -8,8 +8,8 @@ defmodule Philomena.Users.Whitelist do
   end
 
   @doc false
-  def changeset(whitelist, attrs) do
-    whitelist
+  def changeset(user_whitelist, attrs) do
+    user_whitelist
     |> cast(attrs, [])
     |> validate_required([])
   end

@@ -1,4 +1,4 @@
-defmodule Philomena.Users.Fingerprint do
+defmodule Philomena.UserFingerprints.UserFingerprint do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -12,8 +12,8 @@ defmodule Philomena.Users.Fingerprint do
   end
 
   @doc false
-  def changeset(fingerprints, attrs) do
-    fingerprints
+  def changeset(user_fingerprint, attrs) do
+    user_fingerprint
     |> cast(attrs, [])
     |> validate_required([])
   end

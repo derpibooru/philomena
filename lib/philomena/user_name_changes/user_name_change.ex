@@ -1,19 +1,17 @@
-defmodule Philomena.Users.Ip do
+defmodule Philomena.UserNameChanges.UserNameChange do
   use Ecto.Schema
   import Ecto.Changeset
 
-  schema "user_ips" do
+  schema "user_name_changes" do
     belongs_to :user, Philomena.Users.User
-
-    field :ip, EctoNetwork.INET
-    field :uses, :integer, default: 0
+    field :name, :string
 
     timestamps(inserted_at: :created_at)
   end
 
   @doc false
-  def changeset(ip, attrs) do
-    ip
+  def changeset(user_name_change, attrs) do
+    user_name_change
     |> cast(attrs, [])
     |> validate_required([])
   end

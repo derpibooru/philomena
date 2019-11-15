@@ -1,4 +1,4 @@
-defmodule Philomena.Users.Statistic do
+defmodule Philomena.UserStatistics.UserStatistic do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -14,8 +14,8 @@ defmodule Philomena.Users.Statistic do
   end
 
   @doc false
-  def changeset(statistic, attrs) do
-    statistic
+  def changeset(user_statistic, attrs) do
+    user_statistic
     |> cast(attrs, [])
     |> validate_required([])
   end

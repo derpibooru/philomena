@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.Plugs.EnsureUserNotLockedPlug do
 
   ## Example
 
-      plug PhilomenaWeb.EnsureUserNotLockedPlug
+      plug PhilomenaWeb.Plugs.EnsureUserNotLockedPlug
   """
   alias PhilomenaWeb.Router.Helpers, as: Routes
   alias Phoenix.Controller
