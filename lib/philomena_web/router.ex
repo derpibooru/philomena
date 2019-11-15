@@ -11,6 +11,8 @@ defmodule PhilomenaWeb.Router do
     plug :put_secure_browser_headers
     plug PhilomenaWeb.Plugs.ImageFilter
     plug PhilomenaWeb.Plugs.Pagination
+    plug PhilomenaWeb.Plugs.EnsureUserEnabledPlug
+    plug PhilomenaWeb.Plugs.EnsureUserNotLockedPlug
   end
 
   pipeline :api do
