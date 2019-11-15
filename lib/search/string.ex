@@ -1,4 +1,8 @@
 defmodule Search.String do
+  def normalize(nil) do
+    ""
+  end
+
   def normalize(str) do
     str
     |> String.replace("\r", "")

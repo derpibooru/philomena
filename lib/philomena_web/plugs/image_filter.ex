@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.Plugs.ImageFilter do
   import Plug.Conn
+  import Search.String
 
   alias Philomena.Images.Query
   alias Pow.Plug
@@ -13,7 +14,7 @@ defmodule PhilomenaWeb.Plugs.ImageFilter do
     filter = conn.assigns[:current_filter]
 
     tag_exclusion = %{terms: %{tag_ids: filter.hidden_tag_ids}}
-    {:ok, query_exclusion} = Query.compile(user, filter.hidden_complex_str)
+    {:ok, query_exclusion} = Query.compile(user, normalize(filter.hidden_complex_str))
 
     query = %{
       bool: %{
