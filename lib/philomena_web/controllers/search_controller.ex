@@ -24,10 +24,11 @@ defmodule PhilomenaWeb.SearchController do
       conn
       |> render("index.html", images: images, search_query: params["q"])
     else
-      {:error, _msg} ->
+      {:error, msg} ->
         conn
         |> render("index.html",
           images: [],
+          error: msg,
           search_query: params["q"]
         )
     end

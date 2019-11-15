@@ -1,1 +1,10 @@
-= render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images, route: fn p -> Routes.search_path(@conn, :index, p) end, params: [q: @search_query]
+= cond do
+  - Enum.any?(@images) ->
+    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images, route: fn p -> Routes.search_path(@conn, :index, p) end, params: [q: @search_query]
+  - assigns[:error] ->
+    p
+      ' Oops, there was an error evaluating your query:
+    pre = assigns[:error]
+  - true ->
+    p
+      ' No images found!
