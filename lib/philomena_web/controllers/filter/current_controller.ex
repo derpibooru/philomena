@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.Filter.CurrentController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Filters, Filters.Filter}
+  alias Philomena.{Filters, Filters.Filter, Users.User}
+  alias Philomena.Repo
 
   plug :load_resource, model: Filter
 
@@ -16,16 +17,23 @@ defmodule PhilomenaWeb.Filter.CurrentController do
         Filters.default_filter()
       end
 
-    conn =
-      if user do
-        nil
-      else
-        conn
-        |> put_session(:filter_id, filter.id)
-      end
+    conn
+    |> update_filter(user, filter)
+    |> put_flash(:info, "Switched to filter #{filter.name}")
+    |> redirect(to: Routes.filter_path(conn, :index))
+  end
+
+  defp update_filter(conn, nil, filter) do
+    conn
+    |> put_session(:filter_id, filter.id)
+  end
+
+  defp update_filter(conn, user, filter) do
+    {:ok, user} =
+      user
+      |> User.filter_changeset(filter)
+      |> Repo.update()
 
     conn
-    |> put_flash(:info, "Switched to filter #{filter.name}")
-    |> redirect(to: "/")
   end
 end

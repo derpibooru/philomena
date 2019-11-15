@@ -117,14 +117,9 @@ defmodule Philomena.Users.User do
     |> validate_required([])
   end
 
-  def failure_changeset(user) do
-    changeset = change(user)
-    user = changeset.data
-
-    user
-    |> change(%{
-      failed_attempts: user.failed_attempts + 1,
-    })
+  def filter_changeset(user, filter) do
+    change(user)
+    |> put_change(:current_filter_id, filter.id)
   end
 
   def create_totp_secret_changeset(user) do

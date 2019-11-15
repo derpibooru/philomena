@@ -24,7 +24,7 @@
           strong Your current filter
       - else
         li
-          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, @filter), method: "put", class: "button"
+          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, id: @filter), method: "put", class: "button"
     p
       em
         = @filter.description
