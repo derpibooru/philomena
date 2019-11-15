@@ -21,6 +21,7 @@ config :philomena,
   otp_secret_key: System.get_env("OTP_SECRET_KEY"),
   image_url_root: System.get_env("IMAGE_URL_ROOT"),
   badge_url_root: System.get_env("BADGE_URL_ROOT"),
+  mailer_address: System.get_env("MAILER_ADDRESS"),
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
   cdn_host: System.get_env("CDN_HOST")
