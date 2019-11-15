@@ -30,13 +30,8 @@ defmodule PhilomenaWeb.Router do
   scope "/" do
     pipe_through [:browser, :ensure_totp]
   
-    pow_session_routes()
+    pow_routes()
     pow_extension_routes()
-  end
-
-  scope "/", Pow.Phoenix, as: "pow" do
-    pipe_through [:browser, :protected, :ensure_totp]
-    resources "/registration", RegistrationController, singleton: true, only: [:edit, :update]
   end
 
   scope "/", PhilomenaWeb do

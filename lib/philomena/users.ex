@@ -78,22 +78,6 @@ defmodule Philomena.Users do
   end
 
   @doc """
-  Deletes a User.
-
-  ## Examples
-
-      iex> delete_user(user)
-      {:ok, %User{}}
-
-      iex> delete_user(user)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_user(%User{} = user) do
-    Repo.delete(user)
-  end
-
-  @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 
   ## Examples
@@ -104,5 +88,17 @@ defmodule Philomena.Users do
   """
   def change_user(%User{} = user) do
     User.changeset(user, %{})
+  end
+
+  @impl Pow.Ecto.Context
+  def delete(user) do
+    {:error, User.changeset(user, %{})}
+  end
+
+  @impl Pow.Ecto.Context
+  def create(params) do
+    %User{}
+    |> User.creation_changeset(params)
+    |> Repo.insert()
   end
 end

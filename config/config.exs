@@ -20,6 +20,7 @@ config :philomena, :pow,
   user: Philomena.Users.User,
   repo: Philomena.Repo,
   web_module: PhilomenaWeb,
+  users_context: Philomena.Users,
   extensions: [PowResetPassword, PowLockout, PowPersistentSession],
   controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks,
   mailer_backend: PhilomenaWeb.PowMailer

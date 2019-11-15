@@ -1,5 +1,6 @@
 defmodule Philomena.Users.User do
   alias Philomena.Users.Password
+  alias Philomena.Slug
 
   use Ecto.Schema
 
@@ -117,6 +118,20 @@ defmodule Philomena.Users.User do
     |> validate_required([])
   end
 
+  def creation_changeset(user, attrs) do
+    user
+    |> pow_changeset(attrs)
+    |> pow_extension_changeset(attrs)
+    |> cast(attrs, [:name])
+    |> validate_required([:name])
+    |> put_api_key()
+    |> put_slug()
+    |> unique_constraint(:name, name: :index_users_on_name)
+    |> unique_constraint(:slug, name: :index_users_on_slug)
+    |> unique_constraint(:email, name: :index_users_on_email)
+    |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
+  end
+
   def filter_changeset(user, filter) do
     change(user)
     |> put_change(:current_filter_id, filter.id)
@@ -157,21 +172,20 @@ defmodule Philomena.Users.User do
   def totp_changeset(changeset, params, backup_codes) do
     changeset = change(changeset, %{})
     user = changeset.data
-    token = extract_token(params)
 
     case user.otp_required_for_login do
       true ->
         # User wants to disable TOTP
         changeset
         |> pow_password_changeset(params)
-        |> consume_totp_token_changeset(token)
+        |> consume_totp_token_changeset(params)
         |> disable_totp_changeset()
 
       _falsy ->
         # User wants to enable TOTP
         changeset
         |> pow_password_changeset(params)
-        |> consume_totp_token_changeset(token)
+        |> consume_totp_token_changeset(params)
         |> enable_totp_changeset(backup_codes)
     end
   end
@@ -227,7 +241,10 @@ defmodule Philomena.Users.User do
     user
     |> change(%{
       otp_required_for_login: false,
-      otp_backup_codes: []
+      otp_backup_codes: [],
+      encrypted_otp_secret: nil,
+      encrypted_otp_secret_iv: nil,
+      encrypted_otp_secret_salt: nil
     })
   end
 
@@ -236,6 +253,19 @@ defmodule Philomena.Users.User do
 
   defp extract_token(_params),
     do: ""
+
+  defp put_api_key(changeset) do
+    key = :crypto.strong_rand_bytes(15) |> Base.url_encode64()
+
+    change(changeset, authentication_token: key)
+  end
+
+  defp put_slug(changeset) do
+    name = get_field(changeset, :name)
+
+    changeset
+    |> put_change(:slug, Slug.slug(name))
+  end
 
   defp totp_valid?(user, token),
     do: :pot.valid_totp(token, totp_secret(user), window: 1)

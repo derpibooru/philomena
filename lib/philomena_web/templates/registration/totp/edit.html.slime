@@ -6,6 +6,38 @@ h1 Two Factor Authentication
       p Oops, something went wrong! Please check the errors below.
 
   = if @current_user.otp_required_for_login do
+    = if !@changeset.action and get_flash(@conn, :totp_backup_codes) do
+      .dnp-warning
+        h4 Important - Save The Below Codes
+        p
+          ' The backup codes shown in the green box below are necessary to
+          ' regain access to your account in the event of you losing access
+          ' to your authenticator app (such as loss, theft, or damage to your
+          ' phone). It is extremely important that you write them down and
+          ' store them in a safe, secure place. If you lose access to you
+          ' authenticator app and do not have one or more of the above codes,
+          ' we will be unable to help you regain access to your account.
+      br
+      .block.block--fixed.block--success.layout--narrow
+        h2 Two Factor Authentication Enabled
+        p
+          ' You've sucessfully enabled two-factor authentication on your
+          ' account. From now on you'll be asked for the 6 digit code each
+          ' time you log in.
+        p
+          ' In case you lose your device or uninstall the application, you
+          ' will need one of the following backup codes to access to your
+          ' account:
+        ul
+          = for code <- get_flash(@conn, :totp_backup_codes) do
+            li = code
+        br
+        p
+          ' Make sure to write these down (preferably on paper) and store them
+          ' in a safe location, otherwise you may
+          strong<> permanently lose access
+          ' to your account.
+
     p
       ' Two factor authentication is currently
       strong> enabled
