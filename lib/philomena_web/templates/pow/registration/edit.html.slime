@@ -11,9 +11,12 @@ p
 h3 API Key
 p
   ' Your API key is
-  code
-    => @current_user.authentication_token
+  code>
+    = @current_user.authentication_token
   ' - you can use this to allow API consumers to access your account.
+p
+  ' Avoid sharing this key with others, as it could be used to compromise
+  ' your account.
 
 h3 Update Settings
 p

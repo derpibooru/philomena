@@ -116,6 +116,7 @@ defmodule Philomena.Users.User do
     |> pow_extension_changeset(attrs)
     |> cast(attrs, [])
     |> validate_required([])
+    |> unique_constraint(:email, name: :index_users_on_email)
   end
 
   def creation_changeset(user, attrs) do

@@ -36,7 +36,7 @@ function applyMediaSize(container, size) {
     item.style.width = `${size}px`;
     item.style.height = `${size}px`;
 
-    const header = item.parentNode.childNodes[0];
+    const header = item.parentNode.firstElementChild;
     // TODO: Make this proper and/or rethink this entire croc of bullshit
     item.parentNode.style.width = `${size}px`;
     /* When the large box has width less than mediaLargeMinSize, the header gets wrapped and occupies more than one line.

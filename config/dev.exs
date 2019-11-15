@@ -69,6 +69,9 @@ config :philomena, PhilomenaWeb.Mailer,
 config :philomena, :mailer_address,
   "noreply@philomena.lc"
 
+# Use this to debug slime templates
+# config :slime, :keep_lines, true
+
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20

@@ -11,4 +11,8 @@ p
   .field
     = text_input f, :email, class: "input", placeholder: "Email"
 
+  .field
+    = checkbox f, :captcha, class: "js-captcha", value: 0
+    = label f, :captcha, "I am not a robot!"
+
   = submit "Submit", class: "button"

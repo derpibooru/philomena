@@ -14,6 +14,9 @@ defmodule Philomena.Images.Query do
   def user_my_transform(%{user: %{id: id}}, "downvotes"),
     do: {:ok, %{term: %{downvoter_ids: id}}}
 
+  def user_my_transform(%{user: %{id: id}}, "uploads"),
+    do: {:ok, %{term: %{true_uploader_id: id}}}
+
   def user_my_transform(%{watch: true}, "watched"),
     do: {:error, "Recursive watchlists are not allowed."}
 
