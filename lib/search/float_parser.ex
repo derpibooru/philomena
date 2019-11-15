@@ -2,6 +2,10 @@ defmodule Search.FloatParser do
   import NimbleParsec
   import Search.Helpers
 
+  space =
+    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
+    |> ignore()
+
   fuzz =
     string("~")
     |> ignore()
@@ -24,6 +28,7 @@ defmodule Search.FloatParser do
       float |> concat(fuzz) |> concat(unsigned_float) |> reduce(:range) |> unwrap_and_tag(:float_range),
       float |> unwrap_and_tag(:float)
     ])
+    |> repeat(space)
     |> eos()
     |> label("a real number, like `2.7182818' or `-10'")
 

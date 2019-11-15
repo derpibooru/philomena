@@ -192,29 +192,29 @@ defmodule Search.Parser do
   # Types which do not support ranges
 
   defp field_type(parser, [{LiteralParser, field_name}, range: :eq, literal: value]),
-    do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
+    do: {:ok, {%{term: %{field(parser, field_name) => String.trim(value)}}, []}}
 
   defp field_type(parser, [{LiteralParser, field_name}, range: :eq, literal: value, fuzz: fuzz]),
-    do: {:ok, {%{fuzzy: %{field(parser, field_name) => %{value: value, fuzziness: fuzz}}}, []}}
+    do: {:ok, {%{fuzzy: %{field(parser, field_name) => %{value: String.trim(value), fuzziness: fuzz}}}, []}}
 
   defp field_type(_parser, [{LiteralParser, _field_name}, range: :eq, wildcard: "*"]),
     do: {:ok, {%{match_all: %{}}, []}}
 
   defp field_type(parser, [{LiteralParser, field_name}, range: :eq, wildcard: value]),
-    do: {:ok, {%{wildcard: %{field(parser, field_name) => value}}, []}}
+    do: {:ok, {%{wildcard: %{field(parser, field_name) => String.trim(value)}}, []}}
 
 
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, literal: value]),
-    do: {:ok, {%{match_phrase: %{field(parser, field_name) => value}}, []}}
+    do: {:ok, {%{match_phrase: %{field(parser, field_name) => String.trim(value)}}, []}}
 
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, literal: value, fuzz: _fuzz]),
-    do: {:ok, {%{match_phrase: %{field(parser, field_name) => value}}, []}}
+    do: {:ok, {%{match_phrase: %{field(parser, field_name) => String.trim(value)}}, []}}
 
   defp field_type(_parser, [{NgramParser, _field_name}, range: :eq, wildcard: "*"]),
     do: {:ok, {%{match_all: %{}}, []}}
 
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, wildcard: value]),
-    do: {:ok, {%{wildcard: %{field(parser, field_name) => value}}, []}}
+    do: {:ok, {%{wildcard: %{field(parser, field_name) => String.trim(value)}}, []}}
 
 
   defp field_type(parser, [{BoolParser, field_name}, range: :eq, bool: value]),
