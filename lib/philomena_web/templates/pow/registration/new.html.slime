@@ -28,6 +28,10 @@ h1 Register
     = password_input f, :confirm_password, class: "input", placeholder: "Confirm password", required: true
     = error_tag f, :confirm_password
 
+  .field
+    = checkbox f, :captcha, class: "js-captcha", value: 0
+    = label f, :captcha, "I am not a robot!"
+
   br
 
   .block.block--fixed.block--warning

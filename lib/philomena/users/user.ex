@@ -8,7 +8,7 @@ defmodule Philomena.Users.User do
     password_min_length: 6
 
   use Pow.Extension.Ecto.Schema,
-    extensions: [PowResetPassword, PowPersistentSession]
+    extensions: [PowResetPassword, PowLockout, PowPersistentSession]
 
   import Ecto.Changeset
 
@@ -37,10 +37,10 @@ defmodule Philomena.Users.User do
     field :current_sign_in_ip, EctoNetwork.INET
     field :last_sign_in_ip, EctoNetwork.INET
     field :otp_required_for_login, :boolean
-    field :failed_attempts, :integer
     field :authentication_token, :string
-    field :unlock_token, :string
-    field :locked_at, :naive_datetime
+    # field :failed_attempts, :integer
+    # field :unlock_token, :string
+    # field :locked_at, :naive_datetime
     field :encrypted_otp_secret, :string
     field :encrypted_otp_secret_iv, :string
     field :encrypted_otp_secret_salt, :string
@@ -115,6 +115,16 @@ defmodule Philomena.Users.User do
     |> pow_extension_changeset(attrs)
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  def failure_changeset(user) do
+    changeset = change(user)
+    user = changeset.data
+
+    user
+    |> change(%{
+      failed_attempts: user.failed_attempts + 1,
+    })
   end
 
   def create_totp_secret_changeset(user) do
@@ -233,7 +243,7 @@ defmodule Philomena.Users.User do
     do: ""
 
   defp totp_valid?(user, token),
-    do: :pot.valid_totp(token, totp_secret(user), window: 60)
+    do: :pot.valid_totp(token, totp_secret(user), window: 1)
 
   defp backup_code_valid?(user, token),
     do: Enum.any?(user.otp_backup_codes, &Password.verify_pass(token, &1))

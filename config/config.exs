@@ -20,8 +20,9 @@ config :philomena, :pow,
   user: Philomena.Users.User,
   repo: Philomena.Repo,
   web_module: PhilomenaWeb,
-  extensions: [PowResetPassword, PowPersistentSession],
-  controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks
+  extensions: [PowResetPassword, PowLockout, PowPersistentSession],
+  controller_callbacks: Pow.Extension.Phoenix.ControllerCallbacks,
+  mailer_backend: PhilomenaWeb.PowMailer
 
 config :bcrypt_elixir,
   log_rounds: 12
@@ -54,6 +55,7 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+config :bamboo, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

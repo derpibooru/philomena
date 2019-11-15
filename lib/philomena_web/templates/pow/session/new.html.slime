@@ -19,10 +19,6 @@ h1 Sign in
     = checkbox f, :persistent_session
     = label f, :persistent_session, "Remember me"
 
-  .field
-    = checkbox f, :captcha, class: "js-captcha", value: 0
-    = label f, :captcha, "I am not a robot!"
-
   = submit "Sign in", class: "button"
 
 p

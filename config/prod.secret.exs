@@ -30,6 +30,16 @@ config :philomena, Philomena.Repo,
   url: database_url,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
+config :philomena, PhilomenaWeb.Mailer,
+  adapter: Bamboo.SMTPAdapter,
+  server: System.get_env("SMTP_RELAY"),
+  hostname: System.get_env("SMTP_DOMAIN"),
+  port: System.get_env("SMTP_PORT") || 587,
+  username: System.get_env("SMTP_USERNAME"),
+  password: System.get_env("SMTP_PASSWORD"),
+  tls: :always,
+  auth: :always
+
 secret_key_base =
   System.get_env("SECRET_KEY_BASE") ||
     raise """

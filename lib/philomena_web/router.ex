@@ -12,7 +12,6 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.Plugs.ImageFilter
     plug PhilomenaWeb.Plugs.Pagination
     plug PhilomenaWeb.Plugs.EnsureUserEnabledPlug
-    plug PhilomenaWeb.Plugs.EnsureUserNotLockedPlug
   end
 
   pipeline :api do
@@ -28,27 +27,27 @@ defmodule PhilomenaWeb.Router do
       error_handler: Pow.Phoenix.PlugErrorHandler
   end
 
-  pipeline :not_authenticated do
-    plug Pow.Plug.RequireNotAuthenticated,
-      error_handler: Pow.Phoenix.PlugErrorHandler
-  end
-
   scope "/" do
     pipe_through [:browser, :ensure_totp]
   
-    pow_routes()
+    pow_session_routes()
     pow_extension_routes()
+  end
+
+  scope "/", Pow.Phoenix, as: "pow" do
+    pipe_through [:browser, :protected, :ensure_totp]
+    resources "/registration", RegistrationController, singleton: true, only: [:edit, :update]
   end
 
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :protected]
 
     # Additional routes for TOTP
-    scope "/registration", Registration, as: :registration do
+    scope "/registrations", Registration, as: :registration do
       resources "/totp", TotpController, only: [:edit, :update], singleton: true
     end
 
-    scope "/session", Session, as: :session do
+    scope "/sessions", Session, as: :session do
       resources "/totp", TotpController, only: [:new, :create], singleton: true
     end
   end
