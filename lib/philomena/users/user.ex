@@ -15,9 +15,9 @@ defmodule Philomena.Users.User do
   @derive {Phoenix.Param, key: :slug}
 
   schema "users" do
-    has_many :links, Philomena.Users.Link
-    has_many :verified_links, Philomena.Users.Link, where: [aasm_state: "verified"]
-    has_many :public_links, Philomena.Users.Link, where: [public: true, aasm_state: "verified"]
+    has_many :links, Philomena.UserLinks.UserLink
+    has_many :verified_links, Philomena.UserLinks.UserLink, where: [aasm_state: "verified"]
+    has_many :public_links, Philomena.UserLinks.UserLink, where: [public: true, aasm_state: "verified"]
     has_many :galleries, Philomena.Galleries.Gallery, foreign_key: :creator_id
     has_many :awards, Philomena.Badges.Award
 

@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Filter.CurrentController do
   end
 
   defp update_filter(conn, user, filter) do
-    {:ok, user} =
+    {:ok, _user} =
       user
       |> User.filter_changeset(filter)
       |> Repo.update()
