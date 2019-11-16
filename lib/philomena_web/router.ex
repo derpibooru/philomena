@@ -9,9 +9,11 @@ defmodule PhilomenaWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug PhilomenaWeb.Plugs.CurrentFilter
     plug PhilomenaWeb.Plugs.ImageFilter
     plug PhilomenaWeb.Plugs.Pagination
     plug PhilomenaWeb.Plugs.EnsureUserEnabledPlug
+    plug PhilomenaWeb.Plugs.CurrentBan
   end
 
   pipeline :api do

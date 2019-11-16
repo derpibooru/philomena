@@ -57,7 +57,8 @@ defmodule Philomena.MixProject do
       {:qrcode, "~> 0.1.5"},
       {:redix, "~> 0.10.2"},
       {:bamboo, "~> 1.2"},
-      {:bamboo_smtp, "~> 1.7"}
+      {:bamboo_smtp, "~> 1.7"},
+      {:remote_ip, "~> 0.1.5"}
     ]
   end
 

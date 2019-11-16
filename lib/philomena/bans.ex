@@ -293,4 +293,57 @@ defmodule Philomena.Bans do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  @doc """
+  Returns the first ban, if any, that matches the specified request
+  attributes.
+  """
+  def exists_for?(user, ip, fingerprint) do
+    now = DateTime.utc_now()
+    queries =
+      subnet_query(ip, now) ++
+      fingerprint_query(fingerprint, now) ++
+      user_query(user, now)
+
+    union_all_queries(queries)
+    |> limit(1)
+    |> Repo.one()
+  end
+
+  defp fingerprint_query(nil, _now), do: []
+  defp fingerprint_query(fingerprint, now) do
+    [
+      Fingerprint
+      |> select([:id, :reason, :valid_until])
+      |> where([f], f.enabled and f.valid_until > ^now)
+      |> where([f], f.fingerprint == ^fingerprint)
+    ]
+  end
+
+  defp subnet_query(nil, _now), do: []
+  defp subnet_query(ip, now) do
+    {:ok, inet} = EctoNetwork.INET.cast(ip)
+
+    [
+      Subnet
+      |> select([:id, :reason, :valid_until])
+      |> where([s], s.enabled and s.valid_until > ^now)
+      |> where(fragment("specification >>= ?", ^inet))
+    ]
+  end
+
+  defp user_query(nil, _now), do: []
+  defp user_query(user, now) do
+    [
+      User
+      |> select([:id, :reason, :valid_until])
+      |> where([u], u.enabled and u.valid_until > ^now)
+      |> where([u], u.user_id == ^user.id)
+    ]
+  end
+
+  defp union_all_queries([query]),
+    do: query
+  defp union_all_queries([query | rest]),
+    do: query |> union_all(^union_all_queries(rest))
 end

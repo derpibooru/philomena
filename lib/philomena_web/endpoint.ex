@@ -5,6 +5,9 @@ defmodule PhilomenaWeb.Endpoint do
     websocket: true,
     longpoll: false
 
+  # Overwrite remote_ip based on X-Forwarded-For
+  plug RemoteIp
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # You should set gzip to true if you are running phx.digest
@@ -48,6 +51,6 @@ defmodule PhilomenaWeb.Endpoint do
 
   plug PhilomenaWeb.Plugs.ReloadUser
   plug PhilomenaWeb.Plugs.RenderTime
-  plug PhilomenaWeb.Plugs.CurrentFilter
+  plug PhilomenaWeb.Plugs.Referrer
   plug PhilomenaWeb.Router
 end
