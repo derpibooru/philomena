@@ -21,6 +21,8 @@ defmodule Philomena.Users.User do
     has_many :public_links, Philomena.UserLinks.UserLink, where: [public: true, aasm_state: "verified"]
     has_many :galleries, Philomena.Galleries.Gallery, foreign_key: :creator_id
     has_many :awards, Philomena.Badges.Award
+    has_many :unread_notifications, Philomena.Notifications.UnreadNotification
+    has_many :notifications, through: [:unread_notifications, :notification]
 
     belongs_to :current_filter, Philomena.Filters.Filter
     belongs_to :deleted_by_user, Philomena.Users.User

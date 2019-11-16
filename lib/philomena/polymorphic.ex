@@ -17,12 +17,20 @@ defmodule Philomena.Polymorphic do
     "User" => Philomena.Users.User
   }
 
+  @preloads %{
+    "Comment" => [:user],
+    "Gallery" => [:creator],
+    "Image" => [:user],
+    "Post" => [:user],
+    "Topic" => [:forum, :user]
+  }
+
   # Deal with Rails polymorphism BS
   def load_polymorphic(structs, associations) when is_list(associations) do
     Enum.reduce(associations, structs, fn asc, acc -> load_polymorphic(acc, asc) end)
   end
 
-  def load_polymorphic(structs, {name, {id, type}}) do
+  def load_polymorphic(structs, {name, [{id, type}]}) do
     modules_and_ids =
       structs
       |> Enum.group_by(&Map.get(&1, type), &Map.get(&1, id))
@@ -34,9 +42,11 @@ defmodule Philomena.Polymorphic do
           {nil, []}
 
         {type, ids} ->
+          pre = Map.get(@preloads, type, [])
           rows =
             @classes[type]
             |> where([m], m.id in ^ids)
+            |> preload(^pre)
             |> Repo.all()
             |> Map.new(fn r -> {r.id, r} end)
 

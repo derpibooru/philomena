@@ -1,0 +1,4 @@
+strong>
+  = link @notification.actor.title, to: "#"
+  /= link @notification.actor.title, to: Routes.channel_path(@conn, :show, notification.actor)
+=<> @notification.action

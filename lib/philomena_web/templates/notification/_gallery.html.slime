@@ -1,0 +1,6 @@
+=> render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}
+=> @notification.action
+
+strong>
+  = link @notification.actor.title, to: "#"
+  /= link @notification.actor.title, to: Routes.gallery_path(@conn, :show, @notification.actor)

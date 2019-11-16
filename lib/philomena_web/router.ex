@@ -50,6 +50,12 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/", PhilomenaWeb do
+    pipe_through [:browser, :ensure_totp, :protected]
+
+    resources "/notifications", NotificationController, only: [:index, :delete]
+  end
+
+  scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp]
 
     get "/", ActivityController, :index

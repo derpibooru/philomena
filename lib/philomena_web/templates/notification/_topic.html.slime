@@ -1,0 +1,8 @@
+- topic = @notification.actor
+- post = @notification.actor_child
+
+=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: post
+=> @notification.action
+
+strong
+  = link topic.title, to: Routes.forum_topic_path(@conn, :show, topic.forum, topic, post_id: post.id) <> "#post_#{post.id}"

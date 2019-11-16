@@ -1,0 +1,5 @@
+=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @notification.actor_child
+=> @notification.action
+
+strong
+  = link "##{@notification.actor_id}", to: Routes.image_path(@conn, :show, @notification.actor) <> "#comments"

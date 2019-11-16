@@ -1,0 +1,14 @@
+- forum = @notification.actor
+- topic = @notification.actor_child
+
+=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic
+=> @notification.action
+
+' titled
+
+strong>
+  = link topic.title, to: Routes.forum_topic_path(@conn, :show, forum, topic)
+
+' in
+
+=> link forum.name, to: Routes.forum_path(@conn, :show, forum)
