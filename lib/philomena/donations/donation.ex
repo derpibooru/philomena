@@ -2,8 +2,10 @@ defmodule Philomena.Donations.Donation do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "donations" do
-    belongs_to :user, Philomena.Users.User
+    belongs_to :user, User
 
     field :email, :string
     field :amount, :decimal

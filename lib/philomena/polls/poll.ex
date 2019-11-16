@@ -2,9 +2,12 @@ defmodule Philomena.Polls.Poll do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Topics.Topic
+  alias Philomena.Users.User
+
   schema "polls" do
-    belongs_to :topic, Philomena.Topics.Topic
-    belongs_to :deleted_by, Philomena.Users.User
+    belongs_to :topic, Topic
+    belongs_to :deleted_by, User
 
     field :title, :string
     field :vote_method, :string

@@ -2,9 +2,11 @@ defmodule Philomena.Bans.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "user_bans" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :banning_user, Philomena.Users.User
+    belongs_to :user, User
+    belongs_to :banning_user, User
 
     field :reason, :string
     field :note, :string

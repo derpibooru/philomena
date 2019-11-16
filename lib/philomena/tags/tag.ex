@@ -7,11 +7,13 @@ defmodule Philomena.Tags.Tag do
     index_name: "tags",
     doc_type: "tag"
 
+  alias Philomena.Tags.Tag
+
   schema "tags" do
-    belongs_to :aliased_tag, Philomena.Tags.Tag, source: :aliased_tag_id
-    has_many :aliases, Philomena.Tags.Tag, foreign_key: :aliased_tag_id
-    many_to_many :implied_tags, Philomena.Tags.Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id]
-    many_to_many :implied_by_tags, Philomena.Tags.Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
+    belongs_to :aliased_tag, Tag, source: :aliased_tag_id
+    has_many :aliases, Tag, foreign_key: :aliased_tag_id
+    many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id]
+    many_to_many :implied_by_tags, Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
 
     field :slug, :string
     field :name, :string

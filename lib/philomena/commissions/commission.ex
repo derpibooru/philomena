@@ -2,9 +2,12 @@ defmodule Philomena.Commissions.Commission do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Images.Image
+  alias Philomena.Users.User
+
   schema "commissions" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :sheet_image, Philomena.Images.Image
+    belongs_to :user, User
+    belongs_to :sheet_image, Image
 
     field :open, :boolean
     field :categories, {:array, :string}, default: []

@@ -2,8 +2,10 @@ defmodule Philomena.UserFingerprints.UserFingerprint do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "user_fingerprints" do
-    belongs_to :user, Philomena.Users.User
+    belongs_to :user, User
 
     field :fingerprint, :string
     field :uses, :integer, default: 0

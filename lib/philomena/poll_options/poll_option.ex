@@ -2,8 +2,10 @@ defmodule Philomena.PollOptions.PollOption do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Polls.Poll
+
   schema "poll_options" do
-    belongs_to :poll, Philomena.Polls.Poll
+    belongs_to :poll, Poll
 
     field :label, :string
     field :vote_count, :integer, default: 0

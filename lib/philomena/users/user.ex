@@ -13,19 +13,26 @@ defmodule Philomena.Users.User do
 
   import Ecto.Changeset
 
+  alias Philomena.Filters.Filter
+  alias Philomena.UserLinks.UserLink
+  alias Philomena.Badges
+  alias Philomena.Notifications.UnreadNotification
+  alias Philomena.Galleries.Gallery
+  alias Philomena.Users.User
+
   @derive {Phoenix.Param, key: :slug}
 
   schema "users" do
-    has_many :links, Philomena.UserLinks.UserLink
-    has_many :verified_links, Philomena.UserLinks.UserLink, where: [aasm_state: "verified"]
-    has_many :public_links, Philomena.UserLinks.UserLink, where: [public: true, aasm_state: "verified"]
-    has_many :galleries, Philomena.Galleries.Gallery, foreign_key: :creator_id
-    has_many :awards, Philomena.Badges.Award
-    has_many :unread_notifications, Philomena.Notifications.UnreadNotification
+    has_many :links, UserLink
+    has_many :verified_links, UserLink, where: [aasm_state: "verified"]
+    has_many :public_links, UserLink, where: [public: true, aasm_state: "verified"]
+    has_many :galleries, Gallery, foreign_key: :creator_id
+    has_many :awards, Badges.Award
+    has_many :unread_notifications, UnreadNotification
     has_many :notifications, through: [:unread_notifications, :notification]
 
-    belongs_to :current_filter, Philomena.Filters.Filter
-    belongs_to :deleted_by_user, Philomena.Users.User
+    belongs_to :current_filter, Filter
+    belongs_to :deleted_by_user, User
 
     # Authentication
     field :email, :string

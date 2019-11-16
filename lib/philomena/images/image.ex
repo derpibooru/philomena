@@ -8,15 +8,22 @@ defmodule Philomena.Images.Image do
 
   import Ecto.Changeset
 
+  alias Philomena.ImageVotes.ImageVote
+  alias Philomena.ImageFaves.ImageFave
+  alias Philomena.ImageHides.ImageHide
+  alias Philomena.Users.User
+  alias Philomena.Images.Tagging
+  alias Philomena.Galleries
+
   schema "images" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :deleter, Philomena.Users.User, source: :deleted_by_id
-    has_many :upvotes, Philomena.Images.Vote, where: [up: true]
-    has_many :downvotes, Philomena.Images.Vote, where: [up: false]
-    has_many :faves, Philomena.Images.Fave
-    has_many :hides, Philomena.Images.Hide
-    has_many :taggings, Philomena.Images.Tagging
-    has_many :gallery_interactions, Philomena.Galleries.Interaction
+    belongs_to :user, User
+    belongs_to :deleter, User, source: :deleted_by_id
+    has_many :upvotes, ImageVote, where: [up: true]
+    has_many :downvotes, ImageVote, where: [up: false]
+    has_many :faves, ImageFave
+    has_many :hides, ImageHide
+    has_many :taggings, Tagging
+    has_many :gallery_interactions, Galleries.Interaction
     has_many :tags, through: [:taggings, :tag]
     has_many :upvoters, through: [:upvotes, :user]
     has_many :downvoters, through: [:downvotes, :user]

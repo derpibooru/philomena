@@ -2,8 +2,10 @@ defmodule Philomena.SiteNotices.SiteNotice do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "site_notices" do
-    belongs_to :user, Philomena.Users.User
+    belongs_to :user, User
 
     field :title, :string
     field :text, :string

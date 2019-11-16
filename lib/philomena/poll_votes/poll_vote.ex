@@ -2,9 +2,12 @@ defmodule Philomena.PollVotes.PollVote do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.PollOptions.PollOption
+  alias Philomena.Users.User
+
   schema "poll_votes" do
-    belongs_to :poll_option, Philomena.PollOptions.PollOption
-    belongs_to :user, Philomena.Users.User
+    belongs_to :poll_option, PollOption
+    belongs_to :user, User
 
     field :rank, :integer
 

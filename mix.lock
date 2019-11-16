@@ -49,7 +49,7 @@
   "qrcode": {:hex, :qrcode, "0.1.5", "551271830515c150f34568345b060c625deb0e6691db2a01b0a6de3aafc93886", [:mix], [], "hexpm"},
   "ranch": {:hex, :ranch, "1.7.1", "6b1fab51b49196860b733a49c07604465a47bdb78aa10c1c16a3d199f7f8c881", [:rebar3], [], "hexpm"},
   "redix": {:hex, :redix, "0.10.2", "a9eabf47898aa878650df36194aeb63966d74f5bd69d9caa37babb32dbb93c5d", [:mix], [{:telemetry, "~> 0.4.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm"},
-  "remote_ip": {:hex, :remote_ip, "0.1.5", "0d8eb8a80387e196b0f48b3e7efb75525d1097cdb0ec70a4c69dd2ce9237c16c", [:mix], [{:combine, "~> 0.10", [hex: :combine, repo: "hexpm", optional: false]}, {:inet_cidr, "~> 1.0", [hex: :inet_cidr, repo: "hexpm", optional: false]}, {:plug, "~> 1.2", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
+  "remote_ip": {:hex, :remote_ip, "0.2.0", "6a40b87bc06fb33c71e423e4f2cdc76e45d42326508b4f9aaef6ff576190443d", [:mix], [{:combine, "~> 0.10", [hex: :combine, repo: "hexpm", optional: false]}, {:inet_cidr, "~> 1.0", [hex: :inet_cidr, repo: "hexpm", optional: false]}, {:plug, "~> 1.5", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
   "retry": {:hex, :retry, "0.13.0", "bb9b2713f70f39337837852337ad280c77662574f4fb852a8386c269f3d734c4", [:mix], [], "hexpm"},
   "scrivener": {:hex, :scrivener, "2.7.0", "fa94cdea21fad0649921d8066b1833d18d296217bfdf4a5389a2f45ee857b773", [:mix], [], "hexpm"},
   "scrivener_ecto": {:hex, :scrivener_ecto, "2.2.0", "53d5f1ba28f35f17891cf526ee102f8f225b7024d1cdaf8984875467158c9c5e", [:mix], [{:ecto, "~> 3.0", [hex: :ecto, repo: "hexpm", optional: false]}, {:scrivener, "~> 2.4", [hex: :scrivener, repo: "hexpm", optional: false]}], "hexpm"},

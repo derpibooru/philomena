@@ -2,11 +2,14 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Images.Image
+  alias Philomena.Users.User
+
   schema "duplicate_reports" do
-    belongs_to :image, Philomena.Images.Image
-    belongs_to :duplicate_of_image, Philomena.Images.Image
-    belongs_to :user, Philomena.Users.User
-    belongs_to :modifier, Philomena.Users.User
+    belongs_to :image, Image
+    belongs_to :duplicate_of_image, Image
+    belongs_to :user, User
+    belongs_to :modifier, User
 
     field :reason, :string
     field :state, :string, default: "open"

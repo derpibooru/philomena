@@ -2,8 +2,10 @@ defmodule Philomena.UserIps.UserIp do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "user_ips" do
-    belongs_to :user, Philomena.Users.User
+    belongs_to :user, User
 
     field :ip, EctoNetwork.INET
     field :uses, :integer, default: 0

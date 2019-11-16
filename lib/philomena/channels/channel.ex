@@ -2,8 +2,10 @@ defmodule Philomena.Channels.Channel do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Tags.Tag
+
   schema "channels" do
-    belongs_to :associated_artist_tag, Philomena.Tags.Tag
+    belongs_to :associated_artist_tag, Tag
 
     # fixme: rails STI
     field :type, :string

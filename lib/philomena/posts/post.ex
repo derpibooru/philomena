@@ -2,10 +2,13 @@ defmodule Philomena.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+  alias Philomena.Topics.Topic
+
   schema "posts" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :topic, Philomena.Topics.Topic
-    belongs_to :deleted_by, Philomena.Users.User
+    belongs_to :user, User
+    belongs_to :topic, Topic
+    belongs_to :deleted_by, User
 
     field :body, :string
     field :edit_reason, :string

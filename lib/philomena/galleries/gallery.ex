@@ -2,9 +2,12 @@ defmodule Philomena.Galleries.Gallery do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Images.Image
+  alias Philomena.Users.User
+
   schema "galleries" do
-    belongs_to :thumbnail, Philomena.Images.Image, source: :thumbnail_id
-    belongs_to :creator, Philomena.Users.User, source: :creator_id
+    belongs_to :thumbnail, Image, source: :thumbnail_id
+    belongs_to :creator, User, source: :creator_id
 
     field :title, :string
     field :spoiler_warning, :string

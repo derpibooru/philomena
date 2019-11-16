@@ -2,14 +2,19 @@ defmodule Philomena.Topics.Topic do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Forums.Forum
+  alias Philomena.Users.User
+  alias Philomena.Polls.Poll
+  alias Philomena.Posts.Post
+
   @derive {Phoenix.Param, key: :slug}
   schema "topics" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :deleted_by, Philomena.Users.User
-    belongs_to :locked_by, Philomena.Users.User
-    belongs_to :last_post, Philomena.Posts.Post
-    belongs_to :forum, Philomena.Forums.Forum
-    has_one :poll, Philomena.Polls.Poll
+    belongs_to :user, User
+    belongs_to :deleted_by, User
+    belongs_to :locked_by, User
+    belongs_to :last_post, Post
+    belongs_to :forum, Forum
+    has_one :poll, Poll
 
     field :title, :string
     field :post_count, :integer, default: 0

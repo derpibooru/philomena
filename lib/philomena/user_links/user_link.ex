@@ -2,11 +2,14 @@ defmodule Philomena.UserLinks.UserLink do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+  alias Philomena.Tags.Tag
+
   schema "user_links" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :verified_by_user, Philomena.Users.User
-    belongs_to :contacted_by_user, Philomena.Users.User
-    belongs_to :tag, Philomena.Tags.Tag
+    belongs_to :user, User
+    belongs_to :verified_by_user, User
+    belongs_to :contacted_by_user, User
+    belongs_to :tag, Tag
 
     field :aasm_state, :string
     field :uri, :string

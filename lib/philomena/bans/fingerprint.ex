@@ -2,8 +2,10 @@ defmodule Philomena.Bans.Fingerprint do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "fingerprint_bans" do
-    belongs_to :banning_user, Philomena.Users.User
+    belongs_to :banning_user, User
 
     field :reason, :string
     field :note, :string

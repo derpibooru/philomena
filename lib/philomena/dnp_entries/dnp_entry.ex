@@ -2,10 +2,13 @@ defmodule Philomena.DnpEntries.DnpEntry do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Tags.Tag
+  alias Philomena.Users.User
+
   schema "dnp_entries" do
-    belongs_to :requesting_user, Philomena.Users.User
-    belongs_to :modifying_user, Philomena.Users.User
-    belongs_to :tag, Philomena.Tags.Tag
+    belongs_to :requesting_user, User
+    belongs_to :modifying_user, User
+    belongs_to :tag, Tag
 
     field :aasm_state, :string, default: "requested"
     field :dnp_type, :string

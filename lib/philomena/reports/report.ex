@@ -2,9 +2,11 @@ defmodule Philomena.Reports.Report do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Users.User
+
   schema "reports" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :admin, Philomena.Users.User
+    belongs_to :user, User
+    belongs_to :admin, User
 
     field :ip, EctoNetwork.INET
     field :fingerprint, :string

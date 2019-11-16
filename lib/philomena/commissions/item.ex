@@ -2,9 +2,12 @@ defmodule Philomena.Commissions.Item do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Commissions.Commission
+  alias Philomena.Images.Image
+
   schema "commission_items" do
-    belongs_to :commission, Philomena.Commissions.Commission
-    belongs_to :example_image, Philomena.Images.Image
+    belongs_to :commission, Commission
+    belongs_to :example_image, Image
 
     field :item_type, :string
     field :description, :string

@@ -7,10 +7,13 @@ defmodule Philomena.Comments.Comment do
     index_name: "comments",
     doc_type: "comment"
 
+  alias Philomena.Images.Image
+  alias Philomena.Users.User
+
   schema "comments" do
-    belongs_to :user, Philomena.Users.User
-    belongs_to :image, Philomena.Images.Image
-    belongs_to :deleted_by, Philomena.Users.User
+    belongs_to :user, User
+    belongs_to :image, Image
+    belongs_to :deleted_by, User
 
     field :body, :string
     field :ip, EctoNetwork.INET

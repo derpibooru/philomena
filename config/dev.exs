@@ -61,6 +61,7 @@ config :philomena, PhilomenaWeb.Endpoint,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
+config :logger, compile_time_purge_matching: [[application: :remote_ip]]
 
 # Set up mailer
 config :philomena, PhilomenaWeb.Mailer,
