@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.Plugs.CurrentBan do
 
   ## Example
 
-      plug PhilomenaWeb.Plugs.Ban
+      plug PhilomenaWeb.Plugs.CurrentBan
   """
   alias Philomena.Bans
   alias Plug.Conn
