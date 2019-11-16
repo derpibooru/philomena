@@ -63,9 +63,9 @@ defmodule Philomena.Images.Image do
     field :hides_count, :integer, default: 0
 
     # todo: can probably remove these now
-    # field :tag_list_cache, :string
-    # field :tag_list_plus_alias_cache, :string
-    # field :file_name_cache, :string
+    field :tag_list_cache, :string
+    field :tag_list_plus_alias_cache, :string
+    field :file_name_cache, :string
 
     timestamps(inserted_at: :created_at)
   end

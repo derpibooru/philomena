@@ -48,6 +48,7 @@ defmodule PhilomenaWeb.ImageView do
     [
       image_id: image.id,
       image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
+      image_tag_aliases: image.tag_list_plus_alias_cache,
       score: image.score,
       faves: image.faves_count,
       upvotes: image.upvotes_count,
