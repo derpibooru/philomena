@@ -25,7 +25,7 @@ defmodule Philomena.Polymorphic do
   def load_polymorphic(structs, {name, {id, type}}) do
     modules_and_ids =
       structs
-      |> Enum.group_by(& &1[type], & &1[id])
+      |> Enum.group_by(&Map.get(&1, type), &Map.get(&1, id))
 
     loaded_rows =
       modules_and_ids
@@ -45,7 +45,9 @@ defmodule Philomena.Polymorphic do
 
     structs
     |> Enum.map(fn struct ->
-      row = loaded_rows[struct[type]][struct[id]]
+      type = Map.get(struct, type)
+      id = Map.get(struct, id)
+      row = loaded_rows[type][id]
 
       %{struct | name => row}
     end)
