@@ -11,6 +11,9 @@ defmodule Philomena.Notifications.Notification do
     field :actor_child_id, :integer
     field :actor_child_type, :string
 
+    field :actor, :any, virtual: true
+    field :actor_child, :any, virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 

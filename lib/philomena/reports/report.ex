@@ -18,6 +18,8 @@ defmodule Philomena.Reports.Report do
     field :reportable_id, :integer
     field :reportable_type, :string
 
+    field :reportable, :any, virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 
