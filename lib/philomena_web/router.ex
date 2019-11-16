@@ -53,6 +53,7 @@ defmodule PhilomenaWeb.Router do
     pipe_through [:browser, :ensure_totp, :protected]
 
     resources "/notifications", NotificationController, only: [:index, :delete]
+    resources "/conversations", ConversationController, only: [:index, :show]
   end
 
   scope "/", PhilomenaWeb do

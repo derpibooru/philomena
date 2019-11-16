@@ -5,7 +5,7 @@
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @notification.actor, size: :thumb_tiny, conn: @conn
     .flex.flex--centered.flex__grow
       div
-        => render PhilomenaWeb.NotificationView, notification_template_path(@notification.actor_type), notification: @notification
+        => render PhilomenaWeb.NotificationView, notification_template_path(@notification.actor_type), notification: @notification, conn: @conn
         => pretty_time @notification.updated_at
     .flex.flex--centered.flex--no-wrap
       a.button.button--separate-right title="Delete" data-click-markread=@notification.id

@@ -1,0 +1,22 @@
+elixir:
+  route = fn p -> Routes.conversation_path(@conn, :show, @conversation, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @messages, route: route, conn: @conn
+  other = other_party(@current_user.id, @conversation)
+
+h1 = @conversation.title
+.block
+  .block__header
+    => link "Message Center", to: Routes.conversation_path(@conn, :index)
+    ' &raquo;
+    => link @conversation.title, to: Routes.conversation_path(@conn, :show, @conversation)
+    ' Conversation with
+    => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other}, conn: @conn
+  .block__header--sub.block__header--light
+    = pagination
+
+= for {message, body} <- @messages do
+  = render PhilomenaWeb.MessageView, "_message.html", message: message, body: body, conn: @conn
+
+.block
+  .block__header.block__header--light
+    = pagination

@@ -1,7 +1,7 @@
 - topic = @notification.actor
 - post = @notification.actor_child
 
-=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: post
+=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: post, conn: @conn
 => @notification.action
 
 strong

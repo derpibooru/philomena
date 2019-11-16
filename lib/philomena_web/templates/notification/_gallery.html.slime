@@ -1,4 +1,4 @@
-=> render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}
+=> render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}, conn: @conn
 => @notification.action
 
 strong>

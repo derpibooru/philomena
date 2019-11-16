@@ -2,6 +2,8 @@ defmodule Philomena.Conversations.Conversation do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @derive {Phoenix.Param, key: :slug}
+
   schema "conversations" do
     belongs_to :from, Philomena.Users.User
     belongs_to :to, Philomena.Users.User

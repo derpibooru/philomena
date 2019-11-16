@@ -1,6 +1,7 @@
 defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Users.User
   alias Philomena.Comments.Comment
+  alias Philomena.Conversations.Conversation
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
@@ -27,6 +28,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
     when level in ["normal", "assistant", "staff"], do: true
   def can?(%User{role: "moderator"}, :show, %Topic{hidden_from_users: true}), do: true
 
+  # View conversations
+  def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
+
   #
   # Assistants can...
   #
@@ -42,6 +46,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   #
   # Users and anonymous users can...
   #
+
+  # View conversations they are involved in
+  def can?(%User{id: id}, :show, %Conversation{to_id: id}), do: true
+  def can?(%User{id: id}, :show, %Conversation{from_id: id}), do: true
 
   # View filters they own and system filters
   def can?(_user, :show, %Filter{system: true}), do: true

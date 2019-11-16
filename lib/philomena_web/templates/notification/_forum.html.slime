@@ -1,7 +1,7 @@
 - forum = @notification.actor
 - topic = @notification.actor_child
 
-=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic
+=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic, conn: @conn
 => @notification.action
 
 ' titled

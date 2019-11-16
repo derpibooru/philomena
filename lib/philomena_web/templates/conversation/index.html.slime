@@ -1,0 +1,34 @@
+elixir:
+  route = fn p -> Routes.conversation_path(@conn, :index, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @conversations, route: route, conn: @conn
+
+h1 My Conversations
+.block
+  .block__header
+    = pagination
+
+  .block__content
+    table.table.table--communication-list
+      thead
+        tr
+          th.table--communication-list__name Conversation
+          th.table--communication-list__stats With
+          th.table--communication-list__options Options
+      tbody
+        = for c <- @conversations do
+          td.table--communication-list__name
+            => link c.title, to: Routes.conversation_path(@conn, :show, c)
+
+            .small-text.hide-mobile
+              ' Started
+              = pretty_time(c.created_at)
+              ' , last message
+              = pretty_time(c.last_message_at)
+
+          td.table--communication-list__stats
+            = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user.id, c)}, conn: @conn
+          td.table--communication-list__options
+            | Last message
+
+  .block__header.block__header--light
+    = pagination
