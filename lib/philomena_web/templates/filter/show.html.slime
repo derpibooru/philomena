@@ -18,7 +18,7 @@ h1
           strong Your current filter
       - else
         li
-          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, @filter), method: "put", class: "button"
+          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, id: @filter), method: "put", class: "button"
 
       = if can?(@conn, :edit, @filter) do
         li
