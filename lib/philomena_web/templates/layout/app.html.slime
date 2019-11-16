@@ -10,7 +10,7 @@ html lang="en"
         ' - Philomena
       - else
         ' Philomena
-    link rel="stylesheet" href=Routes.static_path(@conn, "/css/app.css")
+    link rel="stylesheet" href=stylesheet_path(@conn, @current_user)
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"
     meta name="generator" content="philomena"

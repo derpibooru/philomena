@@ -42,4 +42,13 @@ defmodule PhilomenaWeb.LayoutView do
 
     tag(:div, class: "js-datastore", data: data)
   end
+
+  def stylesheet_path(conn, %{theme: "dark"}),
+    do: Routes.static_path(conn, "/css/dark.css")
+
+  def stylesheet_path(conn, %{theme: "red"}),
+    do: Routes.static_path(conn, "/css/red.css")
+
+  def stylesheet_path(conn, _user),
+    do: Routes.static_path(conn, "/css/default.css")
 end
