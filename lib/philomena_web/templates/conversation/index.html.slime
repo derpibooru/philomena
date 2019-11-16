@@ -16,19 +16,20 @@ h1 My Conversations
           th.table--communication-list__options Options
       tbody
         = for c <- @conversations do
-          td.table--communication-list__name
-            => link c.title, to: Routes.conversation_path(@conn, :show, c)
+          tr
+            td.table--communication-list__name
+              => link c.title, to: Routes.conversation_path(@conn, :show, c)
 
-            .small-text.hide-mobile
-              ' Started
-              = pretty_time(c.created_at)
-              ' , last message
-              = pretty_time(c.last_message_at)
+              .small-text.hide-mobile
+                ' Started
+                = pretty_time(c.created_at)
+                ' , last message
+                = pretty_time(c.last_message_at)
 
-          td.table--communication-list__stats
-            = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user.id, c)}, conn: @conn
-          td.table--communication-list__options
-            | Last message
+            td.table--communication-list__stats
+              = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user.id, c)}, conn: @conn
+            td.table--communication-list__options
+              | Last message
 
   .block__header.block__header--light
     = pagination

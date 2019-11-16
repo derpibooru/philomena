@@ -39,6 +39,6 @@ defmodule PhilomenaWeb.ConversationController do
     messages =
       %{messages | entries: Enum.zip(messages.entries, rendered)}
 
-    render(conn, "index.html", conversation: conversation, messages: messages)
+    render(conn, "show.html", conversation: conversation, messages: messages)
   end
 end
