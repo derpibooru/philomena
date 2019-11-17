@@ -31,11 +31,12 @@ header.header
           span.js-notification-ticker.fa__text.header__counter data-notification-count=notification_count = notification_count
 
         a.header__link href="/conversations" title="Conversations"
-          i.fa-embedded--message>
           = if @conversation_count > 0 do
+            i.fa-embedded--unread--message>
             span.fa-embedded__text.header__counter
               = @conversation_count
           - else
+            i.fa-embedded--message>
             span.fa-embedded__text.header__counter.hidden
               | 0
 
