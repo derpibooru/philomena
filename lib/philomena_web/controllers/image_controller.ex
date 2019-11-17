@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.ImageController do
 
   alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Interactions
+  alias Philomena.Comments
   alias Philomena.Repo
   import Ecto.Query
 
@@ -52,6 +53,18 @@ defmodule PhilomenaWeb.ImageController do
     interactions =
       Interactions.user_interactions([image], conn.assigns.current_user)
 
-    render(conn, "show.html", image: image, comments: comments, description: description, interactions: interactions)
+    comment_changeset =
+      %Comment{}
+      |> Comments.change_comment()
+
+    render(
+      conn,
+      "show.html",
+      image: image,
+      comments: comments,
+      comment_changeset: comment_changeset,
+      description: description,
+      interactions: interactions
+    )
   end
 end

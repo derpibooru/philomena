@@ -31,9 +31,18 @@ defmodule Philomena.Comments.Comment do
   end
 
   @doc false
+  def creation_changeset(comment, attrs) do
+    comment
+    |> cast(attrs, [:body, :anonymous])
+    |> validate_required([:body])
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+  end
+
   def changeset(comment, attrs) do
     comment
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:body, :edit_reason])
+    |> validate_required([:body])
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> validate_length(:edit_reason, max: 70, count: :bytes)
   end
 end

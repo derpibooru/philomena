@@ -19,5 +19,19 @@
         em> no source provided yet
 
   h4 Comments
+  = cond do
+    - @conn.assigns.current_ban ->
+      .block.block--fixed.block--warning
+        h4 You've been banned!
+        p
+          ' You cannnot post comments or update metadata (or do anything but
+          ' read, really) until
+          = pretty_time(@conn.assigns.current_ban.valid_until)
+
+    - @image.commenting_allowed ->
+      = render PhilomenaWeb.Image.CommentView, "_form.html", image: @image, changeset: @comment_changeset, conn: @conn
+
+    - true ->
+
   #comments data-current-url=Routes.image_comment_path(@conn, :index, @image, page: 1) data-loaded="true"
     = render PhilomenaWeb.Image.CommentView, "index.html", image: @image, comments: @comments, conn: @conn

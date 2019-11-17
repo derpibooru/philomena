@@ -20,7 +20,7 @@ defmodule Philomena.Notifications.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:actor_id, :actor_type, :actor_child_id, :actor_child_type, :action])
+    |> validate_required([:actor_id, :actor_type, :action])
   end
 end

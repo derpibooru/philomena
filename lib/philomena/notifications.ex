@@ -70,7 +70,7 @@ defmodule Philomena.Notifications do
   def update_notification(%Notification{} = notification, attrs) do
     notification
     |> Notification.changeset(attrs)
-    |> Repo.update()
+    |> Repo.insert_or_update()
   end
 
   @doc """
@@ -196,5 +196,37 @@ defmodule Philomena.Notifications do
   """
   def change_unread_notification(%UnreadNotification{} = unread_notification) do
     UnreadNotification.changeset(unread_notification, %{})
+  end
+
+  def notify(_actor_child, [], _params), do: nil
+  def notify(actor_child, subscriptions, params) do
+    # Don't push to the user that created the notification
+    subscriptions =
+      case actor_child do
+        %{user_id: id} ->
+          subscriptions
+          |> Enum.reject(& &1.user_id == id)
+
+        _ ->
+          subscriptions
+      end
+
+    Repo.transaction(fn ->
+      notification =
+        Notification
+        |> Repo.get_by(actor_id: params.actor_id, actor_type: params.actor_type)
+
+      {:ok, notification} =
+        (notification || %Notification{})
+        |> update_notification(params)
+
+      # Insert the notification to any watchers who do not have it
+      unreads =
+        subscriptions
+        |> Enum.map(&%{user_id: &1.user_id, notification_id: notification.id})
+
+      UnreadNotification
+      |> Repo.insert_all(unreads, on_conflict: :nothing)
+    end)
   end
 end

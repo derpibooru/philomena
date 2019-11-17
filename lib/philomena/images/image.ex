@@ -11,6 +11,7 @@ defmodule Philomena.Images.Image do
   alias Philomena.ImageVotes.ImageVote
   alias Philomena.ImageFaves.ImageFave
   alias Philomena.ImageHides.ImageHide
+  alias Philomena.Images.Subscription
   alias Philomena.Users.User
   alias Philomena.Images.Tagging
   alias Philomena.Galleries
@@ -24,6 +25,7 @@ defmodule Philomena.Images.Image do
     has_many :hides, ImageHide
     has_many :taggings, Tagging
     has_many :gallery_interactions, Galleries.Interaction
+    has_many :subscriptions, Subscription
     has_many :tags, through: [:taggings, :tag]
     has_many :upvoters, through: [:upvotes, :user]
     has_many :downvoters, through: [:downvotes, :user]
