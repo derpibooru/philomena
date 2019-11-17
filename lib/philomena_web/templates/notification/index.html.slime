@@ -8,6 +8,5 @@ h1 Notification Area
   = for notification <- @notifications do
     = render PhilomenaWeb.NotificationView, "_notification.html", notification: notification, conn: @conn
 
-br
 p To get notifications on new comments and forum posts, click the 'Subscribe' button in the bar at the top of an image or forum topic. You'll get notifications here for any new posts or comments.
 p By default you'll be subscribed to any images or topics you reply to. You can configure this in your user settings page.

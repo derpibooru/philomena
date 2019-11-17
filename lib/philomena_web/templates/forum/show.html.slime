@@ -31,7 +31,7 @@ h1 = @forum.name
           tr
             td.table--communication-list__name
               = if topic.sticky do
-                i.fa.fa-thumbtack
+                i.fa.fa-thumb-tack
               = if topic.locked_at do
                 i.fa.fa-lock
               = if topic.poll do
