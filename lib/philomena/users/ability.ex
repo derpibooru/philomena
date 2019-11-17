@@ -64,6 +64,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
       when action in [:show, :index],
       do: true
 
+  # Vote on images they can see
+  def can?(user, :vote, image), do: can?(user, :show, image)
+
   # View non-deleted comments
   def can?(_user, :show, %Comment{hidden_from_users: false}), do: true
 

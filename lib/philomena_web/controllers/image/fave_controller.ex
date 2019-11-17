@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.Image.FaveController do
   alias Ecto.Multi
 
   plug PhilomenaWeb.Plugs.FilterBannedUsers
+  plug PhilomenaWeb.Plugs.CanaryMapPlug, create: :vote, delete: :vote
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   def create(conn, _params) do
