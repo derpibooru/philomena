@@ -40,7 +40,7 @@ defmodule Philomena.Comments.Elasticsearch do
       author: if(!!comment.user and !comment.anonymous, do: comment.user.name),
       image_tag_ids: comment.image.tags |> Enum.map(& &1.id),
       anonymous: comment.anonymous,
-      hidden_from_users: comment.hidden_from_users,
+      hidden_from_users: comment.image.hidden_from_users || comment.hidden_from_users,
       body: comment.body
     }
   end

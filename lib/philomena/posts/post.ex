@@ -2,6 +2,11 @@ defmodule Philomena.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
 
+  use Philomena.Elasticsearch,
+    definition: Philomena.Posts.Elasticsearch,
+    index_name: "posts",
+    doc_type: "post"
+
   alias Philomena.Users.User
   alias Philomena.Topics.Topic
 

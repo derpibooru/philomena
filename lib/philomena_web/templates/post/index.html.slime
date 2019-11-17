@@ -1,0 +1,49 @@
+elixir:
+  route = fn p -> Routes.post_path(@conn, :index, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route
+
+.column-layout
+  .column-layout__left
+    .block
+      .block__content
+        h3 Search Posts
+
+        = form_for @conn, Routes.post_path(@conn, :index), [as: :post, method: "get", class: "hform"], fn f ->
+          .field = label f, :author, "Author"
+          .field = text_input f, :author, class: "input hform__text", placeholder: "Author (* is wildcard)"
+
+          .field = label f, :forum_id, "Forum"
+          .field = select f, :forum_id, @forums, class: "input input--wide"
+
+          .field = label f, :body, "Body"
+          .field = textarea f, :body, class: "input input--wide", placeholder: "Body"
+
+          .field = label f, :sf, "Sort by"
+          .field
+            => select f, :sf, ["Creation Date": "created_at", "Relevance": "_score"], class: "input"
+            => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
+
+          .field
+          = submit "Search", class: "button button--state-primary"
+
+  .column-layout__main
+    .block
+      .block__header
+        = pagination
+
+    .post-search-results
+      = for {post, body} <- @posts do
+        .post-entry-wrapper
+          h3
+            => link post.topic.forum.name, to: Routes.forum_path(@conn, :show, post.topic.forum)
+            ' &raquo;
+            => link post.topic.title, to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic)
+            ' &raquo;
+            a href=(Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}")
+              = if post.topic_position == 0 do
+                ' Topic Opener
+              - else
+                ' Post
+                = post.topic_position + 1
+
+          = render PhilomenaWeb.PostView, "_post.html", post: post, body: body, conn: @conn

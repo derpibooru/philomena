@@ -96,6 +96,7 @@ defmodule PhilomenaWeb.Router do
     resources "/filters", FilterController
     resources "/profiles", ProfileController, only: [:show]
     resources "/captchas", CaptchaController, only: [:create]
+    resources "/posts", PostController, only: [:index]
 
     get "/:id", ImageController, :show
   end
