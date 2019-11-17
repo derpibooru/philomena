@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.SearchController do
 
   alias Philomena.Images.{Image, Query}
   alias Philomena.Interactions
-  alias Pow.Plug
 
   import Ecto.Query
 
