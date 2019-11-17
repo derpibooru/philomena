@@ -1,0 +1,17 @@
+article.block.communication id="comment_#{@comment.id}"
+  .block__content.flex.flex--no-wrap
+    .flex__fixed.spacing-right
+      = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb, conn: @conn
+    .flex__grow.communication__body
+      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
+      .communication__body__text
+        = if @comment.hidden_from_users do
+          strong.comment_deleted
+            ' Deletion reason:
+            => @comment.deletion_reason
+        - else
+          ==<> @body
+
+  .block__content.communication__options
+    .flex.flex--wrap.flex--spaced-out
+      = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment, conn: @conn

@@ -5,20 +5,11 @@ article.block.communication id="comment_#{@comment.id}"
     .flex__grow.communication__body
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
       .communication__body__text
-        /- if comment.hidden_from_users
-        /  strong.comment_deleted
-        /    | Deletion reason:
-        /    =<> comment.deletion_reason
-        /    - if can?(:read, comment)
-        /      | (
-        /      = comment.deleted_by.try(:name) || 'Orbital Friendship Cannon'
-        /      | )
-        /    br
-        /    - if comment.destroyed_content
-        /      | This comment's contents have been destroyed.
-        /      br
-        /= if can?(:read, @comment)
-        = if !@comment.hidden_from_users do
+        = if @comment.hidden_from_users do
+          strong.comment_deleted
+            ' Deletion reason:
+            => @comment.deletion_reason
+        - else
           ==<> @body
 
   .block__content.communication__options

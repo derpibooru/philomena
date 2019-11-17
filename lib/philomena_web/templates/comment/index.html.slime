@@ -7,7 +7,7 @@ elixir:
     = pagination
 
 = for {comment, body} <- @comments do
-  = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
+  = render PhilomenaWeb.CommentView, "_comment_with_image.html", image: comment.image, comment: comment, body: body, conn: @conn
 
 .block
   .block__header.block__header--light

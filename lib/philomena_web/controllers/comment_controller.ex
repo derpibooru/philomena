@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.CommentController do
           sort: %{posted_at: :desc}
         },
         conn.assigns.pagination,
-        Comment |> preload([:image, user: [awards: :badge]])
+        Comment |> preload([image: [:tags], user: [awards: :badge]])
       )
 
     rendered =
