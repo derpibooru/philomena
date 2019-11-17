@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.Session.TotpController do
 
       {:ok, user} ->
         conn
-        |> PhilomenaWeb.Plugs.TotpPlug.update_valid_totp_at_for_session(user)
+        |> PhilomenaWeb.TotpPlug.update_valid_totp_at_for_session(user)
         |> redirect(to: "/")
     end
   end

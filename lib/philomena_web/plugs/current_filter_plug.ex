@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.CurrentFilter do
+defmodule PhilomenaWeb.CurrentFilterPlug do
   import Plug.Conn
 
   alias Philomena.{Filters, Filters.Filter}

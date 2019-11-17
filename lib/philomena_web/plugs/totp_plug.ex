@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.TotpPlug do
+defmodule PhilomenaWeb.TotpPlug do
   @moduledoc """
   This plug ensures that a user session has a valid TOTP.
 

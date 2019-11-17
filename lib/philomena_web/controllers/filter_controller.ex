@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.FilterController do
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: Filter, except: [:index], preload: :user
-  plug RequireUser when action not in [:index, :show]
+  plug PhilomenaWeb.RequireUserPlug when action not in [:index, :show]
 
   def index(conn, _params) do
     user = conn.assigns.current_user

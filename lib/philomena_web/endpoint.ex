@@ -49,8 +49,8 @@ defmodule PhilomenaWeb.Endpoint do
   plug Pow.Plug.Session, otp_app: :philomena
   plug PowPersistentSession.Plug.Cookie, otp_app: :philomena
 
-  plug PhilomenaWeb.Plugs.ReloadUser
-  plug PhilomenaWeb.Plugs.RenderTime
-  plug PhilomenaWeb.Plugs.Referrer
+  plug PhilomenaWeb.ReloadUserPlug
+  plug PhilomenaWeb.RenderTimePlug
+  plug PhilomenaWeb.ReferrerPlug
   plug PhilomenaWeb.Router
 end

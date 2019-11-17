@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.ConversationController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug PhilomenaWeb.Plugs.FilterBannedUsers when action in [:new, :create]
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug :load_and_authorize_resource, model: Conversation, id_field: "slug", only: :show, preload: [:to, :from]
 
   def index(conn, _params) do

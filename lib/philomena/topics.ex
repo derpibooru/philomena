@@ -104,7 +104,7 @@ defmodule Philomena.Topics do
 
   alias Philomena.Topics.Subscription
 
-  def subscribed?(topic, nil), do: false
+  def subscribed?(_topic, nil), do: false
   def subscribed?(topic, user) do
     Subscription
     |> where(topic_id: ^topic.id, user_id: ^user.id)

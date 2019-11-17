@@ -1,11 +1,11 @@
-defmodule PhilomenaWeb.Plugs.FilterBannedUsers do
+defmodule PhilomenaWeb.FilterBannedUsersPlug do
   @moduledoc """
   This plug redirects back if there is a ban for the current user.
-  CurrentBan must also be plugged, and it must come after it.
+  CurrentBanPlug must also be plugged, and this must come after it.
 
   ## Example
 
-      plug PhilomenaWeb.Plugs.FilterBannedUsers
+      plug PhilomenaWeb.FilterBannedUsersPlug
   """
   alias Phoenix.Controller
   alias Plug.Conn

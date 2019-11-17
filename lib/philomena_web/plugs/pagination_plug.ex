@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.Pagination do
+defmodule PhilomenaWeb.PaginationPlug do
   import Plug.Conn
 
   # No options

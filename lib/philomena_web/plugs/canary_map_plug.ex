@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.CanaryMapPlug do
+defmodule PhilomenaWeb.CanaryMapPlug do
   import Plug.Conn
 
   def init(opts), do: opts

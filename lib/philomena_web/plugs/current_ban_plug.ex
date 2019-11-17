@@ -1,10 +1,10 @@
-defmodule PhilomenaWeb.Plugs.CurrentBan do
+defmodule PhilomenaWeb.CurrentBanPlug do
   @moduledoc """
   This plug loads the ban for the current user.
 
   ## Example
 
-      plug PhilomenaWeb.Plugs.CurrentBan
+      plug PhilomenaWeb.CurrentBanPlug
   """
   alias Philomena.Bans
   alias Plug.Conn

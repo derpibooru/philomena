@@ -1,10 +1,10 @@
-defmodule PhilomenaWeb.Plugs.EnsureUserEnabledPlug do
+defmodule PhilomenaWeb.EnsureUserEnabledPlug do
   @moduledoc """
   This plug ensures that a user is enabled.
 
   ## Example
 
-      plug PhilomenaWeb.Plugs.EnsureUserEnabledPlug
+      plug PhilomenaWeb.EnsureUserEnabledPlug
   """
   alias PhilomenaWeb.Router.Helpers, as: Routes
   alias Phoenix.Controller

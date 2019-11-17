@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
       
       {:ok, user} ->
         conn
-        |> PhilomenaWeb.Plugs.TotpPlug.update_valid_totp_at_for_session(user)
+        |> PhilomenaWeb.TotpPlug.update_valid_totp_at_for_session(user)
         |> put_flash(:totp_backup_codes, backup_codes)
         |> redirect(to: Routes.registration_totp_path(conn, :edit))
     end

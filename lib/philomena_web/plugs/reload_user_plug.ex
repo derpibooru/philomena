@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.ReloadUser do
+defmodule PhilomenaWeb.ReloadUserPlug do
   alias Pow.Plug
   alias Philomena.Users.User
   alias Philomena.Repo

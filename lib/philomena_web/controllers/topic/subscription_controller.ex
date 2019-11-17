@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug PhilomenaWeb.Plugs.CanaryMapPlug, create: :show, delete: :show
+  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
   def create(conn, %{"topic_id" => slug}) do
@@ -36,10 +36,10 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
 
   defp load_topic(conn, slug) do
     forum = conn.assigns.forum
-    topic =
-      Topic
-      |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
-      |> preload(:user)
-      |> Repo.one()
+
+    Topic
+    |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
+    |> preload(:user)
+    |> Repo.one()
   end
 end

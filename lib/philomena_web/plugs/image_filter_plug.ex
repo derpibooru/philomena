@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.ImageFilter do
+defmodule PhilomenaWeb.ImageFilterPlug do
   import Plug.Conn
   import Search.String
 

@@ -122,7 +122,7 @@ defmodule Philomena.Images do
 
   alias Philomena.Images.Subscription
 
-  def subscribed?(image, nil), do: false
+  def subscribed?(_image, nil), do: false
   def subscribed?(image, user) do
     Subscription
     |> where(image_id: ^image.id, user_id: ^user.id)

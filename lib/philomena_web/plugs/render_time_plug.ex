@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Plugs.RenderTime do
+defmodule PhilomenaWeb.RenderTimePlug do
   import Plug.Conn
 
   # No options

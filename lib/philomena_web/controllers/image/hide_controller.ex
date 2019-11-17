@@ -6,8 +6,8 @@ defmodule PhilomenaWeb.Image.HideController do
   alias Philomena.Repo
   alias Ecto.Multi
 
-  plug PhilomenaWeb.Plugs.FilterBannedUsers
-  plug PhilomenaWeb.Plugs.CanaryMapPlug, create: :vote, delete: :vote
+  plug PhilomenaWeb.FilterBannedUsersPlug
+  plug PhilomenaWeb.CanaryMapPlug, create: :vote, delete: :vote
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   def create(conn, _params) do
