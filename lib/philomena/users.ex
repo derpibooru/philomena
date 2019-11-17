@@ -77,6 +77,12 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def update_spoiler_type(%User{} = user, attrs) do
+    user
+    |> User.spoiler_type_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

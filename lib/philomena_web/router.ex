@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.EnsureUserEnabledPlug
     plug PhilomenaWeb.CurrentBanPlug
     plug PhilomenaWeb.NotificationCountPlug
+    plug PhilomenaWeb.FilterSelectPlug
   end
 
   pipeline :api do
@@ -66,6 +67,10 @@ defmodule PhilomenaWeb.Router do
       resources "/topics", TopicController, only: [] do
         resources "/subscription", Topic.SubscriptionController, only: [:create, :delete], singleton: true
       end
+    end
+
+    scope "/filters", Filter, as: :filter do
+      resources "/spoiler_type", SpoilerTypeController, only: [:update], singleton: true
     end
   end
 

@@ -143,8 +143,19 @@ defmodule Philomena.Users.User do
   end
 
   def filter_changeset(user, filter) do
-    change(user)
+    changeset = change(user)
+    user = changeset.data
+
+    changeset
     |> put_change(:current_filter_id, filter.id)
+    |> put_change(:recent_filter_ids, Enum.take([filter.id | user.recent_filter_ids], 10))
+  end
+
+  def spoiler_type_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:spoiler_type])
+    |> validate_required([:spoiler_type])
+    |> validate_inclusion(:spoiler_type, ~W(static click hover off))
   end
 
   def create_totp_secret_changeset(user) do

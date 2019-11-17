@@ -116,4 +116,30 @@ defmodule Philomena.Filters do
   def change_filter(%Filter{} = filter) do
     Filter.changeset(filter, %{})
   end
+
+  def recent_and_user_filters(user) do
+    user_filters = 
+      Filter
+      |> select([f], %{id: f.id, name: f.name, recent: ^"f"})
+      |> where(user_id: ^user.id)
+      |> limit(10)
+
+    recent_filters =
+      Filter
+      |> select([f], %{id: f.id, name: f.name, recent: ^"t"})
+      |> where([f], f.id in ^user.recent_filter_ids)
+      |> limit(10)
+
+    union(recent_filters, ^user_filters)
+    |> Repo.all()
+    |> Enum.group_by(
+      fn
+        %{recent: "t"}  -> "Recent Filters"
+        _user           -> "Your Filters"
+      end,
+      fn %{id: id, name: name} ->
+        [key: name, value: id]
+      end
+    )
+  end
 end
