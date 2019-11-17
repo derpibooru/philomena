@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
+  alias Philomena.{Images, Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Interactions
   alias Philomena.Comments
   alias Philomena.Repo
@@ -57,6 +57,9 @@ defmodule PhilomenaWeb.ImageController do
       %Comment{}
       |> Comments.change_comment()
 
+    watching =
+      Images.subscribed?(image, conn.assigns.current_user)
+
     render(
       conn,
       "show.html",
@@ -64,7 +67,8 @@ defmodule PhilomenaWeb.ImageController do
       comments: comments,
       comment_changeset: comment_changeset,
       description: description,
-      interactions: interactions
+      interactions: interactions,
+      watching: watching
     )
   end
 end

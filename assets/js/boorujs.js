@@ -8,7 +8,7 @@ import { $ } from './utils/dom';
 import { fetchHtml, handleError } from './utils/requests';
 import { showBlock } from './utils/image';
 import { addTag } from './tagsinput';
-import { toggleSubscription, markRead } from './notifications';
+import { markRead } from './notifications';
 
 // Event types and any qualifying conditions - return true to not run action
 const types = {
@@ -73,8 +73,6 @@ const actions = {
   },
 
   unfilter(data) { showBlock(data.el.closest('.image-show-container')); },
-
-  toggleSubscription,
 
   markRead,
 

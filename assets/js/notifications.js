@@ -4,6 +4,7 @@
 
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, hideEl, toggleEl } from './utils/dom';
+import { delegate } from './utils/events';
 import store from './utils/store';
 
 const NOTIFICATION_INTERVAL = 600000,
@@ -14,15 +15,16 @@ function makeRequest(verb, action, body) {
 }
 
 
-function toggleSubscription(data) {
-  const { subscriptionId, subscriptionType } = data.el.dataset;
-  const subscriptionElements = $$(`.js-notification-${subscriptionType + subscriptionId}`);
-
-  makeRequest('PUT', data.value, { id: subscriptionId, actor_class: subscriptionType }) // eslint-disable-line camelcase
-    .then(() => toggleEl(subscriptionElements))
-    .catch(() => data.el.textContent = 'Error!');
+function bindSubscriptionLinks() {
+  delegate(document, 'fetchcomplete', {
+    '.js-subscription-link': event => {
+      const target = $("#js-subscription-target");
+      event.detail.text().then(text => {
+        target.outerHTML = text;
+      });
+    }
+  });
 }
-
 
 function markRead(data) {
   const notificationId = data.value;
@@ -72,6 +74,8 @@ function setupNotifications() {
 
   // Update ticker when the stored value changes - this will occur in all open tabs
   store.watch('notificationCount', updateNotificationTicker);
+
+  bindSubscriptionLinks();
 }
 
-export { setupNotifications, toggleSubscription, markRead };
+export { setupNotifications, markRead };

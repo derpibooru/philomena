@@ -1,4 +1,4 @@
-= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, conn: @conn
+= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, watching: @watching, conn: @conn
 = render PhilomenaWeb.ImageView, "_image_page.html", image: @image, conn: @conn
 
 .layout--narrow

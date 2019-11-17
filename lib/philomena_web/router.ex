@@ -58,6 +58,7 @@ defmodule PhilomenaWeb.Router do
       resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true
       resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
+      resources "/subscription", Image.SubscriptionController, only: [:create, :delete], singleton: true
     end
   end
 

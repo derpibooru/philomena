@@ -30,9 +30,7 @@
         span.hide-span title="Hide"
           i.fa.fa-eye-slash
     .stretched-mobile-links
-      a href="/" title="Related Images"
-        i.fa.fa-sitemap>
-        span.hide-limited-desktop.hide-mobile Related
+      = render PhilomenaWeb.Image.SubscriptionView, "_subscription.html", watching: @watching, image: @image, conn: @conn
     .stretched-mobile-links
       a href="#{pretty_url(@image, false, false)}" rel="nofollow" title="View (tags in filename)"
         i.fa.fa-eye>
