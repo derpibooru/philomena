@@ -11,7 +11,8 @@ defmodule PhilomenaWeb.CommentController do
         %{
           query: %{
             bool: %{
-              must: parse_search(conn, params) ++ [%{term: %{hidden_from_users: false}}]
+              must: parse_search(conn, params) ++ [%{term: %{hidden_from_users: false}}],
+              must_not: %{terms: %{image_tag_ids: conn.assigns.current_filter.hidden_tag_ids}}
             }
           },
           sort: parse_sort(params)
