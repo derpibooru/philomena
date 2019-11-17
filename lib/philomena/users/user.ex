@@ -9,7 +9,7 @@ defmodule Philomena.Users.User do
     password_min_length: 6
 
   use Pow.Extension.Ecto.Schema,
-    extensions: [PowResetPassword, PowLockout, PowPersistentSession]
+    extensions: [PowResetPassword, PowLockout]
 
   import Ecto.Changeset
 
