@@ -64,7 +64,7 @@ defmodule PhilomenaWeb.CommentController do
         []
     end
   end
-  defp parse_image_id(_params), do: []
+  defp parse_image_id(_conn, _params), do: []
 
   defp parse_body(%{"body" => body}) when body not in [nil, ""],
     do: [%{match: %{body: body}}]
