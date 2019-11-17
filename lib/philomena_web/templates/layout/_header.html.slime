@@ -32,7 +32,7 @@ header.header
 
         a.header__link href="/conversations" title="Conversations"
           = if @conversation_count > 0 do
-            i.fa-embedded--unread--message>
+            i.fa-embedded--unread-message>
             span.fa-embedded__text.header__counter
               = @conversation_count
           - else
