@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.ImageView do
   def thumb_url(image, show_hidden, name) do
     %{year: year, month: month, day: day} = image.created_at
     deleted = image.hidden_from_users
-    format = image.image_format
+    format = String.downcase(image.image_format)
     root = image_url_root()
 
     id_fragment =
@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.ImageView do
 
     view = if download, do: "download", else: "view"
     filename = "#{image.id}"
-    format = image.image_format
+    format = String.downcase(image.image_format)
 
     "#{root}/#{view}/#{year}/#{month}/#{day}/#{filename}.#{format}"
   end
