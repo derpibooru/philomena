@@ -11,6 +11,7 @@ defmodule PhilomenaWeb.ForumController do
     user = conn.assigns.current_user
     forums =
       Forum
+      |> order_by(asc: :name)
       |> preload([last_post: [:topic, :user]])
       |> Repo.all()
       |> Enum.filter(&Canada.Can.can?(user, :show, &1))
