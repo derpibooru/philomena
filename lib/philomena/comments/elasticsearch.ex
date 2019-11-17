@@ -29,9 +29,6 @@ defmodule Philomena.Comments.Elasticsearch do
     }
   end
 
-  # preload([
-  #   :user, image: :tags
-  # ])
   def as_json(comment) do
     %{
       id: comment.id,

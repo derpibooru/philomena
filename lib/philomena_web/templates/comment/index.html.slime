@@ -2,13 +2,38 @@ elixir:
   route = fn p -> Routes.comment_path(@conn, :index, p) end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
 
-.block
-  .block__header
-    = pagination
+.column-layout
+  .column-layout__left
+    .block
+      .block__content
+        h3 Search Comments
 
-= for {comment, body} <- @comments do
-  = render PhilomenaWeb.CommentView, "_comment_with_image.html", image: comment.image, comment: comment, body: body, conn: @conn
+        = form_for @conn, Routes.comment_path(@conn, :index), [as: :comment, method: "get", class: "hform"], fn f ->
+          .field = label f, :author, "Author"
+          .field = text_input f, :author, class: "input hform__text", placeholder: "Author (* is wildcard)"
 
-.block
-  .block__header.block__header--light
-    = pagination
+          .field = label f, :image_id, "Image ID"
+          .field = number_input f, :image_id, class: "input hform__text", placeholder: "Image ID"
+
+          .field = label f, :body, "Body"
+          .field = textarea f, :body, class: "input input--wide", placeholder: "Body"
+
+          .field = label f, :sf, "Sort by"
+          .field
+            => select f, :sf, ["Creation Date": "posted_at", "Relevance": "_score"], class: "input"
+            => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
+
+          .field
+          = submit "Search", class: "button button--state-primary"
+
+  .column-layout__main
+    .block
+      .block__header
+        = pagination
+
+    = for {comment, body} <- @comments do
+      = render PhilomenaWeb.CommentView, "_comment_with_image.html", image: comment.image, comment: comment, body: body, conn: @conn
+
+    .block
+      .block__header.block__header--light
+        = pagination
