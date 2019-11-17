@@ -24,10 +24,7 @@ h1 = @topic.title
     .flex--fixed.block__header__item
       => @topic.post_count - 1
       ' replies
-    /= if current_user
-    /  = subscription_link(@topic, current_user)
-    /- else
-    ' Login to subscribe to responses
+    = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
 
 / Display the poll, if any
 /= render partial: 'polls/display', locals: { poll: @topic.poll }

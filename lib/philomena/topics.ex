@@ -104,34 +104,12 @@ defmodule Philomena.Topics do
 
   alias Philomena.Topics.Subscription
 
-  @doc """
-  Returns the list of topic_subscriptions.
-
-  ## Examples
-
-      iex> list_topic_subscriptions()
-      [%Subscription{}, ...]
-
-  """
-  def list_topic_subscriptions do
-    Repo.all(Subscription)
+  def subscribed?(topic, nil), do: false
+  def subscribed?(topic, user) do
+    Subscription
+    |> where(topic_id: ^topic.id, user_id: ^user.id)
+    |> Repo.exists?()
   end
-
-  @doc """
-  Gets a single subscription.
-
-  Raises `Ecto.NoResultsError` if the Subscription does not exist.
-
-  ## Examples
-
-      iex> get_subscription!(123)
-      %Subscription{}
-
-      iex> get_subscription!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_subscription!(id), do: Repo.get!(Subscription, id)
 
   @doc """
   Creates a subscription.
@@ -145,28 +123,10 @@ defmodule Philomena.Topics do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscription(attrs \\ %{}) do
-    %Subscription{}
-    |> Subscription.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a subscription.
-
-  ## Examples
-
-      iex> update_subscription(subscription, %{field: new_value})
-      {:ok, %Subscription{}}
-
-      iex> update_subscription(subscription, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_subscription(%Subscription{} = subscription, attrs) do
-    subscription
-    |> Subscription.changeset(attrs)
-    |> Repo.update()
+  def create_subscription(topic, user) do
+    %Subscription{topic_id: topic.id, user_id: user.id}
+    |> Subscription.changeset(%{})
+    |> Repo.insert(on_conflict: :nothing)
   end
 
   @doc """
@@ -181,20 +141,8 @@ defmodule Philomena.Topics do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_subscription(%Subscription{} = subscription) do
-    Repo.delete(subscription)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking subscription changes.
-
-  ## Examples
-
-      iex> change_subscription(subscription)
-      %Ecto.Changeset{source: %Subscription{}}
-
-  """
-  def change_subscription(%Subscription{} = subscription) do
-    Subscription.changeset(subscription, %{})
+  def delete_subscription(topic, user) do
+    %Subscription{topic_id: topic.id, user_id: user.id}
+    |> Repo.delete()
   end
 end

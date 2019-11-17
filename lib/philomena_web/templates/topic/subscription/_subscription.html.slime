@@ -1,0 +1,23 @@
+elixir:
+  watch_path = Routes.forum_topic_subscription_path(@conn, :create, @forum, @topic)
+  watch_class = if @watching, do: "hidden", else: ""
+
+  unwatch_path = Routes.forum_topic_subscription_path(@conn, :delete, @forum, @topic)
+  unwatch_class = if @watching, do: "", else: "hidden"
+
+= if @conn.assigns.current_user do
+  #js-subscription-target
+    a.js-subscription-link href=watch_path class=watch_class data-remote="true" data-method="post"
+      i.fa.fa-bell>
+      span.hide-mobile
+        ' Subscribe
+
+    a.js-subscription-link href=unwatch_path class=unwatch_class data-remote="true" data-method="delete"
+      i.fa.fa-bell-slash>
+      span.hide-mobile
+        ' Unsubscribe
+- else
+    a href=Routes.pow_session_path(@conn, :new)
+      i.fa.fa-bell>
+      span.hide-mobile
+        ' Subscribe

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Textile.Renderer}
+  alias Philomena.{Forums.Forum, Topics, Topics.Topic, Posts.Post, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -51,6 +51,9 @@ defmodule PhilomenaWeb.TopicController do
         total_pages: div(topic.post_count + 25 - 1, 25)
       }
 
-    render(conn, "show.html", posts: posts)
+    watching =
+      Topics.subscribed?(topic, conn.assigns.current_user)
+
+    render(conn, "show.html", posts: posts, watching: watching)
   end
 end
