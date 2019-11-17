@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
+  alias Philomena.Interactions
   alias Philomena.Repo
   import Ecto.Query
 
@@ -20,13 +21,18 @@ defmodule PhilomenaWeb.ImageController do
         Image |> preload([:tags, :user])
       )
 
-    render(conn, "index.html", images: images)
+    interactions =
+      Interactions.user_interactions(images, conn.assigns.current_user)
+
+    render(conn, "index.html", images: images, interactions: interactions)
   end
 
   def show(conn, %{"id" => _id}) do
+    image = conn.assigns.image
+
     comments =
       Comment
-      |> where(image_id: ^conn.assigns.image.id)
+      |> where(image_id: ^image.id)
       |> preload([:image, user: [awards: :badge]])
       |> order_by(desc: :created_at)
       |> limit(25)
@@ -40,9 +46,12 @@ defmodule PhilomenaWeb.ImageController do
       %{comments | entries: Enum.zip(comments.entries, rendered)}
 
     description =
-      %{body: conn.assigns.image.description}
+      %{body: image.description}
       |> Renderer.render_one()
 
-    render(conn, "show.html", image: conn.assigns.image, comments: comments, description: description)
+    interactions =
+      Interactions.user_interactions([image], conn.assigns.current_user)
+
+    render(conn, "show.html", image: image, comments: comments, description: description, interactions: interactions)
   end
 end

@@ -4,101 +4,51 @@ defmodule Philomena.ImageHides do
   """
 
   import Ecto.Query, warn: false
-  alias Philomena.Repo
+  alias Ecto.Multi
 
+  alias Philomena.Images.Image
   alias Philomena.ImageHides.ImageHide
-
-  @doc """
-  Returns the list of image_hides.
-
-  ## Examples
-
-      iex> list_image_hides()
-      [%ImageHide{}, ...]
-
-  """
-  def list_image_hides do
-    Repo.all(ImageHide)
-  end
-
-  @doc """
-  Gets a single image_hide.
-
-  Raises `Ecto.NoResultsError` if the Image hide does not exist.
-
-  ## Examples
-
-      iex> get_image_hide!(123)
-      %ImageHide{}
-
-      iex> get_image_hide!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_image_hide!(id), do: Repo.get!(ImageHide, id)
 
   @doc """
   Creates a image_hide.
 
-  ## Examples
-
-      iex> create_image_hide(%{field: value})
-      {:ok, %ImageHide{}}
-
-      iex> create_image_hide(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
   """
-  def create_image_hide(attrs \\ %{}) do
-    %ImageHide{}
-    |> ImageHide.changeset(attrs)
-    |> Repo.insert()
-  end
+  def create_hide_transaction(image, user) do
+    hide =
+      %ImageHide{image_id: image.id, user_id: user.id}
+      |> ImageHide.changeset(%{})
 
-  @doc """
-  Updates a image_hide.
+    image_query =
+      Image
+      |> where(id: ^image.id)
 
-  ## Examples
-
-      iex> update_image_hide(image_hide, %{field: new_value})
-      {:ok, %ImageHide{}}
-
-      iex> update_image_hide(image_hide, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_image_hide(%ImageHide{} = image_hide, attrs) do
-    image_hide
-    |> ImageHide.changeset(attrs)
-    |> Repo.update()
+    Multi.new
+    |> Multi.insert(:hide, hide)
+    |> Multi.update_all(:inc_hides_count, image_query, inc: [hides_count: 1])
   end
 
   @doc """
   Deletes a ImageHide.
 
-  ## Examples
-
-      iex> delete_image_hide(image_hide)
-      {:ok, %ImageHide{}}
-
-      iex> delete_image_hide(image_hide)
-      {:error, %Ecto.Changeset{}}
-
   """
-  def delete_image_hide(%ImageHide{} = image_hide) do
-    Repo.delete(image_hide)
-  end
+  def delete_hide_transaction(image, user) do
+    hide_query =
+      ImageHide
+      |> where(image_id: ^image.id)
+      |> where(user_id: ^user.id)
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking image_hide changes.
+    image_query =
+      Image
+      |> where(id: ^image.id)
 
-  ## Examples
+    Multi.new
+    |> Multi.delete_all(:unhide, hide_query)
+    |> Multi.run(:dec_hides_count, fn repo, %{unhide: {hides, nil}} ->
+      {count, nil} =
+        image_query
+        |> repo.update_all(inc: [hides_count: -hides])
 
-      iex> change_image_hide(image_hide)
-      %Ecto.Changeset{source: %ImageHide{}}
-
-  """
-  def change_image_hide(%ImageHide{} = image_hide) do
-    ImageHide.changeset(image_hide, %{})
+      {:ok, count}
+    end)
   end
 end

@@ -54,6 +54,11 @@ defmodule PhilomenaWeb.Router do
 
     resources "/notifications", NotificationController, only: [:index, :delete]
     resources "/conversations", ConversationController, only: [:index, :show]
+    resources "/images", ImageController, only: [] do
+      resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true
+      resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true
+      resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
+    end
   end
 
   scope "/", PhilomenaWeb do

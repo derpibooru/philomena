@@ -104,6 +104,22 @@ defmodule Philomena.Images do
     Image.changeset(image, %{})
   end
 
+  def reindex_image(%Image{} = image) do
+    spawn fn ->
+      Image
+      |> preload(^indexing_preloads())
+      |> where(id: ^image.id)
+      |> Repo.one()
+      |> Image.index_document()
+    end
+
+    image
+  end
+
+  def indexing_preloads do
+    [:user, :favers, :downvoters, :upvoters, :hiders, :deleter, :gallery_interactions, tags: [:aliases, :aliased_tag]]
+  end
+
   alias Philomena.Images.Subscription
 
   @doc """

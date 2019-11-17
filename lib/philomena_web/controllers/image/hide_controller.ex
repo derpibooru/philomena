@@ -1,21 +1,21 @@
-defmodule PhilomenaWeb.Image.VoteController do
+defmodule PhilomenaWeb.Image.HideController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Images, Images.Image}
-  alias Philomena.ImageVotes
+  alias Philomena.ImageHides
   alias Philomena.Repo
   alias Ecto.Multi
 
   plug PhilomenaWeb.Plugs.FilterBannedUsers
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
-  def create(conn, params) do
+  def create(conn, _params) do
     user = conn.assigns.current_user
     image = conn.assigns.image
 
     Multi.append(
-      ImageVotes.delete_vote_transaction(image, user),
-      ImageVotes.create_vote_transaction(image, user, params["up"] == true)
+      ImageHides.delete_hide_transaction(image, user),
+      ImageHides.create_hide_transaction(image, user)
     )
     |> Repo.transaction()
     |> case do
@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.Image.VoteController do
     user = conn.assigns.current_user
     image = conn.assigns.image
 
-    ImageVotes.delete_vote_transaction(image, user)
+    ImageHides.delete_hide_transaction(image, user)
     |> Repo.transaction()
     |> case do
       {:ok, _result} ->

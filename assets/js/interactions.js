@@ -5,9 +5,9 @@
 import { fetchJson } from './utils/requests';
 
 const endpoints = {
-  fave: `${window.booru.apiEndpoint}interactions/fave`,
-  vote: `${window.booru.apiEndpoint}interactions/vote`,
-  hide: `${window.booru.apiEndpoint}interactions/hide`,
+  vote(imageId) { return `/images/${imageId}/vote` },
+  fave(imageId) { return `/images/${imageId}/fave` },
+  hide(imageId) { return `/images/${imageId}/hide` },
 };
 
 const spoilerDownvoteMsg =
@@ -22,10 +22,8 @@ function onImage(id, selector, cb) {
 function setScore(imageId, data) {
   onImage(imageId, '.score',
     el => el.textContent = data.score);
-  onImage(imageId, '.votes',
-    el => el.textContent = data.votes);
   onImage(imageId, '.favorites',
-    el => el.textContent = data.favourites);
+    el => el.textContent = data.faves);
   onImage(imageId, '.upvotes',
     el => el.textContent = data.upvotes);
   onImage(imageId, '.downvotes',
@@ -73,10 +71,8 @@ function resetHidden(imageId) {
     el => el.classList.remove('active'));
 }
 
-function interact(type, imageId, value) {
-  return fetchJson('PUT', endpoints[type], {
-    class: 'Image', id: imageId, value
-  })
+function interact(type, imageId, method, data = {}) {
+  return fetchJson(method, endpoints[type](imageId), data)
     .then(res => res.json())
     .then(res => setScore(imageId, res));
 }
@@ -129,37 +125,37 @@ const targets = {
 
   /* Active-state targets first */
   '.interaction--upvote.active'(imageId) {
-    interact('vote', imageId, 'false')
+    interact('vote', imageId, 'DELETE')
       .then(() => resetVoted(imageId));
   },
   '.interaction--downvote.active'(imageId) {
-    interact('vote', imageId, 'false')
+    interact('vote', imageId, 'DELETE')
       .then(() => resetVoted(imageId));
   },
   '.interaction--fave.active'(imageId) {
-    interact('fave', imageId, 'false')
+    interact('fave', imageId, 'DELETE')
       .then(() => resetFaved(imageId));
   },
   '.interaction--hide.active'(imageId) {
-    interact('hide', imageId, 'false')
+    interact('hide', imageId, 'DELETE')
       .then(() => resetHidden(imageId));
   },
 
   /* Inactive targets */
   '.interaction--upvote:not(.active)'(imageId) {
-    interact('vote', imageId, 'up')
+    interact('vote', imageId, 'POST', { up: true })
       .then(() => { resetVoted(imageId); showUpvoted(imageId); });
   },
   '.interaction--downvote:not(.active)'(imageId) {
-    interact('vote', imageId, 'down')
+    interact('vote', imageId, 'POST', { up: false })
       .then(() => { resetVoted(imageId); showDownvoted(imageId); });
   },
   '.interaction--fave:not(.active)'(imageId) {
-    interact('fave', imageId, 'true')
+    interact('fave', imageId, 'POST')
       .then(() => { resetVoted(imageId); showFaved(imageId); showUpvoted(imageId); });
   },
   '.interaction--hide:not(.active)'(imageId) {
-    interact('hide', imageId, 'true')
+    interact('hide', imageId, 'POST')
       .then(() => { showHidden(imageId); });
   },
 

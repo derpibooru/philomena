@@ -2,13 +2,14 @@ defmodule PhilomenaWeb.SearchController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Images.{Image, Query}
+  alias Philomena.Interactions
   alias Pow.Plug
 
   import Ecto.Query
 
   def index(conn, params) do
-    filter = conn.assigns[:compiled_filter]
-    user = conn |> Plug.current_user()
+    filter = conn.assigns.compiled_filter
+    user = conn.assigns.current_user
 
     with {:ok, query} <- Query.compile(user, params["q"]) do
       images =
@@ -21,8 +22,11 @@ defmodule PhilomenaWeb.SearchController do
           Image |> preload(:tags)
         )
 
+      interactions =
+        Interactions.user_interactions(images, user)
+
       conn
-      |> render("index.html", images: images, search_query: params["q"])
+      |> render("index.html", images: images, search_query: params["q"], interactions: interactions)
     else
       {:error, msg} ->
         conn

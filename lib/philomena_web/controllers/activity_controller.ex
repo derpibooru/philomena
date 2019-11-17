@@ -1,7 +1,9 @@
 defmodule PhilomenaWeb.ActivityController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images, Images.Image, Images.Feature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
+  alias Philomena.{Images.Image, ImageFeatures.ImageFeature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
+  alias Philomena.Interactions
+  alias Philomena.Images
   alias Philomena.Repo
   import Ecto.Query
 
@@ -15,8 +17,11 @@ defmodule PhilomenaWeb.ActivityController do
         %{
           query: %{
             bool: %{
-              must_not: filter,
-              must: image_query
+              must: image_query,
+              must_not: [
+                filter,
+                %{term: %{hidden_from_users: true}}
+              ],
             }
           },
           sort: %{created_at: :desc}
@@ -30,8 +35,11 @@ defmodule PhilomenaWeb.ActivityController do
         %{
           query: %{
             bool: %{
-              must_not: filter,
-              must: %{range: %{first_seen_at: %{gt: "now-3d"}}}
+              must: %{range: %{first_seen_at: %{gt: "now-3d"}}},
+              must_not: [
+                filter,
+                %{term: %{hidden_from_users: true}}
+              ]
             }
           },
           sort: [%{score: :desc}, %{first_seen_at: :desc}]
@@ -67,8 +75,11 @@ defmodule PhilomenaWeb.ActivityController do
         %{
           query: %{
             bool: %{
-              must_not: filter,
-              must: watched_query
+              must: watched_query,
+              must_not: [
+                filter,
+                %{term: %{hidden_from_users: true}}
+              ]
             }
           },
           sort: %{created_at: :desc}
@@ -80,7 +91,7 @@ defmodule PhilomenaWeb.ActivityController do
 
     featured_image =
       Image
-      |> join(:inner, [i], f in Feature, on: [image_id: i.id])
+      |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
       |> preload([:tags])
@@ -105,6 +116,12 @@ defmodule PhilomenaWeb.ActivityController do
       |> limit(6)
       |> Repo.all()
 
+    interactions =
+      Interactions.user_interactions(
+        [images, top_scoring, watched, featured_image],
+        user
+      )
+
     render(
       conn,
       "index.html",
@@ -114,7 +131,8 @@ defmodule PhilomenaWeb.ActivityController do
       watched: watched,
       featured_image: featured_image,
       streams: streams,
-      topics: topics
+      topics: topics,
+      interactions: interactions
     )
   end
 end

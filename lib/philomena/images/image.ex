@@ -83,4 +83,13 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  def interaction_data(image) do
+    %{
+      score: image.score,
+      faves: image.faves_count,
+      upvotes: image.upvotes_count,
+      downvotes: image.downvotes_count
+    }
+  end
 end
