@@ -1,6 +1,10 @@
 defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
+  def layout_class(conn) do
+    conn.assigns[:layout_class] || "layout--narrow"
+  end
+
   def render_time(conn) do
     (Time.diff(Time.utc_now(), conn.assigns[:start_time], :microsecond) / 1000.0)
     |> Float.round(3)

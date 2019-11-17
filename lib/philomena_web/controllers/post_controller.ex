@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.PostController do
 
     forums = [{"-", ""} | forums]
 
-    render(conn, "index.html", posts: posts, forums: forums)
+    render(conn, "index.html", posts: posts, forums: forums, layout_class: "layout--wide")
   end
 
   defp parse_search(conn, %{"post" => post_params}) do

@@ -24,7 +24,7 @@ html lang="en"
     #container
       = render PhilomenaWeb.LayoutView, "_header.html", assigns
       = render PhilomenaWeb.LayoutView, "_flash_warnings.html", assigns
-      main#content class="layout--wide"
+      main#content class=layout_class(@conn)
         = render @view_module, @view_template, assigns
       = render PhilomenaWeb.LayoutView, "_footer.html", assigns
       = clientside_data(@conn)

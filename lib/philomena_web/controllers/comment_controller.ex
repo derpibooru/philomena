@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.CommentController do
     comments =
       %{comments | entries: Enum.zip(comments.entries, rendered)}
 
-    render(conn, "index.html", comments: comments)
+    render(conn, "index.html", comments: comments, layout_class: "layout--wide")
   end
 
   defp parse_search(conn, %{"comment" => comment_params}) do

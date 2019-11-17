@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.ImageController do
     interactions =
       Interactions.user_interactions(images, conn.assigns.current_user)
 
-    render(conn, "index.html", images: images, interactions: interactions)
+    render(conn, "index.html", layout_class: "layout--wide", images: images, interactions: interactions)
   end
 
   def show(conn, %{"id" => _id}) do
@@ -68,7 +68,8 @@ defmodule PhilomenaWeb.ImageController do
       comment_changeset: comment_changeset,
       description: description,
       interactions: interactions,
-      watching: watching
+      watching: watching,
+      layout_class: "layout--wide"
     )
   end
 end

@@ -41,6 +41,6 @@ defmodule PhilomenaWeb.TagController do
         Image |> preload([:tags, :user])
       )
 
-    render(conn, "show.html", tag: tag, images: images)
+    render(conn, "show.html", tag: tag, images: images, layout_class: "layout--wide")
   end
 end

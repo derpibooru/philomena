@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.SearchController do
         Interactions.user_interactions(images, user)
 
       conn
-      |> render("index.html", images: images, search_query: params["q"], interactions: interactions)
+      |> render("index.html", images: images, search_query: params["q"], interactions: interactions, layout_class: "layout--wide")
     else
       {:error, msg} ->
         conn

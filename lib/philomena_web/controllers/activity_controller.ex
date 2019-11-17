@@ -132,7 +132,8 @@ defmodule PhilomenaWeb.ActivityController do
       featured_image: featured_image,
       streams: streams,
       topics: topics,
-      interactions: interactions
+      interactions: interactions,
+      layout_class: "layout--wide"
     )
   end
 end
