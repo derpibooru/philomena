@@ -102,6 +102,21 @@ defmodule Philomena.Conversations do
     Conversation.changeset(conversation, %{})
   end
 
+  def count_unread_conversations(user) do
+    Conversation
+    |> where([c],
+      (
+        (c.to_id == ^user.id and c.to_read == false) or
+        (c.from_id == ^user.id and c.from_read == false)
+      )
+      and not (
+        (c.to_id == ^user.id and c.to_hidden == true) or
+        (c.from_id == ^user.id and c.from_hidden == true)
+      )
+    )
+    |> Repo.aggregate(:count, :id)
+  end
+
   alias Philomena.Conversations.Message
 
   @doc """

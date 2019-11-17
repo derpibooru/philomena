@@ -104,34 +104,11 @@ defmodule Philomena.Notifications do
 
   alias Philomena.Notifications.UnreadNotification
 
-  @doc """
-  Returns the list of unread_notifications.
-
-  ## Examples
-
-      iex> list_unread_notifications()
-      [%UnreadNotification{}, ...]
-
-  """
-  def list_unread_notifications do
-    Repo.all(UnreadNotification)
+  def count_unread_notifications(user) do
+    UnreadNotification
+    |> where(user_id: ^user.id)
+    |> Repo.aggregate(:count, :notification_id)
   end
-
-  @doc """
-  Gets a single unread_notification.
-
-  Raises `Ecto.NoResultsError` if the Unread notification does not exist.
-
-  ## Examples
-
-      iex> get_unread_notification!(123)
-      %UnreadNotification{}
-
-      iex> get_unread_notification!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_unread_notification!(id), do: Repo.get!(UnreadNotification, id)
 
   @doc """
   Creates a unread_notification.

@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.PaginationPlug
     plug PhilomenaWeb.EnsureUserEnabledPlug
     plug PhilomenaWeb.CurrentBanPlug
+    plug PhilomenaWeb.NotificationCountPlug
   end
 
   pipeline :api do

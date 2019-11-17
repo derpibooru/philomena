@@ -17,15 +17,16 @@ defmodule PhilomenaWeb.UserAttributionPlug do
   @doc false
   @spec call(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def call(conn, _opts) do
+    {:ok, remote_ip} = EctoNetwork.INET.cast(conn.remote_ip)
     conn = Conn.fetch_cookies(conn)
     attributes =
-      %{
-        ip:          conn.remote_ip,
+      [
+        ip:          remote_ip,
         fingerprint: conn.cookies["_ses"],
         referrer:    conn.assigns.referrer,
         user_agent:  user_agent(conn),
         user_id:     user_id(conn)
-      }
+      ]
 
     conn
     |> Conn.assign(:attributes, attributes)

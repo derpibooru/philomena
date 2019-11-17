@@ -23,14 +23,21 @@ header.header
 
     .flex.flex--centered.flex--no-wrap.header__force-right
       = if @current_user do
-        - notification_count = 0
+        - notification_count = @conn.assigns.notification_count
+        - conversation_count = @conn.assigns.conversation_count
+
         a.header__link href="/notifications" title="Notifications"
           i.fa-embedded--notification>
           span.js-notification-ticker.fa__text.header__counter data-notification-count=notification_count = notification_count
 
         a.header__link href="/conversations" title="Conversations"
           i.fa-embedded--message>
-          span.fa-embedded__text.header__counter.hidden = "0"
+          = if @conversation_count > 0 do
+            span.fa-embedded__text.header__counter
+              = @conversation_count
+          - else
+            span.fa-embedded__text.header__counter.hidden
+              | 0
 
         a.header__link.hide-mobile href="/filters" title="Filters"
           i.fa.fa-filter

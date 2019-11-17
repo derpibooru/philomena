@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug :load_and_authorize_resource, model: Comment, only: [:show], preload: [:image, user: [awards: :badge]]
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 
   def index(conn, %{"comment_id" => comment_id}) do
     comment =
@@ -60,10 +61,10 @@ defmodule PhilomenaWeb.Image.CommentController do
   end
 
   def create(conn, %{"comment" => comment_params}) do
-    user = conn.assigns.current_user
+    attributes = conn.assigns.attributes
     image = conn.assigns.image
 
-    case Comments.create_comment(image, user, comment_params) do
+    case Comments.create_comment(image, attributes, comment_params) do
       {:ok, %{comment: comment}} ->
         Comments.notify_comment(comment)
         Comments.reindex_comment(comment)
