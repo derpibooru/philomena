@@ -1,6 +1,6 @@
 .block__content.flex.alternating-color
   .flex__shrink.spacing-right
-    = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn
   .flex__grow
     a href="/#{@comment.image.id}#comment_#{@comment.id}"
       | #

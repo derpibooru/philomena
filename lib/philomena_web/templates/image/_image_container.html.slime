@@ -1,4 +1,4 @@
-- link = assigns[:link] || Routes.image_path(@conn, :show, @image)
+- link = assigns[:link] || "/images/#{@image.id}"
 
 = image_container @image, @size, fn ->
   = cond do
