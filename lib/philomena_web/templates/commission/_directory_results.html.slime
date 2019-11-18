@@ -25,7 +25,7 @@ elixir:
 
                     p
                       strong> Price Range:
-                      = :io_lib.format("$~.2f - $~.2f USD", [min || 0.0, max || 0.0])
+                      = :io_lib.format("$~.2f - $~.2f USD", [min.base_price || 0.0, max.base_price || 0.0])
 
                     p
                       strong> Categories:
