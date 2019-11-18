@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.ImageView do
       small: thumb_url(image, show_hidden, :small),
       medium: thumb_url(image, show_hidden, :medium),
       large: thumb_url(image, show_hidden, :large),
+      tall: thumb_url(image, show_hidden, :tall),
       full: thumb_url(image, show_hidden, :full)
     }
   end
