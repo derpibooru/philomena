@@ -25,7 +25,11 @@ elixir:
 
                     p
                       strong> Price Range:
-                      = :io_lib.format("$~.2f - $~.2f USD", [min.base_price || 0.0, max.base_price || 0.0])
+                      | $
+                      => Decimal.round(min.base_price, 2) |> Decimal.to_string()
+                      | - $
+                      => Decimal.round(max.base_price, 2) |> Decimal.to_string()
+                      ' USD
 
                     p
                       strong> Categories:
