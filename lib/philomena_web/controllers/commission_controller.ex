@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.CommissionController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :destroy]
-  plug :load_and_authorize_resource, model: Commission, preload: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
+  plug :load_and_authorize_resource, model: Commission, only: [:show], preload: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
 
   def index(conn, params) do
     commissions =

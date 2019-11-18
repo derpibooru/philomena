@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.GalleryController do
   alias Philomena.Galleries.Gallery
   import Ecto.Query
 
-  plug :load_resource, model: Gallery, preload: [:creator, thumbnail: :tags]
+  plug :load_resource, model: Gallery, only: [:show], preload: [:creator, thumbnail: :tags]
 
   def index(conn, params) do
     galleries =
