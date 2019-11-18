@@ -1,10 +1,11 @@
+- link = Routes.gallery_path(@conn, :show, @gallery)
+
 .media-box
-  a.media-box__header.media-box__header--link href=Routes.gallery_path(@conn, :show, @gallery) title=@gallery.title
+  a.media-box__header.media-box__header--link href=link title=@gallery.title
     = @gallery.title
 
     .media-box__overlay
       = @gallery.spoiler_warning
 
   .media-box__content.media-box__content--large
-    a href=Routes.gallery_path(@conn, :show, @gallery)
-      = render PhilomenaWeb.ImageView, "_image_container.html", image: @gallery.thumbnail, size: :thumb, conn: @conn
+    = render PhilomenaWeb.ImageView, "_image_container.html", image: @gallery.thumbnail, size: :thumb, conn: @conn, link: link

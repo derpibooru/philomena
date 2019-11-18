@@ -1,3 +1,5 @@
+- link = assigns[:link] || Routes.image_path(@conn, :show, @image)
+
 = image_container @image, @size, fn ->
   = cond do
     - @image.duplicate_id ->
@@ -13,7 +15,7 @@
     - true ->
 
   .media-box__overlay.js-spoiler-info-overlay
-  a href="/#{@image.id}"
+  a href=link
     = if @image.thumbnails_generated do
       - uris = thumb_urls(@image, false)
       - vid = @image.image_mime_type == "video/webm"
