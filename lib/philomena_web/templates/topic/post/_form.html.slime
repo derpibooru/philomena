@@ -1,0 +1,25 @@
+= form_for @changeset, Routes.forum_topic_post_path(@conn, :create, @forum, @topic), fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .block
+    .block__header.block__header--js-tabbed
+      a.selected href="#" data-click-tab="write"
+        i.fa.fa-pencil>
+        ' Edit
+
+      a href="#" data-click-tab="preview"
+        i.fa.fa-eye>
+        ' Preview
+
+    .block__tab.communication-edit__tab.selected data-tab="write"
+      .field
+        = textarea f, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for NSFW stuff in SFW forums.", required: true
+        = error_tag f, :body
+
+    .block__tab.communication-edit__tab.hidden data-tab="preview"
+      ' [Loading preview...]
+
+    .block__content.communication-edit__actions
+      = submit "Post", class: "button"

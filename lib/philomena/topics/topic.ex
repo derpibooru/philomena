@@ -6,6 +6,7 @@ defmodule Philomena.Topics.Topic do
   alias Philomena.Users.User
   alias Philomena.Polls.Poll
   alias Philomena.Posts.Post
+  alias Philomena.Topics.Subscription
 
   @derive {Phoenix.Param, key: :slug}
   schema "topics" do
@@ -15,6 +16,8 @@ defmodule Philomena.Topics.Topic do
     belongs_to :last_post, Post
     belongs_to :forum, Forum
     has_one :poll, Poll
+    has_many :posts, Post
+    has_many :subscriptions, Subscription
 
     field :title, :string
     field :post_count, :integer, default: 0

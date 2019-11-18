@@ -38,4 +38,18 @@ defmodule Philomena.Posts.Post do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  @doc false
+  def creation_changeset(post, user, attrs) do
+    post
+    |> cast(attrs, [:body, :anonymous])
+    |> set_name_at_post_time(user)
+    |> validate_required([:body])
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+  end
+
+  def set_name_at_post_time(changeset, nil), do: changeset
+  def set_name_at_post_time(changeset, %{name: name}) do
+    change(changeset, name_at_post_time: name)
+  end
 end

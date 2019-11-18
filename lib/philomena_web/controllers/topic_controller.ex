@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Forums.Forum, Topics, Topics.Topic, Posts.Post, Textile.Renderer}
+  alias Philomena.{Forums.Forum, Topics, Topics.Topic, Posts, Posts.Post, Textile.Renderer}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -54,6 +54,10 @@ defmodule PhilomenaWeb.TopicController do
     watching =
       Topics.subscribed?(topic, conn.assigns.current_user)
 
-    render(conn, "show.html", posts: posts, watching: watching)
+    changeset =
+      %Post{}
+      |> Posts.change_post()
+
+    render(conn, "show.html", posts: posts, changeset: changeset, watching: watching)
   end
 end

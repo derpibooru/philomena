@@ -47,7 +47,7 @@ h1 = @topic.title
 
   / Post form
   = if @topic.post_count < 200_000 do
-    /= render partial: 'topics/posts/form'
+    = render PhilomenaWeb.Topic.PostView, "_form.html", conn: @conn, forum: @forum, topic: @topic, changeset: @changeset
   - else
     /h3 Okay, we're impressed
     /p You're looking at a thread with over 200,000 posts in it!

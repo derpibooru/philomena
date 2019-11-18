@@ -86,7 +86,9 @@ defmodule PhilomenaWeb.Router do
     resources "/tags", TagController, only: [:index, :show]
     resources "/search", SearchController, only: [:index]
     resources "/forums", ForumController, only: [:index, :show] do
-      resources "/topics", TopicController, only: [:show]
+      resources "/topics", TopicController, only: [:show] do
+        resources "/posts", Topic.PostController, only: [:create], singleton: true
+      end
     end
     resources "/comments", CommentController, only: [:index]
 
