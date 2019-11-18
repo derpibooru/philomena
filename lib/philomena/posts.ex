@@ -8,6 +8,7 @@ defmodule Philomena.Posts do
   alias Philomena.Repo
 
   alias Philomena.Topics.Topic
+  alias Philomena.Topics
   alias Philomena.Posts.Post
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
@@ -74,6 +75,9 @@ defmodule Philomena.Posts do
         repo.update_all(forum_query, inc: [post_count: 1], set: [last_post_id: post_id])
 
       {:ok, count}
+    end)
+    |> Multi.run(:subscribe, fn _repo, _changes ->
+      Topics.create_subscription(topic, user)
     end)
     |> Repo.isolated_transaction(:serializable)
   end

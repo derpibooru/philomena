@@ -9,6 +9,7 @@ defmodule Philomena.Comments do
 
   alias Philomena.Comments.Comment
   alias Philomena.Images.Image
+  alias Philomena.Images
   alias Philomena.Notifications
 
   @doc """
@@ -51,6 +52,9 @@ defmodule Philomena.Comments do
     Multi.new
     |> Multi.insert(:comment, comment)
     |> Multi.update_all(:image, image_query, inc: [comments_count: 1])
+    |> Multi.run(:subscribe, fn _repo, _changes ->
+      Images.create_subscription(image, user)
+    end)
     |> Repo.transaction()
   end
 
