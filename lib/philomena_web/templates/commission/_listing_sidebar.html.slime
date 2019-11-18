@@ -42,7 +42,7 @@
         = cat
 
 / Will create block
-= if @user.commission.will_create not in [nil, ""] do
+= if @commission.will_create not in [nil, ""] do
   .block
     .block__header
       span.block__header__title Will draw/create
@@ -50,7 +50,7 @@
       == @rendered.will_create
 
 / Will not create block
-= if @user.commission.will_not_create not in [nil, ""] do
+= if @commission.will_not_create not in [nil, ""] do
   .block
     .block__header
       span.block__header__title Will not draw/create
