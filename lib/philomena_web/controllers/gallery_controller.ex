@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.GalleryController do
   alias Philomena.Galleries.Gallery
   import Ecto.Query
 
-  plug :load_resource, model: Gallery, preload: [:thumbnail, :creator]
+  plug :load_resource, model: Gallery, preload: [:creator, thumbnail: :tags]
 
   def index(conn, params) do
     galleries =
@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.GalleryController do
           sort: parse_sort(params),
         },
         conn.assigns.pagination,
-        Gallery |> preload([:thumbnail, :creator])
+        Gallery |> preload([:creator, thumbnail: :tags])
       )
 
     render(conn, "index.html", galleries: galleries, layout_class: "layout--wide")
