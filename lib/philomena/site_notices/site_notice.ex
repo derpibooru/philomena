@@ -15,7 +15,7 @@ defmodule Philomena.SiteNotices.SiteNotice do
     field :start_date, :naive_datetime
     field :finish_date, :naive_datetime
 
-    timestamps(inserted_at: :created_At)
+    timestamps(inserted_at: :created_at)
   end
 
   @doc false

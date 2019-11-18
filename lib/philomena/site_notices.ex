@@ -17,8 +17,13 @@ defmodule Philomena.SiteNotices do
       [%SiteNotice{}, ...]
 
   """
-  def list_site_notices do
-    Repo.all(SiteNotice)
+  def active_site_notices do
+    now = DateTime.utc_now()
+
+    SiteNotice
+    |> where([n], n.start_date < ^now and n.finish_date > ^now)
+    |> order_by(desc: :start_date)
+    |> Repo.all()
   end
 
   @doc """

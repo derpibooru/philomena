@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.EnsureUserEnabledPlug
     plug PhilomenaWeb.CurrentBanPlug
     plug PhilomenaWeb.NotificationCountPlug
+    plug PhilomenaWeb.SiteNoticePlug
     plug PhilomenaWeb.FilterSelectPlug
   end
 
