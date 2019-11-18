@@ -51,5 +51,5 @@
             = pretty_time(award.awarded_on)
 
   .column-layout__main
-    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Uploads", images: @recent_uploads, view_all_path: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}")
-    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Favorites", images: @recent_faves, view_all_path: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}")
+    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Uploads", images: @recent_uploads, view_all_path: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"), conn: @conn
+    = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Favorites", images: @recent_faves, view_all_path: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}"), conn: @conn

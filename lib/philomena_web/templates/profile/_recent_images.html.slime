@@ -6,4 +6,4 @@
 
   .block__content.js-resizable-media-container
     = for image <- @images do
-      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb
+      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb, conn: @conn
