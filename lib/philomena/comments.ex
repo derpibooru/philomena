@@ -39,10 +39,10 @@ defmodule Philomena.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(image, attributes, params \\ %{}) do
+  def create_comment(image, user, attributes, params \\ %{}) do
     comment =
       struct(Comment, [image_id: image.id] ++ attributes)
-      |> Comment.creation_changeset(params)
+      |> Comment.creation_changeset(user, params)
 
     image_query =
       Image
