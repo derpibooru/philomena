@@ -49,7 +49,8 @@ defmodule PhilomenaWeb.ProfileController do
       "show.html",
       user: user,
       recent_uploads: recent_uploads,
-      recent_faves: recent_faves
+      recent_faves: recent_faves,
+      layout_class: "layout--wide"
     )
   end
 end

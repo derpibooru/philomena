@@ -1,0 +1,132 @@
+h1 Search
+
+= form_for :search, Routes.search_path(@conn, :index), [id: "searchform", method: "get", class: "js-search-form", enforce_utf8: false], fn f ->
+  = text_input f, :q, class: "input input--wide js-search-field", placeholder: "Search terms are chained with commas", autocapitalize: "none", name: "q", value: @conn.params["q"]
+
+  .block
+    .block__header.flex
+      a data-search-prepend="-" NOT
+      .dropdown.block__header__dropdown-tab
+        a
+          ' Search terms
+          span data-click-preventdefault="true"
+            i.fa.fa-caret-down<
+        .dropdown__content
+          a data-search-add="score.gte:100" data-search-select-last="3" data-search-show-help="numeric" Score
+          a data-search-add="created_at.lte:3 years ago" data-search-select-last="11" data-search-show-help="date" Created at
+          a data-search-add="faves.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of faves
+          a data-search-add="upvotes.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of upvotes
+          a data-search-add="downvotes.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of downvotes
+          a data-search-add="comment_count.gt:20" data-search-select-last="2" data-search-show-help="numeric" Number of comments
+          a data-search-add="uploader:k_a" data-search-select-last="3" data-search-show-help="literal" Uploader
+          a data-search-add="source_url:*deviantart.com*" data-search-select-last="16" data-search-show-help="literal" Image source URL
+          a data-search-add="width:1920" data-search-select-last="4" data-search-show-help="numeric" Image width
+          a data-search-add="height:1080" data-search-select-last="4" data-search-show-help="numeric" Image height
+          a data-search-add="aspect_ratio:1" data-search-select-last="1" data-search-show-help="numeric" Aspect ratio
+
+      = if @conn.assigns.current_user do
+        .dropdown.block__header__dropdown-tab
+          a
+            ' Belonging to&hellip;
+            span data-click-preventdefault="true"
+              i.fa.fa-caret-down<
+          .dropdown__content
+            a data-search-add="my:faves" data-search-show-help=" " My favorites
+            a data-search-add="my:upvotes" data-search-show-help=" " My upvotes
+            a data-search-add="my:uploads" data-search-show-help=" " My uploads
+            a data-search-add="my:watched" data-search-show-help=" " My watched tags
+      /.flex__right
+        a href="#" data-click-toggle="#js-search-tags" Quick tags
+        a href=search_syntax_path Help
+
+    .block__content
+      .hidden.walloftext data-search-help="numeric"
+        strong.js-search-help-subject>
+        | is a numerical range field. Four qualifiers,
+        code<> gte
+        | (greater than or equal),
+        code<> lte
+        | (less than or equal),
+        code<> gt
+        | (greater than), and
+        code<> lt
+        | (less than), can be applied to the desired value.
+        br
+        br
+        em<> Example:
+        | to find images with a score greater than 100, you would use
+        code<> score.gt:100
+        | .
+
+      .hidden.walloftext data-search-help="date"
+        strong.js-search-help-subject>
+        ' is a date/time field. It accepts a
+        a href="search/syntax#date-range" tweaked subset of the ISO 8601 standard
+        | , as well as relative dates
+        code<
+          | (X minutes/hours/days/months/years ago)
+        | . Four qualifiers,
+        code<> gte
+        | (greater than or equal),
+        code<> lte
+        | (less than or equal),
+        code<> gt
+        | (greater than), and
+        code<> lt
+        | (less than), can be applied to the desired value.
+        br
+        br
+        em<> Example:
+        | to find images created before 2013, you would use
+        code<> created_at.lt:2013
+        | .
+
+      .hidden.walloftext data-search-help="literal"
+        strong.js-search-help-subject>
+        ' is a literal field. You can apply apply a wildcard
+        code<> *
+        | as a substitute for zero or more characters.
+        br
+        br
+        em<> Example:
+        | to find images from DeviantArt, you would use
+        code<> source_url:*deviantart.com*
+        | .
+
+  /#js-search-tags.hidden
+    /= render partial: 'tags/quick_tag_table', locals: { target: '.js-search-field' }
+
+  .field.field--inline.flex-wrap
+    = submit "Search", class: "button button--state-primary"
+    /= submit_tag "I'm Feeling Poni", class: 'button button--separate-left spacing-right', name: 'random_image'
+
+    elixir:
+      random_is_selected = to_string(@conn.params["sf"]) =~ ~r/\Arandom(:\d+)?\z/
+      random_seed =
+        if random_is_selected do
+          @conn.params["sf"]
+        else
+          "random:#{:rand.uniform(4_294_967_296)}"
+        end
+
+      sort_fields = [
+        "Sort by upload date": :created_at,
+        "Sort by last modified": :updated_at,
+        "Sort by initial post date": :first_seen_at,
+        "Sort by score": :score,
+        "Sort by Wilson score": :wilson_score,
+        "Sort by relevance": :_score,
+        "Sort by width": :width,
+        "Sort by height": :height,
+        "Sort by comments": :comment_count,
+        "Sort by tag count": :tag_count,
+        "Random!": random_seed
+      ]
+
+      sort_directions = [
+        "Descending": :desc,
+        "Ascending": :asc
+      ]
+
+    = select f, :sf, sort_fields, class: "input input--separate-left", name: "sf", autocomplete: "off", selected: @conn.params["sf"]
+    = select f, :sd, sort_directions, class: "input input--separate-left", name: "sd", autocomplete: "off", selected: @conn.params["sd"]

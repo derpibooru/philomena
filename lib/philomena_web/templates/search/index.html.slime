@@ -8,3 +8,5 @@
   - true ->
     p
       ' No images found!
+
+= render PhilomenaWeb.SearchView, "_form.html", conn: @conn
