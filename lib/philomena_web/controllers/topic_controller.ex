@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.TopicController do
     topic =
       Topic
       |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
-      |> preload([:user, poll: :option])
+      |> preload([:user, poll: :options])
       |> Repo.one()
 
     conn = conn |> assign(:topic, topic)
