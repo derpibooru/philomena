@@ -9,6 +9,7 @@ defmodule Philomena.Posts do
 
   alias Philomena.Topics.Topic
   alias Philomena.Posts.Post
+  alias Philomena.Forums.Forum
   alias Philomena.Notifications
 
   @doc """
@@ -44,6 +45,10 @@ defmodule Philomena.Posts do
       Topic
       |> where(id: ^topic.id)
 
+    forum_query =
+      Forum
+      |> where(id: ^topic.forum_id)
+
     Multi.new
     |> Multi.run(:post, fn repo, _ ->
       last_position =
@@ -61,6 +66,12 @@ defmodule Philomena.Posts do
     |> Multi.run(:update_topic, fn repo, %{post: %{id: post_id}} ->
       {count, nil} =
         repo.update_all(topic_query, inc: [post_count: 1], set: [last_post_id: post_id])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:update_forum, fn repo, %{post: %{id: post_id}} ->
+      {count, nil} =
+        repo.update_all(forum_query, inc: [post_count: 1], set: [last_post_id: post_id])
 
       {:ok, count}
     end)
