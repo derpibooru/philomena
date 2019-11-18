@@ -60,7 +60,9 @@ defmodule PhilomenaWeb.ConversationController do
 
   # Somewhat annoying, cast_assoc has no "limit" validation so we force it
   # here to require exactly 1
-  def create(conn, %{"conversation" => %{"messages" => %{"0" => _message_params}} = conversation_params}) do
+  def create(conn, %{"conversation" => %{"messages" => %{"0" => message_params} = messages_params} = conversation_params})
+    when %{"0" => message_params} == messages_params
+  do
     user = conn.assigns.current_user
 
     case Conversations.create_conversation(user, conversation_params) do
