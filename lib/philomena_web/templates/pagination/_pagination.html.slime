@@ -1,4 +1,5 @@
 - params = assigns[:params] || []
+- last = assigns[:last] || false
 
 = if @page.total_pages > 1 do
   nav.pagination
@@ -24,4 +25,6 @@
 
     = if not last_page?(@page) do
       = link("Next ›", to: next_page_path(@page, @route, params))
-      /= link("Last »", to: last_page_path(@page, @route, params))
+
+      = if last do
+        = link("Last »", to: last_page_path(@page, @route, params))

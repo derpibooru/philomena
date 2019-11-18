@@ -1,4 +1,6 @@
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
+elixir:
+  route = fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, last: true
 
 h1 = @topic.title
 / Header section
