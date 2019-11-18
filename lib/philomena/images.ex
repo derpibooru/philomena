@@ -141,7 +141,7 @@ defmodule Philomena.Images do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscription(image, nil), do: {:ok, nil}
+  def create_subscription(_image, nil), do: {:ok, nil}
   def create_subscription(image, user) do
     %Subscription{image_id: image.id, user_id: user.id}
     |> Subscription.changeset(%{})

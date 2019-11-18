@@ -2,6 +2,11 @@ defmodule Philomena.Galleries.Gallery do
   use Ecto.Schema
   import Ecto.Changeset
 
+  use Philomena.Elasticsearch,
+    definition: Philomena.Galleries.Elasticsearch,
+    index_name: "galleries",
+    doc_type: "gallery"
+
   alias Philomena.Images.Image
   alias Philomena.Users.User
 

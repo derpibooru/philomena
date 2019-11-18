@@ -100,6 +100,7 @@ defmodule PhilomenaWeb.Router do
     resources "/captchas", CaptchaController, only: [:create]
     resources "/posts", PostController, only: [:index]
     resources "/commissions", CommissionController, only: [:index, :show]
+    resources "/galleries", GalleryController, only: [:index, :show]
 
     get "/:id", ImageController, :show
   end

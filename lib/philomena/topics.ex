@@ -123,7 +123,7 @@ defmodule Philomena.Topics do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscription(topic, nil), do: {:ok, nil}
+  def create_subscription(_topic, nil), do: {:ok, nil}
   def create_subscription(topic, user) do
     %Subscription{topic_id: topic.id, user_id: user.id}
     |> Subscription.changeset(%{})

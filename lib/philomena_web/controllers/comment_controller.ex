@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.CommentController do
   end
   defp parse_search(_conn, _params), do: [%{match_all: %{}}]
 
-  defp parse_author(%{"author" => author}) when author not in [nil, ""] do
+  defp parse_author(%{"author" => author}) when is_binary(author) and author not in [nil, ""] do
     case String.contains?(author, ["*", "?"]) do
       true ->
         [
@@ -55,7 +55,7 @@ defmodule PhilomenaWeb.CommentController do
   end
   defp parse_author(_params), do: []
 
-  defp parse_image_id(conn, %{"image_id" => image_id}) when image_id not in [nil, ""] do
+  defp parse_image_id(conn, %{"image_id" => image_id}) when is_binary(image_id) and image_id not in [nil, ""] do
     with {image_id, _rest} <- Integer.parse(image_id),
          true <- valid_image?(conn.assigns.current_user, image_id)
     do
@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.CommentController do
   end
   defp parse_image_id(_conn, _params), do: []
 
-  defp parse_body(%{"body" => body}) when body not in [nil, ""],
+  defp parse_body(%{"body" => body}) when is_binary(body) and body not in [nil, ""],
     do: [%{match: %{body: body}}]
   defp parse_body(_params), do: []
 

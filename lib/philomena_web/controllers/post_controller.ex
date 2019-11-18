@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.PostController do
   end
   defp parse_search(_conn, _params), do: [%{match_all: %{}}]
 
-  defp parse_author(%{"author" => author}) when author not in [nil, ""] do
+  defp parse_author(%{"author" => author}) when is_binary(author) and author not in [nil, ""] do
     case String.contains?(author, ["*", "?"]) do
       true ->
         [
@@ -66,12 +66,12 @@ defmodule PhilomenaWeb.PostController do
   end
   defp parse_author(_params), do: []
 
-  defp parse_subject(%{"subject" => subject}) when subject not in [nil, ""] do
+  defp parse_subject(%{"subject" => subject}) when is_binary(subject) and subject not in [nil, ""] do
     [%{match: %{subject: %{query: subject, operator: "and"}}}]
   end
   defp parse_subject(_params), do: []
 
-  defp parse_forum_id(conn, %{"forum_id" => forum_id}) when forum_id not in [nil, ""] do
+  defp parse_forum_id(conn, %{"forum_id" => forum_id}) when is_binary(forum_id) and forum_id not in [nil, ""] do
     with {forum_id, _rest} <- Integer.parse(forum_id),
          true <- valid_forum?(conn.assigns.current_user, forum_id)
     do
@@ -83,7 +83,7 @@ defmodule PhilomenaWeb.PostController do
   end
   defp parse_forum_id(_conn, _params), do: []
 
-  defp parse_body(%{"body" => body}) when body not in [nil, ""],
+  defp parse_body(%{"body" => body}) when is_binary(body) and body not in [nil, ""],
     do: [%{match: %{body: body}}]
   defp parse_body(_params), do: []
 

@@ -1,0 +1,42 @@
+elixir:
+  route = fn p -> Routes.gallery_path(@conn, :index, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route
+
+.column-layout
+  .column-layout__left
+    .block
+      .block__content
+        h3 Search Galleries
+
+        = form_for @conn, Routes.gallery_path(@conn, :index), [as: :gallery, method: "get", class: "hform"], fn f ->
+          .field = label f, :title, "Title"
+          .field = text_input f, :title, class: "input hform__text", placeholder: "Gallery title (* as wildcard)"
+
+          .field = label f, :description, "Description"
+          .field = textarea f, :description, class: "input hform__text", placeholder: "Gallery description"
+
+          .field = label f, :creator, "Creator"
+          .field = text_input f, :creator, class: "input hform__text", placeholder: "Gallery creator (exact match)"
+
+          .field = label f, :include_image, "Include image"
+          .field = number_input f, :include_image, class: "input hform__text", placeholder: "Image ID (e.g. 100)"
+
+          .field = label f, :sf, "Sort by"
+          .field
+            => select f, :sf, ["Creation Date": "created_at", "Update Date": "updated_at", "Image Count": "image_count", "Relevance": "_score"], class: "input"
+            => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
+
+          .field
+          = submit "Search", class: "button button--state-primary"
+
+  .column-layout__main
+    .block
+      .block__header
+        = pagination
+
+      .block__content.js-resizable-media-container
+        = for gallery <- @galleries do
+          = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
+
+      .block__header.block__header--light
+        = pagination
