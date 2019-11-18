@@ -1,0 +1,49 @@
+elixir:
+  route = fn p -> Routes.commission_path(@conn, :index, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn
+
+.block
+  .block__header
+    span.block__header__title Open Commissions
+    = pagination
+
+    .block__content
+      = cond do
+        - Enum.any?(@commissions) ->
+          = for c <- @commissions do
+            .block.commission
+              .block__content.flex.flex--no-wrap
+                .flex__fixed.spacing-right
+                  = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: c, conn: @conn
+                
+                .flex__grow.commission__listing_body
+                  span.commission__listing_artist
+                    = render PhilomenaWeb.UserAttributionView, "_user.html", object: c, badges: true, conn: @conn
+                  
+                  .commission__listing__body_text
+                    p
+                      strong> Price Range:
+                      = :io_lib.format("$~.2f - $~.2f USD", [c.minimum_price, c.maximum_price])
+
+                    p
+                      strong> Categories:
+                      = Enum.join(c.categories, ", ")
+                    
+                    p
+                      strong> Offers:
+                      = Enum.map(c.items, & &1.item_type) |> Enum.join(", ")
+                    
+                    p
+                      strong> Example Artwork:
+
+                      br
+
+                      = for item <- Enum.take_random(c.items, 5) do
+                        = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, conn: @conn
+
+                    p
+                      strong
+                        = link "More information", to: Routes.commission_path(@conn, :show, c)
+
+        - true ->
+          p We couldn't find any commission listings to display. Sorry!

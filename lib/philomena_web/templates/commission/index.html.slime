@@ -1,0 +1,18 @@
+h1 Commissions Directory
+
+.dnp-warning
+  h4 Disclaimer
+  p
+    ' This is only a directory meant to help connect artists offering
+    ' commissions with potential commissioners. We don't have any way
+    ' for users to make payments through the site, so we can't be held
+    ' responsible for any issues regarding payment.
+    a href="/pages/rules#9" More info.
+
+br
+
+.column-layout
+  .column-layout__left
+    = render PhilomenaWeb.CommissionView, "_directory_sidebar.html", conn: @conn
+  .column-layout__main
+    = render PhilomenaWeb.CommissionView, "_directory_results.html", commissions: @commissions, conn: @conn
