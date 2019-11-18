@@ -4,7 +4,7 @@
     span.block__header__title General information
   .block__content.commission__block_body
     strong> Profile:
-    = render PhilomenaWeb.UserAttributionView, "_user.html", object: @commission
+    = render PhilomenaWeb.UserAttributionView, "_user.html", object: @commission, conn: @conn
     br
 
     strong> Status:
