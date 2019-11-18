@@ -45,7 +45,7 @@ elixir:
                       br
 
                       = for item <- Enum.take_random(c.items, 5) do
-                        = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, conn: @conn
+                        = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, size: :thumb_small, conn: @conn
 
                     p
                       strong
