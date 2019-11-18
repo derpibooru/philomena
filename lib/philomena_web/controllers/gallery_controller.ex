@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.GalleryController do
   alias Philomena.Galleries.Gallery
   import Ecto.Query
 
-  plug :load_resource, model: Gallery, only: [:show], preload: [:creator, thumbnail: :tags]
+  plug :load_resource, model: Gallery, only: [:show]
 
   def index(conn, params) do
     galleries =
@@ -24,7 +24,10 @@ defmodule PhilomenaWeb.GalleryController do
     render(conn, "index.html", galleries: galleries, layout_class: "layout--wide")
   end
 
-  def show(_conn, _params) do
+  def show(conn, _params) do
+    # stub
+    conn
+    |> redirect(to: Routes.search_path(conn, :index, q: "gallery_id:#{conn.assigns.gallery_id}"))
   end
 
   defp parse_search(%{"gallery" => gallery_params}) do

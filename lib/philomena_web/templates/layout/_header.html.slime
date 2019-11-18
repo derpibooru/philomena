@@ -12,7 +12,7 @@ header.header
         i.fa.fa-upload
 
     form.header__search.flex.flex--no-wrap.flex--centered action="/search" method="get"
-      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=assigns[:search_query] placeholder="Search" autocapitalize="none"
+      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=(assigns[:search_query] || @conn.params["q"]) placeholder="Search" autocapitalize="none"
 
       button.header__search__button type="submit" title='Search'
         i.fa-embedded--search
