@@ -12,7 +12,7 @@
 
   .block__content.js-resizable-media-container
     = for image <- @images do
-      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: assigns[:size] || :thumb
+      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: assigns[:size] || :thumb, conn: @conn
 
   .block__header.block__header--light.flex
     = pagination
