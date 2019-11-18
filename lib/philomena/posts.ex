@@ -61,7 +61,7 @@ defmodule Philomena.Posts do
         |> repo.one()
 
       Ecto.build_assoc(topic, :posts, [topic_position: (last_position || -1) + 1] ++ attributes)
-      |> Post.creation_changeset(user, params)
+      |> Post.creation_changeset(params, user)
       |> repo.insert()
     end)
     |> Multi.run(:update_topic, fn repo, %{post: %{id: post_id}} ->

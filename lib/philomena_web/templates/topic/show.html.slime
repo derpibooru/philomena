@@ -29,7 +29,8 @@ h1 = @topic.title
     = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
 
 / Display the poll, if any
-/= render partial: 'polls/display', locals: { poll: @topic.poll }
+= if @topic.poll do
+  = render PhilomenaWeb.Topic.PollView, "_display.html.slime", poll: @poll, conn: @conn
 
 / The actual posts
 .posts-area

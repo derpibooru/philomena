@@ -1,0 +1,13 @@
+= if @poll.hidden_from_users do
+  .walloftext
+  .block.block--fixed.block--warning
+    h1 This poll has been deleted
+    p
+      ' Reason:
+      strong
+        = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
+
+- else
+  .poll
+    .poll-area
+      = render PhilomenaWeb.TopicView, "_poll_results.html", poll: @poll, conn: @conn

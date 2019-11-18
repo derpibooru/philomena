@@ -40,7 +40,7 @@ defmodule Philomena.Posts.Post do
   end
 
   @doc false
-  def creation_changeset(post, user, attrs) do
+  def creation_changeset(post, attrs, user) do
     post
     |> cast(attrs, [:body, :anonymous])
     |> set_name_at_post_time(user)

@@ -1,0 +1,44 @@
+.poll-results
+  h4.poll__header
+    ' Poll results:
+    = @poll.title
+
+  .poll-option-list
+    elixir:
+      winning = winning_option(@poll)
+      winners? = @poll.total_votes > 0
+
+    = for option <- ranked_options(@poll) do
+      div class=option_class(option, winning, winners?)
+        .poll-option__text
+          span.poll-option__label = option.label
+
+          .poll-option__counts
+            span
+              => percent_of_total(option, @poll)
+              => option.vote_count
+              => pluralize("vote", "votes", option.vote_count)
+
+        .poll-bar
+          svg.poll-bar__image width=percent_of_total(option, @poll) height="100%" viewBox="0 0 1 1" preserveAspectRatio="none"
+            rect class=poll_bar_class(option, winning, winners?) width="1" height="1"
+
+    = if active?(@poll) do
+      ' Poll ends
+      = pretty_time(@poll.active_until)
+      ' .
+
+      = if @poll.total_votes > 0 do
+        => @poll.total_votes
+        => pluralize("vote", "votes", @poll.total_votes)
+      - else
+        ' No votes have been
+      ' cast so far.
+
+    - else
+      ' Poll ended
+      => pretty_time(@poll.active_until)
+      ' with
+      => @poll.total_votes
+      = pluralize("vote", "votes", @poll.total_votes)
+      ' .
