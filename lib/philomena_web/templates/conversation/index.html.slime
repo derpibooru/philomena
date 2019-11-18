@@ -5,6 +5,10 @@ elixir:
 h1 My Conversations
 .block
   .block__header
+    a href=Routes.conversation_path(@conn, :new)
+      i.fa.fa-paper-plane>
+      ' Create New Conversation
+
     = pagination
 
   .block__content
@@ -16,7 +20,7 @@ h1 My Conversations
           th.table--communication-list__options Options
       tbody
         = for c <- @conversations do
-          tr
+          tr class=conversation_class(@conn.assigns.current_user, c)
             td.table--communication-list__name
               => link c.title, to: Routes.conversation_path(@conn, :show, c)
 

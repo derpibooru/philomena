@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ConversationController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Conversations.{Conversation, Message}
+  alias Philomena.{Conversations, Conversations.Conversation, Conversations.Message}
   alias Philomena.Textile.Renderer
   alias Philomena.Repo
   import Ecto.Query
@@ -24,6 +24,7 @@ defmodule PhilomenaWeb.ConversationController do
 
   def show(conn, _params) do
     conversation = conn.assigns.conversation
+    user = conn.assigns.current_user
 
     messages =
       Message
@@ -39,6 +40,38 @@ defmodule PhilomenaWeb.ConversationController do
     messages =
       %{messages | entries: Enum.zip(messages.entries, rendered)}
 
-    render(conn, "show.html", conversation: conversation, messages: messages)
+    changeset =
+      %Message{}
+      |> Conversations.change_message()
+
+    conversation
+    |> Conversations.mark_conversation_read(user)
+
+    render(conn, "show.html", conversation: conversation, messages: messages, changeset: changeset)
+  end
+
+  def new(conn, params) do
+    changeset =
+      %Conversation{recipient: params["recipient"], messages: [%Message{}]}
+      |> Conversations.change_conversation()
+
+    render(conn, "new.html", changeset: changeset)
+  end
+
+  # Somewhat annoying, cast_assoc has no "limit" validation so we force it
+  # here to require exactly 1
+  def create(conn, %{"conversation" => %{"messages" => %{"0" => _message_params}} = conversation_params}) do
+    user = conn.assigns.current_user
+
+    case Conversations.create_conversation(user, conversation_params) do
+      {:ok, conversation} ->
+        conn
+        |> put_flash(:info, "Conversation successfully created.")
+        |> redirect(to: Routes.conversation_path(conn, :show, conversation))
+
+      {:error, changeset} ->
+        conn
+        |> render("new.html", changeset: changeset)
+    end
   end
 end

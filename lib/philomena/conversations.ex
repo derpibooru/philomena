@@ -4,22 +4,10 @@ defmodule Philomena.Conversations do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Conversations.Conversation
-
-  @doc """
-  Returns the list of conversations.
-
-  ## Examples
-
-      iex> list_conversations()
-      [%Conversation{}, ...]
-
-  """
-  def list_conversations do
-    Repo.all(Conversation)
-  end
 
   @doc """
   Gets a single conversation.
@@ -49,9 +37,9 @@ defmodule Philomena.Conversations do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_conversation(attrs \\ %{}) do
+  def create_conversation(from, attrs \\ %{}) do
     %Conversation{}
-    |> Conversation.changeset(attrs)
+    |> Conversation.creation_changeset(from, attrs)
     |> Repo.insert()
   end
 
@@ -117,20 +105,19 @@ defmodule Philomena.Conversations do
     |> Repo.aggregate(:count, :id)
   end
 
-  alias Philomena.Conversations.Message
-
-  @doc """
-  Returns the list of messages.
-
-  ## Examples
-
-      iex> list_messages()
-      [%Message{}, ...]
-
-  """
-  def list_messages do
-    Repo.all(Message)
+  def mark_conversation_read(%Conversation{to_id: user_id} = conversation, %{id: user_id}) do
+    conversation
+    |> Conversation.read_changeset(%{to_read: true})
+    |> Repo.update()
   end
+  def mark_conversation_read(%Conversation{from_id: user_id} = conversation, %{id: user_id}) do
+    conversation
+    |> Conversation.read_changeset(%{from_read: true})
+    |> Repo.update()
+  end
+  def mark_conversation_read(_conversation, _user), do: {:ok, nil}
+
+  alias Philomena.Conversations.Message
 
   @doc """
   Gets a single message.
@@ -160,10 +147,21 @@ defmodule Philomena.Conversations do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_message(attrs \\ %{}) do
-    %Message{}
-    |> Message.changeset(attrs)
-    |> Repo.insert()
+  def create_message(conversation, user, attrs \\ %{}) do
+    message =
+      Ecto.build_assoc(conversation, :messages)
+      |> Message.creation_changeset(attrs, user)
+
+    conversation_query =
+      Conversation
+      |> where(id: ^conversation.id)
+
+    now = DateTime.utc_now()
+
+    Multi.new
+    |> Multi.insert(:message, message)
+    |> Multi.update_all(:conversation, conversation_query, set: [from_read: false, to_read: false, last_message_at: now])
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """

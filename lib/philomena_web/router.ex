@@ -55,7 +55,9 @@ defmodule PhilomenaWeb.Router do
     pipe_through [:browser, :ensure_totp, :protected]
 
     resources "/notifications", NotificationController, only: [:index, :delete]
-    resources "/conversations", ConversationController, only: [:index, :show]
+    resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
+      resources "/messages", Conversation.MessageController, only: [:create]
+    end
     resources "/images", ImageController, only: [] do
       resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true
       resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true

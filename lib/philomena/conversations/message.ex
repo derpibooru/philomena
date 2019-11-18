@@ -20,4 +20,13 @@ defmodule Philomena.Conversations.Message do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  @doc false
+  def creation_changeset(message, attrs, user) do
+    message
+    |> cast(attrs, [:body])
+    |> validate_required([:body])
+    |> put_assoc(:from, user)
+    |> validate_length(:body, max: 300_000, count: :bytes)
+  end
 end
