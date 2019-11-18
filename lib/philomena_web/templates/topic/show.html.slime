@@ -30,7 +30,7 @@ h1 = @topic.title
 
 / Display the poll, if any
 = if @topic.poll do
-  = render PhilomenaWeb.Topic.PollView, "_display.html.slime", poll: @poll, conn: @conn
+  = render PhilomenaWeb.Topic.PollView, "_display.html.slime", poll: @topic.poll, conn: @conn
 
 / The actual posts
 .posts-area
