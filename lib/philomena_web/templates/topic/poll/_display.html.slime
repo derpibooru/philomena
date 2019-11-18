@@ -10,4 +10,4 @@
 - else
   .poll
     .poll-area
-      = render PhilomenaWeb.TopicView, "_results.html", poll: @poll, conn: @conn
+      = render PhilomenaWeb.Topic.PollView, "_results.html", poll: @poll, conn: @conn
