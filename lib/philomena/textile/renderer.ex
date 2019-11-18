@@ -18,7 +18,7 @@ defmodule Philomena.Textile.Renderer do
     parsed =
       posts
       |> Enum.map(fn post ->
-        Parser.parse(@parser, post[:body])
+        Parser.parse(@parser, post.body)
       end)
 
     images =
