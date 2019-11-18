@@ -1,0 +1,91 @@
+/ General information block
+.block
+  .block__header
+    span.block__header__title General information
+  .block__content.commission__block_body
+    strong> Profile:
+    = render PhilomenaWeb.UserAttributionView, "_user.html", object: @commission
+    br
+
+    strong> Status:
+    = if @commission.open, do: "Open", else: "Closed"
+
+    br
+
+    strong> Price Range:
+    - {min, max} = Enum.min_max_by(@commission.items, & &1.base_price)
+    | $
+    => Decimal.round(min.base_price, 2) |> Decimal.to_string()
+    | - $
+    => Decimal.round(max.base_price, 2) |> Decimal.to_string()
+    ' USD
+
+    br
+    br
+
+    == @rendered.information
+
+/ Contact information block
+.block
+  .block__header
+    span.block__header__title Contact information
+  .block__content.commission__block_body
+    == @rendered.contact
+
+/ Categories block
+.block
+  .block__header
+    span.block__header__title Art Categories
+  .block__content
+    = for cat <- @commission.categories do
+      span.commission__category
+        = cat
+
+/ Will create block
+= if @user.commission.will_create not in [nil, ""] do
+  .block
+    .block__header
+      span.block__header__title Will draw/create
+    .block__content.commission__block_body
+      == @rendered.will_create
+
+/ Will not create block
+= if @user.commission.will_not_create not in [nil, ""] do
+  .block
+    .block__header
+      span.block__header__title Will not draw/create
+    .block__content.commission__block_body
+      == @rendered.will_not_create
+
+/ User link block
+/.block
+  .block__header: span.block__header__title User Links
+  - is_current = (current_user && current_user.id == @user.id)
+  - if @links.present? || is_current
+    = render partial: 'profiles/user_link_area'
+
+/ Options block
+/.block
+  .block__header
+    span.block__header__title Options
+  .block__content
+    - if can? :edit, @user.commission
+      = link_to 'Edit this listing', edit_commission_path(@user.commission)
+      br
+      = link_to 'Delete this listing', commission_path(@user.commission), data: { confirm: t('commissions.confirm_delete_listing') }, method: :delete
+      br
+    = link_to 'Report this listing', new_report_path(reportable_class: 'commission', reportable_id: @user.commission.id)
+
+/ Share block
+.block
+  .block__header
+    span.block__header__title Share this listing
+  .block__content
+    - url = Routes.commission_url(@conn, :show, @commission)
+
+    .field
+      label> for="commission_url" URL
+      a href="#" data-click-copy="#commission_url"
+        i.fa.fa-clipboard>
+        ' Copy
+      = text_input :commission_url, url, class: "input input--wide input--separate-top", readonly: true

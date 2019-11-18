@@ -1,0 +1,6 @@
+= if @commission.sheet_image do
+  .block
+    .block__header
+      span.block__header__title Commissions Sheet
+    .block__content.center
+      = render PhilomenaWeb.ImageView, "_image_container.html", image: @commission.sheet_image, size: :tall, conn: @conn

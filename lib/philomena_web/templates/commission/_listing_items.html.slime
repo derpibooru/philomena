@@ -1,0 +1,35 @@
+.block
+  .block__header
+    span.block__header__title Available Items and Prices
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Example
+          th Description
+          th Base Price
+          th Add-Ons
+      tbody
+        = for {description, add_ons, item} <- @items do
+          tr
+            td
+              = if item.example_image do
+                = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, size: :thumb_small, conn: @conn
+              - else
+                | (No example)
+
+            td
+              strong
+                = item.item_type
+
+              br
+              br
+
+              == description
+            td
+              | $
+              = Decimal.round(item.base_price, 2)
+
+            td
+              == add_ons
