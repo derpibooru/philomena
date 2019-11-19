@@ -4,11 +4,13 @@ defmodule Philomena.Forums.Forum do
 
   alias Philomena.Posts.Post
   alias Philomena.Topics.Topic
+  alias Philomena.Forums.Subscription
 
   @derive {Phoenix.Param, key: :short_name}
   schema "forums" do
     belongs_to :last_post, Post
     belongs_to :last_topic, Topic
+    has_many :subscriptions, Subscription
 
     field :name, :string
     field :short_name, :string
