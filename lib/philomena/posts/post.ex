@@ -46,7 +46,7 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
-    |> put_name_at_post_time()
+    |> put_name_at_post_time(attribution[:user])
   end
 
   @doc false
@@ -58,11 +58,9 @@ defmodule Philomena.Posts.Post do
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> change(topic_position: 0)
-    |> put_name_at_post_time()
+    |> put_name_at_post_time(attribution[:user])
   end
 
-  defp put_name_at_post_time(%{changes: %{user: %{data: %{name: name}}}} = changeset),
-    do: change(changeset, name_at_post_time: name)
-  defp put_name_at_post_time(changeset),
-    do: changeset
+  defp put_name_at_post_time(changeset, nil), do: changeset
+  defp put_name_at_post_time(changeset, user), do: change(changeset, name_at_post_time: user.name)
 end

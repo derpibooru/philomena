@@ -2,6 +2,8 @@
 
 Next generation imageboard.
 
+![](https://derpicdn.net/img/2019/8/23/2125268/full.png)
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
