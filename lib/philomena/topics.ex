@@ -62,6 +62,9 @@ defmodule Philomena.Topics do
 
       {:ok, count}
     end)
+    |> Multi.run(:subscribe, fn _repo, %{topic: topic} ->
+      create_subscription(topic, attribution[:user])
+    end)
     |> Repo.isolated_transaction(:serializable)
   end
 
