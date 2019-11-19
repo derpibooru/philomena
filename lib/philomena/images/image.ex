@@ -15,10 +15,12 @@ defmodule Philomena.Images.Image do
   alias Philomena.Users.User
   alias Philomena.Images.Tagging
   alias Philomena.Galleries
+  alias Philomena.Comments.Comment
 
   schema "images" do
     belongs_to :user, User
     belongs_to :deleter, User, source: :deleted_by_id
+    has_many :comments, Comment
     has_many :upvotes, ImageVote, where: [up: true]
     has_many :downvotes, ImageVote, where: [up: false]
     has_many :faves, ImageFave

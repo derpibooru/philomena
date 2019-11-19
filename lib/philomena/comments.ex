@@ -40,10 +40,10 @@ defmodule Philomena.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(image, user, attributes, params \\ %{}) do
+  def create_comment(image, attribution, params \\ %{}) do
     comment =
-      struct(Comment, [image_id: image.id] ++ attributes)
-      |> Comment.creation_changeset(user, params)
+      Ecto.build_assoc(image, :comments)
+      |> Comment.creation_changeset(params, attribution)
 
     image_query =
       Image
@@ -53,7 +53,7 @@ defmodule Philomena.Comments do
     |> Multi.insert(:comment, comment)
     |> Multi.update_all(:image, image_query, inc: [comments_count: 1])
     |> Multi.run(:subscribe, fn _repo, _changes ->
-      Images.create_subscription(image, user)
+      Images.create_subscription(image, attribution[:user])
     end)
     |> Repo.transaction()
   end

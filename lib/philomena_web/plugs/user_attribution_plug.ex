@@ -19,13 +19,15 @@ defmodule PhilomenaWeb.UserAttributionPlug do
   def call(conn, _opts) do
     {:ok, remote_ip} = EctoNetwork.INET.cast(conn.remote_ip)
     conn = Conn.fetch_cookies(conn)
+    user = Pow.Plug.current_user(conn)
+
     attributes =
       [
         ip:          remote_ip,
         fingerprint: conn.cookies["_ses"],
         referrer:    conn.assigns.referrer,
-        user_agent:  user_agent(conn),
-        user_id:     user_id(conn)
+        user:        user,
+        user_agent:  user_agent(conn)
       ]
 
     conn
@@ -36,15 +38,6 @@ defmodule PhilomenaWeb.UserAttributionPlug do
     case Conn.get_req_header(conn, "user-agent") do
       [ua] -> ua
       _    -> nil
-    end
-  end
-
-  defp user_id(conn) do
-    user = Pow.Plug.current_user(conn)
-
-    case user do
-      %{id: id} -> id
-      _         -> nil
     end
   end
 end

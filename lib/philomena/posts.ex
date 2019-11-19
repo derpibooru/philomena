@@ -41,7 +41,7 @@ defmodule Philomena.Posts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_post(topic, user, attributes, params \\ %{}) do
+  def create_post(topic, attributes, params \\ %{}) do
     topic_query =
       Topic
       |> where(id: ^topic.id)
@@ -61,7 +61,7 @@ defmodule Philomena.Posts do
         |> repo.one()
 
       Ecto.build_assoc(topic, :posts, [topic_position: (last_position || -1) + 1] ++ attributes)
-      |> Post.creation_changeset(params, user)
+      |> Post.creation_changeset(params, attributes)
       |> repo.insert()
     end)
     |> Multi.run(:update_topic, fn repo, %{post: %{id: post_id}} ->
@@ -77,7 +77,7 @@ defmodule Philomena.Posts do
       {:ok, count}
     end)
     |> Multi.run(:subscribe, fn _repo, _changes ->
-      Topics.create_subscription(topic, user)
+      Topics.create_subscription(topic, attributes[:user])
     end)
     |> Repo.isolated_transaction(:serializable)
   end

@@ -63,9 +63,8 @@ defmodule PhilomenaWeb.Image.CommentController do
   def create(conn, %{"comment" => comment_params}) do
     attributes = conn.assigns.attributes
     image = conn.assigns.image
-    user = conn.assigns.current_user
 
-    case Comments.create_comment(image, user, attributes, comment_params) do
+    case Comments.create_comment(image, attributes, comment_params) do
       {:ok, %{comment: comment}} ->
         Comments.notify_comment(comment)
         Comments.reindex_comment(comment)

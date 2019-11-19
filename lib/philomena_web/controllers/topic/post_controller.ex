@@ -14,9 +14,8 @@ defmodule PhilomenaWeb.Topic.PostController do
     attributes = conn.assigns.attributes
     forum = conn.assigns.forum
     topic = conn.assigns.topic
-    user = conn.assigns.current_user
 
-    case Posts.create_post(topic, user, attributes, post_params) do
+    case Posts.create_post(topic, attributes, post_params) do
       {:ok, %{post: post}} ->
         Posts.notify_post(post)
         Posts.reindex_post(post)
