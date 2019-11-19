@@ -10,6 +10,10 @@ export function on(node, event, selector, func) {
   delegate(node, event, { [selector]: func });
 }
 
+export function leftClick(func) {
+  return (event, target) => { if (event.button === 0) return func(event, target); };
+}
+
 export function delegate(node, event, selectors) {
   node.addEventListener(event, e => {
     for (const selector in selectors) {

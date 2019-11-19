@@ -1,7 +1,16 @@
 import { $, $$, clearEl, removeEl, insertBefore } from './utils/dom';
+import { delegate, leftClick } from './utils/events';
+
+function pollOptionRemover(_event, target) {
+  removeEl(target.closest('.js-poll-option'));
+}
 
 function pollOptionCreator() {
   const addPollOptionButton = $('.js-poll-add-option');
+
+  delegate(document, 'click', {
+    '.js-option-remove': leftClick(pollOptionRemover)
+  });
 
   if (!addPollOptionButton) {
     return;
@@ -16,13 +25,10 @@ function pollOptionCreator() {
     if (existingOptionCount < maxOptionCount) {
       // The element right before the add button will always be the last field, make a copy
       const prevFieldCopy = addPollOptionButton.previousElementSibling.cloneNode(true);
-      // Clear its value and increment the N in "Option N" in the placeholder attribute
-      clearEl($$('.js-option-id', prevFieldCopy));
-      const input = $('.js-option-label', prevFieldCopy);
-      input.value = '';
-      input.setAttribute('placeholder', input.getAttribute('placeholder').replace(/\d+$/, m => parseInt(m, 10) + 1));
+      const newHtml = prevFieldCopy.outerHTML.replace(/(\d+)/g, `${existingOptionCount}`);
+
       // Insert copy before the button
-      insertBefore(addPollOptionButton, prevFieldCopy);
+      addPollOptionButton.insertAdjacentHTML("beforebegin", newHtml);
       existingOptionCount++;
     }
 

@@ -1,0 +1,85 @@
+= form_for @changeset, Routes.forum_topic_path(@conn, :create, @forum), fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .block
+    .block__header.block__header--js-tabbed
+      a.selected href="#" data-click-tab="write"
+        i.fa.fa-pencil>
+        ' Create a Topic
+
+      a href="#" data-click-tab="preview"
+        i.fa.fa-eye>
+        ' Preview
+
+    .block__tab.communication-edit__tab.selected data-tab="write"
+      .field
+        = text_input f, :title, class: "input input--wide", placeholder: "Title"
+        = error_tag f, :title
+        = error_tag f, :slug
+
+      = inputs_for f, :posts, fn fp ->
+        .field
+          = textarea fp, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for NSFW stuff in SFW forums.", required: true
+          = error_tag fp, :body
+
+      .field
+        => checkbox f, :anonymous
+        = label f, :anonymous, "Post anonymously"
+
+      = inputs_for f, :poll, fn fp ->
+        #add-poll
+          input.toggle-box id="add_poll" name="add_poll" type="checkbox"
+          label for="add_poll" Add a poll
+          .toggle-box-container
+            p
+              ' Polls may have a maximum of
+              span.js-max-option-count> 20
+              ' options. Leave any options you don't want to use blank.
+              ' Only registered users will be able to vote.
+
+            .field.field--block
+              = text_input fp, :title, class: "input input--wide", placeholder: "Poll title", maxlength: 140
+              = error_tag fp, :title
+            
+            p.fieldlabel
+              ' End date
+            
+            .field.field--block
+              = text_input fp, :until, class: "input input--wide", placeholder: "2 weeks from now", maxlength: 255
+              = error_tag fp, :until
+              = error_tag fp, :active_until
+            
+            p.fieldlabel
+              ' Specify when the poll should end. Once the poll ends, no more
+              ' votes can be cast and the final results will be displayed. Good
+              ' values to try are "1 week from now" and "24 hours from now". Polls
+              ' must last for at least 24 hours.
+            
+            p.fieldlabel
+              ' Voting method:
+
+            .field.field--block
+              = select fp, :vote_method, ["-": "", "Single option": :single, "Multiple options": :multiple], class: "input"
+              = error_tag fp, :vote_method
+            
+            = inputs_for fp, :options, fn fo ->
+              .field.js-poll-option.field--inline.flex--no-wrap.flex--centered
+                = text_input fo, :label, class: "input flex__grow js-option-label", placeholder: "Option"
+                = error_tag fo, :label
+
+                label.input--separate-left.flex__fixed.flex--centered
+                  a.js-option-remove href="#"
+                    i.fa.fa-trash>
+                    ' Delete
+
+            button.button.js-poll-add-option type="button"
+              i.fa.fa-plus>
+              ' Add option
+
+    .block__tab.communication-edit__tab.hidden data-tab="preview"
+      ' [Loading preview...]
+
+    .block__content.communication-edit__actions
+      = submit "Post", class: "button"

@@ -4,22 +4,12 @@ defmodule Philomena.Topics do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Topics.Topic
-
-  @doc """
-  Returns the list of topics.
-
-  ## Examples
-
-      iex> list_topics()
-      [%Topic{}, ...]
-
-  """
-  def list_topics do
-    Repo.all(Topic)
-  end
+  alias Philomena.Forums.Forum
+  alias Philomena.Notifications
 
   @doc """
   Gets a single topic.
@@ -49,10 +39,58 @@ defmodule Philomena.Topics do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_topic(attrs \\ %{}) do
-    %Topic{}
-    |> Topic.changeset(attrs)
-    |> Repo.insert()
+  def create_topic(forum, attribution, attrs \\ %{}) do
+    topic =
+      %Topic{}
+      |> Topic.creation_changeset(attrs, forum, attribution)
+
+    Multi.new
+    |> Multi.insert(:topic, topic)
+    |> Multi.run(:update_topic, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Topic
+        |> where(id: ^topic.id)
+        |> repo.update_all(set: [last_post_id: hd(topic.posts).id])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:update_forum, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Forum
+        |> where(id: ^topic.forum_id)
+        |> repo.update_all(inc: [post_count: 1], set: [last_post_id: hd(topic.posts).id])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def notify_topic(topic) do
+    spawn fn ->
+      forum =
+        topic
+        |> Repo.preload(:forum)
+        |> Map.fetch!(:forum)
+
+      subscriptions =
+        forum
+        |> Repo.preload(:subscriptions)
+        |> Map.fetch!(:subscriptions)
+
+      Notifications.notify(
+        topic,
+        subscriptions,
+        %{
+          actor_id: forum.id,
+          actor_type: "Forum",
+          actor_child_id: topic.id,
+          actor_child_type: "Topic",
+          action: "posted a new topic in"
+        }
+      )
+    end
+
+    topic
   end
 
   @doc """

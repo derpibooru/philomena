@@ -1,5 +1,5 @@
 import { $$, makeEl, findFirstTextNode } from './utils/dom';
-import { fire, delegate } from './utils/events';
+import { fire, delegate, leftClick } from './utils/events';
 
 const headers = () => ({
   'x-csrf-token': window.booru.csrfToken
@@ -83,10 +83,6 @@ function linkRemote(event, target) {
   }).then(response =>
     fire(target, 'fetchcomplete', response)
   );
-}
-
-function leftClick(func) {
-  return (event, target) => { if (event.button === 0) return func(event, target); };
 }
 
 delegate(document, 'click', {

@@ -1,10 +1,14 @@
 defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Forums.Forum, Topics, Topics.Topic, Posts, Posts.Post, Textile.Renderer}
+  alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
+  alias Philomena.{Topics, Posts}
+  alias Philomena.Textile.Renderer
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:new, :create]
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
   def show(conn, %{"id" => slug} = params) do
@@ -59,5 +63,38 @@ defmodule PhilomenaWeb.TopicController do
       |> Posts.change_post()
 
     render(conn, "show.html", posts: posts, changeset: changeset, watching: watching)
+  end
+
+  def new(conn, _params) do
+    changeset =
+      %Topic{poll: %Poll{options: [%PollOption{}, %PollOption{}]}, posts: [%Post{}]}
+      |> Topics.change_topic()
+
+    render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"topic" => topic_params}) do
+    attributes = conn.assigns.attributes
+    forum = conn.assigns.forum
+
+    case Topics.create_topic(forum, attributes, topic_params) do
+      {:ok, %{topic: topic}} ->
+        post = hd(topic.posts)
+        Posts.reindex_post(post)
+        Topics.notify_topic(topic)
+
+        conn
+        |> put_flash(:info, "Successfully posted topic.")
+        |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic))
+
+      {:error, :topic, changeset, _} ->
+        conn
+        |> render("new.html", changeset: changeset)
+
+      _error ->
+        conn
+        |> put_flash(:error, "There was an error with your submission. Please try again.")
+        |> redirect(to: Routes.forum_topic_path(conn, :new, forum))
+    end
   end
 end

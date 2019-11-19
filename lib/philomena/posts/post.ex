@@ -49,6 +49,18 @@ defmodule Philomena.Posts.Post do
     |> put_name_at_post_time()
   end
 
+  @doc false
+  def topic_creation_changeset(post, attrs, attribution, anonymous?) do
+    post
+    |> change(anonymous: anonymous?)
+    |> cast(attrs, [:body])
+    |> validate_required([:body])
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> change(attribution)
+    |> change(topic_position: 0)
+    |> put_name_at_post_time()
+  end
+
   defp put_name_at_post_time(%{changes: %{user: %{data: %{name: name}}}} = changeset),
     do: change(changeset, name_at_post_time: name)
   defp put_name_at_post_time(changeset),

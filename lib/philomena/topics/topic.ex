@@ -7,6 +7,7 @@ defmodule Philomena.Topics.Topic do
   alias Philomena.Polls.Poll
   alias Philomena.Posts.Post
   alias Philomena.Topics.Subscription
+  alias Philomena.Slug
 
   @derive {Phoenix.Param, key: :slug}
   schema "topics" do
@@ -20,7 +21,7 @@ defmodule Philomena.Topics.Topic do
     has_many :subscriptions, Subscription
 
     field :title, :string
-    field :post_count, :integer, default: 0
+    field :post_count, :integer, default: 1
     field :view_count, :integer, default: 0
     field :sticky, :boolean, default: false
     field :last_replied_to_at, :naive_datetime
@@ -39,5 +40,38 @@ defmodule Philomena.Topics.Topic do
     topic
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  @doc false
+  def creation_changeset(topic, attrs, forum, attribution) do
+    changes =
+      topic
+      |> cast(attrs, [:title, :anonymous])
+      |> validate_required([:title, :anonymous])
+
+    anonymous? =
+      changes
+      |> get_field(:anonymous)
+
+    changes
+    |> validate_length(:title, min: 4, max: 96, count: :bytes)
+    |> put_slug()
+    |> change(forum: forum, user: attribution[:user])
+    |> validate_required(:forum)
+    |> cast_assoc(:poll, with: &Poll.creation_changeset/2)
+    |> cast_assoc(:posts, with: {Post, :topic_creation_changeset, [attribution, anonymous?]})
+    |> validate_length(:posts, is: 1)
+    |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
+  end
+
+  def put_slug(changeset) do
+    slug =
+      changeset
+      |> get_field(:title)
+      |> Slug.destructive_slug()
+
+    changeset
+    |> put_change(:slug, slug)
+    |> validate_required(:slug, message: "must be printable")
   end
 end

@@ -6,7 +6,10 @@ h1 = @forum.name
     => link("Forums", to: Routes.forum_path(@conn, :index))
     ' &raquo;
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
-    /= icon_link 'New Topic', 'fas fa-fw fa-pen-square', new_forum_topic_path(@forum)
+    a href=Routes.forum_topic_path(@conn, :new, @forum)
+      i.fa.fa-fw.fa-pencil>
+      ' New Topic
+
     /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path(forum_id: @forum.id)
     span.spacing-left
       => @forum.topic_count

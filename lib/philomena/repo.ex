@@ -1,4 +1,6 @@
 defmodule Philomena.Repo do
+  alias Ecto.Multi
+
   use Ecto.Repo,
     otp_app: :philomena,
     adapter: Ecto.Adapters.Postgres
@@ -11,17 +13,14 @@ defmodule Philomena.Repo do
     serializable: "SERIALIZABLE"
   }
 
-  def isolated_transaction(f, level) do
-    Philomena.Repo.transaction(fn ->
-      Philomena.Repo.query!("SET TRANSACTION ISOLATION LEVEL #{@levels[level]}")
-      Philomena.Repo.transaction(f)
-    end)
-    |> case do
-      {:ok, value} ->
-        value
-
-      error ->
-        error
-    end
+  def isolated_transaction(%Multi{} = multi, level) do
+    Multi.append(
+      Multi.new |> Multi.run(:isolate, fn repo, _chg ->
+        repo.query!("SET TRANSACTION ISOLATION LEVEL #{@levels[level]}")
+        {:ok, nil}
+      end),
+      multi
+    )
+    |> Philomena.Repo.transaction()
   end
 end

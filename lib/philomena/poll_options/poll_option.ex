@@ -17,4 +17,19 @@ defmodule Philomena.PollOptions.PollOption do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  @doc false
+  def creation_changeset(poll_option, attrs) do
+    poll_option
+    |> cast(attrs, [:label])
+    |> validate_required([:label])
+    |> validate_length(:label, max: 80, count: :bytes)
+    |> unique_constraint(:label, name: :index_poll_options_on_poll_id_and_label)
+    |> ignore_if_blank()
+  end
+
+  defp ignore_if_blank(%{valid?: false, changes: changes} = changeset) when changes == %{},
+    do: %{changeset | action: :ignore}
+  defp ignore_if_blank(changeset),
+    do: changeset
 end

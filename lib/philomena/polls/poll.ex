@@ -17,6 +17,7 @@ defmodule Philomena.Polls.Poll do
     field :total_votes, :integer, default: 0
     field :hidden_from_users, :boolean, default: false
     field :deletion_reason, :string, default: ""
+    field :until, :string, virtual: true
 
     timestamps(inserted_at: :created_at)
   end
@@ -26,5 +27,38 @@ defmodule Philomena.Polls.Poll do
     poll
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  @doc false
+  def creation_changeset(poll, attrs) do
+    poll
+    |> cast(attrs, [:title, :until, :vote_method])
+    |> put_active_until()
+    |> validate_required([:title, :active_until, :vote_method])
+    |> validate_length(:title, max: 140, count: :bytes)
+    |> validate_inclusion(:vote_method, ["single", "multiple"])
+    |> cast_assoc(:options, with: &PollOption.creation_changeset/2)
+    |> validate_length(:options, min: 2, max: 20)
+    |> ignore_if_blank()
+  end
+
+  defp ignore_if_blank(%{valid?: false, changes: changes} = changeset) when changes == %{},
+    do: %{changeset | action: :ignore}
+  defp ignore_if_blank(changeset),
+    do: changeset
+
+  defp put_active_until(changeset) do
+    changeset
+    |> get_field(:until)
+    |> RelativeDate.Parser.parse()
+    |> case do
+      {:ok, until} ->
+        changeset
+        |> change(active_until: until)
+
+      _error ->
+        changeset
+        |> add_error(:active_until, "invalid date format")
+    end
   end
 end
