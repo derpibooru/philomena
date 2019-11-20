@@ -53,6 +53,11 @@ defmodule PhilomenaWeb.TotpPlug do
     plug   = Pow.Plug.get_plug(config)
     conn   = Plug.Conn.put_private(conn, :pow_session_metadata, metadata)
 
+    conn =
+      conn
+      |> Plug.Conn.put_private(:pow_persistent_session_metadata, session_metadata: Keyword.take(metadata, [:valid_totp_at]))
+      |> PowPersistentSession.Plug.Cookie.create(user, config)
+
     plug.do_create(conn, user, config)
   end
 end

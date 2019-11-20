@@ -45,7 +45,7 @@ defmodule Philomena.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:phoenix_slime, "~> 0.12.0"},
       {:ecto_network, "~> 1.1"},
-      {:pow, "~> 1.0.14"},
+      {:pow, github: "danschultzer/pow", ref: "persistent-session-metadata", override: true},
       {:bcrypt_elixir, "~> 2.0"},
       {:pot, "~> 0.10.1"},
       {:secure_compare, "~> 0.1.0"},
@@ -58,7 +58,7 @@ defmodule Philomena.MixProject do
       {:redix, "~> 0.10.2"},
       {:bamboo, "~> 1.2"},
       {:bamboo_smtp, "~> 1.7"},
-      {:remote_ip, "~> 0.2.0"}
+      {:remote_ip, "~> 0.2.0"},
     ]
   end
 
