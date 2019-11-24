@@ -13,6 +13,8 @@ defmodule Philomena.SourceChanges.SourceChange do
     field :new_value, :string
     field :initial, :boolean, default: false
 
+    field :source_url, :string, source: :new_value
+
     timestamps(inserted_at: :created_at)
   end
 
@@ -21,5 +23,12 @@ defmodule Philomena.SourceChanges.SourceChange do
     source_change
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  @doc false
+  def creation_changeset(source_change, attrs, attribution) do
+    source_change
+    |> cast(attrs, [:source_url])
+    |> change(attribution)
   end
 end

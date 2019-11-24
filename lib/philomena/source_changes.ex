@@ -9,19 +9,6 @@ defmodule Philomena.SourceChanges do
   alias Philomena.SourceChanges.SourceChange
 
   @doc """
-  Returns the list of source_changes.
-
-  ## Examples
-
-      iex> list_source_changes()
-      [%SourceChange{}, ...]
-
-  """
-  def list_source_changes do
-    Repo.all(SourceChange)
-  end
-
-  @doc """
   Gets a single source_change.
 
   Raises `Ecto.NoResultsError` if the Source change does not exist.

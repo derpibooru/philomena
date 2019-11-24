@@ -8,17 +8,39 @@ defmodule Philomena.Tags do
 
   alias Philomena.Tags.Tag
 
-  @doc """
-  Returns the list of tags.
+  @spec get_or_create_tags(String.t()) :: List.t()
+  def get_or_create_tags(tag_list) do
+    tag_names = Tag.parse_tag_list(tag_list)
 
-  ## Examples
+    existent_tags =
+      Tag
+      |> where([t], t.name in ^tag_names)
+      |> preload(:implied_tags)
+      |> Repo.all()
 
-      iex> list_tags()
-      [%Tag{}, ...]
+    existent_tag_names =
+      existent_tags
+      |> Map.new(&{&1.name, true})
 
-  """
-  def list_tags do
-    Repo.all(Tag |> order_by(desc: :images_count) |> limit(250))
+    nonexistent_tag_names =
+      tag_names
+      |> Enum.reject(&existent_tag_names[&1])
+
+    new_tags =
+      nonexistent_tag_names
+      |> Enum.map(fn name ->
+        {:ok, tag} =
+          %Tag{}
+          |> Tag.creation_changeset(%{name: name})
+          |> Repo.insert()
+
+        %{tag | implied_tags: []}
+      end)
+
+    new_tags
+    |> reindex_tags()
+
+    existent_tags ++ new_tags
   end
 
   @doc """
@@ -51,7 +73,7 @@ defmodule Philomena.Tags do
   """
   def create_tag(attrs \\ %{}) do
     %Tag{}
-    |> Tag.changeset(attrs)
+    |> Tag.creation_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -100,6 +122,29 @@ defmodule Philomena.Tags do
   """
   def change_tag(%Tag{} = tag) do
     Tag.changeset(tag, %{})
+  end
+
+  def reindex_tag(%Tag{} = tag) do
+    reindex_tags([%Tag{id: tag.id}])
+  end
+
+  def reindex_tags(tags) do
+    spawn fn ->
+      ids =
+        tags
+        |> Enum.map(& &1.id)
+
+      Tag
+      |> preload(^indexing_preloads())
+      |> where([t], t.id in ^ids)
+      |> Tag.reindex()
+    end
+
+    tags
+  end
+
+  def indexing_preloads do
+    [:aliased_tag, :aliases, :implied_tags, :implied_by_tags]
   end
 
   alias Philomena.Tags.Implication

@@ -8,6 +8,26 @@ defmodule Philomena.Tags.Tag do
     doc_type: "tag"
 
   alias Philomena.Tags.Tag
+  alias Philomena.Slug
+
+  @namespaces [
+    "artist",
+    "art pack",
+    "ask",
+    "blog",
+    "colorist",
+    "comic",
+    "editor",
+    "fanfic",
+    "oc",
+    "parent",
+    "parents",
+    "photographer",
+    "series",
+    "species",
+    "spoiler",
+    "video"
+  ]
 
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
@@ -36,5 +56,89 @@ defmodule Philomena.Tags.Tag do
     tag
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  @doc false
+  def creation_changeset(tag, attrs) do
+    tag
+    |> cast(attrs, [:name])
+    |> validate_required([:name])
+    |> put_slug()
+    |> put_name_and_namespace()
+  end
+
+  def parse_tag_list(list) do
+    list
+    |> to_string()
+    |> String.split(",")
+    |> Enum.map(&clean_tag_name/1)
+    |> Enum.reject(&"" == &1)
+  end
+
+  def clean_tag_name(name) do
+    # Downcase, replace extra runs of spaces, replace unicode quotes
+    # with ascii quotes, trim space from end
+    name
+    |> String.downcase()
+    |> String.replace(~r/[[:space:]]+/, " ")
+    |> String.replace(~r/[\x{00b4}\x{2018}\x{2019}\x{201a}\x{201b}\x{2032}]/u, "'")
+    |> String.replace(~r/[\x{201c}\x{201d}\x{201e}\x{201f}\x{2033}]/u, "\"")
+    |> String.trim()
+    |> clean_tag_namespace()
+    |> ununderscore()
+  end
+
+  defp clean_tag_namespace(name) do
+    # Remove extra spaces after the colon in a namespace
+    # (artist:, oc:, etc.)
+    name
+    |> String.split(":", parts: 2)
+    |> Enum.map(&String.trim/1)
+    |> join_namespace_parts(name)
+  end
+
+  defp join_namespace_parts([_name], original_name),
+    do: original_name
+  defp join_namespace_parts([namespace, name], _original_name) when namespace in @namespaces,
+    do: namespace <> ":" <> name
+  defp join_namespace_parts([_namespace, _name], original_name),
+    do: original_name
+
+  defp ununderscore(<<"artist:", _rest::binary>> = name),
+    do: name
+  defp ununderscore(name),
+    do: String.replace(name, "_", " ")
+
+  defp put_slug(changeset) do
+    slug =
+      changeset
+      |> get_field(:name)
+      |> to_string()
+      |> Slug.slug()
+
+    changeset
+    |> change(slug: slug)
+  end
+
+  defp put_name_and_namespace(changeset) do
+    {namespace, name_in_namespace} =
+      changeset
+      |> get_field(:name)
+      |> to_string()
+      |> extract_name_and_namespace()
+
+    changeset
+    |> change(namespace: namespace)
+    |> change(name_in_namespace: name_in_namespace)
+  end
+
+  defp extract_name_and_namespace(name) do
+    case String.split(name, ":", parts: 2) do
+      [namespace, name_in_namespace] when namespace in @namespaces ->
+        {namespace, name_in_namespace}
+
+      _value ->
+        {nil, name}
+    end
   end
 end

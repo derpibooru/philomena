@@ -13,9 +13,14 @@ defmodule Philomena.Images.Image do
   alias Philomena.ImageHides.ImageHide
   alias Philomena.Images.Subscription
   alias Philomena.Users.User
-  alias Philomena.Images.Tagging
+  alias Philomena.Tags.Tag
   alias Philomena.Galleries
   alias Philomena.Comments.Comment
+  alias Philomena.SourceChanges.SourceChange
+  alias Philomena.TagChanges.TagChange
+
+  alias Philomena.Images.TagDiffer
+  alias Philomena.Images.TagValidator
 
   schema "images" do
     belongs_to :user, User
@@ -25,14 +30,15 @@ defmodule Philomena.Images.Image do
     has_many :downvotes, ImageVote, where: [up: false]
     has_many :faves, ImageFave
     has_many :hides, ImageHide
-    has_many :taggings, Tagging
     has_many :gallery_interactions, Galleries.Interaction
     has_many :subscriptions, Subscription
-    has_many :tags, through: [:taggings, :tag]
+    has_many :source_changes, SourceChange
+    has_many :tag_changes, TagChange
     has_many :upvoters, through: [:upvotes, :user]
     has_many :downvoters, through: [:downvotes, :user]
     has_many :favers, through: [:faves, :user]
     has_many :hiders, through: [:hides, :user]
+    many_to_many :tags, Tag, join_through: "image_taggings", on_replace: :delete
 
     field :image, :string
     field :image_name, :string
@@ -78,6 +84,9 @@ defmodule Philomena.Images.Image do
     field :tag_list_plus_alias_cache, :string
     field :file_name_cache, :string
 
+    field :removed_tags, {:array, :any}, default: [], virtual: true
+    field :added_tags, {:array, :any}, default: [], virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 
@@ -95,5 +104,19 @@ defmodule Philomena.Images.Image do
       upvotes: image.upvotes_count,
       downvotes: image.downvotes_count
     }
+  end
+
+  def source_changeset(image, attrs) do
+    image
+    |> cast(attrs, [:source_url])
+    |> validate_required(:source_url)
+    |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
+  end
+
+  def tag_changeset(image, attrs, old_tags, new_tags) do
+    image
+    |> cast(attrs, [])
+    |> TagDiffer.diff_input(old_tags, new_tags)
+    |> TagValidator.validate_tags()
   end
 end

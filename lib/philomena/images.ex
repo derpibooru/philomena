@@ -4,22 +4,14 @@ defmodule Philomena.Images do
   """
 
   import Ecto.Query, warn: false
+
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Images.Image
-
-  @doc """
-  Returns the list of images.
-
-  ## Examples
-
-      iex> list_images()
-      [%Image{}, ...]
-
-  """
-  def list_images do
-    Repo.all(Image |> where(hidden_from_users: false) |> order_by(desc: :created_at) |> limit(25))
-  end
+  alias Philomena.SourceChanges.SourceChange
+  alias Philomena.TagChanges.TagChange
+  alias Philomena.Tags
 
   @doc """
   Gets a single image.
@@ -73,6 +65,82 @@ defmodule Philomena.Images do
     image
     |> Image.changeset(attrs)
     |> Repo.update()
+  end
+
+  def update_source(%Image{} = image, attribution, attrs) do
+    image_changes =
+      image
+      |> Image.source_changeset(attrs)
+
+    source_changes =
+      Ecto.build_assoc(image, :source_changes)
+      |> SourceChange.creation_changeset(attrs, attribution)
+
+    Multi.new
+    |> Multi.update(:image, image_changes)
+    |> Multi.insert(:source_change, source_changes)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def update_tags(%Image{} = image, attribution, attrs) do
+    old_tags = Tags.get_or_create_tags(attrs["old_tag_input"])
+    new_tags = Tags.get_or_create_tags(attrs["tag_input"])
+
+    Multi.new
+    |> Multi.run(:image, fn repo, _chg ->
+      image
+      |> repo.preload(:tags, force: true)
+      |> Image.tag_changeset(%{}, old_tags, new_tags)
+      |> repo.update()
+      |> case do
+        {:ok, image} ->
+          {:ok, {image, image.added_tags, image.removed_tags}}
+
+        error ->
+          error
+      end
+    end)
+    |> Multi.run(:added_tag_changes, fn repo, %{image: {image, added_tags, _removed}} ->
+      tag_changes =
+        added_tags
+        |> Enum.map(&tag_change_attributes(attribution, image, &1, true, attribution[:user]))
+      
+      {count, nil} = repo.insert_all(TagChange, tag_changes)
+
+      {:ok, count}
+    end)
+    |> Multi.run(:removed_tag_changes, fn repo, %{image: {image, _added, removed_tags}} ->
+      tag_changes =
+        removed_tags
+        |> Enum.map(&tag_change_attributes(attribution, image, &1, false, attribution[:user]))
+
+      {count, nil} = repo.insert_all(TagChange, tag_changes)
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  defp tag_change_attributes(attribution, image, tag, added, user) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    user_id =
+      case user do
+        nil  -> nil
+        user -> user.id
+      end
+
+    %{
+      image_id: image.id,
+      tag_id: tag.id,
+      user_id: user_id,
+      created_at: now,
+      tag_name_cache: tag.name,
+      ip: attribution[:ip],
+      fingerprint: attribution[:fingerprint],
+      user_agent: attribution[:user_agent],
+      referrer: attribution[:referrer],
+      added: added
+    }
   end
 
   @doc """
