@@ -1,0 +1,60 @@
+- form_class = if @changeset.action, do: "", else: "hidden"
+
+.js-tagsauce#image_tags_and_source
+  = if can?(@conn, :update_metadata, @image) and !@conn.assigns.current_ban do
+
+    .js-imageform class=form_class
+
+      = form_for @changeset, Routes.image_tag_path(@conn, :update, @image), [id: "tags-form", method: "put", data: [remote: true]], fn f ->
+        = if @changeset.action do
+          .alert.alert-danger
+            p Oops, something went wrong! Please check the errors below.
+            
+        = hidden_input f, :old_tag_input, value: @image.tag_list_cache
+
+        .field
+          = label f, :tag_input do
+            ' Separate tags with commas. Use 'artist:name' tags to identify artists. Got questions? Check the
+            a> href="/pages/tags" tag guidelines
+            ' or the
+            a href="/pages/spoilers" spoiler guidelines
+            ' .
+
+          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: @image.tag_list_cache]
+
+        = if !@conn.assigns.current_user do
+          .block.block--fixed.block--warning
+            strong
+              em Hang on a sec&hellip;
+            br
+            ' Make sure you have read and understood our
+            a> href="/pages/tags" tagging guidelines
+            ' before editing tags.
+
+          .field
+            = checkbox f, :captcha, class: "js-captcha", value: 0
+            = label f, :captcha, "I am not a robot!"
+        
+        ul.horizontal-list
+          li
+            .actions
+              = submit "Save tags", class: "button", id: "edit_save_button", data: [disable_with: raw("Saving&hellip;")]
+          li
+            button.button.js-tag-sauce-toggle data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input"
+              ' Cancel
+
+  - else
+    p
+      ' You can't edit the tags on this image.
+
+  .tagsauce
+    .block
+      a.button.js-tag-sauce-toggle#edit-tags data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input" title="Edit tags" accessKey="t"
+        i.fa.fa-pencil>
+        ' Tags:
+
+      a.button.button--link.button--separate-left href=Routes.image_tag_change_path(@conn, :index, @image) title="Tag history"
+        i.fa.fa-history>
+        ' History
+
+    = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags), conn: @conn

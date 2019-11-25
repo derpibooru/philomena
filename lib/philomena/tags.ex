@@ -15,8 +15,10 @@ defmodule Philomena.Tags do
     existent_tags =
       Tag
       |> where([t], t.name in ^tag_names)
-      |> preload(:implied_tags)
+      |> preload([:implied_tags, aliased_tag: :implied_tags])
       |> Repo.all()
+      |> Enum.map(& &1.aliased_tag || &1)
+      |> Enum.uniq()
 
     existent_tag_names =
       existent_tags

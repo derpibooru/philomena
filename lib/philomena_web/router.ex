@@ -85,6 +85,10 @@ defmodule PhilomenaWeb.Router do
     resources "/activity", ActivityController, only: [:index]
     resources "/images", ImageController, only: [:index, :show] do
       resources "/comments", Image.CommentController, only: [:index, :show, :create]
+      resources "/tags", Image.TagController, only: [:update], singleton: true
+      resources "/sources", Image.SourceController, only: [:update], singleton: true
+      resources "/tag_changes", Image.TagChangeController, only: [:index]
+      resources "/source_changes", Image.SourceChangeController, only: [:index]
     end
     resources "/tags", TagController, only: [:index, :show]
     resources "/search", SearchController, only: [:index]

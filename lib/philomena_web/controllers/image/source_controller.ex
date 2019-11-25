@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Image.SourceController do
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
-  plug PhilomenaWeb.CanaryMapPlug, update: :show
+  plug PhilomenaWeb.CanaryMapPlug, update: :edit_metadata
   plug :load_and_authorize_resource, model: Image, id_name: "image_id"
 
   def update(conn, %{"image" => image_params}) do
@@ -21,12 +21,12 @@ defmodule PhilomenaWeb.Image.SourceController do
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", image: image, changeset: changeset)
+        |> render("_source.html", layout: false, image: image, changeset: changeset)
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", image: image, changeset: changeset)
+        |> render("_source.html", layout: false, image: image, changeset: changeset)
     end
   end
 end

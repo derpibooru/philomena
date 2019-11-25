@@ -8,15 +8,9 @@
         | Description:
       .image-description__text
         == @description
-  .js-tagsauce id="image_tags_and_source_#{@image.id}"
-    .tagsauce
-      = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags), conn: @conn
-  .block
-    .flex.flex--wrap#image-source
-      = if !!@image.source_url and @image.source_url != "" do
-        a href=@image.source_url = @image.source_url
-      - else
-        em> no source provided yet
+
+  = render PhilomenaWeb.ImageView, "_tags.html", image: @image, changeset: @image_changeset, conn: @conn
+  = render PhilomenaWeb.ImageView, "_source.html", image: @image, changeset: @image_changeset, conn: @conn
 
   h4 Comments
   = cond do

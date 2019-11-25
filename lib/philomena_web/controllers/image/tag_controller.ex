@@ -3,11 +3,13 @@ defmodule PhilomenaWeb.Image.TagController do
 
   alias Philomena.Images
   alias Philomena.Images.Image
+  alias Philomena.Tags
+  alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
-  plug PhilomenaWeb.CanaryMapPlug, update: :show
+  plug PhilomenaWeb.CanaryMapPlug, update: :edit_metadata
   plug :load_and_authorize_resource, model: Image, id_name: "image_id"
 
   def update(conn, %{"image" => image_params}) do
@@ -15,18 +17,25 @@ defmodule PhilomenaWeb.Image.TagController do
     image = conn.assigns.image
 
     case Images.update_tags(image, attributes, image_params) do
-      {:ok, %{image: image}} ->
+      {:ok, %{image: {image, added_tags, removed_tags}}} ->
+        Images.reindex_image(image)
+        Tags.reindex_tags(added_tags ++ removed_tags)
+
+        image =
+          image
+          |> Repo.preload(:tags, force: true)
+
         changeset =
           Images.change_image(image)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", image: image, changeset: changeset)
+        |> render("_tags.html", layout: false, image: image, changeset: changeset)
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", image: image, changeset: changeset)
+        |> render("_tags.html", layout: false, image: image, changeset: changeset)
     end
   end
 end

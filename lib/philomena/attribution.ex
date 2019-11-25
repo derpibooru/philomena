@@ -14,4 +14,10 @@ defprotocol Philomena.Attribution do
   """
   @spec best_user_identifier(struct()) :: String.t()
   def best_user_identifier(object)
+
+  @doc """
+    Return whether this object is considered to be anonymous.
+  """
+  @spec anonymous?(struct()) :: true | false
+  def anonymous?(object)
 end

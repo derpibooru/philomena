@@ -6,4 +6,8 @@ defimpl Philomena.Attribution, for: Philomena.Topics.Topic do
   def best_user_identifier(topic) do
     to_string(topic.user_id)
   end
+
+  def anonymous?(topic) do
+    !!topic.anonymous
+  end
 end

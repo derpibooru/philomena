@@ -6,4 +6,8 @@ defimpl Philomena.Attribution, for: Philomena.Comments.Comment do
   def best_user_identifier(comment) do
     to_string(comment.user_id || comment.fingerprint || comment.ip)
   end
+
+  def anonymous?(comment) do
+    !!comment.anonymous
+  end
 end

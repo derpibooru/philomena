@@ -1,6 +1,8 @@
 defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
+  alias Philomena.Tags.Tag
+
   def thumb_urls(image, show_hidden) do
     %{
       thumb_tiny: thumb_url(image, show_hidden, :thumb_tiny),
@@ -76,18 +78,7 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def display_order(tags) do
-    tags
-    |> Enum.sort_by(&{
-      &1.category != "rating",
-      &1.category != "origin",
-      &1.category != "character",
-      &1.category != "oc",
-      &1.category != "species",
-      &1.category != "content-fanmade",
-      &1.category != "content-official",
-      &1.category != "spoiler",
-      &1.name
-    })
+    Tag.display_order(tags)
   end
 
   defp thumb_format("svg"), do: "png"

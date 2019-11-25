@@ -1,4 +1,4 @@
-= if !!@object.user and !@object.anonymous do
+= if !!@object.user and !anonymous?(@object) do
   strong<>
     = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
   = if assigns[:awards] do

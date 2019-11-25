@@ -1,0 +1,40 @@
+.block
+  = form_for @changeset, Routes.image_source_path(@conn, :update, @image), [method: "put", class: "hidden", id: "source-form", data: [remote: true]], fn f ->
+    = if can?(@conn, :update_metadata, @image) and !@conn.assigns.current_ban do
+
+      = if @changeset.action do
+        .alert.alert-danger
+          p Oops, something went wrong! Please check the errors below.
+      
+      .flex
+        = url_input f, :source_url, id: "source-field", class: "input input--wide", autocomplete: "off", placeholder: "Source URL"
+        = submit "Save source", class: "button button--separate-left"
+        button.button.button--separate-left type="reset" data-click-hide="#source-form" data-click-show="#image-source"
+          ' Cancel
+
+        = if !@conn.assigns.current_user do
+          = checkbox f, :captcha, class: "js-captcha", value: 0
+          = label f, :captcha, "I am not a robot!"
+
+    - else
+      p
+        ' You can't edit the source on this image.
+
+  .flex.flex--wrap#image-source
+    p
+      a.button.button--separate-right#edit-source data-click-focus="#source-field" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
+        i.fa.fa-pencil>
+        ' Source:
+
+    p
+      = if @image.source_url not in [nil, ""] do
+        a.js-source-link href=@image.source_url
+          strong
+            = @image.source_url
+
+      - else
+        em> not provided yet
+
+      a.button.button--link.button--separate-left href=Routes.image_source_change_path(@conn, :index, @image) title="Source history"
+        i.fa.fa-history>
+        ' History

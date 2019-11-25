@@ -3,6 +3,10 @@ defmodule PhilomenaWeb.UserAttributionView do
   use Bitwise
   use PhilomenaWeb, :view
 
+  def anonymous?(object) do
+    Attribution.anonymous?(object)
+  end
+
   def anonymous_name(object) do
     salt = anonymous_name_salt()
     id = Attribution.object_identifier(object)

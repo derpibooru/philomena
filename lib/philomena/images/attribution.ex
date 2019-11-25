@@ -6,4 +6,8 @@ defimpl Philomena.Attribution, for: Philomena.Images.Image do
   def best_user_identifier(image) do
     to_string(image.user_id || image.fingerprint || image.ip)
   end
+
+  def anonymous?(image) do
+    !!image.anonymous
+  end
 end

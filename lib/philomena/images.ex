@@ -12,6 +12,7 @@ defmodule Philomena.Images do
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
+  alias Philomena.Tags.Tag
 
   @doc """
   Gets a single image.
@@ -118,11 +119,27 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
+    |> Multi.run(:added_tag_count, fn repo, %{image: {_image, added_tags, _removed}} ->
+      tag_ids = added_tags |> Enum.map(& &1.id)
+      tags = Tag |> where([t], t.id in ^tag_ids)
+
+      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:removed_tag_count, fn repo, %{image: {_image, _added, removed_tags}} ->
+      tag_ids = removed_tags |> Enum.map(& &1.id)
+      tags = Tag |> where([t], t.id in ^tag_ids)
+
+      {count, nil} = repo.update_all(tags, inc: [images_count: -1])
+
+      {:ok, count}
+    end)
     |> Repo.isolated_transaction(:serializable)
   end
 
   defp tag_change_attributes(attribution, image, tag, added, user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     user_id =
       case user do
         nil  -> nil
@@ -134,6 +151,7 @@ defmodule Philomena.Images do
       tag_id: tag.id,
       user_id: user_id,
       created_at: now,
+      updated_at: now,
       tag_name_cache: tag.name,
       ip: attribution[:ip],
       fingerprint: attribution[:fingerprint],

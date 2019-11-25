@@ -1,5 +1,12 @@
+elixir:
+  textarea_options = [
+    class: "input input--wide tagsinput js-image-input js-taginput js-taginput-plain js-taginput-#{@name}",
+    placeholder: "Add tags separated with commas"
+  ]
+  html_options = Keyword.merge(textarea_options, assigns[:extra] || [])
+
 .js-tag-block class="fancy-tag-#{@type}"
-  = textarea @f, @name, class: "input input--wide tagsinput js-image-input js-taginput js-taginput-plain js-taginput-#{@name}", placeholder: "Add tags separated with commas"
+  = textarea @f, @name, html_options
   .js-taginput.input.input--wide.tagsinput.hidden class="js-taginput-fancy" data-click-focus=".js-taginput-input.js-taginput-#{@name}"
     input.input class="js-taginput-input js-taginput-#{@name}" id="taginput-fancy-#{@name}" type="text" placeholder="add a tag" autocapitalize="none" data-ac="true" data-ac-min-length="3" data-ac-source='/tags/autocomplete.json?term='
 button.button.button--state-primary.button--bold class="js-taginput-show" data-click-show=".js-taginput-fancy,.js-taginput-hide" data-click-hide=".js-taginput-plain,.js-taginput-show" data-click-focus=".js-taginput-input.js-taginput-#{@name}"

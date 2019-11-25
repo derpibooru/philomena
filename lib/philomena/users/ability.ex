@@ -64,6 +64,13 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
       when action in [:show, :index],
       do: true
 
+  # Comment on images where that is allowed
+  def can?(_user, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}), do: true
+
+  # Edit metadata on images where that is allowed
+  def can?(_user, :edit_metadata, %Image{hidden_from_users: false, tag_editing_allowed: true}), do: true
+  def can?(%User{id: id}, :edit_description, %Image{user_id: id, hidden_from_users: false, description_editing_allowed: true}), do: true
+
   # Vote on images they can see
   def can?(user, :vote, image), do: can?(user, :show, image)
 

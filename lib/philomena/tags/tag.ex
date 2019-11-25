@@ -75,6 +75,21 @@ defmodule Philomena.Tags.Tag do
     |> Enum.reject(&"" == &1)
   end
 
+  def display_order(tags) do
+    tags
+    |> Enum.sort_by(&{
+      &1.category != "rating",
+      &1.category != "origin",
+      &1.category != "character",
+      &1.category != "oc",
+      &1.category != "species",
+      &1.category != "content-fanmade",
+      &1.category != "content-official",
+      &1.category != "spoiler",
+      &1.name
+    })
+  end
+
   def clean_tag_name(name) do
     # Downcase, replace extra runs of spaces, replace unicode quotes
     # with ascii quotes, trim space from end

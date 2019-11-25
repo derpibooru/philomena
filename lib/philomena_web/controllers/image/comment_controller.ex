@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, edit: :show, update: :show
+  plug PhilomenaWeb.CanaryMapPlug, create: :create_comment, edit: :create_comment, update: :create_comment
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   # Undo the previous private parameter screwery

@@ -1,0 +1,46 @@
+h1
+  ' Source changes for
+  a href=Routes.image_path(@conn, :show, @image)
+    | image #
+    = @image.id
+
+- route = fn p -> Routes.image_source_change_path(@conn, :index, @image, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
+
+.block
+  .block__header
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th colspan=2 Image
+          th New Source
+          th Timestamp
+          th User
+          th Initial?
+
+      tbody
+        = for source_change <- @source_changes do
+          tr
+            td.center
+              = link source_change.image_id, to: Routes.image_path(@conn, :show, source_change.image)
+            td.center
+              = render PhilomenaWeb.ImageView, "_image_container.html", image: source_change.image, size: :thumb_tiny, conn: @conn
+
+            td
+              = source_change.new_value
+            
+            td
+              = pretty_time(source_change.created_at)
+
+            td
+              = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: source_change, conn: @conn
+
+            td
+              = if source_change.initial do
+                ' &#x2713;
+
+  .block__header
+    = pagination

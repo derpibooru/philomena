@@ -57,6 +57,10 @@ defmodule PhilomenaWeb.ImageController do
       %Comment{}
       |> Comments.change_comment()
 
+    image_changeset =
+      image
+      |> Images.change_image()
+
     watching =
       Images.subscribed?(image, conn.assigns.current_user)
 
@@ -65,6 +69,7 @@ defmodule PhilomenaWeb.ImageController do
       "show.html",
       image: image,
       comments: comments,
+      image_changeset: image_changeset,
       comment_changeset: comment_changeset,
       description: description,
       interactions: interactions,
