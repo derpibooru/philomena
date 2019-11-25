@@ -54,9 +54,19 @@ apt-get update
 if ! install_packages build-essential postgresql-11 libpq-dev nginx nodejs \
                       elasticsearch esl-erlang elixir inotify-tools git \
                       redis-server automake libtool zlib1g-dev ffmpeg \
-                      libavutil-dev libavcodec-dev libavformat-dev ; then
+                      libavutil-dev libavcodec-dev libavformat-dev \
+                      libmagic-dev libpng-dev; then
     >&2 echo "Installation of dependencies failed."
     exit 1
+fi
+
+if [ ! -f /usr/local/bin/image-intensities ]; then
+    pushd .
+    cd /tmp
+    git clone https://github.com/derpibooru/cli_intensities
+    cd cli_intensities
+    make install
+    popd
 fi
 
 sed -i -e 's/\(-Xm[sx]\)1g/\1256m/' /etc/elasticsearch/jvm.options
