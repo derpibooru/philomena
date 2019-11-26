@@ -1,38 +1,55 @@
 defmodule Philomena.Processors.Png do
-  alias Philomena.Processors.Png
+  alias Philomena.Intensities
 
-  defstruct [:file]
+  def process(analysis, file, versions) do
+    dimensions = analysis.dimensions
 
-  def new(_analysis, file) do
-    %Png{file: file}
+    {:ok, intensities} = Intensities.file(file)
+
+    scaled = Enum.flat_map(versions, &scale_if_smaller(file, dimensions, &1))
+
+    %{
+      intensities: intensities,
+      thumbnails: scaled
+    }
   end
 
-  def strip(processor) do
-    {processor, processor.file}
+  def post_process(_analysis, file) do
+    %{replace_original: optimize(file)}
   end
 
-  def preview(processor) do
-    {processor, processor.file}
-  end
-
-  def optimize(processor) do
+  defp optimize(file) do
     optimized = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("optipng", ["-fix", "-i0", "-o2", processor.file, "-out", optimized])
+      System.cmd("optipng", ["-fix", "-i0", "-o2", file, "-out", optimized])
     
-    {processor, optimized}
+    optimized
   end
 
-  def scale(processor, {width, height}) do
+  defp scale_if_smaller(_file, _dimensions, {:full, _target_dim}) do
+    [{:symlink_original, "full.jpg"}]
+  end
+
+  defp scale_if_smaller(file, {width, height}, {thumb_name, {target_width, target_height}}) do
+    if width > target_width or height > target_height do
+      scaled = scale(file, {target_width, target_height})
+
+      [{:copy, scaled, "#{thumb_name}.jpg"}]
+    else
+      [{:symlink_original, "#{thumb_name}.jpg"}]
+    end
+  end
+
+  defp scale(file, {width, height}) do
     scaled = Briefly.create!(extname: ".png")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-y", "-i", processor.file, "-vf", scale_filter, scaled])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
     {_output, 0} =
       System.cmd("optipng", ["-i0", "-o1", scaled])
 
-    {processor, scaled}
+    scaled
   end
 end

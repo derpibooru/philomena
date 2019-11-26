@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Image.SourceChangeController do
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
-  def index(conn, params) do
+  def index(conn, _params) do
     image = conn.assigns.image
 
     source_changes =

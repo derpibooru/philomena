@@ -55,7 +55,7 @@ if ! install_packages build-essential postgresql-11 libpq-dev nginx nodejs \
                       elasticsearch esl-erlang elixir inotify-tools git \
                       redis-server automake libtool zlib1g-dev ffmpeg \
                       libavutil-dev libavcodec-dev libavformat-dev \
-                      libmagic-dev libpng-dev; then
+                      libmagic-dev libpng-dev gifsicle optipng libjpeg-progs; then
     >&2 echo "Installation of dependencies failed."
     exit 1
 fi

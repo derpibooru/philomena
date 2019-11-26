@@ -87,14 +87,9 @@ defmodule Philomena.Images.Image do
     field :removed_tags, {:array, :any}, default: [], virtual: true
     field :added_tags, {:array, :any}, default: [], virtual: true
 
-    timestamps(inserted_at: :created_at)
-  end
+    field :uploaded_image, :string, virtual: true
 
-  @doc false
-  def changeset(image, attrs) do
-    image
-    |> cast(attrs, [])
-    |> validate_required([])
+    timestamps(inserted_at: :created_at)
   end
 
   def interaction_data(image) do
@@ -104,6 +99,32 @@ defmodule Philomena.Images.Image do
       upvotes: image.upvotes_count,
       downvotes: image.downvotes_count
     }
+  end
+
+  @doc false
+  def changeset(image, attrs) do
+    image
+    |> cast(attrs, [])
+    |> validate_required([])
+  end
+
+  def image_changeset(image, attrs) do
+    image
+    |> cast(attrs, [
+      :image, :image_name, :image_width, :image_height, :image_size,
+      :image_format, :image_mime_type, :image_aspect_ratio,
+      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image
+    ])
+    |> validate_required([
+      :image, :image_width, :image_height, :image_size,
+      :image_format, :image_mime_type, :image_aspect_ratio,
+      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image
+    ])
+    |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26214400)
+    |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)
+    |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
+    |> validate_length(:image_name, max: 255, count: :bytes)
+    |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png image/svg+xml video/webm))
   end
 
   def source_changeset(image, attrs) do

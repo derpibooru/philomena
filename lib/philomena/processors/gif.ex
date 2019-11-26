@@ -1,59 +1,93 @@
 defmodule Philomena.Processors.Gif do
-  alias Philomena.Processors.Gif
+  alias Philomena.Intensities
 
-  defstruct [:duration, :file, :palette]
+  def process(analysis, file, versions) do
+    dimensions = analysis.dimensions
+    duration = analysis.duration
+    preview = preview(duration, file)
+    palette = palette(file)
 
-  def new(analysis, file) do
-    %Gif{
-      file: file,
-      duration: analysis.duration,
-      palette: nil
+    {:ok, intensities} = Intensities.file(preview)
+
+    scaled = Enum.flat_map(versions, &scale_if_smaller(palette, file, dimensions, &1))
+
+    %{
+      intensities: intensities,
+      thumbnails: scaled ++ [{:copy, preview, "rendered.png"}]
     }
   end
 
-  def strip(processor) do
-    {processor, processor.file}
+  def post_process(_analysis, file) do
+    %{replace_original: optimize(file)}
   end
 
-  def preview(processor) do
-    preview = Briefly.create!(extname: ".png")
-
-    {_output, 0} =
-      System.cmd("ffmpeg", ["-y", "-i", processor.file, "-ss", to_string(processor.duration / 2), "-frames:v", "1", preview])
-
-    {processor, preview}
-  end
-
-  def optimize(processor) do
+  defp optimize(file) do
     optimized = Briefly.create!(extname: ".gif")
 
     {_output, 0} =
-      System.cmd("gifsicle", ["--careful", "-O2", processor.file, "-o", optimized])
+      System.cmd("gifsicle", ["--careful", "-O2", file, "-o", optimized])
 
-    {processor, optimized}
+    optimized
   end
 
-  def scale(processor, {width, height}) do
-    processor = generate_palette(processor)
-    scaled    = Briefly.create!(extname: ".gif")
+  defp preview(duration, file) do
+    preview = Briefly.create!(extname: ".png")
+
+    {_output, 0} =
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-ss", to_string(duration / 2), "-frames:v", "1", preview])
+
+    preview
+  end
+
+  defp palette(file) do
+    palette = Briefly.create!(extname: ".png")
+
+    {_output, 0} =
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "palettegen=stats_mode=diff", palette])
+
+    palette
+  end
+
+  # Generate full version, and WebM and MP4 previews
+  defp scale_if_smaller(_palette, file, _dimensions, {:full, _target_dim}) do
+    [{:symlink_original, "full.gif"}] ++ generate_videos(file)
+  end
+
+  defp scale_if_smaller(palette, file, {width, height}, {thumb_name, {target_width, target_height}}) do
+    if width > target_width or height > target_height do
+      scaled = scale(palette, file, {target_width, target_height})
+
+      [{:copy, scaled, "#{thumb_name}.gif"}]
+    else
+      [{:symlink_original, "#{thumb_name}.gif"}]
+    end
+  end
+
+  defp scale(palette, file, {width, height}) do
+    scaled = Briefly.create!(extname: ".gif")
 
     scale_filter   = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
     filter_graph   = "#{scale_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-y", "-i", processor.file, "-i", processor.palette, "-lavfi", filter_graph, scaled])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, scaled])
 
-    {processor, scaled}
+    scaled
   end
 
-  defp generate_palette(%{palette: nil} = processor) do
-    palette = Briefly.create!(extname: ".png")
+  defp generate_videos(file) do
+    webm = Briefly.create!(extname: ".webm")
+    mp4  = Briefly.create!(extname: ".mp4")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-y", "-i", processor.file, "-vf", "palettegen=stats_mode=diff", palette])
-
-    %{processor | palette: palette}
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-pix_fmt", "yuv420p", "-c:v", "libvpx", "-quality", "good", "-b:v", "5M", webm])
+    {_output, 0} =
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "scale=ceil(iw/2)*2:ceil(ih/2)*2", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-b:v", "5M", mp4])
+    
+    [
+      {:copy, webm, "full.webm"},
+      {:copy, mp4, "full.mp4"}
+    ]
   end
-  defp generate_palette(processor), do: processor
 end
