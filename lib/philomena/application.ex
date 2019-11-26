@@ -15,6 +15,7 @@ defmodule Philomena.Application do
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
       Pow.Store.Backend.MnesiaCache,
+      Philomena.Servers.ImageProcessor,
       {Redix, name: :redix}
     ]
 

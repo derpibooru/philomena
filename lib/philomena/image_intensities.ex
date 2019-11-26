@@ -9,19 +9,6 @@ defmodule Philomena.ImageIntensities do
   alias Philomena.ImageIntensities.ImageIntensity
 
   @doc """
-  Returns the list of image_intensities.
-
-  ## Examples
-
-      iex> list_image_intensities()
-      [%ImageIntensity{}, ...]
-
-  """
-  def list_image_intensities do
-    Repo.all(ImageIntensity)
-  end
-
-  @doc """
   Gets a single image_intensity.
 
   Raises `Ecto.NoResultsError` if the Image intensity does not exist.
@@ -49,8 +36,8 @@ defmodule Philomena.ImageIntensities do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_image_intensity(attrs \\ %{}) do
-    %ImageIntensity{}
+  def create_image_intensity(image, attrs \\ %{}) do
+    %ImageIntensity{image_id: image.id}
     |> ImageIntensity.changeset(attrs)
     |> Repo.insert()
   end

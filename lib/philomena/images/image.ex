@@ -108,6 +108,12 @@ defmodule Philomena.Images.Image do
     |> validate_required([])
   end
 
+  def creation_changeset(image, attrs, attribution) do
+    image
+    |> cast(attrs, [:source_url, :description])
+    |> change(attribution)
+  end
+
   def image_changeset(image, attrs) do
     image
     |> cast(attrs, [
@@ -139,5 +145,17 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [])
     |> TagDiffer.diff_input(old_tags, new_tags)
     |> TagValidator.validate_tags()
+  end
+
+  def thumbnail_changeset(image, attrs) do
+    image
+    |> cast(attrs, [:image_sha512_hash])
+    |> change(thumbnails_generated: true, duplication_checked: true)
+  end
+
+  def process_changeset(image, attrs) do
+    image
+    |> cast(attrs, [:image_sha512_hash])
+    |> change(processed: true)
   end
 end

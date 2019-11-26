@@ -18,7 +18,7 @@ defmodule Philomena.ImageIntensities.ImageIntensity do
   @doc false
   def changeset(image_intensity, attrs) do
     image_intensity
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:nw, :ne, :sw, :se])
+    |> validate_required([:image_id, :nw, :ne, :sw, :se])
   end
 end
