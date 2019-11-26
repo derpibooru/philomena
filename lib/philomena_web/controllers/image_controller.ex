@@ -9,6 +9,10 @@ defmodule PhilomenaWeb.ImageController do
 
   plug :load_and_authorize_resource, model: Image, only: :show, preload: [:tags, user: [awards: :badge]]
 
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
+  plug PhilomenaWeb.CaptchaPlug when action in [:create]
+
   def index(conn, _params) do
     query = conn.assigns.compiled_filter
 
@@ -76,5 +80,30 @@ defmodule PhilomenaWeb.ImageController do
       watching: watching,
       layout_class: "layout--wide"
     )
+  end
+
+  def new(conn, _params) do
+    changeset =
+      %Image{}
+      |> Images.change_image()
+
+    render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"image" => image_params}) do
+    attributes = conn.assigns.attributes
+
+    case Images.create_image(attributes, image_params) do
+      {:ok, %{image: image}} ->
+        Images.reindex_image(image)
+
+        conn
+        |> put_flash(:info, "Image created successfully.")
+        |> redirect(to: Routes.image_path(conn, :show, image))
+
+      {:error, :image, changeset, _} ->
+        conn
+        |> render("new.html", changeset: changeset)
+    end
   end
 end

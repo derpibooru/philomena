@@ -109,8 +109,11 @@ defmodule Philomena.Images.Image do
   end
 
   def creation_changeset(image, attrs, attribution) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
     image
     |> cast(attrs, [:source_url, :description])
+    |> change(first_seen_at: now)
     |> change(attribution)
   end
 
@@ -119,12 +122,14 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [
       :image, :image_name, :image_width, :image_height, :image_size,
       :image_format, :image_mime_type, :image_aspect_ratio,
-      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image
+      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
+      :is_animated
     ])
     |> validate_required([
       :image, :image_width, :image_height, :image_size,
       :image_format, :image_mime_type, :image_aspect_ratio,
-      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image
+      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
+      :is_animated
     ])
     |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26214400)
     |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)

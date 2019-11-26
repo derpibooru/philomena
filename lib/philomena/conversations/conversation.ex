@@ -62,7 +62,7 @@ defmodule Philomena.Conversations.Conversation do
 
   defp put_recipient(changeset) do
     recipient = changeset |> get_field(:recipient)
-    user = Repo.get_by(User, name: recipient) |> IO.inspect()
+    user = Repo.get_by(User, name: recipient)
 
     changeset
     |> put_change(:to, user)

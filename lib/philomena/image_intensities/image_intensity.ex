@@ -20,5 +20,6 @@ defmodule Philomena.ImageIntensities.ImageIntensity do
     image_intensity
     |> cast(attrs, [:nw, :ne, :sw, :se])
     |> validate_required([:image_id, :nw, :ne, :sw, :se])
+    |> unique_constraint(:image_id, name: :index_image_intensities_on_image_id)
   end
 end

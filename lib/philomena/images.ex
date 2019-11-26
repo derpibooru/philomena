@@ -13,6 +13,7 @@ defmodule Philomena.Images do
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.Tags.Tag
+  alias Philomena.Processors
 
   @doc """
   Gets a single image.
@@ -44,10 +45,23 @@ defmodule Philomena.Images do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_image(attrs \\ %{}) do
-    %Image{}
-    |> Image.changeset(attrs)
-    |> Repo.insert()
+  def create_image(attribution, attrs \\ %{}) do
+    tags = Tags.get_or_create_tags(attrs["tag_input"])
+
+    image =
+      %Image{}
+      |> Image.creation_changeset(attrs, attribution)
+      |> Image.tag_changeset(attrs, [], tags)
+      |> Processors.after_upload(attrs)
+
+    Multi.new
+    |> Multi.insert(:image, image)
+    |> Multi.run(:after, fn _repo, %{image: image} ->
+      Processors.after_insert(image)
+
+      {:ok, nil}
+    end)
+    |> Repo.transaction()
   end
 
   @doc """

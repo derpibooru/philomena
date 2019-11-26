@@ -32,10 +32,22 @@ defmodule Philomena.Processors do
     "video/webm" => Philomena.Processors.Webm
   }
 
+  @versions [
+    thumb_tiny: {50, 50},
+    thumb_small: {150, 150},
+    thumb: {250, 250},
+    small: {320, 240},
+    medium: {800, 600},
+    large: {1280, 1024},
+    tall: {1024, 4096},
+    full: nil
+  ]
+
   def after_upload(image, params) do
     with upload when not is_nil(upload) <- params["image"],
          file <- upload.path,
-         mime <- @mimes[Mime.file(file)],
+         {:ok, mime} <- Mime.file(file),
+         mime <- @mimes[mime],
          analyzer when not is_nil(analyzer) <- @analyzers[mime],
          analysis <- analyzer.analyze(file),
          changes <- analysis_to_changes(analysis, file, upload.filename)
@@ -50,7 +62,10 @@ defmodule Philomena.Processors do
   end
 
   def after_insert(image) do
-    File.cp!(image.uploaded_image, Path.join([image_file_root(), image.image]))
+    file = image_file(image)
+    dir = Path.dirname(file)
+    File.mkdir_p!(dir)
+    File.cp!(image.uploaded_image, file)
     ImageProcessor.cast(self(), image.id)
   end
 
@@ -62,7 +77,7 @@ defmodule Philomena.Processors do
     analyzer = @analyzers[mime]
     analysis = analyzer.analyze(file)
     processor = @processors[mime]
-    process = processor.process(analysis, file)
+    process = processor.process(analysis, file, @versions)
 
     apply_edit_script(image, process)
     sha512 = Sha512.file(file)
@@ -102,22 +117,27 @@ defmodule Philomena.Processors do
 
   defp apply_thumbnail(_image, thumb_dir, {:copy, new_file, destination}) do
     new_destination = Path.join([thumb_dir, destination])
+    dir = Path.dirname(new_destination)
 
-    File.cp(new_file, new_destination)
-    File.chmod(new_destination, 0o755)
+    File.mkdir_p!(dir)
+    File.cp!(new_file, new_destination)
+    File.chmod!(new_destination, 0o755)
   end
 
   defp apply_thumbnail(image, thumb_dir, {:symlink_original, destination}) do
-    file = image_file(image)
+    file = Path.absname(image_file(image))
     new_destination = Path.join([thumb_dir, destination])
+    dir = Path.dirname(new_destination)
 
-    File.ln_s(file, new_destination)
-    File.chmod(new_destination, 0o755)
+    File.mkdir_p!(dir)
+    File.rm(new_destination)
+    File.ln_s!(file, new_destination)
+    File.chmod!(new_destination, 0o755)
   end
 
   defp analysis_to_changes(analysis, file, upload_name) do
     {width, height} = analysis.dimensions
-    %{size: size} = File.stat(file)
+    {:ok, %{size: size}} = File.stat(file)
     sha512 = Sha512.file(file)
     filename = build_filename(analysis.extension)
 
@@ -132,6 +152,7 @@ defmodule Philomena.Processors do
       "image_aspect_ratio" => aspect_ratio(width, height),
       "image_orig_sha512_hash" => sha512,
       "image_sha512_hash" => sha512,
+      "is_animated" => analysis.animated?,
       "uploaded_image" => file
     }
   end

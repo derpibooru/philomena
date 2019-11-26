@@ -14,7 +14,8 @@ config :philomena,
   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
   image_url_root: "/img",
   avatar_url_root: "/avatars",
-  badge_url_root: "/media"
+  badge_url_root: "/media",
+  image_file_root: "priv/static/system/images"
 
 config :philomena, :pow,
   user: Philomena.Users.User,
