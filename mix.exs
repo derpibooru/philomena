@@ -59,6 +59,7 @@ defmodule Philomena.MixProject do
       {:bamboo, "~> 1.2"},
       {:bamboo_smtp, "~> 1.7"},
       {:remote_ip, "~> 0.2.0"},
+      {:briefly, "~> 0.3.0"}
     ]
   end
 
