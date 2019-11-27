@@ -46,6 +46,8 @@ defmodule Philomena.Analyzers.Gif do
       {output, 0} ->
         [width, height] =
           output
+          |> String.split("\n", trim: true)
+          |> hd()
           |> String.trim()
           |> String.split(" ")
           |> Enum.map(&String.to_integer/1)

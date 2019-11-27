@@ -7,18 +7,31 @@ defmodule Philomena.DuplicateReports do
   alias Philomena.Repo
 
   alias Philomena.DuplicateReports.DuplicateReport
+  alias Philomena.ImageIntensities.ImageIntensity
+  alias Philomena.Images.Image
 
-  @doc """
-  Returns the list of duplicate_reports.
+  def generate_reports(source) do
+    source = Repo.preload(source, :intensity)
 
-  ## Examples
+    duplicates_of(source.intensity, source.image_aspect_ratio, 0.2, 0.05)
+    |> where([i, _it], i.id != ^source.id)
+    |> where([i, _it], i.duplication_checked != true)
+    |> Repo.all()
+    |> Enum.map(fn target ->
+      create_duplicate_report(source, target, %{}, %{"reason" => "Automated Perceptual dedupe match"})
+    end)
+  end
 
-      iex> list_duplicate_reports()
-      [%DuplicateReport{}, ...]
-
-  """
-  def list_duplicate_reports do
-    Repo.all(DuplicateReport)
+  def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05) do
+    from i in Image,
+      inner_join: it in ImageIntensity,
+      on: it.image_id == i.id,
+      where: it.nw >= ^(intensities.nw - dist) and it.nw <= ^(intensities.nw + dist),
+      where: it.ne >= ^(intensities.ne - dist) and it.ne <= ^(intensities.ne + dist),
+      where: it.sw >= ^(intensities.sw - dist) and it.sw <= ^(intensities.sw + dist),
+      where: it.se >= ^(intensities.se - dist) and it.se <= ^(intensities.se + dist),
+      where: i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and i.image_aspect_ratio >= ^(aspect_ratio + aspect_dist),
+      limit: 20
   end
 
   @doc """
@@ -49,9 +62,9 @@ defmodule Philomena.DuplicateReports do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_duplicate_report(attrs \\ %{}) do
-    %DuplicateReport{}
-    |> DuplicateReport.changeset(attrs)
+  def create_duplicate_report(source, target, attribution, attrs \\ %{}) do
+    %DuplicateReport{image_id: source.id, duplicate_of_image_id: target.id}
+    |> DuplicateReport.creation_changeset(attrs, attribution)
     |> Repo.insert()
   end
 

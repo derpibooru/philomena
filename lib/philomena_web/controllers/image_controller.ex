@@ -2,8 +2,10 @@ defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Images, Images.Image, Comments.Comment, Textile.Renderer}
+  alias Philomena.Servers.ImageProcessor
   alias Philomena.Interactions
   alias Philomena.Comments
+  alias Philomena.Tags
   alias Philomena.Repo
   import Ecto.Query
 
@@ -95,7 +97,9 @@ defmodule PhilomenaWeb.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
+        ImageProcessor.cast(image.id)
         Images.reindex_image(image)
+        Tags.reindex_tags(image.added_tags)
 
         conn
         |> put_flash(:info, "Image created successfully.")

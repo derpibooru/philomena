@@ -22,4 +22,6 @@
       ' [Loading preview...]
 
     .block__content.communication-edit__actions
-      = submit "Post", class: "button"
+      => submit "Post", class: "button"
+      = checkbox f, :anonymous
+      = label f, :anonymous, "Anonymous"

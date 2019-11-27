@@ -29,8 +29,8 @@ defmodule Philomena.Processors.Webm do
     preview
   end
 
-  defp scale_if_smaller(palette, file, dimensions, {:full, _target_dim}) do
-    {webm, mp4} = scale_videos(file, palette, dimensions)
+  defp scale_if_smaller(file, palette, dimensions, {:full, _target_dim}) do
+    {webm, mp4} = scale_videos(file, palette, dimensions, dimensions)
 
     [
       {:copy, webm, "full.webm"},
@@ -38,8 +38,8 @@ defmodule Philomena.Processors.Webm do
     ]
   end
 
-  defp scale_if_smaller(palette, file, _dimensions, {thumb_name, {target_width, target_height}}) do
-    {webm, mp4} = scale_videos(file, palette, {target_width, target_height})
+  defp scale_if_smaller(file, palette, dimensions, {thumb_name, {target_width, target_height}}) do
+    {webm, mp4} = scale_videos(file, palette, dimensions, {target_width, target_height})
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
@@ -59,14 +59,14 @@ defmodule Philomena.Processors.Webm do
     end
   end
 
-  defp scale_videos(file, _palette, dimensions) do
-    {width, height} = normalize_dimensions(dimensions)
+  defp scale_videos(file, _palette, dimensions, target_dimensions) do
+    {width, height} = box_dimensions(dimensions, target_dimensions)
     webm = Briefly.create!(extname: ".webm")
     mp4  = Briefly.create!(extname: ".mp4")
-    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
+    scale_filter = "scale=w=#{width}:h=#{height}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libvpx", "-crf", "10", "-b:v", "5M", "-vf", scale_filter, webm])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libvpx", "-auto-alt-ref", "0", "-crf", "10", "-b:v", "5M", "-vf", scale_filter, webm])
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-b:v", "5M", "-vf", scale_filter, mp4])
 
@@ -77,7 +77,7 @@ defmodule Philomena.Processors.Webm do
     gif = Briefly.create!(extname: ".gif")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    filter_graph   = "#{scale_filter} [x]; [x][1:v] #{palette_filter}"
+    filter_graph   = "[0:v] #{scale_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, gif])
@@ -94,9 +94,13 @@ defmodule Philomena.Processors.Webm do
     palette
   end
 
-  # Force dimensions to be a multiple of 2. This is required by the
-  # libvpx and x264 encoders.
-  defp normalize_dimensions({width, height}) do
-    {width &&& (~~~1), height &&& (~~~1)}
+  # x264 requires image dimensions to be a multiple of 2
+  # -2 = ~1
+  def box_dimensions({width, height}, {target_width, target_height}) do
+    ratio      = min(target_width / width, target_height / height)
+    new_width  = min(max(trunc(width  * ratio) &&& -2, 2), target_width)
+    new_height = min(max(trunc(height * ratio) &&& -2, 2), target_height)
+
+    {new_width, new_height}
   end
 end

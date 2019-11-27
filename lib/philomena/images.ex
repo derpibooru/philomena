@@ -56,12 +56,20 @@ defmodule Philomena.Images do
 
     Multi.new
     |> Multi.insert(:image, image)
+    |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
+      tag_ids = image.added_tags |> Enum.map(& &1.id)
+      tags = Tag |> where([t], t.id in ^tag_ids)
+
+      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+
+      {:ok, count}
+    end)
     |> Multi.run(:after, fn _repo, %{image: image} ->
       Processors.after_insert(image)
 
       {:ok, nil}
     end)
-    |> Repo.transaction()
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """

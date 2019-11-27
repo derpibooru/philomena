@@ -69,6 +69,16 @@ if [ ! -f /usr/local/bin/image-intensities ]; then
     popd
 fi
 
+if [ ! -f /usr/local/bin/safe-rsvg-convert ]; then
+  # passing input on stdin prevents the loading of any
+  # external resources
+  echo '
+#!/bin/sh
+rsvg-convert < "$1" -o "$2"
+  ' > /usr/local/bin/safe-rsvg-convert
+  chmod +x /usr/local/bin/safe-rsvg-convert
+fi
+
 sed -i -e 's/\(-Xm[sx]\)1g/\1256m/' /etc/elasticsearch/jvm.options
 systemctl enable elasticsearch 2>/dev/null
 service elasticsearch start

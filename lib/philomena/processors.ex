@@ -1,10 +1,10 @@
 defmodule Philomena.Processors do
   alias Philomena.Images.Image
+  alias Philomena.DuplicateReports
   alias Philomena.ImageIntensities
   alias Philomena.Repo
   alias Philomena.Mime
   alias Philomena.Sha512
-  alias Philomena.Servers.ImageProcessor
 
   @mimes %{
     "image/gif" => "image/gif",
@@ -66,7 +66,6 @@ defmodule Philomena.Processors do
     dir = Path.dirname(file)
     File.mkdir_p!(dir)
     File.cp!(image.uploaded_image, file)
-    ImageProcessor.cast(self(), image.id)
   end
 
   def process_image(image_id) do
@@ -83,8 +82,11 @@ defmodule Philomena.Processors do
     sha512 = Sha512.file(file)
     changeset = Image.thumbnail_changeset(image, %{"image_sha512_hash" => sha512})
     image = Repo.update!(changeset)
+    spawn fn -> DuplicateReports.generate_reports(image) end
 
-    processor.post_process(analysis, file)
+    process = processor.post_process(analysis, file)
+
+    apply_edit_script(image, process)
     sha512 = Sha512.file(file)
     changeset = Image.process_changeset(image, %{"image_sha512_hash" => sha512})
     Repo.update!(changeset)

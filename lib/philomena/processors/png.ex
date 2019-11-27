@@ -22,22 +22,22 @@ defmodule Philomena.Processors.Png do
     optimized = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("optipng", ["-fix", "-i0", "-o2", file, "-out", optimized])
+      System.cmd("optipng", ["-fix", "-i0", "-o2", "-quiet", "-clobber", file, "-out", optimized])
     
     optimized
   end
 
   defp scale_if_smaller(_file, _dimensions, {:full, _target_dim}) do
-    [{:symlink_original, "full.jpg"}]
+    [{:symlink_original, "full.png"}]
   end
 
   defp scale_if_smaller(file, {width, height}, {thumb_name, {target_width, target_height}}) do
     if width > target_width or height > target_height do
       scaled = scale(file, {target_width, target_height})
 
-      [{:copy, scaled, "#{thumb_name}.jpg"}]
+      [{:copy, scaled, "#{thumb_name}.png"}]
     else
-      [{:symlink_original, "#{thumb_name}.jpg"}]
+      [{:symlink_original, "#{thumb_name}.png"}]
     end
   end
 
@@ -48,7 +48,7 @@ defmodule Philomena.Processors.Png do
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
     {_output, 0} =
-      System.cmd("optipng", ["-i0", "-o1", scaled])
+      System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
 
     scaled
   end

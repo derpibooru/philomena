@@ -14,15 +14,18 @@ div
   /      =<> post.edit_reason
 div
   - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "#post_#{@post.id}"
+  - safe_author = textile_safe_author(@post)
+  - quote_body = if @post.hidden_from_users, do: "", else: @post.body
+
   a.communication__interaction title="Link to post" href=link_path
     i.fa.fa-link>
     ' Link
-  /=<> link_to link_path, 'data-author': safe_author(post), 'data-reply-url': link_path, 'data-post': (post.hidden_from_users ? '' : post.body), class: 'communication__interaction post-reply post-reply-quote' do
-  a.communication__interaction.post-reply.post-reply-quote href=link_path data-reply-url=link_path data-author="" data-post=""
+
+  a.communication__interaction.post-reply.post-reply-quote href=link_path data-reply-url=link_path data-author=safe_author data-post=quote_body
     i.fa.fa-quote-right>
     ' Quote
-  /=<> link_to link_path, 'data-author': safe_author(post), 'data-reply-url': link_path, class: 'communication__interaction post-reply' do
-  a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=""
+
+  a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=safe_author
     i.fa.fa-reply
     ' Reply
   /span.owner-options.hidden

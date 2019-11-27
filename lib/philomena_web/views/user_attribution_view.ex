@@ -12,8 +12,11 @@ defmodule PhilomenaWeb.UserAttributionView do
     id = Attribution.object_identifier(object)
     user_id = Attribution.best_user_identifier(object)
 
-    (:erlang.crc32(salt <> id <> user_id) &&& 0xffff)
-    |> Integer.to_string(16)
+    hash =
+      (:erlang.crc32(salt <> id <> user_id) &&& 0xffff)
+      |> Integer.to_string(16)
+
+    "Background Pony ##{hash}"
   end
 
   def anonymous_avatar(_object, class \\ "avatar--100px") do

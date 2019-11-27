@@ -5,12 +5,14 @@ defmodule Philomena.Servers.ImageProcessor do
     GenServer.start_link(__MODULE__, default)
   end
 
-  def cast(pid, image_id) do
+  def cast(image_id) do
+    pid = Process.whereis(:processor)
     GenServer.cast(pid, {:enqueue, image_id})
   end
 
   @impl true
   def init([]) do
+    Process.register(self(), :processor)
     {:ok, []}
   end
 
@@ -19,7 +21,7 @@ defmodule Philomena.Servers.ImageProcessor do
     # Ensure that tempfiles get cleaned up by reaping
     # the process after it is done
     Task.async(fn -> process(image_id) end)
-    |> Task.await()
+    |> Task.await(:infinity)
 
     {:noreply, []}
   end

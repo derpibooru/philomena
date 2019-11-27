@@ -68,7 +68,7 @@ defmodule Philomena.Processors.Gif do
 
     scale_filter   = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    filter_graph   = "#{scale_filter} [x]; [x][1:v] #{palette_filter}"
+    filter_graph   = "[0:v] #{scale_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, scaled])

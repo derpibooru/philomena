@@ -23,4 +23,12 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  @doc false
+  def creation_changeset(duplicate_report, attrs, attribution) do
+    duplicate_report
+    |> cast(attrs, [:reason])
+    |> put_assoc(:user, attribution[:user])
+    |> validate_length(:reason, max: 250, count: :bytes)
+  end
 end

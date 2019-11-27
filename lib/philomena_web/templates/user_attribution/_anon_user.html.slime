@@ -5,5 +5,4 @@
     = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
 - else
   strong<>
-    | Background Pony #
     = anonymous_name(@object)

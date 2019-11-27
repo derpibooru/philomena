@@ -9,6 +9,7 @@ defmodule Philomena.Images.TagDiffer do
     old_set = to_set(old_tags)
     new_set = to_set(new_tags)
 
+    image_id     = changeset |> get_field(:id)
     tags         = changeset |> get_field(:tags)
     added_tags   = added_set(old_set, new_set)
     removed_tags = removed_set(old_set, new_set)
@@ -16,14 +17,15 @@ defmodule Philomena.Images.TagDiffer do
     {tags, actually_added, actually_removed} =
       apply_changes(tags, added_tags, removed_tags)
 
-    {tag_list_cache, tag_list_plus_alias_cache} =
-      create_caches(tags)
+    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache} =
+      create_caches(image_id, tags)
 
     changeset
     |> put_change(:added_tags, actually_added)
     |> put_change(:removed_tags, actually_removed)
     |> put_change(:tag_list_cache, tag_list_cache)
     |> put_change(:tag_list_plus_alias_cache, tag_list_plus_alias_cache)
+    |> put_change(:file_name_cache, file_name_cache)
     |> put_assoc(:tags, tags)
   end
 
@@ -94,10 +96,11 @@ defmodule Philomena.Images.TagDiffer do
     {tags, actually_added, actually_removed}
   end
 
-  defp create_caches(tags) do
+  defp create_caches(image_id, tags) do
+    tags = Tag.display_order(tags)
+
     tag_list_cache =
       tags
-      |> Tag.display_order()
       |> Enum.map_join(", ", & &1.name)
 
     tag_ids =
@@ -113,6 +116,17 @@ defmodule Philomena.Images.TagDiffer do
       |> Tag.display_order()
       |> Enum.map_join(", ", & &1.name)
 
-    {tag_list_cache, tag_list_plus_alias_cache}
+    # Trunate filename to 150 characters, making room for the path + filename on Windows
+    # https://stackoverflow.com/questions/265769/maximum-filename-length-in-ntfs-windows-xp-and-windows-vista
+    file_name_slug_fragment =
+      tags
+      |> Enum.map_join("_", & &1.slug)
+      |> String.replace("%2F", "")
+      |> String.replace("/", "")
+      |> String.slice(0..150)
+
+    file_name_cache = "#{image_id}__#{file_name_slug_fragment}"
+
+    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache}
   end
 end

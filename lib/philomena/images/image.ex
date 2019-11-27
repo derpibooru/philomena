@@ -8,6 +8,7 @@ defmodule Philomena.Images.Image do
 
   import Ecto.Changeset
 
+  alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.ImageVotes.ImageVote
   alias Philomena.ImageFaves.ImageFave
   alias Philomena.ImageHides.ImageHide
@@ -39,6 +40,7 @@ defmodule Philomena.Images.Image do
     has_many :favers, through: [:faves, :user]
     has_many :hiders, through: [:hides, :user]
     many_to_many :tags, Tag, join_through: "image_taggings", on_replace: :delete
+    has_one :intensity, ImageIntensity
 
     field :image, :string
     field :image_name, :string
@@ -112,7 +114,7 @@ defmodule Philomena.Images.Image do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
     image
-    |> cast(attrs, [:source_url, :description])
+    |> cast(attrs, [:anonymous, :source_url, :description])
     |> change(first_seen_at: now)
     |> change(attribution)
   end
