@@ -19,7 +19,7 @@ defmodule Textile.UrlLexer do
       ])
 
     scheme_and_domain
-    |> repeat(utf8_char([]) |> lookahead_not(ending_sequence))
+    |> repeat(lookahead_not(ending_sequence) |> utf8_char([]))
     |> reduce({List, :to_string, []})
   end
 end
