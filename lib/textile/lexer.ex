@@ -123,20 +123,22 @@ defmodule Textile.Lexer do
   {link_markup_start, link_markup_element} = markup_ending_in(string("\""))
 
   link_stop =
-    choice([
-      space(),
-      string("*"),
-      string("_"),
-      string("@"),
-      string("+"),
-      string("^"),
-      string("-"),
-      string("~"),
-      string("."),
-      string("?"),
-      string("!"),
-      string(",")
-    ])
+    repeat(
+      choice([
+        string("*"),
+        string("_"),
+        string("@"),
+        string("+"),
+        string("^"),
+        string("-"),
+        string("~"),
+        string("."),
+        string("?"),
+        string("!"),
+        string(","),
+      ])
+    )
+    |> choice([space(), eos()])
 
   link_contents_start =
     choice([

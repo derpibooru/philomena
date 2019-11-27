@@ -179,7 +179,7 @@ defmodule Textile.Parser do
   #   link_start well_formed_including_paragraphs link_end link_url;
   #
   defp link(parser, [{:link_start, start} | r_tokens]) do
-    case well_formed_including_paragraphs(parser, nil, r_tokens) do
+    case well_formed_including_paragraphs(parser, :link_end, r_tokens) do
       {:ok, tree, [{:link_end, _end}, {:link_url, url} | r2_tokens]} ->
         {:ok, [{:markup, ~s|<a href="#{escape_html(url)}">|}, tree, {:markup, ~s|</a>|}], r2_tokens}
 
