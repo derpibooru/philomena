@@ -88,7 +88,7 @@ defmodule Search.Parser do
     with {:ok, {left, [{:or, _} | r_tokens]}} <- search_and(parser, tokens),
          {:ok, {right, rest}} <- search_or(parser, r_tokens)
     do
-      {:ok, {%{bool: %{should: [left, right]}}, rest}}
+      {:ok, {flatten_disjunction_child(left, right), rest}}
     else
       value ->
         value
@@ -99,7 +99,7 @@ defmodule Search.Parser do
     with {:ok, {left, [{:and, _} | r_tokens]}} <- search_boost(parser, tokens),
          {:ok, {right, rest}} <- search_and(parser, r_tokens)
     do
-      {:ok, {%{bool: %{must: [left, right]}}, rest}}
+      {:ok, {flatten_conjunction_child(left, right), rest}}
     else
       value ->
         value
@@ -119,7 +119,7 @@ defmodule Search.Parser do
   defp search_not(parser, [{:not, _} | rest]) do
     case search_group(parser, rest) do
       {:ok, {child, r_tokens}} ->
-        {:ok, {%{bool: %{must_not: child}}, r_tokens}}
+        {:ok, {flatten_negation_child(child), r_tokens}}
 
       value ->
         value
@@ -271,4 +271,21 @@ defmodule Search.Parser do
     |> String.trim()
     |> String.downcase()
   end
+
+  # Flattens the child of a disjunction or conjunction to improve performance.
+  defp flatten_disjunction_child(this_child, %{bool: %{should: next_child}}),
+    do: %{bool: %{should: [this_child | next_child]}}
+  defp flatten_disjunction_child(this_child, next_child),
+    do: %{bool: %{should: [this_child, next_child]}}
+
+  defp flatten_conjunction_child(this_child, %{bool: %{must: next_child}}),
+    do: %{bool: %{must: [this_child | next_child]}}
+  defp flatten_conjunction_child(this_child, next_child),
+    do: %{bool: %{must: [this_child, next_child]}}
+
+  # Flattens the child of a negation to eliminate double negation.
+  defp flatten_negation_child(%{bool: %{must_not: next_child}}),
+    do: next_child
+  defp flatten_negation_child(next_child),
+    do: %{bool: %{must_not: next_child}}
 end
