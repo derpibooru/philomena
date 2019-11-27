@@ -32,7 +32,7 @@ defmodule Philomena.Filters.Filter do
     filter
     |> cast(attrs, [:spoilered_tag_list, :hidden_tag_list, :description, :name, :spoilered_complex_str, :hidden_complex_str])
     |> propagate_tag_lists()
-    |> validate_required([:name])
+    |> validate_required([:name, :description])
     |> unsafe_validate_unique([:user_id, :name], Repo)
     |> validate_my_downvotes(:spoilered_complex_str)
     |> validate_my_downvotes(:hidden_complex_str)

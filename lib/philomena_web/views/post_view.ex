@@ -23,9 +23,12 @@ defmodule PhilomenaWeb.PostView do
   end
 
   defp author_name(object) do
-    case Attribution.anonymous?(object) do
-      true  -> PhilomenaWeb.UserAttributionView.anonymous_name(object)
-      false -> object.user.name
+    cond do
+      Attribution.anonymous?(object) || !object.user ->
+        PhilomenaWeb.UserAttributionView.anonymous_name(object)
+
+      true ->
+        object.user.name
     end
   end
 end
