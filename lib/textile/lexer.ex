@@ -122,6 +122,22 @@ defmodule Textile.Lexer do
 
   {link_markup_start, link_markup_element} = markup_ending_in(string("\""))
 
+  link_stop =
+    choice([
+      space(),
+      string("*"),
+      string("_"),
+      string("@"),
+      string("+"),
+      string("^"),
+      string("-"),
+      string("~"),
+      string("."),
+      string("?"),
+      string("!"),
+      string(",")
+    ])
+
   link_contents_start =
     choice([
       image,
@@ -157,7 +173,7 @@ defmodule Textile.Lexer do
     string("\":")
     |> unwrap_and_tag(:link_end)
     |> concat(
-      url_ending_in(space())
+      url_ending_in(link_stop)
       |> unwrap_and_tag(:link_url)
     )
 

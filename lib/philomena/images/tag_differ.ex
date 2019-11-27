@@ -9,7 +9,6 @@ defmodule Philomena.Images.TagDiffer do
     old_set = to_set(old_tags)
     new_set = to_set(new_tags)
 
-    image_id     = changeset |> get_field(:id)
     tags         = changeset |> get_field(:tags)
     added_tags   = added_set(old_set, new_set)
     removed_tags = removed_set(old_set, new_set)

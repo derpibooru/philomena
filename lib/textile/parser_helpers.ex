@@ -35,7 +35,7 @@ defmodule Textile.ParserHelpers do
 
   def escape_nl2br(text) do
     text
-    |> String.split("\n", trim: true)
+    |> String.split("\n")
     |> Enum.map(&escape_html(&1))
     |> Enum.join("<br/>")
   end
