@@ -125,13 +125,13 @@ defmodule Textile.Lexer do
   link_url_stop =
     choice([
       string("*"),
-      string("_"),
       string("@"),
       string("^"),
       string("~"),
       string("."),
       string("!"),
       string(","),
+      string("_") |> concat(choice([space(), eos()])),
       string("?") |> concat(choice([space(), eos()]))
     ])
 
