@@ -132,7 +132,9 @@ defmodule Textile.Lexer do
       string("!"),
       string(","),
       string("_") |> concat(choice([space(), eos()])),
-      string("?") |> concat(choice([space(), eos()]))
+      string("?") |> concat(choice([space(), eos()])),
+      space(),
+      eos()
     ])
 
   link_contents_start =
