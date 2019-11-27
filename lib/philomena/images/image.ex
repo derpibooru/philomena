@@ -7,6 +7,7 @@ defmodule Philomena.Images.Image do
     doc_type: "image"
 
   import Ecto.Changeset
+  import Ecto.Query
 
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.ImageVotes.ImageVote
@@ -22,6 +23,7 @@ defmodule Philomena.Images.Image do
 
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.TagValidator
+  alias Philomena.Repo
 
   schema "images" do
     belongs_to :user, User
@@ -138,7 +140,7 @@ defmodule Philomena.Images.Image do
     |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_length(:image_name, max: 255, count: :bytes)
     |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png image/svg+xml video/webm))
-    |> unsafe_validate_unique([:image_sha512_hash], Philomena.Repo)
+    |> unsafe_validate_unique([:image_sha512_hash], Repo)
   end
 
   def source_changeset(image, attrs) do
@@ -153,6 +155,7 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [])
     |> TagDiffer.diff_input(old_tags, new_tags)
     |> TagValidator.validate_tags()
+    |> cache_changeset()
   end
 
   def thumbnail_changeset(image, attrs) do
@@ -165,5 +168,52 @@ defmodule Philomena.Images.Image do
     image
     |> cast(attrs, [:image_sha512_hash])
     |> change(processed: true)
+  end
+
+  def cache_changeset(image) do
+    changeset = change(image)
+    image = apply_changes(changeset)
+
+    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache} =
+      create_caches(image.id, image.tags)
+
+    changeset
+    |> put_change(:tag_list_cache, tag_list_cache)
+    |> put_change(:tag_list_plus_alias_cache, tag_list_plus_alias_cache)
+    |> put_change(:file_name_cache, file_name_cache)
+  end
+
+  defp create_caches(image_id, tags) do
+    tags = Tag.display_order(tags)
+
+    tag_list_cache =
+      tags
+      |> Enum.map_join(", ", & &1.name)
+
+    tag_ids =
+      tags |> Enum.map(& &1.id)
+
+    aliases =
+      Tag
+      |> where([t], t.aliased_tag_id in ^tag_ids)
+      |> Repo.all()
+
+    tag_list_plus_alias_cache =
+      (tags ++ aliases)
+      |> Tag.display_order()
+      |> Enum.map_join(", ", & &1.name)
+
+    # Truncate filename to 150 characters, making room for the path + filename on Windows
+    # https://stackoverflow.com/questions/265769/maximum-filename-length-in-ntfs-windows-xp-and-windows-vista
+    file_name_slug_fragment =
+      tags
+      |> Enum.map_join("_", & &1.slug)
+      |> String.replace("%2F", "")
+      |> String.replace("/", "")
+      |> String.slice(0..150)
+
+    file_name_cache = "#{image_id}__#{file_name_slug_fragment}"
+
+    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache}
   end
 end

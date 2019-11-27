@@ -17,15 +17,9 @@ defmodule Philomena.Images.TagDiffer do
     {tags, actually_added, actually_removed} =
       apply_changes(tags, added_tags, removed_tags)
 
-    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache} =
-      create_caches(image_id, tags)
-
     changeset
     |> put_change(:added_tags, actually_added)
     |> put_change(:removed_tags, actually_removed)
-    |> put_change(:tag_list_cache, tag_list_cache)
-    |> put_change(:tag_list_plus_alias_cache, tag_list_plus_alias_cache)
-    |> put_change(:file_name_cache, file_name_cache)
     |> put_assoc(:tags, tags)
   end
 
@@ -94,39 +88,5 @@ defmodule Philomena.Images.TagDiffer do
     actually_removed = actually_removed |> to_tag_list()
 
     {tags, actually_added, actually_removed}
-  end
-
-  defp create_caches(image_id, tags) do
-    tags = Tag.display_order(tags)
-
-    tag_list_cache =
-      tags
-      |> Enum.map_join(", ", & &1.name)
-
-    tag_ids =
-      tags |> Enum.map(& &1.id)
-
-    aliases =
-      Tag
-      |> where([t], t.aliased_tag_id in ^tag_ids)
-      |> Repo.all()
-
-    tag_list_plus_alias_cache =
-      (tags ++ aliases)
-      |> Tag.display_order()
-      |> Enum.map_join(", ", & &1.name)
-
-    # Trunate filename to 150 characters, making room for the path + filename on Windows
-    # https://stackoverflow.com/questions/265769/maximum-filename-length-in-ntfs-windows-xp-and-windows-vista
-    file_name_slug_fragment =
-      tags
-      |> Enum.map_join("_", & &1.slug)
-      |> String.replace("%2F", "")
-      |> String.replace("/", "")
-      |> String.slice(0..150)
-
-    file_name_cache = "#{image_id}__#{file_name_slug_fragment}"
-
-    {tag_list_cache, tag_list_plus_alias_cache, file_name_cache}
   end
 end

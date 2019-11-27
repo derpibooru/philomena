@@ -15,10 +15,25 @@ defmodule PhilomenaWeb.AppView do
     years: "%d years"
   }
 
+  @months %{
+    1 => "January",
+    2 => "February",
+    3 => "March",
+    4 => "April",
+    5 => "May",
+    6 => "June",
+    7 => "July",
+    8 => "August",
+    9 => "September",
+    10 => "October",
+    11 => "November",
+    12 => "December"
+  }
+
   def pretty_time(time) do
     seconds = NaiveDateTime.diff(NaiveDateTime.utc_now(), time, :second)
     relation = if seconds < 0, do: "from now", else: "ago"
-    time = time |> DateTime.from_naive!("Etc/UTC") |> DateTime.to_iso8601()
+    time = time |> DateTime.from_naive!("Etc/UTC")
 
     seconds = abs(seconds)
     minutes = abs(div(seconds, 60))
@@ -42,7 +57,7 @@ defmodule PhilomenaWeb.AppView do
         true -> String.replace(@time_strings[:years], "%d", to_string(years))
       end
 
-    content_tag(:time, "#{words} #{relation}", datetime: time, title: time)
+    content_tag(:time, "#{words} #{relation}", datetime: DateTime.to_iso8601(time), title: datetime_string(time))
   end
 
   def can?(conn, action, model) do
@@ -75,5 +90,17 @@ defmodule PhilomenaWeb.AppView do
     form_for(nil, route, [method: method, class: "button_to"], fn _f ->
       submit text, class: class, data: data
     end)
+  end
+
+  defp datetime_string(time) do
+    :io_lib.format("~2..0B:~2..0B:~2..0B, ~s ~B, ~B", [
+      time.hour,
+      time.minute,
+      time.second,
+      @months[time.month],
+      time.day,
+      time.year
+    ])
+    |> to_string()
   end
 end

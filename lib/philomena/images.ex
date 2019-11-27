@@ -56,6 +56,11 @@ defmodule Philomena.Images do
 
     Multi.new
     |> Multi.insert(:image, image)
+    |> Multi.run(:name_caches, fn repo, %{image: image} ->
+      image
+      |> Image.cache_changeset()
+      |> repo.update()
+    end)
     |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
       tag_ids = image.added_tags |> Enum.map(& &1.id)
       tags = Tag |> where([t], t.id in ^tag_ids)

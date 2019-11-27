@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.ImageView do
       medium: thumb_url(image, show_hidden, :medium),
       large: thumb_url(image, show_hidden, :large),
       tall: thumb_url(image, show_hidden, :tall),
-      full: thumb_url(image, show_hidden, :full)
+      full: pretty_url(image, true, false)
     }
   end
 
@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.ImageView do
 
     id_fragment =
       if deleted and show_hidden do
-        "#{image.id}-#{image.hidden_image_Key}"
+        "#{image.id}-#{image.hidden_image_key}"
       else
         "#{image.id}"
       end
@@ -35,12 +35,12 @@ defmodule PhilomenaWeb.ImageView do
     "#{root}/#{year}/#{month}/#{day}/#{id_fragment}/#{name}.#{format}"
   end
 
-  def pretty_url(image, _short, download) do
+  def pretty_url(image, short, download) do
     %{year: year, month: month, day: day} = image.created_at
     root = image_url_root()
 
     view = if download, do: "download", else: "view"
-    filename = "#{image.id}"
+    filename = if short, do: image.id, else: image.file_name_cache
     format =
       image.image_format
       |> String.downcase()
