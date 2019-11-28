@@ -34,8 +34,13 @@ defmodule PhilomenaWeb.UserAttributionView do
     do: anonymous_avatar(object, class)
   def user_avatar(%{user: %{avatar: nil}} = object, class),
     do: anonymous_avatar(object, class)
-  def user_avatar(%{user: %{avatar: avatar}}, class),
-    do: img_tag(avatar_url_root() <> "/" <> avatar, class: class)
+  def user_avatar(%{user: %{avatar: avatar}}, class) do
+    class = Enum.join(["image-constrained", class], " ")
+
+    content_tag :div, [class: class] do
+      img_tag(avatar_url_root() <> "/" <> avatar)
+    end
+  end
 
   def user_labels(%{user: user}) do
     []
