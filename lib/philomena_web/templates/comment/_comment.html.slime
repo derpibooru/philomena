@@ -2,8 +2,14 @@ article.block.communication id="comment_#{@comment.id}"
   .block__content.flex.flex--no-wrap
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
+
     .flex__grow.communication__body
+
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
+      br
+
+      = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @comment, conn: @conn
+
       .communication__body__text
         = if @comment.hidden_from_users do
           strong.comment_deleted

@@ -1,0 +1,5 @@
+= for {class, label} <- user_labels(@object) do
+  = if assigns[:large] do
+    .label.label--block class=class = label
+  - else
+    .label.label--block.label--small class=class = label

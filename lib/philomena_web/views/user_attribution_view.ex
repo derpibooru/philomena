@@ -33,6 +33,32 @@ defmodule PhilomenaWeb.UserAttributionView do
   def user_avatar(%{user: %{avatar: avatar}}, class),
     do: img_tag(avatar_url_root() <> "/" <> avatar, class: class)
 
+  def user_labels(%{user: user}) do
+    []
+    |> personal_title(user)
+    |> secondary_role(user)
+    |> staff_role(user)
+  end
+
+  defp personal_title(labels, %{personal_title: t}) when t not in [nil, ""],
+    do: [{"label--primary", t} | labels]
+  defp personal_title(labels, _user),
+    do: labels
+
+  defp secondary_role(labels, %{secondary_role: t}) when t not in [nil, ""],
+    do: [{"label--warning", t} | labels]
+  defp secondary_role(labels, _user),
+    do: labels
+
+  defp staff_role(labels, %{hide_default_role: false, role: "admin"}),
+    do: [{"label--danger", "Site Administrator"} | labels]
+  defp staff_role(labels, %{hide_default_role: false, role: "moderator"}),
+    do: [{"label--success", "Site Moderator"} | labels]
+  defp staff_role(labels, %{hide_default_role: false, role: "assisant"}),
+    do: [{"label--purple", "Site Assistant"} | labels]
+  defp staff_role(labels, _user),
+    do: labels
+
   defp avatar_url_root do
     Application.get_env(:philomena, :avatar_url_root)
   end
