@@ -140,7 +140,7 @@ defmodule Philomena.Images.Image do
     |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_length(:image_name, max: 255, count: :bytes)
     |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png image/svg+xml video/webm))
-    |> unsafe_validate_unique([:image_sha512_hash], Repo)
+    |> unsafe_validate_unique([:image_orig_sha512_hash], Repo)
   end
 
   def source_changeset(image, attrs) do

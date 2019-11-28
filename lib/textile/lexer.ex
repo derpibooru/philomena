@@ -133,6 +133,7 @@ defmodule Textile.Lexer do
       string(","),
       string("_") |> concat(choice([space(), eos()])),
       string("?") |> concat(choice([space(), eos()])),
+      string(";") |> concat(choice([space(), eos()])),
       space(),
       eos()
     ])

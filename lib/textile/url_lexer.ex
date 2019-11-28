@@ -2,11 +2,19 @@ defmodule Textile.UrlLexer do
   import NimbleParsec
 
   def url_ending_in(ending_sequence) do
+    domain_character =
+      choice([
+        ascii_char([?a..?z]),
+        ascii_char([?A..?Z]),
+        ascii_char([?0..?9]),
+        string("-")
+      ])
+
     domain =
       repeat(
         choice([
-          ascii_char([?a..?z]) |> string(".") |> ascii_char([?a..?z]),
-          ascii_char([?a..?z])
+          domain_character |> string(".") |> concat(domain_character),
+          domain_character
         ])
       )
 
