@@ -120,7 +120,7 @@ defmodule PhilomenaWeb.Router do
     # get "/:forum_id", ForumController, :show # impossible to do without constraints
     get "/:forum_id/:id", TopicController, :show
     get "/:forum_id/:id/:page", TopicController, :show
-    get "/:forum_id/:id/posts/:post_id", TopicController, :show
+    get "/:forum_id/:id/post/:post_id", TopicController, :show
   end
 
   # Other scopes may use custom stacks.

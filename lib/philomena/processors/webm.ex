@@ -30,10 +30,10 @@ defmodule Philomena.Processors.Webm do
   end
 
   defp scale_if_smaller(file, palette, dimensions, {:full, _target_dim}) do
-    {webm, mp4} = scale_videos(file, palette, dimensions, dimensions)
+    {_webm, mp4} = scale_videos(file, palette, dimensions, dimensions)
 
     [
-      {:copy, webm, "full.webm"},
+      {:symlink_original, "full.webm"},
       {:copy, mp4, "full.mp4"}
     ]
   end

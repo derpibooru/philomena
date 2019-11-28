@@ -12,10 +12,13 @@ config :philomena,
   elasticsearch_url: "http://localhost:9200",
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
+  tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
   image_url_root: "/img",
   avatar_url_root: "/avatars",
   badge_url_root: "/media",
-  image_file_root: "priv/static/system/images"
+  image_file_root: "priv/static/system/images",
+  cdn_host: "",
+  proxy_host: nil
 
 config :philomena, :pow,
   user: Philomena.Users.User,

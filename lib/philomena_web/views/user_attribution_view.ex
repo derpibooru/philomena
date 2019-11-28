@@ -21,7 +21,11 @@ defmodule PhilomenaWeb.UserAttributionView do
   end
 
   def anonymous_avatar(_object, class \\ "avatar--100px") do
-    img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/no_avatar.svg"), class: class)
+    class = Enum.join(["image-constrained", class], " ")
+
+    content_tag :div, [class: class] do
+      img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/no_avatar.svg"))
+    end
   end
 
   def user_avatar(object, class \\ "avatar--100px")
@@ -54,7 +58,7 @@ defmodule PhilomenaWeb.UserAttributionView do
     do: [{"label--danger", "Site Administrator"} | labels]
   defp staff_role(labels, %{hide_default_role: false, role: "moderator"}),
     do: [{"label--success", "Site Moderator"} | labels]
-  defp staff_role(labels, %{hide_default_role: false, role: "assisant"}),
+  defp staff_role(labels, %{hide_default_role: false, role: "assistant"}),
     do: [{"label--purple", "Site Assistant"} | labels]
   defp staff_role(labels, _user),
     do: labels
