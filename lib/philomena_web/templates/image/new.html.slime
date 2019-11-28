@@ -28,7 +28,7 @@
   h4 Select an image
   .image-other
     #js-image-upload-previews
-    p Upload a file from your computer
+    p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
     .field
       = file_input f, :image, class: "input js-scraper"
       = error_tag f, :image_size
@@ -36,6 +36,11 @@
       = error_tag f, :image_height
       = error_tag f, :image_name
       = error_tag f, :image_mime_type
+
+    .field.field--inline
+      = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+      button.button.button--separate-left#js-scraper-preview type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch"
+        ' Fetch
 
     .field-error-js.hidden.js-scraper
 

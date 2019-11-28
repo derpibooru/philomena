@@ -7,7 +7,7 @@ import { $, $$, hideEl, showEl, makeEl, clearEl } from './utils/dom';
 import { addTag } from './tagsinput';
 
 function scrapeUrl(url) {
-  return fetchJson('POST', '/images/scrape_url', { url })
+  return fetchJson('POST', '/images/scrape', { url })
     .then(handleError)
     .then(response => response.json());
 }
