@@ -6,20 +6,25 @@ defmodule PhilomenaWeb.TagController do
   import Ecto.Query
 
   def index(conn, params) do
-    {:ok, query} = Tags.Query.compile(params["tq"] || "*")
+    query_string = params["tq"] || "*"
 
-    tags =
-      Tag.search_records(
-        %{
-          query: query,
-          size: 250,
-          sort: [%{images: :desc}, %{name: :asc}]
-        },
-        %{conn.assigns.pagination | page_size: 250},
-        Tag
-      )
+    with {:ok, query} <- Tags.Query.compile(query_string) do
+      tags =
+        Tag.search_records(
+          %{
+            query: query,
+            size: 250,
+            sort: [%{images: :desc}, %{name: :asc}]
+          },
+          %{conn.assigns.pagination | page_size: 250},
+          Tag
+        )
 
-    render(conn, "index.html", tags: tags)
+      render(conn, "index.html", tags: tags)
+    else
+      {:error, msg} ->
+        render(conn, "index.html", tags: [], error: msg)
+    end
   end
 
   def show(conn, %{"id" => slug}) do

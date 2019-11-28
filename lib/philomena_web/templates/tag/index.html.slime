@@ -1,6 +1,168 @@
-= render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags
-  .block
-    .block__header.block__header--light.flex
-      = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: fn p -> Routes.tag_path(@conn, :index, p) end
-      span.block__header__title
-        = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @tags
+h1 Tags
+
+= form_for :tags, Routes.tag_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+  .field
+    = text_input f, :tq, name: :tq, value: @conn.params["tq"] || "*", class: "input hform__text", placeholder: "Search tags", autocapitalize: "none"
+    = submit "Search", class: "hform__button button", data: [disable_with: false]
+
+  .fieldlabel
+    ' For more information, see the
+    a href="/search/syntax" search syntax documentation
+    ' . Wildcards are supported in all literal fields.
+    ' Search results are sorted by image count, then by name alphabetically.
+
+h2 Search Results
+
+= cond do
+  - Enum.any?(@tags) ->
+    - route = fn p -> Routes.tag_path(@conn, :index, p) end
+    - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: route
+
+    = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags
+
+    .block
+      .block__header.block__header--light.flex
+        = pagination
+        span.block__header__title
+          = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @tags
+
+  - assigns[:error] ->
+    p
+      ' Oops, there was an error evaluating your query:
+    pre = assigns[:error]
+  
+  - true ->
+    p
+      ' No tags found!
+
+h3 Default search
+p
+  ' If you do not specify a field to search over, the search engine will
+  ' search for tags with a name that is similar to the query's
+  em word stems
+  ' . For example,
+  code winged humanization
+  ' ,
+  code wings
+  ' , and
+  code> spread wings
+  ' would all be matched by a search for
+  code wing
+  ' , but
+  code> sewing
+  ' would not be.
+
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code alias_of
+      td Literal
+      td Matches the name of the target tag, if this tag is aliased.
+      td
+        code = link "alias_of:twilight sparkle", to: Routes.tag_path(@conn, :index, tq: "alias_of:twilight sparkle")
+    tr
+      td
+        code aliased
+      td Boolean
+      td Matches when this tag is aliased.
+      td
+        code = link "aliased:true", to: Routes.tag_path(@conn, :index, tq: "aliased:true")
+    tr
+      td
+        code aliases
+      td Literal
+      td Matches the name of any of this tag's aliases.
+      td
+        code = link "aliases:ts", to: Routes.tag_path(@conn, :index, tq: "aliases:ts")
+    tr
+      td
+        code analyzed_name
+      td Full Text
+      td Matches the name of this tag. This is the default field.
+      td
+        code = link "analyzed_name:wing", to: Routes.tag_path(@conn, :index, tq: "analyzed_name:wing")
+    tr
+      td
+        code category
+      td Literal
+      td Matches the category this tag belongs to.
+      td
+        code = link "category:origin", to: Routes.tag_path(@conn, :index, tq: "category:origin")
+    tr
+      td
+        code description
+      td Full Text
+      td Matches the text of the full description for this tag.
+      td
+        code = link "description:species", to: Routes.tag_path(@conn, :index, tq: "description:species")
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this tag.
+      td
+        code = link "id:40482", to: Routes.tag_path(@conn, :index, tq: "id:40482")
+    tr
+      td
+        code images
+      td Numeric Range
+      td Matches tags with the specified image count.
+      td
+        code = link "images.lte:1000", to: Routes.tag_path(@conn, :index, tq: "images.lte:1000")
+    tr
+      td
+        code implied_by
+      td Literal
+      td Matches this tag if it is implied by the given tag.
+      td
+        code = link "implied_by:transparent background", to: Routes.tag_path(@conn, :index, tq: "implied_by:transparent background")
+    tr
+      td
+        code implies
+      td Literal
+      td Matches this tag if it implies the given tag.
+      td
+        code = link "implies:shipping", to: Routes.tag_path(@conn, :index, tq: "implies:shipping")
+    tr
+      td
+        code name
+      td Literal
+      td Matches the exact name of this tag.
+      td
+        code = link "name:safe", to: Routes.tag_path(@conn, :index, tq: "name:safe")
+    tr
+      td
+        code name_in_namespace
+      td Literal
+      td Matches the name of this tag with any namespace component removed.
+      td
+        code = link "name_in_namespace:johnjoseco", to: Routes.tag_path(@conn, :index, tq: "name_in_namespace:johnjoseco")
+    tr
+      td
+        code namespace
+      td Literal
+      td Matches tags with the given namespace.
+      td
+        code = link "namespace:artist", to: Routes.tag_path(@conn, :index, tq: "namespace:artist")
+    tr
+      td
+        code short_description
+      td Full Text
+      td Matches the text of the short description for this tag.
+      td
+        code = link "short_description:gender", to: Routes.tag_path(@conn, :index, tq: "short_description:gender")
+    tr
+      td
+        code slug
+      td Literal
+      td Matches the slug of this tag.
+      td
+        code = link "slug:-fwslash-mlp-fwslash-", to: Routes.tag_path(@conn, :index, tq: "slug:-fwslash-mlp-fwslash-")
