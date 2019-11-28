@@ -10,7 +10,12 @@
         | Preview
 
     .block__tab.communication-edit__tab.selected data-tab="write"
-      = textarea f, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Your message", required: true
+      = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
+      = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
+
+      .field
+        = textarea f, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Your message", required: true
+        = error_tag f, :body
 
     .block__tab.communication-edit__tab.hidden data-tab="preview"
       | [Loading preview...]

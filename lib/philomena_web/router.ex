@@ -108,11 +108,18 @@ defmodule PhilomenaWeb.Router do
     resources "/filters", FilterController
     resources "/profiles", ProfileController, only: [:show]
     resources "/captchas", CaptchaController, only: [:create]
+    scope "/posts", Post, as: :post do
+      resources "/preview", PreviewController, only: [:create]
+    end
     resources "/posts", PostController, only: [:index]
     resources "/commissions", CommissionController, only: [:index, :show]
     resources "/galleries", GalleryController, only: [:index, :show]
 
     get "/:id", ImageController, :show
+    # get "/:forum_id", ForumController, :show # impossible to do without constraints
+    get "/:forum_id/:id", TopicController, :show
+    get "/:forum_id/:id/:page", TopicController, :show
+    get "/:forum_id/:id/posts/:post_id", TopicController, :show
   end
 
   # Other scopes may use custom stacks.

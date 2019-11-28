@@ -1,0 +1,34 @@
+.communication__toolbar.flex.flex--wrap
+  button.communication__toolbar__button type="button" title="bold (ctrl+b)" data-syntax-id="bold"
+    strong
+      | B
+  button.communication__toolbar__button type="button" title="italics (ctrl+i)" data-syntax-id="italics"
+    em
+      | i
+  button.communication__toolbar__button type="button" title="underline (ctrl+u)" data-syntax-id="under"
+    ins
+      | U
+  button.communication__toolbar__button type="button" title="mark as spoiler (ctrl+s)" data-syntax-id="spoiler"
+    span.spoiler-revealed
+      | spoiler
+  button.communication__toolbar__button type="button" title="code formatting (ctrl+e)" data-syntax-id="code"
+    code
+      | code
+  button.communication__toolbar__button type="button" title="strikethrough" data-syntax-id="strike"
+    del
+      | strike
+  button.communication__toolbar__button type="button" title="superscript" data-syntax-id="superscript"
+    sup
+      | sup
+  button.communication__toolbar__button type="button" title="subscript" data-syntax-id="subscript"
+    sub
+      | sub
+  button.communication__toolbar__button type="button" title="insert blockquote" data-syntax-id="quote"
+    i.fa.fa-quote-right
+  button.communication__toolbar__button type="button" title="insert hyperlink (ctrl+l)" data-syntax-id="link"
+    i.fa.fa-link
+  button.communication__toolbar__button type="button" title="insert image (ctrl+k)" data-syntax-id="image"
+    i.fa.fa-image
+  button.communication__toolbar__button type="button" title="Text you want the parser to ignore" data-syntax-id="noParse"
+    span
+      | no parse

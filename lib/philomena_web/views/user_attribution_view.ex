@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.UserAttributionView do
     hash =
       (:erlang.crc32(salt <> id <> user_id) &&& 0xffff)
       |> Integer.to_string(16)
+      |> String.pad_leading(4, "0")
 
     "Background Pony ##{hash}"
   end

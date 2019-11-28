@@ -1,0 +1,10 @@
+.block.flex
+  .flex__fixed.spacing-right
+    = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
+
+  .flex__grow.communication_body
+    span.communication__body__sender-name
+      = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, conn: @conn, awards: true
+
+    .communication__body__text
+      == @body
