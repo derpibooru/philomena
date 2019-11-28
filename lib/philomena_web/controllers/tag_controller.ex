@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Images.Image, Tags, Tags.Tag}
+  alias Philomena.Interactions
   import Ecto.Query
 
   def index(conn, params) do
@@ -25,13 +26,14 @@ defmodule PhilomenaWeb.TagController do
     tag = Tags.get_tag!(slug)
 
     query = conn.assigns.compiled_filter
+    user = conn.assigns.current_user
 
     images =
       Image.search_records(
         %{
           query: %{
             bool: %{
-              must_not: query,
+              must_not: [query, %{term: %{hidden_from_users: true}}],
               must: %{term: %{"namespaced_tags.name": tag.name}}
             }
           },
@@ -41,6 +43,9 @@ defmodule PhilomenaWeb.TagController do
         Image |> preload([:tags, :user])
       )
 
-    render(conn, "show.html", tag: tag, images: images, layout_class: "layout--wide")
+    interactions =
+      Interactions.user_interactions(images, user)
+
+    render(conn, "show.html", tag: tag, interactions: interactions, images: images, layout_class: "layout--wide")
   end
 end
