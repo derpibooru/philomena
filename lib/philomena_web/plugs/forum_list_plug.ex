@@ -18,6 +18,7 @@ defmodule PhilomenaWeb.ForumListPlug do
   # fixme: add caching!
   defp lookup_visible_forums(user) do
     Forum
+    |> order_by(asc: :name)
     |> Repo.all()
     |> Enum.filter(&Can.can?(user, :show, &1))
   end
