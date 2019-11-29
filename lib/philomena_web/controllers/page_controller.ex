@@ -1,7 +1,11 @@
 defmodule PhilomenaWeb.PageController do
   use PhilomenaWeb, :controller
 
-  def index(conn, _params) do
-    render(conn, "index.html")
+  alias Philomena.StaticPages.StaticPage
+
+  plug :load_resource, model: StaticPage, id_field: "slug"
+
+  def show(conn, _params) do
+    render(conn, "show.html", static_page: conn.assigns.static_page)
   end
 end

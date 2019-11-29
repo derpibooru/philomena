@@ -1,0 +1,12 @@
+h1 = @static_page.title
+p
+  ' Last updated
+  => pretty_time(@static_page.updated_at)
+
+== @static_page.body
+
+/= link_to 'Revision history', static_page_versions_path(@static_page)
+
+/- if can? :manage, StaticPage
+  br
+  => link_to 'Edit', edit_static_page_path(@static_page)
