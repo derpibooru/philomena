@@ -1,0 +1,43 @@
+h2 The Do-Not-Post (DNP) List
+
+/ Information block
+h3 Information
+.block
+  .block__header
+    span.block__header__title About
+  .block__content
+    p This is a list of artists who have asked us to place a restriction on the uploading of their artwork. These restructions can include anything from requesting that no edits of their work be allowed, to requesting that no uploads be allowed unless uploaded by the artists themselves.
+    p We ask that you please respect the wishes of artists in regards to their artworks, and check the list before uploading. Note that just because an artist is not listed may not mean that their artwork is ok to post, especially if they have a note at their "source" that they do not wish for their artwork to be reposted.
+br
+
+h3 The List
+.block
+  - route = fn p -> Routes.dnp_entry_path(@conn, :index, p) end
+  - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, conn: @conn
+
+  .block__header
+    span.block__header__title The DNP List
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Tag
+          th Restriction
+          th Conditions
+          th Options
+      tbody
+        = for {body, entry} <- @dnp_entries do
+          tr
+            td
+              = render PhilomenaWeb.TagView, "_tag.html", tag: entry.tag, conn: @conn
+            td
+              = entry.dnp_type
+            td
+              == body
+            td
+              = link "More Info", to: Routes.dnp_entry_path(@conn, :show, entry)
+
+  .block__header
+    = pagination

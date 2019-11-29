@@ -6,6 +6,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.Filters.Filter
+  alias Philomena.DnpEntries.DnpEntry
 
   # Admins can do anything
   def can?(%User{role: "admin"}, _action, _model), do: true
@@ -83,6 +84,15 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View profile pages
   def can?(_user, :show, %User{}), do: true
+
+  # View and create DNP entries
+  def can?(%User{}, action, DnpEntry) when action in [:new, :create, :index], do: true
+  def can?(%User{id: id}, :show, %DnpEntry{requesting_user_id: id}), do: true
+  def can?(%User{id: id}, :show_reason, %DnpEntry{requesting_user_id: id}), do: true
+  def can?(%User{id: id}, :show_feedback, %DnpEntry{requesting_user_id: id}), do: true
+
+  def can?(_user, :show, %DnpEntry{aasm_state: "listed"}), do: true
+  def can?(_user, :show_reason, %DnpEntry{aasm_state: "listed", hide_reason: false}), do: true
 
   # Otherwise...
   def can?(_user, _action, _model), do: false

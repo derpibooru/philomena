@@ -1,0 +1,48 @@
+h2
+  ' DNP Listing for Tag
+  = @dnp_entry.tag.name
+
+.block
+  .block__header
+    span.block__header__title DNP Information
+    = link "Back to DNP List", to: Routes.dnp_entry_path(@conn, :index)
+
+  .block__content
+    table.table
+      tbody
+        tr
+          td Created:
+          td
+             = pretty_time(@dnp_entry.created_at)
+        tr
+          td Tag:
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: @dnp_entry.tag, conn: @conn
+        tr
+          td Restriction Type:
+          td
+            = @dnp_entry.dnp_type
+        tr
+          td Conditions:
+          td
+            == @conditions
+
+        = if can?(@conn, :show_reason, @dnp_entry) do
+          tr
+            td Reason:
+            td
+              == @reason
+        
+        = if can?(@conn, :show_feedback, @dnp_entry) do
+          tr
+            td Instructions:
+            td
+              == @instructions
+          tr
+            td Feedback:
+            td
+              = @dnp_entry.feedback
+          tr
+            td Status:
+            td
+              = String.capitalize(@dnp_entry.aasm_state)
