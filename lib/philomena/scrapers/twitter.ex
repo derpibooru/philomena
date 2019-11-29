@@ -3,7 +3,6 @@ defmodule Philomena.Scrapers.Twitter do
   @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
   @script_regex ~r|<script type="text/javascript" .*? src="(https://abs.twimg.com/responsive-web/web/main\.[\da-z]+\.js)">|
   @bearer_regex ~r|"(AAAAAAAAAAAAA[^"]*)"|
-  @user_agent ["User-Agent": "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0"]
 
   @spec can_handle?(URI.t(), String.t()) :: true | false
   def can_handle?(_uri, url) do
@@ -39,7 +38,7 @@ defmodule Philomena.Scrapers.Twitter do
     url = "https://twitter.com/#{user}/status/#{status_id}"
 
     {gt, bearer} =
-      Philomena.Http.get!(mobile_url, @user_agent)
+      Philomena.Http.get!(mobile_url)
       |> Map.get(:body)
       |> extract_guest_token_and_bearer()
 

@@ -45,7 +45,7 @@ h1 Reverse Search
       
       = for match <- @images do
         tr
-          td
+          th
             h3 = link "##{match.id}", to: Routes.image_path(@conn, :show, match)
             p
               = if match.source_url not in [nil, ""] do
@@ -54,10 +54,10 @@ h1 Reverse Search
               - else
                 ' Unknown source
 
-          td
+          th
             = render PhilomenaWeb.ImageView, "_image_container.html", image: match, size: :thumb, conn: @conn
 
-          td
+          th
             h3
               = match.image_width
               | x
