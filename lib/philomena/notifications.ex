@@ -158,8 +158,17 @@ defmodule Philomena.Notifications do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_unread_notification(%UnreadNotification{} = unread_notification) do
-    Repo.delete(unread_notification)
+  def delete_unread_notification(actor_type, actor_id, user) do
+    notification =
+      Notification
+      |> where(actor_type: ^actor_type, actor_id: ^actor_id)
+      |> Repo.one()
+
+    if notification do
+      UnreadNotification
+      |> where(notification_id: ^notification.id, user_id: ^user.id)
+      |> Repo.delete_all()
+    end
   end
 
   @doc """

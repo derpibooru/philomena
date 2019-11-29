@@ -184,7 +184,13 @@ defmodule Philomena.Topics do
 
   """
   def delete_subscription(topic, user) do
+    clear_notification(topic, user)
+
     %Subscription{topic_id: topic.id, user_id: user.id}
     |> Repo.delete()
+  end
+
+  def clear_notification(topic, user) do
+    Notifications.delete_unread_notification("Topic", topic.id, user)
   end
 end

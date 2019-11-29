@@ -1,8 +1,8 @@
 elixir:
-  watch_path = Routes.forum_topic_subscription_path(@conn, :create, @forum, @topic)
+  watch_path = Routes.forum_subscription_path(@conn, :create, @forum)
   watch_class = if @watching, do: "hidden", else: ""
 
-  unwatch_path = Routes.forum_topic_subscription_path(@conn, :delete, @forum, @topic)
+  unwatch_path = Routes.forum_subscription_path(@conn, :delete, @forum)
   unwatch_class = if @watching, do: "", else: "hidden"
 
 = if @conn.assigns.current_user do

@@ -1,14 +1,7 @@
 = if @notification.actor do
-  .block.block--fixed.flex class="js-notification-id-#{@notification.id}"
+  .block.block--fixed.flex id="notification-#{@notification.id}"
     = if @notification.actor_type == "Image" and @notification.actor do
       .flex.flex--centered.flex__fixed.thumb-tiny-container.spacing-right
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @notification.actor, size: :thumb_tiny, conn: @conn
-    .flex.flex--centered.flex__grow
-      div
-        => render PhilomenaWeb.NotificationView, notification_template_path(@notification.actor_type), notification: @notification, conn: @conn
-        => pretty_time @notification.updated_at
-    .flex.flex--centered.flex--no-wrap
-      a.button.button--separate-right title="Delete" data-click-markread=@notification.id
-        i.fa.fa-trash
-      a.button title="Unsubscribe" data-subscription-id=@notification.actor_id data-subscription-type=@notification.actor_type data-click-togglesubscription="unwatch" data-click-hide=".js-notification-id-#{@notification.id}"
-        .fa.fa-bell-slash
+
+    => render PhilomenaWeb.NotificationView, notification_template_path(@notification.actor_type), notification: @notification, conn: @conn

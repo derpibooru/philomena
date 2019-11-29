@@ -1,6 +1,10 @@
-=> render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}, conn: @conn
-=> @notification.action
+.flex.flex--centered.flex__grow
+  div
+    => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}, conn: @conn
+    => @notification.action
 
-strong>
-  = link @notification.actor.title, to: "#"
-  /= link @notification.actor.title, to: Routes.gallery_path(@conn, :show, @notification.actor)
+    strong>
+      = link @notification.actor.title, to: "#"
+      /= link @notification.actor.title, to: Routes.gallery_path(@conn, :show, @notification.actor)
+
+    => pretty_time @notification.updated_at

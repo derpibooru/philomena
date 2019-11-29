@@ -1,8 +1,19 @@
 - topic = @notification.actor
 - post = @notification.actor_child
 
-=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: post, conn: @conn
-=> @notification.action
+.flex.flex--centered.flex__grow
+  div
+    => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: post, conn: @conn
+    => @notification.action
 
-strong
-  = link topic.title, to: Routes.forum_topic_path(@conn, :show, topic.forum, topic, post_id: post.id) <> "#post_#{post.id}"
+    strong>
+      = link topic.title, to: Routes.forum_topic_path(@conn, :show, topic.forum, topic, post_id: post.id) <> "#post_#{post.id}"
+
+    => pretty_time @notification.updated_at
+
+.flex.flex--centered.flex--no-wrap
+  a.button.button--separate-right title="Delete" href=Routes.forum_topic_read_path(@conn, :create, topic.forum, topic) data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-trash
+
+  a.button title="Unsubscribe" href=Routes.forum_topic_subscription_path(@conn, :delete, topic.forum, topic) data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-bell-slash

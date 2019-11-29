@@ -65,12 +65,17 @@ defmodule PhilomenaWeb.Router do
       resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
       resources "/subscription", Image.SubscriptionController, only: [:create, :delete], singleton: true
+      resources "/read", Image.ReadController, only: [:create], singleton: true
     end
 
     resources "/forums", ForumController, only: [] do
       resources "/topics", TopicController, only: [:new, :create] do
         resources "/subscription", Topic.SubscriptionController, only: [:create, :delete], singleton: true
+        resources "/read", Topic.ReadController, only: [:create], singleton: true
       end
+
+      resources "/subscription", Forum.SubscriptionController, only: [:create, :delete], singleton: true
+      resources "/read", Forum.ReadController, only: [:create], singleton: true
     end
 
     scope "/filters", Filter, as: :filter do

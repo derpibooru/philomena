@@ -14,6 +14,7 @@ defmodule Philomena.Images do
   alias Philomena.Tags
   alias Philomena.Tags.Tag
   alias Philomena.Processors
+  alias Philomena.Notifications
 
   @doc """
   Gets a single image.
@@ -283,7 +284,13 @@ defmodule Philomena.Images do
 
   """
   def delete_subscription(image, user) do
+    clear_notification(image, user)
+
     %Subscription{image_id: image.id, user_id: user.id}
     |> Repo.delete()
+  end
+
+  def clear_notification(image, user) do
+    Notifications.delete_unread_notification("Image", image.id, user)
   end
 end

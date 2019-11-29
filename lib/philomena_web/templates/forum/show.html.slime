@@ -17,10 +17,7 @@ h1 = @forum.name
   .block__header--sub.block__header--light
     = pagination
     span.block__header__title = @forum.description
-    /- if current_user
-    /  = subscription_link(@forum, current_user)
-    /- else
-    /  | Login to subscribe to new threads
+    = render PhilomenaWeb.Forum.SubscriptionView, "_subscription.html", forum: @forum, watching: @watching, conn: @conn
   .block__content
     table.table.table--communication-list
       thead

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ForumController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Forums.Forum, Topics.Topic}
+  alias Philomena.{Forums, Forums.Forum, Topics.Topic}
   alias Philomena.Repo
   import Ecto.Query
 
@@ -22,14 +22,19 @@ defmodule PhilomenaWeb.ForumController do
   end
 
   def show(conn, %{"id" => _id}) do
+    forum = conn.assigns.forum
+    user = conn.assigns.current_user
+
     topics =
       Topic
-      |> where(forum_id: ^conn.assigns.forum.id)
+      |> where(forum_id: ^forum.id)
       |> where(hidden_from_users: false)
       |> order_by(desc: :sticky, desc: :last_replied_to_at)
       |> preload([:poll, :forum, :user, last_post: :user])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "show.html", forum: conn.assigns.forum, topics: topics)
+    watching = Forums.subscribed?(forum, user)
+
+    render(conn, "show.html", forum: conn.assigns.forum, watching: watching, topics: topics)
   end
 end

@@ -6,7 +6,7 @@ elixir:
   unwatch_class = if @watching, do: "", else: "hidden"
 
 = if @conn.assigns.current_user do
-  #js-subscription-target
+  span#js-subscription-target
     a.js-subscription-link href=watch_path class=watch_class data-remote="true" data-method="post"
       i.fa.fa-bell>
       span.hide-mobile

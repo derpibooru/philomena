@@ -1,5 +1,16 @@
-=> render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @notification.actor_child, conn: @conn
-=> @notification.action
+.flex.flex--centered.flex__grow
+  div
+    => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @notification.actor_child, conn: @conn
+    => @notification.action
 
-strong
-  = link "##{@notification.actor_id}", to: Routes.image_path(@conn, :show, @notification.actor) <> "#comments"
+    strong>
+      = link "##{@notification.actor_id}", to: Routes.image_path(@conn, :show, @notification.actor) <> "#comments"
+
+    => pretty_time @notification.updated_at
+
+.flex.flex--centered.flex--no-wrap
+  a.button.button--separate-right title="Delete" href=Routes.image_read_path(@conn, :create, @notification.actor) data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-trash
+
+  a.button title="Unsubscribe" href=Routes.image_subscription_path(@conn, :delete, @notification.actor) data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-bell-slash
