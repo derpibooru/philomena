@@ -41,16 +41,16 @@ elixir:
   h3 Votes
   p
     ' Out of
-    => number_with_delimiter(img_bucket["doc_count"])
+    => number_with_delimiter(img_bucket["non_deleted"]["doc_count"])
     ' images,
     span.stat>
-      = number_with_delimiter(img_bucket["score_gt_0"]["doc_count"])
+      = number_with_delimiter(img_bucket["non_deleted"]["score_gt_0"]["doc_count"])
     ' images have a score above 0, and
     span.stat>
-      = number_with_delimiter(img_bucket["score_lt_0"]["doc_count"])
+      = number_with_delimiter(img_bucket["non_deleted"]["score_lt_0"]["doc_count"])
     ' images have a score below 0.
     span.stat>
-      = number_with_delimiter(img_bucket["faves_gt_0"]["doc_count"])
+      = number_with_delimiter(img_bucket["non_deleted"]["faves_gt_0"]["doc_count"])
     ' images have been faved by at least one user.
 
   h3 Forums
