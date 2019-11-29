@@ -29,6 +29,20 @@ defmodule Philomena.Tags.Tag do
     "video"
   ]
 
+  @namespace_categories %{
+    "artist" => "origin",
+    "art pack" => "content-fanmade",
+    "colorist" => "origin",
+    "comic" => "content-fanmade",
+    "editor" => "origin",
+    "fanfic" => "content-fanmade",
+    "oc" => "oc",
+    "photographer" => "origin",
+    "series" => "content-fanmade",
+    "spoiler" => "spoiler",
+    "video" => "content-fanmade"
+  }
+
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
     has_many :aliases, Tag, foreign_key: :aliased_tag_id
@@ -65,6 +79,7 @@ defmodule Philomena.Tags.Tag do
     |> validate_required([:name])
     |> put_slug()
     |> put_name_and_namespace()
+    |> put_namespace_category()
   end
 
   def parse_tag_list(list) do
@@ -155,5 +170,12 @@ defmodule Philomena.Tags.Tag do
       _value ->
         {nil, name}
     end
+  end
+
+  defp put_namespace_category(changeset) do
+    namespace = changeset |> get_field(:namespace)
+
+    changeset
+    |> change(category: @namespace_categories[namespace])
   end
 end
