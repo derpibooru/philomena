@@ -1,0 +1,12 @@
+div
+  p
+    = if can?(@conn, :edit_description, @image) do
+      a.button#edit-description href="#" data-click-focus="#description" data-click-hide=".image-description" data-click-show="#description-form" title="Edit description" accessKey="d"
+        i.fa.fa-pencil>
+        ' Description:
+
+    - else
+      ' Description:
+
+  .image-description__text
+    == @body

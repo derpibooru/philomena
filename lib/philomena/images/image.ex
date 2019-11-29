@@ -119,6 +119,7 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [:anonymous, :source_url, :description])
     |> change(first_seen_at: now)
     |> change(attribution)
+    |> validate_length(:description, max: 50_000, count: :bytes)
   end
 
   def image_changeset(image, attrs) do
@@ -168,6 +169,12 @@ defmodule Philomena.Images.Image do
     image
     |> cast(attrs, [:image_sha512_hash])
     |> change(processed: true)
+  end
+
+  def description_changeset(image, attrs) do
+    image
+    |> cast(attrs, [:description])
+    |> validate_length(:description, max: 50_000, count: :bytes)
   end
 
   def cache_changeset(image) do

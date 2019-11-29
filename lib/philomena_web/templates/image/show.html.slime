@@ -3,11 +3,8 @@
 
 .layout--narrow
   .image-description
-    div
-      p
-        | Description:
-      .image-description__text
-        == @description
+    = render PhilomenaWeb.ImageView, "_description.html", image: @image, body: @description, conn: @conn
+  = render PhilomenaWeb.Image.DescriptionView, "_form.html", image: @image, changeset: @image_changeset, conn: @conn
 
   = render PhilomenaWeb.ImageView, "_tags.html", image: @image, changeset: @image_changeset, conn: @conn
   = render PhilomenaWeb.ImageView, "_source.html", image: @image, changeset: @image_changeset, conn: @conn

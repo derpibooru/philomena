@@ -93,6 +93,7 @@ defmodule PhilomenaWeb.Router do
       resources "/sources", Image.SourceController, only: [:update], singleton: true
       resources "/tag_changes", Image.TagChangeController, only: [:index]
       resources "/source_changes", Image.SourceChangeController, only: [:index]
+      resources "/description", Image.DescriptionController, only: [:update], singleton: true
     end
     scope "/tags", Tag, as: :tag do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true

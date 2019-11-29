@@ -19,7 +19,7 @@ function formResult({target, detail}) {
     resultEl.innerHTML = response;
     resultEl.classList.remove('hidden');
     formEl.classList.add('hidden');
-    formEl.querySelector('input[type="submit"]').disabled = false;
+    formEl.querySelector('input[type="submit"],button').disabled = false;
   }
 
   for (const element in elements) {

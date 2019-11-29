@@ -98,6 +98,12 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
+  def update_description(%Image{} = image, attrs) do
+    image
+    |> Image.description_changeset(attrs)
+    |> Repo.update()
+  end
+
   def update_source(%Image{} = image, attribution, attrs) do
     image_changes =
       image
