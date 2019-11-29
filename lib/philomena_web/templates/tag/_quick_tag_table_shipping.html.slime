@@ -1,5 +1,5 @@
 = for slice <- Enum.chunk_every(@shipping[@tab], 10) do
   div
-    = for tag_name <- slice do
-      = tag_link @tags[tag_name], tag_name
+    = for tag <- slice do
+      = tag_link tag, tag.name
       br

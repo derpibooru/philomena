@@ -2,7 +2,7 @@ elixir:
   tabs = Enum.with_index(@data["tabs"])
   tab_modes = @data["tab_modes"]
 
-.block__header--sub.block__header--js--tabbed
+.block__header--sub.block__header--js-tabbed
   = for {name, i} <- tabs do
     = link name, to: "#", class: tab_class(i), data: [click_tab: name]
   

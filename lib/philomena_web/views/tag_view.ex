@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.TagView do
   use PhilomenaWeb, :view
 
   # this is bad practice, don't copy this.
-  alias Philomena.Tags.Implication
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
@@ -104,17 +103,18 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp implied_by_multitag(tag_names, ignore_tag_names) do
-    query =
-      from t in Tag,
-        left_join: i in Implication,
-        on: t.id == i.tag_id,
-        left_join: it in Tag,
-        on: it.id == i.implied_tag_id,
-        where: it.name in ^tag_names and it.name not in ^ignore_tag_names,
-        order_by: [desc: t.images_count],
-        preload: :implied_tags,
-        limit: 40
-
-    Repo.all(query)
+    Tag.search_records(
+      %{
+        query: %{
+          bool: %{
+            must: Enum.map(tag_names, &%{term: %{implied_tags: &1}}),
+            must_not: Enum.map(ignore_tag_names, &%{term: %{implied_tags: &1}}),
+          }
+        },
+        sort: %{images: :desc}
+      },
+      %{page_size: 40},
+      Tag
+    )
   end
 end
