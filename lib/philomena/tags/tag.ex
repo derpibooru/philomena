@@ -7,6 +7,9 @@ defmodule Philomena.Tags.Tag do
     index_name: "tags",
     doc_type: "tag"
 
+  alias Philomena.DnpEntries.DnpEntry
+  alias Philomena.UserLinks.UserLink
+  alias Philomena.Users.User
   alias Philomena.Tags.Tag
   alias Philomena.Slug
 
@@ -48,6 +51,8 @@ defmodule Philomena.Tags.Tag do
     has_many :aliases, Tag, foreign_key: :aliased_tag_id
     many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id]
     many_to_many :implied_by_tags, Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
+    has_many :public_links, UserLink, where: [public: true, aasm_state: "verified"]
+    has_many :dnp_entries, DnpEntry, where: [aasm_state: "listed"]
 
     field :slug, :string
     field :name, :string

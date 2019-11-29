@@ -2,7 +2,9 @@ defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Images.Image, Tags, Tags.Tag}
+  alias Philomena.Textile.Renderer
   alias Philomena.Interactions
+  alias Philomena.Repo
   import Ecto.Query
 
   def index(conn, params) do
@@ -28,7 +30,11 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def show(conn, %{"id" => slug}) do
-    tag = Tags.get_tag!(slug)
+    tag =
+      Tag
+      |> where(slug: ^slug)
+      |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
+      |> Repo.one()
 
     query = conn.assigns.compiled_filter
     user = conn.assigns.current_user
@@ -51,6 +57,15 @@ defmodule PhilomenaWeb.TagController do
     interactions =
       Interactions.user_interactions(images, user)
 
-    render(conn, "show.html", tag: tag, interactions: interactions, images: images, layout_class: "layout--wide")
+    body =
+      Renderer.render_one(%{body: tag.description || ""})
+
+    dnp_bodies =
+      Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}))
+
+    dnp_entries =
+      Enum.zip(dnp_bodies, tag.dnp_entries)
+
+    render(conn, "show.html", tag: tag, body: body, dnp_entries: dnp_entries, interactions: interactions, images: images, layout_class: "layout--wide")
   end
 end

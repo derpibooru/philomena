@@ -1,0 +1,81 @@
+.block__content.js-imagelist-info.flex
+  .flex__fixed.tag-info__image.thumb-tiny-container.spacing-right
+    = if @tag.image do
+      img src=tag_image(@tag) alt="spoiler image"
+    - else
+      | no spoiler image
+  
+  .flex__grow
+    = render PhilomenaWeb.TagView, "_tag.html", tag: @tag
+  
+    = if @tag.short_description not in [nil, ""] do
+      strong> Short description:
+      = @tag.short_description
+      br
+
+    = if Enum.any?(@tag.aliases) do
+      strong> Aliases:
+      = Enum.map_join(@tag.aliases, ", ", & &1.name)
+      br
+
+    = if Enum.any?(@tag.implied_tags) do
+      strong> Implies:
+      = Enum.map_join(@tag.implied_tags, ", ", & &1.name)
+      br
+
+    br
+    = link "Toggle details", to: "#", data: [click_toggle: ".tag-info__more"]
+
+    .tag-info__more
+      hr
+
+      = if Enum.any?(@tag.public_links) do
+        strong> Associated links:
+
+        = for link <- @tag.public_links do
+          a> href=link.uri = link.uri
+
+        br
+
+      = if Enum.any?(@tag.public_links) do
+        strong> Associated users:
+        - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq()
+
+        = for user <- users do
+          => link user.name, to: Routes.profile_path(@conn, :show, user)
+
+        br
+
+      = if Enum.any?(@tag.implied_by_tags) do
+        input.toggle-box id="implied_by" type="checkbox" checked="false"
+        label for="implied_by"
+          ' Implied by (warning: unfiltered)
+
+        .toggle-box-container
+          .toggle-box-container__content
+            = for tag <- @tag.implied_by_tags do
+              => link tag.name, to: Routes.tag_path(@conn, :show, tag)
+
+        br
+
+      = if @tag.description not in [nil, ""] do
+        strong> Detailed description:
+        br
+        == @body
+
+    = if Enum.any?(@dnp_entries) do
+      hr
+      strong.comment_deleted This artist is on the Do-Not-Post List with the following restrictions:
+
+      = for {body, entry} <- @dnp_entries do
+        br
+        ' &bull;
+
+        strong
+          => entry.dnp_type
+
+        ==> body
+
+        | (
+        = link "more info", to: "#"
+        | )

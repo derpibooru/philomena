@@ -6,6 +6,10 @@ defmodule PhilomenaWeb.TagView do
   alias Philomena.Repo
   import Ecto.Query
 
+  def tag_image(%{image: image}) do
+    tag_url_root() <> "/" <> image
+  end
+
   def quick_tags(conn) do
     case Application.get_env(:philomena, :quick_tags) do
       nil ->
@@ -116,5 +120,9 @@ defmodule PhilomenaWeb.TagView do
       %{page_size: 40},
       Tag |> preload(:implied_tags)
     )
+  end
+
+  defp tag_url_root do
+    Application.get_env(:philomena, :tag_url_root)
   end
 end
