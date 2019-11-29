@@ -7,6 +7,7 @@
   
   .flex__grow
     = render PhilomenaWeb.TagView, "_tag.html", tag: @tag
+    br
   
     = if @tag.short_description not in [nil, ""] do
       strong> Short description:
@@ -24,7 +25,7 @@
       br
 
     br
-    = link "Toggle details", to: "#", data: [click_toggle: ".tag-info__more"]
+    = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
 
     .tag-info__more
       hr

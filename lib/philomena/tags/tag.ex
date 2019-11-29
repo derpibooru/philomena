@@ -9,7 +9,6 @@ defmodule Philomena.Tags.Tag do
 
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
-  alias Philomena.Users.User
   alias Philomena.Tags.Tag
   alias Philomena.Slug
 
