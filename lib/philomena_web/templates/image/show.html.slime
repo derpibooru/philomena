@@ -3,7 +3,7 @@
 
 .layout--narrow
   = if @conn.assigns.advert do
-    = render PhilomenaWeb.Advertview, "_box.html", advert: @conn.assigns.advert, conn: @conn
+    = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
   .image-description
     = render PhilomenaWeb.ImageView, "_description.html", image: @image, body: @description, conn: @conn

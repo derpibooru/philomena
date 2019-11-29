@@ -39,7 +39,7 @@ h1 = @topic.title
       = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
 
     = if @conn.assigns.advert do
-      = render PhilomenaWeb.Advertview, "_box.html", advert: @conn.assigns.advert, conn: @conn
+      = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
   / Post editability data for JS
   /.js-editable-posts data-editable=editable_communications(@posts).to_json
