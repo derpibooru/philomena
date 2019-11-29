@@ -34,7 +34,7 @@ defmodule Philomena.Scrapers.Twitter do
     [user, status_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     mobile_url = "https://mobile.twitter.com/#{user}/status/#{status_id}"
-    api_url = "https://api.twitter.com/2/timeline/conversation/#{status_id}.json"
+    api_url = "https://api.twitter.com/2/timeline/conversation/#{status_id}.json?tweet_mode=extended"
     url = "https://twitter.com/#{user}/status/#{status_id}"
 
     {gt, bearer} =
