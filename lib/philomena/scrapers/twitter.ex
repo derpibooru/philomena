@@ -22,7 +22,7 @@ defmodule Philomena.Scrapers.Twitter do
     %{
       source_url: tweet["url"],
       author_name: tweet["user"],
-      description: tweet["text"],
+      description: tweet["text"] || tweet["full_text"],
       images: images
     }
   end
