@@ -42,6 +42,9 @@
             button.button.js-tag-sauce-toggle data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input"
               ' Cancel
 
+        .block.js-tagtable data-target='[name="image[tag_input]"]'
+          = PhilomenaWeb.TagView.quick_tags(@conn)
+
     - else
       p
         ' You can't edit the tags on this image.

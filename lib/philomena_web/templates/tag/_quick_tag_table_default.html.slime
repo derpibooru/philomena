@@ -1,0 +1,8 @@
+= for {heading, tag_names} <- @data do
+  div
+    strong = heading
+    br
+
+    = for tag_name <- tag_names do
+      = tag_link @tags[tag_name], tag_name
+      br

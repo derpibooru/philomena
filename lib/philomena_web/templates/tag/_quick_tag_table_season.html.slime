@@ -1,0 +1,9 @@
+= for slice <- Enum.chunk_every(@data, 10) do
+  div
+    = for map <- slice do
+      - [{header, tag_name}] = Enum.to_list(map)
+
+      = header
+      ' .
+      = tag_link @tags[tag_name], tag_name
+      br

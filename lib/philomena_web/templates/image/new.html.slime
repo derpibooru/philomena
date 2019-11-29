@@ -61,6 +61,11 @@
     button.button.button--state-warning.button--separate-left.button--bold id="tagsinput-load" type="button" title="This button loads any saved tags from your browser" Load
     button.button.button--state-danger.button--separate-left.button--bold id="tagsinput-clear" type="button" title="This button will clear the list of tags above" Clear
 
+    p You can mouse over tags below to view a description, and click to add. Short tag names can be used and will expand to full.
+
+    .block.js-tagtable data-target='[name="image[tag_input]"]'
+      = PhilomenaWeb.TagView.quick_tags(@conn)
+
   br
 
   .field

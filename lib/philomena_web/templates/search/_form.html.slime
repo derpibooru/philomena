@@ -35,9 +35,9 @@ h1 Search
             a data-search-add="my:upvotes" data-search-show-help=" " My upvotes
             a data-search-add="my:uploads" data-search-show-help=" " My uploads
             a data-search-add="my:watched" data-search-show-help=" " My watched tags
-      /.flex__right
+      .flex__right
         a href="#" data-click-toggle="#js-search-tags" Quick tags
-        a href=search_syntax_path Help
+        a href="/search/syntax" Help
 
     .block__content
       .hidden.walloftext data-search-help="numeric"
@@ -93,8 +93,9 @@ h1 Search
         code<> source_url:*deviantart.com*
         | .
 
-  /#js-search-tags.hidden
-    /= render partial: 'tags/quick_tag_table', locals: { target: '.js-search-field' }
+  #js-search-tags.hidden
+    .block.js-tagtable data-target=".js-search-field"
+      = PhilomenaWeb.TagView.quick_tags(@conn)
 
   .field.field--inline.flex-wrap
     = submit "Search", class: "button button--state-primary"

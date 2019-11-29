@@ -271,229 +271,643 @@
       "pinkie pie"
     ]
   },
-  "Season 9": {
-    "1-2": "the beginning of the end",
-    "3": "uprooted",
-    "4": "twilight's seven",
-    "5": "the point of no return",
-    "6": "common ground",
-    "7": "she's all yak",
-    "8": "frenemies (episode)",
-    "9": "sweet and smoky",
-    "10": "going to seed",
-    "11": "student counsel",
-    "12": "the last crusade (episode)",
-    "13": "between dark and dawn",
-    "14": "that's a laugh",
-    "15": "2 4 6 greaaat",
-    "16": "a trivial pursuit",
-    "17": "the summer sun setback",
-    "18": "she talks to angel",
-    "19": "dragon dropped",
-    "20": "a horse shoe-in",
-    "21": "daring doubt",
-    "22": "growing up is hard to do",
-    "23": "the big mac question",
-    "24-25": "the ending of the end",
-    "26": "the last problem"
-  },
-  "8": {
-    "1-2": "school daze",
-    "3": "the maud couple",
-    "4": "fake it 'til you make it",
-    "5": "grannies gone wild",
-    "6": "surf and/or turf",
-    "7": "horse play",
-    "8": "the parent map",
-    "9": "non-compete clause",
-    "10": "the break up breakdown",
-    "11": "molt down",
-    "12": "marks for effort",
-    "13": "the mean 6",
-    "14": "a matter of principals",
-    "15": "the hearth's warming club",
-    "16": "friendship university",
-    "17": "the end in friend",
-    "18": "yakity-sax",
-    "19": "on the road to friendship",
-    "20": "the washouts (episode)",
-    "21": "a rockhoof and a hard place",
-    "22": "what lies beneath",
-    "23": "sounds of silence",
-    "24": "father knows beast",
-    "25-26": "school raze",
-    "Special": "best gift ever"
-  },
-  "7": {
-    "1": "celestial advice",
-    "2": "all bottled up",
-    "3": "a flurry of emotions",
-    "4": "rock solid friendship",
-    "5": "fluttershy leans in",
-    "6": "forever filly",
-    "7": "parental glideance",
-    "8": "hard to say anything",
-    "9": "honest apple",
-    "10": "a royal problem",
-    "11": "not asking for trouble",
-    "12": "discordant harmony",
-    "13": "the perfect pear",
-    "14": "fame and misfortune",
-    "15": "triple threat",
-    "16": "campfire tales",
-    "17": "to change a changeling",
-    "18": "daring done?",
-    "19": "it isn't the mane thing about you",
-    "20": "a health of information",
-    "21": "marks and recreation",
-    "22": "once upon a zeppelin",
-    "23": "secrets and pies",
-    "24": "uncommon bond",
-    "25-26": "shadow play"
-  },
-  "6": {
-    "1-2": "the crystalling",
-    "3": "the gift of the maud pie",
-    "4": "on your marks",
-    "5": "gauntlet of fire",
-    "6": "no second prances",
-    "7": "newbie dash",
-    "8": "a hearth's warming tail",
-    "9": "the saddle row review",
-    "10": "applejack's \"day\" off",
-    "11": "flutter brutter",
-    "12": "spice up your life",
-    "13": "stranger than fan fiction",
-    "14": "the cart before the ponies",
-    "15": "28 pranks later",
-    "16": "the times they are a changeling",
-    "17": "dungeons and discords",
-    "18": "buckball season",
-    "19": "the fault in our cutie marks",
-    "20": "viva las pegasus",
-    "21": "every little thing she does",
-    "22": "ppov",
-    "23": "where the apple lies",
-    "24": "top bolt",
-    "25-26": "to where and back again"
-  },
-  "5": {
-    "1-2": "the cutie map",
-    "3": "castle sweet castle",
-    "4": "bloom and gloom",
-    "5": "tanks for the memories",
-    "6": "appleoosa's most wanted",
-    "7": "make new friends but keep discord",
-    "8": "the lost treasure of griffonstone",
-    "9": "slice of life (episode)",
-    "10": "princess spike",
-    "11": "party pooped",
-    "12": "amending fences",
-    "13": "do princesses dream of magic sheep",
-    "14": "canterlot boutique",
-    "15": "rarity investigates",
-    "16": "made in manehattan",
-    "17": "brotherhooves social",
-    "18": "crusaders of the lost mark",
-    "19": "the one where pinkie pie knows",
-    "20": "hearthbreakers",
-    "21": "scare master",
-    "22": "what about discord?",
-    "23": "the hooffields and mccolts",
-    "24": "the mane attraction",
-    "25-26": "the cutie remark"
-  },
-  "4": {
-    "1-2": "princess twilight sparkle (episode)",
-    "3": "castle mane-ia",
-    "4": "daring don't",
-    "5": "flight to the finish",
-    "6": "power ponies",
-    "7": "bats!",
-    "8": "rarity takes manehattan",
-    "9": "pinkie apple pie",
-    "10": "rainbow falls",
-    "11": "three's a crowd",
-    "12": "pinkie pride",
-    "13": "simple ways",
-    "14": "filli vanilli",
-    "15": "twilight time",
-    "16": "it ain't easy being breezies",
-    "17": "somepony to watch over me",
-    "18": "maud pie (episode)",
-    "19": "for whom the sweetie belle toils",
-    "20": "leap of faith",
-    "21": "testing testing 1-2-3",
-    "22": "trade ya",
-    "23": "inspiration manifestation",
-    "24": "equestria games",
-    "25-26": "twilight's kingdom"
-  },
-  "3": {
-    "1-2": "the crystal empire",
-    "3": "too many pinkie pies",
-    "4": "one bad apple",
-    "5": "magic duel",
-    "6": "sleepless in ponyville",
-    "7": "wonderbolts academy",
-    "8": "just for sidekicks",
-    "9": "apple family reunion",
-    "10": "spike at your service",
-    "11": "keep calm and flutter on",
-    "12": "games ponies play",
-    "13": "magical mystery cure"
-  },
-  "2": {
-    "1-2": "the return of harmony",
-    "3": "lesson zero",
-    "4": "luna eclipsed",
-    "5": "sisterhooves social",
-    "6": "the cutie pox",
-    "7": "may the best pet win",
-    "8": "the mysterious mare do well",
-    "9": "sweet and elite",
-    "10": "secret of my excess",
-    "11": "family appreciation day",
-    "12": "baby cakes",
-    "13": "hearth's warming eve (episode)",
-    "14": "the last roundup",
-    "15": "the super speedy cider squeezy 6000",
-    "16": "read it and weep",
-    "17": "hearts and hooves day (episode)",
-    "18": "a friend in deed",
-    "19": "putting your hoof down",
-    "20": "it's about time",
-    "21": "dragon quest",
-    "22": "hurricane fluttershy",
-    "23": "ponyville confidential",
-    "24": "mmmystery on the friendship express",
-    "25-26": "a canterlot wedding"
-  },
-  "1": {
-    "1-2": "friendship is magic",
-    "3": "the ticket master",
-    "4": "applebuck season",
-    "5": "griffon the brush off",
-    "6": "boast busters",
-    "7": "dragonshy",
-    "8": "look before you sleep",
-    "9": "bridle gossip",
-    "10": "swarm of the century",
-    "11": "winter wrap up",
-    "12": "call of the cutie",
-    "13": "fall weather friends",
-    "14": "suited for success",
-    "15": "feeling pinkie keen",
-    "16": "sonic rainboom (episode)",
-    "17": "stare master",
-    "18": "the show stoppers",
-    "19": "a dog and pony show",
-    "20": "green isn't your color",
-    "21": "over a barrel",
-    "22": "a bird in the hoof",
-    "23": "the cutie mark chronicles",
-    "24": "owl's well that ends well",
-    "25": "party of one",
-    "26": "the best night ever"
-  }
+  "Season 9": [
+    {
+      "1-2": "the beginning of the end"
+    },
+    {
+      "3": "uprooted"
+    },
+    {
+      "4": "twilight's seven"
+    },
+    {
+      "5": "the point of no return"
+    },
+    {
+      "6": "common ground"
+    },
+    {
+      "7": "she's all yak"
+    },
+    {
+      "8": "frenemies (episode)"
+    },
+    {
+      "9": "sweet and smoky"
+    },
+    {
+      "10": "going to seed"
+    },
+    {
+      "11": "student counsel"
+    },
+    {
+      "12": "the last crusade (episode)"
+    },
+    {
+      "13": "between dark and dawn"
+    },
+    {
+      "14": "that's a laugh"
+    },
+    {
+      "15": "2 4 6 greaaat"
+    },
+    {
+      "16": "a trivial pursuit"
+    },
+    {
+      "17": "the summer sun setback"
+    },
+    {
+      "18": "she talks to angel"
+    },
+    {
+      "19": "dragon dropped"
+    },
+    {
+      "20": "a horse shoe-in"
+    },
+    {
+      "21": "daring doubt"
+    },
+    {
+      "22": "growing up is hard to do"
+    },
+    {
+      "23": "the big mac question"
+    },
+    {
+      "24-25": "the ending of the end"
+    },
+    {
+      "26": "the last problem"
+    }
+  ],
+  "8": [
+    {
+      "1-2": "school daze"
+    },
+    {
+      "3": "the maud couple"
+    },
+    {
+      "4": "fake it 'til you make it"
+    },
+    {
+      "5": "grannies gone wild"
+    },
+    {
+      "6": "surf and/or turf"
+    },
+    {
+      "7": "horse play"
+    },
+    {
+      "8": "the parent map"
+    },
+    {
+      "9": "non-compete clause"
+    },
+    {
+      "10": "the break up breakdown"
+    },
+    {
+      "11": "molt down"
+    },
+    {
+      "12": "marks for effort"
+    },
+    {
+      "13": "the mean 6"
+    },
+    {
+      "14": "a matter of principals"
+    },
+    {
+      "15": "the hearth's warming club"
+    },
+    {
+      "16": "friendship university"
+    },
+    {
+      "17": "the end in friend"
+    },
+    {
+      "18": "yakity-sax"
+    },
+    {
+      "19": "on the road to friendship"
+    },
+    {
+      "20": "the washouts (episode)"
+    },
+    {
+      "21": "a rockhoof and a hard place"
+    },
+    {
+      "22": "what lies beneath"
+    },
+    {
+      "23": "sounds of silence"
+    },
+    {
+      "24": "father knows beast"
+    },
+    {
+      "25-26": "school raze"
+    },
+    {
+      "Special": "best gift ever"
+    }
+  ],
+  "7": [
+    {
+      "1": "celestial advice"
+    },
+    {
+      "2": "all bottled up"
+    },
+    {
+      "3": "a flurry of emotions"
+    },
+    {
+      "4": "rock solid friendship"
+    },
+    {
+      "5": "fluttershy leans in"
+    },
+    {
+      "6": "forever filly"
+    },
+    {
+      "7": "parental glideance"
+    },
+    {
+      "8": "hard to say anything"
+    },
+    {
+      "9": "honest apple"
+    },
+    {
+      "10": "a royal problem"
+    },
+    {
+      "11": "not asking for trouble"
+    },
+    {
+      "12": "discordant harmony"
+    },
+    {
+      "13": "the perfect pear"
+    },
+    {
+      "14": "fame and misfortune"
+    },
+    {
+      "15": "triple threat"
+    },
+    {
+      "16": "campfire tales"
+    },
+    {
+      "17": "to change a changeling"
+    },
+    {
+      "18": "daring done?"
+    },
+    {
+      "19": "it isn't the mane thing about you"
+    },
+    {
+      "20": "a health of information"
+    },
+    {
+      "21": "marks and recreation"
+    },
+    {
+      "22": "once upon a zeppelin"
+    },
+    {
+      "23": "secrets and pies"
+    },
+    {
+      "24": "uncommon bond"
+    },
+    {
+      "25-26": "shadow play"
+    }
+  ],
+  "6": [
+    {
+      "1-2": "the crystalling"
+    },
+    {
+      "3": "the gift of the maud pie"
+    },
+    {
+      "4": "on your marks"
+    },
+    {
+      "5": "gauntlet of fire"
+    },
+    {
+      "6": "no second prances"
+    },
+    {
+      "7": "newbie dash"
+    },
+    {
+      "8": "a hearth's warming tail"
+    },
+    {
+      "9": "the saddle row review"
+    },
+    {
+      "10": "applejack's \"day\" off"
+    },
+    {
+      "11": "flutter brutter"
+    },
+    {
+      "12": "spice up your life"
+    },
+    {
+      "13": "stranger than fan fiction"
+    },
+    {
+      "14": "the cart before the ponies"
+    },
+    {
+      "15": "28 pranks later"
+    },
+    {
+      "16": "the times they are a changeling"
+    },
+    {
+      "17": "dungeons and discords"
+    },
+    {
+      "18": "buckball season"
+    },
+    {
+      "19": "the fault in our cutie marks"
+    },
+    {
+      "20": "viva las pegasus"
+    },
+    {
+      "21": "every little thing she does"
+    },
+    {
+      "22": "ppov"
+    },
+    {
+      "23": "where the apple lies"
+    },
+    {
+      "24": "top bolt"
+    },
+    {
+      "25-26": "to where and back again"
+    }
+  ],
+  "5": [
+    {
+      "1-2": "the cutie map"
+    },
+    {
+      "3": "castle sweet castle"
+    },
+    {
+      "4": "bloom and gloom"
+    },
+    {
+      "5": "tanks for the memories"
+    },
+    {
+      "6": "appleoosa's most wanted"
+    },
+    {
+      "7": "make new friends but keep discord"
+    },
+    {
+      "8": "the lost treasure of griffonstone"
+    },
+    {
+      "9": "slice of life (episode)"
+    },
+    {
+      "10": "princess spike"
+    },
+    {
+      "11": "party pooped"
+    },
+    {
+      "12": "amending fences"
+    },
+    {
+      "13": "do princesses dream of magic sheep"
+    },
+    {
+      "14": "canterlot boutique"
+    },
+    {
+      "15": "rarity investigates"
+    },
+    {
+      "16": "made in manehattan"
+    },
+    {
+      "17": "brotherhooves social"
+    },
+    {
+      "18": "crusaders of the lost mark"
+    },
+    {
+      "19": "the one where pinkie pie knows"
+    },
+    {
+      "20": "hearthbreakers"
+    },
+    {
+      "21": "scare master"
+    },
+    {
+      "22": "what about discord?"
+    },
+    {
+      "23": "the hooffields and mccolts"
+    },
+    {
+      "24": "the mane attraction"
+    },
+    {
+      "25-26": "the cutie remark"
+    }
+  ],
+  "4": [
+    {
+      "1-2": "princess twilight sparkle (episode)"
+    },
+    {
+      "3": "castle mane-ia"
+    },
+    {
+      "4": "daring don't"
+    },
+    {
+      "5": "flight to the finish"
+    },
+    {
+      "6": "power ponies"
+    },
+    {
+      "7": "bats!"
+    },
+    {
+      "8": "rarity takes manehattan"
+    },
+    {
+      "9": "pinkie apple pie"
+    },
+    {
+      "10": "rainbow falls"
+    },
+    {
+      "11": "three's a crowd"
+    },
+    {
+      "12": "pinkie pride"
+    },
+    {
+      "13": "simple ways"
+    },
+    {
+      "14": "filli vanilli"
+    },
+    {
+      "15": "twilight time"
+    },
+    {
+      "16": "it ain't easy being breezies"
+    },
+    {
+      "17": "somepony to watch over me"
+    },
+    {
+      "18": "maud pie (episode)"
+    },
+    {
+      "19": "for whom the sweetie belle toils"
+    },
+    {
+      "20": "leap of faith"
+    },
+    {
+      "21": "testing testing 1-2-3"
+    },
+    {
+      "22": "trade ya"
+    },
+    {
+      "23": "inspiration manifestation"
+    },
+    {
+      "24": "equestria games"
+    },
+    {
+      "25-26": "twilight's kingdom"
+    }
+  ],
+  "3": [
+    {
+      "1-2": "the crystal empire"
+    },
+    {
+      "3": "too many pinkie pies"
+    },
+    {
+      "4": "one bad apple"
+    },
+    {
+      "5": "magic duel"
+    },
+    {
+      "6": "sleepless in ponyville"
+    },
+    {
+      "7": "wonderbolts academy"
+    },
+    {
+      "8": "just for sidekicks"
+    },
+    {
+      "9": "apple family reunion"
+    },
+    {
+      "10": "spike at your service"
+    },
+    {
+      "11": "keep calm and flutter on"
+    },
+    {
+      "12": "games ponies play"
+    },
+    {
+      "13": "magical mystery cure"
+    }
+  ],
+  "2": [
+    {
+      "1-2": "the return of harmony"
+    },
+    {
+      "3": "lesson zero"
+    },
+    {
+      "4": "luna eclipsed"
+    },
+    {
+      "5": "sisterhooves social"
+    },
+    {
+      "6": "the cutie pox"
+    },
+    {
+      "7": "may the best pet win"
+    },
+    {
+      "8": "the mysterious mare do well"
+    },
+    {
+      "9": "sweet and elite"
+    },
+    {
+      "10": "secret of my excess"
+    },
+    {
+      "11": "family appreciation day"
+    },
+    {
+      "12": "baby cakes"
+    },
+    {
+      "13": "hearth's warming eve (episode)"
+    },
+    {
+      "14": "the last roundup"
+    },
+    {
+      "15": "the super speedy cider squeezy 6000"
+    },
+    {
+      "16": "read it and weep"
+    },
+    {
+      "17": "hearts and hooves day (episode)"
+    },
+    {
+      "18": "a friend in deed"
+    },
+    {
+      "19": "putting your hoof down"
+    },
+    {
+      "20": "it's about time"
+    },
+    {
+      "21": "dragon quest"
+    },
+    {
+      "22": "hurricane fluttershy"
+    },
+    {
+      "23": "ponyville confidential"
+    },
+    {
+      "24": "mmmystery on the friendship express"
+    },
+    {
+      "25-26": "a canterlot wedding"
+    }
+  ],
+  "1": [
+    {
+      "1-2": "friendship is magic"
+    },
+    {
+      "3": "the ticket master"
+    },
+    {
+      "4": "applebuck season"
+    },
+    {
+      "5": "griffon the brush off"
+    },
+    {
+      "6": "boast busters"
+    },
+    {
+      "7": "dragonshy"
+    },
+    {
+      "8": "look before you sleep"
+    },
+    {
+      "9": "bridle gossip"
+    },
+    {
+      "10": "swarm of the century"
+    },
+    {
+      "11": "winter wrap up"
+    },
+    {
+      "12": "call of the cutie"
+    },
+    {
+      "13": "fall weather friends"
+    },
+    {
+      "14": "suited for success"
+    },
+    {
+      "15": "feeling pinkie keen"
+    },
+    {
+      "16": "sonic rainboom (episode)"
+    },
+    {
+      "17": "stare master"
+    },
+    {
+      "18": "the show stoppers"
+    },
+    {
+      "19": "a dog and pony show"
+    },
+    {
+      "20": "green isn't your color"
+    },
+    {
+      "21": "over a barrel"
+    },
+    {
+      "22": "a bird in the hoof"
+    },
+    {
+      "23": "the cutie mark chronicles"
+    },
+    {
+      "24": "owl's well that ends well"
+    },
+    {
+      "25": "party of one"
+    },
+    {
+      "26": "the best night ever"
+    }
+  ]
 }
