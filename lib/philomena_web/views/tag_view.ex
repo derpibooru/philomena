@@ -114,7 +114,7 @@ defmodule PhilomenaWeb.TagView do
         sort: %{images: :desc}
       },
       %{page_size: 40},
-      Tag
+      Tag |> preload(:implied_tags)
     )
   end
 end
