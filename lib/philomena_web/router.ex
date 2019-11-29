@@ -131,6 +131,7 @@ defmodule PhilomenaWeb.Router do
     resources "/pages", PageController, only: [:show]
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
+    resources "/stats", StatController, only: [:index]
 
     get "/:id", ImageController, :show
     # get "/:forum_id", ForumController, :show # impossible to do without constraints

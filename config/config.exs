@@ -22,6 +22,7 @@ config :philomena,
   cdn_host: "",
   proxy_host: nil,
   quick_tags_json: File.read!("config/quick_tag_table.json"),
+  aggregation_json: File.read!("config/aggregation.json"),
   footer_json: File.read!("config/footer.json")
 
 config :philomena, :pow,

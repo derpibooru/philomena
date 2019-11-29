@@ -1,0 +1,76 @@
+h1 Site Statistics
+
+elixir:
+  img_bucket = @image_aggs["aggregations"]
+  cmt_bucket = @comment_aggs["aggregations"]
+
+.walloftext
+  h3 Images
+  p
+    ' There are
+    span.stat>
+      = number_with_delimiter(img_bucket["non_deleted"]["doc_count"])
+    ' non-deleted images total in our database. Of these,
+    span.stat>
+      = number_with_delimiter(img_bucket["non_deleted"]["last_24h"]["doc_count"])
+    ' images were uploaded in the last 24 hours.
+  p
+    ' This net total excludes the
+    => number_with_delimiter(img_bucket["deleted"]["doc_count"])
+    ' images that have been deleted or marked as duplicates.
+  
+  h3 Comments
+  p
+    ' There are
+    span.stat>
+      = number_with_delimiter(@comment_aggs["hits"]["total"])
+    ' comments on the site. Of these,
+    => number_with_delimiter(cmt_bucket["deleted"]["doc_count"])
+    ' have been deleted.
+  p
+    ' In the last 24 hours,
+    span.stat>
+      = number_with_delimiter(cmt_bucket["last_24h"]["doc_count"])
+    ' comments have been posted.
+  p
+    ' There are, on average,
+    span.stat>
+      = number_with_delimiter(trunc(img_bucket["non_deleted"]["avg_comments"]["value"]))
+    ' comments on each image on the site.
+  
+  h3 Votes
+  p
+    ' Out of
+    => number_with_delimiter(img_bucket["doc_count"])
+    ' images,
+    span.stat>
+      = number_with_delimiter(img_bucket["score_gt_0"]["doc_count"])
+    ' images have a score above 0, and
+    span.stat>
+      = number_with_delimiter(img_bucket["score_lt_0"]["doc_count"])
+    ' images have a score below 0.
+    span.stat>
+      = number_with_delimiter(img_bucket["faves_gt_0"]["doc_count"])
+    ' images have been faved by at least one user.
+
+  h3 Forums
+  p
+    ' In our
+    => @forums_count
+    ' forums there have been
+    span.stat>
+      = number_with_delimiter(@topics_count)
+    ' topics started. There have been
+    span.stat>
+      = number_with_delimiter(@posts_count)
+    ' replies to topics in total.
+
+  h3 Users
+  p
+    ' There are
+    span.stat>
+      = number_with_delimiter(@users_count)
+    ' users on the site. Of these,
+    span.stat>
+      = number_with_delimiter(@users_24h)
+    ' have joined in the last 24 hours.

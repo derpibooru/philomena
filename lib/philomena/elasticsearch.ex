@@ -82,19 +82,24 @@ defmodule Philomena.Elasticsearch do
         reindex(ecto_query, batch_size, ids)
       end
 
-      def search_results(elastic_query, pagination_params \\ %{}) do
-        page_number = pagination_params[:page_number] || 1
-        page_size = pagination_params[:page_size] || 25
-        elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
-
+      def search(query_body) do
         {:ok, %{body: results, status_code: 200}} =
           Elastix.Search.search(
             unquote(elastic_url),
             unquote(index_name),
             [unquote(doc_type)],
-            elastic_query
+            query_body
           )
 
+        results
+      end
+
+      def search_results(elastic_query, pagination_params \\ %{}) do
+        page_number = pagination_params[:page_number] || 1
+        page_size = pagination_params[:page_size] || 25
+        elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
+
+        results = search(elastic_query)
         time = results["took"]
         count = results["hits"]["total"]
         entries = results["hits"]["hits"] |> Enum.map(&String.to_integer(&1["_id"]))

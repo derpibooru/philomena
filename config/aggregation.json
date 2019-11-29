@@ -1,0 +1,89 @@
+{
+  "comments": {
+    "aggs": {
+      "deleted": {
+        "filter": {
+          "term": {
+            "hidden_from_users": true
+          }
+        }
+      },
+      "last_24h": {
+        "filter": {
+          "range": {
+            "posted_at": {
+              "gt": "now-24h"
+            }
+          }
+        }
+      }
+    }
+  },
+  "images": {
+    "aggs": {
+      "deleted": {
+        "filter": {
+          "term": {
+            "hidden_from_users": true
+          }
+        }
+      },
+      "non_deleted": {
+        "aggs": {
+          "all_time": {
+            "date_histogram": {
+              "field": "created_at",
+              "interval": "day"
+            }
+          },
+          "avg_comments": {
+            "avg": {
+              "field": "comment_count"
+            }
+          },
+          "faves_gt_0": {
+            "filter": {
+              "range": {
+                "faves": {
+                  "gt": 0
+                }
+              }
+            }
+          },
+          "last_24h": {
+            "filter": {
+              "range": {
+                "created_at": {
+                  "gt": "now-24h"
+                }
+              }
+            }
+          },
+          "score_gt_0": {
+            "filter": {
+              "range": {
+                "score": {
+                  "gt": 0
+                }
+              }
+            }
+          },
+          "score_lt_0": {
+            "filter": {
+              "range": {
+                "score": {
+                  "lt": 0
+                }
+              }
+            }
+          }
+        },
+        "filter": {
+          "term": {
+            "hidden_from_users": false
+          }
+        }
+      }
+    }
+  }
+}
