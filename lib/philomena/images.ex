@@ -69,6 +69,9 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
+    |> Multi.run(:subscribe, fn _repo, %{image: image} ->
+      create_subscription(image, attribution[:user])
+    end)
     |> Multi.run(:after, fn _repo, %{image: image} ->
       Processors.after_insert(image)
 
