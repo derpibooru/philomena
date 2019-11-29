@@ -2,7 +2,7 @@ defmodule Philomena.Scrapers do
   @scrapers [
     Philomena.Scrapers.Deviantart,
     Philomena.Scrapers.Twitter,
-    Philomena.Scrapers.Tumblr,
+    #Philomena.Scrapers.Tumblr, # blocked on benoitc/hackney#566
     Philomena.Scrapers.Raw
   ]
 
