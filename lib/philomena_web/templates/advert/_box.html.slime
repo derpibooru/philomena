@@ -1,7 +1,7 @@
 .block#imagespns
   .spnstxt
     ' Interested in advertising on Derpibooru?
-    = link "Click here", to: "/pages/advertising"
+    => link "Click here", to: "/pages/advertising"
     ' for information!
 
   a href=Routes.advert_path(@conn, :show, @advert) rel="nofollow" title=@advert.title
