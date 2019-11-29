@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.DnpEntryController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: DnpEntry, only: [:show]
+  plug :load_and_authorize_resource, model: DnpEntry, only: [:show], preload: [:tag]
 
   def index(conn, _params) do
     dnp_entries =
