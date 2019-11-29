@@ -7,7 +7,7 @@ h1 Tags
 
   .fieldlabel
     ' For more information, see the
-    a href="/search/syntax" search syntax documentation
+    a href="/pages/search_syntax" search syntax documentation
     ' . Wildcards are supported in all literal fields.
     ' Search results are sorted by image count, then by name alphabetically.
 

@@ -5,7 +5,7 @@
   nav.pagination
     = if not first_page?(@page) do
       = link("« First", to: first_page_path(@page, @route, params))
-      = link("‹ Prev", to: prev_page_path(@page, @route, params))
+      = link("‹ Prev", to: prev_page_path(@page, @route, params), class: "js-prev")
 
     = if left_gap?(@page) do
       span.page.gap
@@ -24,7 +24,7 @@
         ' …
 
     = if not last_page?(@page) do
-      = link("Next ›", to: next_page_path(@page, @route, params))
+      = link("Next ›", to: next_page_path(@page, @route, params), class: "js-next")
 
       = if last do
         = link("Last »", to: last_page_path(@page, @route, params))

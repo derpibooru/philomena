@@ -18,7 +18,7 @@ header.header
         i.fa-embedded--search
       a.header__search__button href="/search/reverse" title="Search using an image"
         i.fa-embedded--camera
-      a.header__search__button href="/search/syntax" title="Search syntax help"
+      a.header__search__button href="/pages/search_syntax" title="Search syntax help"
         i.fa-embedded--help
 
     .flex.flex--centered.flex--no-wrap.header__force-right

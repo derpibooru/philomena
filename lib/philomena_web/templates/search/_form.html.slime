@@ -61,7 +61,7 @@ h1 Search
       .hidden.walloftext data-search-help="date"
         strong.js-search-help-subject>
         ' is a date/time field. It accepts a
-        a href="search/syntax#date-range" tweaked subset of the ISO 8601 standard
+        a href="/pages/search_syntax#date-range" tweaked subset of the ISO 8601 standard
         | , as well as relative dates
         code<
           | (X minutes/hours/days/months/years ago)
