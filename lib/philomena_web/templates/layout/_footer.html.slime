@@ -1,4 +1,19 @@
 footer#footer
+  #footer_content
+    - footer_data = footer_data()
+
+    = for column <- footer_data["cols"] do
+      .footercol
+        h5 = column
+        
+        = for row <- footer_data[column] do
+          = if row["bold"] do
+            strong
+              a href=row["url"] = row["title"]
+          - else
+            a href=row["url"] = row["title"]
+          br
+
   #serving_info
     ' Powered by the 
     a href="https://github.com/derpibooru/philomena" philomena project

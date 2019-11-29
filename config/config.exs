@@ -19,7 +19,9 @@ config :philomena,
   badge_url_root: "/media",
   image_file_root: "priv/static/system/images",
   cdn_host: "",
-  proxy_host: nil
+  proxy_host: nil,
+  quick_tags_json: File.read!("config/quick_tag_table.json"),
+  footer_json: File.read!("config/footer.json")
 
 config :philomena, :pow,
   user: Philomena.Users.User,

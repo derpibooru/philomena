@@ -47,6 +47,19 @@ defmodule PhilomenaWeb.LayoutView do
     tag(:div, class: "js-datastore", data: data)
   end
 
+  def footer_data do
+    case Application.get_env(:philomena, :footer) do
+      nil ->
+        footer = Jason.decode!(Application.get_env(:philomena, :footer_json))
+        Application.put_env(:philomena, :footer, footer)
+
+        footer
+
+      footer ->
+        footer
+    end
+  end
+
   def stylesheet_path(conn, %{theme: "dark"}),
     do: Routes.static_path(conn, "/css/dark.css")
 
