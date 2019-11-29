@@ -18,6 +18,12 @@ defmodule Philomena.Processors.Jpeg do
 
   def post_process(_analysis, _file), do: %{}
 
+  def intensities(_analysis, file) do
+    {:ok, intensities} = Intensities.file(file)
+    intensities
+  end
+
+  
   defp strip(file) do
     stripped = Briefly.create!(extname: ".jpg")
 

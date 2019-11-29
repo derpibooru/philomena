@@ -6,31 +6,40 @@ defmodule Philomena.Processors do
   alias Philomena.Mime
   alias Philomena.Sha512
 
-  @mimes %{
-    "image/gif" => "image/gif",
-    "image/jpeg" => "image/jpeg",
-    "image/png" => "image/png",
-    "image/svg+xml" => "image/svg+xml",
-    "video/webm" => "video/webm",
-    "image/svg" => "image/svg+xml",
-    "audio/webm" => "video/webm"
-  }
+  def mimes(type) do
+    %{
+      "image/gif" => "image/gif",
+      "image/jpeg" => "image/jpeg",
+      "image/png" => "image/png",
+      "image/svg+xml" => "image/svg+xml",
+      "video/webm" => "video/webm",
+      "image/svg" => "image/svg+xml",
+      "audio/webm" => "video/webm"
+    }
+    |> Map.get(type)
+  end
 
-  @analyzers %{
-    "image/gif" => Philomena.Analyzers.Gif,
-    "image/jpeg" => Philomena.Analyzers.Jpeg,
-    "image/png" => Philomena.Analyzers.Png,
-    "image/svg+xml" => Philomena.Analyzers.Svg,
-    "video/webm" => Philomena.Analyzers.Webm
-  }
+  def analyzers(type) do
+    %{
+      "image/gif" => Philomena.Analyzers.Gif,
+      "image/jpeg" => Philomena.Analyzers.Jpeg,
+      "image/png" => Philomena.Analyzers.Png,
+      "image/svg+xml" => Philomena.Analyzers.Svg,
+      "video/webm" => Philomena.Analyzers.Webm
+    }
+    |> Map.get(type)
+  end
 
-  @processors %{
-    "image/gif" => Philomena.Processors.Gif,
-    "image/jpeg" => Philomena.Processors.Jpeg,
-    "image/png" => Philomena.Processors.Png,
-    "image/svg+xml" => Philomena.Processors.Svg,
-    "video/webm" => Philomena.Processors.Webm
-  }
+  def processors(type) do
+    %{
+      "image/gif" => Philomena.Processors.Gif,
+      "image/jpeg" => Philomena.Processors.Jpeg,
+      "image/png" => Philomena.Processors.Png,
+      "image/svg+xml" => Philomena.Processors.Svg,
+      "video/webm" => Philomena.Processors.Webm
+    }
+    |> Map.get(type)
+  end
 
   @versions [
     thumb_tiny: {50, 50},
@@ -47,8 +56,8 @@ defmodule Philomena.Processors do
     with upload when not is_nil(upload) <- params["image"],
          file <- upload.path,
          {:ok, mime} <- Mime.file(file),
-         mime <- @mimes[mime],
-         analyzer when not is_nil(analyzer) <- @analyzers[mime],
+         mime <- mimes(mime),
+         analyzer when not is_nil(analyzer) <- analyzers(mime),
          analysis <- analyzer.analyze(file),
          changes <- analysis_to_changes(analysis, file, upload.filename)
     do
@@ -73,9 +82,9 @@ defmodule Philomena.Processors do
 
     mime = image.image_mime_type
     file = image_file(image)
-    analyzer = @analyzers[mime]
+    analyzer = analyzers(mime)
     analysis = analyzer.analyze(file)
-    processor = @processors[mime]
+    processor = processors(mime)
     process = processor.process(analysis, file, @versions)
 
     apply_edit_script(image, process)

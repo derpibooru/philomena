@@ -98,6 +98,9 @@ defmodule PhilomenaWeb.Router do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true
     end
     resources "/tags", TagController, only: [:index, :show]
+    scope "/search", Search, as: :search do
+      resources "/reverse", ReverseController, only: [:index, :create]
+    end
     resources "/search", SearchController, only: [:index]
     resources "/forums", ForumController, only: [:index, :show] do
       resources "/topics", TopicController, only: [:show] do

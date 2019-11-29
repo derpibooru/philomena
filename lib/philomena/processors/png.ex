@@ -18,6 +18,12 @@ defmodule Philomena.Processors.Png do
     %{replace_original: optimize(file)}
   end
 
+  def intensities(_analysis, file) do
+    {:ok, intensities} = Intensities.file(file)
+    intensities
+  end
+
+
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".png")
 

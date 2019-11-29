@@ -20,6 +20,12 @@ defmodule Philomena.Processors.Webm do
 
   def post_process(_analysis, _file), do: %{}
 
+  def intensities(analysis, file) do
+    {:ok, intensities} = Intensities.file(preview(analysis.duration, file))
+    intensities
+  end
+
+  
   defp preview(duration, file) do
     preview = Briefly.create!(extname: ".png")
 

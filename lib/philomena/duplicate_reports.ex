@@ -30,7 +30,7 @@ defmodule Philomena.DuplicateReports do
       where: it.ne >= ^(intensities.ne - dist) and it.ne <= ^(intensities.ne + dist),
       where: it.sw >= ^(intensities.sw - dist) and it.sw <= ^(intensities.sw + dist),
       where: it.se >= ^(intensities.se - dist) and it.se <= ^(intensities.se + dist),
-      where: i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and i.image_aspect_ratio >= ^(aspect_ratio + aspect_dist),
+      where: i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
       limit: 20
   end
 

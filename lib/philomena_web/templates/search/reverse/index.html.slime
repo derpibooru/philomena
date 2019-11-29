@@ -1,0 +1,74 @@
+h1 Reverse Search
+
+= form_for :image, Routes.search_reverse_path(@conn, :create), [multipart: true], fn f ->
+  p
+    ' Basic image similarity search. Finds uploaded images similar to the one
+    ' provided based on simple intensities and uses the median frame of GIFs;
+    ' very low contrast images (such as sketches) will produce poor results
+    ' and, regardless of contrast, results may include seemingly random images
+    ' that look very different.
+
+  .image-other
+    #js-image-upload-previews
+    p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
+    .field
+      = file_input f, :image, class: "input js-scraper"
+
+    .field.field--inline
+      = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+      button.button.button--separate-left#js-scraper-preview type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch"
+        ' Fetch
+
+    .field-error-js.hidden.js-scraper
+
+  h4 Optional settings
+
+  .field
+    = label f, :distance, "Match distance (suggested values: between 0.2 and 0.5)"
+    br
+    = number_input f, :distance, value: 0.25, min: 0, max: 1, step: 0.01, class: "input"
+
+  .field
+    = submit "Reverse Search", class: "button"
+
+= cond do
+  - is_nil(@images) ->
+  
+  - Enum.any?(@images) ->
+    h2 Results
+
+    table
+      tr
+        th &nbsp;
+        th Image
+        th &nbsp;
+      
+      = for match <- @images do
+        tr
+          td
+            h3 = link "##{match.id}", to: Routes.image_path(@conn, :show, match)
+            p
+              = if match.source_url not in [nil, ""] do
+                span.source_url
+                  = link "Source", to: match.source_url
+              - else
+                ' Unknown source
+
+          td
+            = render PhilomenaWeb.ImageView, "_image_container.html", image: match, size: :thumb, conn: @conn
+
+          td
+            h3
+              = match.image_width
+              | x
+              => match.image_height
+              ' -
+              => round(match.image_size / 1024)
+              ' KiB
+
+            = render PhilomenaWeb.TagView, "_tag_list.html", tags: Tag.display_order(match.tags)
+
+  - true ->
+    h2 Results
+    p
+      ' We couldn't find any images matching this in our image database.

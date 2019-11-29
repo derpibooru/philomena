@@ -21,6 +21,12 @@ defmodule Philomena.Processors.Gif do
     %{replace_original: optimize(file)}
   end
 
+  def intensities(analysis, file) do
+    {:ok, intensities} = Intensities.file(preview(analysis.duration, file))
+    intensities
+  end
+
+  
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".gif")
 

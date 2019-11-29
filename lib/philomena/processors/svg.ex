@@ -16,6 +16,12 @@ defmodule Philomena.Processors.Svg do
 
   def post_process(_analysis, _file), do: %{}
 
+  def intensities(_analysis, file) do
+    {:ok, intensities} = Intensities.file(preview(file))
+    intensities
+  end
+
+
   defp preview(file) do
     preview = Briefly.create!(extname: ".png")
 
