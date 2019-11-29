@@ -8,17 +8,71 @@ defmodule Philomena.Adverts do
 
   alias Philomena.Adverts.Advert
 
-  @doc """
-  Returns the list of adverts.
 
-  ## Examples
+  def random_live do
+    now = DateTime.utc_now()
 
-      iex> list_adverts()
-      [%Advert{}, ...]
+    Advert
+    |> where(live: true, restrictions: "none")
+    |> where([a], a.start_date < ^now and a.finish_date > ^now)
+    |> order_by(asc: fragment("random()"))
+    |> limit(1)
+    |> Repo.one()
+    |> record_impression()
+  end
 
-  """
-  def list_adverts do
-    Repo.all(Advert)
+  def random_live_for(image) do
+    image = Repo.preload(image, :tags)
+    now = DateTime.utc_now()
+
+    Advert
+    |> where(live: true)
+    |> where([a], a.restrictions in ^restrictions(image))
+    |> where([a], a.start_date < ^now and a.finish_date > ^now)
+    |> order_by(asc: fragment("random()"))
+    |> limit(1)
+    |> Repo.one()
+    |> record_impression()
+  end
+
+  def click(%Advert{} = advert) do
+    spawn fn ->
+      query = where(Advert, id: ^advert.id)
+      Repo.update_all(query, inc: [clicks: 1])
+    end
+  end
+
+  defp record_impression(nil), do: nil
+  defp record_impression(advert) do
+    spawn fn ->
+      query = where(Advert, id: ^advert.id)
+      Repo.update_all(query, inc: [impressions: 1])
+    end
+
+    advert
+  end
+
+  defp sfw?(image) do
+    image_tags = MapSet.new(image.tags |> Enum.map(& &1.name))
+    sfw_tags = MapSet.new(["safe", "suggestive"])
+    intersect = MapSet.intersection(image_tags, sfw_tags)
+
+    MapSet.size(intersect) > 0
+  end
+
+  defp nsfw?(image) do
+    image_tags = MapSet.new(image.tags |> Enum.map(& &1.name))
+    nsfw_tags = MapSet.new(["questionable", "explicit"])
+    intersect = MapSet.intersection(image_tags, nsfw_tags)
+
+    MapSet.size(intersect) > 0
+  end
+
+  defp restrictions(image) do
+    restrictions = ["none"]
+    restrictions = if nsfw?(image), do: ["nsfw" | restrictions], else: restrictions
+    restrictions = if sfw?(image), do: ["sfw" | restrictions], else: restrictions
+    restrictions
   end
 
   @doc """

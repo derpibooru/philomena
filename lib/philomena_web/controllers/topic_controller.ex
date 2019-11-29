@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.TopicController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:new, :create]
+  plug PhilomenaWeb.AdvertPlug when action in [:show]
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
   def show(conn, %{"id" => slug} = params) do

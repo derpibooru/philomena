@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
   plug PhilomenaWeb.ScraperPlug, [params_name: "image", params_key: "image"] when action in [:create]
+  plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
     query = conn.assigns.compiled_filter

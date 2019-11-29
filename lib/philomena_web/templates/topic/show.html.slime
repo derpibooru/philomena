@@ -38,7 +38,8 @@ h1 = @topic.title
     = for {post, body} <- @posts, !post.destroyed_content do
       = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
 
-    /include ../adverts/_box.html.slim
+    = if @conn.assigns.advert do
+      = render PhilomenaWeb.Advertview, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
   / Post editability data for JS
   /.js-editable-posts data-editable=editable_communications(@posts).to_json
