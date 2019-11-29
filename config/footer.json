@@ -40,7 +40,7 @@
   "Help & Information": [
     {
       "title": "Changelog",
-      "url": "/changelog",
+      "url": "https://github.com/derpibooru/philomena/commits/master",
       "bold": true
     },
     {
