@@ -7,6 +7,7 @@ defmodule Philomena.Channels do
   alias Philomena.Repo
 
   alias Philomena.Channels.Channel
+  alias Philomena.Notifications
 
   @doc """
   Returns the list of channels.
@@ -105,35 +106,6 @@ defmodule Philomena.Channels do
   alias Philomena.Channels.Subscription
 
   @doc """
-  Returns the list of channel_subscriptions.
-
-  ## Examples
-
-      iex> list_channel_subscriptions()
-      [%Subscription{}, ...]
-
-  """
-  def list_channel_subscriptions do
-    Repo.all(Subscription)
-  end
-
-  @doc """
-  Gets a single subscription.
-
-  Raises `Ecto.NoResultsError` if the Subscription does not exist.
-
-  ## Examples
-
-      iex> get_subscription!(123)
-      %Subscription{}
-
-      iex> get_subscription!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_subscription!(id), do: Repo.get!(Subscription, id)
-
-  @doc """
   Creates a subscription.
 
   ## Examples
@@ -145,28 +117,11 @@ defmodule Philomena.Channels do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscription(attrs \\ %{}) do
-    %Subscription{}
-    |> Subscription.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a subscription.
-
-  ## Examples
-
-      iex> update_subscription(subscription, %{field: new_value})
-      {:ok, %Subscription{}}
-
-      iex> update_subscription(subscription, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_subscription(%Subscription{} = subscription, attrs) do
-    subscription
-    |> Subscription.changeset(attrs)
-    |> Repo.update()
+  def create_subscription(_channel, nil), do: {:ok, nil}
+  def create_subscription(channel, user) do
+    %Subscription{channel_id: channel.id, user_id: user.id}
+    |> Subscription.changeset(%{})
+    |> Repo.insert(on_conflict: :nothing)
   end
 
   @doc """
@@ -181,20 +136,22 @@ defmodule Philomena.Channels do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_subscription(%Subscription{} = subscription) do
-    Repo.delete(subscription)
+  def delete_subscription(channel, user) do
+    clear_notification(channel, user)
+
+    %Subscription{channel_id: channel.id, user_id: user.id}
+    |> Repo.delete()
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking subscription changes.
+  def subscribed?(_channel, nil), do: false
+  def subscribed?(channel, user) do
+    Subscription
+    |> where(channel_id: ^channel.id, user_id: ^user.id)
+    |> Repo.exists?()
+  end
 
-  ## Examples
-
-      iex> change_subscription(subscription)
-      %Ecto.Changeset{source: %Subscription{}}
-
-  """
-  def change_subscription(%Subscription{} = subscription) do
-    Subscription.changeset(subscription, %{})
+  def clear_notification(channel, user) do
+    Notifications.delete_unread_notification("Channel", channel.id, user)
+    Notifications.delete_unread_notification("LivestreamChannel", channel.id, user)
   end
 end

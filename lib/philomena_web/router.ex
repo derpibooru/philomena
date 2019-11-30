@@ -18,6 +18,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.SiteNoticePlug
     plug PhilomenaWeb.ForumListPlug
     plug PhilomenaWeb.FilterSelectPlug
+    plug PhilomenaWeb.ChannelPlug
   end
 
   pipeline :api do
@@ -134,6 +135,7 @@ defmodule PhilomenaWeb.Router do
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
     resources "/stats", StatController, only: [:index]
+    resources "/channels", ChannelController, only: [:index, :show]
 
     get "/:id", ImageController, :show
     # get "/:forum_id", ForumController, :show # impossible to do without constraints

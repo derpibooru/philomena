@@ -1,0 +1,30 @@
+h1 Livestreams
+
+- route = fn p -> Routes.channel_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn
+
+/= form_tag channels_path, method: :get, class: 'hform', enforce_utf8: false do
+  .field
+    = text_field_tag :cq, params[:cq], class: 'input hform__text', placeholder: 'Search channels'
+    = submit_tag 'Search', class: 'hform__button button'
+.block
+  .block__header
+    = pagination
+
+  .block__content
+    = for channel <- @channels do
+      = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn
+
+  .block__header
+    = pagination
+
+br
+.clearfix &nbsp;
+h2 FAQ
+p
+  strong> Q: Do you host streams?
+  | A: No, we cheat and just link to streams on Livestream/Picarto since that's where (almost) everyone is already. This is simply a nice way to track streaming artists.
+p
+  strong> Q: How do I get my stream/a friend's stream/<artist>'s stream here?
+  ' A: Send a private message to a site administrator
+  ' with a link to the stream and the artist tag if applicable.

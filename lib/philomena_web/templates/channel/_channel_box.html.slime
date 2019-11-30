@@ -1,0 +1,34 @@
+- link_class = "media-box__header media-box__header--channel media-box__header--link"
+
+.media-box
+  a.media-box__header.media-box__header--channel.media-box__header--link href=Routes.channel_path(@conn, :show, @channel) title=@channel.title
+    = @channel.title || @channel.short_name
+
+  .media-box__header.media-box__header--channel
+    = if @channel.is_live do
+      .spacing-right.label.label--success.label--block.label--small: strong LIVE NOW
+      => @channel.viewers
+      => pluralize "viewer", "viewers", @channel.viewers
+    - else
+      .label.label--danger.label--block.label--small: strong OFF AIR
+
+  = if @channel.nsfw do
+    .media-box__overlay
+      | NSFW
+
+  .media-box__content.media-box__content--channel
+    a href=Routes.channel_path(@conn, :show, @channel)
+      .image-constrained.media-box__content--channel
+        img src=channel_image(@channel) alt="#{@channel.title}"
+
+  = if @channel.associated_artist_tag do
+    a href=Routes.tag_path(@conn, :show, @channel.associated_artist_tag) class=link_class
+      i.fa.fa-fw.fa-tags>
+      = @channel.associated_artist_tag.name
+  - else
+    .media-box__header.media-box__header--channel No artist tag
+
+  /- if current_user
+  /  = subscription_link channel, current_user, class: link_class
+  /- else
+  /  .media-box__header.media-box__header--channel Login to subscribe

@@ -16,6 +16,7 @@ config :bcrypt_elixir,
 
 config :philomena,
   anonymous_name_salt: System.get_env("ANONYMOUS_NAME_SALT"),
+  channel_url_root: System.get_env("CHANNEL_URL_ROOT"),
   password_pepper: System.get_env("PASSWORD_PEPPER"),
   avatar_url_root: System.get_env("AVATAR_URL_ROOT"),
   advert_url_root: System.get_env("ADVERT_URL_ROOT"),

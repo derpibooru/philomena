@@ -30,6 +30,11 @@
         | Post Search
   a.header__link href="/tags"
     | Tags
+  a.header__link href="/channels"
+    ' Live
+    span.header__counter
+      = @conn.assigns.live_channels
+
   a.header__link href='/galleries'
     | Galleries
   a.header__link href='/commissions'
