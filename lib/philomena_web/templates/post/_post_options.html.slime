@@ -26,7 +26,7 @@ div
     ' Quote
 
   a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=safe_author
-    i.fa.fa-reply
+    i.fa.fa-reply>
     ' Reply
   /span.owner-options.hidden
   /  strong =<> link_to edit_forum_topic_post_path(post.topic.forum, post.topic, post), class: 'communication__interaction' do
