@@ -149,7 +149,7 @@ defmodule Textile.MarkupLexer do
 
     markup_at_start =
       choice([
-        markup_opening_tags,
+        times(markup_opening_tags, min: 1),
         bracketed_markup_opening_tags
       ])
 
@@ -159,8 +159,8 @@ defmodule Textile.MarkupLexer do
         literal,
         bracketed_markup_closing_tags,
         bracketed_markup_opening_tags |> lookahead_not(space()),
-        preceding_whitespace |> concat(markup_opening_tags),
-        markup_closing_tags |> lookahead(choice([special_characters(), ending_sequence])),
+        preceding_whitespace |> times(markup_opening_tags, min: 1),
+        times(markup_closing_tags, min: 1) |> lookahead(choice([special_characters(), ending_sequence])),
         double_newline,
         newline,
         utf8_char([])
