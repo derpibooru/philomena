@@ -2,6 +2,35 @@ defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
   alias Philomena.Tags.Tag
+  alias Plug.Conn
+
+  def show_vote_counts?(%{hide_vote_counts: true}), do: false
+  def show_vote_counts?(_user), do: true
+
+  # this is a bit ridculous
+  def render_intent(conn, %{thumbnails_generated: false}, _size), do: :not_rendered
+  def render_intent(conn, image, size) do
+    uris = thumb_urls(image, false)
+    vid? = image.image_mime_type == "video/webm"
+    gif? = image.image_mime_type == "image/gif"
+    tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
+    alt = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tags}"
+
+    hidpi? = conn.cookies["hidpi"] == "true"
+    webm? = conn.cookies["webm"] == "true"
+    use_gif? = vid? and not webm? and size in ~W(thumb thumb_small thumb_tiny)a
+
+    cond do
+      hidpi? and not (gif? or vid?) ->
+        {:hidpi, uris[size], uris[:medium], alt}
+
+      not vid? or use_gif? ->
+        {:image, String.replace(uris[size], ".webm", ".gif"), alt}
+
+      true ->
+        {:video, uris[size], String.replace(uris[size], ".webm", ".mp4"), alt}
+    end
+  end
 
   def thumb_urls(image, show_hidden) do
     %{
@@ -14,7 +43,21 @@ defmodule PhilomenaWeb.ImageView do
       tall: thumb_url(image, show_hidden, :tall),
       full: pretty_url(image, true, false)
     }
+    |> append_gif_urls(image, show_hidden)
   end
+
+  defp append_gif_urls(urls, %{image_mime_type: "image/gif"} = image, show_hidden) do
+    full_url = thumb_url(image, show_hidden, :full)
+
+    Map.merge(
+      urls,
+      %{
+        webm: String.replace(full_url, ".gif", ".webm"),
+        mp4: String.replace(full_url, ".gif", ".mp4")
+      }
+    )
+  end
+  defp append_gif_urls(urls, _image, _show_hidden), do: urls
 
   def thumb_url(image, show_hidden, name) do
     %{year: year, month: month, day: day} = image.created_at

@@ -9,9 +9,11 @@ defmodule PhilomenaWeb.ChannelController do
   plug :load_resource, model: Channel
 
   def index(conn, _params) do
+    show_nsfw? = conn.cookies["chan_nsfw"] == "true"
     channels =
       Channel
-      |> where([c], c.nsfw == false and not is_nil(c.last_fetched_at))
+      |> maybe_show_nsfw(show_nsfw?)
+      |> where([c], not is_nil(c.last_fetched_at))
       |> order_by(desc: :is_live, asc: :title)
       |> preload(:associated_artist_tag)
       |> Repo.paginate(conn.assigns.scrivener)
@@ -27,6 +29,9 @@ defmodule PhilomenaWeb.ChannelController do
 
     redirect(conn, external: url(channel))
   end
+
+  defp maybe_show_nsfw(query, true), do: query
+  defp maybe_show_nsfw(query, _falsy), do: where(query, [c], c.nsfw == false)
 
   defp url(%{type: "LivestreamChannel", short_name: short_name}),
     do: "http://www.livestream.com/#{short_name}"

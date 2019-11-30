@@ -12,6 +12,8 @@ defmodule Philomena.Users.User do
     extensions: [PowResetPassword, PowLockout]
 
   import Ecto.Changeset
+  import Philomena.Schema.TagList
+  import Philomena.Schema.Search
 
   alias Philomena.Filters.Filter
   alias Philomena.UserLinks.UserLink
@@ -106,6 +108,7 @@ defmodule Philomena.Users.User do
     # Poorly denormalized associations
     field :recent_filter_ids, {:array, :integer}, default: []
     field :watched_tag_ids, {:array, :integer}, default: []
+    field :watched_tag_list, :string, virtual: true
 
     # Other stuff
     field :last_donation_at, :naive_datetime
@@ -156,6 +159,28 @@ defmodule Philomena.Users.User do
     |> cast(attrs, [:spoiler_type])
     |> validate_required([:spoiler_type])
     |> validate_inclusion(:spoiler_type, ~W(static click hover off))
+  end
+
+  def settings_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :watched_tag_list, :images_per_page, :fancy_tag_field_on_upload,
+      :fancy_tag_field_on_edit, :anonymous_by_default, :scale_large_images,
+      :comments_per_page, :theme, :watched_images_query_str,
+      :no_spoilered_in_watched, :watched_images_exclude_str,
+      :use_centered_layout, :hide_vote_counts
+    ])
+    |> validate_required([
+      :images_per_page, :fancy_tag_field_on_upload, :fancy_tag_field_on_edit,
+      :anonymous_by_default, :scale_large_images, :comments_per_page, :theme,
+      :no_spoilered_in_watched, :use_centered_layout, :hide_vote_counts
+    ])
+    |> propagate_tag_list(:watched_tag_list, :watched_tag_ids)
+    |> validate_inclusion(:theme, ~W(default dark red))
+    |> validate_inclusion(:images_per_page, 15..50)
+    |> validate_inclusion(:comments_per_page, 15..50)
+    |> validate_search(:watched_images_query_str, user, true)
+    |> validate_search(:watched_images_exclude_str, user, true)
   end
 
   def create_totp_secret_changeset(user) do
@@ -288,8 +313,15 @@ defmodule Philomena.Users.User do
     |> put_change(:slug, Slug.slug(name))
   end
 
-  defp totp_valid?(user, token),
-    do: :pot.valid_totp(token, totp_secret(user), window: 1)
+  defp totp_valid?(user, token) do
+    case Integer.parse(token) do
+      {int_token, _rest} ->
+        int_token != user.consumed_timestep and :pot.valid_totp(token, totp_secret(user), window: 1)
+
+      _error ->
+        false
+    end
+  end
 
   defp backup_code_valid?(user, token),
     do: Enum.any?(user.otp_backup_codes, &Password.verify_pass(token, &1))

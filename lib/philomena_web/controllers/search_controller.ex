@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.SearchController do
             query: %{bool: %{must: [query | sort.queries], must_not: [filter, %{term: %{hidden_from_users: true}}]}},
             sort: sort.sorts
           },
-          conn.assigns.pagination,
+          conn.assigns.image_pagination,
           Image |> preload(:tags)
         )
 

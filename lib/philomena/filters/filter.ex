@@ -1,10 +1,9 @@
 defmodule Philomena.Filters.Filter do
   use Ecto.Schema
+  import Philomena.Schema.TagList
+  import Philomena.Schema.Search
   import Ecto.Changeset
-  import Ecto.Query
 
-  alias Philomena.Tags.Tag
-  alias Philomena.Images.Query
   alias Philomena.Users.User
   alias Philomena.Repo
 
@@ -29,67 +28,21 @@ defmodule Philomena.Filters.Filter do
 
   @doc false
   def changeset(filter, attrs) do
+    user =
+      filter
+      |> Repo.preload(:user)
+      |> Map.get(:user)
+
     filter
     |> cast(attrs, [:spoilered_tag_list, :hidden_tag_list, :description, :name, :spoilered_complex_str, :hidden_complex_str])
-    |> propagate_tag_lists()
+    |> propagate_tag_list(:spoilered_tag_list, :spoilered_tag_ids)
+    |> propagate_tag_list(:hidden_tag_list, :hidden_tag_ids)
     |> validate_required([:name, :description])
-    |> unsafe_validate_unique([:user_id, :name], Repo)
     |> validate_my_downvotes(:spoilered_complex_str)
     |> validate_my_downvotes(:hidden_complex_str)
-    |> validate_search(:spoilered_complex_str)
-    |> validate_search(:hidden_complex_str)
-  end
-
-  def assign_tag_lists(filter) do
-    tags = Enum.uniq(filter.spoilered_tag_ids ++ filter.hidden_tag_ids)
-
-    lookup =
-      Tag
-      |> where([t], t.id in ^tags)
-      |> Repo.all()
-      |> Map.new(fn t -> {t.id, t.name} end)
-
-    spoilered_tag_list =
-      filter.spoilered_tag_ids
-      |> Enum.map(&lookup[&1])
-      |> Enum.filter(& &1 != nil)
-      |> Enum.sort()
-      |> Enum.join(", ")
-
-    hidden_tag_list =
-      filter.hidden_tag_ids
-      |> Enum.map(&lookup[&1])
-      |> Enum.filter(& &1 != nil)
-      |> Enum.sort()
-      |> Enum.join(", ")
-
-    %{filter | hidden_tag_list: hidden_tag_list, spoilered_tag_list: spoilered_tag_list}
-  end
-
-  defp propagate_tag_lists(changeset) do
-    spoilers = get_field(changeset, :spoilered_tag_list) |> parse_tag_list
-    filters = get_field(changeset, :hidden_tag_list) |> parse_tag_list
-    tags = Enum.uniq(spoilers ++ filters)
-
-    lookup =
-      Tag
-      |> where([t], t.name in ^tags)
-      |> Repo.all()
-      |> Map.new(fn t -> {t.name, t.id} end)
-
-    spoilered_tag_ids =
-      spoilers
-      |> Enum.map(&lookup[&1])
-      |> Enum.filter(& &1 != nil)
-
-    hidden_tag_ids =
-      filters
-      |> Enum.map(&lookup[&1])
-      |> Enum.filter(& &1 != nil)
-
-    changeset
-    |> put_change(:spoilered_tag_ids, spoilered_tag_ids)
-    |> put_change(:hidden_tag_ids, hidden_tag_ids)
+    |> validate_search(:spoilered_complex_str, user)
+    |> validate_search(:hidden_complex_str, user)
+    |> unsafe_validate_unique([:user_id, :name], Repo)
   end
 
   defp validate_my_downvotes(changeset, field) do
@@ -101,26 +54,5 @@ defmodule Philomena.Filters.Filter do
     else
       changeset
     end
-  end
-
-  defp validate_search(changeset, field) do
-    user_id = get_field(changeset, :user_id)
-    user = if user_id, do: User |> Repo.get!(user_id)
-
-    output = Query.compile(user, get_field(changeset, field))
-
-    case output do
-      {:ok, _} -> changeset
-      _ ->
-        changeset
-        |> add_error(field, "is invalid")
-    end
-  end
-
-  defp parse_tag_list(list) do
-    (list || "")
-    |> String.split(",")
-    |> Enum.map(&String.trim(&1))
-    |> Enum.filter(& &1 != "")
   end
 end

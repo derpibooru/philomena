@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Image.CommentController do
       |> where(image_id: ^conn.assigns.image.id)
       |> order_by(desc: :created_at)
       |> preload([:image, user: [awards: :badge]])
-      |> Repo.paginate(conn.assigns.scrivener)
+      |> Repo.paginate(conn.assigns.comment_scrivener)
 
     rendered =
       comments.entries

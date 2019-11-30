@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.ImageController do
           query: %{bool: %{must_not: [query, %{term: %{hidden_from_users: true}}]}},
           sort: %{created_at: :desc}
         },
-        conn.assigns.pagination,
+        conn.assigns.image_pagination,
         Image |> preload([:tags, :user])
       )
 
@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.ImageController do
       |> preload([:image, user: [awards: :badge]])
       |> order_by(desc: :created_at)
       |> limit(25)
-      |> Repo.paginate(conn.assigns.scrivener)
+      |> Repo.paginate(conn.assigns.comment_scrivener)
 
     rendered =
       comments.entries

@@ -15,14 +15,16 @@
         span.fave-span title="Fave!"
           i.fa.fa-star
       a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
-        span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
+        = if show_vote_counts?(@conn.assigns.current_user) do
+          span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
         span.upvote-span title="Yay!"
           i.fa.fa-arrow-up
       span.score.block__header__title data-image-id=@image.id = @image.score
       a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
         span.downvote-span title="Neigh!"
           i.fa.fa-arrow-down
-        span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
+        = if show_vote_counts?(@conn.assigns.current_user) do
+          span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
       a.interaction--comments href="#comments" title="Comments"
         i.fa.fa-comments
         span.comments_count< data-image-id=@image.id = @image.comments_count

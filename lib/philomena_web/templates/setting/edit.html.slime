@@ -1,0 +1,118 @@
+h1 Content Settings
+= form_for @changeset, Routes.setting_path(@conn, :update), [method: "put"], fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  #js-setting-table.block
+    .block__header.block__header--js-tabbed
+      = if @conn.assigns.current_user do
+        = link "Watch List", to: "#", class: "selected", data: [click_tab: "watched"]
+        = link "Display", to: "#", data: [click_tab: "display"]
+        = link "Metadata", to: "#", data: [click_tab: "metadata"]
+        = link "Local", to: "#", data: [click_tab: "local"]
+      - else
+        = link "Local", to: "#", class: "selected", data: [click_tab: "local"]
+        = link "More settings", to: "#", data: [click_tab: "join-the-herd"]
+
+    = if @conn.assigns.current_user do
+      .block__tab data-tab="watched"
+        h4 Tags
+        .field
+          = label f, :watched_tag_list, "Tags to watch"
+          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :watched_tag_list, type: :edit, conn: @conn
+
+        h4 Watchlist queries and filtering
+        p
+          ' The following two areas are for search queries to control what other images show up in your watch list. Lines are ORed together. See
+          => link "the syntax guide", to: "/pages/search_syntax"
+          ' for how to write queries.
+
+        .field
+          = label f, :watched_images_query_str, "Watch list search string (images found by this search are added to your watched images list)"
+          = textarea f, :watched_images_query_str, class: "input input--wide", autocapitalize: "none"
+        .field
+          = label f, :watched_images_exclude_str, "Watch list filter string (any images found by this search are removed from your watched images list)"
+          = textarea f, :watched_images_exclude_str, class: "input input--wide", autocapitalize: "none"
+        .field
+          => checkbox f, :no_spoilered_in_watched, class: "checkbox"
+          => label f, :no_spoilered_in_watched, "Hide images spoilered by filter in watchlist"
+
+      .block__tab.hidden.flex.flex--maybe-wrap data-tab="display"
+        div
+          .field
+            => label f, :use_centered_layout
+            => checkbox f, :use_centered_layout, class: "checkbox"
+            .fieldlabel: i Align content to the center of the page - try this option out if you browse the site on a tablet or a fairly wide screen.
+          .field
+            => label f, :hide_vote_counts
+            => checkbox f, :hide_vote_counts, class: "checkbox"
+            .fieldlabel: i Hide upvote and downvote counts on images, showing only the overall score
+          .field
+            => label f, :images_per_page
+            => number_input f, :images_per_page, min: 15, max: 50, step: 1, class: "input"
+            .fieldlabel
+              i
+                ' This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50.
+                ' For 1080p monitors, try 24.
+          .field
+            => label f, :comments_per_page
+            => number_input f, :comments_per_page, min: 15, max: 50, step: 1, class: "input"
+            .fieldlabel: i This is the number of comments per page that are displayed on image pages.
+          .field
+            => label f, :scale_large_images
+            => checkbox f, :scale_large_images, class: "checkbox"
+            .fieldlabel: i Scale large images down to fit your monitor (approximately) server-side before downloading. Disabling this will load full images immediately on image pages.
+          .field
+            => label f, :theme
+            => select f, :theme, theme_options(@conn), class: "input"
+            .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
+
+      .block__tab.hidden.flex.flex--maybe-wrap data-tab="metadata"
+        div
+          .field
+            => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
+            => checkbox f, :fancy_tag_field_on_upload, class: "checkbox"
+          .field
+            => label f, :fancy_tag_field_on_edit, "Fancy tags - edits"
+            => checkbox f, :fancy_tag_field_on_edit, class: "checkbox"
+            .fieldlabel: i The fancy tag editor gives you autosuggestions and visual representations of the tags, but is sometimes not desired - for instance when dealing with batch uploads where you might want to copy-paste tags. You can choose which type of editor to use by default here.
+          .field
+            => label f, :anonymous_by_default
+            => checkbox f, :anonymous_by_default, class: "checkbox"
+            .fieldlabel: i Check this box to post images and comments as anonymous by default, even if logged in.
+
+    .block__tab class=local_tab_class(@conn) data-tab="local"
+      .block.block--fixed.block--warning Settings on this tab are saved in the current browser. They are independent of your login.
+      .field
+        => label f, :hidpi, "Serve HiDPI thumbnails"
+        => checkbox f, :hidpi
+        .fieldlabel: i Use high quality thumbnails on displays with a high pixel density. Requires more data than regular thumbnails.
+      .field
+        => label f, :serve_webm, "Serve WebM"
+        => checkbox f, :serve_webm
+        .fieldlabel: i Serve WebM/MP4 versions of GIF images when available. Good for lower-bandwidth connections, but the video versions may have missing start/end frames, and do not support transparency.
+      .field
+        => label f, :webm, "Use video thumbnails"
+        => checkbox f, :webm
+        .fieldlabel: i Use video thumbnails for WebM videos. Does not apply to GIF images.
+      .field
+        => label f, :hide_uploader
+        => checkbox f, :hide_uploader
+        .fieldlabel: i Hide the uploader and date posted information on image pages.
+      .field
+        => label f, :chan_nsfw, "Show NSFW channels"
+        => checkbox f, :chan_nsfw
+        .fieldlabel: i Show streams marked as NSFW on the channels page.
+
+    = if !@conn.assigns.current_user do
+      .block__tab.hidden data-tab="join-the-herd"
+        p
+          ' Consider
+          => link "creating an account!", to: Routes.pow_registration_path(@conn, :new)
+          br
+          ' You will be able to customize the number of images and comments you get on a single page, as well as change the appearance of the site with custom themes.
+
+  br
+  = submit "Save My Settings", class: "button"
+  br

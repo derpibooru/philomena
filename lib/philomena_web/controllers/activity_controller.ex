@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.ActivityController do
           },
           sort: %{created_at: :desc}
         },
-        %{page_number: 1, page_size: 25},
+        %{conn.assigns.image_pagination | page_number: 1},
         Image |> preload([:tags])
       )
 
@@ -84,7 +84,7 @@ defmodule PhilomenaWeb.ActivityController do
           },
           sort: %{created_at: :desc}
         },
-        %{page_number: 1, page_size: 25},
+        %{conn.assigns.image_pagination | page_number: 1},
         Image |> preload([:tags])
       )
     end

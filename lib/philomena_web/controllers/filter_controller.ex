@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.FilterController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Filters, Filters.Filter, Tags.Tag}
+  alias Philomena.Schema.TagList
   alias Philomena.Repo
   import Ecto.Query
 
@@ -67,7 +68,11 @@ defmodule PhilomenaWeb.FilterController do
   end
 
   def edit(conn, _params) do
-    filter = conn.assigns.filter |> Filter.assign_tag_lists()
+    filter =
+      conn.assigns.filter 
+      |> TagList.assign_tag_list(:spoilered_tag_ids, :spoilered_tag_list)
+      |> TagList.assign_tag_list(:hidden_tag_ids, :hidden_tag_list)
+
     changeset = Filters.change_filter(filter)
 
     render(conn, "edit.html", filter: filter, changeset: changeset)

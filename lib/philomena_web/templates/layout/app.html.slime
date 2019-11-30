@@ -21,7 +21,7 @@ html lang="en"
     script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
   body data-theme="default"
     = render PhilomenaWeb.LayoutView, "_burger.html", assigns
-    #container
+    #container class=container_class(@current_user)
       = render PhilomenaWeb.LayoutView, "_header.html", assigns
       = render PhilomenaWeb.LayoutView, "_flash_warnings.html", assigns
       main#content class=layout_class(@conn)

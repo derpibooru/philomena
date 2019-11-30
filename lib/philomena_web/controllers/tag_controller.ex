@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.TagController do
           },
           sort: %{created_at: :desc}
         },
-        conn.assigns.pagination,
+        conn.assigns.image_pagination,
         Image |> preload([:tags, :user])
       )
 
