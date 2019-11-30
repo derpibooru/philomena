@@ -66,6 +66,50 @@ defmodule PhilomenaWeb.TagController do
     dnp_entries =
       Enum.zip(dnp_bodies, tag.dnp_entries)
 
-    render(conn, "show.html", tag: tag, body: body, dnp_entries: dnp_entries, interactions: interactions, images: images, layout_class: "layout--wide")
+    search_query = escape_name(tag)
+
+    render(
+      conn,
+      "show.html",
+      tag: tag,
+      body: body,
+      search_query: search_query,
+      dnp_entries: dnp_entries,
+      interactions: interactions,
+      images: images,
+      layout_class: "layout--wide"
+    )
+  end
+
+  def escape_name(%{name: name}) do
+    name =
+      name
+      |> String.replace(~r/\s+/, " ")
+      |> String.trim()
+      |> String.downcase()
+
+    cond do
+      String.contains?(name, "(") or String.contains?(name, ")") ->
+        # \ * ? " should be escaped, wrap in quotes so parser doesn't
+        # choke on parens.
+        name =
+          name
+          |> String.replace("\\", "\\\\")
+          |> String.replace("*", "\\*")
+          |> String.replace("?", "\\?")
+          |> String.replace("\"", "\\\"")
+
+        "\"#{name}\""
+
+      true ->
+        # \ * ? - ! " all must be escaped.
+        name
+        |> String.replace(~r/\A-/, "\\-")
+        |> String.replace(~r/\A!/, "\\!")
+        |> String.replace("\\", "\\\\")
+        |> String.replace("*", "\\*")
+        |> String.replace("?", "\\?")
+        |> String.replace("\"", "\\\"")
+    end
   end
 end

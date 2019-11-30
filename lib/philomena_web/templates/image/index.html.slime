@@ -1,8 +1,11 @@
-- header = assigns[:header] || ""
-- route = assigns[:route] || fn p -> Routes.image_path(@conn, :index, p) end
-- params = assigns[:params] || []
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: params
-- info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
+elixir:
+  header = assigns[:header] || ""
+  params = assigns[:params] || assigns[:scope] || []
+  scope = assigns[:scope] || []
+  route = assigns[:route] || fn p -> Routes.image_path(@conn, :index, p) end
+  image_url = fn image -> Routes.image_path(@conn, :show, image, scope) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: params
+  info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
 .block#imagelist-container
   section.block__header.flex
@@ -12,7 +15,7 @@
 
   .block__content.js-resizable-media-container
     = for image <- @images do
-      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: assigns[:size] || :thumb, conn: @conn
+      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: assigns[:size] || :thumb, conn: @conn
 
   .block__header.block__header--light.flex
     = pagination

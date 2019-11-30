@@ -81,6 +81,8 @@ defmodule PhilomenaWeb.ImageView do
     Tag.display_order(tags)
   end
 
+  def scope(conn), do: Philomena.ImageScope.scope(conn)
+
   defp thumb_format("svg"), do: "png"
   defp thumb_format(format), do: format
 end

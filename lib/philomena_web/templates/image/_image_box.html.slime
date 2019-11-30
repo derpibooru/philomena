@@ -1,4 +1,5 @@
 elixir:
+  link = assigns[:link] || Routes.image_path(@conn, :show, @image)
   size_class =
     case @size do
       :thumb ->
@@ -34,4 +35,4 @@ elixir:
     a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-eye-slash title='Hide'
   .media-box__content.flex.flex--centered.flex--center-distributed class=size_class
-    = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: @size, conn: @conn
+    = render PhilomenaWeb.ImageView, "_image_container.html", link: link, image: @image, size: @size, conn: @conn

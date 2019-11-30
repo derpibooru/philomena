@@ -1,2 +1,2 @@
 = render PhilomenaWeb.TagView, "_tag_info_row.html", tag: @tag, body: @body, dnp_entries: @dnp_entries, conn: @conn
-= render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images
+= render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images, scope: [q: @search_query]
