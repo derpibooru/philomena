@@ -24,9 +24,10 @@
           = textarea fp, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for NSFW stuff in SFW forums.", required: true
           = error_tag fp, :body
 
-      .field
-        => checkbox f, :anonymous
-        = label f, :anonymous, "Post anonymously"
+      = if @conn.assigns.current_user do
+        .field
+          => checkbox f, :anonymous, value: anonymous_by_default?(@conn)
+          = label f, :anonymous, "Post anonymously"
 
       = inputs_for f, :poll, fn fp ->
         #add-poll

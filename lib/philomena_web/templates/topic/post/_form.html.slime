@@ -26,3 +26,7 @@
 
     .block__content.communication-edit__actions
       = submit "Post", class: "button"
+
+      = if @conn.assigns.current_user do
+        = checkbox f, :anonymous, value: anonymous_by_default?(@conn)
+        = label f, :anonymous, "Anonymous"

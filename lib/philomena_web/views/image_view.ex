@@ -83,6 +83,10 @@ defmodule PhilomenaWeb.ImageView do
 
   def scope(conn), do: Philomena.ImageScope.scope(conn)
 
+  def anonymous_by_default?(conn) do
+    conn.assigns.current_user.anonymous_by_default
+  end
+
   defp thumb_format("svg"), do: "png"
   defp thumb_format(format), do: format
 end

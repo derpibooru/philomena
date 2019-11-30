@@ -85,7 +85,7 @@
   = if @conn.assigns.current_user do
     .field
       = label f, :anonymous, "Post anonymously"
-      = checkbox f, :anonymous, class: "checkbox"
+      = checkbox f, :anonymous, class: "checkbox", value: anonymous_by_default?(@conn)
 
   .actions
     = submit "Upload", class: "button", autocomplete: "off", data: [disable_with: "Please wait..."]
