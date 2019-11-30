@@ -2,13 +2,12 @@ defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
   alias Philomena.Tags.Tag
-  alias Plug.Conn
 
   def show_vote_counts?(%{hide_vote_counts: true}), do: false
   def show_vote_counts?(_user), do: true
 
   # this is a bit ridculous
-  def render_intent(conn, %{thumbnails_generated: false}, _size), do: :not_rendered
+  def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
   def render_intent(conn, image, size) do
     uris = thumb_urls(image, false)
     vid? = image.image_mime_type == "video/webm"
