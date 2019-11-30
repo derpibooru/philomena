@@ -159,7 +159,7 @@ defmodule Textile.MarkupLexer do
         literal,
         bracketed_markup_closing_tags,
         bracketed_markup_opening_tags |> lookahead_not(space()),
-        preceding_whitespace |> times(markup_opening_tags, min: 1),
+        preceding_whitespace |> times(markup_opening_tags, min: 1) |> lookahead_not(ending_sequence),
         times(markup_closing_tags, min: 1) |> lookahead(choice([special_characters(), ending_sequence])),
         double_newline,
         newline,
