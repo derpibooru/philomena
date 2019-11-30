@@ -38,6 +38,14 @@ h1 Content Settings
           => checkbox f, :no_spoilered_in_watched, class: "checkbox"
           => label f, :no_spoilered_in_watched, "Hide images spoilered by filter in watchlist"
 
+        h4 Other
+        p
+          ' RSS feed link (for Google Reader, Thunderbird, etc.):
+          br
+          = url_input f, :subscribe_url, value: Routes.api_rss_watched_url(@conn, :index, key: @conn.assigns.current_user.authentication_token), class: "input input--wide"
+          br
+          ' Do not share this URL with anyone, it may allow an attacker to compromise your account.
+
       .block__tab.hidden.flex.flex--maybe-wrap data-tab="display"
         div
           .field

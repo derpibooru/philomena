@@ -21,6 +21,18 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.ChannelPlug
   end
 
+  pipeline :rss do
+    plug :accepts, ["rss"]
+
+    plug PhilomenaWeb.ApiTokenPlug
+    plug Pow.Plug.RequireAuthenticated,
+      error_handler: Pow.Phoenix.PlugErrorHandler
+    plug PhilomenaWeb.EnsureUserEnabledPlug
+    plug PhilomenaWeb.CurrentFilterPlug
+    plug PhilomenaWeb.ImageFilterPlug
+    plug PhilomenaWeb.PaginationPlug
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
@@ -52,6 +64,12 @@ defmodule PhilomenaWeb.Router do
     scope "/sessions", Session, as: :session do
       resources "/totp", TotpController, only: [:new, :create], singleton: true
     end
+  end
+
+  scope "/api/rss", PhilomenaWeb.Api, as: :api_rss do
+    pipe_through :rss
+
+    resources "/watched", WatchedController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do
