@@ -48,11 +48,11 @@ header.header
           = select f, :spoiler_type, @spoiler_types, id: "spoiler-quick-menu", class: "input header__input", data: [change_submit: "#spoiler-quick-form"], autocomplete: "off"
 
         .dropdown.header__dropdown
-          a.header__link.header__link-user href="/"
+          a.header__link.header__link-user href=Routes.profile_path(@conn, :show, @current_user)
             = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, class: "avatar--28px"
             span.header__link-user__dropdown-arrow.hide-mobile data-click-preventdefault="true"
           nav.dropdown__content.dropdown__content-right.hide-mobile.js-burger-links
-            a.header__link href="/profiles"
+            a.header__link href=Routes.profile_path(@conn, :show, @current_user)
               = @current_user.name
             a.header__link href='/search?q=my:watched'
               i.fa.fa-fw.fa-eye>
