@@ -91,6 +91,7 @@ defmodule PhilomenaWeb.Router do
     resources "/activity", ActivityController, only: [:index]
     scope "/images", Image, as: :image do
       resources "/scrape", ScrapeController, only: [:create]
+      resources "/random", RandomController, only: [:index]
     end
     resources "/images", ImageController, only: [:index, :show, :new, :create] do
       resources "/comments", Image.CommentController, only: [:index, :show, :create]

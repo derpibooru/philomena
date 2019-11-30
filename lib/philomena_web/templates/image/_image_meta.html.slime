@@ -7,7 +7,7 @@
         i.fa.fa-chevron-up
       a.js-next href=Routes.image_navigate_path(@conn, :index, @image, [rel: "next"] ++ scope(@conn)) title="Next Image (k)"
         i.fa.fa-chevron-right
-      a.js-rand href="/" title="Random (r)"
+      a.js-rand href=Routes.image_random_path(@conn, :index, scope(@conn)) title="Random (r)"
         i.fa.fa-random
     .stretched-mobile-links
       a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
