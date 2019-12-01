@@ -23,20 +23,23 @@ defmodule PhilomenaWeb.CommissionController do
     item_descriptions =
       commission.items
       |> Enum.map(&%{body: &1.description})
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     item_add_ons =
       commission.items
       |> Enum.map(&%{body: &1.add_ons})
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     [information, contact, will_create, will_not_create] =
-      Renderer.render_collection([
-        %{body: commission.information},
-        %{body: commission.contact},
-        %{body: commission.will_create},
-        %{body: commission.will_not_create}
-      ])
+      Renderer.render_collection(
+        [
+          %{body: commission.information},
+          %{body: commission.contact},
+          %{body: commission.will_create},
+          %{body: commission.will_not_create}
+        ],
+        conn
+      )
 
     rendered =
       %{

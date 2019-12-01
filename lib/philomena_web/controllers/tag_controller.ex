@@ -46,10 +46,10 @@ defmodule PhilomenaWeb.TagController do
       Interactions.user_interactions(images, user)
 
     body =
-      Renderer.render_one(%{body: tag.description || ""})
+      Renderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
-      Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}))
+      Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
 
     dnp_entries =
       Enum.zip(dnp_bodies, tag.dnp_entries)

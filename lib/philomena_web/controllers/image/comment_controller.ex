@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.Image.CommentController do
 
     rendered =
       comments.entries
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     comments =
       %{comments | entries: Enum.zip(comments.entries, rendered)}
@@ -56,7 +56,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   end
 
   def show(conn, _params) do
-    rendered = Renderer.render_one(conn.assigns.comment)
+    rendered = Renderer.render_one(conn.assigns.comment, conn)
     render(conn, "show.html", layout: false, image: conn.assigns.image, comment: conn.assigns.comment, body: rendered)
   end
 

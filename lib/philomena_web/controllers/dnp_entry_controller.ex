@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     bodies =
       dnp_entries
       |> Enum.map(&%{body: &1.conditions || "-"})
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     dnp_entries =
       %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
@@ -34,11 +34,14 @@ defmodule PhilomenaWeb.DnpEntryController do
     dnp_entry = conn.assigns.dnp_entry
 
     [conditions, reason, instructions] =
-      Renderer.render_collection([
-        %{body: dnp_entry.conditions || "-"},
-        %{body: dnp_entry.reason || "-"},
-        %{body: dnp_entry.instructions || "-"}
-      ])
+      Renderer.render_collection(
+        [
+          %{body: dnp_entry.conditions || "-"},
+          %{body: dnp_entry.reason || "-"},
+          %{body: dnp_entry.instructions || "-"}
+        ],
+        conn
+      )
 
     render(conn, "show.html", dnp_entry: dnp_entry, conditions: conditions, reason: reason, instructions: instructions)
   end

@@ -7,19 +7,26 @@ defmodule PhilomenaWeb.ImageView do
   def show_vote_counts?(_user), do: true
 
   # this is a bit ridculous
-  def render_intent(_cookies, %{thumbnails_generated: false}, _size), do: :not_rendered
-  def render_intent(cookies, image, size) do
+  def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
+  def render_intent(conn, image, size) do
     uris = thumb_urls(image, false)
     vid? = image.image_mime_type == "video/webm"
     gif? = image.image_mime_type == "image/gif"
     tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
     alt = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tags}"
 
-    hidpi? = cookies["hidpi"] == "true"
-    webm? = cookies["webm"] == "true"
+    hidpi? = conn.cookies["hidpi"] == "true"
+    webm? = conn.cookies["webm"] == "true"
     use_gif? = vid? and not webm? and size in ~W(thumb thumb_small thumb_tiny)a
+    filtered? = filter_or_spoiler_hits?(conn, image)
 
     cond do
+      filtered? and vid? ->
+        {:filtered_video, alt}
+
+      filtered? and not vid? ->
+        {:filtered_image, alt}
+
       hidpi? and not (gif? or vid?) ->
         {:hidpi, uris[size], uris[:medium], alt}
 
@@ -131,4 +138,49 @@ defmodule PhilomenaWeb.ImageView do
 
   defp thumb_format("svg"), do: "png"
   defp thumb_format(format), do: format
+
+  defp image_filter_data(image) do
+    %{
+      id:                     image.id,
+      "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache, ", "),
+      score:                  image.score,
+      faves:                  image.faves_count,
+      upvotes:                image.upvotes_count,
+      downvotes:              image.downvotes_count,
+      comment_count:          image.comments_count,
+      created_at:             image.created_at,
+      first_seen_at:          image.first_seen_at,
+      source_url:             image.source_url,
+      width:                  image.image_width,
+      height:                 image.image_height,
+      aspect_ratio:           image.image_aspect_ratio,
+      sha512_hash:            image.image_sha512_hash,
+      orig_sha512_hash:       image.image_orig_sha512_hash
+    }
+  end
+
+  def filter_or_spoiler_hits?(conn, image) do
+    tag_filter_or_spoiler_hits?(conn, image) or complex_filter_or_spoiler_hits?(conn, image)
+  end
+
+  defp tag_filter_or_spoiler_hits?(conn, image) do
+    filter = conn.assigns.current_filter
+    filtered_tag_ids = MapSet.new(filter.spoilered_tag_ids ++ filter.hidden_tag_ids)
+    image_tag_ids = MapSet.new(image.tags, & &1.id)
+
+    MapSet.size(MapSet.intersection(filtered_tag_ids, image_tag_ids)) > 0
+  end
+
+  defp complex_filter_or_spoiler_hits?(conn, image) do
+    doc = image_filter_data(image)
+    complex_filter = conn.assigns.compiled_complex_filter
+    complex_spoiler = conn.assigns.compiled_complex_spoiler
+    query = %{
+      bool: %{
+        should: [complex_filter, complex_spoiler]
+      }
+    }
+
+    Search.Evaluator.hits?(doc, query)
+  end
 end

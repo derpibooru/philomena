@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.PostController do
 
     rendered =
       posts.entries
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     posts =
       %{posts | entries: Enum.zip(rendered, posts.entries)}

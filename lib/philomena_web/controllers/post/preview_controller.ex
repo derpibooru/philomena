@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Post.PreviewController do
     anonymous = params["anonymous"] == true
 
     post = %Post{user: user, body: body, anonymous: anonymous}
-    rendered = Renderer.render_one(post)
+    rendered = Renderer.render_one(post, conn)
 
     render(conn, "create.html", layout: false, post: post, body: rendered)
   end

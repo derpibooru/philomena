@@ -1,4 +1,5 @@
 defmodule Philomena.Textile.Renderer do
+  # todo: belongs in PhilomenaWeb
   alias Textile.Parser
   alias Philomena.Images.Image
   alias Philomena.Repo
@@ -10,11 +11,11 @@ defmodule Philomena.Textile.Renderer do
     image_transform: &Camo.Image.image_url/1
   }
 
-  def render_one(post) do
-    hd(render_collection([post]))
+  def render_one(post, conn) do
+    hd(render_collection([post], conn))
   end
 
-  def render_collection(posts) do
+  def render_collection(posts, conn) do
     parsed =
       posts
       |> Enum.map(fn post ->
@@ -41,7 +42,7 @@ defmodule Philomena.Textile.Renderer do
         {:text, text} ->
           text
           |> replacement_entities()
-          |> replacement_images(images)
+          |> replacement_images(conn, images)
 
         {_k, markup} ->
           markup
@@ -62,7 +63,7 @@ defmodule Philomena.Textile.Renderer do
     |> String.replace("&apos;", "&rsquo;")
   end
 
-  defp replacement_images(t, images) do
+  defp replacement_images(t, conn, images) do
     t
     |> String.replace(~r|&gt;&gt;(\d+)([pts])?|, fn match ->
       # Stupid, but the method doesn't give us capture group information
@@ -78,15 +79,15 @@ defmodule Philomena.Textile.Renderer do
           match
 
         [image, "p"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :medium)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :medium, conn: conn)
           |> safe_to_string()
 
         [image, "t"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :small)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :small, conn: conn)
           |> safe_to_string()
 
         [image, "s"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_small)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_small, conn: conn)
           |> safe_to_string()
 
         [image] ->

@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.TopicController do
       |> Repo.all()
 
     rendered =
-      Renderer.render_collection(posts)
+      Renderer.render_collection(posts, conn)
 
     posts =
       Enum.zip(posts, rendered)

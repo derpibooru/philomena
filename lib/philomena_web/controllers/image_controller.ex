@@ -43,14 +43,14 @@ defmodule PhilomenaWeb.ImageController do
 
     rendered =
       comments.entries
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     comments =
       %{comments | entries: Enum.zip(comments.entries, rendered)}
 
     description =
       %{body: image.description}
-      |> Renderer.render_one()
+      |> Renderer.render_one(conn)
 
     interactions =
       Interactions.user_interactions([image], conn.assigns.current_user)

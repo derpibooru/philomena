@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.ImageFilterPlug do
 
     tag_exclusion = %{terms: %{tag_ids: filter.hidden_tag_ids}}
     {:ok, query_exclusion} = Query.compile(user, normalize(filter.hidden_complex_str))
+    {:ok, query_spoiler} = Query.compile(user, normalize(filter.spoilered_complex_str))
 
     query = %{
       bool: %{
@@ -23,6 +24,8 @@ defmodule PhilomenaWeb.ImageFilterPlug do
     }
 
     conn
+    |> assign(:compiled_complex_filter, query_exclusion)
+    |> assign(:compiled_complex_spoiler, query_spoiler)
     |> assign(:compiled_filter, query)
   end
 end

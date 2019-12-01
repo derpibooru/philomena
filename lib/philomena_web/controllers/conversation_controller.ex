@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.ConversationController do
 
     rendered =
       messages.entries
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     messages =
       %{messages | entries: Enum.zip(messages.entries, rendered)}

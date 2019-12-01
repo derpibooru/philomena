@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.CommentController do
 
     rendered =
       comments.entries
-      |> Renderer.render_collection()
+      |> Renderer.render_collection(conn)
 
     comments =
       %{comments | entries: Enum.zip(rendered, comments.entries)}
