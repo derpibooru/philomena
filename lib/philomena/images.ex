@@ -290,6 +290,7 @@ defmodule Philomena.Images do
     |> Repo.delete()
   end
 
+  def clear_notification(_image, nil), do: nil
   def clear_notification(image, user) do
     Notifications.delete_unread_notification("Image", image.id, user)
   end

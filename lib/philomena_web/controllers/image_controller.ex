@@ -29,6 +29,9 @@ defmodule PhilomenaWeb.ImageController do
 
   def show(conn, %{"id" => _id}) do
     image = conn.assigns.image
+    user = conn.assigns.current_user
+
+    Images.clear_notification(image, user)
 
     comments =
       Comment

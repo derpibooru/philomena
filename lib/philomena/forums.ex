@@ -137,6 +137,7 @@ defmodule Philomena.Forums do
     |> Repo.delete()
   end
 
+  def clear_notification(_forum, nil), do: nil
   def clear_notification(forum, user) do
     Notifications.delete_unread_notification("Forum", forum.id, user)
   end

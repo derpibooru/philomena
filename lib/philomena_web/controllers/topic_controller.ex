@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
-  alias Philomena.{Topics, Posts}
+  alias Philomena.{Forums, Topics, Posts}
   alias Philomena.Textile.Renderer
   alias Philomena.Repo
   import Ecto.Query
@@ -21,6 +21,11 @@ defmodule PhilomenaWeb.TopicController do
       |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
       |> preload([:user, poll: :options])
       |> Repo.one()
+
+    user = conn.assigns.current_user
+
+    Topics.clear_notification(topic, user)
+    Forums.clear_notification(forum, user)
 
     conn = conn |> assign(:topic, topic)
     %{page_number: page} = conn.assigns.pagination
