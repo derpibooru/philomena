@@ -1,49 +1,128 @@
-elixir:
-  route = fn p -> Routes.post_path(@conn, :index, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route
+h1 Posts
 
-.column-layout
-  .column-layout__left
+= form_for :posts, Routes.post_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+  .field
+    = text_input f, :pq, name: :pq, value: @conn.params["pq"] || "created_at.gte:1 week ago", class: "input hform__text", placeholder: "Search posts", autocapitalize: "none"
+    = submit "Search", class: "hform__button button", data: [disable_with: false]
+
+  .fieldlabel
+    ' For more information, see the
+    a href="/pages/search_syntax" search syntax documentation
+    ' . Search results are sorted by creation date.
+
+h2 Search Results
+
+= cond do
+  - Enum.any?(@posts) ->
+    - route = fn p -> Routes.post_path(@conn, :index, p) end
+    - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, params: [cq: @conn.params["pq"]], conn: @conn
+
+    = for {body, post} <- @posts, post.topic.hidden_from_users == false do
+      = render PhilomenaWeb.PostView, "_post.html", body: body, post: post, conn: @conn
+
     .block
-      .block__content
-        h3 Search Posts
-
-        = form_for @conn, Routes.post_path(@conn, :index), [as: :post, method: "get", class: "hform"], fn f ->
-          .field = label f, :author, "Author"
-          .field = text_input f, :author, class: "input hform__text", placeholder: "Author (* is wildcard)"
-
-          .field = label f, :forum_id, "Forum"
-          .field = select f, :forum_id, @forums, class: "input input--wide"
-
-          .field = label f, :body, "Body"
-          .field = textarea f, :body, class: "input input--wide", placeholder: "Body"
-
-          .field = label f, :sf, "Sort by"
-          .field
-            => select f, :sf, ["Creation Date": "created_at", "Relevance": "_score"], class: "input"
-            => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
-
-          .field
-          = submit "Search", class: "button button--state-primary"
-
-  .column-layout__main
-    .block
-      .block__header
+      .block__header.block__header--light.flex
         = pagination
+        span.block__header__title
+          = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @posts, conn: @conn
 
-    .post-search-results
-      = for {post, body} <- @posts do
-        .post-entry-wrapper
-          h3
-            => link post.topic.forum.name, to: Routes.forum_path(@conn, :show, post.topic.forum)
-            ' &raquo;
-            => link post.topic.title, to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic)
-            ' &raquo;
-            a href=(Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}")
-              = if post.topic_position == 0 do
-                ' Topic Opener
-              - else
-                ' Post
-                = post.topic_position + 1
+  - assigns[:error] ->
+    p
+      ' Oops, there was an error evaluating your query:
+    pre = assigns[:error]
+  
+  - true ->
+    p
+      ' No posts found!
 
-          = render PhilomenaWeb.PostView, "_post.html", post: post, body: body, conn: @conn
+h3 Default search
+p
+  ' If you do not specify a field to search over, the search engine will
+  ' search for posts with a body that is similar to the query's
+  em word stems
+  ' . For example, posts containing the words
+  code winged humanization
+  ' ,
+  code wings
+  ' , and
+  code> spread wings
+  ' would all be found by a search for
+  code wing
+  ' , but
+  code> sewing
+  ' would not be.
+
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code author
+      td Literal
+      td Matches the author of this post. Anonymous authors will never match this term.
+      td
+        code = link "author:Joey", to: Routes.post_path(@conn, :index, cq: "author:Joey")
+    tr
+      td
+        code body
+      td Full Text
+      td Matches the body of this post. This is the default field.
+      td
+        code = link "body:test", to: Routes.post_path(@conn, :index, cq: "body:test")
+    tr
+      td
+        code created_at
+      td Date/Time Range
+      td Matches the creation time of this post.
+      td
+        code = link "created_at:2015", to: Routes.post_path(@conn, :index, cq: "created_at:2015")
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this post.
+      td
+        code = link "id:1000000", to: Routes.post_path(@conn, :index, cq: "id:1000000")
+    tr
+      td
+        code my
+      td Meta
+      td
+        code> my:posts
+        ' matches posts you have posted if you are signed in.
+      td
+        code = link "my:posts", to: Routes.post_path(@conn, :index, cq: "my:posts")
+    tr
+      td
+        code subject
+      td Full Text
+      td Matches the title of the topic.
+      td
+        code = link "subject:time wasting thread", to: Routes.post_path(@conn, :index, cq: "subject:time wasting thread")
+    tr
+      td
+        code topic_id
+      td Literal
+      td Matches the numeric surrogate key for the topic this post belongs to.
+      td
+        code = link "topic_id:7000", to: Routes.post_path(@conn, :index, cq: "topic_id:7000")
+    tr
+      td
+        code updated_at
+      td Date/Time Range
+      td Matches the creation or last edit time of this post.
+      td
+        code = link "updated_at.gte:2 weeks ago", to: Routes.post_path(@conn, :index, cq: "updated_at.gte:2 weeks ago")
+    tr
+      td
+        code user_id
+      td Literal
+      td Matches posts with the specified user_id. Anonymous users will never match this term.
+      td
+        code = link "user_id:211190", to: Routes.post_path(@conn, :index, cq: "user_id:211190")
