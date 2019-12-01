@@ -7,6 +7,7 @@ defmodule Search.Parser do
     IpParser,
     Lexer,
     LiteralParser,
+    NgramParser,
     Parser,
     TermRangeParser
   }
