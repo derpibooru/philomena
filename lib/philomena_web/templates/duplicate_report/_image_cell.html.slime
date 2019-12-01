@@ -6,7 +6,7 @@
       | #
       = @image.id
 
-  = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: @thumb_small, conn: @conn
+  = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :thumb_small, conn: @conn
 
   p
     = @image.image_width

@@ -39,8 +39,8 @@ defmodule PhilomenaWeb.DuplicateReportView do
     do: duplicate_of_image.image_mime_type == image.image_mime_type
 
   def better_format?(%{image: image, duplicate_of_image: duplicate_of_image}) do
-    source_index = Enum.find_index(@formats_order, image.image_mime_type) || length(@formats_order) - 1
-    target_index = Enum.find_index(@formats_order, duplicate_of_image.image_mime_type) || length(@formats_order) - 1
+    source_index = Enum.find_index(@formats_order, &image.image_mime_type == &1) || length(@formats_order) - 1
+    target_index = Enum.find_index(@formats_order, &duplicate_of_image.image_mime_type == &1) || length(@formats_order) - 1
 
     target_index < source_index
   end

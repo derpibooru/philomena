@@ -10,18 +10,18 @@ defmodule PhilomenaWeb.DuplicateReportController do
   @valid_states ~W(open rejected accepted claimed)
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
-  plug :load_resource, model: DuplicateReport, only: [:show], preload: [:user, image: :tags, duplicate_of_image: :tags]
+  plug :load_resource, model: DuplicateReport, only: [:show], preload: [:image, :duplicate_of_image]
 
   def index(conn, params) do
     states =
-      params["states"]
+      (params["states"] || ~W(open claimed))
       |> wrap()
       |> Enum.filter(&Enum.member?(@valid_states, &1))
 
     duplicate_reports =
       DuplicateReport
       |> where([d], d.state in ^states)
-      |> preload([:user, image: :tags, duplicate_of_image: :tags])
+      |> preload([:user, image: [:user, :tags], duplicate_of_image: [:user, :tags]])
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.pagination)
 
