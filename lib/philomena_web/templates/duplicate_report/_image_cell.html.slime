@@ -1,0 +1,29 @@
+.grid--dupe-report-list__cell.flex.flex--column.flex--spaced-out.flex--centered.flex--no-wrap.center.dr__image-cell.border-vertical
+  p
+    - if is_nil(@image) do
+      | (Image now hard-deleted)
+    - else
+      | #
+      = @image.id
+
+  = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: @thumb_small, conn: @conn
+
+  p
+    = @image.image_width
+    | x
+    = @image.image_height
+
+  p
+    = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, conn: @conn
+
+  /- if report.valid? && can_manage_dr
+    - if source
+      a href=duplicate_report_accept_reverse_path(report) data-method="post"
+        button.button
+          ' Keep Source
+          i.fa.fa-arrow-left
+    - else
+      a href=duplicate_report_accept_path(report) data-method="post"
+        button.button
+          i.fa.fa-arrow-right>
+          | Keep Target

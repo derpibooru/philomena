@@ -1,0 +1,49 @@
+elixir:
+  source_url = comparison_url(@conn, @duplicate_report.image)
+  target_url = comparison_url(@conn, @duplicate_report.duplicate_of_image)
+  {width, height} = largest_dimensions([@duplicate_report.image, @duplicate_report.duplicate_of_image])
+
+h1 Difference
+.difference
+  svg.difference__image viewBox="0 0 #{width} #{height}" height=height
+    defs
+      filter#overlay-diff
+        feImage#source xlink:href=source_url result="source" width="100%" height="100%" x="0" y="0"
+        feImage#target xlink:href=target_url result="target" width="100%" height="100%" x="0" y="0"
+        feBlend in="source" in2="target" mode="difference" result="diff"
+
+        / Contrast-boost matrix = (5I|0) [4x5]
+        feColorMatrix in="diff" type="matrix" values="5 0 0 0 0  0 5 0 0 0  0 0 5 0 0  0 0 0 5 0"
+    rect width=width height=height filter="url(#overlay-diff)"
+
+h1 Swipe
+.swipe
+  svg.swipe__image viewBox="0 0 #{width} #{height}" height=height
+    defs
+      pattern#checkerboard width="16" height="16" patternUnits="userSpaceOnUse"
+        rect width="8" height="8" x="0" y="0" fill="#ffffff44"
+        rect width="8" height="8" x="0" y="8" fill="#00000044"
+        rect width="8" height="8" x="8" y="0" fill="#00000044"
+        rect width="8" height="8" x="8" y="8" fill="#ffffff44"
+      clipPath#clip
+        rect width=div(width, 2) height=height
+    rect width=width height=height fill="url(#checkerboard)"
+    image#target width="100%" height="100%" xlink:href=target_url
+    image#source width="100%" height="100%" xlink:href=source_url clip-path="url(#clip)"
+    rect#divider width="3" height=height x=div(width, 2) fill="#000" stroke="#fff" stroke-width="1"
+
+h1 Onion Skin
+.onion-skin
+  svg.onion-skin__image viewBox="0 0 #{width} #{height}" height=height
+    defs
+      pattern#checkerboard width="16" height="16" patternUnits="userSpaceOnUse"
+        rect width="8" height="8" x="0" y="0" fill="#ffffff44"
+        rect width="8" height="8" x="0" y="8" fill="#00000044"
+        rect width="8" height="8" x="8" y="0" fill="#00000044"
+        rect width="8" height="8" x="8" y="8" fill="#ffffff44"
+    rect width=width height=height fill="url(#checkerboard)"
+    image#source width="100%" height="100%" xlink:href=source_url
+    image#target width="100%" height="100%" xlink:href=target_url
+  input.onion-skin__slider type="range" min="0" max="1" step="0.01"
+
+p Left is source, right is target

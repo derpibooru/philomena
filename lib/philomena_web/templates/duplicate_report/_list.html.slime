@@ -1,0 +1,155 @@
+.grid.grid--dupe-report-list
+  p Source image
+  p Target image
+  p Diff
+  p Status/options
+
+  = for report <- @duplicate_reports do
+    - background_class = background_class(report)
+
+    = render PhilomenaWeb.DuplicateReportView, "_image_cell.html", image: report.image, source: true, report: report, conn: @conn
+    = render PhilomenaWeb.DuplicateReportView, "_image_cell.html", image: report.duplicate_of_image, source: false, report: report, conn: @conn
+
+    .grid--dupe-report-list__cell.dr__diff.border-vertical
+      table.table
+        tr
+          = if same_aspect_ratio?(report) do
+            td.success
+              a href=Routes.duplicate_report_path(@conn, :show, report)
+                ' Visual diff
+              | (Same aspect ratio)
+
+          - else
+            td.warning Different aspect ratio
+        tr
+          = cond do
+            - both_are_edits?(report) ->
+              td.warning Both are edits
+
+            - target_is_edit?(report) ->
+              td.danger Target is an edit
+
+            - source_is_edit?(report) ->
+              td.danger Source is an edit
+
+            - true ->
+              td.success Neither is an edit
+
+        tr
+          = cond do
+            - both_are_alternate_versions?(report) ->
+              td.warning Both are alternate versions
+
+            - target_is_alternate_version?(report) ->
+              td.danger Target is an alternate version
+
+            - source_is_alternate_version?(report) ->
+              td.danger Source is an alternate version
+
+            - true ->
+              td.success Neither is an alternate version
+
+        tr
+          = cond do
+            - same_res?(report) ->
+              td.sucecss Same resolution
+
+            - higher_res?(report) ->
+              td.warning Target resolution better
+
+            - true ->
+              td.warning Source resolution better
+
+        tr
+          = cond do
+            - same_format?(report) ->
+              td.success
+                ' Same format
+                = file_types(report)
+
+            - better_format?(report) ->
+              td.warning
+                ' Target format better
+                = file_types(report)
+
+            - true ->
+              td.warning
+                ' Source format better
+                = file_types(report)
+
+        tr
+          = cond do
+            - same_artist_tags?(report) ->
+              td.success Same artist tags
+
+            - more_artist_tags_on_target?(report) ->
+              td.warning More artist tags on target
+
+            - more_artist_tags_on_source?(report) ->
+              td.warning More artist tags on source
+
+            - true ->
+              td.danger Different artist tags
+
+        tr
+          = cond do
+            - neither_have_source?(report) ->
+              td.warning Neither have sources
+
+            - same_source?(report) ->
+              td.success Same sources
+
+            - similar_source?(report) ->
+              td.warning Same hostname
+
+            - source_on_target?(report) ->
+              td.warning Target has a source
+
+            - source_on_source?(report) ->
+              td.warning Source has a source
+
+            - true ->
+              td.danger Different sources
+
+        tr
+          = if same_rating_tags?(report) do
+            td.success Same rating tags
+          - else
+            td.danger Different rating tags
+
+        tr
+          = if forward_merge?(report) do
+            td.warning Target newer
+          - else
+            td.success Target older
+
+    .flex.flex--column.grid--dupe-report-list__cell.border-vertical id="report_options_#{report.id}"
+      .dr__status-options class=background_class
+        = String.capitalize(report.state)
+
+        /- if can_manage_dr && report.modifier.present?
+          '  by
+          = report.modifier.name
+        /- if can_manage_dr
+          div
+            - if report.state == 'open'
+              a href=duplicate_report_claim_path(report, target: "report_options_#{report.id}") data-method="post"
+                button.button.button--separate-right
+                  i.fa.fa-clipboard>
+                  | Claim
+            - if report.state != 'rejected'
+              a href=duplicate_report_reject_path(report) data-method="post"
+                button.button
+                  i.fa.fa-times>
+                  | Reject
+
+      .dr__status-options
+        div
+          ' Reported
+          => pretty_time(report.created_at)
+
+          = if report.user do
+            ' by
+            =< link report.user.name, to: Routes.profile_path(@conn, :show, report.user)
+
+        = report.reason
