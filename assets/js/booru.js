@@ -43,9 +43,9 @@ function fetchAndPersistTags(tagIds) {
   for (let i = 0; i < tagIds.length; i += chunk) {
     const ids = tagIds.slice(i, i + chunk);
 
-    /*fetch(`${window.booru.apiEndpoint}tags/fetch_many.json?ids[]=${ids.join('&ids[]=')}`)
+    fetch(`/tags/fetch?ids[]=${ids.join('&ids[]=')}`)
       .then(response => response.json())
-      .then(data => data.tags.forEach(tag => persistTag(tag)));*/
+      .then(data => data.tags.forEach(tag => persistTag(tag)));
   }
 }
 

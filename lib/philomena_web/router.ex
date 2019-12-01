@@ -123,6 +123,7 @@ defmodule PhilomenaWeb.Router do
     end
     scope "/tags", Tag, as: :tag do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true
+      resources "/fetch", FetchController, only: [:index]
     end
     resources "/tags", TagController, only: [:index, :show]
     scope "/search", Search, as: :search do
