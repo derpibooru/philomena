@@ -56,6 +56,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Filter{system: true}), do: true
   def can?(%User{id: id}, :show, %Filter{user_id: id}), do: true
 
+  # Edit filters they own
+  def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:edit, :update], do: true
+
   # View non-deleted images
   def can?(_user, action, Image)
       when action in [:new, :create, :index],
