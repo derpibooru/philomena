@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ImageLoader
   alias Philomena.{Images, Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Servers.ImageProcessor
   alias Philomena.Interactions
@@ -18,17 +19,7 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
-    query = conn.assigns.compiled_filter
-
-    images =
-      Image.search_records(
-        %{
-          query: %{bool: %{must_not: [query, %{term: %{hidden_from_users: true}}]}},
-          sort: %{created_at: :desc}
-        },
-        conn.assigns.image_pagination,
-        Image |> preload([:tags, :user])
-      )
+    images = ImageLoader.query(conn, %{match_all: %{}})
 
     interactions =
       Interactions.user_interactions(images, conn.assigns.current_user)

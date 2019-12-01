@@ -93,6 +93,7 @@ defmodule Philomena.Posts.Query do
     bool_fields: mod_bool_fields,
     custom_fields: user_custom,
     transforms: user_transforms,
+    aliases: mod_aliases,
     default_field: default_field
   )
 

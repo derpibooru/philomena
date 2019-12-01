@@ -1,51 +1,28 @@
 defmodule PhilomenaWeb.ActivityController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ImageLoader
   alias Philomena.{Images.Image, ImageFeatures.ImageFeature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
   alias Philomena.Interactions
-  alias Philomena.Images
   alias Philomena.Repo
   import Ecto.Query
 
   def index(conn, _params) do
     user = conn.assigns.current_user
-    filter = conn.assigns.compiled_filter
-    {:ok, image_query} = Images.Query.compile(user, "created_at.lte:3 minutes ago")
 
-    images =
-      Image.search_records(
-        %{
-          query: %{
-            bool: %{
-              must: image_query,
-              must_not: [
-                filter,
-                %{term: %{hidden_from_users: true}}
-              ],
-            }
-          },
-          sort: %{created_at: :desc}
-        },
-        %{conn.assigns.image_pagination | page_number: 1},
-        Image |> preload([:tags])
+    {:ok, images} =
+      ImageLoader.search_string(
+        conn,
+        "created_at.lte:3 minutes ago",
+        pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
     top_scoring =
-      Image.search_records(
-        %{
-          query: %{
-            bool: %{
-              must: %{range: %{first_seen_at: %{gt: "now-3d"}}},
-              must_not: [
-                filter,
-                %{term: %{hidden_from_users: true}}
-              ]
-            }
-          },
-          sort: [%{score: :desc}, %{first_seen_at: :desc}]
-        },
-        %{page_number: :rand.uniform(6), page_size: 4},
-        Image |> preload([:tags])
+      ImageLoader.query(
+        conn,
+        %{range: %{first_seen_at: %{gt: "now-3d"}}},
+        sorts: [%{score: :desc}, %{first_seen_at: :desc}],
+        pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )
 
     comments =
@@ -69,24 +46,14 @@ defmodule PhilomenaWeb.ActivityController do
       )
 
     watched = if !!user do
-      {:ok, watched_query} = Images.Query.compile(user, "my:watched")
+      {:ok, watched_images} =
+        ImageLoader.search_string(
+          conn,
+          "my:watched",
+          pagination: %{conn.assigns.image_pagination | page_number: 1}
+        )
 
-      Image.search_records(
-        %{
-          query: %{
-            bool: %{
-              must: watched_query,
-              must_not: [
-                filter,
-                %{term: %{hidden_from_users: true}}
-              ]
-            }
-          },
-          sort: %{created_at: :desc}
-        },
-        %{conn.assigns.image_pagination | page_number: 1},
-        Image |> preload([:tags])
-      )
+      watched_images
     end
 
     featured_image =

@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Images.Image, Tags, Tags.Tag}
+  alias PhilomenaWeb.ImageLoader
+  alias Philomena.{Tags, Tags.Tag}
   alias Philomena.Textile.Renderer
   alias Philomena.Interactions
   alias Philomena.Repo
@@ -30,29 +31,16 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def show(conn, %{"id" => slug}) do
+    user = conn.assigns.current_user
+
     tag =
       Tag
       |> where(slug: ^slug)
       |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
       |> Repo.one()
 
-    query = conn.assigns.compiled_filter
-    user = conn.assigns.current_user
-
     images =
-      Image.search_records(
-        %{
-          query: %{
-            bool: %{
-              must_not: [query, %{term: %{hidden_from_users: true}}],
-              must: %{term: %{"namespaced_tags.name": tag.name}}
-            }
-          },
-          sort: %{created_at: :desc}
-        },
-        conn.assigns.image_pagination,
-        Image |> preload([:tags, :user])
-      )
+      ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
 
     interactions =
       Interactions.user_interactions(images, user)
