@@ -1,39 +1,114 @@
-elixir:
-  route = fn p -> Routes.comment_path(@conn, :index, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
+h1 Comments
 
-.column-layout
-  .column-layout__left
+= form_for :comments, Routes.comment_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+  .field
+    = text_input f, :cq, name: :cq, value: @conn.params["cq"] || "created_at.gt:1 week ago", class: "input hform__text", placeholder: "Search comments", autocapitalize: "none"
+    = submit "Search", class: "hform__button button", data: [disable_with: false]
+
+  .fieldlabel
+    ' For more information, see the
+    a href="/pages/search_syntax" search syntax documentation
+    ' . Search results are sorted by creation date.
+
+h2 Search Results
+
+= cond do
+  - Enum.any?(@comments) ->
+    - route = fn p -> Routes.comment_path(@conn, :index, p) end
+    - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route, params: [cq: @conn.params["cq"]], conn: @conn
+
+    = for {body, comment} <- @comments, comment.image.hidden_from_users == false do
+      = render PhilomenaWeb.CommentView, "_comment_with_image.html", body: body, comment: comment, conn: @conn
+
     .block
-      .block__content
-        h3 Search Comments
-
-        = form_for @conn, Routes.comment_path(@conn, :index), [as: :comment, method: "get", class: "hform"], fn f ->
-          .field = label f, :author, "Author"
-          .field = text_input f, :author, class: "input hform__text", placeholder: "Author (* is wildcard)"
-
-          .field = label f, :image_id, "Image ID"
-          .field = number_input f, :image_id, class: "input hform__text", placeholder: "Image ID"
-
-          .field = label f, :body, "Body"
-          .field = textarea f, :body, class: "input input--wide", placeholder: "Body"
-
-          .field = label f, :sf, "Sort by"
-          .field
-            => select f, :sf, ["Creation Date": "posted_at", "Relevance": "_score"], class: "input"
-            => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
-
-          .field
-          = submit "Search", class: "button button--state-primary"
-
-  .column-layout__main
-    .block
-      .block__header
+      .block__header.block__header--light.flex
         = pagination
+        span.block__header__title
+          = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @comments, conn: @conn
 
-    = for {comment, body} <- @comments do
-      = render PhilomenaWeb.CommentView, "_comment_with_image.html", image: comment.image, comment: comment, body: body, conn: @conn
+  - assigns[:error] ->
+    p
+      ' Oops, there was an error evaluating your query:
+    pre = assigns[:error]
+  
+  - true ->
+    p
+      ' No comments found!
 
-    .block
-      .block__header.block__header--light
-        = pagination
+h3 Default search
+p
+  ' If you do not specify a field to search over, the search engine will
+  ' search for comments with a body that is similar to the query's
+  em word stems
+  ' . For example, comments containing the words
+  code winged humanization
+  ' ,
+  code wings
+  ' , and
+  code> spread wings
+  ' would all be found by a search for
+  code wing
+  ' , but
+  code> sewing
+  ' would not be.
+
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code author
+      td Literal
+      td Matches the author of this comment. Anonymous authors will never match this term.
+      td
+        code = link "author:Joey", to: Routes.comment_path(@conn, :index, cq: "author:Joey")
+    tr
+      td
+        code body
+      td Full Text
+      td Matches the body of this comment. This is the default field.
+      td
+        code = link "body:test", to: Routes.comment_path(@conn, :index, cq: "body:test")
+    tr
+      td
+        code created_at
+      td Date/Time Range
+      td Matches the creation time of this comment.
+      td
+        code = link "created_at:2015", to: Routes.comment_path(@conn, :index, cq: "created_at:2015")
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this comment.
+      td
+        code = link "id:1000000", to: Routes.comment_path(@conn, :index, cq: "id:1000000")
+    tr
+      td
+        code image_id
+      td Literal
+      td Matches the numeric surrogate key for the image this comment belongs to.
+      td
+        code = link "image_id:1000000", to: Routes.comment_path(@conn, :index, cq: "image_id:1000000")
+    tr
+      td
+        code my
+      td Meta
+      td
+        code> my:comments
+        ' matches comments you have posted if you are signed in.
+      td
+        code = link "my:comments", to: Routes.comment_path(@conn, :index, cq: "my:comments")
+    tr
+      td
+        code user_id
+      td Literal
+      td Matches comments with the specified user_id. Anonymous users will never match this term.
+      td
+        code = link "user_id:211190", to: Routes.comment_path(@conn, :index, cq: "user_id:211190")

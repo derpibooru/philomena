@@ -1,4 +1,5 @@
 - link = assigns[:link] || "/images/#{@image.id}"
+- cookies = if assigns[:conn], do: @conn.cookies, else: %{}
 
 = image_container @image, @size, fn ->
   = cond do
@@ -16,7 +17,7 @@
 
   .media-box__overlay.js-spoiler-info-overlay
   a href=link
-    = case render_intent(@conn, @image, @size) do
+    = case render_intent(cookies, @image, @size) do
       - {:hidpi, small_url, medium_url, hover_text} ->
         picture
           img src=small_url srcset="#{small_url} 1x, #{medium_url} 2x" alt=hover_text

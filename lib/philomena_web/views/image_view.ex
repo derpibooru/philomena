@@ -7,16 +7,16 @@ defmodule PhilomenaWeb.ImageView do
   def show_vote_counts?(_user), do: true
 
   # this is a bit ridculous
-  def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
-  def render_intent(conn, image, size) do
+  def render_intent(_cookies, %{thumbnails_generated: false}, _size), do: :not_rendered
+  def render_intent(cookies, image, size) do
     uris = thumb_urls(image, false)
     vid? = image.image_mime_type == "video/webm"
     gif? = image.image_mime_type == "image/gif"
     tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
     alt = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tags}"
 
-    hidpi? = conn.cookies["hidpi"] == "true"
-    webm? = conn.cookies["webm"] == "true"
+    hidpi? = cookies["hidpi"] == "true"
+    webm? = cookies["webm"] == "true"
     use_gif? = vid? and not webm? and size in ~W(thumb thumb_small thumb_tiny)a
 
     cond do
