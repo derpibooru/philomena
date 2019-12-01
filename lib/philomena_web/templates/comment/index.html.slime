@@ -2,7 +2,7 @@ h1 Comments
 
 = form_for :comments, Routes.comment_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :cq, name: :cq, value: @conn.params["cq"] || "created_at.gt:1 week ago", class: "input hform__text", placeholder: "Search comments", autocapitalize: "none"
+    = text_input f, :cq, name: :cq, value: @conn.params["cq"] || "created_at.gte:1 week ago", class: "input hform__text", placeholder: "Search comments", autocapitalize: "none"
     = submit "Search", class: "hform__button button", data: [disable_with: false]
 
   .fieldlabel

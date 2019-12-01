@@ -5,7 +5,7 @@ defmodule Philomena.Comments.Query do
     case Integer.parse(data) do
       {int, _rest} ->
         {
-          :ok, 
+          :ok,
           %{
             bool: %{
               must: [
@@ -23,7 +23,7 @@ defmodule Philomena.Comments.Query do
 
   def author_transform(_ctx, data) do
     {
-      :ok, 
+      :ok,
       %{
         bool: %{
           must: [

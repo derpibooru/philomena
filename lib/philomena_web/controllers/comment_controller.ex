@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.CommentController do
   import Ecto.Query
 
   def index(conn, params) do
-    cq = params["cq"] || "created_at.gt:1 week ago"
+    cq = params["cq"] || "created_at.gte:1 week ago"
 
     {:ok, query} = Query.compile(conn.assigns.current_user, cq)
 
