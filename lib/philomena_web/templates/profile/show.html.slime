@@ -18,8 +18,8 @@
 
       ul.profile-top__options__column
         li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))
-        li = link("Comments", to: "#")
-        li = link("Posts", to: "#")
+        li = link("Comments", to: Routes.comment_path(@conn, :index, cq: "user_id:#{@user.id}"))
+        li = link("Posts", to: Routes.post_path(@conn, :index, pq: "user_id:#{@user.id}"))
 
       ul.profile-top__options__column
         li = link("Favorites", to: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}"))
