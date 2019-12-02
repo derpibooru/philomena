@@ -58,7 +58,7 @@ defmodule Philomena.Topics do
       {count, nil} =
         Forum
         |> where(id: ^topic.forum_id)
-        |> repo.update_all(inc: [post_count: 1], set: [last_post_id: hd(topic.posts).id])
+        |> repo.update_all(inc: [post_count: 1, topic_count: 1], set: [last_post_id: hd(topic.posts).id])
 
       {:ok, count}
     end)

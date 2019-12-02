@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Images, Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.Servers.ImageProcessor
   alias Philomena.Interactions

@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
   alias Philomena.{Forums, Topics, Posts}
   alias Philomena.Textile.Renderer
