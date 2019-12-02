@@ -27,6 +27,9 @@ defmodule PhilomenaWeb.TopicController do
     Topics.clear_notification(topic, user)
     Forums.clear_notification(forum, user)
 
+    # Update the notification ticker in the header
+    conn = NotificationCountPlug.call(conn)
+
     conn = conn |> assign(:topic, topic)
     %{page_number: page} = conn.assigns.pagination
 

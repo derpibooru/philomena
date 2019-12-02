@@ -33,6 +33,9 @@ defmodule PhilomenaWeb.ImageController do
 
     Images.clear_notification(image, user)
 
+    # Update the notification ticker in the header
+    conn = NotificationCountPlug.call(conn)
+
     comments =
       Comment
       |> where(image_id: ^image.id)

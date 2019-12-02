@@ -16,6 +16,10 @@ defmodule PhilomenaWeb.NotificationCountPlug do
   def init(opts), do: opts
 
   @doc false
+  @spec call(Plug.Conn.t()) :: Plug.Conn.t()
+  def call(conn), do: call(conn, nil)
+
+  @doc false
   @spec call(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def call(conn, _opts) do
     user = Pow.Plug.current_user(conn)

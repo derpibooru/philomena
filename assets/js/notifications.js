@@ -3,17 +3,16 @@
  */
 
 import { fetchJson, handleError } from './utils/requests';
-import { $, $$, hideEl, toggleEl } from './utils/dom';
+import { $ } from './utils/dom';
 import { delegate } from './utils/events';
 import store from './utils/store';
 
 const NOTIFICATION_INTERVAL = 600000,
-      NOTIFICATION_EXPIRES = 300000;
+  NOTIFICATION_EXPIRES = 300000;
 
-function makeRequest(verb, action, body) {
-  return fetchJson(verb, `${window.booru.apiEndpoint}notifications/${action}.json`, body).then(handleError);
+function makeRequest(verb) {
+  return fetchJson(verb, '/notifications/unread').then(handleError);
 }
-
 
 function bindSubscriptionLinks() {
   delegate(document, 'fetchcomplete', {
@@ -26,27 +25,16 @@ function bindSubscriptionLinks() {
   });
 }
 
-function markRead(data) {
-  const notificationId = data.value;
-  const notification = $(`.js-notification-id-${notificationId}`);
-
-  makeRequest('PUT', 'mark_read', { id: notificationId })
-    .then(() => hideEl(notification))
-    .catch(() => data.el.textContent = 'Error!');
-}
-
-
 function getNewNotifications() {
   if (document.hidden || !store.hasExpired('notificationCount')) {
     return;
   }
 
-  makeRequest('GET', 'unread').then(response => response.json()).then(({ data }) => {
-    updateNotificationTicker(data.length);
-    storeNotificationCount(data.length);
+  makeRequest('GET').then(response => response.json()).then(({ notifications }) => {
+    updateNotificationTicker(notifications);
+    storeNotificationCount(notifications);
   });
 }
-
 
 function updateNotificationTicker(notificationCount) {
   const ticker = $('.js-notification-ticker');
@@ -78,4 +66,4 @@ function setupNotifications() {
   bindSubscriptionLinks();
 }
 
-export { setupNotifications, markRead };
+export { setupNotifications };

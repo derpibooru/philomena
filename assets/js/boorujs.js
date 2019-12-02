@@ -8,7 +8,6 @@ import { $ } from './utils/dom';
 import { fetchHtml, handleError } from './utils/requests';
 import { showBlock } from './utils/image';
 import { addTag } from './tagsinput';
-import { markRead } from './notifications';
 
 // Event types and any qualifying conditions - return true to not run action
 const types = {
@@ -30,7 +29,8 @@ const actions = {
 
   disable(data) { selectorCb(data.base, data.value, el => el.disabled = true); },
 
-  copy(data) { document.querySelector(data.value).select(); document.execCommand('copy'); },
+  copy(data) { document.querySelector(data.value).select();
+    document.execCommand('copy'); },
 
   inputvalue(data) { document.querySelector(data.value).value = data.el.dataset.setValue; },
 
@@ -46,8 +46,8 @@ const actions = {
 
   tab(data) {
     const block = data.el.parentNode.parentNode,
-          newTab = $(`.block__tab[data-tab="${data.value}"]`),
-          loadTab = data.el.dataset.loadTab;
+      newTab = $(`.block__tab[data-tab="${data.value}"]`),
+      loadTab = data.el.dataset.loadTab;
 
     // Switch tab
     const selectedTab = block.querySelector('.selected');
@@ -74,8 +74,6 @@ const actions = {
 
   unfilter(data) { showBlock(data.el.closest('.image-show-container')); },
 
-  markRead,
-
 };
 
 // Use this function to apply a callback to elements matching the selectors
@@ -87,9 +85,9 @@ function matchAttributes(event) {
   if (!types[event.type](event)) {
     for (const action in actions) {
 
-      const attr  = `data-${event.type}-${action.toLowerCase()}`,
-            el    = event.target && event.target.closest(`[${attr}]`),
-            value = el && el.getAttribute(attr);
+      const attr = `data-${event.type}-${action.toLowerCase()}`,
+        el = event.target && event.target.closest(`[${attr}]`),
+        value = el && el.getAttribute(attr);
 
       if (el) {
         // Return true if you don't want to preventDefault

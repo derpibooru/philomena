@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.ConversationController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Conversations, Conversations.Conversation, Conversations.Message}
   alias Philomena.Textile.Renderer
   alias Philomena.Repo
@@ -46,6 +47,9 @@ defmodule PhilomenaWeb.ConversationController do
 
     conversation
     |> Conversations.mark_conversation_read(user)
+
+    # Update the conversation ticker in the header
+    conn = NotificationCountPlug.call(conn)
 
     render(conn, "show.html", conversation: conversation, messages: messages, changeset: changeset)
   end

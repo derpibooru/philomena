@@ -75,6 +75,9 @@ defmodule PhilomenaWeb.Router do
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp, :protected]
 
+    scope "/notifications", Notification, as: :notification do
+      resources "/unread", UnreadController, only: [:index]
+    end
     resources "/notifications", NotificationController, only: [:index, :delete]
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
       resources "/messages", Conversation.MessageController, only: [:create]
