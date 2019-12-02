@@ -7,6 +7,9 @@ defmodule PhilomenaWeb.CommentController do
   def index(conn, params) do
     cq = params["cq"] || "created_at.gte:1 week ago"
 
+    params = Map.put(conn.params, "cq", cq)
+    conn = Map.put(conn, :params, params)
+
     {:ok, query} = Query.compile(conn.assigns.current_user, cq)
 
     comments =

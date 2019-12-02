@@ -5,9 +5,12 @@ defmodule PhilomenaWeb.PostController do
   import Ecto.Query
 
   def index(conn, params) do
-    cq = params["pq"] || "created_at.gte:1 week ago"
+    pq = params["pq"] || "created_at.gte:1 week ago"
 
-    {:ok, query} = Query.compile(conn.assigns.current_user, cq)
+    params = Map.put(conn.params, "pq", pq)
+    conn = Map.put(conn, :params, params)
+
+    {:ok, query} = Query.compile(conn.assigns.current_user, pq)
 
     posts =
       Post.search_records(
