@@ -181,7 +181,7 @@ defmodule Philomena.Tags.Tag do
 
     case @namespace_categories[namespace] do
       nil      -> changeset
-      category -> change(changeset, category: @namespace_categories[namespace])
+      category -> change(changeset, category: category)
     end
   end
 end

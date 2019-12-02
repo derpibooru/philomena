@@ -10,6 +10,11 @@ defmodule Philomena.Servers.ImageProcessor do
     GenServer.cast(pid, {:enqueue, image_id})
   end
 
+  def call do
+    pid = Process.whereis(:processor)
+    GenServer.call(pid, :wait, :infinity)
+  end
+
   @impl true
   def init([]) do
     Process.register(self(), :processor)
@@ -31,5 +36,10 @@ defmodule Philomena.Servers.ImageProcessor do
   #rescue
   #  _ ->
   #    nil
+  end
+
+  @impl true
+  def handle_call(:wait, _from, []) do
+    {:reply, nil, []}
   end
 end

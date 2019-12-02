@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.ActivityController do
           pagination: %{conn.assigns.image_pagination | page_number: 1}
         )
 
-      watched_images
+      if Enum.any?(watched_images), do: watched_images
     end
 
     featured_image =

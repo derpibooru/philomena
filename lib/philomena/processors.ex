@@ -142,8 +142,15 @@ defmodule Philomena.Processors do
 
     File.mkdir_p!(dir)
     File.rm(new_destination)
-    File.ln_s!(file, new_destination)
-    File.chmod!(new_destination, 0o755)
+    platform_symlink(file, new_destination)
+    File.chmod(new_destination, 0o755)
+  end
+
+  defp platform_symlink(source, destination) do
+    case File.ln_s(source, destination) do
+      :ok -> :ok
+      _err -> File.cp!(source, destination)
+    end
   end
 
   defp analysis_to_changes(analysis, file, upload_name) do

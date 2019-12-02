@@ -15,12 +15,10 @@ alias Philomena.Tags
 import Ecto.Query
 
 IO.puts "---- Creating Elasticsearch indices"
-Image.create_index!
-Comment.create_index!
-Gallery.create_index!
-Tag.create_index!
-Post.create_index!
-# Report.create_index!
+for model <- [Image, Comment, Gallery, Tag, Post] do # Report
+  model.delete_index!
+  model.create_index!
+end
 
 resources =
   "priv/repo/seeds.json"

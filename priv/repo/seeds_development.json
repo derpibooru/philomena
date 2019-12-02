@@ -3,34 +3,56 @@
       "name": "Hot Pocket Consumer",
       "email": "moderator@example.com",
       "password": "willdeleteglimmerposts4hotpockets",
+      "confirm_password": "willdeleteglimmerposts4hotpockets",
       "role": "moderator"
     },
     {
       "name": "Hoping For a Promotion",
       "email": "assistant@example.com",
       "password": "hotpocketfetchingass",
+      "confirm_password": "hotpocketfetchingass",
       "role": "assistant"
     },
     {
       "name": "Pleb",
       "email": "user@example.com",
       "password": "glimmerpostingplebeian",
+      "confirm_password": "glimmerpostingplebeian",
       "role": "user"
     }
   ],
-  "tags": [
-    "spacebar heating",
-    "fair dice roll",
-    "correcthorsebatterystaple",
-    "spaghetti",
-    "piñata",
-    "dot.dot"
-  ],
   "remote_images": [{
-    "url": "http://orig14.deviantart.net/c2d0/f/2015/269/9/b/tirek_battle_12exp_by_equumamici-d9ax5yd.gif",
-    "description": "Fairly large GIF (~23MB), use to test WebM stuff.",
-    "tags": "artist:equum_amici, safe, large gif"
-  }],
+      "url": "https://derpicdn.net/img/view/2015/9/26/988000.gif",
+      "source_url": "https://derpibooru.org/988000",
+      "description": "Fairly large GIF (~23MB), use to test WebM stuff.",
+      "tag_input": "alicorn, angry, animated, art, artist:assasinmonkey, artist:equum_amici, badass, barrier, crying, dark, epic, female, fight, force field, glare, glow, good vs evil, lord tirek, low angle, magic, mare, messy mane, metal as fuck, perspective, plot, pony, raised hoof, safe, size difference, spread wings, stomping, twilight's kingdom, twilight sparkle, twilight sparkle (alicorn), twilight vs tirek, underhoof"
+    },
+    {
+      "url": "https://derpicdn.net/img/2012/1/2/25/large.png",
+      "source_url": "https://derpibooru.org/25",
+      "tag_input": "artist:moe, canterlot, castle, cliff, cloud, detailed background, fog, forest, grass, mountain, mountain range, nature, no pony, outdoors, path, river, safe, scenery, scenery porn, signature, source needed, sunset, technical advanced, town, tree, useless source url, water, waterfall, widescreen, wood"
+    },
+    {
+      "url": "https://derpicdn.net/img/2018/6/28/1767886/full.webm",
+      "source_url": "http://hydrusbeta.deviantart.com/art/Gleaming-in-the-Sun-Our-Colors-Shine-in-Every-Hue-611497309",
+      "tag_input": "3d, animated, architecture, artist:hydrusbeta, castle, cloud, crystal empire, crystal palace, flag, flag waving, no pony, no sound, safe, scenery, webm"
+    },
+    {
+      "url": "https://derpicdn.net/img/view/2015/2/19/832750.jpg",
+      "source_url": "http://sovietrussianbrony.tumblr.com/post/111504505079/this-image-actually-took-me-ages-to-edit-the",
+      "tag_input": "artist:rhads, artist:the sexy assistant, canterlot, cloud, cloudsdale, cloudy, edit, lens flare, no pony, ponyville, rainbow, river, safe, scenery, sweet apple acres"
+    },
+    {
+      "url": "https://derpicdn.net/img/view/2016/3/17/1110529.jpg",
+      "source_url": "https://www.deviantart.com/devinian/art/Commission-Crystals-of-thy-heart-511134926",
+      "tag_input": "artist:devinian, aurora crystialis, bridge, cloud, crepuscular rays, crystal empire, crystal palace, edit, flower, forest, grass, log, mountain, no pony, river, road, safe, scenery, scenery porn, source needed, stars, sunset, swing, tree, wallpaper"
+    },
+    {
+      "url": "https://derpicdn.net/img/view/2019/6/16/2067468.svg",
+      "source_url": "https://derpibooru.org/2067468",
+      "tag_input": "artist:cheezedoodle96, babs seed, bloom and gloom, cutie mark, cutie mark only, no pony, safe, scissors, simple background, svg, .svg available, transparent background, vector"
+    }
+  ],
   "comments": [
     "bold is *bold*, italic is _italic_, spoiler is [spoiler]spoiler[/spoiler], code is @code@, underline is +underline+, strike is -strike-, sup is ^sup^, sub is ~sub~.",
     "inline embedded thumbnails (tsp): >>1t >>1s >>1p",
@@ -45,7 +67,8 @@
         },
         {
           "Second example topic": [
-            "post"
+            "post",
+            "post 2"
           ]
         }
       ]
