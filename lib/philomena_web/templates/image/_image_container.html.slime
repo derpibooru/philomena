@@ -38,7 +38,7 @@
         picture
           img alt=hover_text
 
-      - {:filtered_video, hover_text}
+      - {:filtered_video, hover_text} ->
         video autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
         img alt=hover_text
 

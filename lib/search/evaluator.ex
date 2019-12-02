@@ -49,7 +49,7 @@ defmodule Search.Evaluator do
     query_re = wildcard_to_regex(query_val)
 
     wrap(doc[atomify(term)])
-    |> Enum.any?(&Regex.match?(query_re, &1))
+    |> Enum.any?(&Regex.match?(query_re, &1 || ""))
   end
 
   def hits?(doc, %{match_phrase: phrase_query}) do
