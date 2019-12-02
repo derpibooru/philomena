@@ -141,12 +141,22 @@ defmodule Textile.Lexer do
   link_contents_start =
     choice([
       image,
+      spoiler_open,
+      spoiler_close,
+      blockquote_open,
+      blockquote_open_cite,
+      blockquote_close,
       link_markup_start,
     ])
 
   link_contents_element =
     choice([
       image,
+      spoiler_open,
+      spoiler_close,
+      blockquote_open,
+      blockquote_open_cite,
+      blockquote_close,
       link_markup_element
     ])
 

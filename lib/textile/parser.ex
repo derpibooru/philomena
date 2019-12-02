@@ -199,25 +199,25 @@ defmodule Textile.Parser do
   defp image(parser, [{:image_url, image_url}, {:image_title, title}, {:image_link_url, link_url} | r_tokens]) do
     image_url = parser.image_transform.(image_url)
 
-    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/></a>|], r_tokens}
+    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><span class="imgspoiler"><img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/></span></a>|], r_tokens}
   end
 
   defp image(parser, [{:image_url, image_url}, {:image_title, title} | r_tokens]) do
     image_url = parser.image_transform.(image_url)
 
-    {:ok, [markup: ~s|<img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/>|], r_tokens}
+    {:ok, [markup: ~s|<span class="imgspoiler"><img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/></span>|], r_tokens}
   end
 
   defp image(parser, [{:image_url, image_url}, {:image_link_url, link_url} | r_tokens]) do
     image_url = parser.image_transform.(image_url)
 
-    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><img src="#{escape_html(image_url)}"/></a>|], r_tokens}
+    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><span class="imgspoiler"><img src="#{escape_html(image_url)}"/></span></a>|], r_tokens}
   end
 
   defp image(parser, [{:image_url, image_url} | r_tokens]) do
     image_url = parser.image_transform.(image_url)
 
-    {:ok, [markup: ~s|<img src="#{escape_html(image_url)}"/>|], r_tokens}
+    {:ok, [markup: ~s|<span class="imgspoiler"><img src="#{escape_html(image_url)}"/></span>|], r_tokens}
   end
 
   defp image(_parser, _tokens),
