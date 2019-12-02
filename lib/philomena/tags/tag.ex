@@ -179,7 +179,9 @@ defmodule Philomena.Tags.Tag do
   defp put_namespace_category(changeset) do
     namespace = changeset |> get_field(:namespace)
 
-    changeset
-    |> change(category: @namespace_categories[namespace])
+    case @namespace_categories[namespace] do
+      nil      -> changeset
+      category -> change(changeset, category: @namespace_categories[namespace])
+    end
   end
 end

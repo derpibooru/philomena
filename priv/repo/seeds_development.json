@@ -1,0 +1,63 @@
+{
+  "users": [{
+      "name": "Hot Pocket Consumer",
+      "email": "moderator@example.com",
+      "password": "willdeleteglimmerposts4hotpockets",
+      "role": "moderator"
+    },
+    {
+      "name": "Hoping For a Promotion",
+      "email": "assistant@example.com",
+      "password": "hotpocketfetchingass",
+      "role": "assistant"
+    },
+    {
+      "name": "Pleb",
+      "email": "user@example.com",
+      "password": "glimmerpostingplebeian",
+      "role": "user"
+    }
+  ],
+  "tags": [
+    "spacebar heating",
+    "fair dice roll",
+    "correcthorsebatterystaple",
+    "spaghetti",
+    "piñata",
+    "dot.dot"
+  ],
+  "remote_images": [{
+    "url": "http://orig14.deviantart.net/c2d0/f/2015/269/9/b/tirek_battle_12exp_by_equumamici-d9ax5yd.gif",
+    "description": "Fairly large GIF (~23MB), use to test WebM stuff.",
+    "tags": "artist:equum_amici, safe, large gif"
+  }],
+  "comments": [
+    "bold is *bold*, italic is _italic_, spoiler is [spoiler]spoiler[/spoiler], code is @code@, underline is +underline+, strike is -strike-, sup is ^sup^, sub is ~sub~.",
+    "inline embedded thumbnails (tsp): >>1t >>1s >>1p",
+    "buggy embedded image inside a spoiler: [spoiler]who needs it anyway >>1s[/spoiler]"
+  ],
+  "forum_posts": [{
+      "dis": [{
+          "Example topic": [
+            "example post",
+            "yet another example post"
+          ]
+        },
+        {
+          "Second example topic": [
+            "post"
+          ]
+        }
+      ]
+    },
+    {
+      "art": [{
+        "Embedded images": [
+          ">>1t >>1s >>1p",
+          ">>1",
+          "non-existent: >>1000t >>1000s >>1000p >>1000"
+        ]
+      }]
+    }
+  ]
+}

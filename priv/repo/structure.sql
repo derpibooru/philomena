@@ -3047,7 +3047,7 @@ CREATE INDEX index_forums_on_last_topic_id ON public.forums USING btree (last_to
 -- Name: index_forums_on_short_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_forums_on_short_name ON public.forums USING btree (short_name);
+CREATE UNIQUE INDEX index_forums_on_short_name ON public.forums USING btree (short_name);
 
 
 --
@@ -3832,6 +3832,20 @@ CREATE INDEX index_vpns_on_ip ON public.vpns USING gist (ip inet_ops);
 --
 
 CREATE INDEX intensities_index ON public.images USING btree (se_intensity, sw_intensity, ne_intensity, nw_intensity, average_intensity);
+
+
+--
+-- Name: temp_unique_index_tags_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX temp_unique_index_tags_on_name ON public.tags USING btree (name);
+
+
+--
+-- Name: temp_unique_index_tags_on_slug; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX temp_unique_index_tags_on_slug ON public.tags USING btree (slug);
 
 
 --
