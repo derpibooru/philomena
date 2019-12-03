@@ -5,9 +5,12 @@ config :philomena, Philomena.Repo,
   username: "postgres",
   password: "postgres",
   database: "philomena_dev",
-  hostname: "localhost",
+  hostname: "postgres",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
+config :philomena,
+  elasticsearch_url: "http://elasticsearch:9200"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

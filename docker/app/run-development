@@ -10,7 +10,7 @@
 # if it's not done doing whatever it does yet
 echo -n "Waiting for Elasticsearch"
 
-until wget -qO - localhost:9200; do
+until wget -qO - elasticsearch:9200; do
   echo -n "."
   sleep 2
 done
@@ -18,7 +18,7 @@ done
 echo
 
 # Try to create the database if it doesn't exist yet
-createdb -h localhost -U postgres philomena_dev && mix ecto.setup_dev
+createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
 
 # Run the application
 mix phx.server
