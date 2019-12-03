@@ -1,0 +1,43 @@
+version: '3'
+volumes:
+  postgres_data: {}
+  elastic_data: {}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    environment:
+      - MIX_ENV=dev
+    working_dir: /srv/philomena
+    volumes:
+      - .:/srv/philomena
+    depends_on:
+      - postgres
+      - elasticsearch
+      - redis
+
+  postgres:
+    image: postgres:12.1
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  elasticsearch:
+    image: elasticsearch:6.8.5
+    volumes:
+      - elastic_data:/var/lib/elasticsearch
+
+  redis:
+    image: redis:5.0.7
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
+    volumes:
+      - .:/srv/philomena
+    depends_on:
+      - app
+    ports:
+      - '80:8080'
