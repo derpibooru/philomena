@@ -11,6 +11,7 @@ services:
     environment:
       - MIX_ENV=dev
     working_dir: /srv/philomena
+    tty: true
     volumes:
       - .:/srv/philomena
     depends_on:
@@ -38,7 +39,7 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
+      dockerfile: ./docker/web/Dockerfile
     volumes:
       - .:/srv/philomena
     depends_on:

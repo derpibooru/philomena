@@ -1,0 +1,2 @@
+#!/bin/bash
+rsvg-convert < "$1" -o "$2"

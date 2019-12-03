@@ -33,9 +33,9 @@ defmodule Philomena.Servers.ImageProcessor do
 
   defp process(image_id) do
     Philomena.Processors.process_image(image_id)
-  #rescue
-  #  _ ->
-  #    nil
+  rescue
+    _ ->
+      nil
   end
 
   @impl true
