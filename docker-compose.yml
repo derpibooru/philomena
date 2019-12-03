@@ -27,6 +27,10 @@ services:
     image: elasticsearch:6.8.5
     volumes:
       - elastic_data:/var/lib/elasticsearch
+    ulimits:
+      nofile:
+          soft: 65536
+          hard: 65536
 
   redis:
     image: redis:5.0.7
@@ -40,4 +44,4 @@ services:
     depends_on:
       - app
     ports:
-      - '80:8080'
+      - '8080:80'
