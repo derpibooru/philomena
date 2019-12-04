@@ -45,6 +45,8 @@ defmodule Philomena.Tags.Tag do
     "video" => "content-fanmade"
   }
 
+  @derive {Phoenix.Param, key: :slug}
+
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
     has_many :aliases, Tag, foreign_key: :aliased_tag_id

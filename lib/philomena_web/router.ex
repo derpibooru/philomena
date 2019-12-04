@@ -155,7 +155,9 @@ defmodule PhilomenaWeb.Router do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true
       resources "/fetch", FetchController, only: [:index]
     end
-    resources "/tags", TagController, only: [:index, :show]
+    resources "/tags", TagController, only: [:index, :show] do
+      resources "/tag_changes", Tag.TagChangeController, only: [:index]
+    end
     scope "/search", Search, as: :search do
       resources "/reverse", ReverseController, only: [:index, :create]
     end
@@ -176,6 +178,7 @@ defmodule PhilomenaWeb.Router do
     resources "/profiles", ProfileController, only: [:show] do
       resources "/reports", Profile.ReportController, only: [:new, :create]
       resources "/commission", Profile.CommissionController, only: [:show], singleton: true
+      resources "/tag_changes", Profile.TagChangeController, only: [:index]
     end
     resources "/captchas", CaptchaController, only: [:create]
     scope "/posts", Post, as: :post do

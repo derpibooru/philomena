@@ -7,6 +7,7 @@
   
   .flex__grow
     = render PhilomenaWeb.TagView, "_tag.html", tag: @tag
+    = link "Tag changes", to: Routes.tag_tag_change_path(@conn, :index, @tag), class: "detail-link"
     br
   
     = if @tag.short_description not in [nil, ""] do

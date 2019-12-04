@@ -1,0 +1,18 @@
+h1
+  ' Tag changes on tag
+  a href=Routes.tag_path(@conn, :show, @tag)
+    = @tag.name
+
+- route = fn p -> Routes.tag_tag_change_path(@conn, :index, @tag, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn
+
+.block
+  .block__header
+    span.block__header_title
+      | Display only:
+
+    = link "Removed", to: Routes.tag_tag_change_path(@conn, :index, @tag, added: 0)
+    = link "Added", to: Routes.tag_tag_change_path(@conn, :index, @tag, added: 1)
+    = link "All", to: Routes.tag_tag_change_path(@conn, :index, @tag)
+
+  = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination
