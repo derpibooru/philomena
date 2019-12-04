@@ -117,7 +117,7 @@ defmodule Philomena.DuplicateReports do
 
   def count_duplicate_reports() do
     DuplicateReport
-    |> where([dr], dr.state == "open")
+    |> where(state: "open")
     |> Repo.aggregate(:count, :id)
   end
 end
