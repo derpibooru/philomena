@@ -48,6 +48,7 @@ defmodule Philomena.Conversations.Conversation do
     |> set_slug()
     |> set_last_message()
     |> cast_assoc(:messages, with: {Message, :creation_changeset, [from]})
+    |> validate_length(:messages, is: 1)
   end
 
   defp set_slug(changeset) do
