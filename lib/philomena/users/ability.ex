@@ -82,6 +82,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Comment{hidden_from_users: false}), do: true
 
   # View forums
+  def can?(_user, :index, Forum), do: true
   def can?(_user, :show, %Forum{access_level: "normal"}), do: true
   def can?(_user, :show, %Topic{hidden_from_users: false}), do: true
 
