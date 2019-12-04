@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     items = Enum.zip([item_descriptions, item_add_ons, commission.items])
 
-    render(conn, "show.html", rendered: rendered, commission: conn.assigns.commission, items: items, layout_class: "layout--wide")
+    render(conn, "show.html", rendered: rendered, commission: commission, items: items, layout_class: "layout--wide")
   end
 
   defp ensure_commission(conn, _opts) do
