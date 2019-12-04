@@ -76,4 +76,7 @@ defmodule PhilomenaWeb.LayoutView do
 
   def artist_tags(tags),
     do: Enum.filter(tags, & &1.namespace == "artist")
+
+  def opengraph?(conn),
+    do: !is_nil(conn.assigns[:image]) and conn.assigns.image.__meta__.state == :loaded and is_list(conn.assigns.image.tags)
 end

@@ -1,0 +1,40 @@
+.block__header
+  = @pagination
+
+.block__content
+  table.table
+    thead
+      tr
+        th colspan=2 Image
+        th Tag
+        th Action
+        th Timestamp
+        th User
+
+    tbody
+      = for tag_change <- @tag_changes do
+        tr
+          td.center
+            = link tag_change.image_id, to: Routes.image_path(@conn, :show, tag_change.image)
+          td.center
+            = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
+
+          td
+            = if tag_change.tag do
+              = render PhilomenaWeb.TagView, "_tag.html", tag: tag_change.tag, conn: @conn
+            - else
+              = tag_change.tag_name_cache || "Unknown tag"
+          
+          = if tag_change.added do
+            td.success Added
+          - else
+            td.danger Removed
+          
+          td
+            = pretty_time(tag_change.created_at)
+
+          td
+            = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: tag_change, conn: @conn
+
+.block__header
+  = @pagination

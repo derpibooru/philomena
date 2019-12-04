@@ -3,7 +3,7 @@ meta name="theme-color"
 meta name="format-detection" content="telephone=no"
 meta name="robots" content="noindex, nofollow"
 
-= if !is_nil(@conn.assigns[:image]) and @conn.assigns.image.__meta__.state == :loaded do
+= if opengraph?(@conn) do
   - image = @conn.assigns.image
   - filtered = ImageView.filter_or_spoiler_hits?(@conn, image)
 
