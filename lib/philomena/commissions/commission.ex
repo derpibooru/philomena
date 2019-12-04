@@ -26,8 +26,56 @@ defmodule Philomena.Commissions.Commission do
   def changeset(commission, attrs) do
     commission
     |> cast(attrs, [:information, :contact, :will_create, :will_not_create, :open, :sheet_image_id, :categories])
-    |> validate_required([:user, :information, :contact, :open])
+    |> drop_blank_categories()
+    |> validate_required([:user_id, :information, :contact, :open])
     |> validate_length(:information, max: 700, count: :bytes)
     |> validate_length(:contact, max: 700, count: :bytes)
+    |> validate_subset(:categories, Keyword.values(categories()))
+  end
+
+  defp drop_blank_categories(changeset) do
+    categories =
+      changeset
+      |> get_field(:categories)
+      |> Enum.filter(& &1 not in [nil, ""])
+
+    change(changeset, categories: categories)
+  end
+
+  def categories do
+    [
+      "Anthro": "Anthro",
+      "Canon Characters": "Canon Characters",
+      "Comics": "Comics",
+      "Fetish Art": "Fetish Art",
+      "Human and EqG": "Human and EqG",
+      "NSFW": "NSFW",
+      "Original Characters": "Original Characters",
+      "Original Species": "Original Species",
+      "Pony": "Pony",
+      "Requests": "Requests",
+      "Safe": "Safe",
+      "Shipping": "Shipping",
+      "Violence and Gore": "Violence and Gore"
+    ]
+  end
+
+  def types do
+    [
+      "Sketch",
+      "Colored Sketch",
+      "Inked",
+      "Flat Color",
+      "Vector",
+      "Cel Shaded",
+      "Fully Shaded",
+      "Traditional",
+      "Pixel Art",
+      "Animation",
+      "Crafted Item",
+      "Sculpture",
+      "Plushie",
+      "Other"
+    ]
   end
 end

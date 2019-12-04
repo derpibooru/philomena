@@ -5,30 +5,34 @@
 
   .field
     => label f, :information, "General Information:"
-    = textarea f, :information, class: "input input--wide input--text", placeholder: "A general overview about your commissions."
+    = textarea f, :information, class: "input input--wide input--text", placeholder: "A general overview about your commissions.", required: true
+    = error_tag f, :information
 
   .field
     => label f, :contact, "Contact Information:"
-    = textarea f, :contact, class: "input input--wide input--text", placeholder: "How you would like potential customers to contact you (PM, Discord, Email, etc). Remember that this information will be publicly visible."
+    = textarea f, :contact, class: "input input--wide input--text", placeholder: "How you would like potential customers to contact you (PM, Discord, Email, etc). Remember that this information will be publicly visible.", required: true
+    = error_tag f, :contact
   .field
     => label f, :will_create, "Content you are particularly interested in drawing or creating (optional):"
     = textarea f, :will_create, class: "input input--wide input--text", placeholder: "List specific content you are willing to accept commissions for."
+    = error_tag f, :will_create
   .field
     => label f, :will_not_create, "Content you will not draw or create (optional):"
     = textarea f, :will_not_create, class: "input input--wide input--text", placeholder: "List specific content you are not willing to accept commissions for."
+    = error_tag f, :will_not_create
   .field
     => label f, :categories, "Art Categories:"
     br
-    /= f.collection_check_boxes :categories, Commission::CATEGORIES.sort_by(&:downcase), :itself, :itself do |b|
-      span.commission__category
-        => b.label
-        = b.check_box
+    = collection_checkboxes f, :categories, categories(), wrapper: &Phoenix.HTML.Tag.content_tag(:span, &1, class: "commission__category")
+    = error_tag f, :categories
   .field
     => label f, :sheet_image_id, "Image ID of your commissions sheet (optional but recommended):"
     br
     = number_input f, :sheet_image_id, class: "input", placeholder: "1227409"
+    = error_tag f, :sheet_image_id
   .field
     = label f, :open, "Currently accepting commissions." do
     => checkbox f, :open, class: "checkbox"
+    = error_tag f, :open
   br
   = submit "Save", class: "button"

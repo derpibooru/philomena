@@ -1,38 +1,3 @@
-elixir:
-  categories = [
-    "Anthro": :category_anthro,
-    "Canon Characters": :category_canon_characters,
-    "Comics": :category_comics,
-    "Fetish Art": :category_fetish_art,
-    "Human and EqG": :category_human_and_eqg,
-    "NSFW": :category_nsfw,
-    "Original Characters": :category_original_characters,
-    "Original Species": :category_original_species,
-    "Pony": :category_pony,
-    "Requests": :category_requests,
-    "Safe": :category_safe,
-    "Shipping": :category_shipping,
-    "Violence and Gore": :category_violence_and_gore
-  ]
-
-  types = [
-    [key: "-", value: ""],
-    "Sketch",
-    "Colored Sketch",
-    "Inked",
-    "Flat Color",
-    "Vector",
-    "Cel Shaded",
-    "Fully Shaded",
-    "Traditional",
-    "Pixel Art",
-    "Animation",
-    "Crafted Item",
-    "Sculpture",
-    "Plushie",
-    "Other"
-  ]
-
 .block
   .block__header
     span.block__header__title Search
@@ -40,7 +5,7 @@ elixir:
     = form_for @conn, Routes.commission_path(@conn, :index), [as: :commission, method: "get", class: "hform"], fn f ->
       .field = label f, :categories, "Art Categories:"
 
-      = for {name, value} <- categories do
+      = for {name, value} <- categories() do
         .field
           => checkbox f, value, checked_value: name, name: "commission[category][]", class: "checkbox spacing-right", hidden_input: false
           => label f, value, name
@@ -48,7 +13,7 @@ elixir:
       br
 
       .field = label f, :item_type, "Commission Type:"
-      .field = select f, :item_type, types, class: "input"
+      .field = select f, :item_type, types(), class: "input"
 
       br
 

@@ -49,8 +49,8 @@ defmodule Philomena.Commissions do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_commission(attrs \\ %{}) do
-    %Commission{}
+  def create_commission(user, attrs \\ %{}) do
+    Ecto.build_assoc(user, :commission)
     |> Commission.changeset(attrs)
     |> Repo.insert()
   end

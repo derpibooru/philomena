@@ -3,6 +3,14 @@
     span.block__header__title Available Items and Prices
 
   .block__content
+
+    = if not Enum.any?(@commission.items) do
+      = if current?(@user, @conn.assigns.current_user) do
+        p You have not added any items to your commissions sheet yet.
+        p Your listing will not appear in search results until you list at least one item.
+      - else
+        p This artist has not added any items yet. Please check back later.
+
     table.table
       thead
         tr

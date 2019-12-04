@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     item_descriptions =
       commission.items
-      |> Enum.map(&%{body: &1.description})
+      |> Enum.map(&%{body: &1.description })
       |> Renderer.render_collection(conn)
 
     item_add_ons =
@@ -29,10 +29,10 @@ defmodule PhilomenaWeb.Profile.CommissionController do
     [information, contact, will_create, will_not_create] =
       Renderer.render_collection(
         [
-          %{body: commission.information},
-          %{body: commission.contact},
-          %{body: commission.will_create},
-          %{body: commission.will_not_create}
+          %{body: commission.information || ""},
+          %{body: commission.contact || ""},
+          %{body: commission.will_create || ""},
+          %{body: commission.will_not_create || ""}
         ],
         conn
       )
@@ -53,6 +53,49 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   def new(conn, _params) do
     changeset = Commissions.change_commission(%Commission{})
     render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"commission" => commission_params}) do
+    user = conn.assigns.current_user
+
+    case Commissions.create_commission(user, commission_params) do
+      {:ok, _commission} ->
+        conn
+        |> put_flash(:info, "Commission successfully created.")
+        |> redirect(to: Routes.profile_commission_path(conn, :show, user))
+
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+  def edit(conn, _params) do
+    changeset = Commissions.change_commission(conn.assigns.user.commission)
+    render(conn, "edit.html", changeset: changeset)
+  end
+
+  def update(conn, %{"commission" => commission_params}) do
+    commission = conn.assigns.user.commission
+
+    case Commissions.update_commission(commission, commission_params) do
+      {:ok, _commission} ->
+        conn
+        |> put_flash(:info, "Commission successfully updated.")
+        |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
+
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    commission = conn.assigns.user.commission
+
+    {:ok, _commission} = Commissions.delete_commission(commission)
+
+    conn
+    |> put_flash(:info, "Commission deleted successfully.")
+    |> redirect(to: Routes.commission_path(conn, :index))
   end
 
   defp ensure_commission(conn, _opts) do

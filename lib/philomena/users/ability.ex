@@ -1,6 +1,7 @@
 defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Users.User
   alias Philomena.Comments.Comment
+  alias Philomena.Commissions.Commission
   alias Philomena.Conversations.Conversation
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
@@ -63,6 +64,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View user links they've created
   def can?(%User{id: id}, :show, %UserLink{user_id: id}), do: true
+
+  # Edit their commissions
+  def can?(%User{id: id}, action, %Commission{user_id: id}) when action in [:edit, :update, :delete], do: true
 
   # View non-deleted images
   def can?(_user, action, Image)

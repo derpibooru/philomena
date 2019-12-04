@@ -6,13 +6,13 @@ h1
 
   / Side column
   .column-layout__left
-    = render PhilomenaWeb.Profile.CommissionView, "_listing_sidebar.html", commission: @commission, rendered: @rendered, conn: @conn
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_sidebar.html", commission: @commission, user: @user, rendered: @rendered, conn: @conn
 
   / Main column
   .column-layout__main
 
     / Commission sheet block
-    = render PhilomenaWeb.Profile.CommissionView, "_listing_sheet.html", commission: @commission, conn: @conn
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_sheet.html", commission: @commission, user: @user, conn: @conn
 
     / Types and prices block
-    = render PhilomenaWeb.Profile.CommissionView, "_listing_items.html", commission: @commission, items: @items, conn: @conn
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_items.html", commission: @commission, user: @user, items: @items, conn: @conn

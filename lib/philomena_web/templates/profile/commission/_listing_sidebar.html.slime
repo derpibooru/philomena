@@ -12,13 +12,14 @@
 
     br
 
-    strong> Price Range:
-    - {min, max} = Enum.min_max_by(@commission.items, & &1.base_price)
-    | $
-    => Decimal.round(min.base_price, 2) |> Decimal.to_string()
-    | - $
-    => Decimal.round(max.base_price, 2) |> Decimal.to_string()
-    ' USD
+    = if Enum.any?(@commission.items) do
+      strong> Price Range:
+      - {min, max} = Enum.min_max_by(@commission.items, & &1.base_price)
+      | $
+      => Decimal.round(min.base_price, 2) |> Decimal.to_string()
+      | - $
+      => Decimal.round(max.base_price, 2) |> Decimal.to_string()
+      ' USD
 
     br
     br
@@ -65,16 +66,16 @@
     = render partial: 'profiles/user_link_area'
 
 / Options block
-/.block
+.block
   .block__header
     span.block__header__title Options
   .block__content
-    - if can? :edit, @user.commission
-      = link_to 'Edit this listing', edit_commission_path(@user.commission)
+    = if can?(@conn, :edit, @commission) do
+      = link "Edit this listing", to: Routes.profile_commission_path(@conn, :edit, @user)
       br
-      = link_to 'Delete this listing', commission_path(@user.commission), data: { confirm: t('commissions.confirm_delete_listing') }, method: :delete
+      = link "Delete this listing", to: Routes.profile_commission_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure about that?", method: :delete]
       br
-    = link_to 'Report this listing', new_report_path(reportable_class: 'commission', reportable_id: @user.commission.id)
+    /= link_to 'Report this listing', new_report_path(reportable_class: 'commission', reportable_id: @user.commission.id)
 
 / Share block
 .block
