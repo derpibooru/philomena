@@ -165,7 +165,9 @@ defmodule PhilomenaWeb.Router do
       resources "/current", CurrentController, only: [:update], singleton: true
     end
     resources "/filters", FilterController
-    resources "/profiles", ProfileController, only: [:show]
+    resources "/profiles", ProfileController, only: [:show] do
+      resources "/reports", Profile.ReportController, only: [:new, :create]
+    end
     resources "/captchas", CaptchaController, only: [:create]
     scope "/posts", Post, as: :post do
       resources "/preview", PreviewController, only: [:create]

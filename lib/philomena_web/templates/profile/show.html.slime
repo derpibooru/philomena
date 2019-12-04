@@ -12,9 +12,9 @@
 
     .profile-top__options
       ul.profile-top__options__column
-        li = link("Send message", to: "#")
-        li = link("Our conversations", to: "#")
-        li = link("Report this user", to: "#")
+        li = link("Send message", to: Routes.conversation_path(@conn, :new, recipient: @user.name))
+        li = link("Our conversations", to: Routes.conversation_path(@conn, :index, with: @user.id))
+        li = link("Report this user", to: Routes.profile_report_path(@conn, :new, @user))
 
       ul.profile-top__options__column
         li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))
