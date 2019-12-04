@@ -7,7 +7,10 @@
     = if not Enum.any?(@commission.items) do
       = if current?(@user, @conn.assigns.current_user) do
         p You have not added any items to your commissions sheet yet.
-        p Your listing will not appear in search results until you list at least one item.
+        p
+          ' Your listing will not appear in search results until you
+          = link "list at least one item", to: Routes.profile_commission_item_path(@conn, :new, @user)
+          ' .
       - else
         p This artist has not added any items yet. Please check back later.
 
@@ -18,6 +21,8 @@
           th Description
           th Base Price
           th Add-Ons
+          = if can?(@conn, :edit, @commission) do
+            th Options
       tbody
         = for {description, add_ons, item} <- @items do
           tr
@@ -41,3 +46,10 @@
 
             td
               == add_ons
+
+            = if can?(@conn, :edit, @commission) do
+              td
+                = link "Edit item", to: Routes.profile_commission_item_path(@conn, :edit, @user, item)
+                br
+                br
+                = link "Delete item", to: Routes.profile_commission_item_path(@conn, :delete, @user, item), data: [confirm: "Are you really, really sure?", method: :delete]

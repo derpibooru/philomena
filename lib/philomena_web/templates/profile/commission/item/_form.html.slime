@@ -1,0 +1,31 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :item_type, "Type of item:"
+    = select f, :item_type, types(), class: "input"
+    = error_tag f, :item_type
+  br
+  .field
+    => label f, :base_price, "Base Price:"
+    = number_input f, :base_price, class: "input", placeholder: "20.00", step: "any", min: 0
+    = error_tag f, :base_price
+  br
+  .field
+    => label f, :example_image_id, "ID of example image:"
+    = number_input f, :example_image_id, class: "input", placeholder: "1345604"
+    = error_tag f, :example_image_id
+  br
+  .field
+    => label f, :description, "Short description:"
+    = text_input f, :description, class: "input input--wide", placeholder: "Description"
+    = error_tag f, :description
+  br
+  .field
+    => label f, :add_ons, "Add-ons (optional):"
+    = textarea f, :add_ons, class: "input input--wide input--text", placeholder: "Additional character: $10.00"
+    = error_tag f, :add_ons
+  br
+  = submit "Submit", class: "button"

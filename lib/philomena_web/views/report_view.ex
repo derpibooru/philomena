@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.ReportView do
     do: link "Conversation between #{r.from.name} and #{r.to.name}", to: Routes.conversation_path(conn, :show, r)
 
   def link_to_reported_thing(conn, %Commission{} = r),
-    do: link "#{r.user}'s commission page", to: Routes.commission_path(conn, :show, r)
+    do: link "#{r.user.name}'s commission page", to: Routes.profile_commission_path(conn, :show, r.user)
 
   def link_to_reported_thing(conn, %Post{} = r),
     do: link "Post in #{r.topic.title}", to: Routes.forum_topic_path(conn, :show, r.topic.forum, r.topic, post_id: r.id) <> "#post_#{r.id}"

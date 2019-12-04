@@ -75,14 +75,14 @@
       br
       = link "Delete this listing", to: Routes.profile_commission_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure about that?", method: :delete]
       br
-    /= link_to 'Report this listing', new_report_path(reportable_class: 'commission', reportable_id: @user.commission.id)
+    = link "Report this listing", to: Routes.profile_commission_report_path(@conn, :new, @user)
 
 / Share block
 .block
   .block__header
     span.block__header__title Share this listing
   .block__content
-    - url = Routes.commission_url(@conn, :show, @commission)
+    - url = Routes.profile_commission_url(@conn, :show, @user)
 
     .field
       label> for="commission_url" URL

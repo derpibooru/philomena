@@ -145,8 +145,8 @@ defmodule Philomena.Commissions do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_item(attrs \\ %{}) do
-    %Item{}
+  def create_item(commission, attrs \\ %{}) do
+    Ecto.build_assoc(commission, :items)
     |> Item.changeset(attrs)
     |> Repo.insert()
   end
