@@ -7,6 +7,7 @@ defmodule Philomena.UserLinks do
   alias Philomena.Repo
 
   alias Philomena.UserLinks.UserLink
+  alias Philomena.Tags.Tag
 
   @doc """
   Returns the list of user_links.
@@ -49,9 +50,11 @@ defmodule Philomena.UserLinks do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_user_link(attrs \\ %{}) do
+  def create_user_link(user, attrs \\ %{}) do
+    tag = Repo.get_by(Tag, name: attrs["tag_name"])
+
     %UserLink{}
-    |> UserLink.changeset(attrs)
+    |> UserLink.creation_changeset(attrs, user, tag)
     |> Repo.insert()
   end
 

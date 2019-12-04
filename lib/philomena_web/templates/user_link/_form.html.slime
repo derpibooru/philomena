@@ -1,0 +1,38 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    .field
+      p
+        label for="tag_name"
+          ' The tag,
+          em> specific
+          ' to you, usually
+          code>
+            | artist:
+            em artist name here
+          ' or a series name
+      p Should be blank only if your content isn't on the site, generally
+      = text_input f, :tag_name, class: "input", autocomplete: "off", placeholder: "artist:name", data: [ac: "true", ac_min_length: "3", ac_source: "/tags/autocomplete?term="]
+  .field
+    label for="uri"
+      ' URL of your art webpage
+    = url_input f, :uri, class: "input input--wide", placeholder: "https://www.deviantart.com/your-name"#, required: true
+    = error_tag f, :uri
+  .field
+    => radio_button f, :public, "true"
+    => label f, :public, "Visible to everyone"
+  .field
+    => radio_button f, :public, "false"
+    => label f, :public, "Visible only to site staff"
+
+  h4 Instructions
+  p
+    strong Review details carefully as only site staff can edit later.
+  p
+    strong> For quick results, put the LINKVALIDATION code on your linked webpage after submission.
+    | We'll message you there otherwise.
+  .actions
+    = submit "Submit", class: "button"

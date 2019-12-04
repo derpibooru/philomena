@@ -8,6 +8,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Posts.Post
   alias Philomena.Filters.Filter
   alias Philomena.DnpEntries.DnpEntry
+  alias Philomena.UserLinks.UserLink
 
   # Admins can do anything
   def can?(%User{role: "admin"}, _action, _model), do: true
@@ -59,6 +60,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Edit filters they own
   def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:edit, :update], do: true
+
+  # View user links they've created
+  def can?(%User{id: id}, :show, %UserLink{user_id: id}), do: true
 
   # View non-deleted images
   def can?(_user, action, Image)

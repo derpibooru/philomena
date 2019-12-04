@@ -117,6 +117,7 @@ defmodule PhilomenaWeb.Router do
     end
 
     resources "/reports", ReportController, only: [:index]
+    resources "/user_links", UserLinkController, only: [:index, :new, :create, :show]
   end
 
   scope "/", PhilomenaWeb do
