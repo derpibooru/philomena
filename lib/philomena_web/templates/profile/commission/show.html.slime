@@ -1,0 +1,18 @@
+h1
+  = @commission.user.name
+  | 's Commisisons
+
+.column-layout
+
+  / Side column
+  .column-layout__left
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_sidebar.html", commission: @commission, rendered: @rendered, conn: @conn
+
+  / Main column
+  .column-layout__main
+
+    / Commission sheet block
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_sheet.html", commission: @commission, conn: @conn
+
+    / Types and prices block
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_items.html", commission: @commission, items: @items, conn: @conn

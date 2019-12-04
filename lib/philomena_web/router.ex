@@ -112,6 +112,10 @@ defmodule PhilomenaWeb.Router do
       resources "/read", Forum.ReadController, only: [:create], singleton: true
     end
 
+    resources "/profiles", ProfileController, only: [] do
+      resources "/commission", Profile.CommissionController, only: [:new, :create, :edit, :update, :delete], singleton: true
+    end
+
     scope "/filters", Filter, as: :filter do
       resources "/spoiler_type", SpoilerTypeController, only: [:update], singleton: true
     end
@@ -168,6 +172,7 @@ defmodule PhilomenaWeb.Router do
     resources "/filters", FilterController
     resources "/profiles", ProfileController, only: [:show] do
       resources "/reports", Profile.ReportController, only: [:new, :create]
+      resources "/commission", Profile.CommissionController, only: [:show], singleton: true
     end
     resources "/captchas", CaptchaController, only: [:create]
     scope "/posts", Post, as: :post do

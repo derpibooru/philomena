@@ -49,7 +49,7 @@ elixir:
 
                   p
                     strong
-                      = link "More information", to: Routes.commission_path(@conn, :show, c)
+                      = link "More information", to: Routes.profile_commission_path(@conn, :show, c.user)
 
       - true ->
         p We couldn't find any commission listings to display. Sorry!

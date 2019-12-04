@@ -1,13 +1,9 @@
 defmodule PhilomenaWeb.CommissionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Textile.Renderer
   alias Philomena.Commissions.{Item, Commission}
   alias Philomena.Repo
   import Ecto.Query
-
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :destroy]
-  plug :load_and_authorize_resource, model: Commission, only: [:show], preload: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
 
   def index(conn, params) do
     commissions =
@@ -15,43 +11,6 @@ defmodule PhilomenaWeb.CommissionController do
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html", commissions: commissions, layout_class: "layout--wide")
-  end
-
-  def show(conn, _params) do
-    commission = conn.assigns.commission
-
-    item_descriptions =
-      commission.items
-      |> Enum.map(&%{body: &1.description})
-      |> Renderer.render_collection(conn)
-
-    item_add_ons =
-      commission.items
-      |> Enum.map(&%{body: &1.add_ons})
-      |> Renderer.render_collection(conn)
-
-    [information, contact, will_create, will_not_create] =
-      Renderer.render_collection(
-        [
-          %{body: commission.information},
-          %{body: commission.contact},
-          %{body: commission.will_create},
-          %{body: commission.will_not_create}
-        ],
-        conn
-      )
-
-    rendered =
-      %{
-        information: information,
-        contact: contact,
-        will_create: will_create,
-        will_not_create: will_not_create
-      }
-
-    items = Enum.zip([item_descriptions, item_add_ons, commission.items])
-
-    render(conn, "show.html", rendered: rendered, commission: conn.assigns.commission, items: items, layout_class: "layout--wide")
   end
 
   defp commission_search(attrs) when is_map(attrs) do
