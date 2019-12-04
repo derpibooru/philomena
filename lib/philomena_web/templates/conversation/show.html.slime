@@ -13,6 +13,7 @@ h1 = @conversation.title
     => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other}, conn: @conn
   .block__header--sub.block__header--light
     = pagination
+    = link "Report conversation", to: Routes.conversation_report_path(@conn, :new, @conversation)
 
 = for {message, body} <- @messages do
   = render PhilomenaWeb.MessageView, "_message.html", message: message, body: body, conn: @conn

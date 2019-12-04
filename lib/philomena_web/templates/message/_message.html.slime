@@ -10,8 +10,6 @@ article.block.communication
 
       = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
 
-      br
-
       .communication__body__text
         == @body
 

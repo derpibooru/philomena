@@ -91,6 +91,7 @@ defmodule PhilomenaWeb.Router do
     end
     resources "/notifications", NotificationController, only: [:index, :delete]
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
+      resources "/reports", Conversation.ReportController, only: [:new, :create]
       resources "/messages", Conversation.MessageController, only: [:create]
     end
     resources "/images", ImageController, only: [] do
