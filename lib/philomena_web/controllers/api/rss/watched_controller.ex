@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.WatchedController do
+defmodule PhilomenaWeb.Api.Rss.WatchedController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Images.{Image, Query}

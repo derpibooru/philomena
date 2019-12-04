@@ -21,19 +21,19 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.ChannelPlug
   end
 
-  pipeline :rss do
-    plug :accepts, ["rss"]
-
+  pipeline :api do
     plug PhilomenaWeb.ApiTokenPlug
-    plug Pow.Plug.RequireAuthenticated,
-      error_handler: Pow.Phoenix.PlugErrorHandler
     plug PhilomenaWeb.EnsureUserEnabledPlug
     plug PhilomenaWeb.CurrentFilterPlug
     plug PhilomenaWeb.ImageFilterPlug
     plug PhilomenaWeb.PaginationPlug
   end
 
-  pipeline :api do
+  pipeline :accepts_rss do
+    plug :accepts, ["rss"]
+  end
+
+  pipeline :accepts_json do
     plug :accepts, ["json"]
   end
 
@@ -66,10 +66,19 @@ defmodule PhilomenaWeb.Router do
     end
   end
 
-  scope "/api/rss", PhilomenaWeb.Api, as: :api_rss do
-    pipe_through :rss
-
+  scope "/api/v1/rss", PhilomenaWeb.Api.Rss, as: :api_rss do
+    pipe_through [:accepts_rss, :protected, :api]
     resources "/watched", WatchedController, only: [:index]
+  end
+
+  scope "/api/v1/json", PhilomenaWeb.Api.Json, as: :api_json do
+    pipe_through [:accepts_json, :api]
+    resources "/images", ImageController, only: [:show]
+
+    scope "/search", Search, as: :search do
+      resources "/reverse", ReverseController, only: [:create]
+    end
+    resources "/search", SearchController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do

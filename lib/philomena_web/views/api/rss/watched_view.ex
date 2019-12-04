@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.WatchedView do
+defmodule PhilomenaWeb.Api.Rss.WatchedView do
   use PhilomenaWeb, :view
 
   alias PhilomenaWeb.ImageView
