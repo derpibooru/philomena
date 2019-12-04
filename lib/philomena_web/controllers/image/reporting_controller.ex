@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Image.ReportingController do
 
     dupe_reports =
       DuplicateReport
-      |> preload([image: :tags, duplicate_of_image: :tags])
+      |> preload(image: [:user, :tags], duplicate_of_image: [:user, :tags])
       |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
       |> Repo.all()
 
