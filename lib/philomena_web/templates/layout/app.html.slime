@@ -19,6 +19,7 @@ html lang="en"
     meta name="robots" content="noindex, nofollow"
     = csrf_meta_tag()
     script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
+    = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns
   body data-theme="default"
     = render PhilomenaWeb.LayoutView, "_burger.html", assigns
     #container class=container_class(@current_user)
