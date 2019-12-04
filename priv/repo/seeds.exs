@@ -15,7 +15,7 @@ alias Philomena.Tags
 import Ecto.Query
 
 IO.puts "---- Creating Elasticsearch indices"
-for model <- [Image, Comment, Gallery, Tag, Post, Report] do # Report
+for model <- [Image, Comment, Gallery, Tag, Post, Report] do
   model.delete_index!
   model.create_index!
 end

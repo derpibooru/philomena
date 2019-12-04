@@ -25,7 +25,9 @@ defmodule Philomena.Commissions.Commission do
   @doc false
   def changeset(commission, attrs) do
     commission
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:information, :contact, :will_create, :will_not_create, :open, :sheet_image_id, :categories])
+    |> validate_required([:user, :information, :contact, :open])
+    |> validate_length(:information, max: 700, count: :bytes)
+    |> validate_length(:contact, max: 700, count: :bytes)
   end
 end
