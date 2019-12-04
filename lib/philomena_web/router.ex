@@ -80,6 +80,7 @@ defmodule PhilomenaWeb.Router do
       resources "/reverse", ReverseController, only: [:create]
     end
     resources "/search", SearchController, only: [:index]
+    resources "/oembed", OembedController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do
