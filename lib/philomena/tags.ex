@@ -17,8 +17,7 @@ defmodule Philomena.Tags do
       |> where([t], t.name in ^tag_names)
       |> preload([:implied_tags, aliased_tag: :implied_tags])
       |> Repo.all()
-      |> Enum.map(& &1.aliased_tag || &1)
-      |> Enum.uniq()
+      |> Enum.uniq_by(& &1.name)
 
     existent_tag_names =
       existent_tags
@@ -27,6 +26,11 @@ defmodule Philomena.Tags do
     nonexistent_tag_names =
       tag_names
       |> Enum.reject(&existent_tag_names[&1])
+
+    # Now get rid of the aliases
+    existent_tags =
+      existent_tags
+      |> Enum.map(& &1.aliased_tag || &1)
 
     new_tags =
       nonexistent_tag_names
