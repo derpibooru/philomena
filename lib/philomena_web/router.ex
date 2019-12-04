@@ -25,6 +25,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.ApiTokenPlug
     plug PhilomenaWeb.EnsureUserEnabledPlug
     plug PhilomenaWeb.CurrentFilterPlug
+    plug PhilomenaWeb.FilterIdPlug
     plug PhilomenaWeb.ImageFilterPlug
     plug PhilomenaWeb.PaginationPlug
   end
