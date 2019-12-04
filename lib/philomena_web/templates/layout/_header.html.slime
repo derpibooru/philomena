@@ -104,5 +104,5 @@ header.header
 nav.header.header--secondary
   .flex.flex--centered.flex--spaced-out.flex--wrap
     = render PhilomenaWeb.LayoutView, "_header_navigation.html", assigns
-    /- if current_user.try(:staff?)
-      include _header_staff_links.html
+    = if @current_user.role != "user" do
+      = render PhilomenaWeb.LayoutView, "_header_staff_links.html", assigns
