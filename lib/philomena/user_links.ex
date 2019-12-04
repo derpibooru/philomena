@@ -104,4 +104,10 @@ defmodule Philomena.UserLinks do
   def change_user_link(%UserLink{} = user_link) do
     UserLink.changeset(user_link, %{})
   end
+
+  def count_user_links() do
+    UserLink
+    |> where([ul], ul.aasm_state == "unverified")
+    |> Repo.aggregate(:count, :id)
+  end
 end

@@ -38,19 +38,19 @@
   = link to: "#", class: "header__link", title: "Duplicates" do
     =<> "D"
     span.header__counter__admin
-      | 0
+      = @duplicate_report_count
   = link to: "#", class: "header__link", title: "Reports" do
     =<> "R"
     span.header__counter__admin
-      | 0
+      = @report_count
   = link to: "#", class: "header__link", title: "User Links" do
     =<> "L"
     span.header__counter__admin
-      | 0
+      = @user_link_count
   = link to: "#", class: "header__link", title: "DNP Requests" do
     =<> "S"
     span.header__counter__admin
-      | 0
+      = @dnp_entry_count
   .dropdown.hide-mobile
     a.header__link title="Bans"
       =<> "B"

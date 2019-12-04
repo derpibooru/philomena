@@ -101,4 +101,10 @@ defmodule Philomena.DnpEntries do
   def change_dnp_entry(%DnpEntry{} = dnp_entry) do
     DnpEntry.changeset(dnp_entry, %{})
   end
+
+  def count_dnp_entries() do
+    DnpEntry
+    |> where([ul], ul.aasm_state in [ "requested", "claimed", "acknowledged" ])
+    |> Repo.aggregate(:count, :id)
+  end
 end

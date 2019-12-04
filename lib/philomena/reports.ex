@@ -116,4 +116,10 @@ defmodule Philomena.Reports do
 
     report
   end
+
+  def count_reports() do
+    Report
+    |> where(open: true)
+    |> Repo.aggregate(:count, :id)
+  end
 end
