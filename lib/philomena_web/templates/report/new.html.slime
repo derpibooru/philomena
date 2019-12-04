@@ -1,0 +1,53 @@
+h2 Submit a report
+p
+  strong
+    = link_to_reported_thing(@conn, @reportable)
+
+.image-other
+  .dnp-warning
+    h3 Reporting Tips
+    ul
+      li
+        ' Make sure to report for the correct
+        = link "rule", to: "/pages/rules"
+        ' .
+      li One report per problem (mention all things affected, please).
+      li
+        strong Do not report someone just because they disagree with you. Abusing the report system is a bannable offense.
+  br
+
+  = if image?(@changeset) do
+    .dnp-warning
+      h3 Takedown Policy
+      p
+        strong> Only an owner of an image's rights (normally the artist) can request a takedown.
+        ' If you're the artist, you'll
+        strong> need
+        ' a verified user link.
+      p
+        ' For more information, please read the
+        = link "takedown policy", to: "/pages/takedowns"
+        ' .
+    br
+
+  = if conversation?(@changeset) do
+    .dnp-warning
+      h3 Privacy note
+      p
+        ' The whole conversation will be readable by site staff.
+    br
+
+  = form_for @changeset, @action, fn f ->
+    .field
+      = select f, :category, report_categories(), class: "input"
+    .field
+      = textarea f, :reason, class: "input input--wide", placeholder: "Provide anything else we should know here."
+
+    = if !@conn.assigns.current_user do
+      .field
+        = checkbox f, :captcha, class: "js-captcha", value: 0
+        = label f, :captcha, "I am not a robot!"
+      p
+        ' This helps stop bot spam; log in if you don't want to deal with captchas.
+
+    = submit "Send Report", class: "button"

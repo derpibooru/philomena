@@ -1,0 +1,55 @@
+#image_options_area
+  .block__header.block__header--js-tabbed
+    a href="#" data-click-tab="reporting" data-load-tab=Routes.image_reporting_path(@conn, :show, @image)
+      i.fa.fa-exclamation-triangle>
+      | Report
+    a href="#" data-click-tab="sharing"
+      i.fa.fa-share>
+      | Share
+    a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorites_path(@conn, :index, @image)
+      i.fa.fa-star>
+      | List favoriters
+
+  .block__tab.hidden data-tab="favoriters"
+    p Loading...
+  .block__tab.hidden data-tab="reporting"
+    p Loading...
+  .block__tab.hidden data-tab="sharing"
+    #embed_options
+      - source_link = if @image.source_url in [nil, ""], do: " (Original source unknown at time of posting)", else: " - [url=#{@image.source_url}]Original source[/url]"
+      h5 Derpibooru
+      p
+        strong> Small thumbnail
+        input.input#embed_small_thumbnail_tag type="text" value=">>#{@image.id}s" cols="10" readonly="readonly"
+        a< href="#" data-click-copy="#embed_small_thumbnail_tag"
+          i.fa.fa-clipboard>
+          | Copy
+      p
+        strong> Thumbnail
+        input.input#embed_thumbnail_tag type="text" value=">>#{@image.id}t" cols="10" readonly="readonly"
+        a< href="#" data-click-copy="#embed_thumbnail_tag"
+          i.fa.fa-clipboard>
+          | Copy
+      p
+        strong> Preview
+        input.input#embed_preview_tag type="text" value=">>#{@image.id}p" cols="10" readonly="readonly"
+        a< href="#" data-click-copy="#embed_preview_tag"
+          i.fa.fa-clipboard>
+          | Copy
+      h5 BBCode
+      p
+        strong> Full size BBcode
+        a href="#" data-click-copy="#bbcode_embed_full_tag"
+          i.fa.fa-clipboard>
+          | Copy
+        br
+        textarea.input.input--wide.input--separate-top#bbcode_embed_full_tag rows="2" cols="100" readonly="readonly"
+          = "[img]#{thumb_url(@image, false, :full)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+      p
+        strong> Thumbnailed BBcode
+        a href="#" data-click-copy="#bbcode_embed_thumbnail_tag"
+          i.fa.fa-clipboard>
+          | Copy
+        br
+        textarea.input.input--wide.input--separate-top#bbcode_embed_thumbnail_tag rows="2" cols="100" readonly="readonly"
+          = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"

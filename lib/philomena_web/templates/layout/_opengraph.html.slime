@@ -27,7 +27,7 @@ meta name="robots" content="noindex, nofollow"
       meta name="og:video" content=ImageView.thumb_url(image, false, :full)
 
     - image.image_mime_type == "image/svg+xml" and !filtered ->
-      meta name="og:type" content="video.other"
+      meta name="og:type" content="website"
       meta name="og:image" content=ImageView.thumb_url(image, false, :rendered)
 
     - !filtered ->

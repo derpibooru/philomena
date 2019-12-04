@@ -114,6 +114,8 @@ defmodule PhilomenaWeb.Router do
     scope "/filters", Filter, as: :filter do
       resources "/spoiler_type", SpoilerTypeController, only: [:update], singleton: true
     end
+
+    resources "/reports", ReportController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do
@@ -134,6 +136,9 @@ defmodule PhilomenaWeb.Router do
       resources "/source_changes", Image.SourceChangeController, only: [:index]
       resources "/description", Image.DescriptionController, only: [:update], singleton: true
       resources "/navigate", Image.NavigateController, only: [:index]
+      resources "/reports", Image.ReportController, only: [:new, :create]
+      resources "/reporting", Image.ReportingController, only: [:show], singleton: true
+      resources "/favorites", Image.FavoritesController, only: [:index]
     end
     scope "/tags", Tag, as: :tag do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true
@@ -170,7 +175,7 @@ defmodule PhilomenaWeb.Router do
     resources "/stats", StatController, only: [:index]
     resources "/channels", ChannelController, only: [:index, :show]
     resources "/settings", SettingController, only: [:edit, :update], singleton: true
-    resources "/duplicate_reports", DuplicateReportController, only: [:index, :show]
+    resources "/duplicate_reports", DuplicateReportController, only: [:index, :show, :create]
 
     get "/:id", ImageController, :show
     # get "/:forum_id", ForumController, :show # impossible to do without constraints

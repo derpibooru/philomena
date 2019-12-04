@@ -11,6 +11,7 @@
 
   = render PhilomenaWeb.ImageView, "_tags.html", image: @image, changeset: @image_changeset, conn: @conn
   = render PhilomenaWeb.ImageView, "_source.html", image: @image, changeset: @image_changeset, conn: @conn
+  = render PhilomenaWeb.ImageView, "_options.html", image: @image, conn: @conn
 
   h4 Comments
   = cond do

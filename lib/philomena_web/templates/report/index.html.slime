@@ -1,0 +1,23 @@
+h1 Your Reports
+.block
+  .block__header
+    span.block__header__title Reports
+    - route = fn p -> Routes.report_path(@conn, :index, p) end
+    = render PhilomenaWeb.PaginationView, "_pagination.html", page: @reports, route: route, conn: @conn
+
+  .block__content
+    table.table
+      thead
+        tr
+          th State
+          th Reported Thing
+          th Reason
+          th Opened
+      tbody
+        = for r <- @reports do
+          tr
+            td class=report_row_class(r)
+              = pretty_state(r)
+            td = link_to_reported_thing(@conn, r.reportable)
+            td = r.reason
+            td = pretty_time(r.created_at)

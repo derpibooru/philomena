@@ -1,0 +1,23 @@
+a href=Routes.image_report_path(@conn, :new, @image)
+  button.button.button--link
+    i.fa.fa-exclamation-triangle>
+    ' General reporting
+
+.report-duplicate
+  - checked = Enum.any?(@dupe_reports, & &1.state == "open")
+
+  input.toggle-box id="image-dedupe" type="checkbox" checked=checked
+  label for="image-dedupe" Updating/merging
+  .toggle-box-container
+    .toggle-box-container__content
+      = if @conn.assigns.current_user do
+        = render PhilomenaWeb.DuplicateReportView, "_form.html", image: @image, conn: @conn, changeset: @changeset
+      - else
+        p
+          ' You must
+          a> href=Routes.pow_session_path(@conn, :new) log in
+          ' to report duplicate images.
+
+      h4 Existing duplicate reports
+      = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: Enum.filter(@dupe_reports, & &1.duplicate_of_image_id == @image.id)
+      = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: Enum.filter(@dupe_reports, & &1.image_id == @image.id)

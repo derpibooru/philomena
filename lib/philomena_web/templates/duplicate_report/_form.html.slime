@@ -1,0 +1,8 @@
+= form_for @changeset, Routes.duplicate_report_path(@conn, :create), fn f ->
+  = hidden_input f, :image_id, value: @image.id
+  .field
+    ' Delete this image and redirect to
+    = number_input f, :duplicate_of_image_id, class: "input", min: 0, placeholder: "image number.", required: true
+    = text_input f, :reason, class: "input input--separate-left", placeholder: "Explanation"
+  .actions
+    = submit "Report Duplicate", class: "button"

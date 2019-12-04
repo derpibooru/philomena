@@ -7,6 +7,7 @@ defmodule Philomena.Reports do
   alias Philomena.Repo
 
   alias Philomena.Reports.Report
+  alias Philomena.Polymorphic
 
   @doc """
   Returns the list of reports.
@@ -49,9 +50,9 @@ defmodule Philomena.Reports do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_report(attrs \\ %{}) do
-    %Report{}
-    |> Report.changeset(attrs)
+  def create_report(reportable_id, reportable_type, attribution, attrs \\ %{}) do
+    %Report{reportable_id: reportable_id, reportable_type: reportable_type}
+    |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
   end
 
@@ -100,5 +101,19 @@ defmodule Philomena.Reports do
   """
   def change_report(%Report{} = report) do
     Report.changeset(report, %{})
+  end
+
+  def reindex_report(%Report{} = report) do
+    spawn fn ->
+      Report
+      |> where(id: ^report.id)
+      |> preload([:user, :admin])
+      |> Repo.all()
+      |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
+      |> hd()
+      |> Report.index_document()
+    end
+
+    report
   end
 end

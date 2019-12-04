@@ -10,12 +10,12 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Tags.Tag, Users.User}
+alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Tags.Tag, Users.User}
 alias Philomena.Tags
 import Ecto.Query
 
 IO.puts "---- Creating Elasticsearch indices"
-for model <- [Image, Comment, Gallery, Tag, Post] do # Report
+for model <- [Image, Comment, Gallery, Tag, Post, Report] do # Report
   model.delete_index!
   model.create_index!
 end
