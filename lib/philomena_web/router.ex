@@ -179,6 +179,7 @@ defmodule PhilomenaWeb.Router do
       resources "/reports", Profile.ReportController, only: [:new, :create]
       resources "/commission", Profile.CommissionController, only: [:show], singleton: true
       resources "/tag_changes", Profile.TagChangeController, only: [:index]
+      resources "/source_changes", Profile.SourceChangeController, only: [:index]
     end
     resources "/captchas", CaptchaController, only: [:create]
     scope "/posts", Post, as: :post do

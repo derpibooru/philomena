@@ -24,7 +24,7 @@
       ul.profile-top__options__column
         li = link("Favorites", to: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}"))
         li = link("Tag changes", to: Routes.profile_tag_change_path(@conn, :index, @user))
-        li = link("Source changes", to: "#")
+        li = link("Source changes", to: Routes.profile_source_change_path(@conn, :index, @user))
 
 .column-layout
   .column-layout__left
