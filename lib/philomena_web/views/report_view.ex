@@ -40,22 +40,22 @@ defmodule PhilomenaWeb.ReportView do
   def pretty_state(%{state: "claimed"}), do: "Claimed"
   def pretty_state(_report), do: "Open"
 
-  def link_to_reported_thing(conn, %Image{} = r) when not is_nil(r),
+  def link_to_reported_thing(conn, %Image{} = r),
     do: link "Image >>#{r.id}", to: Routes.image_path(conn, :show, r)
 
-  def link_to_reported_thing(conn, %Comment{} = r) when not is_nil(r),
-    do: link "Comment on image >>#{r.image.id}", to: Routes.image_path(conn, :show, r.image)
+  def link_to_reported_thing(conn, %Comment{} = r),
+    do: link "Comment on image >>#{r.image.id}", to: Routes.image_path(conn, :show, r.image) <> "#comment_#{r.id}"
 
-  def link_to_reported_thing(conn, %Conversation{} = r) when not is_nil(r),
+  def link_to_reported_thing(conn, %Conversation{} = r),
     do: link "Conversation between #{r.from.name} and #{r.to.name}", to: Routes.conversation_path(conn, :show, r)
 
-  def link_to_reported_thing(conn, %Commission{} = r) when not is_nil(r),
+  def link_to_reported_thing(conn, %Commission{} = r),
     do: link "#{r.user}'s commission page", to: Routes.commission_path(conn, :show, r)
 
-  def link_to_reported_thing(conn, %Post{} = r) when not is_nil(r),
+  def link_to_reported_thing(conn, %Post{} = r),
     do: link "Post in #{r.topic.title}", to: Routes.forum_topic_path(conn, :show, r.topic.forum, r.topic, post_id: r.id) <> "#post_#{r.id}"
 
-  def link_to_reported_thing(conn, %User{} = r) when not is_nil(r),
+  def link_to_reported_thing(conn, %User{} = r),
     do: link "User '#{r.name}'", to: Routes.profile_path(conn, :show, r)
 
   def link_to_reported_thing(_conn, report) do

@@ -1,9 +1,11 @@
 div
   ' Posted
   => pretty_time(@comment.created_at)
-  /=<> link_to new_report_path(reportable_class: 'Comment', reportable_id: comment.id), class: 'communication__interaction' do
-  /  i.fa.fa-flag
-  /  =<> 'Report'
+
+  a.communication__interaction href=Routes.image_comment_report_path(@conn, :new, @comment.image, @comment)
+    i.fa.fa-flag>
+    ' Report
+
   /- if comment.edited_at && can?(:read, comment)
   /  br
   /  a href=image_comment_history_path(comment.image, comment)

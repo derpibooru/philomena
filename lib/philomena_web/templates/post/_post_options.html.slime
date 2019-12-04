@@ -1,9 +1,11 @@
 div
   ' Posted
   => pretty_time(@post.created_at)
-  /=<> link_to new_report_path(reportable_class: 'Post', reportable_id: post.id), class: 'communication__interaction' do
-  /  i.fa.fa-flag
-  /  =<> 'Report'
+
+  a.communication__interaction href=Routes.forum_topic_post_report_path(@conn, :new, @post.topic.forum, @post.topic, @post)
+    i.fa.fa-flag>
+    ' Report
+
   /- if post.edited_at && can?(:read, post)
   /  br
   /  a href=forum_topic_post_history_path(post.topic.forum, post.topic, post)

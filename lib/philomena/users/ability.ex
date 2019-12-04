@@ -5,6 +5,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
+  alias Philomena.Posts.Post
   alias Philomena.Filters.Filter
   alias Philomena.DnpEntries.DnpEntry
 
@@ -85,6 +86,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :index, Forum), do: true
   def can?(_user, :show, %Forum{access_level: "normal"}), do: true
   def can?(_user, :show, %Topic{hidden_from_users: false}), do: true
+  def can?(_user, :show, %Post{hidden_from_users: false}), do: true
 
   # View profile pages
   def can?(_user, :show, %User{}), do: true

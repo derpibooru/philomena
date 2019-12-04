@@ -129,7 +129,9 @@ defmodule PhilomenaWeb.Router do
       resources "/random", RandomController, only: [:index]
     end
     resources "/images", ImageController, only: [:index, :show, :new, :create] do
-      resources "/comments", Image.CommentController, only: [:index, :show, :create]
+      resources "/comments", Image.CommentController, only: [:index, :show, :create] do
+        resources "/reports", Image.Comment.ReportController, only: [:new, :create]
+      end
       resources "/tags", Image.TagController, only: [:update], singleton: true
       resources "/sources", Image.SourceController, only: [:update], singleton: true
       resources "/tag_changes", Image.TagChangeController, only: [:index]
@@ -151,7 +153,9 @@ defmodule PhilomenaWeb.Router do
     resources "/search", SearchController, only: [:index]
     resources "/forums", ForumController, only: [:index, :show] do
       resources "/topics", TopicController, only: [:show] do
-        resources "/posts", Topic.PostController, only: [:create], singleton: true
+        resources "/posts", Topic.PostController, only: [:create] do
+          resources "/reports", Topic.Post.ReportController, only: [:new, :create]
+        end
       end
     end
     resources "/comments", CommentController, only: [:index]
