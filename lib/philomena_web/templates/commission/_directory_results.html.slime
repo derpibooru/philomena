@@ -7,6 +7,15 @@ elixir:
     span.block__header__title Open Commissions
     = pagination
 
+    = cond do
+      - not is_nil(@conn.assigns.current_user) and not is_nil(@conn.assigns.current_user.commission) ->
+        = link "View my listing", to: Routes.profile_commission_path(@conn, :show, @conn.assigns.current_user)
+
+      - not is_nil(@conn.assigns.current_user) ->
+        = link "Create my listing", to: Routes.profile_commission_path(@conn, :new, @conn.assigns.current_user)
+
+      - true ->
+
   .block__content
     = cond do
       - Enum.any?(@commissions) ->
@@ -15,11 +24,11 @@ elixir:
             .block__content.flex.flex--no-wrap
               .flex__fixed.spacing-right
                 = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: c, conn: @conn
-              
+
               .flex__grow.commission__listing_body
                 span.commission__listing_artist
                   = render PhilomenaWeb.UserAttributionView, "_user.html", object: c, badges: true, conn: @conn
-                
+
                 .commission__listing__body_text
                   - {min, max} = Enum.min_max_by(c.items, & &1.base_price)
 

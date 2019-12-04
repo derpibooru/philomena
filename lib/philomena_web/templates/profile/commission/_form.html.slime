@@ -1,0 +1,34 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :information, "General Information:"
+    = textarea f, :information, class: "input input--wide input--text", placeholder: "A general overview about your commissions."
+
+  .field
+    => label f, :contact, "Contact Information:"
+    = textarea f, :contact, class: "input input--wide input--text", placeholder: "How you would like potential customers to contact you (PM, Discord, Email, etc). Remember that this information will be publicly visible."
+  .field
+    => label f, :will_create, "Content you are particularly interested in drawing or creating (optional):"
+    = textarea f, :will_create, class: "input input--wide input--text", placeholder: "List specific content you are willing to accept commissions for."
+  .field
+    => label f, :will_not_create, "Content you will not draw or create (optional):"
+    = textarea f, :will_not_create, class: "input input--wide input--text", placeholder: "List specific content you are not willing to accept commissions for."
+  .field
+    => label f, :categories, "Art Categories:"
+    br
+    /= f.collection_check_boxes :categories, Commission::CATEGORIES.sort_by(&:downcase), :itself, :itself do |b|
+      span.commission__category
+        => b.label
+        = b.check_box
+  .field
+    => label f, :sheet_image_id, "Image ID of your commissions sheet (optional but recommended):"
+    br
+    = number_input f, :sheet_image_id, class: "input", placeholder: "1227409"
+  .field
+    = label f, :open, "Currently accepting commissions." do
+    => checkbox f, :open, class: "checkbox"
+  br
+  = submit "Save", class: "button"

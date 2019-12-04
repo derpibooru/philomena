@@ -1,0 +1,5 @@
+h1 New Commission Listing
+p
+  = link "Back to index", to: Routes.commission_path(@conn, :index)
+
+= render PhilomenaWeb.Profile.CommissionView, "_form.html", changeset: @changeset, action: Routes.profile_commission_path(@conn, :create, @user), conn: @conn

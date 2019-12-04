@@ -88,4 +88,4 @@
       a href="#" data-click-copy="#commission_url"
         i.fa.fa-clipboard>
         ' Copy
-      = text_input :commission_url, url, class: "input input--wide input--separate-top", readonly: true
+      = text_input :commission, :commission_url, value: url, class: "input input--wide input--separate-top", readonly: true

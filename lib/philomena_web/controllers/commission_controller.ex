@@ -5,6 +5,8 @@ defmodule PhilomenaWeb.CommissionController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug :preload_commission
+
   def index(conn, params) do
     commissions =
       commission_search(params["commission"])
@@ -79,5 +81,19 @@ defmodule PhilomenaWeb.CommissionController do
 
   defp like_sanitize(input) do
     "%" <> String.replace(input, ["\\", "%", "_"], &<<"\\", &1>>) <> "%"
+  end
+
+  defp preload_commission(conn, _opts) do
+    user = conn.assigns.current_user
+
+    case user do
+      nil ->
+        conn
+
+      user -> 
+        user = Repo.preload(user, :commission)
+        config = Pow.Plug.fetch_config(conn)
+        Pow.Plug.assign_current_user(conn, user, config)
+    end
   end
 end
