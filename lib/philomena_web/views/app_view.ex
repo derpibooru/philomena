@@ -64,6 +64,7 @@ defmodule PhilomenaWeb.AppView do
     Canada.Can.can?(conn.assigns.current_user, action, model)
   end
 
+  def number_with_delimiter(nil), do: "0"
   def number_with_delimiter(number) do
     number
     |> to_charlist()

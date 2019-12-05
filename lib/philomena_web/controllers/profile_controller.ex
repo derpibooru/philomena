@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.ProfileController do
 
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Textile.Renderer
+  alias Philomena.UserStatistics.UserStatistic
   alias Philomena.Users.User
   alias Philomena.Galleries.Gallery
   alias Philomena.Posts.Post
@@ -82,6 +83,8 @@ defmodule PhilomenaWeb.ProfileController do
       |> limit(5)
       |> Repo.all()
 
+    statistics = calculate_statistics(user)
+
     interactions =
       Interactions.user_interactions([recent_uploads, recent_faves], current_user)
 
@@ -95,7 +98,38 @@ defmodule PhilomenaWeb.ProfileController do
       recent_comments: recent_comments,
       recent_posts: recent_posts,
       recent_galleries: recent_galleries,
+      statistics: statistics,
       layout_class: "layout--wide"
     )
   end
+
+  defp calculate_statistics(user) do
+    now =
+      DateTime.utc_now()
+      |> DateTime.to_unix(:second)
+      |> div(86400)
+
+    last_90 =
+      UserStatistic
+      |> where(user_id: ^user.id)
+      |> where([us], us.day > ^(now - 89))
+      |> Repo.all()
+      |> Map.new(&{&1.day, &1})
+
+    %{
+      uploads: individual_stat(last_90, :uploads),
+      images_favourited: individual_stat(last_90, :images_favourited),
+      comments_posted: individual_stat(last_90, :comments_posted),
+      votes_cast: individual_stat(last_90, :votes_cast),
+      metadata_updates: individual_stat(last_90, :metadata_updates),
+      forum_posts: individual_stat(last_90, :forum_posts)
+    }
+  end
+
+  defp individual_stat(mapping, stat_name) do
+    Enum.map((89..0), &map_fetch(mapping[&1], stat_name) || 0)
+  end
+
+  defp map_fetch(nil, _field_name), do: nil
+  defp map_fetch(map, field_name), do: Map.get(map, field_name)
 end

@@ -1,0 +1,28 @@
+.block
+  .block__header: span.block__header__title Statistics
+  .block__content
+    table.table.table--stats.center
+      tr
+        td.table--stats__parameter Uploads
+        td.table--stats__value = number_with_delimiter(@user.uploads_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.uploads)
+      tr
+        td.table--stats__parameter Favorites
+        td.table--stats__value = number_with_delimiter(@user.images_favourited_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.images_favourited)
+      tr
+        td.table--stats__parameter Comments
+        td.table--stats__value = number_with_delimiter(@user.comments_posted_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.comments_posted)
+      tr
+        td.table--stats__parameter Votes
+        td.table--stats__value = number_with_delimiter(@user.votes_cast_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.votes_cast)
+      tr
+        td.table--stats__parameter Metadata Updates
+        td.table--stats__value = number_with_delimiter(@user.metadata_updates_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.metadata_updates)
+      tr
+        td.table--stats__parameter Forum Posts
+        td.table--stats__value = number_with_delimiter(@user.forum_posts_count)
+        td.table--stats__sparkline: .sparkline = sparkline_data(@statistics.forum_posts)
