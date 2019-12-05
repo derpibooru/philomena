@@ -55,7 +55,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
       author_url: image.source_url,
       author_name: artist_tags(image.tags),
       provider_name: "Derpibooru",
-      provider_url: Routes.image_url(conn, :show, image),
+      provider_url: PhilomenaWeb.Endpoint.url(),
       cache_age: 7200,
       derpibooru_id: image.id,
       derpibooru_score: image.score,
