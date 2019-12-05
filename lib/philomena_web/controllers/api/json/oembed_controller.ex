@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
   end
 
   defp oembed_image(nil, conn), do: oembed_error(conn)
-  defp oembed_image(image, conn), do: json(conn, oembed_json(image, conn))
+  defp oembed_image(image, conn), do: json(conn, oembed_json(image))
 
   defp oembed_error(conn) do
     conn
@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
     |> json(%{error: "couldn't find an image"})
   end
 
-  defp oembed_json(image, conn) do
+  defp oembed_json(image) do
     %{
       version: "1.0",
       type: "photo",
