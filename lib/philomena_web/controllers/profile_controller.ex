@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ProfileController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias Philomena.Textile.Renderer
   alias Philomena.Users.User
   alias Philomena.Galleries.Gallery
   alias Philomena.Posts.Post
@@ -47,6 +48,11 @@ defmodule PhilomenaWeb.ProfileController do
         Comment |> preload(user: [awards: :badge], image: :tags)
       )
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.image))
+
+    recent_comments =
+      recent_comments
+      |> Renderer.render_collection(conn)
+      |> Enum.zip(recent_comments)
 
     recent_posts =
       Post.search_records(
