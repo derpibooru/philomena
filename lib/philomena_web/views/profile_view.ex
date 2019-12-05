@@ -10,6 +10,9 @@ defmodule PhilomenaWeb.ProfileView do
     img_tag(badge_url_root() <> "/" <> badge.image, options)
   end
 
+  def current?(%{id: id}, %{id: id}), do: true
+  def current?(_user1, _user2), do: false
+
   def award_title(%{badge_name: nil} = award),
     do: award.badge.title
   def award_title(%{badge_name: ""} = award),

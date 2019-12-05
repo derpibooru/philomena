@@ -1,0 +1,11 @@
+.block__content.profile-about
+  = cond do
+    - @user.description not in [nil, ""] ->
+      == @about_me
+
+    - current?(@user, @conn.assigns.current_user) ->
+      em
+        ' Want to
+        => link "add some info about yourself?", to: "#"
+
+    - true ->

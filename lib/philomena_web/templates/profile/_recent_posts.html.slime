@@ -8,7 +8,7 @@
       .block
         = for post <- @posts do
           .block__content.alternating-color
-            | Post
+            ' Post
             => link pretty_time(post.created_at), to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic, post_id: post) <> "#post_#{post.id}"
-            | in topic
+            ' in topic
             => link post.topic.title, to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic)

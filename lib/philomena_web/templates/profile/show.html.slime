@@ -6,6 +6,7 @@
       h1.profile-top__name-header
         = @user.name
         | 's profile
+      p = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @user}, large: true
       span
         ' Member since
         = pretty_time(@user.created_at)
@@ -20,6 +21,8 @@
         li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))
         li = link("Comments", to: Routes.comment_path(@conn, :index, cq: "user_id:#{@user.id}"))
         li = link("Posts", to: Routes.post_path(@conn, :index, pq: "user_id:#{@user.id}"))
+        = if current?(@user, @conn.assigns.current_user) do
+          li = link "My reports", to: Routes.report_path(@conn, :index)
 
       ul.profile-top__options__column
         li = link("Favorites", to: Routes.search_path(@conn, :index, q: "faved_by_id:#{@user.id}"))

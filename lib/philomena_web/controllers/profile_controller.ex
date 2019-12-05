@@ -64,7 +64,7 @@ defmodule PhilomenaWeb.ProfileController do
               must: [
                 %{term: %{user_id: user.id}},
                 %{term: %{anonymous: false}},
-                %{term: %{hidden_from_users: false}},
+                %{term: %{deleted: false}},
                 %{term: %{access_level: "normal"}}
               ]
             }
@@ -75,6 +75,9 @@ defmodule PhilomenaWeb.ProfileController do
         Post |> preload(user: [awards: :badge], topic: :forum)
       )
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.topic))
+
+    about_me =
+      Renderer.render_one(%{body: user.description || ""}, conn)
 
     recent_galleries =
       Gallery
@@ -99,7 +102,8 @@ defmodule PhilomenaWeb.ProfileController do
       recent_posts: recent_posts,
       recent_galleries: recent_galleries,
       statistics: statistics,
-      layout_class: "layout--wide"
+      about_me: about_me,
+      layout_class: "layout--medium"
     )
   end
 
