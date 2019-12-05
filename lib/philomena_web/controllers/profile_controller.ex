@@ -12,7 +12,9 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [awards: :badge, public_links: :tag]
+  plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [
+    awards: :badge, public_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
+  ]
 
   def show(conn, _params) do
     current_user = conn.assigns.current_user
@@ -79,6 +81,9 @@ defmodule PhilomenaWeb.ProfileController do
     about_me =
       Renderer.render_one(%{body: user.description || ""}, conn)
 
+    commission_information =
+      commission_info(user.commission, conn)
+
     recent_galleries =
       Gallery
       |> where(creator_id: ^user.id)
@@ -96,6 +101,7 @@ defmodule PhilomenaWeb.ProfileController do
       "show.html",
       user: user,
       interactions: interactions,
+      commission_information: commission_information,
       recent_uploads: recent_uploads,
       recent_faves: recent_faves,
       recent_comments: recent_comments,
@@ -136,4 +142,8 @@ defmodule PhilomenaWeb.ProfileController do
 
   defp map_fetch(nil, _field_name), do: nil
   defp map_fetch(map, field_name), do: Map.get(map, field_name)
+
+  defp commission_info(%{information: info}, conn) when info not in [nil, ""],
+    do: Renderer.render_one(%{body: info}, conn)
+  defp commission_info(_commission, _conn), do: ""
 end

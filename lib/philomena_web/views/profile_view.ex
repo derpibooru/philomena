@@ -20,6 +20,9 @@ defmodule PhilomenaWeb.ProfileView do
   def award_title(award),
     do: award.badge_name
 
+  def commission_status(%{open: true}), do: "Open"
+  def commission_status(_commission), do: "Closed"
+
   def sparkline_data(data) do
     # Normalize range
     {min, max} = Enum.min_max(data)

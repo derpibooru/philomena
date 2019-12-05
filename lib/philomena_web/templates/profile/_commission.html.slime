@@ -1,0 +1,32 @@
+.block__content.profile
+  = cond do
+    - @user.commission ->
+      strong> Status:
+      = commission_status(@user.commission)
+      br
+
+      = if Enum.any?(@user.commission.items) do
+        strong> Price Range:
+        - {min, max} = Enum.min_max_by(@user.commission.items, & &1.base_price)
+        | $
+        => Decimal.round(min.base_price, 2) |> Decimal.to_string()
+        | - $
+        => Decimal.round(max.base_price, 2) |> Decimal.to_string()
+        ' USD
+        br
+
+      / Lotta space here
+      br
+      == @commission_information
+      br
+      br
+
+      = link "More information", to: Routes.profile_commission_path(@conn, :show, @user)
+
+    - current?(@user, @conn.assigns.current_user) ->
+      em
+        ' You don't have any commission information listed yet.
+        => link "Click here", to: Routes.profile_commission_path(@conn, :new, @user)
+        ' to set it up.
+
+    - true ->

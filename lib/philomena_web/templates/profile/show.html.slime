@@ -33,6 +33,11 @@
   .column-layout__left
     .block
       .block__header
+        span.block__header__title Commissions
+      = render PhilomenaWeb.ProfileView, "_commission.html", user: @user, commission_information: @commission_information, conn: @conn
+
+    .block
+      .block__header
         span.block__header__title User Links
       = for link <- @user.public_links do
         .block__content.alternating-color.break-word
