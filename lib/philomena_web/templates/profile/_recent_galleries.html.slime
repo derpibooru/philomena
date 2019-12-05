@@ -1,0 +1,9 @@
+= if Enum.any?(@galleries) do
+  .block
+    .block__header
+      span.block__header__title Recent Galleries
+      = link "View all", to: Routes.gallery_path(@conn, :index, gallery: [creator: @user.name])
+
+    .block__content.js-resizable-media-container
+      = for gallery <- @galleries do
+        = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn

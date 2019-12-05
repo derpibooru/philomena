@@ -72,7 +72,7 @@ header.header
             a.header__link href='/comments?cq=my:comments'
               i.fa.fa-fw.fa-comments>
               | Comments
-            a.header__link href="/posts/?pq=my:posts"
+            a.header__link href="/posts?pq=my:posts"
               i.fa.fa-fw.fa-pencil>
               | Posts
             a.header__link href='/user_links'
