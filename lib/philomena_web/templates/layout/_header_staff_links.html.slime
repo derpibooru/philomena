@@ -35,22 +35,26 @@
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-sticky-note
         | Mod Notes
-  = link to: "#", class: "header__link", title: "Duplicates" do
-    =<> "D"
-    span.header__counter__admin
-      = @duplicate_report_count
-  = link to: "#", class: "header__link", title: "Reports" do
-    =<> "R"
-    span.header__counter__admin
-      = @report_count
-  = link to: "#", class: "header__link", title: "User Links" do
-    =<> "L"
-    span.header__counter__admin
-      = @user_link_count
-  = link to: "#", class: "header__link", title: "DNP Requests" do
-    =<> "S"
-    span.header__counter__admin
-      = @dnp_entry_count
+  = if @duplicate_report_count do
+    = link to: "#", class: "header__link", title: "Duplicates" do
+      =<> "D"
+      span.header__counter__admin
+        = @duplicate_report_count
+  = if @report_count do
+    = link to: "#", class: "header__link", title: "Reports" do
+      =<> "R"
+      span.header__counter__admin
+        = @report_count
+  = if @user_link_count do
+    = link to: "#", class: "header__link", title: "User Links" do
+      =<> "L"
+      span.header__counter__admin
+        = @user_link_count
+  = if @dnp_entry_count do
+    = link to: "#", class: "header__link", title: "DNP Requests" do
+      =<> "S"
+      span.header__counter__admin
+        = @dnp_entry_count
   .dropdown.hide-mobile
     a.header__link title="Bans"
       =<> "B"

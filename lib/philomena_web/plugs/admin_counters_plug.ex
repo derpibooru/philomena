@@ -26,15 +26,15 @@ defmodule PhilomenaWeb.AdminCountersPlug do
   def call(conn, _opts) do
     user = conn.assigns.current_user
 
-    maybe_assign_admin_metrics(conn, staff?(user))
+    maybe_assign_admin_metrics(conn, user, staff?(user))
   end
 
-  defp maybe_assign_admin_metrics(conn, false), do: conn
-  defp maybe_assign_admin_metrics(conn, true) do
-    duplicate_reports = DuplicateReports.count_duplicate_reports()
-    reports = Reports.count_reports()
-    user_links = UserLinks.count_user_links()
-    dnps = DnpEntries.count_dnp_entries()
+  defp maybe_assign_admin_metrics(conn, _user, false), do: conn
+  defp maybe_assign_admin_metrics(conn, user, true) do
+    duplicate_reports = DuplicateReports.count_duplicate_reports(user)
+    reports = Reports.count_reports(user)
+    user_links = UserLinks.count_user_links(user)
+    dnps = DnpEntries.count_dnp_entries(user)
 
     conn
     |> assign(:duplicate_report_count, duplicate_reports)

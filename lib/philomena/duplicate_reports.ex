@@ -115,9 +115,13 @@ defmodule Philomena.DuplicateReports do
     DuplicateReport.changeset(duplicate_report, %{})
   end
 
-  def count_duplicate_reports() do
-    DuplicateReport
-    |> where(state: "open")
-    |> Repo.aggregate(:count, :id)
+  def count_duplicate_reports(user) do
+    if Canada.Can.can?(user, :manage, DuplicateReport) do
+      DuplicateReport
+      |> where(state: "open")
+      |> Repo.aggregate(:count, :id)
+    else
+      nil
+    end
   end
 end

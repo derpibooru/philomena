@@ -102,9 +102,13 @@ defmodule Philomena.DnpEntries do
     DnpEntry.changeset(dnp_entry, %{})
   end
 
-  def count_dnp_entries() do
-    DnpEntry
-    |> where([dnp], dnp.aasm_state in ["requested", "claimed", "acknowledged"])
-    |> Repo.aggregate(:count, :id)
+  def count_dnp_entries(user) do
+    if Canada.Can.can?(user, :manage, DnpEntry) do
+      DnpEntry
+      |> where([dnp], dnp.aasm_state in ["requested", "claimed", "acknowledged"])
+      |> Repo.aggregate(:count, :id)
+    else
+      nil
+    end
   end
 end
