@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.VoteController do
       ImageVotes.delete_vote_transaction(image, user),
       ImageVotes.create_vote_transaction(image, user, params["up"] == true)
     )
-    |> Repo.transaction()
+    |> Repo.isolated_transaction(:serializable)
     |> case do
       {:ok, _result} ->
         image =
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Image.VoteController do
     image = conn.assigns.image
 
     ImageVotes.delete_vote_transaction(image, user)
-    |> Repo.transaction()
+    |> Repo.isolated_transaction(:serializable)
     |> case do
       {:ok, _result} ->
         image =

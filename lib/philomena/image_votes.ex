@@ -6,8 +6,9 @@ defmodule Philomena.ImageVotes do
   import Ecto.Query, warn: false
   alias Ecto.Multi
 
-  alias Philomena.Images.Image
   alias Philomena.ImageVotes.ImageVote
+  alias Philomena.UserStatistics
+  alias Philomena.Images.Image
 
   @doc """
   Creates a image_vote.
@@ -28,6 +29,9 @@ defmodule Philomena.ImageVotes do
     Multi.new
     |> Multi.insert(:vote, vote)
     |> Multi.update_all(:inc_vote_count, image_query, inc: [upvotes_count: upvotes, downvotes_count: downvotes, score: upvotes - downvotes])
+    |> Multi.run(:inc_vote_stat, fn _repo, _changes ->
+      UserStatistics.inc_stat(user, :votes_cast, 1)
+    end)
   end
 
   @doc """
@@ -58,6 +62,8 @@ defmodule Philomena.ImageVotes do
       {count, nil} =
         image_query
         |> repo.update_all(inc: [upvotes_count: -upvotes, downvotes_count: -downvotes, score: downvotes - upvotes])
+
+      UserStatistics.inc_stat(user, :votes_cast, -(upvotes + downvotes))
 
       {:ok, count}
     end)

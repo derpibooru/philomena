@@ -6,8 +6,9 @@ defmodule Philomena.ImageFaves do
   import Ecto.Query, warn: false
   alias Ecto.Multi
 
-  alias Philomena.Images.Image
   alias Philomena.ImageFaves.ImageFave
+  alias Philomena.UserStatistics
+  alias Philomena.Images.Image
 
   @doc """
   Creates a image_hide.
@@ -25,6 +26,9 @@ defmodule Philomena.ImageFaves do
     Multi.new
     |> Multi.insert(:fave, fave)
     |> Multi.update_all(:inc_faves_count, image_query, inc: [faves_count: 1])
+    |> Multi.run(:inc_fave_stat, fn _repo, _changes ->
+      UserStatistics.inc_stat(user, :images_favourited, 1)
+    end)
   end
 
   @doc """
@@ -47,6 +51,8 @@ defmodule Philomena.ImageFaves do
       {count, nil} =
         image_query
         |> repo.update_all(inc: [faves_count: -faves])
+
+      UserStatistics.inc_stat(user, :images_favourited, -faves)
 
       {:ok, count}
     end)

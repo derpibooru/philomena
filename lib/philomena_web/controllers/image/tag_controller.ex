@@ -1,8 +1,9 @@
 defmodule PhilomenaWeb.Image.TagController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images
+  alias Philomena.UserStatistics
   alias Philomena.Images.Image
+  alias Philomena.Images
   alias Philomena.Tags
   alias Philomena.Repo
 
@@ -20,6 +21,7 @@ defmodule PhilomenaWeb.Image.TagController do
       {:ok, %{image: {image, added_tags, removed_tags}}} ->
         Images.reindex_image(image)
         Tags.reindex_tags(added_tags ++ removed_tags)
+        UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
 
         image =
           image

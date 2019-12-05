@@ -1,8 +1,9 @@
 defmodule PhilomenaWeb.Image.SourceController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images
+  alias Philomena.UserStatistics
   alias Philomena.Images.Image
+  alias Philomena.Images
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
@@ -18,6 +19,8 @@ defmodule PhilomenaWeb.Image.SourceController do
       {:ok, %{image: image}} ->
         changeset =
           Images.change_image(image)
+
+        UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)

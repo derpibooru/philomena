@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Image.FaveController do
     )
     |> Multi.append(ImageVotes.delete_vote_transaction(image, user))
     |> Multi.append(ImageVotes.create_vote_transaction(image, user, true))
-    |> Repo.transaction()
+    |> Repo.isolated_transaction(:serializable)
     |> case do
       {:ok, _result} ->
         image =
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.FaveController do
     image = conn.assigns.image
 
     ImageFaves.delete_fave_transaction(image, user)
-    |> Repo.transaction()
+    |> Repo.isolated_transaction(:serializable)
     |> case do
       {:ok, _result} ->
         image =

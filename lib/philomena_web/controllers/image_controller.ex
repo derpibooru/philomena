@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.ImageController do
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Images, Images.Image, Comments.Comment, Galleries.Gallery, Galleries.Interaction, Textile.Renderer}
   alias Philomena.Servers.ImageProcessor
+  alias Philomena.UserStatistics
   alias Philomena.Interactions
   alias Philomena.Comments
   alias Philomena.Tags
@@ -104,6 +105,7 @@ defmodule PhilomenaWeb.ImageController do
         ImageProcessor.cast(image.id)
         Images.reindex_image(image)
         Tags.reindex_tags(image.added_tags)
+        UserStatistics.inc_stat(conn.assigns.current_user, :uploads)
 
         conn
         |> put_flash(:info, "Image created successfully.")

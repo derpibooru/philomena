@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.5 (Debian 11.5-1.pgdg100+1)
--- Dumped by pg_dump version 11.5 (Debian 11.5-1.pgdg100+1)
+-- Dumped from database version 12.1 (Debian 12.1-1.pgdg100+1)
+-- Dumped by pg_dump version 12.1 (Debian 12.1-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,7 +18,7 @@ SET row_security = off;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: adverts; Type: TABLE; Schema: public; Owner: -
@@ -3741,6 +3741,13 @@ CREATE INDEX index_user_name_changes_on_user_id ON public.user_name_changes USIN
 --
 
 CREATE INDEX index_user_statistics_on_user_id ON public.user_statistics USING btree (user_id);
+
+
+--
+-- Name: index_user_statistics_on_user_id_and_day; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_user_statistics_on_user_id_and_day ON public.user_statistics USING btree (user_id, day);
 
 
 --

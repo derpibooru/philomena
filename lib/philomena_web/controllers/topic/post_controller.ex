@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Topic.PostController do
   use PhilomenaWeb, :controller
 
   alias Philomena.{Forums.Forum, Topics.Topic, Posts}
+  alias Philomena.UserStatistics
   alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
@@ -19,6 +20,7 @@ defmodule PhilomenaWeb.Topic.PostController do
       {:ok, %{post: post}} ->
         Posts.notify_post(post)
         Posts.reindex_post(post)
+        UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
 
         conn
         |> put_flash(:info, "Post created successfully.")

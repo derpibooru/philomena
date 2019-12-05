@@ -4,6 +4,7 @@ defmodule Philomena.UserStatistics.UserStatistic do
 
   alias Philomena.Users.User
 
+  # fixme: rekey this on (user_id, day)
   schema "user_statistics" do
     belongs_to :user, User
     field :day, :integer, default: 0
@@ -18,7 +19,9 @@ defmodule Philomena.UserStatistics.UserStatistic do
   @doc false
   def changeset(user_statistic, attrs) do
     user_statistic
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [
+      :uploads, :votes_cast, :comments_posted, :metadata_updates,
+      :images_favourited, :forum_posts
+    ])
   end
 end
