@@ -53,6 +53,11 @@
           .flex__grow.center
             = pretty_time(award.awarded_on)
 
+    .block
+      .block__header
+        span.block__header__title About Me
+      = render PhilomenaWeb.ProfileView, "_about_me.html", user: @user, about_me: @about_me, conn: @conn
+
   .column-layout__main
     = render PhilomenaWeb.ProfileView, "_statistics.html", user: @user, statistics: @statistics, conn: @conn
     = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Uploads", images: @recent_uploads, view_all_path: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"), conn: @conn
