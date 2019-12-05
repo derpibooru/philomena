@@ -23,7 +23,6 @@ article.block.communication id="comment_#{@comment.id}"
           i.fa.fa-times
           =<> "Delete"
         = if can?(@conn, :manage, @comment) do
-          / todo: link_to_ip
           .communication__info
             =<> link_to_ip(@comment.ip)
           .communication__info
