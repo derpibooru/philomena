@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.ImageLoader do
       body
       |> search_tag_names()
       |> load_tags()
-      |> render_dnp_entries(conn)
+      |> render_bodies(conn)
 
     {records, tags}
   end
@@ -82,15 +82,18 @@ defmodule PhilomenaWeb.ImageLoader do
     |> Repo.all()
   end
 
-  defp render_dnp_entries([], _conn), do: []
-  defp render_dnp_entries([tag], conn) do
+  defp render_bodies([], _conn), do: []
+  defp render_bodies([tag], conn) do
     dnp_bodies =
       Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
 
     dnp_entries =
       Enum.zip(dnp_bodies, tag.dnp_entries)
 
-    [{tag, dnp_entries}]
+    description =
+      Renderer.render_one(%{body: tag.description || ""})
+
+    [{tag, description, dnp_entries}]
   end
-  defp render_dnp_entries(tags, _conn), do: tags
+  defp render_bodies(tags, _conn), do: tags
 end

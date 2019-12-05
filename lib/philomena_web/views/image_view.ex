@@ -137,8 +137,8 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def info_row(_conn, []), do: []
-  def info_row(conn, [{tag, dnp_entries}]) do
-    render PhilomenaWeb.TagView, "_tag_info_row.html", conn: conn, tag: tag, dnp_entries: dnp_entries
+  def info_row(conn, [{tag, description, dnp_entries}]) do
+    render PhilomenaWeb.TagView, "_tag_info_row.html", conn: conn, tag: tag, body: description, dnp_entries: dnp_entries
   end
   def info_row(conn, tags) do
     render PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags
