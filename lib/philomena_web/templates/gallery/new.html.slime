@@ -1,0 +1,2 @@
+h1 Create a Gallery
+= render PhilomenaWeb.GalleryView, "_form.html", conn: @conn, changeset: @changeset, action: Routes.gallery_path(@conn, :create)

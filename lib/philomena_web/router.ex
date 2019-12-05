@@ -125,6 +125,7 @@ defmodule PhilomenaWeb.Router do
 
     resources "/reports", ReportController, only: [:index]
     resources "/user_links", UserLinkController, only: [:index, :new, :create, :show]
+    resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete]
   end
 
   scope "/", PhilomenaWeb do

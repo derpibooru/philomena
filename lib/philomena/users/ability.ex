@@ -8,6 +8,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Topics.Topic
   alias Philomena.Posts.Post
   alias Philomena.Filters.Filter
+  alias Philomena.Galleries.Gallery
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
 
@@ -107,6 +108,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   def can?(_user, :show, %DnpEntry{aasm_state: "listed"}), do: true
   def can?(_user, :show_reason, %DnpEntry{aasm_state: "listed", hide_reason: false}), do: true
+
+  # Create and edit galleries
+  def can?(_user, :show, %Gallery{}), do: true
+  def can?(%User{}, action, Gallery) when action in [:new, :create], do: true
+  def can?(%User{id: id}, action, %Gallery{creator_id: id}) when action in [:edit, :update, :delete], do: true
 
   # Otherwise...
   def can?(_user, _action, _model), do: false

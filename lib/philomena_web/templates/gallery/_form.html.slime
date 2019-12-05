@@ -1,0 +1,24 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    = label f, :title, "Choose a title displayed in gallery preview"
+    = text_input f, :title, class: "input input--wide", placeholder: "Title", required: true
+  .field
+    = label f, :spoiler_warning, "If you are going to have NSFW images in the gallery, leave a warning for users who may not want to see it"
+    = text_input f, :spoiler_warning, class: "input input--wide", placeholder: "Spoiler warning"
+  .field
+    = label :description, "Describe the gallery in a few words"
+    = textarea f, :description, class: "input input--wide", placeholder: "Description"
+  .field
+    = label f, :thumbnail_id, "Set an existing image as the gallery cover"
+    br
+    = number_input f, :thumbnail_id, class: "input", placeholder: "Image ID (e.g. 100)", min: 0
+  .field
+    = label f, :order_position_asc, "Reverse gallery order (images will be inserted at the end of the gallery)"
+    = checkbox f, :order_position_asc, class: "checkbox"
+  .field
+
+  = submit "Save Gallery", class: "button"

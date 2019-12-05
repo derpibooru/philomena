@@ -49,9 +49,9 @@ defmodule Philomena.Galleries do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_gallery(attrs \\ %{}) do
+  def create_gallery(user, attrs \\ %{}) do
     %Gallery{}
-    |> Gallery.changeset(attrs)
+    |> Gallery.creation_changeset(attrs, user)
     |> Repo.insert()
   end
 
@@ -100,6 +100,30 @@ defmodule Philomena.Galleries do
   """
   def change_gallery(%Gallery{} = gallery) do
     Gallery.changeset(gallery, %{})
+  end
+
+  def reindex_gallery(%Gallery{} = gallery) do
+    spawn fn ->
+      gallery
+      |> preload(^indexing_preloads())
+      |> where(id: ^gallery.id)
+      |> Repo.one()
+      |> Gallery.index_document()
+    end
+
+    gallery
+  end
+
+  def unindex_gallery(%Gallery{} = gallery) do
+    spawn fn ->
+      Gallery.delete_document(gallery.id)
+    end
+
+    gallery
+  end
+
+  def indexing_preloads do
+    [:subscribers, :creator, :interactions]
   end
 
   alias Philomena.Galleries.Subscription

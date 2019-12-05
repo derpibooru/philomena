@@ -1,10 +1,15 @@
 defmodule PhilomenaWeb.GalleryController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ImageLoader
+  alias Philomena.ImageSorter
+  alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
+  alias Philomena.Galleries
   import Ecto.Query
 
-  plug :load_resource, model: Gallery, only: [:show]
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
+  plug :load_and_authorize_resource, model: Gallery, except: [:index]
 
   def index(conn, params) do
     galleries =
@@ -25,9 +30,74 @@ defmodule PhilomenaWeb.GalleryController do
   end
 
   def show(conn, _params) do
-    # stub
+    gallery = conn.assigns.gallery
+    query = "gallery_id:#{gallery.id}"
+    params = Map.put(conn.params, "q", query)
+    sort = ImageSorter.parse_sort(%{"sf" => "gallery_id:#{gallery.id}", "sd" => position_order(gallery)})
+
+    {:ok, images} = ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
+    interactions = Interactions.user_interactions(images, conn.assigns.current_user)
+
     conn
-    |> redirect(to: Routes.search_path(conn, :index, q: "gallery_id:#{conn.assigns.gallery_id}"))
+    |> Map.put(:params, params)
+    |> render("show.html", gallery: gallery, images: images, interactions: interactions)
+  end
+
+  def new(conn, _params) do
+    changeset = Galleries.change_gallery(%Gallery{})
+    render(conn, "new.html", changeset: changeset)
+  end
+
+  def create(conn, %{"gallery" => gallery_params}) do
+    user = conn.assigns.current_user
+    
+    case Galleries.create_gallery(user, gallery_params) do
+      {:ok, gallery} ->
+        Galleries.reindex_gallery(gallery)
+
+        conn
+        |> put_flash(:info, "Gallery successfully created.")
+        |> redirect(to: Routes.gallery_path(conn, :show, gallery))
+
+      {:error, changeset} ->
+        conn
+        |> render("new.html", changeset: changeset)
+    end
+  end
+
+  def edit(conn, _params) do
+    gallery = conn.assigns.gallery
+    changeset = Galleries.change_gallery(gallery)
+
+    render(conn, "edit.html", gallery: gallery, changeset: changeset)
+  end
+
+  def update(conn, %{"gallery" => gallery_params}) do
+    gallery = conn.assigns.gallery
+
+    case Galleries.update_gallery(gallery, gallery_params) do
+      {:ok, gallery} ->
+        Galleries.reindex_gallery(gallery)
+
+        conn
+        |> put_flash(:info, "Gallery successfully updated.")
+        |> redirect(to: Routes.gallery_path(conn, :show, gallery))
+
+      {:error, changeset} ->
+        conn
+        |> render("edit.html", gallery: gallery, changeset: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    gallery = conn.assigns.gallery
+
+    {:ok, _gallery} = Galleries.delete_gallery(gallery)
+    Galleries.unindex_gallery(gallery)
+
+    conn
+    |> put_flash(:info, "Gallery successfully destroyed.")
+    |> redirect(to: Routes.gallery_path(conn, :index))
   end
 
   defp parse_search(%{"gallery" => gallery_params}) do
@@ -69,4 +139,7 @@ defmodule PhilomenaWeb.GalleryController do
   defp parse_sort(_params) do
     %{created_at: :desc}
   end
+
+  defp position_order(%{order_position_asc: true}), do: "asc"
+  defp position_order(_gallery), do: "desc"
 end

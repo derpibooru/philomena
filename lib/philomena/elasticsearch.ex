@@ -35,6 +35,15 @@ defmodule Philomena.Elasticsearch do
         )
       end
 
+      def delete_document(id) do
+        Elastix.Document.delete(
+          unquote(elastic_url),
+          unquote(index_name),
+          unquote(doc_type),
+          id
+        )
+      end
+
       def reindex(ecto_query, batch_size \\ 1000) do
         ids =
           ecto_query
