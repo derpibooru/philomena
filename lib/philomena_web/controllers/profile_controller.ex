@@ -42,7 +42,8 @@ defmodule PhilomenaWeb.ProfileController do
                 %{term: %{hidden_from_users: false}}
               ]
             }
-          }
+          },
+          sort: %{posted_at: :desc}
         },
         %{page_size: 3},
         Comment |> preload(user: [awards: :badge], image: :tags)
@@ -62,10 +63,12 @@ defmodule PhilomenaWeb.ProfileController do
               must: [
                 %{term: %{user_id: user.id}},
                 %{term: %{anonymous: false}},
-                %{term: %{hidden_from_users: false}}
+                %{term: %{hidden_from_users: false}},
+                %{term: %{access_level: "normal"}}
               ]
             }
-          }
+          },
+          sort: %{created_at: :desc}
         },
         %{page_size: 6},
         Post |> preload(user: [awards: :badge], topic: :forum)
