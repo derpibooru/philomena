@@ -63,6 +63,9 @@ header.header
             a.header__link href='/search?q=my:upvotes'
               i.fa.fa-fw.fa-arrow-up>
               | Upvotes
+            a.header__link href=Routes.gallery_path(@conn, :index, gallery: [creator: @current_user.name])
+              i.fa.fa-fw.fa-image>
+              | Galleries
             a.header__link href='/search?q=my:uploads'
               i.fa.fa-fw.fa-upload>
               | Uploads
