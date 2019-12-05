@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.GalleryController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
-  plug :load_and_authorize_resource, model: Gallery, except: [:index]
+  plug :load_and_authorize_resource, model: Gallery, except: [:index], preload: [:creator, thumbnail: :tags]
 
   def index(conn, params) do
     galleries =
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.GalleryController do
 
     conn
     |> Map.put(:params, params)
-    |> render("show.html", gallery: gallery, images: images, interactions: interactions)
+    |> render("show.html", layout_class: "layout--wide", gallery: gallery, images: images, interactions: interactions)
   end
 
   def new(conn, _params) do

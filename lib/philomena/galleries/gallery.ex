@@ -29,7 +29,7 @@ defmodule Philomena.Galleries.Gallery do
   def changeset(gallery, attrs) do
     gallery
     |> cast(attrs, [:thumbnail_id, :title, :spoiler_warning, :description, :order_position_asc])
-    |> validate_required([:title])
+    |> validate_required([:title, :thumbnail_id])
     |> validate_length(:title, max: 100, count: :bytes)
     |> validate_length(:spoiler_warning, max: 20, count: :bytes)
     |> validate_length(:description, max: 10_000, count: :bytes)

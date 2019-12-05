@@ -1,0 +1,76 @@
+elixir:
+  scope = scope(@conn)
+  image_url = fn image -> Routes.image_path(@conn, :show, image, scope) end
+  route = fn p -> Routes.gallery_path(@conn, :show, @gallery, p) end
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: scope
+  info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
+
+#sortable
+  .block#imagelist-container
+    section.block__header.flex
+      h1.block__header__title.hide-mobile
+        ' Viewing gallery
+        strong>
+          = @gallery.title
+
+      = pagination
+
+      .flex__right
+        a href="#"
+          i.fa.fa-exclamation-triangle>
+          span.hide-mobile Report
+
+        = if can?(@conn, :edit, @gallery) do
+          a href=Routes.gallery_path(@conn, :edit, @gallery)
+            i.fa.fa-pencil>
+            span.hide-mobile Edit
+
+        = if can?(@conn, :edit, @gallery) do
+          a.rearrange-button.js-rearrange href='#' data-click-hide='.js-rearrange' data-click-show='.js-save,#gallery-rearrange-info'
+            i.fa.fa-sort>
+            ' Rearrange
+            /data-reorder-path=gallery_order_path(@gallery)
+          a.rearrange-button.js-save.hidden href='#' data-click-hide='.js-save,#gallery-rearrange-info' data-click-show='.js-rearrange'
+            i.fa.fa-check>
+            ' Save
+
+        = if show_subscription_link?(@gallery.creator, @conn.assigns.current_user) do
+          /= subscription_link(@gallery, current_user)
+
+    .block__header.block__header--light.block__header--sub
+      span.block__header__title A gallery by
+
+      => link @gallery.creator.name, to: Routes.profile_path(@conn, :show, @gallery.creator)
+      ' with
+      => @gallery.image_count
+      = pluralize("image", "images", @gallery.image_count)
+      ' , last updated
+      = pretty_time(@gallery.updated_at)
+
+    .block__content.flex.js-imagelist-info
+      .flex__fixed.thumb-tiny-container.spacing-right
+        = render PhilomenaWeb.ImageView, "_image_container.html", image: @gallery.thumbnail, size: :thumb_tiny, conn: @conn
+
+      .flex__grow
+        = if @gallery.spoiler_warning not in [nil, ""] do
+          strong> Warning:
+          = @gallery.spoiler_warning
+
+        = if @gallery.description not in [nil, ""] do
+          p = @gallery.description
+
+    .block__content.hidden#gallery-rearrange-info
+      .block.block--fixed.block--primary
+        | Click the image and drag.
+        br
+        strong Note that you may have to wait a couple of seconds before the order is applied.
+
+    .block__content.js-resizable-media-container
+      = for image <- @images do
+        = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: :thumb, conn: @conn
+
+    .block__header.block__header--light.flex
+      = pagination
+
+      span.block__header__title
+        = info

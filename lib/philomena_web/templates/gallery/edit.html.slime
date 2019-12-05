@@ -1,0 +1,3 @@
+h1 Editing Gallery
+
+= render PhilomenaWeb.GalleryView, "_form.html", conn: @conn, changeset: @changeset, action: Routes.gallery_path(@conn, :update, @gallery)
