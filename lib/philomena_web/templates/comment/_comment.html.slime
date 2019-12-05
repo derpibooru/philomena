@@ -27,7 +27,7 @@ article.block.communication id="comment_#{@comment.id}"
           .communication__info
             =<> @comment.ip
           .communication__info
-            =<> @comment.fingerprint
+            =<> link_to_fingerprint(@comment.fingerprint)
     /- if can?(:hide, Comment)
     /  .js-staff-action
     /    - if !comment.hidden_from_users && !comment.destroyed_content
