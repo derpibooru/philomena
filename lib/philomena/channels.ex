@@ -150,6 +150,16 @@ defmodule Philomena.Channels do
     |> Repo.exists?()
   end
 
+  def subscriptions(_channels, nil), do: %{}
+  def subscriptions(channels, user) do
+    channel_ids = Enum.map(channels, & &1.id)
+
+    Subscription
+    |> where([s], s.channel_id in ^channel_ids and s.user_id == ^user.id)
+    |> Repo.all()
+    |> Map.new(&{&1.id, true})
+  end
+
   def clear_notification(channel, user) do
     Notifications.delete_unread_notification("Channel", channel.id, user)
     Notifications.delete_unread_notification("LivestreamChannel", channel.id, user)

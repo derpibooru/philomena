@@ -131,6 +131,11 @@ defmodule PhilomenaWeb.Router do
       resources "/read", Gallery.ReadController, only: [:create], singleton: true
       resources "/subscription", Gallery.SubscriptionController, only: [:create, :delete], singleton: true
     end
+
+    resources "/channels", ChannelController, only: [] do
+      resources "/read", Channel.ReadController, only: [:create], singleton: true
+      resources "/subscription", Channel.SubscriptionController, only: [:create, :delete], singleton: true
+    end
   end
 
   scope "/", PhilomenaWeb do

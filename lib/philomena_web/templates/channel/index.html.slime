@@ -13,7 +13,7 @@ h1 Livestreams
 
   .block__content
     = for channel <- @channels do
-      = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn
+      = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions
 
   .block__header
     = pagination

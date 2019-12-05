@@ -28,7 +28,4 @@
   - else
     .media-box__header.media-box__header--channel No artist tag
 
-  /- if current_user
-  /  = subscription_link channel, current_user, class: link_class
-  /- else
-  /  .media-box__header.media-box__header--channel Login to subscribe
+  = render PhilomenaWeb.Channel.SubscriptionView, "_subscription.html", conn: @conn, watching: @subscriptions[@channel.id], channel: @channel

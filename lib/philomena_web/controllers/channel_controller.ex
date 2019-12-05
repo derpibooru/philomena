@@ -18,7 +18,9 @@ defmodule PhilomenaWeb.ChannelController do
       |> preload(:associated_artist_tag)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", channels: channels)
+    subscriptions = Channels.subscriptions(channels, conn.assigns.current_user)
+
+    render(conn, "index.html", layout_class: "layout--wide", channels: channels, subscriptions: subscriptions)
   end
 
   def show(conn, _params) do
