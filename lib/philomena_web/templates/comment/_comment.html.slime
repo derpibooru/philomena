@@ -2,14 +2,10 @@ article.block.communication id="comment_#{@comment.id}"
   .block__content.flex.flex--no-wrap
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
-
     .flex__grow.communication__body
-
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
       br
-
       = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @comment, conn: @conn
-
       .communication__body__text
         = if @comment.hidden_from_users do
           strong.comment_deleted
@@ -17,10 +13,21 @@ article.block.communication id="comment_#{@comment.id}"
             => @comment.deletion_reason
         - else
           ==<> @body
-
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
       = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment, conn: @conn
+    = if can?(@conn, :hide, @comment) do
+      .js-staff-action
+        / todo: make delete button work
+        a.communication__interaction.togglable-delete-form-link href="#"
+          i.fa.fa-times
+          =<> "Delete"
+        = if can?(@conn, :manage, @comment) do
+          / todo: link_to_ip
+          .communication__info
+            =<> @comment.ip
+          .communication__info
+            =<> @comment.fingerprint
     /- if can?(:hide, Comment)
     /  .js-staff-action
     /    - if !comment.hidden_from_users && !comment.destroyed_content
