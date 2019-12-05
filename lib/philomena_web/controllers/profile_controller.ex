@@ -114,7 +114,7 @@ defmodule PhilomenaWeb.ProfileController do
       |> where(user_id: ^user.id)
       |> where([us], us.day > ^(now - 89))
       |> Repo.all()
-      |> Map.new(&{&1.day, &1})
+      |> Map.new(&{now - &1.day, &1})
 
     %{
       uploads: individual_stat(last_90, :uploads),
