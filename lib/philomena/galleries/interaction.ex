@@ -5,11 +5,10 @@ defmodule Philomena.Galleries.Interaction do
   alias Philomena.Galleries.Gallery
   alias Philomena.Images.Image
 
-  @primary_key false
-
+  # fixme: unique-key this off (gallery_id, image_id)
   schema "gallery_interactions" do
-    belongs_to :gallery, Gallery, primary_key: true
-    belongs_to :image, Image, primary_key: true
+    belongs_to :gallery, Gallery
+    belongs_to :image, Image
 
     field :position, :integer
   end

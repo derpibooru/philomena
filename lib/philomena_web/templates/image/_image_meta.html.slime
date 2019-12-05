@@ -33,6 +33,7 @@
           i.fa.fa-eye-slash
     .stretched-mobile-links
       = render PhilomenaWeb.Image.SubscriptionView, "_subscription.html", watching: @watching, image: @image, conn: @conn
+      = render PhilomenaWeb.ImageView, "_add_to_gallery_dropdown.html", image: @image, image_galleries: @image_galleries, user_galleries: @user_galleries, conn: @conn
     .stretched-mobile-links
       a href="#{pretty_url(@image, false, false)}" rel="nofollow" title="View (tags in filename)"
         i.fa.fa-eye>

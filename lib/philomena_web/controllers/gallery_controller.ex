@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.GalleryController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.ImageSorter
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
@@ -31,16 +32,24 @@ defmodule PhilomenaWeb.GalleryController do
 
   def show(conn, _params) do
     gallery = conn.assigns.gallery
+    user = conn.assigns.current_user
     query = "gallery_id:#{gallery.id}"
     params = Map.put(conn.params, "q", query)
     sort = ImageSorter.parse_sort(%{"sf" => "gallery_id:#{gallery.id}", "sd" => position_order(gallery)})
 
     {:ok, images} = ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
-    interactions = Interactions.user_interactions(images, conn.assigns.current_user)
+    interactions = Interactions.user_interactions(images, user)
+
+    watching = Galleries.subscribed?(gallery, user)
+    gallery_images = Jason.encode!(Enum.map(images, & &1.id))
+
+    Galleries.clear_notification(gallery, user)
 
     conn
+    |> NotificationCountPlug.call([])
     |> Map.put(:params, params)
-    |> render("show.html", layout_class: "layout--wide", gallery: gallery, images: images, interactions: interactions)
+    |> assign(:clientside_data, [gallery_images: gallery_images])
+    |> render("show.html", layout_class: "layout--wide", watching: watching, gallery: gallery, images: images, interactions: interactions)
   end
 
   def new(conn, _params) do

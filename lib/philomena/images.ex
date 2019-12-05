@@ -228,15 +228,20 @@ defmodule Philomena.Images do
   end
 
   def reindex_image(%Image{} = image) do
+    reindex_images([image.id])
+
+    image
+  end
+
+  def reindex_images(image_ids) do
     spawn fn ->
       Image
       |> preload(^indexing_preloads())
-      |> where(id: ^image.id)
-      |> Repo.one()
-      |> Image.index_document()
+      |> where([i], i.id in ^image_ids)
+      |> Image.reindex()
     end
 
-    image
+    image_ids
   end
 
   def indexing_preloads do

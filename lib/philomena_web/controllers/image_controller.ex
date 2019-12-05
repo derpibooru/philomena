@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.ImageController do
 
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.NotificationCountPlug
-  alias Philomena.{Images, Images.Image, Comments.Comment, Textile.Renderer}
+  alias Philomena.{Images, Images.Image, Comments.Comment, Galleries.Gallery, Galleries.Interaction, Textile.Renderer}
   alias Philomena.Servers.ImageProcessor
   alias Philomena.Interactions
   alias Philomena.Comments
@@ -70,6 +70,8 @@ defmodule PhilomenaWeb.ImageController do
     watching =
       Images.subscribed?(image, conn.assigns.current_user)
 
+    {user_galleries, image_galleries} = image_and_user_galleries(image, conn.assigns.current_user)
+
     render(
       conn,
       "show.html",
@@ -77,6 +79,8 @@ defmodule PhilomenaWeb.ImageController do
       comments: comments,
       image_changeset: image_changeset,
       comment_changeset: comment_changeset,
+      image_galleries: image_galleries,
+      user_galleries: user_galleries,
       description: description,
       interactions: interactions,
       watching: watching,
@@ -109,5 +113,24 @@ defmodule PhilomenaWeb.ImageController do
         conn
         |> render("new.html", changeset: changeset)
     end
+  end
+
+  defp image_and_user_galleries(_image, nil), do: {[], []}
+  defp image_and_user_galleries(image, user) do
+    image_galleries =
+      Gallery
+      |> where(creator_id: ^user.id)
+      |> join(:inner, [g], gi in Interaction, on: g.id == gi.gallery_id and gi.image_id == ^image.id)
+      |> Repo.all()
+
+    image_gallery_ids = Enum.map(image_galleries, & &1.id)
+
+    user_galleries =
+      Gallery
+      |> where(creator_id: ^user.id)
+      |> where([g], g.id not in ^image_gallery_ids)
+      |> Repo.all()
+
+    {user_galleries, image_galleries}
   end
 end

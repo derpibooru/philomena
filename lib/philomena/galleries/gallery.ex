@@ -10,11 +10,14 @@ defmodule Philomena.Galleries.Gallery do
   alias Philomena.Images.Image
   alias Philomena.Users.User
   alias Philomena.Galleries.Interaction
+  alias Philomena.Galleries.Subscription
 
   schema "galleries" do
     belongs_to :thumbnail, Image, source: :thumbnail_id
     belongs_to :creator, User, source: :creator_id
     has_many :interactions, Interaction
+    has_many :subscriptions, Subscription
+    has_many :subscribers, through: [:subscriptions, :user]
 
     field :title, :string
     field :spoiler_warning, :string

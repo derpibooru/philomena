@@ -1,0 +1,39 @@
+.dropdown.block__header__dropdown-tab
+  a href="#"
+    i.fa.fa-images>
+    span.hide-limited-desktop.hide-mobile Galleries
+    span data-click-preventdefault="true"
+      i.fa.fa-caret-down>
+  .dropdown__content.dropdown__content-right
+    .block
+      .block__content.add-to-gallery-list
+        .block__list
+          a.block__list__link.primary href=Routes.gallery_path(@conn, :index, include_image: @image.id)
+            i.fa.fa-table>
+            span.hide-mobile Featured in
+
+        = if Enum.any?(@image_galleries) or Enum.any?(@user_galleries) do
+          ul.block__list.js-gallery-list
+            = for gallery <- @user_galleries do
+              li id="gallery_#{gallery.id}"
+                a.block__list__link.js-gallery-add data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
+                  = gallery.title
+                a.block__list__link.active.js-gallery-remove.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
+                  = gallery.title
+
+            = for gallery <- @image_galleries do
+              li id="gallery_#{gallery.id}"
+                a.block__list__link.js-gallery-add.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
+                  = gallery.title
+                a.block__list__link.active.js-gallery-remove data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
+                  = gallery.title
+
+        .block__list
+          = if @conn.assigns.current_user do
+            a.block__list__link.primary href=Routes.gallery_path(@conn, :new, with_image: @image.id)
+              i.fa.fa-plus>
+              span.hide-limited-desktop.hide-mobile Create a gallery
+          - else
+            a.block__list__link.primary href=Routes.pow_registration_path(@conn, :new)
+              i.fa.fa-user-plus>
+              span.hide-limited-desktop.hide-mobile Register to create a gallery

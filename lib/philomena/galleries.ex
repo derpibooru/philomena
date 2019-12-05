@@ -4,9 +4,13 @@ defmodule Philomena.Galleries do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Galleries.Gallery
+  alias Philomena.Galleries.Interaction
+  alias Philomena.Notifications
+  alias Philomena.Images
 
   @doc """
   Returns the list of galleries.
@@ -104,7 +108,7 @@ defmodule Philomena.Galleries do
 
   def reindex_gallery(%Gallery{} = gallery) do
     spawn fn ->
-      gallery
+      Gallery
       |> preload(^indexing_preloads())
       |> where(id: ^gallery.id)
       |> Repo.one()
@@ -126,36 +130,144 @@ defmodule Philomena.Galleries do
     [:subscribers, :creator, :interactions]
   end
 
-  alias Philomena.Galleries.Subscription
+  def add_image_to_gallery(gallery, image) do
+    Multi.new()
+    |> Multi.run(:interaction, fn repo, %{} ->
+      position = (last_position(gallery.id) || -1) + 1
 
-  @doc """
-  Returns the list of gallery_subscriptions.
+      %Interaction{gallery_id: gallery.id}
+      |> Interaction.changeset(%{"image_id" => image.id, "position" => position})
+      |> repo.insert()
+    end)
+    |> Multi.run(:gallery, fn repo, %{} ->
+      now = DateTime.utc_now()
 
-  ## Examples
+      {count, nil} =
+        Gallery
+        |> where(id: ^gallery.id)
+        |> repo.update_all(inc: [image_count: 1], set: [updated_at: now])
 
-      iex> list_gallery_subscriptions()
-      [%Subscription{}, ...]
-
-  """
-  def list_gallery_subscriptions do
-    Repo.all(Subscription)
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
-  @doc """
-  Gets a single subscription.
+  def remove_image_from_gallery(gallery, image) do
+    Multi.new()
+    |> Multi.run(:interaction, fn repo, %{} ->
+      %Interaction{gallery_id: gallery.id, image_id: image.id}
+      |> repo.delete()
+    end)
+    |> Multi.run(:gallery, fn repo, %{} ->
+      now = DateTime.utc_now()
 
-  Raises `Ecto.NoResultsError` if the Subscription does not exist.
+      {count, nil} =
+        Gallery
+        |> where(id: ^gallery.id)
+        |> repo.update_all(inc: [image_count: -1], set: [updated_at: now])
 
-  ## Examples
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
 
-      iex> get_subscription!(123)
-      %Subscription{}
+  defp last_position(gallery_id) do
+    Interaction
+    |> where(gallery_id: ^gallery_id)
+    |> Repo.aggregate(:max, :position)
+  end
 
-      iex> get_subscription!(456)
-      ** (Ecto.NoResultsError)
+  def notify_gallery(gallery) do
+    spawn fn ->
+      subscriptions =
+        gallery
+        |> Repo.preload(:subscriptions)
+        |> Map.fetch!(:subscriptions)
 
-  """
-  def get_subscription!(id), do: Repo.get!(Subscription, id)
+      Notifications.notify(
+        gallery,
+        subscriptions,
+        %{
+          actor_id: gallery.id,
+          actor_type: "Gallery",
+          actor_child_id: nil,
+          actor_child_type: nil,
+          action: "added images to"
+        }
+      )
+    end
+
+    gallery
+  end
+
+  def reorder_gallery(gallery, image_ids) do
+    spawn fn ->
+      interactions =
+        Interaction
+        |> where([gi], gi.image_id in ^image_ids)
+        |> order_by(^position_order(gallery))
+        |> Repo.all()
+
+      interaction_positions =
+        interactions
+        |> Enum.with_index()
+        |> Map.new(fn {interaction, index} -> {index, interaction.position} end)
+
+      images_present = Map.new(interactions, &{&1.image_id, true})
+      requested =
+        image_ids
+        |> Enum.filter(&images_present[&1])
+        |> Enum.with_index()
+        |> Map.new()
+
+      changes =
+        interactions
+        |> Enum.with_index()
+        |> Enum.flat_map(fn {interaction, current_index} ->
+          new_index = requested[interaction.image_id]
+
+          case new_index == current_index do
+            true ->
+              []
+
+            false ->
+              [
+                [
+                  id: interaction.id,
+                  gallery_id: interaction.gallery_id,
+                  image_id: interaction.image_id,
+                  position: interaction_positions[new_index]
+                ]
+              ]
+          end
+        end)
+
+      # Do the update in a single statement
+      Repo.insert_all(
+        Interaction,
+        changes,
+        on_conflict: :replace_all_except_primary_key,
+        conflict_target: [:id]
+      )
+
+      # Now update all the associated images
+      Images.reindex_images(Map.keys(requested))
+    end
+
+    gallery
+  end
+
+  defp position_order(%{order_position_asc: true}), do: [asc: :position]
+  defp position_order(_gallery), do: [desc: :position]
+
+  alias Philomena.Galleries.Subscription
+
+  def subscribed?(_gallery, nil), do: false
+  def subscribed?(gallery, user) do
+    Subscription
+    |> where(gallery_id: ^gallery.id, user_id: ^user.id)
+    |> Repo.exists?()
+  end
 
   @doc """
   Creates a subscription.
@@ -169,28 +281,10 @@ defmodule Philomena.Galleries do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subscription(attrs \\ %{}) do
-    %Subscription{}
-    |> Subscription.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a subscription.
-
-  ## Examples
-
-      iex> update_subscription(subscription, %{field: new_value})
-      {:ok, %Subscription{}}
-
-      iex> update_subscription(subscription, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_subscription(%Subscription{} = subscription, attrs) do
-    subscription
-    |> Subscription.changeset(attrs)
-    |> Repo.update()
+  def create_subscription(gallery, user) do
+    %Subscription{gallery_id: gallery.id, user_id: user.id}
+    |> Subscription.changeset(%{})
+    |> Repo.insert(on_conflict: :nothing)
   end
 
   @doc """
@@ -205,20 +299,13 @@ defmodule Philomena.Galleries do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_subscription(%Subscription{} = subscription) do
-    Repo.delete(subscription)
+  def delete_subscription(gallery, user) do
+    %Subscription{gallery_id: gallery.id, user_id: user.id}
+    |> Repo.delete()
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking subscription changes.
-
-  ## Examples
-
-      iex> change_subscription(subscription)
-      %Ecto.Changeset{source: %Subscription{}}
-
-  """
-  def change_subscription(%Subscription{} = subscription) do
-    Subscription.changeset(subscription, %{})
+  def clear_notification(_gallery, nil), do: nil
+  def clear_notification(gallery, user) do
+    Notifications.delete_unread_notification("Gallery", gallery.id, user)
   end
 end

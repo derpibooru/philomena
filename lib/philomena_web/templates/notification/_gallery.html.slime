@@ -4,7 +4,13 @@
     => @notification.action
 
     strong>
-      = link @notification.actor.title, to: "#"
-      /= link @notification.actor.title, to: Routes.gallery_path(@conn, :show, @notification.actor)
+      = link @notification.actor.title, to: Routes.gallery_path(@conn, :show, @notification.actor)
 
     => pretty_time @notification.updated_at
+
+.flex.flex--centered.flex--no-wrap
+  a.button.button--separate-right title="Delete" href=Routes.gallery_read_path(@conn, :create, @notification.actor) data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-trash
+
+  a.button title="Unsubscribe" href=Routes.gallery_subscription_path(@conn, :delete, @notification.actor) data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+    i.fa.fa-bell-slash

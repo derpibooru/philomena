@@ -16,7 +16,7 @@ elixir:
       = pagination
 
       .flex__right
-        a href="#"
+        a href=Routes.gallery_report_path(@conn, :new, @gallery)
           i.fa.fa-exclamation-triangle>
           span.hide-mobile Report
 
@@ -29,13 +29,13 @@ elixir:
           a.rearrange-button.js-rearrange href='#' data-click-hide='.js-rearrange' data-click-show='.js-save,#gallery-rearrange-info'
             i.fa.fa-sort>
             ' Rearrange
-            /data-reorder-path=gallery_order_path(@gallery)
-          a.rearrange-button.js-save.hidden href='#' data-click-hide='.js-save,#gallery-rearrange-info' data-click-show='.js-rearrange'
+
+          a.rearrange-button.js-save.hidden href='#' data-click-hide='.js-save,#gallery-rearrange-info' data-click-show='.js-rearrange' data-reorder-path=Routes.gallery_order_path(@conn, :update, @gallery)
             i.fa.fa-check>
             ' Save
 
         = if show_subscription_link?(@gallery.creator, @conn.assigns.current_user) do
-          /= subscription_link(@gallery, current_user)
+          = render PhilomenaWeb.Gallery.SubscriptionView, "_subscription.html", watching: @watching, gallery: @gallery, conn: @conn
 
     .block__header.block__header--light.block__header--sub
       span.block__header__title A gallery by

@@ -125,7 +125,12 @@ defmodule PhilomenaWeb.Router do
 
     resources "/reports", ReportController, only: [:index]
     resources "/user_links", UserLinkController, only: [:index, :new, :create, :show]
-    resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete]
+    resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete] do
+      resources "/images", Gallery.ImageController, only: [:create, :delete], singleton: true
+      resources "/order", Gallery.OrderController, only: [:update], singleton: true
+      resources "/read", Gallery.ReadController, only: [:create], singleton: true
+      resources "/subscription", Gallery.SubscriptionController, only: [:create, :delete], singleton: true
+    end
   end
 
   scope "/", PhilomenaWeb do
@@ -188,7 +193,9 @@ defmodule PhilomenaWeb.Router do
     end
     resources "/posts", PostController, only: [:index]
     resources "/commissions", CommissionController, only: [:index]
-    resources "/galleries", GalleryController, only: [:index, :show]
+    resources "/galleries", GalleryController, only: [:index, :show] do
+      resources "/reports", Gallery.ReportController, only: [:new, :create]
+    end
     resources "/adverts", AdvertController, only: [:show]
     resources "/pages", PageController, only: [:show]
     resources "/dnp", DnpEntryController, only: [:index, :show]
