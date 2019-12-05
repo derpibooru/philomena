@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Api.Json.SearchController do
     sort = ImageSorter.parse_sort(params)
 
     case ImageLoader.search_string(conn, params["q"], sorts: sort.sorts, queries: sort.queries, queryable: queryable) do
-      {:ok, images} ->
+      {:ok, {images, _tags}} ->
         interactions =
           Interactions.user_interactions(images, user)
 

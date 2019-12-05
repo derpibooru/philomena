@@ -1,0 +1,3 @@
+.block__content.js-imagelist-info.flex class=tags_row_class(@conn)
+  .flex__grow
+    = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags, conn: @conn

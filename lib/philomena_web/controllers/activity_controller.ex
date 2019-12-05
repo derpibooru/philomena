@@ -10,14 +10,14 @@ defmodule PhilomenaWeb.ActivityController do
   def index(conn, _params) do
     user = conn.assigns.current_user
 
-    {:ok, images} =
+    {:ok, {images, _tags}} =
       ImageLoader.search_string(
         conn,
         "created_at.lte:3 minutes ago",
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
-    top_scoring =
+    {top_scoring, _tags} =
       ImageLoader.query(
         conn,
         %{range: %{first_seen_at: %{gt: "now-3d"}}},
@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.ActivityController do
       )
 
     watched = if !!user do
-      {:ok, watched_images} =
+      {:ok, {watched_images, _tags}} =
         ImageLoader.search_string(
           conn,
           "my:watched",

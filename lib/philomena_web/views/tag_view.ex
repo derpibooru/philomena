@@ -41,6 +41,11 @@ defmodule PhilomenaWeb.TagView do
     link tag_name, to: "#", title: title, data: [tag_name: tag_name, click_addtag: tag_name]
   end
 
+  def tags_row_class(%{params: %{"page" => "0"}}), do: nil
+  def tags_row_class(%{params: %{"page" => "1"}}), do: nil
+  def tags_row_class(%{params: %{"page" => _page}}), do: "hidden"
+  def tags_row_class(_conn), do: nil
+
   defp implications(%{implied_tags: []}), do: []
   defp implications(%{implied_tags: it}) do
     names =

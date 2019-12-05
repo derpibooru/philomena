@@ -10,12 +10,12 @@ defmodule PhilomenaWeb.SearchController do
     sort = ImageSorter.parse_sort(params)
 
     case ImageLoader.search_string(conn, params["q"], sorts: sort.sorts, queries: sort.queries) do
-      {:ok, images} ->
+      {:ok, {images, tags}} ->
         interactions =
           Interactions.user_interactions(images, user)
 
         conn
-        |> render("index.html", images: images, search_query: params["q"], interactions: interactions, layout_class: "layout--wide")
+        |> render("index.html", images: images, tags: tags, search_query: params["q"], interactions: interactions, layout_class: "layout--wide")
 
       {:error, msg} ->
         render(conn, "index.html", images: [], error: msg, search_query: params["q"])

@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.TagController do
       |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
       |> Repo.one()
 
-    images =
+    {images, _tags} =
       ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
 
     interactions =
@@ -55,6 +55,8 @@ defmodule PhilomenaWeb.TagController do
       Enum.zip(dnp_bodies, tag.dnp_entries)
 
     search_query = escape_name(tag)
+    params = Map.put(conn.params, "q", search_query)
+    conn = Map.put(conn, :params, params)
 
     render(
       conn,

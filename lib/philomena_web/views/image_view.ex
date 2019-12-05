@@ -136,6 +136,14 @@ defmodule PhilomenaWeb.ImageView do
     conn.assigns.current_user.anonymous_by_default
   end
 
+  def info_row(_conn, []), do: []
+  def info_row(conn, [{tag, dnp_entries}]) do
+    render PhilomenaWeb.TagView, "_tag_info_row.html", conn: conn, tag: tag, dnp_entries: dnp_entries
+  end
+  def info_row(conn, tags) do
+    render PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags
+  end
+
   defp thumb_format("svg", _name), do: "png"
   defp thumb_format(_, :rendered), do: "png"
   defp thumb_format(format, _name), do: format
