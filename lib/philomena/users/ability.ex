@@ -88,7 +88,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Edit comments on images
   def can?(%User{id: id}, :edit, %Comment{hidden_from_users: false, user_id: id} = comment) do
     # comment must have been made no later than 15 minutes ago
-    time_ago = DateTime.utc_now() |> DateTime.add(-15 * 60)
+    time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-15 * 60)
 
     DateTime.diff(comment.created_at, time_ago) > 0
   end
