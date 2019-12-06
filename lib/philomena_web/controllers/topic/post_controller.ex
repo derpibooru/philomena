@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Topic.PostController do
   plug :load_and_authorize_resource, model: Forum, id_field: "short_name", id_name: "forum_id", persisted: true
 
   plug :load_topic
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, edit: :show, update: :show
+  plug PhilomenaWeb.CanaryMapPlug, create: :create_post, edit: :create_post, update: :create_post
   plug :authorize_resource, model: Topic, id_field: "slug", id_name: "topic_id", persisted: true
 
   plug PhilomenaWeb.CanaryMapPlug, edit: :edit, update: :edit

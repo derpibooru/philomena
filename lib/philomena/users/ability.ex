@@ -108,8 +108,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Forum{access_level: "normal"}), do: true
   def can?(_user, :show, %Topic{hidden_from_users: false}), do: true
   def can?(_user, :show, %Post{hidden_from_users: false}), do: true
-
-  # Edit posts
+  
+  # Create and edit posts
+  def can?(_user, :create_post, %Topic{locked_at: nil, hidden_from_users: false}), do: true
   def can?(%User{id: id}, :edit, %Post{hidden_from_users: false, user_id: id}), do: true
 
   # View profile pages

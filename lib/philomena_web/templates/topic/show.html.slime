@@ -50,12 +50,16 @@ h1 = @topic.title
       = pagination
 
   / Post form
-  = if @topic.post_count < 200_000 do
-    = render PhilomenaWeb.Topic.PostView, "_form.html", conn: @conn, forum: @forum, topic: @topic, changeset: @changeset
-  - else
-    /h3 Okay, we're impressed
-    /p You're looking at a thread with over 200,000 posts in it!
-    /p For various reasons, we'd like to ask you to start a new topic.
+  = cond do
+    - @topic.post_count < 200_000 and can?(@conn, :create_post, @topic) ->
+      = render PhilomenaWeb.Topic.PostView, "_form.html", conn: @conn, forum: @forum, topic: @topic, changeset: @changeset
+
+    - @topic.post_count < 200_000 ->
+      h3 Okay, we're impressed
+      p You're looking at a thread with over 200,000 posts in it!
+      p For various reasons, we'd like to ask you to start a new topic.
+
+    - true ->
 
   / Mod tools
   /- if can? :assist, Topic
