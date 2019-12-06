@@ -107,5 +107,5 @@ header.header
 nav.header.header--secondary
   .flex.flex--centered.flex--spaced-out.flex--wrap
     = render PhilomenaWeb.LayoutView, "_header_navigation.html", assigns
-    = if @current_user.role != "user" do
+    = if !is_nil(@current_user) and @current_user.role != "user" do
       = render PhilomenaWeb.LayoutView, "_header_staff_links.html", assigns
