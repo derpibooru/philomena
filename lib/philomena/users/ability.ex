@@ -52,6 +52,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Users and anonymous users can...
   #
 
+  # Edit their description and personal title
+  def can?(%User{id: id}, :edit_description, %User{id: id}), do: true
+  def can?(%User{id: id}, :edit_title, %User{id: id}), do: true
+
   # View conversations they are involved in
   def can?(%User{id: id}, :show, %Conversation{to_id: id}), do: true
   def can?(%User{id: id}, :show, %Conversation{from_id: id}), do: true

@@ -6,7 +6,13 @@
       h1.profile-top__name-header
         = @user.name
         | 's profile
-      p = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @user}, large: true
+      = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @user}, large: true
+      br
+
+      = if can?(@conn, :edit_description, @user) do
+        = link "Edit Personal Title", to: Routes.profile_description_path(@conn, :edit, @user)
+        br
+
       span
         ' Member since
         = pretty_time(@user.created_at)
@@ -60,7 +66,11 @@
 
     .block
       .block__header
-        span.block__header__title About Me
+        = if can?(@conn, :edit_description, @user) do
+          a.block__header--single-item href=Routes.profile_description_path(@conn, :edit, @user) About Me
+        - else
+          span.block__header__title About Me
+
       = render PhilomenaWeb.ProfileView, "_about_me.html", user: @user, about_me: @about_me, conn: @conn
 
   .column-layout__main

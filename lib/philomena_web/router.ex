@@ -117,6 +117,7 @@ defmodule PhilomenaWeb.Router do
         resources "/items", Profile.Commission.ItemController, only: [:new, :create, :edit, :update, :delete]
         resources "/reports", Profile.Commission.ReportController, only: [:new, :create]
       end
+      resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
     end
 
     scope "/filters", Filter, as: :filter do

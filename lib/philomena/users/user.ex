@@ -185,6 +185,14 @@ defmodule Philomena.Users.User do
     |> validate_search(:watched_images_exclude_str, user, true)
   end
 
+  def description_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:description, :personal_title])
+    |> validate_length(:description, max: 10_000, count: :bytes)
+    |> validate_length(:personal_title, max: 24, count: :bytes)
+    |> validate_format(:personal_title, ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu)
+  end
+
   def create_totp_secret_changeset(user) do
     secret = :crypto.strong_rand_bytes(15) |> Base.encode32()
     data = Philomena.Users.Encryptor.encrypt_model(secret)

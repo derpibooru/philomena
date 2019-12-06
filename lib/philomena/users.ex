@@ -89,6 +89,12 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def update_description(%User{} = user, attrs) do
+    user
+    |> User.description_changeset(attrs)
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 
