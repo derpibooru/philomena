@@ -10,6 +10,7 @@ elixir:
       => pluralize("comment", "comments", @image.comments_count)
       ' posted
     button.button#js-refresh-comments title="Refresh" data-disable-with="..."
+      i.fa.fa-sync
       span.hide-mobile<> Refresh
 
 = for {comment, body} <- @comments do

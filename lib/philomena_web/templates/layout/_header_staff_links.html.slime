@@ -7,34 +7,34 @@
     .dropdown__content.js-burger-links
       = link to: "/admin/flipper", class: "header__link" do
         i.fa.fa-fw.fa-toggle-on
-        | Site Settings
+        =< "Site Settings"
       = link to: "/admin/site_notices", class: "header__link" do
         i.fa.fa-fw.fa-info-circle
-        | Site Notices
+        =< "Site Notices"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-tags
-        | Tags
+        =< "Tags"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-users
-        | Users
+        =< "Users"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-comments
-        | Comments
+        =< "Comments"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-paragraph
-        | Forums
+        =< "Forums"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-shopping-bag
-        | Advertisements
+        =< "Advertisements"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-trophy
-        | Badges
+        =< "Badges"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-sticky-note
-        | Pages
+        =< "Pages"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-sticky-note
-        | Mod Notes
+        =< "Mod Notes"
   = if @duplicate_report_count do
     = link to: "#", class: "header__link", title: "Duplicates" do
       =<> "D"
@@ -62,10 +62,10 @@
     .dropdown__content.dropdown__content-right.js-burger-links
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-user
-        | User Bans
+        =< "User Bans"
       = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-internet-explorer
-        | IP Bans
+        i.fab.fa-fw.fa-internet-explorer
+        =< "IP Bans"
       = link to: "#", class: "header__link" do
         i.fa.fa-fw.fa-desktop
-        | FP Bans
+        =< "FP Bans"
