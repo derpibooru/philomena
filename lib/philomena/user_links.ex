@@ -104,4 +104,14 @@ defmodule Philomena.UserLinks do
   def change_user_link(%UserLink{} = user_link) do
     UserLink.changeset(user_link, %{})
   end
+
+  def count_user_links(user) do
+    if Canada.Can.can?(user, :edit, UserLink) do
+      UserLink
+      |> where(aasm_state: "unverified")
+      |> Repo.aggregate(:count, :id)
+    else
+      nil
+    end
+  end
 end

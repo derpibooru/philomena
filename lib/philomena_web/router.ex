@@ -20,6 +20,7 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.ForumListPlug
     plug PhilomenaWeb.FilterSelectPlug
     plug PhilomenaWeb.ChannelPlug
+    plug PhilomenaWeb.AdminCountersPlug
   end
 
   pipeline :api do

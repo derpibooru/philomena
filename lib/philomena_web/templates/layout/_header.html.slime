@@ -73,7 +73,7 @@ header.header
               i.fa.fa-fw.fa-comments>
               | Comments
             a.header__link href="/posts?pq=my:posts"
-              i.fa.fa-fw.fa-pencil>
+              i.fas.fa-fw.fa-pen-square>
               | Posts
             a.header__link href='/user_links'
               i.fa.fa-fw.fa-link>
@@ -88,7 +88,7 @@ header.header
               i.fa.fa-fw.fa-user>
               | Account
             a.header__link href="/session" data-method='delete'
-              i.fa.fa-fw.fa-sign-out>
+              i.fa.fa-fw.fa-sign-out-alt>
               | Logout
       - else
         a.header__link.hide-mobile href="/filters"
@@ -107,5 +107,5 @@ header.header
 nav.header.header--secondary
   .flex.flex--centered.flex--spaced-out.flex--wrap
     = render PhilomenaWeb.LayoutView, "_header_navigation.html", assigns
-    /- if current_user.try(:staff?)
-      include _header_staff_links.html
+    = if @current_user.role != "user" do
+      = render PhilomenaWeb.LayoutView, "_header_staff_links.html", assigns

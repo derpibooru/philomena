@@ -51,8 +51,14 @@
     div
       ' Uploaded
       => pretty_time(@image.created_at)
-      ' by
-      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, awards: true, conn: @conn
+      span.image_uploader
+        ' by
+        => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, awards: true, conn: @conn
+        = if can?(@conn, :manage, @image) do
+          =<> link_to_ip(@image.ip)
+          =<> link_to_fingerprint(@image.fingerprint)
+          a href="#"
+            i.fa.fa-edit
     span.image-size
       | &nbsp;
       = @image.image_width

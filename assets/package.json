@@ -6,14 +6,15 @@
   "dependencies": {
     "brunch": "^2.10.17",
     "copycat-brunch": "^1.1.1",
-    "font-awesome": "^4.7.0"
+    "@fortawesome/fontawesome-free": "^5.11.2"
   },
   "devDependencies": {
-    "acorn": "^7.0.0",
-    "autoprefixer": "^9.5.1",
+    "acorn": "^7.1.0",
+    "autoprefixer": "^9.7.3",
     "normalize-scss": "^7.0.1",
-    "rollup-brunch": "git+https://github.com/liamwhite/rollup-brunch#31967fc",
-    "sass-brunch": "git+https://github.com/brunch/sass-brunch#e9c0bfe",
+    "rollup-brunch": "git+https://github.com/liamwhite/rollup-brunch.git#31967fc",
+    "sass-brunch": "git+https://github.com/brunch/sass-brunch.git#e9c0bfe",
+    "spostcss-brunch": "git+https://github.com/Meow/spostcss-brunch.git#b64df45",
     "uglify-js-brunch": "^2.10.0"
   }
 }

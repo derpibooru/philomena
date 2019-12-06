@@ -52,7 +52,7 @@
   .tagsauce
     .block
       a.button.js-tag-sauce-toggle#edit-tags data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input" title="Edit tags" accessKey="t"
-        i.fa.fa-pencil>
+        i.fas.fa-edit>
         ' Tags:
 
       a.button.button--link.button--separate-left href=Routes.image_tag_change_path(@conn, :index, @image) title="Tag history"

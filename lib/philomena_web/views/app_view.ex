@@ -113,4 +113,17 @@ defmodule PhilomenaWeb.AppView do
     ])
     |> to_string()
   end
+
+  defp text_or_na(text), do: text
+  defp text_or_na(nil), do: "N/A"
+
+  # todo: make ip a real link
+  def link_to_ip(ip) do
+    link(text_or_na(ip), to: "#")
+  end
+
+  # todo: make fp a real link
+  def link_to_fingerprint(fp) do
+    link(String.slice(text_or_na(fp), 0..6), to: "#")
+  end
 end
