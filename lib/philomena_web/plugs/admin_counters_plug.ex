@@ -5,7 +5,6 @@ defmodule PhilomenaWeb.AdminCountersPlug do
       plug PhilomenaWeb.AdminCountersPlug
   """
 
-  alias Plug.Conn
   alias Philomena.DuplicateReports
   alias Philomena.Reports
   alias Philomena.UserLinks

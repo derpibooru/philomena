@@ -114,8 +114,8 @@ defmodule PhilomenaWeb.AppView do
     |> to_string()
   end
 
-  defp text_or_na(text), do: text
   defp text_or_na(nil), do: "N/A"
+  defp text_or_na(text), do: text
 
   # todo: make ip a real link
   def link_to_ip(ip) do
