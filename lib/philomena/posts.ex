@@ -43,6 +43,8 @@ defmodule Philomena.Posts do
 
   """
   def create_post(topic, attributes, params \\ %{}) do
+    now = DateTime.utc_now()
+
     topic_query =
       Topic
       |> where(id: ^topic.id)
@@ -67,7 +69,7 @@ defmodule Philomena.Posts do
     end)
     |> Multi.run(:update_topic, fn repo, %{post: %{id: post_id}} ->
       {count, nil} =
-        repo.update_all(topic_query, inc: [post_count: 1], set: [last_post_id: post_id])
+        repo.update_all(topic_query, inc: [post_count: 1], set: [last_post_id: post_id, last_replied_to_at: now])
 
       {:ok, count}
     end)
