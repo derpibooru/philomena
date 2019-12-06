@@ -1,11 +1,11 @@
-
 .image-flex-grid {
   padding-right: 0;
   padding-bottom: 0;
 }
 
 .media-box__header {
-  span.favorites, span.comments_count {
+  span.favorites,
+  span.comments_count {
     padding-left: 4px;
   }
   span.score {
@@ -14,7 +14,8 @@
 }
 
 .media-box__header--small {
-  span.favorites, span.comments_count {
+  span.favorites,
+  span.comments_count {
     padding-left: 2px;
   }
   span.score {
@@ -24,7 +25,8 @@
 
 a.interaction--fave {
   color: $fave_color;
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background: $fave_color;
     color: $text_light_color;
   }
@@ -32,7 +34,8 @@ a.interaction--fave {
 
 a.interaction--upvote {
   color: $vote_up_color;
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background: $vote_up_color;
     color: $text_light_color;
   }
@@ -40,7 +43,8 @@ a.interaction--upvote {
 
 a.interaction--downvote {
   color: $vote_down_color;
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background: $vote_down_color;
     color: $text_light_color;
   }
@@ -48,7 +52,8 @@ a.interaction--downvote {
 
 a.interaction--hide {
   color: $hide_color;
-  &.active, &:hover {
+  &.active,
+  &:hover {
     background: $hide_color;
     color: $text_light_color;
   }
@@ -62,7 +67,9 @@ a.interaction--comments {
   }
 }
 
+
 /* Disable spoilered image downvoting (see the interactions script) */
+
 .interaction--downvote.disabled,
 .interaction--downvote.disabled:hover {
   cursor: default;
@@ -76,11 +83,14 @@ a.interaction--comments {
   font-size: 12px;
 }
 
+
 /* Images rendered using the 'images/image_container' partial (image lists, comment list previews, gallery thumbs) */
+
 div.image-container {
   position: relative;
   display: inline-block;
-  overflow: hidden; /* prevent .media-box__overlay from overflowing the container */
+  overflow: hidden;
+  /* prevent .media-box__overlay from overflowing the container */
   text-align: center;
   a::before {
     content: "";
@@ -88,7 +98,8 @@ div.image-container {
     height: 100%;
     vertical-align: middle;
   }
-  img, video {
+  img,
+  video {
     vertical-align: middle;
     max-width: 100%;
     max-height: 100%;
@@ -103,7 +114,16 @@ div.image-container {
   }
 }
 
+
+/* spoilered images inside communications */
+
+span.spoiler div.image-container {
+  display: block;
+}
+
+
 /* .image-container sizes, set by the partial. */
+
 .thumb {
   max-width: 250px;
   max-height: 250px;
@@ -119,7 +139,9 @@ div.image-container {
   height: 50px;
 }
 
+
 /* Used for elements that wrap .image-container */
+
 .thumb-tiny-container {
   width: 50px;
   height: 50px;
@@ -143,12 +165,16 @@ div.image-container {
   }
 }
 
+
 /* This and the one above needed for older browsers for some reason, appears to be a bug */
+
 #image_target {
   max-width: 100%;
 }
 
+
 /* Resizes large images to fit in a smaller container; width and height are defined inline */
+
 .image-constrained {
   display: flex;
   justify-content: center;
@@ -214,7 +240,7 @@ div.image-container {
   li {
     display: inline-block;
   }
-  li + li {
+  li+li {
     margin-left: 1em;
   }
 }
@@ -251,20 +277,16 @@ div.image-container {
   flex-flow: row wrap;
   justify-content: flex-start;
   align-items: center;
-
   &:empty {
     display: none;
   }
-
   img {
     max-height: 200px;
     max-width: 200px;
   }
-
   .scraper-preview--label {
     cursor: pointer;
     margin: 0 8px 8px 0;
-
     .scraper-preview--image-wrapper {
       display: inline-block;
       padding: 9px;
@@ -278,8 +300,8 @@ div.image-container {
     .scraper-preview--input {
       display: none;
     }
-    &.checked > .scraper-preview--image-wrapper,
-    .scraper-preview--input:checked + .scraper-preview--image-wrapper {
+    &.checked>.scraper-preview--image-wrapper,
+    .scraper-preview--input:checked+.scraper-preview--image-wrapper {
       opacity: 1;
       border-color: $input_border_active;
       background-color: $input_color_active;
