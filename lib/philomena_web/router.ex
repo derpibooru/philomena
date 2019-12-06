@@ -152,6 +152,7 @@ defmodule PhilomenaWeb.Router do
     resources "/images", ImageController, only: [:index, :show, :new, :create] do
       resources "/comments", Image.CommentController, only: [:index, :show, :create] do
         resources "/reports", Image.Comment.ReportController, only: [:new, :create]
+        resources "/history", Image.Comment.HistoryController, only: [:index]
       end
       resources "/tags", Image.TagController, only: [:update], singleton: true
       resources "/sources", Image.SourceController, only: [:update], singleton: true

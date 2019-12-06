@@ -1,0 +1,46 @@
+h1
+  ' Viewing last 25 versions of comment by
+  = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, conn: @conn
+  ' on image
+  a href=Routes.image_path(@conn, :show, @comment.image)
+    | #
+    = @comment.image_id
+
+= for version <- @versions do
+  article.block.communication
+  .block__content.flex.flex--no-wrap
+    .flex__fixed.spacing-right
+      = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
+
+    .flex__grow.communication__body
+      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
+      br
+
+      = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @comment, conn: @conn
+
+      .communication__body__text
+        = for edit <- version.difference do
+          = case edit do
+            - {:eq, value} ->
+              = text_to_html(value)
+
+            - {:ins, value} ->
+              ins.differ = text_to_html(value)
+
+            - {:del, value} ->
+              del.differ = text_to_html(value)
+
+  .block__content.communication__options
+    .flex.flex--wrap.flex--spaced-out
+      div
+        = if version.edit_reason not in [nil, ""] do
+          ' Reason:
+          = version.edit_reason
+        - else
+          ' No reason given
+
+      .flex__right
+        ' Edited
+        = pretty_time(version.created_at)
+        ' by
+        = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @version, conn: @conn

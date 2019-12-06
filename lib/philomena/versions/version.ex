@@ -11,6 +11,12 @@ defmodule Philomena.Versions.Version do
     field :item_id, :integer
     field :item_type, :string
 
+    field :user, :any, virtual: true
+    field :parent, :any, virtual: true
+    field :body, :string, virtual: true
+    field :edit_reason, :string, virtual: true
+    field :difference, :any, virtual: true
+
     timestamps(inserted_at: :created_at, updated_at: false)
   end
 

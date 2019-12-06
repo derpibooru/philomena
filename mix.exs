@@ -60,7 +60,8 @@ defmodule Philomena.MixProject do
       {:bamboo_smtp, "~> 1.7"},
       {:remote_ip, "~> 0.2.0"},
       {:briefly, "~> 0.3.0"},
-      {:phoenix_mtm, "~> 1.0.0"}
+      {:phoenix_mtm, "~> 1.0.0"},
+      {:yaml_elixir, "~> 2.4.0"}
     ]
   end
 

@@ -7,35 +7,47 @@ defmodule Philomena.Versions do
   alias Philomena.Repo
 
   alias Philomena.Versions.Version
+  alias Philomena.Users.User
 
-  @doc """
-  Returns the list of versions.
+  def load_data_and_associations(versions, parent) do
+    user_ids =
+      versions
+      |> Enum.map(& &1.whodunnit)
+      |> Enum.reject(&is_nil/1)
 
-  ## Examples
+    users =
+      User
+      |> where([u], u.id in ^user_ids)
+      |> preload(awards: :badge)
+      |> Repo.all()
+      |> Map.new(&{to_string(&1.id), &1})
 
-      iex> list_versions()
-      [%Version{}, ...]
+    {versions, _last_body} =
+      versions
+      |> Enum.reverse()
+      |> Enum.map_reduce(nil, fn version, previous_body ->
+        yaml = YamlElixir.read_from_string!(version.object || "")
+        body = yaml["body"] || ""
+        edit_reason = yaml["edit_reason"]
 
-  """
-  def list_versions do
-    Repo.all(Version)
+        v =
+          %{
+            version |
+            parent: parent,
+            user: users[version.whodunnit],
+            body: body,
+            edit_reason: edit_reason,
+            difference: difference(previous_body, body)
+          }
+
+        {v, body}
+      end)
+
+    Enum.reverse(versions)
   end
 
-  @doc """
-  Gets a single version.
-
-  Raises `Ecto.NoResultsError` if the Version does not exist.
-
-  ## Examples
-
-      iex> get_version!(123)
-      %Version{}
-
-      iex> get_version!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_version!(id), do: Repo.get!(Version, id)
+  defp difference(nil, next), do: [eq: next]
+  defp difference(previous, next), do: String.myers_difference(previous, next)
 
   @doc """
   Creates a version.
@@ -53,52 +65,5 @@ defmodule Philomena.Versions do
     %Version{}
     |> Version.changeset(attrs)
     |> Repo.insert()
-  end
-
-  @doc """
-  Updates a version.
-
-  ## Examples
-
-      iex> update_version(version, %{field: new_value})
-      {:ok, %Version{}}
-
-      iex> update_version(version, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_version(%Version{} = version, attrs) do
-    version
-    |> Version.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Version.
-
-  ## Examples
-
-      iex> delete_version(version)
-      {:ok, %Version{}}
-
-      iex> delete_version(version)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_version(%Version{} = version) do
-    Repo.delete(version)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking version changes.
-
-  ## Examples
-
-      iex> change_version(version)
-      %Ecto.Changeset{source: %Version{}}
-
-  """
-  def change_version(%Version{} = version) do
-    Version.changeset(version, %{})
   end
 end
