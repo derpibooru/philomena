@@ -24,8 +24,7 @@ defmodule Philomena.Versions do
 
     {versions, _last_body} =
       versions
-      |> Enum.reverse()
-      |> Enum.map_reduce(nil, fn version, previous_body ->
+      |> Enum.map_reduce(parent.body, fn version, previous_body ->
         yaml = YamlElixir.read_from_string!(version.object || "")
         body = yaml["body"] || ""
         edit_reason = yaml["edit_reason"]
@@ -37,16 +36,16 @@ defmodule Philomena.Versions do
             user: users[version.whodunnit],
             body: body,
             edit_reason: edit_reason,
-            difference: difference(previous_body, body)
+            difference: difference(body, previous_body)
           }
 
         {v, body}
       end)
 
-    Enum.reverse(versions)
+    versions
   end
 
-  defp difference(nil, next), do: [eq: next]
+  defp difference(previous, nil), do: [eq: previous]
   defp difference(previous, next), do: String.myers_difference(previous, next)
 
   @doc """

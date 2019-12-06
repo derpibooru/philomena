@@ -93,6 +93,15 @@ defmodule PhilomenaWeb.AppView do
     end)
   end
 
+  def escape_nl2br(text) do
+    text
+    |> String.split("\n")
+    |> Enum.map(&html_escape/1)
+    |> Enum.map(&safe_to_string/1)
+    |> Enum.join("<br/>")
+    |> raw()
+  end
+
   defp datetime_string(time) do
     :io_lib.format("~2..0B:~2..0B:~2..0B, ~s ~B, ~B", [
       time.hour,

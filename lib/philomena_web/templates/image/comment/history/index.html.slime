@@ -22,13 +22,13 @@ h1
         = for edit <- version.difference do
           = case edit do
             - {:eq, value} ->
-              = text_to_html(value)
+              = escape_nl2br(value)
 
             - {:ins, value} ->
-              ins.differ = text_to_html(value)
+              ins.differ = escape_nl2br(value)
 
             - {:del, value} ->
-              del.differ = text_to_html(value)
+              del.differ = escape_nl2br(value)
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
@@ -41,6 +41,6 @@ h1
 
       .flex__right
         ' Edited
-        = pretty_time(version.created_at)
+        => pretty_time(version.created_at)
         ' by
-        = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @version, conn: @conn
+        => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: version, conn: @conn
