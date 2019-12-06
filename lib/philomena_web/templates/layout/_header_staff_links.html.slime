@@ -5,36 +5,47 @@
       =<> "A"
       i.fa.fa-caret-down
     .dropdown__content.js-burger-links
-      = link to: "/admin/flipper", class: "header__link" do
-        i.fa.fa-fw.fa-toggle-on
-        =< "Site Settings"
-      = link to: "/admin/site_notices", class: "header__link" do
-        i.fa.fa-fw.fa-info-circle
-        =< "Site Notices"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-tags
-        =< "Tags"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-users
-        =< "Users"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-comments
-        =< "Comments"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-paragraph
-        =< "Forums"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-shopping-bag
-        =< "Advertisements"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-trophy
-        =< "Badges"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-sticky-note
-        =< "Pages"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-sticky-note
-        =< "Mod Notes"
+      / todo: make some sort of permission for this
+      = if @current_user.role == "admin" do
+        = link to: "/admin/flipper", class: "header__link" do
+          i.fa.fa-fw.fa-toggle-on
+          =< "Site Settings"
+      = if can?(@conn, :manage, SiteNotice) do
+        = link to: "/admin/site_notices", class: "header__link" do
+          i.fa.fa-fw.fa-info-circle
+          =< "Site Notices"
+      = if can?(@conn, :manage, Tag) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-tags
+          =< "Tags"
+      = if can?(@conn, :mod_read, User) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-users
+          =< "Users"
+      = if can?(@conn, :mod_read, Comment) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-comments
+          =< "Comments"
+      = if can?(@conn, :mod_read, Forum) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-paragraph
+          =< "Forums"
+      = if can?(@conn, :manage, Advert) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-shopping-bag
+          =< "Advertisements"
+      = if can?(@conn, :award, Badge) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-trophy
+          =< "Badges"
+      = if can?(@conn, :manage, StaticPages) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-sticky-note
+          =< "Pages"
+      = if can?(@conn, :manage, ModNote) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-sticky-note
+          =< "Mod Notes"
   = if @duplicate_report_count do
     = link to: "#", class: "header__link", title: "Duplicates" do
       =<> "D"
@@ -60,12 +71,15 @@
       =<> "B"
       i.fa.fa-caret-down
     .dropdown__content.dropdown__content-right.js-burger-links
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-user
-        =< "User Bans"
-      = link to: "#", class: "header__link" do
-        i.fab.fa-fw.fa-internet-explorer
-        =< "IP Bans"
-      = link to: "#", class: "header__link" do
-        i.fa.fa-fw.fa-desktop
-        =< "FP Bans"
+      = if can?(@conn, :mod_read, UserBan) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-user
+          =< "User Bans"
+      = if can?(@conn, :mod_read, SubnetBan) do
+        = link to: "#", class: "header__link" do
+          i.fab.fa-fw.fa-internet-explorer
+          =< "IP Bans"
+      = if can?(@conn, :mod_read, FingerprintBan) do
+        = link to: "#", class: "header__link" do
+          i.fa.fa-fw.fa-desktop
+          =< "FP Bans"
