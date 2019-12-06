@@ -18,7 +18,7 @@ h2 Search Results
     - route = fn p -> Routes.tag_path(@conn, :index, p) end
     - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: route
 
-    = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags
+    = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags, conn: @conn
 
     .block
       .block__header.block__header--light.flex

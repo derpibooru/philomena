@@ -45,6 +45,14 @@ defmodule Philomena.Filters.Filter do
     |> unsafe_validate_unique([:user_id, :name], Repo)
   end
 
+  def hidden_tags_changeset(filter, hidden_tag_ids) do
+    change(filter, hidden_tag_ids: hidden_tag_ids)
+  end
+
+  def spoilered_tags_changeset(filter, spoilered_tag_ids) do
+    change(filter, spoilered_tag_ids: spoilered_tag_ids)
+  end
+
   defp validate_my_downvotes(changeset, field) do
     value = get_field(changeset, field) || ""
 

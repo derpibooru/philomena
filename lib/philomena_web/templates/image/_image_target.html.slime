@@ -5,7 +5,8 @@
     p
       = img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/tagblocked.svg"), width: 250, height: 250, data: [click_unfilter: @image.id])
     span.filter-explanation
-      =< link("your current filter", to: "#", class: "filter-link")
+    =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
+    ' .
 
   #image_target.hidden.image-show data-scaled="true" data-uris=Jason.encode!(thumb_urls(@image, false)) data-width=@image.image_width data-height=@image.image_height
     = if @image.image_mime_type == "video/webm" do

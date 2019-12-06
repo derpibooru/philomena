@@ -49,7 +49,7 @@
         .block__content.alternating-color.break-word
           .center
             = if link.tag do
-              .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag
+              .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
             = link(link.uri, to: link.uri)
 
     .block

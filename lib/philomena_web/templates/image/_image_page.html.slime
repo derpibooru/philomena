@@ -1,6 +1,6 @@
 .center--layout--flex
   = if @image.thumbnails_generated do
-    = render PhilomenaWeb.ImageView, "_image_target.html", image: @image
+    = render PhilomenaWeb.ImageView, "_image_target.html", image: @image, conn: @conn
   - else
     #thumbnails-not-yet-generated.block.block--fixed.block--warning.layout--narrow
       h3 Just a moment

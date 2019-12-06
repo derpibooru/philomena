@@ -193,6 +193,10 @@ defmodule Philomena.Users.User do
     |> validate_format(:personal_title, ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu)
   end
 
+  def watched_tags_changeset(user, watched_tag_ids) do
+    change(user, watched_tag_ids: watched_tag_ids)
+  end
+
   def create_totp_secret_changeset(user) do
     secret = :crypto.strong_rand_bytes(15) |> Base.encode32()
     data = Philomena.Users.Encryptor.encrypt_model(secret)

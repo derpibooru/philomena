@@ -15,14 +15,14 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
     span.tag__state.hidden title="Hidden"
       | H
   span.dropdown__content
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href="/tags/#{@tag.slug}/watch" Unwatch
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href="/tags/#{@tag.slug}/watch" Watch
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=Routes.tag_watch_path(@conn, :delete, @tag) Unwatch
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href=Routes.tag_watch_path(@conn, :create, @tag) Watch
 
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unspoiler" href="/filters/spoiler?tagname=#{@tag.slug}" Unspoiler
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="spoiler" href="/filters/spoiler?tagname=#{@tag.slug}" Spoiler
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unspoiler" href=Routes.filter_spoiler_path(@conn, :delete, tag: @tag) Unspoiler
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="spoiler" href=Routes.filter_spoiler_path(@conn, :create, tag: @tag) Spoiler
 
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unhide" href="/filters/hide?tagname=#{@tag.slug}" Unhide
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="hide" href="/filters/hide?tagname=#{@tag.slug}" Hide
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unhide" href=Routes.filter_hide_path(@conn, :delete, tag: @tag) Unhide
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="hide" href=Routes.filter_hide_path(@conn, :create, tag: @tag) Hide
 
     a.tag__dropdown__link.hidden href="/users/sign_in" Sign in to Watch
     a.tag__dropdown__link.hidden href="/filters" Filter

@@ -31,7 +31,6 @@ h1
     p.filter-maintainer
       ' This filter is maintained by
       = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter, conn: @conn
-      ' .
 
   p.filter-description
     = @filter.description
@@ -40,7 +39,7 @@ h1
     h5 This filter spoilers...
 
     = for tag <- @spoilered_tags do
-      = render PhilomenaWeb.TagView, "_tag.html", tag: tag
+      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     pre.spoiler-filter-code
       = @filter.spoilered_complex_str
 
@@ -52,7 +51,7 @@ h1
     h5 This filter hides...
 
     = for tag <- @hidden_tags do
-      = render PhilomenaWeb.TagView, "_tag.html", tag: tag
+      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     pre.spoiler-filter-code
       = @filter.hidden_complex_str
 

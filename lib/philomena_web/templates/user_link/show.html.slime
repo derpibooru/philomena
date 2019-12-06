@@ -52,7 +52,7 @@ h3 Visibility
 h3 Associated tag
 = if @user_link.tag do
   p
-    = render PhilomenaWeb.TagView, "_tag.html", tag: @user_link.tag
+    = render PhilomenaWeb.TagView, "_tag.html", tag: @user_link.tag, conn: @conn
 - else
   p There is no tag associated with this link.
 

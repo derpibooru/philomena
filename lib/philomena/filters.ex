@@ -142,4 +142,36 @@ defmodule Philomena.Filters do
       end
     )
   end
+
+  def hide_tag(filter, tag) do
+    hidden_tag_ids = Enum.uniq([tag.id | filter.hidden_tag_ids])
+
+    filter
+    |> Filter.hidden_tags_changeset(hidden_tag_ids)
+    |> Repo.update()
+  end
+
+  def unhide_tag(filter, tag) do
+    hidden_tag_ids = filter.hidden_tag_ids -- [tag.id]
+
+    filter
+    |> Filter.hidden_tags_changeset(hidden_tag_ids)
+    |> Repo.update()
+  end
+
+  def spoiler_tag(filter, tag) do
+    spoilered_tag_ids = Enum.uniq([tag.id | filter.spoilered_tag_ids])
+
+    filter
+    |> Filter.spoilered_tags_changeset(spoilered_tag_ids)
+    |> Repo.update()
+  end
+
+  def unspoiler_tag(filter, tag) do
+    spoilered_tag_ids = filter.spoilered_tag_ids -- [tag.id]
+
+    filter
+    |> Filter.spoilered_tags_changeset(spoilered_tag_ids)
+    |> Repo.update()
+  end
 end

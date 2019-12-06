@@ -11,6 +11,7 @@
       ' This is a friendly name for this filter - it should be short and descriptive.
     .field
       = textarea f, :description, class: "input input--wide", placeholder: "Description"
+      = error_tag f, :description
     .fieldlabel
       ' Here you can describe your filter in a bit more detail.
 
@@ -19,6 +20,7 @@
       = label f, :spoilered_tag_list, "Spoilered Tags"
       br
       = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :spoilered_tag_list, type: "edit"
+      = error_tag f, :spoilered_tag_list
     .fieldlabel
       ' These tags will spoiler the images they're associated with.
     .field
@@ -43,6 +45,7 @@
       = label f, :hidden_tag_list, "Hidden Tags"
       br
       = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :hidden_tag_list, type: "edit"
+      = error_tag f, :hidden_tag_list
     .fieldlabel
       ' These tags will hide images entirely from the site; if you go directly to an image, it will spoiler it.
     .field

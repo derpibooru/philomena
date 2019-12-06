@@ -95,6 +95,22 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def watch_tag(%User{} = user, tag) do
+    watched_tag_ids = Enum.uniq([tag.id | user.watched_tag_ids])
+
+    user
+    |> User.watched_tags_changeset(watched_tag_ids)
+    |> Repo.update()
+  end
+
+  def unwatch_tag(%User{} = user, tag) do
+    watched_tag_ids = user.watched_tag_ids -- [tag.id]
+
+    user
+    |> User.watched_tags_changeset(watched_tag_ids)
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

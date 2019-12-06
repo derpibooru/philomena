@@ -66,7 +66,7 @@ h1 Reverse Search
               => round(match.image_size / 1024)
               ' KiB
 
-            = render PhilomenaWeb.TagView, "_tag_list.html", tags: Tag.display_order(match.tags)
+            = render PhilomenaWeb.TagView, "_tag_list.html", tags: Tag.display_order(match.tags), conn: @conn
 
   - true ->
     h2 Results

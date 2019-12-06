@@ -124,6 +124,12 @@ defmodule PhilomenaWeb.Router do
 
     scope "/filters", Filter, as: :filter do
       resources "/spoiler_type", SpoilerTypeController, only: [:update], singleton: true
+      resources "/hide", HideController, only: [:create, :delete], singleton: true
+      resources "/spoiler", SpoilerController, only: [:create, :delete], singleton: true
+    end
+
+    resources "/tags", TagController, only: [] do
+      resources "/watch", Tag.WatchController, only: [:create, :delete], singleton: true
     end
 
     resources "/reports", ReportController, only: [:index]
