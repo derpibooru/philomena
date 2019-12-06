@@ -5,7 +5,7 @@ p
 
 == @static_page.body
 
-/= link_to 'Revision history', static_page_versions_path(@static_page)
+= link "Revision history", to: Routes.page_history_path(@conn, :index, @static_page)
 
 /- if can? :manage, StaticPage
   br

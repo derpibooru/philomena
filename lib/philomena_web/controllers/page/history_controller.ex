@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Page.HistoryController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_resource, model: StaticPage, id_name: "page_id", nid_field: "slug", persisted: true
+  plug :load_resource, model: StaticPage, id_name: "page_id", id_field: "slug", persisted: true
 
   def index(conn, _params) do
     page = conn.assigns.static_page
