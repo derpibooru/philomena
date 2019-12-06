@@ -6,12 +6,12 @@ defmodule PhilomenaWeb.Page.HistoryController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_resource, model: StaticPage, id_field: "slug", persisted: true
+  plug :load_resource, model: StaticPage, id_name: "page_id", nid_field: "slug", persisted: true
 
   def index(conn, _params) do
     page = conn.assigns.static_page
 
-    versions =
+    {versions, _last_body} =
       Version
       |> where(static_page_id: ^page.id)
       |> preload(:user)
@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Page.HistoryController do
     Enum.map_reduce(pages, current_body, fn page, previous_body ->
       difference = List.myers_difference(split(previous_body), split(page.body))
 
-      %{page | difference: difference}
+      {%{page | difference: difference}, page.body}
     end)
   end
 

@@ -214,7 +214,9 @@ defmodule PhilomenaWeb.Router do
       resources "/reports", Gallery.ReportController, only: [:new, :create]
     end
     resources "/adverts", AdvertController, only: [:show]
-    resources "/pages", PageController, only: [:show]
+    resources "/pages", PageController, only: [:show] do
+      resources "/history", Page.HistoryController, only: [:index]
+    end
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
     resources "/stats", StatController, only: [:index]
