@@ -61,8 +61,12 @@ defmodule Philomena.Versions do
 
   """
   def create_version(item_type, item_id, whodunnit, attrs \\ %{}) do
-    %Version{item_type: item_type, item_id: item_id, whodunnit: whodunnit}
+    %Version{item_type: item_type, item_id: item_id, event: "update", whodunnit: whodunnit(whodunnit)}
     |> Version.changeset(attrs, item_id)
     |> Repo.insert()
   end
+
+  # revolver ocelot
+  defp whodunnit(user_id) when is_integer(user_id), do: to_string(user_id)
+  defp whodunnit(nil), do: nil
 end

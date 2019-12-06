@@ -6,14 +6,16 @@ div
     i.fa.fa-flag>
     ' Report
 
-  /- if comment.edited_at && can?(:read, comment)
-  /  br
-  /  a href=image_comment_history_path(comment.image, comment)
-  /    | Edited
-  /    =<> friendly_time(comment.edited_at)
-  /    - if comment.edit_reason.present?
-  /      | because:
-  /      =<> comment.edit_reason
+  = if not is_nil(@comment.edited_at) and can?(@conn, :read, @comment) do
+    br
+    a href=Routes.image_comment_history_path(@conn, :index, @comment.image, @comment)
+      ' Edited
+      => pretty_time(@comment.edited_at)
+
+      = if @comment.edit_reason not in [nil, ""] do
+        ' because:
+        => @comment.edit_reason
+
 div
   - link_path = Routes.image_path(@conn, :show, @comment.image) <> "#comment_#{@comment.id}"
   - safe_author = PhilomenaWeb.PostView.textile_safe_author(@comment)
@@ -30,7 +32,10 @@ div
   a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=safe_author
     i.fa.fa-reply>
     ' Reply
-  /span.owner-options.hidden
-  /  strong =<> link_to edit_image_comment_path(comment.image, comment), class: 'communication__interaction' do
-  /    i.fas.fa-edit
-  /    ' Edit
+
+  = if can?(@conn, :edit, @comment) do
+    span.owner-options
+      strong
+        a.communication__interaction href=Routes.image_comment_path(@conn, :edit, @comment.image, @comment)
+          i.fa.fa-pencil>
+          ' Edit

@@ -23,6 +23,7 @@ defmodule Philomena.Comments.Comment do
     field :anonymous, :boolean, default: false
     field :hidden_from_users, :boolean, default: false
     field :edit_reason, :string
+    field :edited_at, :utc_datetime
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
     field :name_at_post_time, :string
@@ -40,9 +41,10 @@ defmodule Philomena.Comments.Comment do
     |> put_name_at_post_time(attribution[:user])
   end
 
-  def changeset(comment, attrs) do
+  def changeset(comment, attrs, edited_at \\ nil) do
     comment
     |> cast(attrs, [:body, :edit_reason])
+    |> put_change(:edited_at, edited_at)
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)

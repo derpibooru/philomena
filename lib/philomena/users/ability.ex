@@ -85,6 +85,14 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Comment on images where that is allowed
   def can?(_user, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}), do: true
 
+  # Edit comments on images
+  def can?(%User{id: id}, :edit, %Comment{hidden_from_users: false, user_id: id} = comment) do
+    # comment must have been made no later than 15 minutes ago
+    time_ago = DateTime.utc_now() |> DateTime.add(-15 * 60)
+
+    DateTime.diff(comment.created_at, time_ago) > 0
+  end
+
   # Edit metadata on images where that is allowed
   def can?(_user, :edit_metadata, %Image{hidden_from_users: false, tag_editing_allowed: true}), do: true
   def can?(%User{id: id}, :edit_description, %Image{user_id: id, hidden_from_users: false, description_editing_allowed: true}), do: true
@@ -100,6 +108,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Forum{access_level: "normal"}), do: true
   def can?(_user, :show, %Topic{hidden_from_users: false}), do: true
   def can?(_user, :show, %Post{hidden_from_users: false}), do: true
+
+  # Edit posts
+  def can?(%User{id: id}, :edit, %Post{hidden_from_users: false, user_id: id}), do: true
 
   # View profile pages
   def can?(_user, :show, %User{}), do: true

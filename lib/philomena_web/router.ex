@@ -100,6 +100,7 @@ defmodule PhilomenaWeb.Router do
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
       resources "/subscription", Image.SubscriptionController, only: [:create, :delete], singleton: true
       resources "/read", Image.ReadController, only: [:create], singleton: true
+      resources "/comments", Image.CommentController, only: [:edit, :update]
     end
 
     resources "/forums", ForumController, only: [] do

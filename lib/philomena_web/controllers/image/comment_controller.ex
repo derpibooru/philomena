@@ -12,8 +12,8 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   # Undo the previous private parameter screwery
-  plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :update
-  plug :load_and_authorize_resource, model: Comment, only: [:show], preload: [:image, user: [awards: :badge]]
+  plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
+  plug :load_and_authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
@@ -92,11 +92,13 @@ defmodule PhilomenaWeb.Image.CommentController do
   end
 
   def update(conn, %{"comment" => comment_params}) do
-    case Comments.update_comment(conn.assigns.comment, comment_params) do
-      {:ok, _comment} ->
+    case Comments.update_comment(conn.assigns.comment, conn.assigns.current_user, comment_params) do
+      {:ok, %{comment: comment}} ->
+        Comments.reindex_comment(comment)
+
         conn
         |> put_flash(:info, "Comment updated successfully.")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{conn.assigns.comment.id}")
+        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{comment.id}")
 
       _error ->
         conn

@@ -11,6 +11,7 @@ defmodule Philomena.Comments do
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Notifications
+  alias Philomena.Versions
 
   @doc """
   Gets a single comment.
@@ -98,10 +99,23 @@ defmodule Philomena.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_comment(%Comment{} = comment, attrs) do
-    comment
-    |> Comment.changeset(attrs)
-    |> Repo.update()
+  def update_comment(%Comment{} = comment, editor, attrs) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    current_body = comment.body
+    current_reason = comment.edit_reason
+
+    comment_changes =
+      Comment.changeset(comment, attrs, now)
+
+    Multi.new
+    |> Multi.update(:comment, comment_changes)
+    |> Multi.run(:version, fn _repo, _changes ->
+      Versions.create_version("Comment", comment.id, editor.id, %{
+        "body" => current_body,
+        "edit_reason" => current_reason
+      })
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
