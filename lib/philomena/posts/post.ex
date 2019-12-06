@@ -24,7 +24,7 @@ defmodule Philomena.Posts.Post do
     field :topic_position, :integer
     field :hidden_from_users, :boolean, default: false
     field :anonymous, :boolean, default: false
-    field :edited_at, :naive_datetime
+    field :edited_at, :utc_datetime
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
     field :name_at_post_time, :string
@@ -33,10 +33,13 @@ defmodule Philomena.Posts.Post do
   end
 
   @doc false
-  def changeset(post, attrs) do
+  def changeset(post, attrs, edited_at \\ nil) do
     post
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:body, :edit_reason])
+    |> put_change(:edited_at, edited_at)
+    |> validate_required([:body])
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> validate_length(:edit_reason, max: 70, count: :bytes)
   end
 
   @doc false

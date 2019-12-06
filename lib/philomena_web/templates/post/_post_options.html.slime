@@ -6,14 +6,16 @@ div
     i.fa.fa-flag>
     ' Report
 
-  /- if post.edited_at && can?(:read, post)
-  /  br
-  /  a href=forum_topic_post_history_path(post.topic.forum, post.topic, post)
-  /    | Edited
-  /    =<> friendly_time(post.edited_at)
-  /    - if post.edit_reason.present?
-  /      | because:
-  /      =<> post.edit_reason
+  = if not is_nil(@post.edited_at) and can?(@conn, :read, @post) do
+    br
+    a href=Routes.forum_topic_post_history_path(@conn, :index, @post.topic.forum, @post.topic, @post)
+      ' Edited
+      => pretty_time(@post.edited_at)
+
+      = if @post.edit_reason not in [nil, ""] do
+        ' because:
+        => @post.edit_reason
+
 div
   - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "#post_#{@post.id}"
   - safe_author = textile_safe_author(@post)
@@ -30,7 +32,10 @@ div
   a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=safe_author
     i.fa.fa-reply>
     ' Reply
-  /span.owner-options.hidden
-  /  strong =<> link_to edit_forum_topic_post_path(post.topic.forum, post.topic, post), class: 'communication__interaction' do
-  /    i.fas.fa-edit
-  /    ' Edit
+  
+  = if can?(@conn, :edit, @post) do
+    span.owner-options
+      strong
+        a.communication__interaction href=Routes.forum_topic_post_path(@conn, :edit, @post.topic.forum, @post.topic, @post)
+          i.fa.fa-pencil>
+          ' Edit

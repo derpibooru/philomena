@@ -7,39 +7,39 @@ h1
 
 = for version <- @versions do
   article.block.communication
-  .block__content.flex.flex--no-wrap
-    .flex__fixed.spacing-right
-      = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
+    .block__content.flex.flex--no-wrap
+      .flex__fixed.spacing-right
+        = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
 
-    .flex__grow.communication__body
-      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, awards: true, conn: @conn
-      br
+      .flex__grow.communication__body
+        span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, awards: true, conn: @conn
+        br
 
-      = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @post, conn: @conn
+        = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @post, conn: @conn
 
-      .communication__body__text
-        = for edit <- version.difference do
-          = case edit do
-            - {:eq, value} ->
-              = escape_nl2br(value)
+        .communication__body__text
+          = for edit <- version.difference do
+            = case edit do
+              - {:eq, value} ->
+                = escape_nl2br(value)
 
-            - {:ins, value} ->
-              ins.differ = escape_nl2br(value)
+              - {:ins, value} ->
+                ins.differ = escape_nl2br(value)
 
-            - {:del, value} ->
-              del.differ = escape_nl2br(value)
+              - {:del, value} ->
+                del.differ = escape_nl2br(value)
 
-  .block__content.communication__options
-    .flex.flex--wrap.flex--spaced-out
-      div
-        = if version.edit_reason not in [nil, ""] do
-          ' Reason:
-          = version.edit_reason
-        - else
-          ' No reason given
+    .block__content.communication__options
+      .flex.flex--wrap.flex--spaced-out
+        div
+          = if version.edit_reason not in [nil, ""] do
+            ' Reason:
+            = version.edit_reason
+          - else
+            ' No reason given
 
-      .flex__right
-        ' Edited
-        => pretty_time(version.created_at)
-        ' by
-        => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: version, conn: @conn
+        .flex__right
+          ' Edited
+          => pretty_time(version.created_at)
+          ' by
+          => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: version, conn: @conn

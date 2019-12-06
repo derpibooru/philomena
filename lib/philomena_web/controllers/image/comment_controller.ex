@@ -100,10 +100,8 @@ defmodule PhilomenaWeb.Image.CommentController do
         |> put_flash(:info, "Comment updated successfully.")
         |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{comment.id}")
 
-      _error ->
-        conn
-        |> put_flash(:error, "There was an error editing your comment")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+      {:error, :comment, changeset, _changes} ->
+        render(conn, "edit.html", comment: conn.assigns.comment, changeset: changeset)
     end
   end
 end

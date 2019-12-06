@@ -12,6 +12,7 @@ defmodule Philomena.Posts do
   alias Philomena.Posts.Post
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
+  alias Philomena.Versions
 
   @doc """
   Gets a single post.
@@ -122,10 +123,23 @@ defmodule Philomena.Posts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_post(%Post{} = post, attrs) do
-    post
-    |> Post.changeset(attrs)
-    |> Repo.update()
+  def update_post(%Post{} = post, editor, attrs) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    current_body = post.body
+    current_reason = post.edit_reason
+
+    post_changes =
+      Post.changeset(post, attrs, now)
+
+    Multi.new
+    |> Multi.update(:post, post_changes)
+    |> Multi.run(:version, fn _repo, _changes ->
+      Versions.create_version("Post", post.id, editor.id, %{
+        "body" => current_body,
+        "edit_reason" => current_reason
+      })
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """

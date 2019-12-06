@@ -107,6 +107,7 @@ defmodule PhilomenaWeb.Router do
       resources "/topics", TopicController, only: [:new, :create] do
         resources "/subscription", Topic.SubscriptionController, only: [:create, :delete], singleton: true
         resources "/read", Topic.ReadController, only: [:create], singleton: true
+        resources "/posts", Topic.PostController, only: [:edit, :update]
       end
 
       resources "/subscription", Forum.SubscriptionController, only: [:create, :delete], singleton: true
