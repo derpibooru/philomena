@@ -179,6 +179,7 @@ defmodule PhilomenaWeb.Router do
       resources "/topics", TopicController, only: [:show] do
         resources "/posts", Topic.PostController, only: [:create] do
           resources "/reports", Topic.Post.ReportController, only: [:new, :create]
+          resources "/history", Topic.Post.HistoryController, only: [:index]
         end
       end
     end

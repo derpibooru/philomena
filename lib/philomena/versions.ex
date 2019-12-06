@@ -60,9 +60,9 @@ defmodule Philomena.Versions do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_version(attrs \\ %{}) do
-    %Version{}
-    |> Version.changeset(attrs)
+  def create_version(item_type, item_id, whodunnit, attrs \\ %{}) do
+    %Version{item_type: item_type, item_id: item_id, whodunnit: whodunnit}
+    |> Version.changeset(attrs, item_id)
     |> Repo.insert()
   end
 end
