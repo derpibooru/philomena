@@ -90,7 +90,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
     # comment must have been made no later than 15 minutes ago
     time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-15 * 60)
 
-    DateTime.diff(comment.created_at, time_ago) > 0
+    NaiveDateTime.diff(comment.created_at, time_ago) > 0
   end
 
   # Edit metadata on images where that is allowed
