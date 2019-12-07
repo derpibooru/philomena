@@ -153,7 +153,7 @@ defmodule PhilomenaWeb.ProfileController do
   defp commission_info(_commission, _conn), do: ""
 
   defp tags([]), do: []
-  defp tags(links), do: Enum.map(& &1.tag) |> Enum.reject(&is_nil/1)
+  defp tags(links), do: Enum.map(links, & &1.tag) |> Enum.reject(&is_nil/1)
 
   defp recent_artwork(_conn, []), do: []
   defp recent_artwork(conn, tags) do
