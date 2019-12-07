@@ -1,6 +1,6 @@
 = cond do
   - Enum.any?(@images) ->
-    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, route: fn p -> Routes.search_path(@conn, :index, p) end, scope: scope(@conn)
+    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Searching for #{@conn.params["q"]}", route: fn p -> Routes.search_path(@conn, :index, p) end, scope: scope(@conn)
   - assigns[:error] ->
     p
       ' Oops, there was an error evaluating your query:
