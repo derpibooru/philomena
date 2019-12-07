@@ -37,7 +37,7 @@ fi
 # Generate release name to always be the current timestamp so that
 # it will be considered an upgrade
 export PHILOMENA_VERSION="0.1.$(date +%s)"
-
+touch mix.exs
 mix distillery.release --upgrade || die "failed to generate release"
 
 _build/prod/rel/philomena/bin/philomena upgrade $PHILOMENA_VERSION || die "failed to upgrade app; log in to the server and restart the app manually"
