@@ -61,7 +61,8 @@ defmodule Philomena.MixProject do
       {:remote_ip, "~> 0.2.0"},
       {:briefly, "~> 0.3.0"},
       {:phoenix_mtm, "~> 1.0.0"},
-      {:yaml_elixir, "~> 2.4.0"}
+      {:yaml_elixir, "~> 2.4.0"},
+      {:distillery, "~> 2.1"}
     ]
   end
 
