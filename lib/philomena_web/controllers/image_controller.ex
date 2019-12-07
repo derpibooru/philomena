@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_image
+  plug :load_image when action in [:show]
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
