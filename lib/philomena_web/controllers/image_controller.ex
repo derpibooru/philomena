@@ -139,10 +139,13 @@ defmodule PhilomenaWeb.ImageController do
   defp load_image(conn, _opts) do
     id = conn.params["id"]
 
-    image =
+    {image, tag_changes, source_changes} =
       Image
       |> where(id: ^id)
+      |> join(:inner_lateral, [i], _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id))
+      |> join(:inner_lateral, [i, _], _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id))
       |> preload([:tags, :deleter, user: [awards: :badge]])
+      |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
 
     cond do
@@ -158,7 +161,10 @@ defmodule PhilomenaWeb.ImageController do
         render(conn, "deleted.html", image: image)
 
       true ->
-        assign(conn, :image, image)
+        conn
+        |> assign(:image, image)
+        |> assign(:tag_change_count, tag_changes)
+        |> assign(:source_change_count, source_changes)
     end
   end
 end

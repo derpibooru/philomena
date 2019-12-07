@@ -1,11 +1,13 @@
 defmodule PhilomenaWeb.Image.TagController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.TagChanges.TagChange
   alias Philomena.UserStatistics
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Tags
   alias Philomena.Repo
+  import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
@@ -23,6 +25,11 @@ defmodule PhilomenaWeb.Image.TagController do
         Tags.reindex_tags(added_tags ++ removed_tags)
         UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
 
+        tag_change_count =
+          TagChange
+          |> where(image_id: ^image.id)
+          |> Repo.aggregate(:count, :id)
+
         image =
           image
           |> Repo.preload(:tags, force: true)
@@ -32,12 +39,12 @@ defmodule PhilomenaWeb.Image.TagController do
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", layout: false, image: image, changeset: changeset)
+        |> render("_tags.html", layout: false, tag_change_count: tag_change_count, image: image, changeset: changeset)
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", layout: false, image: image, changeset: changeset)
+        |> render("_tags.html", layout: false, tag_change_count: 0, image: image, changeset: changeset)
     end
   end
 end

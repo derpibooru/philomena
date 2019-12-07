@@ -1,9 +1,12 @@
 defmodule PhilomenaWeb.Image.SourceController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.SourceChanges.SourceChange
   alias Philomena.UserStatistics
   alias Philomena.Images.Image
   alias Philomena.Images
+  alias Philomena.Repo
+  import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
@@ -20,16 +23,21 @@ defmodule PhilomenaWeb.Image.SourceController do
         changeset =
           Images.change_image(image)
 
+        source_change_count =
+          SourceChange
+          |> where(image_id: ^image.id)
+          |> Repo.aggregate(:count, :id)
+
         UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", layout: false, image: image, changeset: changeset)
+        |> render("_source.html", layout: false, source_change_count: source_change_count, image: image, changeset: changeset)
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", layout: false, image: image, changeset: changeset)
+        |> render("_source.html", layout: false, source_change_count: 0, image: image, changeset: changeset)
     end
   end
 end
