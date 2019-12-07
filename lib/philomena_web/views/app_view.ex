@@ -126,4 +126,13 @@ defmodule PhilomenaWeb.AppView do
   def link_to_fingerprint(fp) do
     link(String.slice(text_or_na(fp), 0..6), to: "#")
   end
+
+  def blank?(nil), do: true
+  def blank?(""), do: true
+  def blank?([]), do: true
+  def blank?(map) when is_map(map), do: map == %{}
+  def blank?(str) when is_binary(str), do: String.trim(str) == ""
+  def blank?(_object), do: false
+
+  def present?(object), do: not blank?(object)
 end

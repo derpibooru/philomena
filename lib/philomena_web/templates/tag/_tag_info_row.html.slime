@@ -25,45 +25,46 @@
       = Enum.map_join(@tag.implied_tags, ", ", & &1.name)
       br
 
-    br
-    = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
+    = if present?(@tag.public_links) or present?(@tag.implied_by_tags) or present?(@tag.description) do
+      br
+      = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
 
-    .tag-info__more
-      hr
+      .tag-info__more
+        hr
 
-      = if Enum.any?(@tag.public_links) do
-        strong> Associated links:
+        = if Enum.any?(@tag.public_links) do
+          strong> Associated links:
 
-        = for link <- @tag.public_links do
-          a> href=link.uri = link.uri
+          = for link <- @tag.public_links do
+            a> href=link.uri = link.uri
 
-        br
+          br
 
-      = if Enum.any?(@tag.public_links) do
-        strong> Associated users:
-        - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq()
+        = if Enum.any?(@tag.public_links) do
+          strong> Associated users:
+          - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq()
 
-        = for user <- users do
-          => link user.name, to: Routes.profile_path(@conn, :show, user)
+          = for user <- users do
+            => link user.name, to: Routes.profile_path(@conn, :show, user)
 
-        br
+          br
 
-      = if Enum.any?(@tag.implied_by_tags) do
-        input.toggle-box id="implied_by" type="checkbox" checked="false"
-        label for="implied_by"
-          ' Implied by (warning: unfiltered)
+        = if Enum.any?(@tag.implied_by_tags) do
+          input.toggle-box id="implied_by" type="checkbox" checked="false"
+          label for="implied_by"
+            ' Implied by (warning: unfiltered)
 
-        .toggle-box-container
-          .toggle-box-container__content
-            = for tag <- @tag.implied_by_tags do
-              => link tag.name, to: Routes.tag_path(@conn, :show, tag)
+          .toggle-box-container
+            .toggle-box-container__content
+              = for tag <- @tag.implied_by_tags do
+                => link tag.name, to: Routes.tag_path(@conn, :show, tag)
 
-        br
+          br
 
-      = if @tag.description not in [nil, ""] do
-        strong> Detailed description:
-        br
-        == @body
+        = if @tag.description not in [nil, ""] do
+          strong> Detailed description:
+          br
+          == @body
 
     = if Enum.any?(@dnp_entries) do
       hr

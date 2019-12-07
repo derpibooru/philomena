@@ -123,13 +123,6 @@ defmodule PhilomenaWeb.DuplicateReportView do
     |> Enum.any?()
   end
 
-  defp blank?(nil), do: true
-  defp blank?(""), do: true
-  defp blank?(str) when is_binary(str), do: String.trim(str) == ""
-  defp blank?(_object), do: false
-
-  defp present?(object), do: not blank?(object)
-
   defp proper_subset?(set1, set2),
     do: MapSet.subset?(set1, set2) and not MapSet.equal?(set1, set2)
 end
