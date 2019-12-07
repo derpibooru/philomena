@@ -25,7 +25,9 @@ h1 My Conversations
               => link c.title, to: Routes.conversation_path(@conn, :show, c)
 
               .small-text.hide-mobile
-                ' Started
+                => count
+                = pluralize("message", "messages", count)
+                ' ; started
                 = pretty_time(c.created_at)
                 ' , last message
                 = pretty_time(c.last_message_at)

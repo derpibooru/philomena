@@ -12,6 +12,9 @@ h1 = @conversation.title
     ' Conversation with
     => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other}, conn: @conn
   .block__header--sub.block__header--light
+    span.block__header__title>
+      => @messages.total_entries
+      = pluralize("message", "messages", @messages.total_entries)
     = pagination
     = link "Remove conversation", to: Routes.conversation_hide_path(@conn, :create, @conversation), data: [method: "post", confirm: "Are you really, really sure?"]
     = link "Report conversation", to: Routes.conversation_report_path(@conn, :new, @conversation)
