@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Image, only: :show, preload: [:tags, user: [awards: :badge]]
+  plug :load_image
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
@@ -134,5 +134,31 @@ defmodule PhilomenaWeb.ImageController do
       |> Repo.all()
 
     {user_galleries, image_galleries}
+  end
+
+  defp load_image(conn, _opts) do
+    id = conn.params["id"]
+
+    image =
+      Image
+      |> where(id: ^id)
+      |> preload([:tags, :deleter, user: [awards: :badge]])
+      |> Repo.one()
+
+    cond do
+      is_nil(image) ->
+        PhilomenaWeb.NotFoundPlug.call(conn)
+
+      not is_nil(image.duplicate_id) and not Canada.Can.can?(conn, :show, image) ->
+        conn
+        |> put_flash(:info, "The image you were looking for has been marked a duplicate of the image below")
+        |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
+
+      image.hidden_from_users ->
+        render(conn, "deleted.html", image: image)
+
+      true ->
+        assign(conn, :image, image)
+    end
   end
 end

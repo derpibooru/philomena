@@ -144,6 +144,9 @@ defmodule PhilomenaWeb.ImageView do
     render PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags
   end
 
+  def deleter(%{deleter: %{name: name}}), do: name
+  def deleter(_image), do: "System"
+
   defp thumb_format("svg", _name), do: "png"
   defp thumb_format(_, :rendered), do: "png"
   defp thumb_format(format, _name), do: format
