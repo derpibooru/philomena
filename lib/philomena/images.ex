@@ -9,11 +9,11 @@ defmodule Philomena.Images do
   alias Philomena.Repo
 
   alias Philomena.Images.Image
+  alias Philomena.Images.Uploader
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.Tags.Tag
-  alias Philomena.Processors
   alias Philomena.Notifications
 
   @doc """
@@ -53,7 +53,7 @@ defmodule Philomena.Images do
       %Image{}
       |> Image.creation_changeset(attrs, attribution)
       |> Image.tag_changeset(attrs, [], tags)
-      |> Processors.after_upload(attrs)
+      |> Uploader.analyze_upload(attrs)
 
     Multi.new
     |> Multi.insert(:image, image)
@@ -74,7 +74,7 @@ defmodule Philomena.Images do
       create_subscription(image, attribution[:user])
     end)
     |> Multi.run(:after, fn _repo, %{image: image} ->
-      Processors.after_insert(image)
+      Uploader.persist_upload(image)
 
       {:ok, nil}
     end)

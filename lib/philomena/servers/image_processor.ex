@@ -32,7 +32,7 @@ defmodule Philomena.Servers.ImageProcessor do
   end
 
   defp process(image_id) do
-    Philomena.Processors.process_image(image_id)
+    Philomena.Images.Thumbnailer.generate_thumbnails(image_id)
   rescue
     _ ->
       nil

@@ -1,4 +1,5 @@
 defmodule PhilomenaWeb.ImageReverse do
+  alias Philomena.Analyzers
   alias Philomena.Processors
   alias Philomena.DuplicateReports
   alias Philomena.Repo
@@ -7,8 +8,6 @@ defmodule PhilomenaWeb.ImageReverse do
   def images(image_params) do
     image_params
     |> Map.get("image")
-    |> Map.get(:path)
-    |> mime()
     |> analyze()
     |> intensities()
     |> case do
@@ -26,22 +25,14 @@ defmodule PhilomenaWeb.ImageReverse do
     end
   end
 
-  defp mime(file) do
-    {:ok, mime} = Philomena.Mime.file(file)
-
-    {mime, file}
-  end
-
-  defp analyze({mime, file}) do
-    case Processors.analyzers(mime) do
-      nil -> :error
-      a   -> {a.analyze(file), mime, file}
-    end
+  defp analyze(%Plug.Upload{path: path}) do
+    {:ok, analysis} = Analyzers.analyze(path)
+    {analysis, path}
   end
 
   defp intensities(:error), do: :error
-  defp intensities({analysis, mime, file}) do
-    {analysis, Processors.processors(mime).intensities(analysis, file)}
+  defp intensities({analysis, path}) do
+    {analysis, Processors.intensities(analysis, path)}
   end
 
   # The distance metric is taxicab distance, not Euclidean,

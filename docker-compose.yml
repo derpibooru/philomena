@@ -23,11 +23,15 @@ services:
     image: postgres:12.1
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    logging:
+      driver: "none"
 
   elasticsearch:
     image: elasticsearch:6.8.5
     volumes:
       - elastic_data:/var/lib/elasticsearch
+    logging:
+      driver: "none"
     ulimits:
       nofile:
           soft: 65536
@@ -35,6 +39,8 @@ services:
 
   redis:
     image: redis:5.0.7
+    logging:
+      driver: "none"
 
   web:
     build:
@@ -42,6 +48,8 @@ services:
       dockerfile: ./docker/web/Dockerfile
     volumes:
       - .:/srv/philomena
+    logging:
+      driver: "none"
     depends_on:
       - app
     ports:

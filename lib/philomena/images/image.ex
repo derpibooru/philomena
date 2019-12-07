@@ -53,6 +53,7 @@ defmodule Philomena.Images.Image do
     field :image_format, :string
     field :image_mime_type, :string
     field :image_aspect_ratio, :float
+    field :image_is_animated, :boolean, source: :is_animated
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
     field :user_agent, :string, default: ""
@@ -77,7 +78,6 @@ defmodule Philomena.Images.Image do
     field :tag_editing_allowed, :boolean, default: true
     field :description_editing_allowed, :boolean, default: true
     field :commenting_allowed, :boolean, default: true
-    field :is_animated, :boolean
     field :first_seen_at, :naive_datetime
     field :destroyed_content, :boolean
     field :hidden_image_key, :string
@@ -129,13 +129,13 @@ defmodule Philomena.Images.Image do
       :image, :image_name, :image_width, :image_height, :image_size,
       :image_format, :image_mime_type, :image_aspect_ratio,
       :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
-      :is_animated
+      :image_is_animated
     ])
     |> validate_required([
       :image, :image_width, :image_height, :image_size,
       :image_format, :image_mime_type, :image_aspect_ratio,
       :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
-      :is_animated
+      :image_is_animated
     ])
     |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26214400)
     |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)
