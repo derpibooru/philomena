@@ -34,6 +34,9 @@ defmodule PhilomenaWeb.ProfileController do
         pagination: %{page_number: 1, page_size: 6}
       )
 
+    tags = tags(conn.assigns.user.public_links)
+    recent_artwork = recent_artwork(conn, tags)
+
     recent_comments =
       Comment.search_records(
         %{
@@ -102,6 +105,7 @@ defmodule PhilomenaWeb.ProfileController do
       user: user,
       interactions: interactions,
       commission_information: commission_information,
+      recent_artwork: recent_artwork,
       recent_uploads: recent_uploads,
       recent_faves: recent_faves,
       recent_comments: recent_comments,
@@ -109,6 +113,7 @@ defmodule PhilomenaWeb.ProfileController do
       recent_galleries: recent_galleries,
       statistics: statistics,
       about_me: about_me,
+      tags: tags,
       layout_class: "layout--medium"
     )
   end
@@ -146,4 +151,19 @@ defmodule PhilomenaWeb.ProfileController do
   defp commission_info(%{information: info}, conn) when info not in [nil, ""],
     do: Renderer.render_one(%{body: info}, conn)
   defp commission_info(_commission, _conn), do: ""
+
+  defp tags([]), do: []
+  defp tags(links), do: Enum.map(& &1.tag) |> Enum.reject(&is_nil/1)
+
+  defp recent_artwork(_conn, []), do: []
+  defp recent_artwork(conn, tags) do
+    {images, _tags} =
+      ImageLoader.query(
+        conn,
+        %{terms: %{tag_ids: Enum.map(tags, & &1.id)}},
+        pagination: %{page_number: 1, page_size: 6}
+      )
+
+    images
+  end
 end

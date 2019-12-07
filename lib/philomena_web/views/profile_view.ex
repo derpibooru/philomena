@@ -46,6 +46,10 @@ defmodule PhilomenaWeb.ProfileView do
     end
   end
 
+  def tag_disjunction(tags) do
+    Enum.map_join(tags, " || ", & &1.name)
+  end
+
   defp zero_div(_num, 0), do: 0
   defp zero_div(num, den), do: div(num, den)
 
