@@ -43,9 +43,9 @@ defmodule Philomena.Posts.Query do
 
   int_fields         = ~W(id)
   date_fields        = ~W(created_at updated_at)
-  literal_fields     = ~W(image_id)
+  literal_fields     = ~W(forum_id topic_id)
   ngram_fields       = ~W(body subject)
-  custom_fields      = ~W(author user_id forum_id topic_id)
+  custom_fields      = ~W(author user_id)
   default_field      = "body"
   transforms         = %{
     "user_id" => &Philomena.Posts.Query.user_id_transform/2,

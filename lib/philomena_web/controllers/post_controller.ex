@@ -22,7 +22,6 @@ defmodule PhilomenaWeb.PostController do
                 %{term: %{access_level: "normal"}},
               ],
               must_not: [
-                %{terms: %{image_tag_ids: conn.assigns.current_filter.hidden_tag_ids}},
                 %{term: %{hidden_from_users: true}}
               ]
             }

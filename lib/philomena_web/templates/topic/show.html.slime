@@ -11,9 +11,9 @@ h1 = @topic.title
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
     ' &raquo;
     => link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, @topic))
-    /a href=posts_path(forum_id: @forum.id, subject: @topic.title)
-    /  i.fa.fa-fw.fa-search>
-    /  | Search Posts
+    a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
+      i.fa.fa-fw.fa-search>
+      ' Search Posts
   .flex.flex--wrap.block__header.block__header--light
     .flex--fixed
       = pagination
