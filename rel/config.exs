@@ -50,7 +50,7 @@ end
 # will be used by default
 
 release :philomena do
-  set version: current_version(:philomena)
+  set version: System.get_env("PHILOMENA_VERSION")
   set applications: [
     :runtime_tools,
     philomena: :permanent
