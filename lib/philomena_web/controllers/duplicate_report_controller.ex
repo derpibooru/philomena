@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
   @valid_states ~W(open rejected accepted claimed)
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
   plug :load_resource, model: DuplicateReport, only: [:show], preload: [:image, :duplicate_of_image]
 
   def index(conn, params) do
@@ -29,11 +30,11 @@ defmodule PhilomenaWeb.DuplicateReportController do
   end
 
   def create(conn, %{"duplicate_report" => duplicate_report_params}) do
-    attribution = conn.assigns.attribution
+    attributes = conn.assigns.attributes
     source = Repo.get!(Image, duplicate_report_params["image_id"])
     target = Repo.get!(Image, duplicate_report_params["duplicate_of_image_id"])
 
-    case DuplicateReports.create_duplicate_report(source, target, attribution, duplicate_report_params) do
+    case DuplicateReports.create_duplicate_report(source, target, attributes, duplicate_report_params) do
       {:ok, duplicate_report} ->
         conn
         |> put_flash(:info, "Duplicate report created successfully.")
