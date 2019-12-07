@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.ReportController do
 
             conn
             |> put_flash(:info, "Your report has been received and will be checked by staff shortly.")
-            |> redirect(to: "/")
+            |> redirect(to: redirect_path(conn, conn.assigns.current_user))
 
           {:error, changeset} ->
             # Note that we are depending on the controller that called
@@ -86,4 +86,7 @@ defmodule PhilomenaWeb.ReportController do
 
     reports_open >= 5
   end
+
+  defp redirect_path(conn, nil), do: "/"
+  defp redirect_path(conn, _user), do: Routes.report_path(conn, :index)
 end

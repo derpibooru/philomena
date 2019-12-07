@@ -8,6 +8,10 @@ p
   ' Looking for two-factor authentication?
   = link "Click here!", to: Routes.registration_totp_path(@conn, :edit)
 
+p
+  ' Looking to change your avatar?
+  = link "Click here!", to: Routes.avatar_path(@conn, :edit)
+
 h3 API Key
 p
   ' Your API key is

@@ -6,6 +6,7 @@ defmodule Philomena.Uploader do
   alias Philomena.Filename
   alias Philomena.Analyzers
   alias Philomena.Sha512
+  import Ecto.Changeset
 
   @doc """
   Performs analysis of the passed Plug.Upload, and invokes a changeset
@@ -17,6 +18,11 @@ defmodule Philomena.Uploader do
     with {:ok, analysis} <- Analyzers.analyze(upload_parameter),
          analysis <- extra_attributes(analysis, upload_parameter)
     do
+      removed =
+        model_or_changeset
+        |> change()
+        |> get_field(field(field_name))
+
       attributes =
         %{
           "name"             => analysis.name,
@@ -33,6 +39,7 @@ defmodule Philomena.Uploader do
         |> prefix_attributes(field_name)
         |> Map.put(field_name, analysis.new_name)
         |> Map.put(upload_key(field_name), upload_parameter.path)
+        |> Map.put(remove_key(field_name), removed)
 
       changeset_fn.(model_or_changeset, attributes)
     else
@@ -42,13 +49,13 @@ defmodule Philomena.Uploader do
   end
 
   @doc """
-  Writes the file to permanent storage. This should be the last step in the
-  transaction.
+  Writes the file to permanent storage. This should be the second-to-last step
+  in the transaction.
   """
   @spec persist_upload(any(), String.t(), String.t()) :: any()
   def persist_upload(model, file_root, field_name) do
-    source = Map.get(model, String.to_existing_atom(upload_key(field_name)))
-    dest   = Map.get(model, String.to_existing_atom(field_name))
+    source = Map.get(model, field(upload_key(field_name)))
+    dest   = Map.get(model, field(field_name))
     target = Path.join(file_root, dest)
     dir    = Path.dirname(target)
 
@@ -56,6 +63,17 @@ defmodule Philomena.Uploader do
     # then write the file.
     File.mkdir_p!(dir)
     File.cp!(source, target)
+  end
+
+  @doc """
+  Removes the old file from permanent storage. This should be the last step in
+  the transaction.
+  """
+  @spec unpersist_old_upload(any(), String.t(), String.t()) :: any()
+  def unpersist_old_upload(model, file_root, field_name) do
+    model
+    |> Map.get(field(remove_key(field_name)))
+    |> try_remove(file_root)
   end
 
   defp extra_attributes(analysis, %Plug.Upload{path: path, filename: filename}) do
@@ -79,8 +97,16 @@ defmodule Philomena.Uploader do
   defp aspect_ratio(_, 0), do: 0.0
   defp aspect_ratio(w, h), do: w / h
 
+  defp try_remove("", _file_root), do: nil
+  defp try_remove(nil, _file_root), do: nil
+  defp try_remove(file, file_root), do: File.rm(Path.join(file_root, file))
+
   defp prefix_attributes(map, prefix),
     do: Map.new(map, fn {key, value} -> {"#{prefix}_#{key}", value} end)
 
   defp upload_key(field_name), do: "uploaded_#{field_name}"
+
+  defp remove_key(field_name), do: "removed_#{field_name}"
+
+  defp field(field_name), do: String.to_existing_atom(field_name)
 end

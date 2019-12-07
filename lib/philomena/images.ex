@@ -75,6 +75,7 @@ defmodule Philomena.Images do
     end)
     |> Multi.run(:after, fn _repo, %{image: image} ->
       Uploader.persist_upload(image)
+      Uploader.unpersist_old_upload(image)
 
       {:ok, nil}
     end)

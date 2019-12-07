@@ -4,8 +4,10 @@ defmodule Philomena.Users do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Users.Uploader
   alias Philomena.Users.User
 
   use Pow.Ecto.Context,
@@ -109,6 +111,33 @@ defmodule Philomena.Users do
     user
     |> User.watched_tags_changeset(watched_tag_ids)
     |> Repo.update()
+  end
+
+  def update_avatar(%User{} = user, attrs) do
+    changeset = Uploader.analyze_upload(user, attrs)
+
+    Multi.new
+    |> Multi.update(:user, changeset)
+    |> Multi.run(:update_file, fn _repo, %{user: user} ->
+      Uploader.persist_upload(user)
+      Uploader.unpersist_old_upload(user)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def remove_avatar(%User{} = user) do
+    changeset = User.remove_avatar_changeset(user)
+
+    Multi.new
+    |> Multi.update(:user, changeset)
+    |> Multi.run(:remove_file, fn _repo, %{user: user} ->
+      Uploader.unpersist_old_upload(user)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """

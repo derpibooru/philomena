@@ -1,0 +1,42 @@
+
+
+.profile-top
+  .profile-top__avatar
+    = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, conn: @conn
+  .profile-top__name-and-links
+    div
+      h1 Your avatar
+
+      p Add a new avatar or remove your existing one here.
+      p Avatars must be less than 1000px tall and wide, and smaller than 300 kilobytes in size. PNG, JPEG, and GIF are acceptable.
+
+      = form_for @changeset, Routes.avatar_path(@conn, :update), [method: "put", multipart: true], fn f ->
+        = if @changeset.action do
+          .alert.alert-danger
+            p Oops, something went wrong! Please check the errors below.
+
+        / todo: extract this
+        h4 Select an image
+        .image-other
+          #js-image-upload-previews
+          p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
+          .field
+            = file_input f, :avatar, class: "input js-scraper"
+            = error_tag f, :avatar_size
+            = error_tag f, :avatar_width
+            = error_tag f, :avatar_height
+            = error_tag f, :avatar_mime_type
+
+          .field.field--inline
+            = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+            button.button.button--separate-left#js-scraper-preview type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch"
+              ' Fetch
+
+          .field-error-js.hidden.js-scraper
+
+          br
+
+          => submit "Update my avatar", class: "button"
+
+      br
+      = button_to "Remove my avatar", Routes.avatar_path(@conn, :delete), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]

@@ -134,6 +134,8 @@ defmodule PhilomenaWeb.Router do
       resources "/watch", Tag.WatchController, only: [:create, :delete], singleton: true
     end
 
+    resources "/avatar", AvatarController, only: [:edit, :update, :delete], singleton: true
+
     resources "/reports", ReportController, only: [:index]
     resources "/user_links", UserLinkController, only: [:index, :new, :create, :show]
     resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete] do

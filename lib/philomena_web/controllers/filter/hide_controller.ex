@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.Filter.HideController do
   alias Philomena.Tags.Tag
   alias Philomena.Repo
 
+  plug PhilomenaWeb.FilterBannedUsersPlug
   plug :authorize_filter
   plug :load_tag
 

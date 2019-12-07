@@ -14,6 +14,10 @@ defmodule Philomena.Images.Uploader do
     Uploader.persist_upload(image, image_file_root(), "image")
   end
 
+  def unpersist_old_upload(image) do
+    Uploader.unpersist_old_upload(image, image_file_root(), "image")
+  end
+
   defp image_file_root do
     Application.get_env(:philomena, :image_file_root)
   end

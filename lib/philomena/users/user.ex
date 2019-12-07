@@ -120,6 +120,14 @@ defmodule Philomena.Users.User do
     field :secondary_role, :string
     field :hide_default_role, :boolean, default: false
 
+    # For avatar validation/persistence
+    field :avatar_width, :integer, virtual: true
+    field :avatar_height, :integer, virtual: true
+    field :avatar_size, :integer, virtual: true
+    field :avatar_mime_type, :string, virtual: true
+    field :uploaded_avatar, :string, virtual: true
+    field :removed_avatar, :string, virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 
@@ -191,6 +199,27 @@ defmodule Philomena.Users.User do
     |> validate_length(:description, max: 10_000, count: :bytes)
     |> validate_length(:personal_title, max: 24, count: :bytes)
     |> validate_format(:personal_title, ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu)
+  end
+
+  def avatar_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :avatar, :avatar_width, :avatar_height, :avatar_size, :uploaded_avatar,
+      :removed_avatar
+    ])
+    |> validate_required([
+      :avatar, :avatar_width, :avatar_height, :avatar_size, :uploaded_avatar
+    ])
+    |> validate_number(:avatar_size, greater_than: 0, less_than_or_equal_to: 300_000)
+    |> validate_number(:avatar_width, greater_than: 0, less_than_or_equal_to: 1000)
+    |> validate_number(:avatar_height, greater_than: 0, less_than_or_equal_to: 1000)
+    |> validate_inclusion(:avatar_mime_type, ~W(image/gif image/jpeg image/png))
+  end
+
+  def remove_avatar_changeset(user) do
+    user
+    |> change(removed_avatar: user.avatar)
+    |> change(avatar: nil)
   end
 
   def watched_tags_changeset(user, watched_tag_ids) do

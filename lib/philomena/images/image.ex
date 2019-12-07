@@ -93,6 +93,7 @@ defmodule Philomena.Images.Image do
     field :added_tags, {:array, :any}, default: [], virtual: true
 
     field :uploaded_image, :string, virtual: true
+    field :removed_image, :string, virtual: true
 
     timestamps(inserted_at: :created_at)
   end
@@ -129,7 +130,7 @@ defmodule Philomena.Images.Image do
       :image, :image_name, :image_width, :image_height, :image_size,
       :image_format, :image_mime_type, :image_aspect_ratio,
       :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
-      :image_is_animated
+      :removed_image, :image_is_animated
     ])
     |> validate_required([
       :image, :image_width, :image_height, :image_size,
