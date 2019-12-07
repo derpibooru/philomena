@@ -20,7 +20,7 @@ defmodule Philomena.MixProject do
   def application do
     [
       mod: {Philomena.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :canada, :mnesia, :runtime_tools]
     ]
   end
 

@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# Set up environment
+source ~/bin/philomena-env
+
+read oldrev newrev ref
+echo "Updating $oldrev -> $newrev ($ref)"
+
+# Clear variable set to '.' so git commands don't complain
+unset GIT_DIR
+
+die() {
+    echo "$*" 1>&2
+    exit 1
+}
+
+if git diff --name-only $oldrev $newrev | grep "^mix.exs"; then
+  echo "Fetching deps"
+  mix deps.get || die "mix failed to update"
+fi
+
+# Run migrations
+if git diff --name-only $oldrev $newrev | grep "^priv/repo/migrations"; then
+  echo "Running database migrations"
+  mix ecto.migrate || die "ecto.migrate failed"
+fi
+
+# Compile assets
+if git diff --name-only $oldrev $newrev | grep "^assets/"; then
+  echo "Compiling assets"
+  npm run deploy --prefix ./assets
+  mix phx.digest || die "assets compile failed"
+fi
+
+# Generate release name to always be the current timestamp so that
+# it will be considered an upgrade
+export PHILOMENA_VERSION="0.1.0.$(date +%s)"
+
+mix distillery.release || die "failed to generate release"
+
+_build/prod/rel/philomena/bin/philomena upgrade $PHILOMENA_VERSION || die "failed to upgrade app; log in to the server and restart the app manually"

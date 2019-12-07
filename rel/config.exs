@@ -52,7 +52,8 @@ end
 release :philomena do
   set version: current_version(:philomena)
   set applications: [
-    :runtime_tools
+    :runtime_tools,
+    philomena: :permanent
   ]
 end
 
