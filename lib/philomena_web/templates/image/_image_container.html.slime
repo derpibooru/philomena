@@ -18,29 +18,35 @@
     - true ->
 
   .media-box__overlay.js-spoiler-info-overlay
-  a href=link
-    = case render_intent(@conn, @image, @size) do
-      - {:hidpi, small_url, medium_url, hover_text} ->
+
+  = case render_intent(@conn, @image, @size) do
+    - {:hidpi, small_url, medium_url, hover_text} ->
+      a href=link title=hover_text
         picture
           img src=small_url srcset="#{small_url} 1x, #{medium_url} 2x" alt=hover_text
 
-      - {:image, small_url, hover_text} ->
+    - {:image, small_url, hover_text} ->
+      a href=link title=hover_text
         picture
           img src=small_url alt=hover_text
 
-      - {:video, webm, mp4, hover_text} ->
+    - {:video, webm, mp4, hover_text} ->
+      a href=link title=hover_text
         video alt=hover_text autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
           source src=webm type="video/webm"
           source src=mp4 type="video/mp4"
         img alt=hover_text
 
-      - {:filtered_image, hover_text} ->
+    - {:filtered_image, hover_text} ->
+      a href=link title=hover_text
         picture
           img alt=hover_text
 
-      - {:filtered_video, hover_text} ->
+    - {:filtered_video, hover_text} ->
+      a href=link title=hover_text
         video autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
         img alt=hover_text
 
-      - :not_rendered ->
+    - :not_rendered ->
+      a href=link
         ' Thumbnails not yet generated
