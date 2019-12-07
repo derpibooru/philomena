@@ -2,23 +2,47 @@
 
 Next generation imageboard.
 
-![](https://derpicdn.net/img/2019/8/23/2125268/full.png)
+![](https://derpicdn.net/img/2019/8/23/2125268/full.svg)
 
-To start your Phoenix server:
+## Getting started
+On systems with `docker` and `docker-compose` installed, the process should be as simple as:
 
-  * Install dependencies with `mix deps.get`
-  * Create and migrate your database with `mix ecto.setup`
-  * Install Node.js dependencies with `cd assets && npm install`
-  * Start Phoenix endpoint with `mix phx.server`
+```
+docker-compose build
+docker-compose up
+```
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+If you use `podman` and `podman-compose` instead, the process for constructing a rootless container is nearly identical:
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+```
+podman-compose build
+podman-compose up
+```
 
-## Learn more
+If you run into an Elasticsearch bootstrap error, you may need to increase your `max_map_count` on the host as follows:
+```
+sudo sysctl -w vm.max_map_count=262144
+```
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+If you have SELinux enforcing, you should run the following in the application directory on the host before proceeding:
+```
+chcon -Rt svirt_sandbox_file_t .
+```
+
+This allows Docker or Podman to bind mount the application directory into the containers.
+
+## Deployment
+You need a key installed on the server you target, and the git remote installed in your ssh configuration.
+
+    git remote add production philomena@<serverip>:philomena/
+
+The general syntax is:
+
+    git push production master
+
+And if everything goes wrong:
+
+    git reset HEAD^ --hard
+    git push -f production master
+
+(to be repeated until it works again)
