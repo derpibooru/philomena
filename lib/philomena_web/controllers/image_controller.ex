@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
-    {images, _tags} = ImageLoader.query(conn, %{match_all: %{}})
+    {:ok, {images, _tags}} = ImageLoader.search_string(conn, "created_at.lte:3 minutes ago")
 
     interactions =
       Interactions.user_interactions(images, conn.assigns.current_user)
