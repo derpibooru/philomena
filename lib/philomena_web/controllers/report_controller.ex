@@ -87,6 +87,6 @@ defmodule PhilomenaWeb.ReportController do
     reports_open >= 5
   end
 
-  defp redirect_path(conn, nil), do: "/"
+  defp redirect_path(_conn, nil), do: "/"
   defp redirect_path(conn, _user), do: Routes.report_path(conn, :index)
 end

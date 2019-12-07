@@ -149,7 +149,7 @@ defmodule PhilomenaWeb.ImageController do
       is_nil(image) ->
         PhilomenaWeb.NotFoundPlug.call(conn)
 
-      not is_nil(image.duplicate_id) and not Canada.Can.can?(conn, :show, image) ->
+      not is_nil(image.duplicate_id) and not Canada.Can.can?(conn.assigns.current_user, :show, image) ->
         conn
         |> put_flash(:info, "The image you were looking for has been marked a duplicate of the image below")
         |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
