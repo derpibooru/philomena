@@ -105,8 +105,8 @@ defmodule Philomena.Conversations do
     |> Repo.aggregate(:count, :id)
   end
 
+  
   def mark_conversation_read(conversation, user, read \\ true)
-  def mark_conversation_hidden(conversation, user, hidden \\ true)
 
   def mark_conversation_read(%Conversation{to_id: user_id} = conversation, %{id: user_id}, read) do
     conversation
@@ -120,6 +120,8 @@ defmodule Philomena.Conversations do
   end
   def mark_conversation_read(_conversation, _user, _read), do: {:ok, nil}
 
+
+  def mark_conversation_hidden(conversation, user, hidden \\ true)
 
   def mark_conversation_hidden(%Conversation{to_id: user_id} = conversation, %{id: user_id}, hidden) do
     conversation
