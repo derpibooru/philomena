@@ -95,6 +95,8 @@ defmodule PhilomenaWeb.Router do
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
       resources "/reports", Conversation.ReportController, only: [:new, :create]
       resources "/messages", Conversation.MessageController, only: [:create]
+      resources "/read", Conversation.ReadController, only: [:create, :delete], singleton: true
+      resources "/hide", Conversation.HideController, only: [:create, :delete], singleton: true
     end
     resources "/images", ImageController, only: [] do
       resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true

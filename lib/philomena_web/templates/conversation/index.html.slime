@@ -19,7 +19,7 @@ h1 My Conversations
           th.table--communication-list__stats With
           th.table--communication-list__options Options
       tbody
-        = for c <- @conversations do
+        = for {c, count} <- @conversations do
           tr class=conversation_class(@conn.assigns.current_user, c)
             td.table--communication-list__name
               => link c.title, to: Routes.conversation_path(@conn, :show, c)
@@ -33,7 +33,9 @@ h1 My Conversations
             td.table--communication-list__stats
               = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user.id, c)}, conn: @conn
             td.table--communication-list__options
-              | Last message
+              => link "Last message", to: last_message_path(@conn, c, count)
+              ' &bull;
+              => link "Hide", to: Routes.conversation_hide_path(@conn, :create, c), data: [method: "post"], data: [confirm: "Are you really, really sure?"]
 
   .block__header.block__header--light
     = pagination

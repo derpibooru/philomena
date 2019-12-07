@@ -16,8 +16,10 @@ defmodule PhilomenaWeb.ConversationController do
     conversations =
       Conversation
       |> where([c], (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden))
+      |> join(:inner_lateral, [c], _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id))
       |> order_by(desc: :last_message_at)
       |> preload([:to, :from])
+      |> select([c, cnt], {c, cnt.count})
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html", conversations: conversations)

@@ -24,4 +24,10 @@ defmodule PhilomenaWeb.ConversationView do
       _     -> nil
     end
   end
+
+  def last_message_path(conn, conversation, count) do
+    page = trunc(Float.ceil(count / 25))
+
+    Routes.conversation_path(conn, :show, conversation, page: page)
+  end
 end
