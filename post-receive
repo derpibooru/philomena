@@ -9,6 +9,8 @@ echo "Updating $oldrev -> $newrev ($ref)"
 # Clear variable set to '.' so git commands don't complain
 unset GIT_DIR
 
+ls
+
 die() {
     echo "$*" 1>&2
     exit 1
