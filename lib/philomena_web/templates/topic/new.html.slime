@@ -83,4 +83,4 @@
       ' [Loading preview...]
 
     .block__content.communication-edit__actions
-      = submit "Post", class: "button"
+      = submit "Post", class: "button", data: [disable_with: raw("Posting&hellip;")]
