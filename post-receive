@@ -38,6 +38,6 @@ fi
 # it will be considered an upgrade
 export PHILOMENA_VERSION="0.1.$(date +%s)"
 
-mix distillery.release || die "failed to generate release"
+mix distillery.release --upgrade || die "failed to generate release"
 
 _build/prod/rel/philomena/bin/philomena upgrade $PHILOMENA_VERSION || die "failed to upgrade app; log in to the server and restart the app manually"
