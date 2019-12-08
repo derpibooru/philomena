@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.PaginationView do
   end
 
   def page_path(route, params, number) do
-    route.(Keyword.merge(params, page: number))
+    route.([{:page, number} | params])
   end
 
   def first_page_path(_page, route, params), do: page_path(route, params, 1)
