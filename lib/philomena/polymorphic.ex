@@ -18,7 +18,7 @@ defmodule Philomena.Polymorphic do
   }
 
   @preloads %{
-    "Comment" => [:user, :image],
+    "Comment" => [:user, image: :tags],
     "Commission" => [:user],
     "Conversation" => [:from, :to],
     "Gallery" => [:creator],
