@@ -71,7 +71,8 @@ defmodule Philomena.Posts.Query do
     literal_fields: literal_fields,
     ngram_fields: ngram_fields,
     custom_fields: custom_fields,
-    default_field: default_field
+    default_field: default_field,
+    transforms: transforms
   )
 
   @user_parser Parser.parser(

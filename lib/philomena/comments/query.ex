@@ -75,7 +75,8 @@ defmodule Philomena.Comments.Query do
     ngram_fields: ngram_fields,
     custom_fields: custom_fields,
     aliases: aliases,
-    default_field: default_field
+    default_field: default_field,
+    transforms: transforms
   )
 
   @user_parser Parser.parser(
