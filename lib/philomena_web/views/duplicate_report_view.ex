@@ -54,12 +54,8 @@ defmodule PhilomenaWeb.DuplicateReportView do
   def same_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
     do: to_string(duplicate_of_image.source_url) == to_string(image.source_url)
 
-  def similar_source?(%{image: image, duplicate_of_image: duplicate_of_image}) do
-    host1 = URI.parse(image.source_url).host
-    host2 = URI.parse(duplicate_of_image.source_url).host
-
-    host1 == host2
-  end
+  def similar_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
+    do: uri_host(image.source_url) == uri_host(duplicate_of_image.source_url)
 
   def source_on_target?(%{image: image, duplicate_of_image: duplicate_of_image}),
     do: present?(duplicate_of_image.source_url) and blank?(image.source_url)
@@ -125,4 +121,7 @@ defmodule PhilomenaWeb.DuplicateReportView do
 
   defp proper_subset?(set1, set2),
     do: MapSet.subset?(set1, set2) and not MapSet.equal?(set1, set2)
+
+  defp uri_host(nil), do: nil
+  defp uri_host(str), do: URI.parse(str).host
 end
