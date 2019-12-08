@@ -50,10 +50,13 @@ defmodule PhilomenaWeb.ProfileView do
     Enum.map_join(tags, " || ", & &1.name)
   end
 
-  def user_abbrv(%{name: name}) do
-    String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
+  def user_abbrv(conn, %{name: name} = user) do
+    abbrv = String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
+    abbrv = "(" <> abbrv <> ")"
+
+    link(abbrv, to: Routes.profile_path(conn, :show, user))
   end
-  def user_abbrv(_user), do: content_tag(:span, "(n/a)")
+  def user_abbrv(_conn, _user), do: content_tag(:span, "(n/a)")
 
   defp initials_abbrv(name) do
     case String.split(name, " ", parts: 4) do
@@ -72,7 +75,7 @@ defmodule PhilomenaWeb.ProfileView do
   end
 
   defp uppercase_abbrv(name) do
-    case Regex.scan(~r/[A-Z]/, name, capture: :all_but_first) do
+    case Regex.scan(~r/([A-Z])/, name, capture: :all_but_first) do
       [] ->
         nil
 

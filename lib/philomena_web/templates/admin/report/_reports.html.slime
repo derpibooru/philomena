@@ -31,7 +31,7 @@ table.table
 
         td class=report_row_class(report)
           => pretty_state(report)
-          = user_abbrv report.admin
+          = user_abbrv @conn, report.admin
         td
           = link "Show", to: Routes.admin_report_path(@conn, :show, report)
           /- if report.open
