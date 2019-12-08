@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug :verify_authorized
   plug :load_and_authorize_resource, model: Report, only: [:show], preload: [:admin, user: [:linked_tags, awards: :badge]]
 
   def index(conn, %{"rq" => query_string}) do
@@ -79,5 +80,12 @@ defmodule PhilomenaWeb.Admin.ReportController do
       %{state: :desc},
       %{created_at: :desc}
     ]
+  end
+
+  defp verify_authorized(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, Report) do
+      true  -> conn
+      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    end
   end
 end
