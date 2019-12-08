@@ -8,27 +8,23 @@ jobs:
     container:
       image: elixir:1.9.4 
     steps:
-      - name: Test
-        run: mix test
-    services:
-      db:
-        image: postgres:11
-        ports: ['5432:5432']
-        env:
-          POSTGRES_PASSWORD: 'postgres'
-          POSTGRES_USER: 'postgres'
-          POSTGRES_DB: 'philomena_test'
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5           
-      philomena:
-        image: elixir:1.9.4
-        env:
-          uses: actions/checkout@v1
-          run: |
+      - uses: actions/checkout@v1
+      - name: Build
+        run: |
               mix local.rebar --force
               mix local.hex --force
               mix deps.get
               mix test
+      - name: Setup PostgreSQL
+        uses: Harmon758/postgresql-action@v1.0.0
+        with:
+          # Version of PostgreSQL to use
+          postgresql version: 'latest' # optional, default is latest
+          # POSTGRES_DB - name for the default database that is created
+          postgresql db: 'philomena_test'# optional, default is 
+          # POSTGRES_USER - create the specified user with superuser power
+          postgresql user: 'postgres'# optional, default is 
+          # POSTGRES_PASSWORD - superuser password
+          postgresql password: 'postgres'# optional, default is 
+      - name: Test
+        run: mix test
