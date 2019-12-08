@@ -4,9 +4,7 @@ on: push
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     container:
       image: elixir:1.9.4    
     services:
@@ -30,4 +28,10 @@ jobs:
         mix local.hex --force
         mix deps.get
     - name: Run Tests
+      env: 
+        PGUSER: 'postgres'
+        PGPASSWORD: 'postgres'
+        PGDATABASE: 'philomena_test'
+        PGPORT: 5432
+        PGHOST: db
       run: mix test
