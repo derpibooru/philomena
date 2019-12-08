@@ -22,6 +22,7 @@ defmodule Philomena.Users.User do
   alias Philomena.Galleries.Gallery
   alias Philomena.Users.User
   alias Philomena.Commissions.Commission
+  alias Philomena.Roles.Role
 
   @derive {Phoenix.Param, key: :slug}
 
@@ -34,6 +35,7 @@ defmodule Philomena.Users.User do
     has_many :unread_notifications, UnreadNotification
     has_many :notifications, through: [:unread_notifications, :notification]
     has_one :commission, Commission
+    many_to_many :roles, Role, join_through: "users_roles"
 
     belongs_to :current_filter, Filter
     belongs_to :deleted_by_user, User
