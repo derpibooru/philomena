@@ -164,4 +164,21 @@ defmodule Philomena.Users do
     |> User.creation_changeset(params)
     |> Repo.insert()
   end
+
+  @impl Pow.Ecto.Context
+  def get_by(clauses) do
+    User
+    |> join(:left, [u], _ in assoc(u, :roles))
+    |> join(:left, [u, _], _ in assoc(u, :current_filter))
+    |> preload([_, r, cf], [current_filter: cf, roles: r])
+    |> Repo.get_by(clauses)
+    |> setup_roles()
+  end
+
+  defp setup_roles(nil), do: nil
+  defp setup_roles(user) do
+    role_map = Map.new(user.roles, &{&1.name, &1.resource_type || true})
+
+    %{user | role_map: role_map}
+  end
 end
