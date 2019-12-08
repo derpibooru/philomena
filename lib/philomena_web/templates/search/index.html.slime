@@ -1,10 +1,15 @@
 = cond do
   - Enum.any?(@images) ->
     = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Searching for #{@conn.params["q"]}", route: fn p -> Routes.search_path(@conn, :index, p) end, scope: scope(@conn)
+
   - assigns[:error] ->
     p
       ' Oops, there was an error evaluating your query:
     pre = assigns[:error]
+
+  - blank?(@conn.params["q"]) ->
+    / Don't render anything.
+
   - true ->
     p
       ' No images found!
