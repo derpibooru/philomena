@@ -154,7 +154,7 @@ defmodule PhilomenaWeb.ImageView do
   defp image_filter_data(image) do
     %{
       id:                     image.id,
-      "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache, ", "),
+      "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache || "", ", "),
       score:                  image.score,
       faves:                  image.faves_count,
       upvotes:                image.upvotes_count,
