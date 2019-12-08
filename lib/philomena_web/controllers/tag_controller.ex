@@ -8,6 +8,8 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
+
   def index(conn, params) do
     query_string = params["tq"] || "*"
 

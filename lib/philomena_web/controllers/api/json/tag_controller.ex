@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.Api.Json.TagController do
 
   alias Philomena.Tags.Tag
 
+  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug :load_resource, model: Tag, id_field: "slug", persisted: true, preload: [:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries]
 
   def show(conn, _params) do
