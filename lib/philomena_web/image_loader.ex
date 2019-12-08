@@ -82,6 +82,7 @@ defmodule PhilomenaWeb.ImageLoader do
     |> Repo.all()
     |> Enum.uniq_by(& &1.id)
     |> Enum.filter(&is_nil(&1.aliased_tag))
+    |> Tag.display_order()
   end
 
   defp render_bodies([], _conn), do: []
