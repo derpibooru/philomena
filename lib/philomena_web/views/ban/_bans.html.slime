@@ -1,0 +1,21 @@
+table.table
+  thead
+    tr
+      th Ban Enacted
+      th Ban Expires
+      th Duration
+      th Active?
+      th Reason
+      th Ban ID
+  tbody
+    = for b <- @bans
+      tr
+        td = pretty_time b.created_at
+        td = pretty_time b.valid_until
+        td = distance_of_time_in_words b.created_at, b.valid_until
+        = if active?(b) do
+          td.success Yes
+        - else
+          td.danger No
+        td = b.reason
+        td = b.generated_ban_id

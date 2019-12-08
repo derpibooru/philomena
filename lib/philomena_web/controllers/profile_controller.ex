@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Textile.Renderer
   alias Philomena.UserStatistics.UserStatistic
   alias Philomena.Users.User
+  alias Philomena.Bans
   alias Philomena.Galleries.Gallery
   alias Philomena.Posts.Post
   alias Philomena.Comments.Comment
@@ -99,6 +100,11 @@ defmodule PhilomenaWeb.ProfileController do
     interactions =
       Interactions.user_interactions([recent_uploads, recent_faves], current_user)
 
+    bans =
+      Bans.User
+      |> where(user_id: ^user.id)
+      |> Repo.all()
+
     render(
       conn,
       "show.html",
@@ -114,6 +120,7 @@ defmodule PhilomenaWeb.ProfileController do
       statistics: statistics,
       about_me: about_me,
       tags: tags,
+      bans: bans,
       layout_class: "layout--medium"
     )
   end
