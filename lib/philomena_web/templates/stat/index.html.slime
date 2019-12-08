@@ -75,6 +75,24 @@ elixir:
       = number_with_delimiter(@users_24h)
     ' have joined in the last 24 hours.
 
+  h3 Galleries
+  p
+    ' There are
+    span.stat>
+      = number_with_delimiter(@gallery_count)
+    ' existing image galleries on the site, created by
+    span.stat>
+      = number_with_delimiter(@distinct_creators)
+    ' distinct creators. There are, on average,
+    span.stat>
+      = number_with_delimiter(@gallery_size)
+    ' images in each gallery.
+  p
+    ' In total, images have been added to galleries
+    span.stat>
+      = number_with_delimiter(@images_in_galleries)
+    ' times.
+
   h3 Commissions
   p
     ' There are

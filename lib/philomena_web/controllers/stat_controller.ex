@@ -82,7 +82,13 @@ defmodule PhilomenaWeb.StatController do
 
   defp galleries do
     gallery_count = Repo.aggregate(Gallery, :count, :id)
-    gallery_size = Float.round(Repo.aggregate(Gallery, :avg, :image_count) || 0.0, 2)
+
+    gallery_size =
+      Repo.aggregate(Gallery, :avg, :image_count)
+      |> Kernel.||(Decimal.new(0))
+      |> Decimal.to_float()
+      |> trunc()
+
     distinct_creators =
       Gallery
       |> distinct(:creator_id)
