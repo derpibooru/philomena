@@ -6,7 +6,7 @@
       strong
         = @image.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
 
-    = if can?(@conn, :undelete, @image) do
+    = if can?(@conn, :hide, @image) do
       p
         strong> Spoilers!
         ' Done by:
@@ -21,3 +21,6 @@
     ' and
     = link "rules of the site", to: "/pages/rules"
     ' . Other useful links can be found at the bottom of the page.
+
+= if can?(@conn, :hide, @image) do
+  = render PhilomenaWeb.ImageView, "show.html", assigns

@@ -8,7 +8,7 @@
     =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
     ' .
 
-  #image_target.hidden.image-show data-scaled="true" data-uris=Jason.encode!(thumb_urls(@image, false)) data-width=@image.image_width data-height=@image.image_height
+  #image_target.hidden.image-show data-scaled="true" data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height
     = if @image.image_mime_type == "video/webm" do
       video controls=true
     - else

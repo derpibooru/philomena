@@ -73,9 +73,7 @@ defmodule PhilomenaWeb.ImageController do
 
     {user_galleries, image_galleries} = image_and_user_galleries(image, conn.assigns.current_user)
 
-    render(
-      conn,
-      "show.html",
+    assigns = [
       image: image,
       comments: comments,
       image_changeset: image_changeset,
@@ -86,7 +84,13 @@ defmodule PhilomenaWeb.ImageController do
       interactions: interactions,
       watching: watching,
       layout_class: "layout--wide"
-    )
+    ]
+
+    if image.hidden_from_users do
+      render(conn, "deleted.html", assigns)
+    else
+      render(conn, "show.html", assigns)
+    end
   end
 
   def new(conn, _params) do
@@ -156,9 +160,6 @@ defmodule PhilomenaWeb.ImageController do
         conn
         |> put_flash(:info, "The image you were looking for has been marked a duplicate of the image below")
         |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
-
-      image.hidden_from_users ->
-        render(conn, "deleted.html", image: image)
 
       true ->
         conn

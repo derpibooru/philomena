@@ -179,6 +179,30 @@ defmodule Philomena.Images.Image do
     |> validate_length(:description, max: 50_000, count: :bytes)
   end
 
+  def hide_changeset(image, attrs, user) do
+    image
+    |> cast(attrs, [:deletion_reason])
+    |> put_change(:deleter_id, user.id)
+    |> put_change(:hidden_image_key, create_key())
+    |> put_change(:hidden_from_users, true)
+    |> validate_required([:deletion_reason, :deleter_id])
+  end
+
+  def merge_changeset(image, duplicate_of_image) do
+    change(image)
+    |> put_change(:duplicate_id, duplicate_of_image.id)
+    |> put_change(:hidden_image_key, create_key())
+    |> put_change(:hidden_from_users, true)
+  end
+
+  def unhide_changeset(image) do
+    change(image)
+    |> put_change(:deleter_id, nil)
+    |> put_change(:hidden_image_key, nil)
+    |> put_change(:hidden_from_users, false)
+    |> put_change(:deletion_reason, nil)
+  end
+
   def cache_changeset(image) do
     changeset = change(image)
     image = apply_changes(changeset)
@@ -224,5 +248,9 @@ defmodule Philomena.Images.Image do
     file_name_cache = "#{image_id}__#{file_name_slug_fragment}"
 
     {tag_list_cache, tag_list_plus_alias_cache, file_name_cache}
+  end
+
+  defp create_key do
+    Base.encode16(:crypto.strong_rand_bytes(6), case: :lower)
   end
 end

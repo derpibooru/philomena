@@ -1,3 +1,5 @@
+- display_mod_tools? = can?(@conn, :hide, @image)
+
 #image_options_area
   .block__header.block__header--js-tabbed
     a href="#" data-click-tab="reporting" data-load-tab=Routes.image_reporting_path(@conn, :show, @image)
@@ -9,6 +11,16 @@
     a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorites_path(@conn, :index, @image)
       i.fa.fa-star>
       | List favoriters
+    = if display_mod_tools? do
+      a href="#" data-click-tab="replace"
+        i.fa.fa-upload>
+        | Replace
+      a href="#" data-click-tab="administration"
+        i.fa.fa-toolbox>
+        | Administrate
+        = if present?(@image.scratchpad) do
+          i.fa.fa-sticky-note.fa--important<
+          i.fa.fa-exclamation.fa--important
 
   .block__tab.hidden data-tab="favoriters"
     p Loading...
@@ -53,3 +65,28 @@
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_thumbnail_tag rows="2" cols="100" readonly="readonly"
           = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+  = if display_mod_tools? do
+    .block__tab.hidden data-tab="replace"
+      /= form_tag image_file_path(@image), method: :put, multipart: true do
+        = render partial: 'layouts/image_upload', locals: { form: nil, field: :image }
+        = submit_tag 'Save changes', class: 'button', autocomplete: 'off', data: { disable_with: 'Replacing...' }
+
+    .block__tab.hidden data-tab="administration"
+      .block.block--danger
+        a.button.button--link> href="#"
+          i.far.fa-edit
+        = if present?(@image.scratchpad) do
+          strong> Mod notes:
+          = escape_nl2br @image.scratchpad
+        - else
+          em No mod notes present
+
+      = if not @image.hidden_from_users do
+        = form_for @changeset, Routes.image_delete_path(@conn, :create, @image), [method: "post"], fn f ->
+          = label f, :deletion_reason, "Deletion reason (cannot be empty)"
+          .field.field--inline
+            = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
+            = submit "Delete", class: "button button--state-danger button--separate-left"
+
+      - else
+        = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"

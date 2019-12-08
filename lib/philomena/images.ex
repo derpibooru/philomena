@@ -9,12 +9,14 @@ defmodule Philomena.Images do
   alias Philomena.Repo
 
   alias Philomena.Images.Image
+  alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.Tags.Tag
   alias Philomena.Notifications
+  alias Philomena.Interactions
 
   @doc """
   Gets a single image.
@@ -197,6 +199,73 @@ defmodule Philomena.Images do
       referrer: attribution[:referrer],
       added: added
     }
+  end
+
+  def hide_image(%Image{} = image, user, attrs) do
+    Image.hide_changeset(image, attrs, user)
+    |> internal_hide_image()
+  end
+
+  def merge_image(%Image{} = image, duplicate_of_image) do
+    result =
+      Image.merge_changeset(image, duplicate_of_image)
+      |> internal_hide_image()
+
+    case result do
+      {:ok, _changes} ->
+        Interactions.migrate_interactions(image, duplicate_of_image)
+        result
+
+      _error ->
+        result
+    end
+  end
+
+  defp internal_hide_image(changeset) do
+    Multi.new
+    |> Multi.update(:image, changeset)
+    |> Multi.run(:tags, fn repo, %{image: image} ->
+      image = Repo.preload(image, :tags, force: true)
+
+      # I'm not convinced this is a good idea. It leads
+      # to way too much drift, and the index has to be
+      # maintained.
+      tag_ids = Enum.map(image.tags, & &1.id)
+      query = where(Tag, [t], t.id in ^tag_ids)
+
+      repo.update_all(query, inc: [images_count: -1])
+
+      {:ok, image.tags}
+    end)
+    |> Multi.run(:file, fn _repo, %{image: image} ->
+      Hider.hide_thumbnails(image, image.hidden_image_key)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def unhide_image(%Image{} = image) do
+    key = image.hidden_image_key
+
+    Multi.new
+    |> Multi.update(:image, Image.unhide_changeset(image))
+    |> Multi.run(:tags, fn repo, %{image: image} ->
+      image = Repo.preload(image, :tags, force: true)
+
+      tag_ids = Enum.map(image.tags, & &1.id)
+      query = where(Tag, [t], t.id in ^tag_ids)
+
+      repo.update_all(query, inc: [images_count: 1])
+
+      {:ok, image.tags}
+    end)
+    |> Multi.run(:file, fn _repo, %{image: image} ->
+      Hider.unhide_thumbnails(image, key)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
