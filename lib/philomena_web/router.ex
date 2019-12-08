@@ -83,6 +83,7 @@ defmodule PhilomenaWeb.Router do
     end
     resources "/search", SearchController, only: [:index]
     resources "/oembed", OembedController, only: [:index]
+    resources "/tags", TagController, only: [:show]
   end
 
   scope "/", PhilomenaWeb do
