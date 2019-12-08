@@ -8,13 +8,8 @@ jobs:
     container:
       image: elixir:1.9.4 
     steps:
-      - uses: actions/checkout@v1
-      - name: Build
-        run: |
-              mix local.rebar --force
-              mix local.hex --force
-              mix deps.get
-              mix test
+      - name: Get source
+        uses: actions/checkout@v1
       - name: Setup PostgreSQL
         uses: Harmon758/postgresql-action@v1.0.0
         with:
@@ -26,5 +21,11 @@ jobs:
           postgresql user: 'postgres'# optional, default is 
           # POSTGRES_PASSWORD - superuser password
           postgresql password: 'postgres'# optional, default is 
+      - name: Build
+        run: |
+              mix local.rebar --force
+              mix local.hex --force
+              mix deps.get
+              mix test
       - name: Test
         run: mix test
