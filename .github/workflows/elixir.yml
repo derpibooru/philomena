@@ -1,0 +1,41 @@
+name: Philomena Build
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: elixir:1.9.4    
+    services:
+      db:
+        image: postgres:latest
+        ports: ['5432:5432']
+        env:
+          POSTGRES_PASSWORD: 'postgres'
+          POSTGRES_USER: 'postgres'
+          POSTGRES_DB: 'philomena_test'
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install Ubuntu Dependencies
+      run: |
+            apt-get update
+            apt-get -yqq install libpq-dev postgresql-client
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    - name: Run Tests
+      env: 
+        PGUSER: 'postgres'
+        PGPASSWORD: 'postgres'
+        PGDATABASE: 'philomena_test'
+        PGPORT: 5432
+        PGHOST: db
+      run: mix test

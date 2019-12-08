@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :philomena, Philomena.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "philomena_test",
-  hostname: "localhost",
+  username: System.get_env("PGUSER"),
+  password: System.get_env("PGPASSWORD"),
+  database: System.get_env("PGDATABASE"),
+  hostname: System.get_env("PGHOST"),
   pool: Ecto.Adapters.SQL.Sandbox
 
 # We don't run a server during test. If one is required,
