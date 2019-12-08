@@ -71,6 +71,7 @@ defmodule PhilomenaWeb.ImageView do
     root = image_url_root()
     format =
       image.image_format
+      |> to_string()
       |> String.downcase()
       |> thumb_format(name)
 
@@ -92,6 +93,7 @@ defmodule PhilomenaWeb.ImageView do
     filename = if short, do: image.id, else: image.file_name_cache
     format =
       image.image_format
+      |> to_string()
       |> String.downcase()
       |> thumb_format(nil)
 
