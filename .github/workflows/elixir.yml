@@ -23,7 +23,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install Ubuntu Dependencies
-      run:  apt-get install postgresql-client 
+      run: |
+            apt-get update
+            apt-get -yqq install libpq-dev postgresql-client
     - name: Install Dependencies
       run: |
         mix local.rebar --force
