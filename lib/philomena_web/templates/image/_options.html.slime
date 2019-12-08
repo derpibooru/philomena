@@ -17,7 +17,7 @@
         | Replace
       a href="#" data-click-tab="administration"
         i.fa.fa-toolbox>
-        | Administrate
+        | Manage
         = if present?(@image.scratchpad) do
           i.fa.fa-sticky-note.fa--important<
           i.fa.fa-exclamation.fa--important
