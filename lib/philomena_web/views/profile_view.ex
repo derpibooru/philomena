@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.ProfileView do
   use PhilomenaWeb, :view
 
   def award_order(awards) do
-    Enum.sort_by(awards, &{!&1.badge.priority, &1.awarded_on})
+    Enum.sort_by(awards, &{!&1.badge.priority, DateTime.utc_now(&1.awarded_on)})
   end
 
   def badge_image(badge, options \\ []) do
