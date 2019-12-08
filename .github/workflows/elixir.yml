@@ -6,7 +6,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: elixir:1.9.4    
+      image: elixir:1.9.4 
+    steps:
+       - name: Test
+       - run: mix test
     services:
       db:
         image: postgres:11
