@@ -3,7 +3,7 @@ defmodule Philomena.ImageScope do
     []
     |> scope(conn, "q", :q)
     |> scope(conn, "sf", :sf)
-    |> scope(conn, "sd", :sf)
+    |> scope(conn, "sd", :sd)
   end
 
   defp scope(list, conn, key, key_atom) do
