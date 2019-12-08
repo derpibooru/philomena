@@ -80,6 +80,7 @@ defmodule PhilomenaWeb.ImageLoader do
     |> where([t, at], t.name in ^tags or at.name in ^tags)
     |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
     |> Repo.all()
+    |> Enum.uniq_by(& &1.id)
   end
 
   defp render_bodies([], _conn), do: []
