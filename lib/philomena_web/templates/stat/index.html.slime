@@ -74,3 +74,27 @@ elixir:
     span.stat>
       = number_with_delimiter(@users_24h)
     ' have joined in the last 24 hours.
+
+  h3 Commissions
+  p
+    ' There are
+    span.stat>
+      = number_with_delimiter(@open_commissions)
+    ' open commission listings on the site, offering a total of
+    span.stat>
+      = number_with_delimiter(@commission_items)
+    ' items.
+
+  h3 Moderation
+  p
+    ' We have received
+    span.stat>
+      = number_with_delimiter(@report_count)
+    ' reports. Out of these reports,
+    => number_with_delimiter(@open_reports)
+    ' reports are outstanding and awaiting action.
+  p
+    ' On the last 250 reports we've received, it's taken us on average
+    span.stat>
+      = @response_time
+    ' hour(s) between a report being made and the report being resolved.
