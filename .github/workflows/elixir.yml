@@ -10,6 +10,15 @@ jobs:
     container:
       image: elixir:1.9.4
     
+    steps:
+    - uses: actions/checkout@v1
+      id: build
+    - name: Install Dependencies
+      run: |
+        mix local.rebar --force
+        mix local.hex --force
+        mix deps.get
+    
     services:
       db:
         image: postgres:11
@@ -23,12 +32,14 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install Dependencies
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-    - name: Run Tests
-      run: mix test
+           
+      philomena:
+        image: elixir:1.9.4
+        env:
+          uses: actions/checkout@v1
+          run: |
+              mix local.rebar --force
+              mix local.hex --force
+              mix deps.get
+              mix test
+              
