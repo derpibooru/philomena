@@ -118,7 +118,7 @@ defmodule Philomena.Reports do
   end
 
   def count_reports(user) do
-    if Canada.Can.can?(user, :manage, Report) do
+    if Canada.Can.can?(user, :index, Report) do
       Report
       |> where(open: true)
       |> Repo.aggregate(:count, :id)
