@@ -21,6 +21,7 @@ defmodule PhilomenaWeb.Api.Json.SearchController do
         conn
         |> json(%{
           images: Enum.map(images, &ImageJson.as_json(conn, &1)),
+          total: images.total_entries,
           interactions: interactions
         })
 
