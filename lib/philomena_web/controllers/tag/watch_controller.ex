@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.Tag.WatchController do
 
   alias Philomena.Tags.Tag
   alias Philomena.Users
-  alias Philomena.Repo
 
   plug :load_resource, model: Tag, id_field: "slug", id_name: "tag_id", persisted: true
 
