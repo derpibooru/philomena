@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Report, preload: [:admin, user: [:linked_tags, awards: :badge]]
+  plug :load_and_authorize_resource, model: Report, only: [:show], preload: [:admin, user: [:linked_tags, awards: :badge]]
 
   def index(conn, %{"rq" => query_string}) do
     {:ok, query} = Query.compile(query_string)

@@ -57,13 +57,13 @@ defmodule PhilomenaWeb.ProfileView do
 
   defp initials_abbrv(name) do
     case String.split(name, " ", parts: 4) do
-      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>, <<a3::utf8, _rest::binary>>, <<a4::utf8, _rest::binary>>] ->
+      [<<a1::utf8, _r1::binary>>, <<a2::utf8, _r2::binary>>, <<a3::utf8, _r3::binary>>, <<a4::utf8, _r4::binary>>] ->
         <<a1::utf8, a2::utf8, a3::utf8, a4::utf8>>
 
-      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>, <<a3::utf8, _rest::binary>>] ->
+      [<<a1::utf8, _r1::binary>>, <<a2::utf8, _r2::binary>>, <<a3::utf8, _r3::binary>>] ->
         <<a1::utf8, a2::utf8, a3::utf8>>
 
-      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>] ->
+      [<<a1::utf8, _r1::binary>>, <<a2::utf8, _r2::binary>>] ->
         <<a1::utf8, a2::utf8>>
 
       _ ->

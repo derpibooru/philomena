@@ -7,7 +7,6 @@ defmodule Philomena.Reports.Query do
   ip_fields          = ~W(ip)
   bool_fields        = ~W(open)
   ngram_fields       = ~W(reason)
-  custom_fields      = ~W(author user_id)
   default_field      = "reason"
 
   @parser Parser.parser(

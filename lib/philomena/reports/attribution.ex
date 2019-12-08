@@ -7,7 +7,7 @@ defimpl Philomena.Attribution, for: Philomena.Reports.Report do
     to_string(report.user_id || report.fingerprint || report.ip)
   end
 
-  def anonymous?(report) do
+  def anonymous?(_report) do
     false
   end
 end
