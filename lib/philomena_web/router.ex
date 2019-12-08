@@ -44,15 +44,25 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.TotpPlug
   end
 
+  pipeline :ensure_not_banned do
+    plug PhilomenaWeb.FilterBannedUsersPlug
+  end
+
   pipeline :protected do
     plug Pow.Plug.RequireAuthenticated,
       error_handler: Pow.Phoenix.PlugErrorHandler
   end
 
   scope "/" do
+    pipe_through [:browser, :ensure_totp, :ensure_not_banned]
+
+    pow_registration_routes()
+  end
+
+  scope "/" do
     pipe_through [:browser, :ensure_totp]
   
-    pow_routes()
+    pow_session_routes()
     pow_extension_routes()
   end
 
