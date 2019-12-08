@@ -30,11 +30,11 @@
       = for topic <- @topics do
         = render PhilomenaWeb.ActivityView, "_topic_strip.html", topic: topic, conn: @conn
     .block.hide-mobile
-      a.block__header--single-item.center href="/lists/recent_comments"
+      a.block__header--single-item.center href="/comments"
         ' Recent Comments
       = for comment <- @comments do
         = render PhilomenaWeb.ActivityView, "_comment_strip.html", comment: comment, conn: @conn
-      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&sf=comments&sd=desc"
+      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&sf=comment_count&sd=desc"
         ' Most Commented-on Images
 
   .column-layout__main

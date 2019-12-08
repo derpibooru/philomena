@@ -56,7 +56,7 @@
 
           .toggle-box-container
             .toggle-box-container__content
-              = for tag <- @tag.implied_by_tags do
+              = map_join @tag.implied_by_tags, ", ", fn tag ->
                 => link tag.name, to: Routes.tag_path(@conn, :show, tag)
 
           br

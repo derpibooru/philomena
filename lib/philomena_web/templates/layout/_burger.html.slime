@@ -14,13 +14,10 @@ nav#burger
   a href="/filters"
     i.fa.fa-fw.fa-filter<>
     ' Filters
-  a href="/lists"
-    i.fa.fa-fw.fa-list<>
-    ' Rankings
   a href="/galleries"
     i.fa.fa-fw.fa-image<>
     ' Galleries
-  a href="/lists/recent_comments"
+  a href="/comments"
     i.fa.fa-fw.fa-comments<>
     ' Comments
   a href="/commissions"

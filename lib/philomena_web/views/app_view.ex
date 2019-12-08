@@ -65,6 +65,12 @@ defmodule PhilomenaWeb.AppView do
     Canada.Can.can?(conn.assigns.current_user, action, model)
   end
 
+  def map_join(enumerable, joiner, map_fn) do
+    enumerable
+    |> Enum.map(map_fn)
+    |> Enum.intersperse(joiner)
+  end
+
   def number_with_delimiter(nil), do: "0"
   def number_with_delimiter(number) do
     number
