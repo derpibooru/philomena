@@ -20,6 +20,7 @@ defmodule Textile.UrlLexer do
 
     scheme_and_domain =
       choice([
+        string("#"),
         string("/"),
         string("data:image/"),
         string("https://") |> concat(domain),
