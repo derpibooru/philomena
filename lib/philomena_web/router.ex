@@ -156,6 +156,10 @@ defmodule PhilomenaWeb.Router do
 
     resources "/ip_profiles", IpProfileController, only: [:show]
     resources "/fingerprint_profiles", FingerprintProfileController, only: [:show]
+
+    scope "/admin", Admin, as: :admin do
+      resources "/reports", ReportController, only: [:index, :show]
+    end
   end
 
   scope "/", PhilomenaWeb do

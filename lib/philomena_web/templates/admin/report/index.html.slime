@@ -1,0 +1,35 @@
+- route = fn p -> Routes.admin_report_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @reports
+
+h1 Reports
+
+= if Enum.any?(@my_reports) do
+  .block
+    .block__header
+      span.block__header__title Your Reports
+    .block__content
+      = render PhilomenaWeb.Admin.ReportView, "_reports.html", reports: @my_reports, conn: @conn
+
+.block
+  .block__header
+    span.block__header__title All Reports
+    = pagination
+  .block__content
+    = if Enum.any?(@reports) do
+      = render PhilomenaWeb.Admin.ReportView, "_reports.html", reports: @reports, conn: @conn
+    - else
+      p We couldn't find any reports for you, sorry!
+
+  .block__header.block__header--light
+    = pagination
+
+= form_for :report, Routes.admin_report_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+  .field
+    = text_input f, :rq, name: :rq, value: @conn.params["rq"], class: "input hform__text", placeholder: "Search reports", autocapitalize: "none"
+    = submit "Search", class: "hform__button button"
+
+.field
+  label for="rq"
+    ' Searchable fields: id, created_at, reason, state, open, user, user_id, admin, admin_id, ip, fingerprint, reportable_type, reportable_id, image_id
+    br
+    ' Report reason is used if you don't specify a field.

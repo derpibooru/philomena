@@ -13,6 +13,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
   alias Philomena.Tags.Tag
+  alias Philomena.Reports.Report
 
   # Admins can do anything
   def can?(%User{role: "admin"}, _action, _model), do: true
@@ -40,6 +41,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View IP addresses and fingerprints
   def can?(%User{role: "moderator"}, :show, :ip_address), do: true
+
+  # View reports
+  def can?(%User{role: "moderator"}, :index, Report), do: true
+  def can?(%User{role: "moderator"}, :show, %Report{}), do: true
+  def can?(%User{role: "moderator"}, :edit, %Report{}), do: true
 
   #
   # Assistants can...

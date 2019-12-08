@@ -34,6 +34,7 @@ defmodule Philomena.Users.User do
     has_many :awards, Badges.Award
     has_many :unread_notifications, UnreadNotification
     has_many :notifications, through: [:unread_notifications, :notification]
+    has_many :linked_tags, through: [:verified_links, :tag]
     has_one :commission, Commission
     many_to_many :roles, Role, join_through: "users_roles"
 

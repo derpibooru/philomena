@@ -50,6 +50,41 @@ defmodule PhilomenaWeb.ProfileView do
     Enum.map_join(tags, " || ", & &1.name)
   end
 
+  def user_abbrv(%{name: name}) do
+    String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
+  end
+  def user_abbrv(_user), do: content_tag(:span, "(n/a)")
+
+  defp initials_abbrv(name) do
+    case String.split(name, " ", parts: 4) do
+      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>, <<a3::utf8, _rest::binary>>, <<a4::utf8, _rest::binary>>] ->
+        <<a1::utf8, a2::utf8, a3::utf8, a4::utf8>>
+
+      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>, <<a3::utf8, _rest::binary>>] ->
+        <<a1::utf8, a2::utf8, a3::utf8>>
+
+      [<<a1::utf8, _rest::binary>>, <<a2::utf8, _rest::binary>>] ->
+        <<a1::utf8, a2::utf8>>
+
+      _ ->
+        nil
+    end
+  end
+
+  defp uppercase_abbrv(name) do
+    case Regex.scan(~r/[A-Z]/, name, capture: :all_but_first) do
+      [] ->
+        nil
+
+      list ->
+        Enum.join(list)
+    end
+  end
+
+  defp first_letters_abbrv(name) do
+    String.slice(name, 0, 4)
+  end
+
   defp zero_div(_num, 0), do: 0
   defp zero_div(num, den), do: div(num, den)
 

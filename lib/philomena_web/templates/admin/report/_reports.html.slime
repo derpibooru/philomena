@@ -1,0 +1,51 @@
+table.table
+  thead
+    tr
+      th Thing
+      th Reason
+      th User
+      th.hide-mobile Opened
+      th State
+      th Options
+  tbody
+    = for report <- @reports do
+      tr
+        td
+          = link_to_reported_thing @conn, report.reportable
+        td
+          span title=report.reason
+            = truncate(report.reason)
+        td
+          = if report.user do
+            = link report.user.name, to: Routes.profile_path(@conn, :show, report.user)
+          - else
+            em>
+              = truncated_ip_link(@conn, report.ip)
+            = link_to_fingerprint(@conn, report.fingerprint)
+
+          = if not is_nil(report.user) and Enum.any?(report.user.linked_tags) do
+            = render PhilomenaWeb.TagView, "_tag_list.html", tags: ordered_tags(report.user.linked_tags), conn: @conn
+
+        td.hide-mobile
+          = pretty_time report.created_at
+
+        td class=report_row_class(report)
+          => pretty_state(report)
+          = user_abbrv report.admin
+        td
+          = link "Show", to: Routes.admin_report_path(@conn, :show, report)
+          /- if report.open
+            - if report.user
+              '  &bull;
+              = link_to 'Send PM', new_conversation_path(title: "Your Report of #{reported_thing(report.reportable)}", recipient: report.user.name)
+            - if report.admin != current_user
+              '  &bull;
+              - if report.admin.present?
+                = link_to 'Claim', admin_report_claim_path(report), method: :post, data: { confirm: t('admin.reports.change_owner') }
+              - else
+                = link_to 'Claim', admin_report_claim_path(report), method: :post
+            - if report.admin == current_user
+              '  &bull;
+              = link_to 'Release', admin_report_claim_path(report), method: :delete
+            '  &bull;
+            = link_to t('close'), admin_report_close_path(report), data: { confirm: t('are_you_sure') }, method: :post

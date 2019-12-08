@@ -52,7 +52,7 @@
       span.header__counter__admin
         = @duplicate_report_count
   = if @report_count do
-    = link to: "#", class: "header__link", title: "Reports" do
+    = link to: Routes.admin_report_path(@conn, :index), class: "header__link", title: "Reports" do
       ' R
       span.header__counter__admin
         = @report_count
