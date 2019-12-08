@@ -20,8 +20,8 @@ defmodule PhilomenaWeb.DuplicateReportView do
   def background_class(_duplicate_report), do: nil
 
   def file_types(%{image: image, duplicate_of_image: duplicate_of_image}) do
-    source_type = String.upcase(image.image_format)
-    target_type = String.upcase(duplicate_of_image.image_format)
+    source_type = String.upcase(to_string(image.image_format))
+    target_type = String.upcase(to_string(duplicate_of_image.image_format))
 
     "(#{source_type}, #{target_type})"
   end
