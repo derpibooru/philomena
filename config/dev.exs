@@ -10,7 +10,8 @@ config :philomena, Philomena.Repo,
   pool_size: 10
 
 config :philomena,
-  elasticsearch_url: "http://elasticsearch:9200"
+  elasticsearch_url: "http://elasticsearch:9200",
+  redis_host: "redis"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

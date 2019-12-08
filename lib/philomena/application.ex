@@ -16,7 +16,7 @@ defmodule Philomena.Application do
       # {Philomena.Worker, arg},
       Philomena.Servers.ImageProcessor,
       Pow.Store.Backend.MnesiaCache,
-      {Redix, name: :redix}
+      {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
