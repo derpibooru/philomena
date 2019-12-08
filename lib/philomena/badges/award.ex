@@ -11,7 +11,7 @@ defmodule Philomena.Badges.Award do
     belongs_to :badge, Badge
 
     field :label, :string
-    field :awarded_on, :naive_datetime
+    field :awarded_on, :utc_datetime
     field :reason, :string
     field :badge_name, :string
 
