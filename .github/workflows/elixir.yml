@@ -23,7 +23,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install Ubuntu Dependencies
-      run: sudo apt-get install postgresql-client 
+      run:  apt-get install postgresql-client 
     - name: Install Dependencies
       run: |
         mix local.rebar --force
