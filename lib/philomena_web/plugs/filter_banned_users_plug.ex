@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.FilterBannedUsersPlug do
   def maybe_halt(_current_ban, conn, redirect_url) do
     conn
     |> Controller.put_flash(:error, "You are currently banned.")
-    |> Controller.redirect(to: redirect_url)
+    |> Controller.redirect(external: redirect_url)
     |> Conn.halt()
   end
 end
