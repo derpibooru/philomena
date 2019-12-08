@@ -130,6 +130,9 @@ defmodule Philomena.Users.User do
     field :uploaded_avatar, :string, virtual: true
     field :removed_avatar, :string, virtual: true
 
+    # For mod stuff
+    field :role_map, :any, virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 
