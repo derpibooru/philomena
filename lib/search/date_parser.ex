@@ -93,8 +93,8 @@ defmodule Search.DateParser do
   defp relative_datetime([count, scale]) do
     now = DateTime.utc_now()
 
-    lower = DateTime.add(now, count * -scale, :second)
-    upper = DateTime.add(now, (count - 1) * -scale, :second)
+    lower = DateTime.add(now, (count + 1) * -scale, :second)
+    upper = DateTime.add(now, count * -scale, :second)
 
     [lower, upper]
   end
