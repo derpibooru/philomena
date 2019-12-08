@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.Tag.WatchController do
   alias Philomena.Users
   alias Philomena.Repo
 
-  plug :load_tag
+  plug :load_resource, model: Tag, id_field: "slug", id_name: "tag_id", persisted: true
 
   def create(conn, _params) do
     case Users.watch_tag(conn.assigns.current_user, conn.assigns.tag) do
@@ -33,11 +33,5 @@ defmodule PhilomenaWeb.Tag.WatchController do
         |> put_status(:internal_server_error)
         |> text("")
     end
-  end
-
-  def load_tag(conn, _opts) do
-    tag = Repo.get_by!(Tag, slug: URI.encode(conn.params["tag_id"]))
-
-    assign(conn, :tag, tag)
   end
 end

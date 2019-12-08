@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.TagController do
 
     tag =
       Tag
-      |> where(slug: ^URI.encode(slug))
+      |> where(slug: ^slug)
       |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
       |> Repo.one()
 

@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Filter.HideController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug :authorize_filter
-  plug :load_tag
+  plug :load_resource, model: Tag, id_field: "slug", id_name: "tag_id", persisted: true
 
   def create(conn, _params) do
     case Filters.hide_tag(conn.assigns.current_filter, conn.assigns.tag) do
@@ -47,11 +47,5 @@ defmodule PhilomenaWeb.Filter.HideController do
         |> put_status(:forbidden)
         |> text("")
     end
-  end
-
-  def load_tag(conn, _opts) do
-    tag = Repo.get_by!(Tag, slug: URI.encode(conn.params["tag"]))
-
-    assign(conn, :tag, tag)
   end
 end
