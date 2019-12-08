@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.Filter.HideController do
 
   alias Philomena.Filters
   alias Philomena.Tags.Tag
-  alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug :authorize_filter

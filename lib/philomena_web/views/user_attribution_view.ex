@@ -49,15 +49,21 @@ defmodule PhilomenaWeb.UserAttributionView do
     |> staff_role(user)
   end
 
-  defp personal_title(labels, %{personal_title: t}) when t not in [nil, ""],
-    do: [{"label--primary", t} | labels]
-  defp personal_title(labels, _user),
-    do: labels
+  defp personal_title(labels, %{personal_title: t}) do
+    case blank?(t) do
+      true  -> labels
+      false -> [{"label--primary", t} | labels]
+    end
+  end
+  defp personal_title(labels, _user), do: labels
 
-  defp secondary_role(labels, %{secondary_role: t}) when t not in [nil, ""],
-    do: [{"label--warning", t} | labels]
-  defp secondary_role(labels, _user),
-    do: labels
+  defp secondary_role(labels, %{secondary_role: t}) do
+    case blank?(t) do
+      true  -> labels
+      false -> [{"label--warning", t} | labels]
+    end
+  end
+  defp secondary_role(labels, _user), do: labels
 
   defp staff_role(labels, %{hide_default_role: false, role: "admin"}),
     do: [{"label--danger", "Site Administrator"} | labels]
