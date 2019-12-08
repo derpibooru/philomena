@@ -4,21 +4,9 @@ on: push
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     container:
-      image: elixir:1.9.4
-    
-    steps:
-    - uses: actions/checkout@v1
-      id: build
-    - name: Install Dependencies
-      run: |
-        mix local.rebar --force
-        mix local.hex --force
-        mix deps.get
-    
+      image: elixir:1.9.4    
     services:
       db:
         image: postgres:11
@@ -31,8 +19,7 @@ jobs:
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
-           
+          --health-retries 5           
       philomena:
         image: elixir:1.9.4
         env:
@@ -42,4 +29,3 @@ jobs:
               mix local.hex --force
               mix deps.get
               mix test
-              
