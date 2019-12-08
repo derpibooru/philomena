@@ -23,9 +23,9 @@ article.block.communication id="post_#{@post.id}"
         =<> "Delete"
       = if can?(@conn, :manage, @post) do
         .communication__info
-          =<> link_to_ip(@post.ip)
+          =<> link_to_ip(@conn, @post.ip)
         .communication__info
-          =<> link_to_fingerprint(@post.fingerprint)
+          =<> link_to_fingerprint(@conn, @post.fingerprint)
     /- if can?(:hide, Post)
     /  .js-staff-action
     /    - if !post.hidden_from_users && !post.destroyed_content

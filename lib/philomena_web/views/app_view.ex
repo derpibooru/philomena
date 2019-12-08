@@ -1,4 +1,5 @@
 defmodule PhilomenaWeb.AppView do
+  alias PhilomenaWeb.Router.Helpers, as: Routes
   use Phoenix.HTML
 
   @time_strings %{
@@ -117,14 +118,12 @@ defmodule PhilomenaWeb.AppView do
   defp text_or_na(nil), do: "N/A"
   defp text_or_na(text), do: text
 
-  # todo: make ip a real link
-  def link_to_ip(ip) do
-    link(text_or_na(ip), to: "#")
+  def link_to_ip(conn, ip) do
+    link(text_or_na(ip), to: Routes.ip_profile_path(conn, :show, to_string(ip)))
   end
 
-  # todo: make fp a real link
-  def link_to_fingerprint(fp) do
-    link(String.slice(text_or_na(fp), 0..6), to: "#")
+  def link_to_fingerprint(conn, fp) do
+    link(String.slice(text_or_na(fp), 0..6), to: Routes.fingerprint_profile_path(conn, :show, fp))
   end
 
   def blank?(nil), do: true

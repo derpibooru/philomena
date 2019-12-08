@@ -24,9 +24,9 @@ article.block.communication id="comment_#{@comment.id}"
           =<> "Delete"
         = if can?(@conn, :manage, @comment) do
           .communication__info
-            =<> link_to_ip(@comment.ip)
+            =<> link_to_ip(@conn, @comment.ip)
           .communication__info
-            =<> link_to_fingerprint(@comment.fingerprint)
+            =<> link_to_fingerprint(@conn, @comment.fingerprint)
     /- if can?(:hide, Comment)
     /  .js-staff-action
     /    - if !comment.hidden_from_users && !comment.destroyed_content

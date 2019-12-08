@@ -1,0 +1,39 @@
+h1
+  = @fingerprint
+  ' 's fingerprint profile
+
+ul
+  li = link "View images this fingerprint has uploaded", to: Routes.search_path(@conn, :index, q: "fingerprint:#{@fingerprint}")
+  li = link "View comments this fingerprint has posted", to: Routes.comment_path(@conn, :index, cq: "fingerprint:#{@fingerprint}")
+  li = link "View posts this fingerprint has made", to: Routes.post_path(@conn, :index, pq: "fingerprint:#{@fingerprint}")
+
+/= render partial: "bans/ban_list", locals: { bans: @bans }
+
+h2 Administration Options
+/ul
+  li = link "View tag changes", "/fingerprint_profiles/#{@fingerprint}/tag_changes"
+  li = link "View source URL history", "/fingerprint_profiles/#{@fingerprint}/source_changes"
+  li = link "View reports this fingerprint has made", admin_reports_path(rq: "ip:#{@fingerprint}")
+  li = link "View fingerprint ban history", admin_subnet_bans_path(q: @fingerprint)
+  li = link "Ban this sucker", new_admin_subnet_ban_path(fingerprint: @fingerprint)
+
+h4 Observed users
+table.table
+  thead
+    tr
+      th Username
+      th Account Used
+      th Last Seen
+      th Created At
+  tbody
+    = for ufp <- @user_fps do
+      tr
+        td
+          = link ufp.user.name, to: Routes.profile_path(@conn, :show, ufp.user)
+        td
+          => ufp.uses
+          ' times
+        td
+          => pretty_time ufp.updated_at
+        td
+          => pretty_time ufp.user.created_at

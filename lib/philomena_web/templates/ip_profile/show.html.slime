@@ -1,0 +1,39 @@
+h1
+  = @ip
+  ' 's IP profile
+
+ul
+  li = link "View images this IP has uploaded", to: Routes.search_path(@conn, :index, q: "ip:#{@ip}")
+  li = link "View comments this IP has posted", to: Routes.comment_path(@conn, :index, cq: "ip:#{@ip}")
+  li = link "View posts this IP has made", to: Routes.post_path(@conn, :index, pq: "ip:#{@ip}")
+
+/= render partial: "bans/ban_list", locals: { bans: @bans }
+
+h2 Administration Options
+/ul
+  li = link "View tag changes", "/ip_profiles/#{@ip}/tag_changes"
+  li = link "View source URL history", "/ip_profiles/#{@ip}/source_changes"
+  li = link "View reports this IP has made", admin_reports_path(rq: "ip:#{@ip}")
+  li = link "View IP ban history", admin_subnet_bans_path(q: @ip)
+  li = link "Ban this sucker", new_admin_subnet_ban_path(ip: @ip)
+
+h4 Observed users
+table.table
+  thead
+    tr
+      th Username
+      th Account Used
+      th Last Seen
+      th Created At
+  tbody
+    = for uip <- @user_ips do
+      tr
+        td
+          = link uip.user.name, to: Routes.profile_path(@conn, :show, uip.user)
+        td
+          => uip.uses
+          ' times
+        td
+          => pretty_time uip.updated_at
+        td
+          => pretty_time uip.user.created_at
