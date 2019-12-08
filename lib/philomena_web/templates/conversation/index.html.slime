@@ -33,7 +33,7 @@ h1 My Conversations
                 = pretty_time(c.last_message_at)
 
             td.table--communication-list__stats
-              = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user.id, c)}, conn: @conn
+              = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user, c)}, conn: @conn
             td.table--communication-list__options
               => link "Last message", to: last_message_path(@conn, c, count)
               ' &bull;
