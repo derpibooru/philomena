@@ -21,6 +21,7 @@ h1 Content Settings
         .field
           = label f, :watched_tag_list, "Tags to watch"
           = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :watched_tag_list, type: :edit, conn: @conn
+          = error_tag f, :watched_tag_list
 
         h4 Watchlist queries and filtering
         p
@@ -31,9 +32,11 @@ h1 Content Settings
         .field
           = label f, :watched_images_query_str, "Watch list search string (images found by this search are added to your watched images list)"
           = textarea f, :watched_images_query_str, class: "input input--wide", autocapitalize: "none"
+          = error_tag f, :watched_images_query_str
         .field
           = label f, :watched_images_exclude_str, "Watch list filter string (any images found by this search are removed from your watched images list)"
           = textarea f, :watched_images_exclude_str, class: "input input--wide", autocapitalize: "none"
+          = error_tag f, :watched_images_exclude_str
         .field
           => checkbox f, :no_spoilered_in_watched, class: "checkbox"
           => label f, :no_spoilered_in_watched, "Hide images spoilered by filter in watchlist"
@@ -59,13 +62,15 @@ h1 Content Settings
           .field
             => label f, :images_per_page
             => number_input f, :images_per_page, min: 15, max: 50, step: 1, class: "input"
+            = error_tag f, :images_per_page
             .fieldlabel
               i
                 ' This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50.
                 ' For 1080p monitors, try 24.
           .field
             => label f, :comments_per_page
-            => number_input f, :comments_per_page, min: 15, max: 50, step: 1, class: "input"
+            => number_input f, :comments_per_page, min: 15, max: 100, step: 1, class: "input"
+            = error_tag f, :comments_per_page
             .fieldlabel: i This is the number of comments per page that are displayed on image pages.
           .field
             => label f, :scale_large_images
@@ -74,6 +79,7 @@ h1 Content Settings
           .field
             => label f, :theme
             => select f, :theme, theme_options(@conn), class: "input"
+            = error_tag f, :theme
             .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
 
       .block__tab.hidden.flex.flex--maybe-wrap data-tab="metadata"
