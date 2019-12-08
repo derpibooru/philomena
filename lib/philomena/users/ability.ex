@@ -3,6 +3,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Comments.Comment
   alias Philomena.Commissions.Commission
   alias Philomena.Conversations.Conversation
+  alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
@@ -11,6 +12,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Galleries.Gallery
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
+  alias Philomena.Tags.Tag
 
   # Admins can do anything
   def can?(%User{role: "admin"}, _action, _model), do: true
@@ -36,12 +38,43 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # View conversations
   def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
 
+  # View IP addresses and fingerprints
+  def can?(%User{role: "moderator"}, :show, :ip_address), do: true
+
   #
   # Assistants can...
   #
 
-  # View images
-  def can?(%User{role: "assistant"}, :show, %Image{}), do: true
+
+  # Image assistant actions
+  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :show, %Image{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :hide, %Image{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit, %Image{}), do: true
+
+  # Dupe assistant actions
+  def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :edit, %DuplicateReport{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :show, %Image{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :edit, %Image{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :hide, %Comment{}), do: true
+
+  # Comment assistant actions
+  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :show, %Comment{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :edit, %Comment{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :hide, %Comment{}), do: true
+
+  # Topic assistant actions
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Topic{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Topic{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Post{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Post{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Post{}), do: true
+
+  # Tag assistant actions
+  def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :edit, %Tag{}), do: true
+
+  # User link assistant actions
+  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :show, %UserLink{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit, %UserLink{}), do: true
 
   # View forums
   def can?(%User{role: "assistant"}, :show, %Forum{access_level: level})

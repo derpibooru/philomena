@@ -47,7 +47,7 @@
           i.fa.fa-fw.fa-sticky-note>
           ' Mod Notes
   = if @duplicate_report_count do
-    = link to: "#", class: "header__link", title: "Duplicates" do
+    = link to: Routes.duplicate_report_path(@conn, :index), class: "header__link", title: "Duplicates" do
       ' D
       span.header__counter__admin
         = @duplicate_report_count

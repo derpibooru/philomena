@@ -151,6 +151,9 @@ defmodule PhilomenaWeb.Router do
       resources "/read", Channel.ReadController, only: [:create], singleton: true
       resources "/subscription", Channel.SubscriptionController, only: [:create, :delete], singleton: true
     end
+
+    resources "/ip_profiles", IpProfileController, only: [:show]
+    resources "/fingerprint_profiles", FingerprintProfileController, only: [:show]
   end
 
   scope "/", PhilomenaWeb do

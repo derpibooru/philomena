@@ -177,7 +177,7 @@ defmodule Philomena.Users do
 
   defp setup_roles(nil), do: nil
   defp setup_roles(user) do
-    role_map = Map.new(user.roles, &{&1.name, &1.resource_type || true})
+    role_map = Map.new(user.roles, &{&1.resource_type || &1.name, &1.name})
 
     %{user | role_map: role_map}
   end

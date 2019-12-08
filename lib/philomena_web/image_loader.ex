@@ -78,8 +78,10 @@ defmodule PhilomenaWeb.ImageLoader do
     Tag
     |> join(:left, [t], at in Tag, on: t.id == at.aliased_tag_id)
     |> where([t, at], t.name in ^tags or at.name in ^tags)
-    |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
+    |> preload([:aliases, :aliased_tag, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
     |> Repo.all()
+    |> Enum.uniq_by(& &1.id)
+    |> Enum.filter(&is_nil(&1.aliased_tag))
   end
 
   defp render_bodies([], _conn), do: []

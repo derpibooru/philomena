@@ -55,8 +55,8 @@
         ' by
         => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, awards: true, conn: @conn
         = if can?(@conn, :manage, @image) do
-          =<> link_to_ip(@image.ip)
-          =<> link_to_fingerprint(@image.fingerprint)
+          => link_to_ip(@conn, @image.ip)
+          => link_to_fingerprint(@conn, @image.fingerprint)
           a href="#"
             i.fa.fa-edit
     span.image-size
