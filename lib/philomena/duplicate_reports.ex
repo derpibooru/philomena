@@ -116,7 +116,7 @@ defmodule Philomena.DuplicateReports do
   end
 
   def count_duplicate_reports(user) do
-    if Canada.Can.can?(user, :manage, DuplicateReport) do
+    if Canada.Can.can?(user, :edit, DuplicateReport) do
       DuplicateReport
       |> where(state: "open")
       |> Repo.aggregate(:count, :id)
