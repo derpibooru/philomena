@@ -31,4 +31,28 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     |> put_assoc(:user, attribution[:user])
     |> validate_length(:reason, max: 250, count: :bytes)
   end
+
+  def accept_changeset(duplicate_report, user) do
+    change(duplicate_report)
+    |> put_change(:modifier_id, user.id)
+    |> put_change(:state, "accepted")
+  end
+
+  def claim_changeset(duplicate_report, user) do
+    change(duplicate_report)
+    |> put_change(:modifier_id, user.id)
+    |> put_change(:state, "claimed")
+  end
+
+  def unclaim_changeset(duplicate_report) do
+    change(duplicate_report)
+    |> put_change(:modifier_id, nil)
+    |> put_change(:state, "open")
+  end
+
+  def reject_changeset(duplicate_report, user) do
+    change(duplicate_report)
+    |> put_change(:modifier_id, user.id)
+    |> put_change(:state, "rejected")
+  end
 end

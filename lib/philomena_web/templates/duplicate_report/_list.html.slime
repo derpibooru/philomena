@@ -125,23 +125,25 @@
 
     .flex.flex--column.grid--dupe-report-list__cell.border-vertical id="report_options_#{report.id}"
       .dr__status-options class=background_class
-        = String.capitalize(report.state)
+        => String.capitalize(report.state)
 
-        /- if can_manage_dr && report.modifier.present?
-          '  by
+        = if can?(@conn, :edit, report) and not is_nil(report.modifier) do
+          ' by
           = report.modifier.name
-        /- if can_manage_dr
+
+        = if can?(@conn, :edit, report) do
           div
-            - if report.state == 'open'
-              a href=duplicate_report_claim_path(report, target: "report_options_#{report.id}") data-method="post"
+            = if report.state == "open" do
+              a href=(Routes.duplicate_report_claim_path(@conn, :create, report) <> "#report_options_#{report.id}") data-method="post"
                 button.button.button--separate-right
                   i.fa.fa-clipboard>
-                  | Claim
-            - if report.state != 'rejected'
-              a href=duplicate_report_reject_path(report) data-method="post"
+                  ' Claim
+
+            = if report.state != "rejected" do
+              a href=Routes.duplicate_report_reject_path(@conn, :create, report) data-method="post"
                 button.button
                   i.fa.fa-times>
-                  | Reject
+                  ' Reject
 
       .dr__status-options
         div
@@ -152,4 +154,4 @@
             ' by
             =< link report.user.name, to: Routes.profile_path(@conn, :show, report.user)
 
-        = report.reason
+        = escape_nl2br(report.reason)

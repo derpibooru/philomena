@@ -173,6 +173,13 @@ defmodule PhilomenaWeb.Router do
         resources "/close", Report.CloseController, only: [:create], singleton: true
       end
     end
+
+    resources "/duplicate_reports", DuplicateReportController, only: [] do
+      resources "/accept", DuplicateReport.AcceptController, only: [:create], singleton: true
+      resources "/accept_reverse", DuplicateReport.AcceptReverseController, only: [:create], singleton: true
+      resources "/reject", DuplicateReport.RejectController, only: [:create], singleton: true
+      resources "/claim", DuplicateReport.ClaimController, only: [:create, :delete], singleton: true
+    end
   end
 
   scope "/", PhilomenaWeb do

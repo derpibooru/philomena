@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.ImageView do
   # this is a bit ridculous
   def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
   def render_intent(conn, image, size) do
-    uris = thumb_urls(image, false)
+    uris = thumb_urls(image, can?(conn, :show, image))
     vid? = image.image_mime_type == "video/webm"
     gif? = image.image_mime_type == "image/gif"
     tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
@@ -49,8 +49,18 @@ defmodule PhilomenaWeb.ImageView do
       tall: thumb_url(image, show_hidden, :tall),
       full: pretty_url(image, true, false)
     }
+    |> append_full_url(image, show_hidden)
     |> append_gif_urls(image, show_hidden)
   end
+
+  defp append_full_url(urls, %{hidden_from_users: false} = image, _show_hidden),
+    do: Map.put(urls, :full, pretty_url(image, true, false))
+
+  defp append_full_url(urls, %{hidden_from_users: true} = image, true),
+    do: Map.put(urls, :full, thumb_url(image, true, :full))
+
+  defp append_full_url(urls, _image, _show_hidden),
+    do: urls
 
   defp append_gif_urls(urls, %{image_mime_type: "image/gif"} = image, show_hidden) do
     full_url = thumb_url(image, show_hidden, :full)
@@ -104,7 +114,7 @@ defmodule PhilomenaWeb.ImageView do
     Application.get_env(:philomena, :image_url_root)
   end
 
-  def image_container_data(image, size) do
+  def image_container_data(conn, image, size) do
     [
       image_id: image.id,
       image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
@@ -116,7 +126,7 @@ defmodule PhilomenaWeb.ImageView do
       comment_count: image.comments_count,
       created_at: NaiveDateTime.to_iso8601(image.created_at),
       source_url: image.source_url,
-      uris: Jason.encode!(thumb_urls(image, false)),
+      uris: Jason.encode!(thumb_urls(image, can?(conn, :show, image))),
       width: image.image_width,
       height: image.image_height,
       aspect_ratio: image.image_aspect_ratio,
@@ -124,8 +134,8 @@ defmodule PhilomenaWeb.ImageView do
     ]
   end
 
-  def image_container(image, size, block) do
-    content_tag(:div, block.(), class: "image-container #{size}", data: image_container_data(image, size))
+  def image_container(conn, image, size, block) do
+    content_tag(:div, block.(), class: "image-container #{size}", data: image_container_data(conn, image, size))
   end
 
   def display_order(tags) do

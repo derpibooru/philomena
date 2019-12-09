@@ -201,6 +201,7 @@ defmodule Philomena.Images.Image do
     |> put_change(:hidden_image_key, nil)
     |> put_change(:hidden_from_users, false)
     |> put_change(:deletion_reason, nil)
+    |> put_change(:duplicate_id, nil)
   end
 
   def cache_changeset(image) do

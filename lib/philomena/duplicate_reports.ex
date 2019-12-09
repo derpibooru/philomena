@@ -9,6 +9,7 @@ defmodule Philomena.DuplicateReports do
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.Images.Image
+  alias Philomena.Images
 
   def generate_reports(source) do
     source = Repo.preload(source, :intensity)
@@ -68,21 +69,65 @@ defmodule Philomena.DuplicateReports do
     |> Repo.insert()
   end
 
-  @doc """
-  Updates a duplicate_report.
+  # TODO: can we get this in a single transaction?
+  def accept_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
+    result =
+      duplicate_report
+      |> DuplicateReport.accept_changeset(user)
+      |> Repo.update()
 
-  ## Examples
+    case result do
+      {:ok, duplicate_report} ->
+        duplicate_report = Repo.preload(duplicate_report, [:image, :duplicate_of_image])
 
-      iex> update_duplicate_report(duplicate_report, %{field: new_value})
-      {:ok, %DuplicateReport{}}
+        Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image)
 
-      iex> update_duplicate_report(duplicate_report, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      _error ->
+        result
+    end
+  end
 
-  """
-  def update_duplicate_report(%DuplicateReport{} = duplicate_report, attrs) do
+  def accept_reverse_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
+    {:ok, duplicate_report} = reject_duplicate_report(duplicate_report, user)
+
+    # Need a constraint for upsert, so have to do it the hard way
+    new_report = Repo.get_by(DuplicateReport, duplicate_of_image_id: duplicate_report.image_id)
+
+    new_report =
+      if new_report do
+        new_report
+      else
+        {:ok, duplicate_report} =
+          %DuplicateReport{
+            image_id: duplicate_report.duplicate_of_image_id,
+            duplicate_of_image_id: duplicate_report.image_id,
+            reason: Enum.join([duplicate_report.reason, "(Reverse accepted)"], "\n"),
+            user_id: user.id
+          }
+          |> DuplicateReport.changeset(%{})
+          |> Repo.insert()
+
+        duplicate_report
+      end
+
+    accept_duplicate_report(new_report, user)
+  end
+
+  def claim_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
     duplicate_report
-    |> DuplicateReport.changeset(attrs)
+    |> DuplicateReport.claim_changeset(user)
+    |> Repo.update()
+  end
+
+  def unclaim_duplicate_report(%DuplicateReport{} = duplicate_report) do
+    duplicate_report
+    |> DuplicateReport.unclaim_changeset()
+    |> Repo.update()
+  end
+
+  def reject_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
+    duplicate_report
+    |> DuplicateReport.reject_changeset(user)
     |> Repo.update()
   end
 

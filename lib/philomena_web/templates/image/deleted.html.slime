@@ -1,26 +1,36 @@
-.walloftext
-  .block.block--fixed.block--warning
-    h1 This image has been deleted
-    p
-      ' Reason:
-      strong
-        = @image.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
-
-    = if can?(@conn, :hide, @image) do
+= if @image.duplicate_id do
+  .walloftext
+    .block.block--fixed.block--warning
+      h1 This image has been merged into another image
       p
-        strong> Spoilers!
-        ' Done by:
-        strong = deleter(@image)
-  p
-    ' If you originally uploaded the file previously located here, please don't re-upload it -
-    => link "contact us", to: "/pages/contact"
-    ' if you feel this was in error and we'll talk! We're only human, and mistakes happen.
-  p
-    ' Here's the
-    => link "tagging guidelines", to: "/pages/tags"
-    ' and
-    = link "rules of the site", to: "/pages/rules"
-    ' . Other useful links can be found at the bottom of the page.
+        ' This image was merged into image
+        => link "##{@image.duplicate_id}", to: Routes.image_path(@conn, :show, @image.duplicate_id)
+        ' because it was determined to be a duplicate of that image.
+
+- else
+  .walloftext
+    .block.block--fixed.block--warning
+      h1 This image has been deleted
+      p
+        ' Reason:
+        strong
+          = @image.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
+
+      = if can?(@conn, :hide, @image) do
+        p
+          strong> Spoilers!
+          ' Done by:
+          strong = deleter(@image)
+    p
+      ' If you originally uploaded the file previously located here, please don't re-upload it -
+      => link "contact us", to: "/pages/contact"
+      ' if you feel this was in error and we'll talk! We're only human, and mistakes happen.
+    p
+      ' Here's the
+      => link "tagging guidelines", to: "/pages/tags"
+      ' and
+      = link "rules of the site", to: "/pages/rules"
+      ' . Other useful links can be found at the bottom of the page.
 
 = if can?(@conn, :hide, @image) do
   = render PhilomenaWeb.ImageView, "show.html", assigns

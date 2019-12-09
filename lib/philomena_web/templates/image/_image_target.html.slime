@@ -1,4 +1,4 @@
-= content_tag :div, [data: image_container_data(@image, :full), class: "image-show-container"] do
+= content_tag :div, [data: image_container_data(@conn, @image, :full), class: "image-show-container"] do
   .block.block--fixed.block--warning.block--no-margin.image-filtered.hidden
     strong
       = link("This image is blocked by your current filter - click here to display it anyway", to: "#", data: [click_unfilter: @image.id])

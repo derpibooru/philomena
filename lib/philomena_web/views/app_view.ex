@@ -104,6 +104,7 @@ defmodule PhilomenaWeb.AppView do
     end)
   end
 
+  def escape_nl2br(nil), do: nil
   def escape_nl2br(text) do
     text
     |> String.split("\n")

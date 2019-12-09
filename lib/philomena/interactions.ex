@@ -56,7 +56,7 @@ defmodule Philomena.Interactions do
   end
 
   def migrate_interactions(source, target) do
-    now = DateTime.utc_now()
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     source = Repo.preload(source, [:hiders, :favers, :upvoters, :downvoters])
 
     new_hides = Enum.map(source.hiders, &%{image_id: target.id, user_id: &1.id, created_at: now})
@@ -88,7 +88,16 @@ defmodule Philomena.Interactions do
     |> Multi.run(:image, fn repo, %{hides: hides, faves: faves, upvotes: upvotes, downvotes: downvotes} ->
       image_query = where(Image, id: ^target.id)
 
-      repo.update_all(image_query, inc: [hides: hides, faves: faves, upvotes: upvotes, downvotes: downvotes, score: upvotes - downvotes])
+      repo.update_all(
+        image_query,
+        inc: [
+          hides_count: hides,
+          faves_count: faves,
+          upvotes_count: upvotes,
+          downvotes_count: downvotes,
+          score: upvotes - downvotes
+        ]
+      )
 
       {:ok, nil}
     end)

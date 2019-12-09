@@ -1,6 +1,6 @@
 - link = assigns[:link] || Routes.image_path(@conn, :show, @image)
 
-= image_container @image, @size, fn ->
+= image_container @conn, @image, @size, fn ->
   = cond do
     - @image.duplicate_id ->
       .media-box__overlay

@@ -16,14 +16,14 @@
   p
     = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, conn: @conn
 
-  /- if report.valid? && can_manage_dr
-    - if source
-      a href=duplicate_report_accept_reverse_path(report) data-method="post"
+  = if can?(@conn, :edit, @report) do
+    = if @source do
+      a href=Routes.duplicate_report_accept_reverse_path(@conn, :create, @report) data-method="post"
         button.button
           ' Keep Source
           i.fa.fa-arrow-left
     - else
-      a href=duplicate_report_accept_path(report) data-method="post"
+      a href=Routes.duplicate_report_accept_path(@conn, :create, @report) data-method="post"
         button.button
           i.fa.fa-arrow-right>
           | Keep Target

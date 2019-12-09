@@ -245,7 +245,7 @@ defmodule Philomena.Images do
     |> Repo.isolated_transaction(:serializable)
   end
 
-  def unhide_image(%Image{} = image) do
+  def unhide_image(%Image{hidden_from_users: true} = image) do
     key = image.hidden_image_key
 
     Multi.new
@@ -267,6 +267,7 @@ defmodule Philomena.Images do
     end)
     |> Repo.isolated_transaction(:serializable)
   end
+  def unhide_image(image), do: {:ok, image}
 
   @doc """
   Deletes a Image.
