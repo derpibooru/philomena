@@ -38,8 +38,6 @@ function commentReply(user, url, textarea, quote) {
 function getPreview(body, anonymous, previewTab, isImage = false) {
   let path = '/posts/preview';
 
-  if (isImage) path = '/images/preview';
-
   fetchJson('POST', path, { body, anonymous })
     .then(handleError)
     .then(data => {

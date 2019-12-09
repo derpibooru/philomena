@@ -17,6 +17,7 @@ defmodule PhilomenaWeb.Image.SourceController do
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes
     image = conn.assigns.image
+    old_source = image.source_url
 
     case Images.update_source(image, attributes, image_params) do
       {:ok, %{image: image}} ->
@@ -28,7 +29,9 @@ defmodule PhilomenaWeb.Image.SourceController do
           |> where(image_id: ^image.id)
           |> Repo.aggregate(:count, :id)
 
-        UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
+        if old_source != image.source_url do
+          UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
+        end
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
