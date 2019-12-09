@@ -38,6 +38,28 @@ defmodule Philomena.Reports.Report do
     |> validate_required([])
   end
 
+  # Ensure that the report is not currently claimed before
+  # attempting to claim
+  def claim_changeset(report, user) do
+    change(report)
+    |> validate_inclusion(:admin_id, [])
+    |> put_change(:admin_id, user.id)
+    |> put_change(:state, "in_progress")
+  end
+
+  def unclaim_changeset(report) do
+    change(report)
+    |> put_change(:admin_id, nil)
+    |> put_change(:state, "open")
+  end
+
+  def close_changeset(report, user) do
+    change(report)
+    |> put_change(:admin_id, user.id)
+    |> put_change(:open, false)
+    |> put_change(:state, "closed")
+  end
+
   @doc false
   def creation_changeset(report, attrs, attribution) do
     report

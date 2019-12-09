@@ -103,6 +103,24 @@ defmodule Philomena.Reports do
     Report.changeset(report, %{})
   end
 
+  def claim_report(%Report{} = report, user) do
+    report
+    |> Report.claim_changeset(user)
+    |> Repo.update()
+  end
+
+  def unclaim_report(%Report{} = report) do
+    report
+    |> Report.unclaim_changeset()
+    |> Repo.update()
+  end
+
+  def close_report(%Report{} = report, user) do
+    report
+    |> Report.close_changeset(user)
+    |> Repo.update()
+  end
+
   def reindex_report(%Report{} = report) do
     spawn fn ->
       Report

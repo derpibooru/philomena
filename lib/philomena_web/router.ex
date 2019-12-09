@@ -168,7 +168,10 @@ defmodule PhilomenaWeb.Router do
     resources "/fingerprint_profiles", FingerprintProfileController, only: [:show]
 
     scope "/admin", Admin, as: :admin do
-      resources "/reports", ReportController, only: [:index, :show]
+      resources "/reports", ReportController, only: [:index, :show] do
+        resources "/claim", Report.ClaimController, only: [:create, :delete], singleton: true
+        resources "/close", Report.CloseController, only: [:create], singleton: true
+      end
     end
   end
 

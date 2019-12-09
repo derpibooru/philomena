@@ -34,19 +34,20 @@ table.table
           => pretty_state(report)
           = user_abbrv @conn, report.admin
         td
-          = link "Show", to: Routes.admin_report_path(@conn, :show, report)
-          /- if report.open
-            - if report.user
-              '  &bull;
-              = link_to 'Send PM', new_conversation_path(title: "Your Report of #{reported_thing(report.reportable)}", recipient: report.user.name)
-            - if report.admin != current_user
-              '  &bull;
-              - if report.admin.present?
-                = link_to 'Claim', admin_report_claim_path(report), method: :post, data: { confirm: t('admin.reports.change_owner') }
-              - else
-                = link_to 'Claim', admin_report_claim_path(report), method: :post
-            - if report.admin == current_user
-              '  &bull;
-              = link_to 'Release', admin_report_claim_path(report), method: :delete
-            '  &bull;
-            = link_to t('close'), admin_report_close_path(report), data: { confirm: t('are_you_sure') }, method: :post
+          => link "Show", to: Routes.admin_report_path(@conn, :show, report)
+
+          = if report.open do
+            = if report.user do
+              ' &bull;
+              => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: report.user.name)
+
+            = if is_nil(report.admin) and not current?(report.admin, @conn.assigns.current_user) do
+              ' &bull;
+              => link "Claim", to: Routes.admin_report_claim_path(@conn, :create, report), data: [method: "post"]
+
+            = if current?(report.admin, @conn.assigns.current_user) do
+              ' &bull;
+              => link "Release", to: Routes.admin_report_claim_path(@conn, :delete, report), data: [method: "delete"]
+
+            ' &bull;
+            => link "Close", to: Routes.admin_report_close_path(@conn, :create, report), data: [method: "post", confirm: "Are you really, really sure?"]
