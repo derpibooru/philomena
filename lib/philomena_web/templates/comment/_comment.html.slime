@@ -34,7 +34,7 @@ article.block.communication id="comment_#{@comment.id}"
               = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), method: :delete, data: [confirm: "Are you sure?"], class: "communication__interaction") do
                 i.fas.fa-times>
                 ' Delete Contents
-          - !@comment.hidden_from_users and not @comment.destroyed_content ->
+          - not @comment.hidden_from_users and not @comment.destroyed_content ->
             a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
               i.fas.fa-times>
               ' Delete
