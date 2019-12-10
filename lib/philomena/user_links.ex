@@ -149,7 +149,7 @@ defmodule Philomena.UserLinks do
   def count_user_links(user) do
     if Canada.Can.can?(user, :index, UserLink) do
       UserLink
-      |> where(aasm_state: "unverified")
+      |> where([ul], ul.aasm_state in ^["unverified", "link_verified", "contacted"])
       |> Repo.aggregate(:count, :id)
     else
       nil
