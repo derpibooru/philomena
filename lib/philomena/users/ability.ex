@@ -42,7 +42,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # View IP addresses and fingerprints
   def can?(%User{role: "moderator"}, :show, :ip_address), do: true
 
-  # View reports
+  # Manage duplicate reports
+  def can?(%User{role: "moderator"}, :index, DuplicateReport), do: true
+
+  # Manage reports
   def can?(%User{role: "moderator"}, :index, Report), do: true
   def can?(%User{role: "moderator"}, :show, %Report{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Report{}), do: true
@@ -64,6 +67,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit, %Image{}), do: true
 
   # Dupe assistant actions
+  def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :index, DuplicateReport), do: true
   def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :edit, %DuplicateReport{}), do: true
   def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :show, %Image{}), do: true
   def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :edit, %Image{}), do: true
