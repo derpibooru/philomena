@@ -115,7 +115,10 @@ defmodule PhilomenaWeb.Router do
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
       resources "/subscription", Image.SubscriptionController, only: [:create, :delete], singleton: true
       resources "/read", Image.ReadController, only: [:create], singleton: true
-      resources "/comments", Image.CommentController, only: [:edit, :update]
+      resources "/comments", Image.CommentController, only: [:edit, :update] do
+        resources "/hide", Image.Comment.HideController, only: [:create, :delete], singleton: true
+        resources "/delete", Image.Comment.DeleteController, only: [:delete], singleton: true
+      end
       resources "/delete", Image.DeleteController, only: [:create, :delete], singleton: true
     end
 
