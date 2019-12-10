@@ -5,4 +5,7 @@
     = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
 - else
   strong<>
-    = anonymous_name(@object)
+    = if can?(@conn, :reveal_anon, @object) do
+      = link(anonymous_name(@object, true), to: Routes.profile_path(@conn, :show, @object.user))
+    - else
+      = anonymous_name(@object)
