@@ -25,22 +25,20 @@ article.block.communication id="comment_#{@comment.id}"
       = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment, conn: @conn
     = if can?(@conn, :hide, @comment) do
       .js-staff-action
-        = case @comment.destroyed_content do
+        = cond do
+          - @comment.hidden_from_users and not @comment.destroyed_content ->
+            = link(to: Routes.image_comment_hide_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
+              i.fas.fa-check>
+              ' Restore
+            = if can?(@conn, :delete, @comment) do
+              = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), method: :delete, data: [confirm: "Are you sure?"], class: "communication__interaction") do
+                i.fas.fa-times>
+                ' Delete Contents
+          - !@comment.hidden_from_users and not @comment.destroyed_content ->
+            a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
+              i.fas.fa-times>
+              ' Delete
           - true ->
-          - _false ->
-            = case @comment.hidden_from_users do
-              - true ->
-                = link(to: Routes.image_comment_hide_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
-                  i.fas.fa-check>
-                  ' Restore
-                = if can?(@conn, :delete, @comment) do
-                  = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), method: :delete, data: [confirm: "Are you sure?"], class: "communication__interaction") do
-                    i.fas.fa-times>
-                    ' Delete Contents
-              - _false ->
-                a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
-                  i.fas.fa-times>
-                  ' Delete
         = if can?(@conn, :show, :ip_address) do
           .communication__info
             =<> link_to_ip(@conn, @comment.ip)
