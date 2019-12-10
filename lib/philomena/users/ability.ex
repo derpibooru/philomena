@@ -44,6 +44,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Manage duplicate reports
   def can?(%User{role: "moderator"}, :index, DuplicateReport), do: true
+  def can?(%User{role: "moderator"}, :edit, %DuplicateReport{}), do: true
 
   # Manage reports
   def can?(%User{role: "moderator"}, :index, Report), do: true
