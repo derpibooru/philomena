@@ -21,7 +21,7 @@ article.block.communication id="post_#{@post.id}"
       a.communication__interaction.togglable-delete-form-link href="#"
         i.fa.fa-times
         =<> "Delete"
-      = if can?(@conn, :manage, @post) do
+      = if can?(@conn, :show, :ip_address) do
         .communication__info
           =<> link_to_ip(@conn, @post.ip)
         .communication__info

@@ -42,7 +42,7 @@ article.block.communication id="comment_#{@comment.id}"
                 a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
                   i.fas.fa-times>
                   ' Delete
-        = if can?(@conn, :manage, @comment) do
+        = if can?(@conn, :show, :ip_address) do
           .communication__info
             =<> link_to_ip(@conn, @comment.ip)
           .communication__info
