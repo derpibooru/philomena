@@ -56,4 +56,4 @@ h3 Associated tag
 - else
   p There is no tag associated with this link.
 
-= link "Back", to: Routes.user_link_path(@conn, :index)
+= link "Back", to: Routes.profile_user_link_path(@conn, :index, @user)

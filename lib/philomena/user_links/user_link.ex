@@ -30,15 +30,42 @@ defmodule Philomena.UserLinks.UserLink do
     |> validate_required([])
   end
 
+  def edit_changeset(user_link, attrs, tag) do
+    user_link
+    |> cast(attrs, [:uri, :public])
+    |> put_change(:tag_id, tag.id)
+    |> validate_required([:user, :uri, :public])
+    |> parse_uri()
+  end
+
   def creation_changeset(user_link, attrs, user, tag) do
     user_link
-    |> cast(attrs, [:uri])
+    |> cast(attrs, [:uri, :public])
     |> put_assoc(:tag, tag)
     |> put_assoc(:user, user)
-    |> validate_required([:user, :uri])
+    |> validate_required([:user, :uri, :public])
     |> parse_uri()
     |> put_verification_code()
     |> put_next_check_at()
+  end
+
+  def reject_changeset(user_link) do
+    change(user_link, aasm_state: "rejected")
+  end
+
+  def verify_changeset(user_link, user) do
+    change(user_link)
+    |> put_change(:verified_by_user_id, user.id)
+    |> put_change(:aasm_state, "verified")
+  end
+
+  def contact_changeset(user_link, user) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    change(user_link)
+    |> put_change(:contacted_by_user_id, user.id)
+    |> put_change(:contacted_at, now)
+    |> put_change(:aasm_state, "contacted")
   end
 
   defp parse_uri(changeset) do

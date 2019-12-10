@@ -1,2 +1,0 @@
-h1 Create Link
-= render PhilomenaWeb.UserLinkView, "_form.html", changeset: @changeset, action: Routes.user_link_path(@conn, :create)

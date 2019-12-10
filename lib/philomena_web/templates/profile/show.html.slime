@@ -52,7 +52,7 @@
     .block
       .block__header
         span.block__header__title User Links
-      = for link <- @user.public_links do
+      = for link <- @user.verified_links, link.public or can?(@conn, :edit, link) do
         .block__content.alternating-color.break-word
           .center
             = if link.tag do

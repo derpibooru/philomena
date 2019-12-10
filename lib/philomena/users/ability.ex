@@ -47,6 +47,12 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Report{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Report{}), do: true
 
+  # Manage user links
+  def can?(%User{role: "moderator"}, :create_links, %User{}), do: true
+  def can?(%User{role: "moderator"}, :edit_links, %User{}), do: true
+  def can?(%User{role: "moderator"}, :edit, %UserLink{}), do: true
+  def can?(%User{role: "moderator"}, :index, UserLink), do: true
+
   #
   # Assistants can...
   #
@@ -107,6 +113,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:edit, :update], do: true
 
   # View user links they've created
+  def can?(%User{id: id}, :create_links, %User{id: id}), do: true
   def can?(%User{id: id}, :show, %UserLink{user_id: id}), do: true
 
   # Edit their commissions

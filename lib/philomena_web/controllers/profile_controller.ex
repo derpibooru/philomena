@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.ProfileController do
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [
-    awards: :badge, public_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
+    awards: :badge, public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
   ]
 
   def show(conn, _params) do

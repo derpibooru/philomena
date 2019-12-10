@@ -136,6 +136,7 @@ defmodule PhilomenaWeb.Router do
         resources "/reports", Profile.Commission.ReportController, only: [:new, :create]
       end
       resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
+      resources "/user_links", Profile.UserLinkController
     end
 
     scope "/filters", Filter, as: :filter do
@@ -151,7 +152,6 @@ defmodule PhilomenaWeb.Router do
     resources "/avatar", AvatarController, only: [:edit, :update, :delete], singleton: true
 
     resources "/reports", ReportController, only: [:index]
-    resources "/user_links", UserLinkController, only: [:index, :new, :create, :show]
     resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete] do
       resources "/images", Gallery.ImageController, only: [:create, :delete], singleton: true
       resources "/order", Gallery.OrderController, only: [:update], singleton: true
@@ -171,6 +171,12 @@ defmodule PhilomenaWeb.Router do
       resources "/reports", ReportController, only: [:index, :show] do
         resources "/claim", Report.ClaimController, only: [:create, :delete], singleton: true
         resources "/close", Report.CloseController, only: [:create], singleton: true
+      end
+
+      resources "/user_links", UserLinkController, only: [:index] do
+        resources "/verification", UserLink.VerificationController, only: [:create], singleton: true
+        resources "/contact", UserLink.ContactController, only: [:create], singleton: true
+        resources "/reject", UserLink.RejectController, only: [:create], singleton: true
       end
     end
 

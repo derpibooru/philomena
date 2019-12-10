@@ -4,9 +4,12 @@ defmodule Philomena.UserLinks do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.UserLinks.UserLink
+  alias Philomena.Badges.Badge
+  alias Philomena.Badges.Award
   alias Philomena.Tags.Tag
 
   @doc """
@@ -71,8 +74,46 @@ defmodule Philomena.UserLinks do
 
   """
   def update_user_link(%UserLink{} = user_link, attrs) do
+    tag = Repo.get_by(Tag, name: attrs["tag_name"])
+
     user_link
-    |> UserLink.changeset(attrs)
+    |> UserLink.edit_changeset(attrs, tag)
+    |> Repo.update()
+  end
+
+  def verify_user_link(%UserLink{} = user_link, user) do
+    user_link_changeset =
+      user_link
+      |> UserLink.verify_changeset(user)
+
+    Multi.new()
+    |> Multi.update(:user_link, user_link_changeset)
+    |> Multi.run(:add_award, fn repo, _changes ->
+      now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+      with badge when not is_nil(badge) <- repo.get_by(Badge, title: "Artist"),
+           nil <- repo.get_by(Award, badge_id: badge.id, user_id: user_link.user_id)
+      do
+        %Award{badge_id: badge.id, user_id: user_link.user_id, awarded_by_id: user.id, awarded_on: now}
+        |> Award.changeset()
+        |> repo.insert()
+      else
+        _ ->
+          {:ok, nil}
+      end
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def reject_user_link(%UserLink{} = user_link) do
+    user_link
+    |> UserLink.reject_changeset()
+    |> Repo.update()
+  end
+
+  def contact_user_link(%UserLink{} = user_link, user) do
+    user_link
+    |> UserLink.contact_changeset(user)
     |> Repo.update()
   end
 
@@ -106,7 +147,7 @@ defmodule Philomena.UserLinks do
   end
 
   def count_user_links(user) do
-    if Canada.Can.can?(user, :edit, UserLink) do
+    if Canada.Can.can?(user, :index, UserLink) do
       UserLink
       |> where(aasm_state: "unverified")
       |> Repo.aggregate(:count, :id)

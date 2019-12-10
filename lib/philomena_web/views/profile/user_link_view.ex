@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.UserLinkView do
+defmodule PhilomenaWeb.Profile.UserLinkView do
   use PhilomenaWeb, :view
 
   def verified?(%{aasm_state: state}), do: state == "verified"

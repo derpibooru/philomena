@@ -1,0 +1,78 @@
+h1 User Links
+p Link creation is done via the Users menu.
+p Verifying a link will automatically award an artist badge if the link is public, no artist badge exists, and an "artist:" tag is specified.
+
+= form_for :user_link, Routes.admin_user_link_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+  .field
+    = text_input f, :q, name: :q, value: @conn.params["q"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none"
+    = submit "Search", class: "hform__button button"
+
+- route = fn p -> Routes.admin_user_link_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_links, route: route, params: link_scope(@conn), conn: @conn
+
+.block
+  .block__header
+    = if @conn.params["all"] do
+      = link "Show unverified only", to: Routes.admin_user_link_path(@conn, :index)
+    - else
+      = link "Show all", to: Routes.admin_user_link_path(@conn, :index, all: "true")
+
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th State
+          th User
+          th URL
+          th Options
+          th Mark
+          th Public
+      tbody
+        = for link <- @user_links do
+          tr
+            td class=link_state_class(link)
+              strong
+                = link_state_name(link)
+
+              = if contacted?(link) do
+                br
+                ' by
+                = link.contacted_by_user.name
+                br
+                | (
+                = pretty_time link.contacted_at
+                | )
+
+            td
+              = render PhilomenaWeb.UserAttributionView, "_user.html", object: link, awards: true, conn: @conn
+              = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(link.user.linked_tags), conn: @conn
+
+            td
+              = link String.slice(link.uri, 0, 100), to: link.uri
+              = if link.tag do
+                br
+                = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
+
+            td
+              => link "View", to: Routes.profile_user_link_path(@conn, :show, link.user, link)
+              ' &bull;
+              = link "Edit", to: Routes.profile_user_link_path(@conn, :edit, link.user, link)
+
+            td
+              => link "Verify", to: Routes.admin_user_link_verification_path(@conn, :create, link), method: :post
+              ' &bull;
+              => link "Reject", to: Routes.admin_user_link_reject_path(@conn, :create, link), method: :post
+              br
+              = if not verified?(link) do
+                = if contacted?(link) do
+                  ' Artist contacted
+                - else
+                  = link "Artist contacted", to: Routes.admin_user_link_contact_path(@conn, :create, link), method: :post
+
+            td
+              = public_text(link)
+
+  .block__header.block__header--light
+    = pagination
