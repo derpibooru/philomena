@@ -159,6 +159,9 @@ defmodule PhilomenaWeb.ImageView do
   def deleter(%{deleter: %{name: name}}), do: name
   def deleter(_image), do: "System"
 
+  def scaled_value(%{scale_large_images: false}), do: "false"
+  def scaled_value(_user), do: "true"
+
   defp thumb_format("svg", _name), do: "png"
   defp thumb_format(_, :rendered), do: "png"
   defp thumb_format(format, _name), do: format
