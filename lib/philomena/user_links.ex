@@ -95,7 +95,7 @@ defmodule Philomena.UserLinks do
            nil <- repo.get_by(Award, badge_id: badge.id, user_id: user_link.user_id)
       do
         %Award{badge_id: badge.id, user_id: user_link.user_id, awarded_by_id: user.id, awarded_on: now}
-        |> Award.changeset()
+        |> Award.changeset(%{})
         |> repo.insert()
       else
         _ ->
