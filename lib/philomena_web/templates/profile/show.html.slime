@@ -53,11 +53,19 @@
       .block__header
         span.block__header__title User Links
       = for link <- @user.verified_links, link.public or can?(@conn, :edit, link) do
+        - watchers = @watcher_counts[link.tag.id] || 0
+
         .block__content.alternating-color.break-word
           .center
             = if link.tag do
               .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
             = link(link.uri, to: link.uri)
+
+            = if current?(@user, @conn.assigns.current_user) do
+              br
+              ' Watched by
+              => watchers
+              = pluralize("user", "users", watchers)
 
     .block
       .block__header

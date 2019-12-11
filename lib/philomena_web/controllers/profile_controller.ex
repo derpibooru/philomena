@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Posts.Post
   alias Philomena.Comments.Comment
   alias Philomena.Interactions
+  alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
 
@@ -36,6 +37,14 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     tags = tags(conn.assigns.user.public_links)
+
+    watcher_counts =
+      Tag
+      |> join(:inner_lateral, [t], _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id))
+      |> select([t, c], {t.id, c.count})
+      |> Repo.all()
+      |> Map.new()
+
     recent_artwork = recent_artwork(conn, tags)
 
     recent_comments =
@@ -118,6 +127,7 @@ defmodule PhilomenaWeb.ProfileController do
       recent_posts: recent_posts,
       recent_galleries: recent_galleries,
       statistics: statistics,
+      watcher_counts: watcher_counts,
       about_me: about_me,
       tags: tags,
       bans: bans,
