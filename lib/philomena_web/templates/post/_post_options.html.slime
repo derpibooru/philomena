@@ -37,5 +37,5 @@ div
     span.owner-options
       strong
         a.communication__interaction href=Routes.forum_topic_post_path(@conn, :edit, @post.topic.forum, @post.topic, @post)
-          i.fa.fa-pencil>
+          i.fa.fa-edit>
           ' Edit
