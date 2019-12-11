@@ -64,6 +64,12 @@ defmodule Philomena.Comments.Comment do
     |> put_change(:deletion_reason, "")
   end
 
+  def destroy_changeset(comment) do
+    change(comment)
+    |> put_change(:destroyed_content, true)
+    |> put_change(:body, "")
+  end
+
   defp put_name_at_post_time(changeset, nil), do: changeset
   defp put_name_at_post_time(changeset, user), do: change(changeset, name_at_post_time: user.name)
 end

@@ -146,6 +146,12 @@ defmodule Philomena.Comments do
     |> Repo.update()
   end
 
+  def destroy_comment(%Comment{} = comment) do
+    comment
+    |> Comment.destroy_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking comment changes.
 

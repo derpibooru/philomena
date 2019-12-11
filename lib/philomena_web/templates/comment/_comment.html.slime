@@ -1,5 +1,5 @@
 article.block.communication id="comment_#{@comment.id}"
-  .block__content.flex.flex--no-wrap
+  .block__content.flex.flex--no-wrap class=comment_body_class(@comment)
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
     .flex__grow.communication__body
@@ -16,8 +16,13 @@ article.block.communication id="comment_#{@comment.id}"
               = @comment.deleted_by.name
               | )
           = if can?(@conn, :delete, @comment) do
-            br
-            ==<> @body
+            = if @comment.destroyed_content do
+              br
+              strong.comment_deleted>
+                | This comment's contents have been destroyed.
+            - else
+              br
+              ==<> @body
         - else
           ==<> @body
   .block__content.communication__options

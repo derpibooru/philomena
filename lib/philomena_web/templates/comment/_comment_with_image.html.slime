@@ -1,5 +1,5 @@
 article.block.communication id="comment_#{@comment.id}"
-  .block__content.flex.flex--no-wrap
+  .block__content.flex.flex--no-wrap class=comment_body_class(@comment)
     .flex__fixed.spacing-right
       .post-image-container
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn
@@ -14,9 +14,19 @@ article.block.communication id="comment_#{@comment.id}"
         = if @comment.hidden_from_users do
           strong.comment_deleted
             ' Deletion reason:
-            => @comment.deletion_reason
-        - else
-          ==<> @body
+            =<> @comment.deletion_reason
+            = if can?(@conn, :delete, @comment) do
+              | (
+              = @comment.deleted_by.name
+              | )
+          = if can?(@conn, :delete, @comment) do
+            = if @comment.destroyed_content do
+              br
+              strong.comment_deleted>
+                | This comment's contents have been destroyed.
+            - else
+              br
+              ==<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
