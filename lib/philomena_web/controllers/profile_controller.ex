@@ -37,9 +37,15 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     tags = tags(conn.assigns.user.public_links)
+    
+    all_tag_ids = 
+      conn.assigns.user.verified_links
+      |> tags()
+      |> Enum.map(& &1.id)
 
     watcher_counts =
       Tag
+      |> where([t], t.id in ^all_tag_ids)
       |> join(:inner_lateral, [t], _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id))
       |> select([t, c], {t.id, c.count})
       |> Repo.all()
