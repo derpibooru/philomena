@@ -181,7 +181,7 @@ function bindInteractions() {
 
 function loggedOutInteractions() {
   [].forEach.call(document.querySelectorAll('.interaction--fave,.interaction--upvote,.interaction--downvote'),
-    a => a.setAttribute('href', '/users/sign_in'));
+    a => a.setAttribute('href', '/session/new'));
 }
 
 function setupInteractions() {
