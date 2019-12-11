@@ -19,7 +19,7 @@
       .block.block--fixed.block--warning
         h4 You've been banned!
         p
-          ' You cannnot post comments or update metadata (or do anything but
+          ' You cannot post comments or update metadata (or do anything but
           ' read, really) until
           = pretty_time(@conn.assigns.current_ban.valid_until)
 
