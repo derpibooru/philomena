@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.TopicController do
       |> where(topic_id: ^conn.assigns.topic.id)
       |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :created_at)
-      |> preload([topic: :forum, user: [awards: :badge]])
+      |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
       |> Repo.all()
 
     rendered =

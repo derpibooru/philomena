@@ -149,6 +149,9 @@ defmodule PhilomenaWeb.AppView do
     end
   end
 
+  def communication_body_class(%{destroyed_content: true}), do: "communication--destroyed"
+  def communication_body_class(_communication), do: nil
+
   def blank?(nil), do: true
   def blank?(""), do: true
   def blank?([]), do: true

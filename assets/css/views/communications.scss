@@ -97,3 +97,7 @@ span.communication__sender__stats,
   display: inline-block;
   margin-right: 2em;
 }
+
+.communication--destroyed {
+  background-color: $destroyed_content_color;
+}

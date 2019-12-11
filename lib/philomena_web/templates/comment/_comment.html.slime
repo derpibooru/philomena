@@ -1,5 +1,5 @@
 article.block.communication id="comment_#{@comment.id}"
-  .block__content.flex.flex--no-wrap class=comment_body_class(@comment)
+  .block__content.flex.flex--no-wrap class=communication_body_class(@comment)
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
     .flex__grow.communication__body
@@ -11,11 +11,11 @@ article.block.communication id="comment_#{@comment.id}"
           strong.comment_deleted
             ' Deletion reason:
             =<> @comment.deletion_reason
-            = if can?(@conn, :delete, @comment) do
+            = if can?(@conn, :hide, @comment) do
               | (
               = @comment.deleted_by.name
               | )
-          = if can?(@conn, :delete, @comment) do
+          = if can?(@conn, :hide, @comment) do
             = if @comment.destroyed_content do
               br
               strong.comment_deleted>
