@@ -107,7 +107,7 @@ elixir:
   p
     ' We have received
     span.stat>
-      = number_with_delimiter(@report_count)
+      = number_with_delimiter(@report_stat_count)
     ' reports. Out of these reports,
     => number_with_delimiter(@open_reports)
     ' reports are outstanding and awaiting action.

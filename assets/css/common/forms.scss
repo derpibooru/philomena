@@ -26,6 +26,11 @@ form p {
   max-width: 100%; /* prevent resizable inputs from overflowing the container */
 }
 
+.input::placeholder {
+  opacity: 0.54;
+  color: inherit;
+}
+
 .input[required]:invalid {
   box-shadow: none;
 }

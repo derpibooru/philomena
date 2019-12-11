@@ -1,13 +1,16 @@
-' Showing
-= if @page.total_entries == 1 do
-  ' result
+= if @page.total_entries > 0 do
+  ' Showing
+  => pluralize("result", "results", @page.total_entries)
+
+  strong
+    => max(((@page.page_number - 1) * @page.page_size) - 1, 1)
+    ' -
+    => min(@page.page_number * @page.page_size, @page.total_entries)
+  ' of
+
+  strong
+    => @page.total_entries
+  ' total
+
 - else
-  ' results
-strong
-  => max(((@page.page_number - 1) * @page.page_size) - 1, 1)
-  ' -
-  => min(@page.page_number * @page.page_size, @page.total_entries)
-' of
-strong
-  => @page.total_entries
-' total
+  ' No results found

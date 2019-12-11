@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.StatController do
       open_commissions: open_commissions,
       commission_items: commission_items,
       open_reports: open_reports,
-      report_count: report_count,
+      report_stat_count: report_count,
       response_time: response_time,
       gallery_count: gallery_count,
       gallery_size: gallery_size,

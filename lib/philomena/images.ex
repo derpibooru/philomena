@@ -119,7 +119,15 @@ defmodule Philomena.Images do
 
     Multi.new
     |> Multi.update(:image, image_changes)
-    |> Multi.insert(:source_change, source_changes)
+    |> Multi.run(:source_change, fn repo, _changes ->
+      case image_changes.changes do
+        %{source_url: _new_source} ->
+          repo.insert(source_changes)
+
+        _ ->
+          {:ok, nil}
+      end
+    end)
     |> Repo.isolated_transaction(:serializable)
   end
 

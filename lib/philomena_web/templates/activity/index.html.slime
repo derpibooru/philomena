@@ -39,7 +39,7 @@
 
   .column-layout__main
     = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @images, size: :thumb
-    = if !!@watched and @watched != [] do
+    = if not is_nil(@watched) and Enum.any?(@watched) do
       .block
         .block__header
           span.block__header__title
@@ -49,4 +49,5 @@
             span.hide-mobile
               ' Browse Watched Images
         .block__content.js-resizable-media-container
-          = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @watched, size: :thumb_small
+          - route = fn p -> Routes.search_path(@conn, :index, p) end
+          = render PhilomenaWeb.ImageView, "index.html", conn: @conn, images: @watched, size: :thumb_small, route: route, scope: [q: "my:watched"]
