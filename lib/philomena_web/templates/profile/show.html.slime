@@ -53,7 +53,7 @@
       .block__header
         span.block__header__title User Links
       = for link <- @user.verified_links, link.public or can?(@conn, :edit, link) do
-        - watchers = @watcher_counts[link.tag.id] || 0
+        - watchers = if link.tag, do: @watcher_counts[link.tag.id] || 0, else: 0
 
         .block__content.alternating-color.break-word
           .center
