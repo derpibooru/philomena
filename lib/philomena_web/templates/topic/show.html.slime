@@ -49,6 +49,16 @@ h1 = @topic.title
     .block__header.block__header--light
       = pagination
 
+  = if @topic.locked_at do
+    h4 This topic has been locked to new posts from non-moderators.
+    p
+      ' Locked
+      => pretty_time(@topic.locked_at)
+
+    p
+      ' Lock reason:
+      em = @topic.lock_reason
+
   / Post form
   = cond do
     - @topic.post_count < 200_000 and can?(@conn, :create_post, @topic) ->
