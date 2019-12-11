@@ -166,7 +166,7 @@ function bindInteractions() {
 
     if (event.button === 0) { // Is it a left-click?
       for (const target in targets) {
-        /* Event delgation doesn't quite grab what we want here. */
+        /* Event delegation doesn't quite grab what we want here. */
         const link = event.target && event.target.closest(target);
 
         if (link) {
