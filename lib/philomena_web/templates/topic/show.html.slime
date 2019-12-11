@@ -50,14 +50,15 @@ h1 = @topic.title
       = pagination
 
   = if @topic.locked_at do
-    h4 This topic has been locked to new posts from non-moderators.
-    p
-      ' Locked
-      => pretty_time(@topic.locked_at)
+    .block.block--fixed.block--warning
+      h4 This topic has been locked to new posts from non-moderators.
+      p
+        ' Locked
+        => pretty_time(@topic.locked_at)
 
-    p
-      ' Lock reason:
-      em = @topic.lock_reason
+      p
+        ' Lock reason:
+        em = @topic.lock_reason
 
   / Post form
   = cond do
