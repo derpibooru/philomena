@@ -36,7 +36,7 @@ article.block.communication id="comment_#{@comment.id}"
               i.fas.fa-check>
               ' Restore
             = if can?(@conn, :delete, @comment) do
-              = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), method: :delete, data: [confirm: "Are you sure?"], class: "communication__interaction") do
+              = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
                 i.fas.fa-times>
                 ' Delete Contents
           - not @comment.hidden_from_users and not @comment.destroyed_content ->
