@@ -27,13 +27,14 @@ body {
   font-size: 13px;
   margin: 0;
   padding: 0;
-  line-height: 15px;
+  line-height: 1.15em;
 }
 
 h1, h2, h3, h4, h5 {
   font-weight: normal;
   text-rendering: optimizeLegibility;
   margin-bottom: 0.62em;
+  line-height: 1.15em;
 }
 
 h1 { font-size: 24px; }

@@ -29,6 +29,7 @@ defmodule PhilomenaWeb.ImageReverse do
     {:ok, analysis} = Analyzers.analyze(path)
     {analysis, path}
   end
+  defp analyze(_upload), do: :error
 
   defp intensities(:error), do: :error
   defp intensities({analysis, path}) do

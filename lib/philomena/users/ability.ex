@@ -115,7 +115,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View filters they own and system filters
   def can?(_user, :show, %Filter{system: true}), do: true
-  def can?(%User{id: id}, :show, %Filter{user_id: id}), do: true
+  def can?(%User{}, action, Filter) when action in [:index, :new, :create], do: true
+  def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:show, :edit, :update], do: true
 
   # Edit filters they own
   def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:edit, :update], do: true

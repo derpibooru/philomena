@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.RecodeParameterPlug do
       |> to_string()
       |> URI.encode_www_form()
       |> String.replace("%2B", "+")
+      |> String.replace("%25", "%")
 
     params = Map.put(conn.params, name, fixed_value)
 
