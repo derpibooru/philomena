@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.UserAttributionView do
       |> Integer.to_string(16)
       |> String.pad_leading(4, "0")
 
-    case reveal_anon? do
+    case not is_nil(object.user) and reveal_anon? do
       true  -> "#{object.user.name} (##{hash}, hidden)"
       false -> "Background Pony ##{hash}"
     end

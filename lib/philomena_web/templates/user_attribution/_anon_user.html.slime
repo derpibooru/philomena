@@ -1,11 +1,14 @@
-= if !!@object.user and !anonymous?(@object) do
-  strong<>
-    = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
-  = if assigns[:awards] do
-    = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
-- else
-  strong<>
-    = if can?(@conn, :reveal_anon, @object) do
+= cond do
+  - not is_nil(@object.user) and not anonymous?(@object) ->
+    strong<>
+      = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
+    = if assigns[:awards] do
+      = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
+
+  - not is_nil(@object.user) and can?(@conn, :reveal_anon, @object) ->
+    strong<>
       = link(anonymous_name(@object, true), to: Routes.profile_path(@conn, :show, @object.user))
-    - else
+
+  - true ->
+    strong<>
       = anonymous_name(@object)

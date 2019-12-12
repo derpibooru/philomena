@@ -117,7 +117,7 @@ defmodule PhilomenaWeb.Router do
       resources "/read", Image.ReadController, only: [:create], singleton: true
       resources "/comments", Image.CommentController, only: [:edit, :update] do
         resources "/hide", Image.Comment.HideController, only: [:create, :delete], singleton: true
-        resources "/delete", Image.Comment.DeleteController, only: [:delete], singleton: true
+        resources "/delete", Image.Comment.DeleteController, only: [:create], singleton: true
       end
       resources "/delete", Image.DeleteController, only: [:create, :delete], singleton: true
     end
@@ -128,7 +128,7 @@ defmodule PhilomenaWeb.Router do
         resources "/read", Topic.ReadController, only: [:create], singleton: true
         resources "/posts", Topic.PostController, only: [:edit, :update] do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
-          resources "/delete", Topic.Post.DeleteController, only: [:delete], singleton: true
+          resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
         end
       end
 
