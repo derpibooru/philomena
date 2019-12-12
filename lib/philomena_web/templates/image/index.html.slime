@@ -10,7 +10,7 @@ elixir:
 
 .block#imagelist-container
   section.block__header.flex
-    h1.block__header__title.hide-mobile
+    span.block__header__title.hide-mobile
       => header
     = pagination
 
