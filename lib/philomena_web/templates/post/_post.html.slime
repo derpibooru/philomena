@@ -1,5 +1,5 @@
 article.block.communication id="post_#{@post.id}"
-  .block__content.flex.flex--no-wrap
+  .block__content.flex.flex--no-wrap class=communication_body_class(@post)
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
     .flex__grow.communication__body
@@ -11,40 +11,43 @@ article.block.communication id="post_#{@post.id}"
           strong.comment_deleted
             ' Deletion reason:
             => @post.deletion_reason
+            = if can?(@conn, :hide, @post) do
+              | (
+              = @post.deleted_by.name
+              | )
+          = if can?(@conn, :hide, @post) do
+            = if @post.destroyed_content do
+              br
+              strong.comment_deleted>
+                | This post's contents have been destroyed.
+            - else
+              br
+              ==<> @body
         - else
           ==<> @body
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
       = render PhilomenaWeb.PostView, "_post_options.html", conn: @conn, post: @post
     = if can?(@conn, :hide, @post) do
-      / todo: make post deletion work
-      a.communication__interaction.togglable-delete-form-link href="#"
-        i.fa.fa-times
-        =<> "Delete"
-      = if can?(@conn, :manage, @post) do
+      = cond do
+        - @post.hidden_from_users and not @post.destroyed_content ->
+          = link(to: Routes.forum_topic_post_hide_path(@conn, :delete, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
+            i.fas.fa-check>
+            ' Restore
+            = if can?(@conn, :delete, @post) do
+              = link(to: Routes.forum_topic_post_delete_path(@conn, :delete, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
+                i.fas.fa-times>
+                ' Delete Contents
+        - not @post.hidden_from_users and not @post.destroyed_content ->
+          a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-post-#{@post.id}"
+            i.fa.fa-times>
+            ' Delete
+        - true ->
+      = if can?(@conn, :show, :ip_address) do
         .communication__info
           =<> link_to_ip(@conn, @post.ip)
         .communication__info
           =<> link_to_fingerprint(@conn, @post.fingerprint)
-    /- if can?(:hide, Post)
-    /  .js-staff-action
-    /    - if !post.hidden_from_users && !post.destroyed_content
-    /      =<> link_to '#', class: 'communication__interaction togglable-delete-form-link', 'data-click-toggle': "#inline-del-form-post-#{post.id}" do
-    /        i.fa.fa-times
-    /        =<> 'Delete'
-    /    - elsif post.hidden_from_users && !post.destroyed_content
-    /      =<> link_to forum_topic_post_hide_path(post.topic.forum, post.topic, post), data: { confirm: t('are_you_sure') }, method: :delete, class: 'communication__interaction' do
-    /        i.fa.fa-check
-    /        =<> 'Restore'
-    /      - if can?(:manage, Post)
-    /        =<> link_to forum_topic_post_path(post.topic.forum, post.topic, post, deletion_reason: post.deletion_reason), method: :delete, data: { confirm: t('are_you_sure') }, class: 'communication__interaction' do
-    /          i.fa.fa-times
-    /          =<> 'Delete Contents'
-    /    - if can?(:manage, Post)
-    /      .communication__info
-    /        =<> link_to_ip(post.ip)
-    /      .communication__info
-    /        =<> link_to_fingerprint(post.fingerprint, post.user_agent)
-    /  = form_tag forum_topic_post_hide_path(post.topic.forum, post.topic, post), class: 'togglable-delete-form hidden flex', id: "inline-del-form-post-#{post.id}"
-    /    = text_field_tag :deletion_reason, nil, class: 'input input--wide', placeholder: 'Deletion Reason', id: "inline-del-reason-post-#{post.id}", required: true
-    /    = submit_tag 'Delete', class: 'button'
+      = form_for :post, Routes.forum_topic_post_hide_path(@conn, :create, @post.topic.forum, @post.topic, @post), [class: "togglable-delete-form hidden flex", id: "inline-del-form-post-#{@post.id}"], fn f ->
+        = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-post-#{@post.id}", required: true
+        = submit "Delete", class: "button"

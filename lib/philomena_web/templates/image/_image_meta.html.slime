@@ -54,7 +54,7 @@
       span.image_uploader
         ' by
         => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, awards: true, conn: @conn
-        = if can?(@conn, :manage, @image) do
+        = if can?(@conn, :show, :ip_address) do
           => link_to_ip(@conn, @image.ip)
           => link_to_fingerprint(@conn, @image.fingerprint)
           a href="#"

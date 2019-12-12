@@ -127,15 +127,30 @@ defmodule PhilomenaWeb.AppView do
   end
 
   defp text_or_na(nil), do: "N/A"
-  defp text_or_na(text), do: text
+  defp text_or_na(text), do: to_string(text)
 
   def link_to_ip(conn, ip) do
-    link(text_or_na(ip), to: Routes.ip_profile_path(conn, :show, to_string(ip)))
+    link(to: Routes.ip_profile_path(conn, :show, to_string(ip))) do
+      [
+        content_tag(:i, "", class: "fas fa-network-wired"),
+        " ",
+        text_or_na(ip)
+      ]
+    end
   end
 
   def link_to_fingerprint(conn, fp) do
-    link(String.slice(text_or_na(fp), 0..6), to: Routes.fingerprint_profile_path(conn, :show, fp))
+    link(to: Routes.fingerprint_profile_path(conn, :show, fp)) do
+      [
+        content_tag(:i, "", class: "fas fa-desktop"),
+        " ",
+        String.slice(text_or_na(fp), 0..6)
+      ]
+    end
   end
+
+  def communication_body_class(%{destroyed_content: true}), do: "communication--destroyed"
+  def communication_body_class(_communication), do: nil
 
   def blank?(nil), do: true
   def blank?(""), do: true

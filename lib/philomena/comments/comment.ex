@@ -50,6 +50,26 @@ defmodule Philomena.Comments.Comment do
     |> validate_length(:edit_reason, max: 70, count: :bytes)
   end
 
+  def hide_changeset(comment, attrs, user) do
+    comment
+    |> cast(attrs, [:deletion_reason])
+    |> put_change(:hidden_from_users, true)
+    |> put_change(:deleted_by_id, user.id)
+    |> validate_required([:deletion_reason])
+  end
+
+  def unhide_changeset(comment) do
+    change(comment)
+    |> put_change(:hidden_from_users, false)
+    |> put_change(:deletion_reason, "")
+  end
+
+  def destroy_changeset(comment) do
+    change(comment)
+    |> put_change(:destroyed_content, true)
+    |> put_change(:body, "")
+  end
+
   defp put_name_at_post_time(changeset, nil), do: changeset
   defp put_name_at_post_time(changeset, user), do: change(changeset, name_at_post_time: user.name)
 end

@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.UserAttributionView do
     Attribution.anonymous?(object)
   end
 
-  def anonymous_name(object) do
+  def anonymous_name(object, reveal_anon? \\ false) do
     salt = anonymous_name_salt()
     id = Attribution.object_identifier(object)
     user_id = Attribution.best_user_identifier(object)
@@ -17,7 +17,10 @@ defmodule PhilomenaWeb.UserAttributionView do
       |> Integer.to_string(16)
       |> String.pad_leading(4, "0")
 
-    "Background Pony ##{hash}"
+    case reveal_anon? do
+      true  -> "#{object.user.name} (##{hash}, hidden)"
+      false -> "Background Pony ##{hash}"
+    end
   end
 
   def anonymous_avatar(_object, class \\ "avatar--100px") do

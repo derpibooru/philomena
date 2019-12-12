@@ -134,6 +134,24 @@ defmodule Philomena.Comments do
     Repo.delete(comment)
   end
 
+  def hide_comment(%Comment{} = comment, attrs, user) do
+    comment
+    |> Comment.hide_changeset(attrs, user)
+    |> Repo.update()
+  end
+
+  def unhide_comment(%Comment{} = comment) do
+    comment
+    |> Comment.unhide_changeset()
+    |> Repo.update()
+  end
+
+  def destroy_comment(%Comment{} = comment) do
+    comment
+    |> Comment.destroy_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking comment changes.
 

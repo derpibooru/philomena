@@ -160,6 +160,24 @@ defmodule Philomena.Posts do
     Repo.delete(post)
   end
 
+  def hide_post(%Post{} = post, attrs, user) do
+    post
+    |> Post.hide_changeset(attrs, user)
+    |> Repo.update()
+  end
+
+  def unhide_post(%Post{} = post) do
+    post
+    |> Post.unhide_changeset()
+    |> Repo.update()
+  end
+
+  def destroy_post(%Post{} = post) do
+    post
+    |> Post.destroy_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking post changes.
 

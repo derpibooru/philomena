@@ -37,5 +37,5 @@ div
     span.owner-options
       strong
         a.communication__interaction href=Routes.image_comment_path(@conn, :edit, @comment.image, @comment)
-          i.fa.fa-pencil>
+          i.fas.fa-edit>
           ' Edit

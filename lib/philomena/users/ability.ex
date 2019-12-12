@@ -57,6 +57,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :edit, %UserLink{}), do: true
   def can?(%User{role: "moderator"}, :index, UserLink), do: true
 
+  # Reveal anon users
+  def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
+
   #
   # Assistants can...
   #

@@ -1,5 +1,5 @@
 article.block.communication id="comment_#{@comment.id}"
-  .block__content.flex.flex--no-wrap
+  .block__content.flex.flex--no-wrap class=communication_body_class(@comment)
     .flex__fixed.spacing-right
       .post-image-container
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn
@@ -14,10 +14,44 @@ article.block.communication id="comment_#{@comment.id}"
         = if @comment.hidden_from_users do
           strong.comment_deleted
             ' Deletion reason:
-            => @comment.deletion_reason
-        - else
-          ==<> @body
+            =<> @comment.deletion_reason
+            = if can?(@conn, :hide, @comment) do
+              | (
+              = @comment.deleted_by.name
+              | )
+          = if can?(@conn, :hide, @comment) do
+            = if @comment.destroyed_content do
+              br
+              strong.comment_deleted>
+                | This comment's contents have been destroyed.
+            - else
+              br
+              ==<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out
       = render PhilomenaWeb.CommentView, "_comment_options.html", comment: @comment, conn: @conn
+    = if can?(@conn, :hide, @comment) do
+      .js-staff-action
+        = cond do
+          - @comment.hidden_from_users and not @comment.destroyed_content ->
+            = link(to: Routes.image_comment_hide_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
+              i.fas.fa-check>
+              ' Restore
+            = if can?(@conn, :delete, @comment) do
+              = link(to: Routes.image_comment_delete_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: :delete, class: "communication__interaction") do
+                i.fas.fa-times>
+                ' Delete Contents
+          - not @comment.hidden_from_users and not @comment.destroyed_content ->
+            a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
+              i.fas.fa-times>
+              ' Delete
+          - true ->
+        = if can?(@conn, :show, :ip_address) do
+          .communication__info
+            =<> link_to_ip(@conn, @comment.ip)
+          .communication__info
+            =<> link_to_fingerprint(@conn, @comment.fingerprint)
+        = form_for :comment, Routes.image_comment_hide_path(@conn, :create, @comment.image_id, @comment), [class: "togglable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->
+          = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-comment-#{@comment.id}", required: true
+          = submit "Delete", class: "button"
