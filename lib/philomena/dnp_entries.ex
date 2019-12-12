@@ -49,9 +49,11 @@ defmodule Philomena.DnpEntries do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_dnp_entry(attrs \\ %{}) do
+  def create_dnp_entry(user, tags, attrs \\ %{}) do
+    tag = Enum.find(tags, &to_string(&1.id) == attrs["tag_id"])
+
     %DnpEntry{}
-    |> DnpEntry.changeset(attrs)
+    |> DnpEntry.creation_changeset(attrs, tag, user)
     |> Repo.insert()
   end
 
@@ -67,9 +69,17 @@ defmodule Philomena.DnpEntries do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_dnp_entry(%DnpEntry{} = dnp_entry, attrs) do
+  def update_dnp_entry(%DnpEntry{} = dnp_entry, tags, attrs) do
+    tag = Enum.find(tags, &to_string(&1.id) == attrs["tag_id"])
+
     dnp_entry
-    |> DnpEntry.changeset(attrs)
+    |> DnpEntry.update_changeset(attrs, tag)
+    |> Repo.update()
+  end
+
+  def transition_dnp_entry(%DnpEntry{} = dnp_entry, user, new_state) do
+    dnp_entry
+    |> DnpEntry.transition_changeset(user, new_state)
     |> Repo.update()
   end
 

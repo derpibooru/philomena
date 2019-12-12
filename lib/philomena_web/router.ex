@@ -170,6 +170,8 @@ defmodule PhilomenaWeb.Router do
       resources "/subscription", Channel.SubscriptionController, only: [:create, :delete], singleton: true
     end
 
+    resources "/dnp", DnpEntryController, only: [:new, :create, :edit, :update]
+
     resources "/ip_profiles", IpProfileController, only: [:show]
     resources "/fingerprint_profiles", FingerprintProfileController, only: [:show]
 
@@ -183,6 +185,10 @@ defmodule PhilomenaWeb.Router do
         resources "/verification", UserLink.VerificationController, only: [:create], singleton: true
         resources "/contact", UserLink.ContactController, only: [:create], singleton: true
         resources "/reject", UserLink.RejectController, only: [:create], singleton: true
+      end
+
+      resources "/dnp_entries", DnpEntryController, only: [:index] do
+        resources "/transition", DnpEntry.TransitionController, only: [:create], singleton: true
       end
     end
 

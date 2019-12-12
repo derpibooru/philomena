@@ -1,0 +1,90 @@
+h2 Do-Not-Post Requests
+
+= form_for :dnp_entry, Routes.admin_dnp_entry_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+  .field
+    = text_input f, :q, name: :q, value: @conn.params["q"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none"
+    = submit "Search", class: "hform__button button"
+
+- route = fn p -> Routes.admin_dnp_entry_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, params: [states: state_param(@conn.params["states"])]
+
+.block
+  .block__header
+    = pagination
+
+    span.block__header__title Display Only:
+    => link "All Open", to: Routes.admin_dnp_entry_path(@conn, :index, states: ~W(requested claimed rescinded acknowledged))
+    => link "Listed", to: Routes.admin_dnp_entry_path(@conn, :index, states: ~W(listed))
+    => link "Rescinded", to: Routes.admin_dnp_entry_path(@conn, :index, states: ~W(rescinded acknowledged))
+    => link "Closed", to: Routes.admin_dnp_entry_path(@conn, :index, states: ~W(closed))
+
+  .block__content
+      table.table
+        thead
+          tr
+            td Tag
+            td Requesting User
+            td Type
+            td Conditions
+            td Status
+            td Created
+            td Modified
+            td Options
+
+        tbody
+          = for {body, request} <- @dnp_entries do
+            tr
+              td
+                = render PhilomenaWeb.TagView, "_tag.html", tag: request.tag, conn: @conn
+
+              td
+                = link request.requesting_user.name, to: Routes.profile_path(@conn, :show, request.requesting_user)
+
+              td
+                = request.dnp_type
+
+              td
+                == body
+
+              td class=dnp_entry_row_class(request)
+                => pretty_state(request)
+
+                = if request.modifying_user do
+                  ' by
+                  = link request.modifying_user.name, to: Routes.profile_path(@conn, :show, request.modifying_user)
+
+              td
+                = pretty_time(request.created_at)
+
+              td
+                = pretty_time(request.updated_at)
+
+              td
+                => link "Show", to: Routes.dnp_entry_path(@conn, :show, request)
+                ' &bull;
+                => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: request.requesting_user.name)
+
+                = case request.aasm_state do
+                  - s when s in ["requested", "claimed"] ->
+                    ' &bull;
+                    => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]
+                    ' &bull;
+                    => link "Approve", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "listed"), data: [method: "post", confirm: "Are you really, really sure?"]
+                    ' &bull;
+                    => link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+                  - "listed" ->
+                    ' &bull;
+                    => link "Rescind", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "rescinded"), data: [method: "post", confirm: "Are you really, really sure?"]
+                    ' &bull;
+                    = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+                  - s when s in ["rescinded", "acknowledged"] ->
+                    ' &bull;
+                    => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "acknowledged"), data: [method: "post", confirm: "Are you really, really sure?"]
+                    ' &bull;
+                    = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+                  - _state ->
+                    ' &bull;
+                    => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, request, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]

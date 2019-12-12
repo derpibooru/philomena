@@ -5,6 +5,9 @@ h2
 .block
   .block__header
     span.block__header__title DNP Information
+    = if can?(@conn, :edit, @dnp_entry) do
+      = link "Edit listing", to: Routes.dnp_entry_path(@conn, :edit, @dnp_entry, tag_id: @dnp_entry.tag_id)
+
     = link "Back to DNP List", to: Routes.dnp_entry_path(@conn, :index)
 
   .block__content

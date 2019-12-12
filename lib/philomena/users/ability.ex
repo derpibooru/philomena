@@ -4,6 +4,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Commissions.Commission
   alias Philomena.Conversations.Conversation
   alias Philomena.DuplicateReports.DuplicateReport
+  alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
@@ -59,6 +60,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Reveal anon users
   def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
+
+  # Show the DNP list
+  def can?(%User{role: "moderator"}, :index, DnpEntry), do: true
+  def can?(%User{role: "moderator"}, :edit, %DnpEntry{}), do: true
+  def can?(%User{role: "moderator"}, :update, %DnpEntry{}), do: true
 
   #
   # Assistants can...
@@ -172,7 +178,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %User{}), do: true
 
   # View and create DNP entries
-  def can?(%User{}, action, DnpEntry) when action in [:new, :create, :index], do: true
+  def can?(%User{}, action, DnpEntry) when action in [:new, :create], do: true
   def can?(%User{id: id}, :show, %DnpEntry{requesting_user_id: id}), do: true
   def can?(%User{id: id}, :show_reason, %DnpEntry{requesting_user_id: id}), do: true
   def can?(%User{id: id}, :show_feedback, %DnpEntry{requesting_user_id: id}), do: true

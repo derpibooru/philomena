@@ -26,16 +26,29 @@ h3 The List
           th Tag
           th Restriction
           th Conditions
+          = if @status_column do
+            th Status
+            th Created
           th Options
       tbody
         = for {body, entry} <- @dnp_entries do
           tr
             td
               = render PhilomenaWeb.TagView, "_tag.html", tag: entry.tag, conn: @conn
+
             td
               = entry.dnp_type
+
             td
               == body
+
+            = if @status_column do
+              td
+                = pretty_state(entry)
+
+              td
+                = pretty_time(entry.created_at)
+
             td
               = link "More Info", to: Routes.dnp_entry_path(@conn, :show, entry)
 

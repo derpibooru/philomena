@@ -1,0 +1,85 @@
+= if show_steps?(@changeset) do
+  .block.block--fixed.block--success.walloftext
+    h3 Getting on the DNP list?
+
+    p
+      ' We offer the DNP list in order to give artists the last say on their art, but we
+      ' won't deny that we are sad whenever we see good art and artists disappear.
+      ' Because we know that many who seek a DNP do so on their first contact with the site,
+      ' we'd be very grateful if you as the artist would like to give the site a shot first.
+      ' Why not upload some of your own art? The community might appreciate it more than you think.
+
+    p
+      ' Do you wish to submit a DNP Request?
+      button.button.button--separate-left.js-dnp-yes data-click-show=".js-dnp-common-options" data-click-disable=".js-dnp-yes"
+        ' Yes
+
+  .block.block--fixed.walloftext.js-dnp-common-options.hidden
+    h3 Options
+
+    p
+      ' We are aware of several common reasons for why artists seek a DNP.
+      ' They include things such as unwanted edits or a wish to disassociate
+      ' their name from their artwork. Many of these concerns can be addressed
+      ' without removing art.
+
+    p We have created several options for you below:
+
+    ul.line-spacing
+      = for {type, description} <- reasons() do
+        li
+          = link description, to: "#", data: [click_show: ".js-dnp-form", click_hide: ".js-dnp-common-options", click_inputvalue: ".js-dnp-type", set_value: type]
+
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .block.js-dnp-form class=form_class(@changeset)
+    .block__header
+      span.block__header__title DNP Request Form
+
+    .block__content
+      / Artist Tag
+      strong Artist Tag
+      p Select the artist tag you would like to request a DNP entry for
+      .field
+        = select f, :tag_id, selectable_options(@selectable_tags), class: "input"
+        = error_tag f, :tag_id
+      hr
+      / Conditions
+      strong Conditions
+      p If you selected "Other", or have other conditions applicable to your request, please enter them here. If someone always has permission to upload your artwork, enter their name here. (Optional)
+      .field
+        = textarea f, :conditions, class: "input input--wide", placeholder: "Conditions"
+        = error_tag f, :conditions
+      hr
+      / Reason
+      strong Reason For Request
+      p Please indicate the reason why you would like your artwork to be removed. (Required)
+      .field
+        = textarea f, :reason, class: "input input--wide", placeholder: "Reason", required: true
+        = error_tag f, :reason
+      .field
+        => checkbox f, :hide_reason, class: "checkbox"
+        = label f, :hide_reason, "Hide request reason"
+      p Only select this box if your request contains sensitive or private information that you do not wish to be publicly available. Reasons that do not contain such information will not be hidden.
+      hr
+      / Instructions
+      strong Instructions
+      p If you would like existing artwork to be removed under this request, please provide instructions, such as "Remove all art with my artist tag that contain the "edit" tag." (Optional)
+      .field
+        = textarea f, :instructions, class: "input input--wide", placeholder: "Instructions"
+        = error_tag f, :instructions
+      hr
+      / Feedback
+      strong Feedback
+      p If you have any additional feedback for the site staff, you may enter it here. (Optional)
+      .field
+        = textarea f, :feedback, class: "input input--wide", placeholder: "Feedback"
+        = error_tag f, :feedback
+
+      / Option (hidden, set by script depending on the option chosen above)
+      = hidden_input f, :dnp_type, class: "js-dnp-type"
+      hr
+      = submit "Submit Request", class: "button"
