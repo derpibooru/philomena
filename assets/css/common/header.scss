@@ -74,6 +74,7 @@ a.header__link:hover, .header__dropdown:hover > a {
 
   background: $header_field_color;
   color: $text_light_color;
+  -webkit-text-fill-color: $text_light_color;
 
   text-overflow: ellipsis;
 
