@@ -26,8 +26,16 @@
             td
               = pretty_time(source_change.created_at)
 
-            td
+            td class=user_column_class(source_change)
               = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: source_change, conn: @conn
+
+              = if staff?(source_change) do
+                br
+                small
+                  strong> Stop!
+                  ' This user is a staff member.
+                  br
+                  ' Ask them before reverting their changes.
 
             td
               = if source_change.initial do

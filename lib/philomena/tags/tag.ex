@@ -99,6 +99,7 @@ defmodule Philomena.Tags.Tag do
   def display_order(tags) do
     tags
     |> Enum.sort_by(&{
+      &1.category != "error",
       &1.category != "rating",
       &1.category != "origin",
       &1.category != "character",
