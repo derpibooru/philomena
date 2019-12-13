@@ -145,9 +145,9 @@ defmodule Philomena.Bans do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_subnet(attrs \\ %{}) do
-    %Subnet{}
-    |> Subnet.changeset(attrs)
+  def create_subnet(creator, attrs \\ %{}) do
+    %Subnet{banning_user_id: creator.id}
+    |> Subnet.save_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -165,7 +165,7 @@ defmodule Philomena.Bans do
   """
   def update_subnet(%Subnet{} = subnet, attrs) do
     subnet
-    |> Subnet.changeset(attrs)
+    |> Subnet.save_changeset(attrs)
     |> Repo.update()
   end
 

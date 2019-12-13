@@ -1,0 +1,52 @@
+h1 Subnet Bans
+
+- route = fn p -> Routes.admin_subnet_ban_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @subnet_bans, route: route
+
+.block
+  .block__header
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Specification
+          th Created
+          th Expires
+          th Reason/Note
+          th Ban ID
+          th Options
+
+      tbody
+        = for ban <- @subnet_bans do
+          tr
+            td
+              = link ban.specification, to: Routes.ip_profile_path(@conn, :show, to_string(ban.specification))
+
+            td
+              => pretty_time ban.created_at
+              = user_abbrv @conn, ban.banning_user
+
+            td class=ban_row_class(ban)
+              = pretty_time ban.valid_until
+
+            td
+              = ban.reason
+
+              = if present?(ban.note) do
+                p.block.block--fixed
+                  em
+                    ' Note:
+                    = ban.note
+
+            td
+              = ban.generated_ban_id
+
+            td
+                => link "Edit", to: Routes.admin_subnet_ban_path(@conn, :edit, ban)
+                ' &bull;
+                => link "Destroy", to: Routes.admin_subnet_ban_path(@conn, :delete, ban), data: [confirm: "Are you really, really sure?", method: "delete"]
+
+  .block__header.block__header--light
+    = pagination

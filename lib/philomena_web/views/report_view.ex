@@ -63,7 +63,6 @@ defmodule PhilomenaWeb.ReportView do
     do: link "User '#{r.name}'", to: Routes.profile_path(conn, :show, r)
 
   def link_to_reported_thing(_conn, report) do
-    IO.inspect report
     "Reported item permanently destroyed."
   end
 end

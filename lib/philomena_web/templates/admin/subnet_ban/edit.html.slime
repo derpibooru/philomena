@@ -1,0 +1,6 @@
+h1 Editing ban
+
+= render PhilomenaWeb.Admin.SubnetBanView, "_form.html", changeset: @changeset, action: Routes.admin_subnet_ban_path(@conn, :update, @subnet), conn: @conn
+
+br
+= link "Back", to: Routes.admin_subnet_ban_path(@conn, :index)
