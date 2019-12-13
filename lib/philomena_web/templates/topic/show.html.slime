@@ -74,7 +74,35 @@ h1 = @topic.title
       p For various reasons, we'd like to ask you to start a new topic.
 
     - true ->
-
+  = if can?(@conn, :assist, Topic) do
+    .block__content
+      input.toggle-box id="administrator_tools" type="checkbox" checked=false
+      label for="administrator_tools" Manage Topic
+      .toggle-box-container
+        .toggle-box-container__content
+          p
+            = cond do
+              - can?(@conn, :lock, @topic) and is_nil(@topic.locked_at) ->
+                = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @topic.forum_id, @topic), [method: :post, class: "hform"], fn f ->
+                  = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason"
+                  = submit class: "hform__button button" do
+                    i.fas.fa-lock>
+                    ' Lock
+              - can?(@conn, :unlock, @topic) and not is_nil(@topic.locked_at) ->
+                = link(to: Routes.forum_topic_lock_path(@conn, :delete, @topic.forum_id, @topic), method: :delete, class: "button") do
+                  i.fas.fa-unlock>
+                  ' Unlock
+              - true ->
+            = cond do
+              - can?(@conn, :stick, @topic) and @topic.sticky ->
+                = link(to: Routes.forum_topic_stick_path(@conn, :delete, @topic.forum_id, @topic), method: :delete, class: "button") do
+                  i.fas.fa-thumbtack>
+                  ' Unstick
+              - can?(@conn, :stick, @topic) and not @topic.sticky ->
+                = link(to: Routes.forum_topic_stick_path(@conn, :create, @topic.forum_id, @topic), method: :post, class: "button") do
+                  i.fas.fa-thumbtack>
+                  ' Stick
+              - true ->
   / Mod tools
   /- if can? :assist, Topic
   /  .block__content

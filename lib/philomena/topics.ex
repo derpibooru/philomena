@@ -190,6 +190,26 @@ defmodule Philomena.Topics do
     |> Repo.delete()
   end
 
+  def stick_topic(topic) do
+    Topic.stick_changeset(topic)
+    |> Repo.update()
+  end
+
+  def unstick_topic(topic) do
+    Topic.unstick_changeset(topic)
+    |> Repo.update()
+  end
+
+  def lock_topic(%Topic{} = topic, attrs, user) do
+    Topic.lock_changeset(topic, attrs, user)
+    |> Repo.update()
+  end
+
+  def unlock_topic(%Topic{} = topic) do
+    Topic.unlock_changeset(topic)
+    |> Repo.update()
+  end
+
   def clear_notification(_topic, nil), do: nil
   def clear_notification(topic, user) do
     Notifications.delete_unread_notification("Topic", topic.id, user)

@@ -25,7 +25,7 @@ defmodule Philomena.Topics.Topic do
     field :view_count, :integer, default: 0
     field :sticky, :boolean, default: false
     field :last_replied_to_at, :naive_datetime
-    field :locked_at, :naive_datetime
+    field :locked_at, :utc_datetime
     field :deletion_reason, :string
     field :lock_reason, :string
     field :slug, :string
@@ -62,6 +62,33 @@ defmodule Philomena.Topics.Topic do
     |> cast_assoc(:posts, with: {Post, :topic_creation_changeset, [attribution, anonymous?]})
     |> validate_length(:posts, is: 1)
     |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
+  end
+
+  def stick_changeset(topic) do
+    change(topic)
+    |> put_change(:sticky, true)
+  end
+
+  def unstick_changeset(topic) do
+    change(topic)
+    |> put_change(:sticky, false)
+  end
+
+  def lock_changeset(topic, attrs, user) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    change(topic)
+    |> cast(attrs, [:lock_reason])
+    |> put_change(:locked_at, now)
+    |> put_change(:locked_by_id, user.id)
+    |> validate_required([:lock_reason])
+  end
+
+  def unlock_changeset(topic) do
+    change(topic)
+    |> put_change(:locked_at, nil)
+    |> put_change(:locked_by_id, nil)
+    |> put_change(:lock_reason, "")
   end
 
   def put_slug(changeset) do
