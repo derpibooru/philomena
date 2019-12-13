@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
     case Bans.create_subnet(conn.assigns.current_user, subnet_ban_params) do
       {:ok, _subnet_ban} ->
         conn
-        |> put_flash(:info, "User was successfully banned.")
+        |> put_flash(:info, "Subnet was successfully banned.")
         |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
 
       {:error, changeset} ->

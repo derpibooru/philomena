@@ -1,0 +1,52 @@
+h1 Fingerprint Bans
+
+- route = fn p -> Routes.admin_fingerprint_ban_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @fingerprint_bans, route: route
+
+.block
+  .block__header
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Fingerprint
+          th Created
+          th Expires
+          th Reason/Note
+          th Ban ID
+          th Options
+
+      tbody
+        = for ban <- @fingerprint_bans do
+          tr
+            td
+              = link ban.fingerprint, to: Routes.fingerprint_profile_path(@conn, :show, ban.fingerprint)
+
+            td
+              => pretty_time ban.created_at
+              = user_abbrv @conn, ban.banning_user
+
+            td class=ban_row_class(ban)
+              = pretty_time ban.valid_until
+
+            td
+              = ban.reason
+
+              = if present?(ban.note) do
+                p.block.block--fixed
+                  em
+                    ' Note:
+                    = ban.note
+
+            td
+              = ban.generated_ban_id
+
+            td
+                => link "Edit", to: Routes.admin_fingerprint_ban_path(@conn, :edit, ban)
+                ' &bull;
+                => link "Destroy", to: Routes.admin_fingerprint_ban_path(@conn, :delete, ban), data: [confirm: "Are you really, really sure?", method: "delete"]
+
+  .block__header.block__header--light
+    = pagination

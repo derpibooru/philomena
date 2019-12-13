@@ -49,9 +49,9 @@ defmodule Philomena.Bans do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_fingerprint(attrs \\ %{}) do
-    %Fingerprint{}
-    |> Fingerprint.changeset(attrs)
+  def create_fingerprint(creator, attrs \\ %{}) do
+    %Fingerprint{banning_user_id: creator.id}
+    |> Fingerprint.save_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -69,7 +69,7 @@ defmodule Philomena.Bans do
   """
   def update_fingerprint(%Fingerprint{} = fingerprint, attrs) do
     fingerprint
-    |> Fingerprint.changeset(attrs)
+    |> Fingerprint.save_changeset(attrs)
     |> Repo.update()
   end
 

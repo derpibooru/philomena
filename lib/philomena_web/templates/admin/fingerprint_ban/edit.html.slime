@@ -1,0 +1,6 @@
+h1 Editing ban
+
+= render PhilomenaWeb.Admin.FingerprintBanView, "_form.html", changeset: @changeset, action: Routes.admin_fingerprint_ban_path(@conn, :update, @fingerprint), conn: @conn
+
+br
+= link "Back", to: Routes.admin_fingerprint_ban_path(@conn, :index)
