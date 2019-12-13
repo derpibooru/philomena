@@ -10,8 +10,6 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
   plug :load_resource, model: SubnetBan, only: [:edit, :update, :delete]
 
   def index(conn, %{"q" => q}) when is_binary(q) do
-    like_q = "%#{q}%"
-
     SubnetBan
     |> where([sb],
       sb.generated_ban_id == ^q
