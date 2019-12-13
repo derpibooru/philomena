@@ -62,6 +62,9 @@ h1 = @topic.title
 
   / Post form
   = cond do
+    - @conn.assigns.current_ban ->
+      = render PhilomenaWeb.BanView, "_ban_reason.html", conn: @conn
+
     - @topic.post_count < 200_000 and can?(@conn, :create_post, @topic) ->
       = render PhilomenaWeb.Topic.PostView, "_form.html", conn: @conn, forum: @forum, topic: @topic, changeset: @changeset
 

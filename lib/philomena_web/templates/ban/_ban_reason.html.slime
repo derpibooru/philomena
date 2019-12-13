@@ -1,0 +1,16 @@
+.block.block--fixed.block--warning
+  h4
+    ' You've been banned!
+  p
+    ' You cannot create comments or posts or update metadata (or do anything but read, really) until
+    = pretty_time @conn.assigns.current_ban.valid_until
+    ' .
+
+  p
+    ' The reason given by the administrator who banned you is:
+    br
+    strong>
+      = @conn.assigns.current_ban.reason
+    ' (Ban ID:
+    = @conn.assigns.current_ban.generated_ban_id
+    ' ).

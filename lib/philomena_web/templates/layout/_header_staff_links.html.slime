@@ -71,15 +71,15 @@
       ' B
       i.fa.fa-caret-down
     .dropdown__content.dropdown__content-right.js-burger-links
-      = if can?(@conn, :mod_read, UserBan) do
-        = link to: "#", class: "header__link" do
+      = if can?(@conn, :index, UserBan) do
+        = link to: Routes.admin_user_ban_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-user>
           ' User Bans
-      = if can?(@conn, :mod_read, SubnetBan) do
-        = link to: "#", class: "header__link" do
+      = if can?(@conn, :index, SubnetBan) do
+        = link to: Routes.admin_subnet_ban_path(@conn, :index), class: "header__link" do
           i.fab.fa-fw.fa-internet-explorer>
           ' IP Bans
-      = if can?(@conn, :mod_read, FingerprintBan) do
-        = link to: "#", class: "header__link" do
+      = if can?(@conn, :index, FingerprintBan) do
+        = link to: Routes.admin_fingerprint_ban_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-desktop>
           ' FP Bans

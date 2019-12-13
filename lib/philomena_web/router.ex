@@ -190,6 +190,10 @@ defmodule PhilomenaWeb.Router do
       resources "/dnp_entries", DnpEntryController, only: [:index] do
         resources "/transition", DnpEntry.TransitionController, only: [:create], singleton: true
       end
+
+      resources "/user_bans",  UserBanController, only: [:index, :new, :create, :edit, :update, :delete]
+      resources "/subnet_bans", SubnetBanController, only: [:index, :new, :create, :edit, :update, :delete]
+      resources "/fingerprint_bans", FingerprintBanController, only: [:index, :new, :create, :edit, :update, :delete]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

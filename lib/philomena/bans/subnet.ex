@@ -10,7 +10,7 @@ defmodule Philomena.Bans.Subnet do
     field :reason, :string
     field :note, :string
     field :enabled, :boolean, default: true
-    field :valid_until, :naive_datetime
+    field :valid_until, :utc_datetime
     field :specification, EctoNetwork.INET
     field :generated_ban_id, :string
 

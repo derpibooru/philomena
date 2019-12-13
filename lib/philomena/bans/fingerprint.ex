@@ -10,7 +10,7 @@ defmodule Philomena.Bans.Fingerprint do
     field :reason, :string
     field :note, :string
     field :enabled, :boolean, default: true
-    field :valid_until, :naive_datetime
+    field :valid_until, :utc_datetime
     field :fingerprint, :string
     field :generated_ban_id, :string
 

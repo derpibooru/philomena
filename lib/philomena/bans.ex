@@ -241,9 +241,9 @@ defmodule Philomena.Bans do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_user(attrs \\ %{}) do
-    %User{}
-    |> User.changeset(attrs)
+  def create_user(creator, attrs \\ %{}) do
+    %User{banning_user_id: creator.id}
+    |> User.save_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -261,7 +261,7 @@ defmodule Philomena.Bans do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.changeset(attrs)
+    |> User.save_changeset(attrs)
     |> Repo.update()
   end
 
@@ -321,7 +321,7 @@ defmodule Philomena.Bans do
   defp fingerprint_query(fingerprint, now) do
     [
       Fingerprint
-      |> select([f], %{reason: f.reason, valid_until: f.valid_until, generated_ban_id: f.generated_ban_id, type: "FingerprintBan"})
+      |> select([f], %{reason: f.reason, valid_until: f.valid_until, generated_ban_id: f.generated_ban_id, type: ^"FingerprintBan"})
       |> where([f], f.enabled and f.valid_until > ^now)
       |> where([f], f.fingerprint == ^fingerprint)
     ]
@@ -333,7 +333,7 @@ defmodule Philomena.Bans do
 
     [
       Subnet
-      |> select([s], %{reason: s.reason, valid_until: s.valid_until, generated_ban_id: s.generated_ban_id, type: "SubnetBan"})
+      |> select([s], %{reason: s.reason, valid_until: s.valid_until, generated_ban_id: s.generated_ban_id, type: ^"SubnetBan"})
       |> where([s], s.enabled and s.valid_until > ^now)
       |> where(fragment("specification >>= ?", ^inet))
     ]
@@ -343,7 +343,7 @@ defmodule Philomena.Bans do
   defp user_query(user, now) do
     [
       User
-      |> select([u], %{reason: u.reason, valid_until: u.valid_until, generated_ban_id: u.generated_ban_id, type: "UserBan"})
+      |> select([u], %{reason: u.reason, valid_until: u.valid_until, generated_ban_id: u.generated_ban_id, type: ^"UserBan"})
       |> where([u], u.enabled and u.valid_until > ^now)
       |> where([u], u.user_id == ^user.id)
     ]

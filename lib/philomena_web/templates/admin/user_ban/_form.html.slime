@@ -1,0 +1,26 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :username, "Username:"
+    = text_input f, :username, class: "input", placeholder: "Username", required: true
+
+  .field
+    => checkbox f, :override_ip_ban, class: "checkbox"
+    = label f, :override_ip_ban, "Override IP ban?"
+
+  .field
+    => label f, :reason, "Reason (shown to the banned user, and to staff on the user's profile page):"
+    = text_input f, :reason, class: "input input--wide", placeholder: "Reason", required: true
+
+  .field
+    => label f, :note, "Admin-only note:"
+    = text_input f, :note, class: "input input--wide", placeholder: "Note"
+
+  .field
+    => label f, :until, "End time relative to now, in simple English (e.g. \"1 week from now\"):"
+    = text_input f, :until, class: "input input--wide", placeholder: "Until", required: true
+
+  = submit "Save Ban", class: "button"
