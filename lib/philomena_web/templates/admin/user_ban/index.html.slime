@@ -3,8 +3,17 @@ h1 User Bans
 - route = fn p -> Routes.admin_user_ban_path(@conn, :index, p) end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route
 
+= form_for :user_ban, Routes.admin_user_ban_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+  .field
+    = text_input f, :q, name: "q", class: "hform__text input", placeholder: "Search"
+    = submit "Search", class: "button hform__button"
+
 .block
   .block__header
+    a href=Routes.admin_user_ban_path(@conn, :new)
+      i.fa.fa-plus>
+      ' New user ban
+
     = pagination
 
   .block__content

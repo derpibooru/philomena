@@ -33,6 +33,11 @@ defmodule PhilomenaWeb.Admin.UserBanController do
     load_bans(UserBan, conn)
   end
 
+  def new(conn, %{"username" => username}) do
+    changeset = Bans.change_user(%UserBan{username: username})
+    render(conn, "new.html", changeset: changeset)
+  end
+
   def new(conn, _params) do
     changeset = Bans.change_user(%UserBan{})
     render(conn, "new.html", changeset: changeset)

@@ -7,15 +7,15 @@ ul
   li = link "View comments this IP has posted", to: Routes.comment_path(@conn, :index, cq: "ip:#{@ip}")
   li = link "View posts this IP has made", to: Routes.post_path(@conn, :index, pq: "ip:#{@ip}")
 
-/= render partial: "bans/ban_list", locals: { bans: @bans }
+= render PhilomenaWeb.BanView, "_bans.html", bans: @subnet_bans, conn: @conn
 
 h2 Administration Options
-/ul
-  li = link "View tag changes", "/ip_profiles/#{@ip}/tag_changes"
-  li = link "View source URL history", "/ip_profiles/#{@ip}/source_changes"
-  li = link "View reports this IP has made", admin_reports_path(rq: "ip:#{@ip}")
-  li = link "View IP ban history", admin_subnet_bans_path(q: @ip)
-  li = link "Ban this sucker", new_admin_subnet_ban_path(ip: @ip)
+ul
+  /li = link "View tag changes", "/ip_profiles/#{@ip}/tag_changes"
+  /li = link "View source URL history", "/ip_profiles/#{@ip}/source_changes"
+  li = link "View reports this IP has made", to: Routes.admin_report_path(@conn, :index, rq: "ip:#{@ip}")
+  li = link "View IP ban history", to: Routes.admin_subnet_ban_path(@conn, :index, ip: to_string(@ip))
+  li = link "Ban this sucker", to: Routes.admin_subnet_ban_path(@conn, :new, specification: to_string(@ip))
 
 h4 Observed users
 table.table

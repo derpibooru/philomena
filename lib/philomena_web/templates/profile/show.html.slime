@@ -22,6 +22,8 @@
         li = link("Send message", to: Routes.conversation_path(@conn, :new, recipient: @user.name))
         li = link("Our conversations", to: Routes.conversation_path(@conn, :index, with: @user.id))
         li = link("Report this user", to: Routes.profile_report_path(@conn, :new, @user))
+        = if can_ban?(@conn) do
+          li = link("Ban this sucker", to: Routes.admin_user_ban_path(@conn, :new, username: @user.name))
 
       ul.profile-top__options__column
         li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))

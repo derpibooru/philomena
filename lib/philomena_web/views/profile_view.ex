@@ -50,6 +50,9 @@ defmodule PhilomenaWeb.ProfileView do
     Enum.map_join(tags, " || ", & &1.name)
   end
 
+  def can_ban?(conn),
+    do: can?(conn, :index, Philomena.Bans.User)
+
   def user_abbrv(conn, %{name: name} = user) do
     abbrv = String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
     abbrv = "(" <> abbrv <> ")"

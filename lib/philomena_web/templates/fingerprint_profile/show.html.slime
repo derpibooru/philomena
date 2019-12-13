@@ -7,15 +7,15 @@ ul
   li = link "View comments this fingerprint has posted", to: Routes.comment_path(@conn, :index, cq: "fingerprint:#{@fingerprint}")
   li = link "View posts this fingerprint has made", to: Routes.post_path(@conn, :index, pq: "fingerprint:#{@fingerprint}")
 
-/= render partial: "bans/ban_list", locals: { bans: @bans }
+= render PhilomenaWeb.BanView, "_bans.html", bans: @fingerprint_bans, conn: @conn
 
 h2 Administration Options
 /ul
-  li = link "View tag changes", "/fingerprint_profiles/#{@fingerprint}/tag_changes"
-  li = link "View source URL history", "/fingerprint_profiles/#{@fingerprint}/source_changes"
-  li = link "View reports this fingerprint has made", admin_reports_path(rq: "ip:#{@fingerprint}")
-  li = link "View fingerprint ban history", admin_subnet_bans_path(q: @fingerprint)
-  li = link "Ban this sucker", new_admin_subnet_ban_path(fingerprint: @fingerprint)
+  /li = link "View tag changes", "/fingerprint_profiles/#{@fingerprint}/tag_changes"
+  /li = link "View source URL history", "/fingerprint_profiles/#{@fingerprint}/source_changes"
+  li = link "View reports this fingerprint has made", to: Routes.admin_report_path(@conn, :index, rq: "fingerprint:#{@fingerprint}")
+  li = link "View fingerprint ban history", to: Routes.admin_fingerprint_ban_path(@conn, :index, fingerprint: @fingerprint)
+  li = link "Ban this sucker", to: Routes.admin_fingerprint_ban_path(@conn, :new, fingerprint: @fingerprint)
 
 h4 Observed users
 table.table
