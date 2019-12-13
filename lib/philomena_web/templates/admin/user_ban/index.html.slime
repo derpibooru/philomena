@@ -1,7 +1,7 @@
 h1 User Bans
 
 - route = fn p -> Routes.admin_user_ban_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route, params: @conn.query_params
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route
 
 .block
   .block__header
