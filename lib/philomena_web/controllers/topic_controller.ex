@@ -15,13 +15,11 @@ defmodule PhilomenaWeb.TopicController do
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
-  def show(conn, %{"id" => slug} = params) do
+  plug PhilomenaWeb.LoadTopicPlug, [param: "id"] when action in [:show]
+
+  def show(conn, params) do
     forum = conn.assigns.forum
-    topic =
-      Topic
-      |> where(forum_id: ^forum.id, slug: ^slug)
-      |> preload([:deleted_by, :user, poll: :options])
-      |> Repo.one()
+    topic = conn.assigns.topic
 
     user = conn.assigns.current_user
 

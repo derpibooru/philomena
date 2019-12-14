@@ -3,14 +3,14 @@ defmodule PhilomenaWeb.Image.Comment.HistoryController do
 
   alias Philomena.Versions.Version
   alias Philomena.Versions
-  alias Philomena.Comments.Comment
   alias Philomena.Images.Image
   alias Philomena.Repo
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
-  plug :load_and_authorize_resource, model: Comment, id_name: "comment_id", persisted: true, preload: [:image, user: [awards: :badge]]
+
+  plug PhilomenaWeb.LoadCommentPlug
 
   def index(conn, _params) do
     comment = conn.assigns.comment

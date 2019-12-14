@@ -8,15 +8,16 @@ defmodule PhilomenaWeb.Image.CommentController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
+
   plug PhilomenaWeb.CanaryMapPlug, create: :create_comment, edit: :create_comment, update: :create_comment
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   # Undo the previous private parameter screwery
+  plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:edit, :update]
   plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
-  plug :load_and_authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
-
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
-  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
+  plug :authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
 
   def index(conn, %{"comment_id" => comment_id}) do
     comment =

@@ -18,6 +18,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
         conn
         |> put_flash(:info, "Post successfully hidden!")
         |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic) <> "#post_#{post.id}")
+
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to hide post!")
@@ -35,6 +36,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
         conn
         |> put_flash(:info, "Post successfully unhidden!")
         |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic) <> "#post_#{post.id}")
+
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unhide post!")

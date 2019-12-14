@@ -245,7 +245,6 @@ defmodule Philomena.Topics do
     |> Repo.update()
   end
 
-  def clear_notification(nil, _user), do: nil
   def clear_notification(_topic, nil), do: nil
   def clear_notification(topic, user) do
     Notifications.delete_unread_notification("Topic", topic.id, user)

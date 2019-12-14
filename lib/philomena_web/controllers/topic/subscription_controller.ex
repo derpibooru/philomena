@@ -1,15 +1,17 @@
 defmodule PhilomenaWeb.Topic.SubscriptionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Topics, Topics.Topic, Forums.Forum}
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Forums.Forum
+  alias Philomena.Topics
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
 
-  def create(conn, %{"topic_id" => slug}) do
-    topic = load_topic(conn, slug)
+  plug PhilomenaWeb.LoadTopicPlug, [show_hidden: true] when action in [:delete]
+  plug PhilomenaWeb.LoadTopicPlug when action in [:create]
+
+  def create(conn, _params) do
+    topic = conn.assigns.topic
     user = conn.assigns.current_user
 
     case Topics.create_subscription(topic, user) do
@@ -21,8 +23,8 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
     end
   end
 
-  def delete(conn, %{"topic_id" => slug}) do
-    topic = load_topic(conn, slug)
+  def delete(conn, _params) do
+    topic = conn.assigns.topic
     user = conn.assigns.current_user
 
     case Topics.delete_subscription(topic, user) do
@@ -32,14 +34,5 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
       {:error, _changeset} ->
         render(conn, "_error.html", layout: false)
     end
-  end
-
-  defp load_topic(conn, slug) do
-    forum = conn.assigns.forum
-
-    Topic
-    |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
-    |> preload(:user)
-    |> Repo.one()
   end
 end

@@ -77,6 +77,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, _action, SubnetBan), do: true
   def can?(%User{role: "moderator"}, _action, FingerprintBan), do: true
 
+  # Hide topics
+  def can?(%User{role: "moderator"}, :hide, %Topic{}), do: true
+
   #
   # Assistants can...
   #
@@ -102,6 +105,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Topic assistant actions
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Topic{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Topic{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Topic{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Post{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Post{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Post{}), do: true

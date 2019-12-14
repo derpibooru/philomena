@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Comments.Comment
   alias Philomena.Images.Image
   alias Philomena.Reports.Report
   alias Philomena.Reports
@@ -11,9 +10,11 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
+
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags]
-  plug :load_and_authorize_resource, model: Comment, id_name: "comment_id", persisted: true, preload: [:image]
+
+  plug PhilomenaWeb.LoadCommentPlug
 
   def new(conn, _params) do
     comment = conn.assigns.comment

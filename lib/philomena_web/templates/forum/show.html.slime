@@ -46,7 +46,7 @@ h1 = @forum.name
             td.table--communication-list__stats.hide-mobile = topic.post_count
             td.table--communication-list__last-post
               = if topic.last_post do
-                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, @forum, topic, post_id: topic.last_post) <> "#post_#{topic.last_post.id}")
+                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, topic.forum, topic, post_id: topic.last_post) <> "#post_#{topic.last_post.id}")
                 ' by
                 = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post, conn: @conn
                 br

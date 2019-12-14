@@ -4,20 +4,20 @@ defmodule PhilomenaWeb.Topic.PostController do
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post}
   alias Philomena.Posts
   alias Philomena.UserStatistics
-  alias Philomena.Repo
-  import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.UserAttributionPlug
+
   plug PhilomenaWeb.CanaryMapPlug, create: :show, edit: :show, update: :show
   plug :load_and_authorize_resource, model: Forum, id_field: "short_name", id_name: "forum_id", persisted: true
 
-  plug :load_topic
+  plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.CanaryMapPlug, create: :create_post, edit: :create_post, update: :create_post
-  plug :authorize_resource, model: Topic, id_field: "slug", id_name: "topic_id", persisted: true
+  plug :authorize_resource, model: Topic, persisted: true
 
+  plug PhilomenaWeb.LoadPostPlug, [param: "id"] when action in [:edit, :update]
   plug PhilomenaWeb.CanaryMapPlug, edit: :edit, update: :edit
-  plug :load_and_authorize_resource, model: Post, only: [:edit, :update], preload: [topic: :forum]
+  plug :authorize_resource, model: Post, only: [:edit, :update]
 
   def create(conn, %{"post" => post_params}) do
     attributes = conn.assigns.attributes
@@ -60,27 +60,6 @@ defmodule PhilomenaWeb.Topic.PostController do
 
       {:error, :post, changeset, _changes} ->
         render(conn, "edit.html", post: conn.assigns.post, changeset: changeset)
-    end
-  end
-
-  defp load_topic(conn, _opts) do
-    user = conn.assigns.current_user
-    forum = conn.assigns.forum
-    topic =
-      Topic
-      |> where(forum_id: ^forum.id, slug: ^conn.params["topic_id"])
-      |> preload(:forum)
-      |> Repo.one()
-
-    cond do
-      is_nil(topic) ->
-        PhilomenaWeb.NotFoundPlug.call(conn)
-
-      not Canada.Can.can?(user, :show, topic) ->
-        PhilomenaWeb.NotAuthorizedPlug.call(conn)
-
-      true ->
-        Plug.Conn.assign(conn, :topic, topic)
     end
   end
 end

@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.ForumController do
     forums =
       Forum
       |> order_by(asc: :name)
-      |> preload([last_post: [:topic, :user]])
+      |> preload([last_post: [:user, topic: :forum]])
       |> Repo.all()
       |> Enum.filter(&Canada.Can.can?(user, :show, &1))
 

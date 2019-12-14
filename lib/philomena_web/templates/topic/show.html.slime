@@ -1,8 +1,8 @@
-elixir:
-  route = fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, last: true
+- route = fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, last: true
 
 h1 = @topic.title
+
 = if @topic.hidden_from_users do
   .block.block--fixed.block--danger
     h4 This topic has been deleted by a moderator
@@ -10,16 +10,19 @@ h1 = @topic.title
       strong> Reason:
       em
         = @topic.deletion_reason
-    = if can?(@conn, :unhide, @topic) do
+
+    = if can?(@conn, :hide, @topic) do
       p
         strong> Deleted by:
         em
           strong
             = link(@topic.deleted_by.name, to: Routes.profile_path(@conn, :show, @topic.deleted_by))
+
       p
-        = link(to: Routes.forum_topic_hide_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
+        = link(to: Routes.forum_topic_hide_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
           i.fas.fa-check>
           ' Restore
+
 / Header section
 .block
   .block__header
@@ -28,6 +31,7 @@ h1 = @topic.title
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
     ' &raquo;
     => link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, @topic))
+
     = if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
       a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
         i.fa.fa-fw.fa-search>
@@ -61,9 +65,6 @@ h1 = @topic.title
       = if @conn.assigns.advert do
         = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
-      / Post editability data for JS
-      /.js-editable-posts data-editable=editable_communications(@posts).to_json
-
       / Footer section
       .block
         .block__header.block__header--light
@@ -79,6 +80,7 @@ h1 = @topic.title
           p
             ' Lock reason:
             em = @topic.lock_reason
+
   / Post form
   = cond do
     - @conn.assigns.current_ban ->
@@ -97,7 +99,8 @@ h1 = @topic.title
       p For various reasons, we'd like to ask you to start a new topic.
 
     - true ->
-  = if can?(@conn, :assist, Topic) do
+
+  = if can?(@conn, :hide, @topic) do
     .block__content
       input.toggle-box id="administrator_tools" type="checkbox" checked=false
       label for="administrator_tools" Manage Topic
@@ -105,41 +108,41 @@ h1 = @topic.title
         .toggle-box-container__content
           p
             = if not @topic.hidden_from_users do
-              = cond do
-                - can?(@conn, :lock, @topic) and is_nil(@topic.locked_at) ->
-                  = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
-                    = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason", required: true
-                    = submit class: "hform__button button" do
-                      i.fas.fa-lock>
-                      ' Lock
-                - can?(@conn, :unlock, @topic) and not is_nil(@topic.locked_at) ->
-                  = link(to: Routes.forum_topic_lock_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
-                    i.fas.fa-unlock>
-                    ' Unlock
-                - true ->
-              = cond do
-                - can?(@conn, :stick, @topic) and @topic.sticky ->
-                  = link(to: Routes.forum_topic_stick_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
-                    i.fas.fa-thumbtack>
-                    ' Unstick
-                - can?(@conn, :stick, @topic) and not @topic.sticky ->
-                  = link(to: Routes.forum_topic_stick_path(@conn, :create, @forum.id, @topic), method: :post, class: "button") do
-                    i.fas.fa-thumbtack>
-                    ' Stick
-                - true ->
-              = if can?(@conn, :move, @topic) do
-                = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
-                  .field
-                    = select f, :target_forum_id, @conn.assigns.forums |> Enum.map(fn forum -> {forum.name, forum.id} end), class: "input hform__text"
-                    = submit class: "hform__button button" do
-                      i.fas.fa-truck>
-                      ' Move
-              = if can?(@conn, :hide, @topic) do
-                = form_for :topic, Routes.forum_topic_hide_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
-                  .field
-                    = text_input f, :deletion_reason, class: "input hform__text", placeholder: "Deletion reason", required: true
-                    = submit class: "hform__button button" do
-                      i.fas.fa-trash>
-                      ' Delete
+              = if @topic.locked_at do
+                = link(to: Routes.forum_topic_lock_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
+                  i.fas.fa-unlock>
+                  ' Unlock
+
+              - else
+                = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+                  = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason", required: true
+                  = submit class: "hform__button button" do
+                    i.fas.fa-lock>
+                    ' Lock
+
+              = if @topic.sticky do
+                = link(to: Routes.forum_topic_stick_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
+                  i.fas.fa-thumbtack>
+                  ' Unstick
+
+              - else
+                = link(to: Routes.forum_topic_stick_path(@conn, :create, @forum, @topic), method: :post, class: "button") do
+                  i.fas.fa-thumbtack>
+                  ' Stick
+
+              = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+                .field
+                  = select f, :target_forum_id, Enum.map(@conn.assigns.forums, &{&1.name, &1.id}), class: "input hform__text"
+                  = submit class: "hform__button button" do
+                    i.fas.fa-truck>
+                    ' Move
+
+              = form_for :topic, Routes.forum_topic_hide_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+                .field
+                  = text_input f, :deletion_reason, class: "input hform__text", placeholder: "Deletion reason", required: true
+                  = submit class: "hform__button button" do
+                    i.fas.fa-trash>
+                    ' Delete
+
             - else
               | Moderation tools unavailable for deleted topics.

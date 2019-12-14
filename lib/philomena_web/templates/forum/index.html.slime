@@ -24,9 +24,9 @@ h1 Discussion Forums
             td.table--communication-list__last-post
               = if forum.last_post do
                 strong
-                  => link(forum.last_post.topic.title, to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic))
+                  => link(forum.last_post.topic.title, to: Routes.forum_topic_path(@conn, :show, forum.last_post.topic.forum, forum.last_post.topic))
                 br
-                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum, forum.last_post.topic, post_id: forum.last_post.id) <> "#post_#{forum.last_post.id}")
+                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum.last_post.topic.forum, forum.last_post.topic, post_id: forum.last_post.id) <> "#post_#{forum.last_post.id}")
                 ' by
                 => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: forum.last_post, conn: @conn
                 br
