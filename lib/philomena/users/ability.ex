@@ -64,6 +64,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Reveal anon users
   def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
+  def can?(%User{role: "moderator"}, :show, :ip_address), do: true
+
+  # Edit posts and comments
+  def can?(%User{role: "moderator"}, :edit, %Post{}), do: true
+  def can?(%User{role: "moderator"}, :edit, %Comment{}), do: true
 
   # Show the DNP list
   def can?(%User{role: "moderator"}, :index, DnpEntry), do: true
