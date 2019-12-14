@@ -1,85 +1,90 @@
 / Dummy view for the admin bar
 .flex.flex--centered.header--secondary__admin-links.stretched-mobile-links.js-staff-action
   .dropdown.hide-mobile
-    /a.header__link title="Admin"
+    a.header__link title="Admin"
       ' A
       i.fa.fa-caret-down
+
     .dropdown__content.js-burger-links
-      / todo: make some sort of permission for this
-      = if @current_user.role == "admin" do
-        = link to: "/admin/flipper", class: "header__link" do
-          i.fa.fa-fw.fa-toggle-on>
-          ' Site Settings
-      = if can?(@conn, :manage, SiteNotice) do
+      = if manages_site_notices?(@conn) do
         = link to: "/admin/site_notices", class: "header__link" do
           i.fa.fa-fw.fa-info-circle>
           ' Site Notices
-      = if can?(@conn, :manage, Tag) do
+
+      = if manages_tags?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-tags>
           ' Tags
-      = if can?(@conn, :mod_read, User) do
+
+      = if manages_users?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-users>
           ' Users
-      = if can?(@conn, :mod_read, Comment) do
-        = link to: "#", class: "header__link" do
-          i.fa.fa-fw.fa-comments>
-          ' Comments
-      = if can?(@conn, :mod_read, Forum) do
+
+      = if manages_forums?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-paragraph>
           ' Forums
-      = if can?(@conn, :manage, Advert) do
+
+      = if manages_ads?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-shopping-bag>
           ' Advertisements
-      = if can?(@conn, :award, Badge) do
+
+      = if manages_badges?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-trophy>
           ' Badges
-      = if can?(@conn, :manage, StaticPage) do
+
+      = if manages_static_pages?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-sticky-note>
           ' Pages
-      = if can?(@conn, :manage, ModNote) do
+
+      = if manages_mod_notes?(@conn) do
         = link to: "#", class: "header__link" do
           i.fa.fa-fw.fa-sticky-note>
           ' Mod Notes
+
   = if @duplicate_report_count do
     = link to: Routes.duplicate_report_path(@conn, :index), class: "header__link", title: "Duplicates" do
       ' D
       span.header__counter__admin
         = @duplicate_report_count
+
   = if @report_count do
     = link to: Routes.admin_report_path(@conn, :index), class: "header__link", title: "Reports" do
       ' R
       span.header__counter__admin
         = @report_count
+
   = if @user_link_count do
     = link to: Routes.admin_user_link_path(@conn, :index), class: "header__link", title: "User Links" do
       ' L
       span.header__counter__admin
         = @user_link_count
+
   = if @dnp_entry_count do
     = link to: Routes.admin_dnp_entry_path(@conn, :index), class: "header__link", title: "DNP Requests" do
       ' S
       span.header__counter__admin
         = @dnp_entry_count
+
   .dropdown.hide-mobile
     a.header__link title="Bans"
       ' B
       i.fa.fa-caret-down
+
     .dropdown__content.dropdown__content-right.js-burger-links
-      = if can?(@conn, :index, UserBan) do
+      = if manages_bans?(@conn) do
         = link to: Routes.admin_user_ban_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-user>
           ' User Bans
-      = if can?(@conn, :index, SubnetBan) do
+
         = link to: Routes.admin_subnet_ban_path(@conn, :index), class: "header__link" do
           i.fab.fa-fw.fa-internet-explorer>
           ' IP Bans
-      = if can?(@conn, :index, FingerprintBan) do
+
         = link to: Routes.admin_fingerprint_ban_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-desktop>
           ' FP Bans

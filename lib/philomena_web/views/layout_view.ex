@@ -79,4 +79,31 @@ defmodule PhilomenaWeb.LayoutView do
 
   def opengraph?(conn),
     do: !is_nil(conn.assigns[:image]) and conn.assigns.image.__meta__.state == :loaded and is_list(conn.assigns.image.tags)
+
+  def manages_site_notices?(conn),
+    do: can?(conn, :index, Philomena.SiteNotices.SiteNotice)
+
+  def manages_tags?(conn),
+    do: can?(conn, :index, Philomena.Tags.Tag)
+
+  def manages_users?(conn),
+    do: can?(conn, :index, Philomena.Users.User)
+
+  def manages_forums?(conn),
+    do: conn.assigns.current_user.role == "admin"
+
+  def manages_ads?(conn),
+    do: conn.assigns.current_user.role == "admin"
+
+  def manages_badges?(conn),
+    do: can?(conn, :index, Philomena.Badges.Badge)
+
+  def manages_static_pages?(conn),
+    do: conn.assigns.current_user.role == "admin"
+
+  def manages_mod_notes?(conn),
+    do: conn.assigns.current_user.role in ["admin", "moderator"]
+
+  def manages_bans?(conn),
+    do: conn.assigns.current_user.role in ["admin", "moderator"]
 end

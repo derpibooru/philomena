@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Admin.SiteNoticeController do
       |> order_by(desc: :start_date)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", site_notices: site_notices)
+    render(conn, "index.html", admin_site_notices: site_notices)
   end
 
   def new(conn, _params) do
