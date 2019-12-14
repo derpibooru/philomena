@@ -95,13 +95,17 @@ defmodule Philomena.Tags.Tag do
     tag
     |> cast(attrs, [:image, :image_format, :image_mime_type, :uploaded_image])
     |> validate_required([:image, :image_format, :image_mime_type])
-    |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png))
+    |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png image/svg+xml))
   end
 
   def remove_image_changeset(tag) do
     change(tag)
     |> put_change(:removed_image, tag.image)
     |> put_change(:image, nil)
+  end
+
+  def unalias_changeset(tag) do
+    change(tag, aliased_tag_id: nil)
   end
 
   def creation_changeset(tag, attrs) do

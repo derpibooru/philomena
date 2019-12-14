@@ -14,6 +14,10 @@ defmodule PhilomenaWeb.TagView do
     can?(conn, :edit, %Tag{})
   end
 
+  def aliases_tags?(conn) do
+    can?(conn, :alias, %Tag{})
+  end
+
   def tag_image(%{image: image}) do
     tag_url_root() <> "/" <> image
   end

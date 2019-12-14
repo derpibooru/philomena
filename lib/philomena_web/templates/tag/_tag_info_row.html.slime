@@ -1,4 +1,4 @@
-.block__content.js-imagelist-info.flex
+.block__content.js-imagelist-info.flex class=tags_row_class(@conn)
   .flex__fixed.tag-info__image.thumb-tiny-container.spacing-right
     = if @tag.image do
       img src=tag_image(@tag) alt="spoiler image"
@@ -18,21 +18,29 @@
       = @tag.short_description
       br
 
+    = if manages_tags?(@conn) and present?(@tag.mod_notes) do
+      strong.comment_deleted> Mod notes:
+      = @tag.mod_notes
+      br
+
     = if Enum.any?(@tag.aliases) do
       strong> Aliases:
-      = Enum.map_join(@tag.aliases, ", ", & &1.name)
+      = if aliases_tags?(@conn) do
+        = map_join(@tag.aliases, ", ", &link(&1.name, to: Routes.tag_alias_path(@conn, :edit, &1)))
+      - else
+        = map_join(@tag.aliases, ", ", & &1.name)
       br
 
     = if Enum.any?(@tag.implied_tags) do
       strong> Implies:
-      = Enum.map_join(@tag.implied_tags, ", ", & &1.name)
+      = map_join(@tag.implied_tags, ", ", &link(&1.name, to: Routes.tag_path(@conn, :show, &1)))
       br
 
     = if present?(@tag.public_links) or present?(@tag.implied_by_tags) or present?(@tag.description) do
       br
       = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
 
-      .tag-info__more
+      .tag-info__more.hidden
         hr
 
         = if Enum.any?(@tag.public_links) do
@@ -53,7 +61,7 @@
           br
 
         = if Enum.any?(@tag.implied_by_tags) do
-          input.toggle-box id="implied_by" type="checkbox" checked="false"
+          input.toggle-box id="implied_by" type="checkbox"
           label for="implied_by"
             ' Implied by (warning: unfiltered)
 
@@ -83,5 +91,5 @@
         ==> body
 
         | (
-        = link "more info", to: "#"
+        = link "more info", to: Routes.dnp_entry_path(@conn, :show, entry)
         | )

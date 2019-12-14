@@ -8,7 +8,8 @@ defmodule PhilomenaWeb.TagController do
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
-  plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user]
+  plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [:aliases, :aliased_tag, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user]
+  plug :redirect_alias
 
   def index(conn, params) do
     query_string = params["tq"] || "*"
@@ -126,6 +127,18 @@ defmodule PhilomenaWeb.TagController do
         |> String.replace("*", "\\*")
         |> String.replace("?", "\\?")
         |> String.replace("\"", "\\\"")
+    end
+  end
+
+  defp redirect_alias(conn, _opts) do
+    case conn.assigns.tag do
+      %{aliased_tag: nil} ->
+        conn
+
+      %{aliased_tag: tag} ->
+        conn
+        |> put_flash(:info, "This tag (`#{conn.assigns.tag.name}') has been aliased into the tag `#{tag.name}'.")
+        |> redirect(to: Routes.tag_path(conn, :show, tag))
     end
   end
 end

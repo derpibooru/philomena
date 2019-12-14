@@ -209,7 +209,10 @@ defmodule PhilomenaWeb.Router do
       resources "/claim", DuplicateReport.ClaimController, only: [:create, :delete], singleton: true
     end
 
-    resources "/tags", TagController, only: [:edit, :update, :delete]
+    resources "/tags", TagController, only: [:edit, :update, :delete] do
+      resources "/image", Tag.ImageController, only: [:edit, :update, :delete], singleton: true
+      resources "/alias", Tag.AliasController, only: [:edit, :update, :delete], singleton: true
+    end
   end
 
   scope "/", PhilomenaWeb do

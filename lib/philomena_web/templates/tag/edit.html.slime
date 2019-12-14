@@ -1,5 +1,8 @@
 h1 Editing Tag
 
+p = link "Edit image", to: Routes.tag_image_path(@conn, :edit, @tag)
+p = link "Edit aliases", to: Routes.tag_alias_path(@conn, :edit, @tag)
+
 = form_for @changeset, Routes.tag_path(@conn, :update, @tag), [class: "form"], fn f ->
   = if @changeset.action do
     .alert.alert-danger
@@ -29,13 +32,6 @@ h1 Editing Tag
   .fieldlabel Tags in this list will be added when this tag is added to an image.
   .field
     = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :implied_tag_list, type: :edit, conn: @conn
-
-  /- if can? :manage, Tag
-    h4 Tag Merging (Aliasing)
-    .fieldlabel Merge with target tag for searches, user links, filters, etc.; soft keeps the tag around for redirection purposes as an "alias"
-    .field
-      = select_tag :merge_mode, options_for_select({ Soft: :alias, Hard: :hard_merge }, :alias), class: "input"
-      = text_input f, :target_tag_name, class: "input", placeholder: "Target tag name", autocapitalize: "none", value: @tag.aliased_tag_name
 
   br
   = submit "Save Tag", class: "button button--state-primary"

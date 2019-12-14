@@ -174,9 +174,9 @@ defmodule Philomena.Tags do
   def alias_tag(%Tag{} = tag, attrs) do
     target_tag = Repo.get_by!(Tag, name: attrs["target_tag"])
 
-    filters_hidden = where(Filter, [f], fragment("? @> ARRAY[?]", f.hidden_tag_ids, ^tag.id))
-    filters_spoilered = where(Filter, [f], fragment("? @> ARRAY[?]", f.spoilered_tag_ids, ^tag.id))
-    users_watching = where(User, [u], fragment("? @> ARRAY[?]", u.watched_tag_ids, ^tag.id))
+    filters_hidden = where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
+    filters_spoilered = where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
+    users_watching = where(User, [u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
 
     array_replace(filters_hidden, :hidden_tag_ids, tag.id, target_tag.id)
     array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
@@ -186,7 +186,7 @@ defmodule Philomena.Tags do
     Repo.query!(
       "INSERT INTO image_taggings (image_id, tag_id) " <>
       "SELECT i.id, #{target_tag.id} FROM images i " <>
-      "INNER JOIN image_tagging it on it.image_id = i.id " <>
+      "INNER JOIN image_taggings it on it.image_id = i.id " <>
       "WHERE it.tag_id = #{tag.id} " <>
       "ON CONFLICT DO NOTHING"
     )
@@ -226,6 +226,12 @@ defmodule Philomena.Tags do
     |> where([_i, t], t.id == ^target_tag.id)
     |> preload(^Images.indexing_preloads())
     |> Image.reindex()
+  end
+
+  def unalias_tag(%Tag{} = tag) do
+    tag
+    |> Tag.unalias_changeset()
+    |> Repo.update()
   end
 
   defp array_replace(queryable, column, old_value, new_value) do
