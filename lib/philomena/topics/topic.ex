@@ -91,6 +91,11 @@ defmodule Philomena.Topics.Topic do
     |> put_change(:lock_reason, "")
   end
 
+  def move_changeset(topic, attrs) do
+    change(topic)
+    |> put_change(:forum_id, attrs["target_forum_id"] |> String.to_integer())
+  end
+
   def put_slug(changeset) do
     slug =
       changeset

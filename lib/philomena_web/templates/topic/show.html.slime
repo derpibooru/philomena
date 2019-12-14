@@ -103,6 +103,13 @@ h1 = @topic.title
                   i.fas.fa-thumbtack>
                   ' Stick
               - true ->
+            = if can?(@conn, :move, @topic) do
+              = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @topic.forum_id, @topic), [method: :post, class: "hform"], fn f ->
+                .field
+                  = select f, :target_forum_id, @conn.assigns.forums |> Enum.map(fn forum -> {forum.name, forum.id} end), class: "input hform__text"
+                  = submit class: "hform__button button" do
+                    i.fas.fa-truck>
+                    ' Move
   / Mod tools
   /- if can? :assist, Topic
   /  .block__content
@@ -111,25 +118,6 @@ h1 = @topic.title
   /    .toggle-box-container
   /      .toggle-box-container__content
   /        p
-  /          - if can?(:unlock, @topic) && !@topic.locked_at.nil?
-  /            => button_to forum_topic_lock_path(@forum, @topic), method: :delete, class: 'button' do
-  /              i.fa.fa-lock>
-  /              | Unlock
-  /          - if can?(:stick, @topic) && !@topic.sticky
-  /            => button_to forum_topic_stick_path(@forum, @topic), method: :post, class: 'button' do
-  /              i.fa.fa-thumbtack>
-  /              | Stick
-  /          - if can?(:stick, @topic) && @topic.sticky
-  /            => button_to forum_topic_stick_path(@forum, @topic), method: :delete, class: 'button' do
-  /              i.fa.fa-thumbtack>
-  /              | Unstick
-  /        - if can?(:lock, @topic) && @topic.locked_at.nil?
-  /          = form_tag forum_topic_lock_path(@forum, @topic), method: :post, class: 'hform' do
-  /            .field
-  /              => text_field_tag :lock_reason, '', placeholder: 'Lock reason', class: 'input hform__text'
-  /              => button_tag class: 'hform__button button' do
-  /                i.fa.fa-unlock>
-  /                | Lock
   /        - if can? :move, @topic
   /          = form_tag forum_topic_move_path(@forum, @topic), method: :post, class: 'hform' do
   /            .field

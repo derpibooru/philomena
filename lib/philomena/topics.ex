@@ -209,7 +209,13 @@ defmodule Philomena.Topics do
     Topic.unlock_changeset(topic)
     |> Repo.update()
   end
+  
+  def move_topic(%Topic{} = topic, attrs) do
+    Topic.move_changeset(topic, attrs)
+    |> Repo.update()
+  end
 
+  def clear_notification(nil, _user), do: nil
   def clear_notification(_topic, nil), do: nil
   def clear_notification(topic, user) do
     Notifications.delete_unread_notification("Topic", topic.id, user)
