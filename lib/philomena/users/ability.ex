@@ -161,6 +161,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
       when action in [:show, :index],
       do: true
 
+  def can?(_user, :show, %Tag{}), do: true
+
   # Comment on images where that is allowed
   def can?(_user, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}), do: true
 

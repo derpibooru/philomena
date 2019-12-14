@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.Interactions
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
+  plug PhilomenaWeb.CanaryMapPlug, update: :edit
   plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user]
 
   def index(conn, params) do
