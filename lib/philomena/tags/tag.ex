@@ -50,7 +50,7 @@ defmodule Philomena.Tags.Tag do
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
     has_many :aliases, Tag, foreign_key: :aliased_tag_id
-    many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id]
+    many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id], on_replace: :delete
     many_to_many :implied_by_tags, Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
     has_many :public_links, UserLink, where: [public: true, aasm_state: "verified"]
     has_many :dnp_entries, DnpEntry, where: [aasm_state: "listed"]
@@ -68,17 +68,42 @@ defmodule Philomena.Tags.Tag do
     field :image_mime_type, :string
     field :mod_notes, :string
 
+    field :uploaded_image, :string, virtual: true
+    field :removed_image, :string, virtual: true
+
+    field :implied_tag_list, :string, virtual: true
+
     timestamps(inserted_at: :created_at)
   end
 
   @doc false
   def changeset(tag, attrs) do
     tag
-    |> cast(attrs, [])
+    |> cast(attrs, [:category, :description, :short_description, :mod_notes])
+    |> put_change(:implied_tag_list, Enum.map_join(tag.implied_tags, ",", & &1.name))
     |> validate_required([])
   end
 
-  @doc false
+  def changeset(tag, attrs, implied_tags) do
+    tag
+    |> cast(attrs, [:category, :description, :short_description, :mod_notes])
+    |> put_assoc(:implied_tags, implied_tags)
+    |> validate_required([])
+  end
+
+  def image_changeset(tag, attrs) do
+    tag
+    |> cast(attrs, [:image, :image_format, :image_mime_type, :uploaded_image])
+    |> validate_required([:image, :image_format, :image_mime_type])
+    |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png))
+  end
+
+  def remove_image_changeset(tag) do
+    change(tag)
+    |> put_change(:removed_image, tag.image)
+    |> put_change(:image, nil)
+  end
+
   def creation_changeset(tag, attrs) do
     tag
     |> cast(attrs, [:name])
@@ -110,6 +135,20 @@ defmodule Philomena.Tags.Tag do
       &1.category != "spoiler",
       &1.name
     })
+  end
+
+  def categories do
+    [
+      "error",
+      "rating",
+      "origin",
+      "character",
+      "oc",
+      "species",
+      "content-fanmade",
+      "content-official",
+      "spoiler"
+    ]
   end
 
   def clean_tag_name(name) do

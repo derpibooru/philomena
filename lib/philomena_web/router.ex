@@ -208,6 +208,8 @@ defmodule PhilomenaWeb.Router do
       resources "/reject", DuplicateReport.RejectController, only: [:create], singleton: true
       resources "/claim", DuplicateReport.ClaimController, only: [:create, :delete], singleton: true
     end
+
+    resources "/tags", TagController, only: [:edit, :update, :delete]
   end
 
   scope "/", PhilomenaWeb do

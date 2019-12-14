@@ -4,9 +4,13 @@ defmodule Philomena.Tags do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Tags.Tag
+  alias Philomena.Tags.Uploader
+  alias Philomena.Images
+  alias Philomena.Images.Image
 
   @spec get_or_create_tags(String.t()) :: List.t()
   def get_or_create_tags(tag_list) do
@@ -96,9 +100,42 @@ defmodule Philomena.Tags do
 
   """
   def update_tag(%Tag{} = tag, attrs) do
+    tag_input = Tag.parse_tag_list(attrs["implied_tag_list"])
+    implied_tags =
+      Tag
+      |> where([t], t.name in ^tag_input)
+      |> Repo.all()
+
     tag
-    |> Tag.changeset(attrs)
+    |> Tag.changeset(attrs, implied_tags)
     |> Repo.update()
+  end
+
+  def update_tag_image(%Tag{} = tag, attrs) do
+    changeset = Uploader.analyze_upload(tag, attrs)
+
+    Multi.new
+    |> Multi.update(:tag, changeset)
+    |> Multi.run(:update_file, fn _repo, %{tag: tag} ->
+      Uploader.persist_upload(tag)
+      Uploader.unpersist_old_upload(tag)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def remove_tag_image(%Tag{} = tag) do
+    changeset = Tag.remove_image_changeset(tag)
+
+    Multi.new
+    |> Multi.update(:tag, changeset)
+    |> Multi.run(:remove_file, fn _repo, %{tag: tag} ->
+      Uploader.unpersist_old_upload(tag)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -114,7 +151,19 @@ defmodule Philomena.Tags do
 
   """
   def delete_tag(%Tag{} = tag) do
-    Repo.delete(tag)
+    image_ids =
+      Image
+      |> join(:inner, [i], _ in assoc(i, :tags))
+      |> where([_i, t], t.id == ^tag.id)
+      |> select([i, _t], i.id)
+      |> Repo.all()
+
+    {:ok, _tag} = Repo.delete(tag)
+
+    Image
+    |> where([i], i.id in ^image_ids)
+    |> preload(^Images.indexing_preloads())
+    |> Image.reindex()
   end
 
   @doc """

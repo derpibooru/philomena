@@ -5,10 +5,9 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.{Tags, Tags.Tag}
   alias Philomena.Textile.Renderer
   alias Philomena.Interactions
-  alias Philomena.Repo
-  import Ecto.Query
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
+  plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user]
 
   def index(conn, params) do
     query_string = params["tq"] || "*"
@@ -32,14 +31,9 @@ defmodule PhilomenaWeb.TagController do
     end
   end
 
-  def show(conn, %{"id" => slug}) do
+  def show(conn, _params) do
     user = conn.assigns.current_user
-
-    tag =
-      Tag
-      |> where(slug: ^slug)
-      |> preload([:aliases, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user])
-      |> Repo.one()
+    tag = conn.assigns.tag
 
     {images, _tags} =
       ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
@@ -71,6 +65,35 @@ defmodule PhilomenaWeb.TagController do
       images: images,
       layout_class: "layout--wide"
     )
+  end
+
+  def edit(conn, _params) do
+    changeset = Tags.change_tag(conn.assigns.tag)
+    render(conn, "edit.html", changeset: changeset)
+  end
+
+  def update(conn, %{"tag" => tag_params}) do
+    case Tags.update_tag(conn.assigns.tag, tag_params) do
+      {:ok, tag} ->
+        Tags.reindex_tag(tag)
+
+        conn
+        |> put_flash(:info, "Tag successfully updated.")
+        |> redirect(to: Routes.tag_path(conn, :show, tag))
+
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset)
+    end
+  end
+
+  def delete(conn, _params) do
+    spawn fn ->
+      Tags.delete_tag(conn.assigns.tag)
+    end
+
+    conn
+    |> put_flash(:info, "Tag scheduled for deletion.")
+    |> redirect(to: "/")
   end
 
   def escape_name(%{name: name}) do

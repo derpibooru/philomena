@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Admin.Report.ClaimController do
 
         conn
         |> put_flash(:info, "Successfully marked report as in progress")
-        |> redirect(to: Routes.admin_report_path(conn, :show, report))
+        |> redirect(to: Routes.admin_report_path(conn, :index))
 
       {:error, _changeset} ->
         conn

@@ -6,6 +6,14 @@ defmodule PhilomenaWeb.TagView do
   alias Philomena.Repo
   import Ecto.Query
 
+  def tag_categories do
+    [[key: "-", value: ""] | Tag.categories]
+  end
+
+  def manages_tags?(conn) do
+    can?(conn, :edit, %Tag{})
+  end
+
   def tag_image(%{image: image}) do
     tag_url_root() <> "/" <> image
   end
