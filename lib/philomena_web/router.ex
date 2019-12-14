@@ -194,6 +194,8 @@ defmodule PhilomenaWeb.Router do
       resources "/user_bans",  UserBanController, only: [:index, :new, :create, :edit, :update, :delete]
       resources "/subnet_bans", SubnetBanController, only: [:index, :new, :create, :edit, :update, :delete]
       resources "/fingerprint_bans", FingerprintBanController, only: [:index, :new, :create, :edit, :update, :delete]
+
+      resources "/site_notices", SiteNoticeController, except: [:show]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

@@ -1,0 +1,44 @@
+h1 Site Notices
+
+- route = fn p -> Routes.admin_site_notice_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @site_notices, route: route, conn: @conn
+
+.block
+  .block__header
+    a href=Routes.admin_site_notice_path(@conn, :new)
+      i.fa.fa-plus>
+      ' New site notice
+
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Title
+          th Start
+          th Finish
+          th Live?
+          th Options
+      tbody
+        = for site_notice <- @site_notices do
+          tr
+            td
+              em = site_notice.title
+
+            td class=time_column_class(site_notice.start_date)
+              = pretty_time site_notice.start_date
+
+            td class=time_column_class(site_notice.finish_date)
+              = pretty_time site_notice.finish_date
+
+            td
+              = live_text site_notice
+
+            td
+              => link "Edit", to: Routes.admin_site_notice_path(@conn, :edit, site_notice)
+              ' &bull;
+              => link "Destroy", to: Routes.admin_site_notice_path(@conn, :delete, site_notice), data: [confirm: "Are you really, really sure?", method: "delete"]
+
+  .block__header.block__header--light
+    = pagination

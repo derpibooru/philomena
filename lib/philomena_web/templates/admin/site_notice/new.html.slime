@@ -1,0 +1,2 @@
+h1 New site notice
+= render PhilomenaWeb.Admin.SiteNoticeView, "_form.html", changeset: @changeset, action: Routes.admin_site_notice_path(@conn, :create), conn: @conn

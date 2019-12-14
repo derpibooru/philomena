@@ -1,0 +1,47 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :title, "Title (the bold bit) for the site notice; keep this short:"
+    = text_input f, :title, class: "input input--wide", placeholder: "Title", required: true
+    = error_tag f, :title
+
+  .field
+    => label f, :text, "Main body of the site notice:"
+    = text_input f, :text, class: "input input--wide", placeholder: "Text", required: true
+    = error_tag f, :text
+
+  h3
+    ' Link
+    small
+      ' (optional; leave these two fields blank for no link)
+
+  .field
+    => label f, :link_text, "Text which will contain the link:"
+    = text_input f, :link_text, class: "input input--wide", placeholder: "Link text"
+    = error_tag f, :link_text
+
+  .field
+    => label f, :link, "Link which the site notice should take users to:"
+    = text_input f, :link, class: "input input--wide", placeholder: "Link"
+    = error_tag f, :link
+
+  h3 Run Time
+  .field
+    => label f, :start_time, "Start time for the site notice (usually \"now\"):"
+    = text_input f, :start_time, class: "input input--wide", required: true
+    = error_tag f, :start_time
+
+  .field
+    => label f, :finish_time, "Finish time for the site notice (e.g. \"2 weeks from now\"):"
+    = text_input f, :finish_time, class: "input input--wide", required: true
+    = error_tag f, :finish_time
+
+  h3 Enable
+  .field
+    => checkbox f, :live, class: "checkbox"
+    = label f, :live, "Live"
+
+  = submit "Save Site Notice", class: "button"

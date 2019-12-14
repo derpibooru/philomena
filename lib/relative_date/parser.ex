@@ -28,6 +28,13 @@ defmodule RelativeDate.Parser do
     |> eos()
     |> unwrap_and_tag(:moon)
 
+  now =
+    space
+    |> string("now")
+    |> concat(space)
+    |> eos()
+    |> unwrap_and_tag(:now)
+
   date =
     space
     |> integer(min: 1)
@@ -42,6 +49,7 @@ defmodule RelativeDate.Parser do
   relative_date =
     choice([
       moon,
+      now,
       date
     ])
 
@@ -76,6 +84,9 @@ defmodule RelativeDate.Parser do
     case relative_date(input) do
       {:ok, [moon: _moon], _1, _2, _3, _4} ->
         {:ok, DateTime.utc_now() |> DateTime.add(31_536_000_000, :second) |> DateTime.truncate(:second)}
+
+      {:ok, [now: _now], _1, _2, _3, _4} ->
+        {:ok, DateTime.utc_now() |> DateTime.truncate(:second)}
 
       {:ok, [relative_date: [amount, scale, direction]], _1, _2, _3, _4} ->
         {:ok, DateTime.utc_now() |> DateTime.add(amount * scale * direction, :second) |> DateTime.truncate(:second)}

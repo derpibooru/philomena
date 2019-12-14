@@ -1,0 +1,2 @@
+h1 Editing site notice
+= render PhilomenaWeb.Admin.SiteNoticeView, "_form.html", changeset: @changeset, action: Routes.admin_site_notice_path(@conn, :update, @site_notice), conn: @conn
