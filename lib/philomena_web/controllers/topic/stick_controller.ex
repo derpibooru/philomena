@@ -18,11 +18,11 @@ defmodule PhilomenaWeb.Topic.StickController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully stickied!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to stick the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
   end
 
@@ -33,17 +33,18 @@ defmodule PhilomenaWeb.Topic.StickController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unstickied!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unstick the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
   end
 
   defp load_topic(conn, _opts) do
     topic = Topic
     |> where(forum_id: ^conn.params["forum_id"], slug: ^conn.params["topic_id"])
+    |> preload([:forum])
     |> Repo.one()
 
     Plug.Conn.assign(conn, :topic, topic)

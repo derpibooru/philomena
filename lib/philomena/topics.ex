@@ -210,9 +210,29 @@ defmodule Philomena.Topics do
     |> Repo.update()
   end
   
-  def move_topic(%Topic{} = topic, attrs) do
-    Topic.move_changeset(topic, attrs)
-    |> Repo.update()
+  def move_topic(topic, new_forum_id) do
+    old_forum_id = topic.forum_id
+    topic_changes = Topic.move_changeset(topic, new_forum_id)
+
+    Multi.new
+    |> Multi.update(:topic, topic_changes)
+    |> Multi.run(:update_old_forum, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Forum
+        |> where(id: ^old_forum_id)
+        |> repo.update_all(inc: [post_count: -topic.post_count, topic_count: -1])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:update_new_forum, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Forum
+        |> where(id: ^topic.forum_id)
+        |> repo.update_all(inc: [post_count: topic.post_count, topic_count: 1])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   def clear_notification(nil, _user), do: nil

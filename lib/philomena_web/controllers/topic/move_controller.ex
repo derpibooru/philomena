@@ -15,16 +15,21 @@ defmodule PhilomenaWeb.Topic.MoveController do
   # todo: moving
   def create(conn, %{"topic" => topic_params}) do
     topic = conn.assigns.topic
+    target_forum_id = String.to_integer(topic_params["target_forum_id"])
 
-    case Topics.move_topic(topic, topic_params) do
-      {:ok, topic} ->
+    case Topics.move_topic(topic, target_forum_id) do
+      {:ok, %{topic: topic}} ->
+        topic = Repo.preload(topic, :forum)
+
         conn
         |> put_flash(:info, "Topic successfully moved!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic_params["target_forum_id"] |> String.to_integer(), topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
       {:error, _changeset} ->
+        topic = Repo.preload(topic, :forum)
+
         conn
         |> put_flash(:error, "Unable to move the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
   end
 

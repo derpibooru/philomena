@@ -118,13 +118,6 @@ h1 = @topic.title
   /    .toggle-box-container
   /      .toggle-box-container__content
   /        p
-  /        - if can? :move, @topic
-  /          = form_tag forum_topic_move_path(@forum, @topic), method: :post, class: 'hform' do
-  /            .field
-  /              => select_tag :target_forum_id, options_from_collection_for_select(Forum.where.not(id: @forum.id).all, :short_name, :name), class: 'input hform__text'
-  /              => button_tag class: 'hform__button button' do
-  /                i.fa.fa-truck>
-  /                | Move
   /        - if can?(:destroy, @topic) && !@topic.hidden_from_users
   /          = form_tag forum_topic_hide_path(@forum, @topic), method: :post, class: 'hform' do
   /            .field

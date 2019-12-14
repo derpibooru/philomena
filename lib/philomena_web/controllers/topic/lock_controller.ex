@@ -19,11 +19,11 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully locked!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to lock the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
   end
 
@@ -34,17 +34,18 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unlock the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum_id, topic.id))
+        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
   end
 
   defp load_topic(conn, _opts) do
     topic = Topic
     |> where(forum_id: ^conn.params["forum_id"], slug: ^conn.params["topic_id"])
+    |> preload([:forum])
     |> Repo.one()
 
     Plug.Conn.assign(conn, :topic, topic)
