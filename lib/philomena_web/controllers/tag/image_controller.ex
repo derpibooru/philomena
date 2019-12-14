@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.Tag.ImageController do
 
   alias Philomena.Tags.Tag
   alias Philomena.Tags
-  import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, update: :edit, delete: :edit
   plug :load_and_authorize_resource, model: Tag, id_name: "tag_id", id_field: "slug", preload: [:implied_tags], persisted: true
