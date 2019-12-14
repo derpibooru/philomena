@@ -235,6 +235,16 @@ defmodule Philomena.Topics do
     |> Repo.isolated_transaction(:serializable)
   end
 
+  def hide_topic(topic, deletion_reason, user) do
+    Topic.hide_changeset(topic, deletion_reason, user)
+    |> Repo.update()
+  end
+
+  def unhide_topic(topic) do
+    Topic.unhide_changeset(topic)
+    |> Repo.update()
+  end
+
   def clear_notification(nil, _user), do: nil
   def clear_notification(_topic, nil), do: nil
   def clear_notification(topic, user) do

@@ -3,6 +3,23 @@ elixir:
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, last: true
 
 h1 = @topic.title
+= if @topic.hidden_from_users do
+  .block.block--fixed.block--danger
+    h4 This topic has been deleted by a moderator.
+    p
+      strong> Reason:
+      em
+        = @topic.deletion_reason
+    = if can?(@conn, :unhide, @topic) do
+      p
+        strong> Deleted by:
+        em
+          strong
+            = link(@topic.deleted_by.name, to: Routes.profile_path(@conn, :show, @topic.deleted_by))
+      p
+        = link(to: Routes.forum_topic_hide_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
+          i.fas.fa-check>
+          ' Restore
 / Header section
 .block
   .block__header
@@ -11,59 +28,65 @@ h1 = @topic.title
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
     ' &raquo;
     => link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, @topic))
-    a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
-      i.fa.fa-fw.fa-search>
-      ' Search Posts
-  .flex.flex--wrap.block__header.block__header--light
-    .flex--fixed
-      = pagination
-    .flex--fixed.block__header__item
-      ' Started by
-      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic, conn: @conn
-    .flex--fixed.block__header__item
-      ' Posted
-      =< pretty_time(@topic.created_at)
-    .flex--fixed.block__header__item
-      => @topic.post_count - 1
-      ' replies
-    = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
+    = if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
+      a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
+        i.fa.fa-fw.fa-search>
+        ' Search Posts
+      .flex.flex--wrap.block__header.block__header--light
+        .flex--fixed
+          = pagination
+        .flex--fixed.block__header__item
+          ' Started by
+          => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic, conn: @conn
+        .flex--fixed.block__header__item
+          ' Posted
+          =< pretty_time(@topic.created_at)
+        .flex--fixed.block__header__item
+          => @topic.post_count - 1
+          ' replies
+        = if not @topic.hidden_from_users do
+          = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
 
-/ Display the poll, if any
-= if @topic.poll do
-  = render PhilomenaWeb.Topic.PollView, "_display.html", poll: @topic.poll, conn: @conn
+= if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
+  / Display the poll, if any
+  = if @topic.poll do
+    = render PhilomenaWeb.Topic.PollView, "_display.html", poll: @topic.poll, conn: @conn
 
-/ The actual posts
-.posts-area
-  .post-list
-    = for {post, body} <- @posts, (!post.destroyed_content or can?(@conn, :hide, post)) do
-      = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
+  / The actual posts
+  .posts-area
+    .post-list
+      = for {post, body} <- @posts, (!post.destroyed_content or can?(@conn, :hide, post)) do
+        = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
 
-    = if @conn.assigns.advert do
-      = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
+      = if @conn.assigns.advert do
+        = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
-  / Post editability data for JS
-  /.js-editable-posts data-editable=editable_communications(@posts).to_json
+      / Post editability data for JS
+      /.js-editable-posts data-editable=editable_communications(@posts).to_json
 
-  / Footer section
-  .block
-    .block__header.block__header--light
-      = pagination
+      / Footer section
+      .block
+        .block__header.block__header--light
+          = pagination
 
-  = if @topic.locked_at do
-    .block.block--fixed.block--warning
-      h4 This topic has been locked to new posts from non-moderators.
-      p
-        ' Locked
-        => pretty_time(@topic.locked_at)
+      = if @topic.locked_at do
+        .block.block--fixed.block--warning
+          h4 This topic has been locked to new posts from non-moderators.
+          p
+            ' Locked
+            => pretty_time(@topic.locked_at)
 
-      p
-        ' Lock reason:
-        em = @topic.lock_reason
-
+          p
+            ' Lock reason:
+            em = @topic.lock_reason
   / Post form
   = cond do
     - @conn.assigns.current_ban ->
       = render PhilomenaWeb.BanView, "_ban_reason.html", conn: @conn
+
+    - @topic.hidden_from_users ->
+      .block.block--fixed.block--danger
+        h4 Cannot reply to a deleted topic.
 
     - @topic.post_count < 200_000 and can?(@conn, :create_post, @topic) ->
       = render PhilomenaWeb.Topic.PostView, "_form.html", conn: @conn, forum: @forum, topic: @topic, changeset: @changeset
@@ -81,47 +104,42 @@ h1 = @topic.title
       .toggle-box-container
         .toggle-box-container__content
           p
-            = cond do
-              - can?(@conn, :lock, @topic) and is_nil(@topic.locked_at) ->
-                = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @topic.forum_id, @topic), [method: :post, class: "hform"], fn f ->
-                  = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason"
-                  = submit class: "hform__button button" do
-                    i.fas.fa-lock>
-                    ' Lock
-              - can?(@conn, :unlock, @topic) and not is_nil(@topic.locked_at) ->
-                = link(to: Routes.forum_topic_lock_path(@conn, :delete, @topic.forum_id, @topic), method: :delete, class: "button") do
-                  i.fas.fa-unlock>
-                  ' Unlock
-              - true ->
-            = cond do
-              - can?(@conn, :stick, @topic) and @topic.sticky ->
-                = link(to: Routes.forum_topic_stick_path(@conn, :delete, @topic.forum_id, @topic), method: :delete, class: "button") do
-                  i.fas.fa-thumbtack>
-                  ' Unstick
-              - can?(@conn, :stick, @topic) and not @topic.sticky ->
-                = link(to: Routes.forum_topic_stick_path(@conn, :create, @topic.forum_id, @topic), method: :post, class: "button") do
-                  i.fas.fa-thumbtack>
-                  ' Stick
-              - true ->
-            = if can?(@conn, :move, @topic) do
-              = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @topic.forum_id, @topic), [method: :post, class: "hform"], fn f ->
-                .field
-                  = select f, :target_forum_id, @conn.assigns.forums |> Enum.map(fn forum -> {forum.name, forum.id} end), class: "input hform__text"
-                  = submit class: "hform__button button" do
-                    i.fas.fa-truck>
-                    ' Move
-  / Mod tools
-  /- if can? :assist, Topic
-  /  .block__content
-  /    input.toggle-box id="administrator_tools" type="checkbox" checked=false
-  /    label for="administrator_tools" Topic Admin Tools
-  /    .toggle-box-container
-  /      .toggle-box-container__content
-  /        p
-  /        - if can?(:destroy, @topic) && !@topic.hidden_from_users
-  /          = form_tag forum_topic_hide_path(@forum, @topic), method: :post, class: 'hform' do
-  /            .field
-  /              => text_field_tag :deletion_reason, '', placeholder: 'Deletion reason', required: true, class: 'input hform__text'
-  /              => button_tag class: 'hform__button button' do
-  /                i.fa.fa-trash>
-  /                | Delete
+            = if not @topic.hidden_from_users do
+              = cond do
+                - can?(@conn, :lock, @topic) and is_nil(@topic.locked_at) ->
+                  = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
+                    = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason", required: true
+                    = submit class: "hform__button button" do
+                      i.fas.fa-lock>
+                      ' Lock
+                - can?(@conn, :unlock, @topic) and not is_nil(@topic.locked_at) ->
+                  = link(to: Routes.forum_topic_lock_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
+                    i.fas.fa-unlock>
+                    ' Unlock
+                - true ->
+              = cond do
+                - can?(@conn, :stick, @topic) and @topic.sticky ->
+                  = link(to: Routes.forum_topic_stick_path(@conn, :delete, @forum.id, @topic), method: :delete, class: "button") do
+                    i.fas.fa-thumbtack>
+                    ' Unstick
+                - can?(@conn, :stick, @topic) and not @topic.sticky ->
+                  = link(to: Routes.forum_topic_stick_path(@conn, :create, @forum.id, @topic), method: :post, class: "button") do
+                    i.fas.fa-thumbtack>
+                    ' Stick
+                - true ->
+              = if can?(@conn, :move, @topic) do
+                = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
+                  .field
+                    = select f, :target_forum_id, @conn.assigns.forums |> Enum.map(fn forum -> {forum.name, forum.id} end), class: "input hform__text"
+                    = submit class: "hform__button button" do
+                      i.fas.fa-truck>
+                      ' Move
+              = if can?(@conn, :hide, @topic) do
+                = form_for :topic, Routes.forum_topic_hide_path(@conn, :create, @forum.id, @topic), [method: :post, class: "hform"], fn f ->
+                  .field
+                    = text_input f, :deletion_reason, class: "input hform__text", placeholder: "Deletion reason", required: true
+                    = submit class: "hform__button button" do
+                      i.fas.fa-trash>
+                      ' Delete
+            - else
+              | Moderation tools unavailable for deleted topics.

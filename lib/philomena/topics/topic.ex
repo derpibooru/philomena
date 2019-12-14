@@ -96,6 +96,21 @@ defmodule Philomena.Topics.Topic do
     |> put_change(:forum_id, new_forum_id)
   end
 
+  def hide_changeset(topic, deletion_reason, user) do
+    change(topic)
+    |> put_change(:hidden_from_users, true)
+    |> put_change(:deleted_by_id, user.id)
+    |> put_change(:deletion_reason, deletion_reason)
+    |> validate_required([:deletion_reason])
+  end
+
+  def unhide_changeset(topic) do
+    change(topic)
+    |> put_change(:hidden_from_users, false)
+    |> put_change(:deleted_by_id, nil)
+    |> put_change(:deletion_reason, "")
+  end
+
   def put_slug(changeset) do
     slug =
       changeset
