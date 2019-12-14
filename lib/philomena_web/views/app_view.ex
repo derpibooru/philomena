@@ -126,25 +126,24 @@ defmodule PhilomenaWeb.AppView do
     |> to_string()
   end
 
-  defp text_or_na(nil), do: "N/A"
-  defp text_or_na(text), do: to_string(text)
-
+  def link_to_ip(_conn, nil), do: content_tag(:code, "null")
   def link_to_ip(conn, ip) do
     link(to: Routes.ip_profile_path(conn, :show, to_string(ip))) do
       [
         content_tag(:i, "", class: "fas fa-network-wired"),
         " ",
-        text_or_na(ip)
+        to_string(ip)
       ]
     end
   end
 
+  def link_to_fingerprint(_conn, nil), do: content_tag(:code, "null")
   def link_to_fingerprint(conn, fp) do
     link(to: Routes.fingerprint_profile_path(conn, :show, fp)) do
       [
         content_tag(:i, "", class: "fas fa-desktop"),
         " ",
-        String.slice(text_or_na(fp), 0..6)
+        String.slice(fp, 0..6)
       ]
     end
   end
