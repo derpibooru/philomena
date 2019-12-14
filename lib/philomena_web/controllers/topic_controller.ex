@@ -19,8 +19,8 @@ defmodule PhilomenaWeb.TopicController do
     forum = conn.assigns.forum
     topic =
       Topic
-      |> where(forum_id: ^forum.id, slug: ^slug, hidden_from_users: false)
-      |> preload([:user, poll: :options])
+      |> where(forum_id: ^forum.id, slug: ^slug)
+      |> preload([:deleted_by, :user, poll: :options])
       |> Repo.one()
 
     user = conn.assigns.current_user

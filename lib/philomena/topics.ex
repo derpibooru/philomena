@@ -190,6 +190,62 @@ defmodule Philomena.Topics do
     |> Repo.delete()
   end
 
+  def stick_topic(topic) do
+    Topic.stick_changeset(topic)
+    |> Repo.update()
+  end
+
+  def unstick_topic(topic) do
+    Topic.unstick_changeset(topic)
+    |> Repo.update()
+  end
+
+  def lock_topic(%Topic{} = topic, attrs, user) do
+    Topic.lock_changeset(topic, attrs, user)
+    |> Repo.update()
+  end
+
+  def unlock_topic(%Topic{} = topic) do
+    Topic.unlock_changeset(topic)
+    |> Repo.update()
+  end
+  
+  def move_topic(topic, new_forum_id) do
+    old_forum_id = topic.forum_id
+    topic_changes = Topic.move_changeset(topic, new_forum_id)
+
+    Multi.new
+    |> Multi.update(:topic, topic_changes)
+    |> Multi.run(:update_old_forum, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Forum
+        |> where(id: ^old_forum_id)
+        |> repo.update_all(inc: [post_count: -topic.post_count, topic_count: -1])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:update_new_forum, fn repo, %{topic: topic} ->
+      {count, nil} =
+        Forum
+        |> where(id: ^topic.forum_id)
+        |> repo.update_all(inc: [post_count: topic.post_count, topic_count: 1])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def hide_topic(topic, deletion_reason, user) do
+    Topic.hide_changeset(topic, deletion_reason, user)
+    |> Repo.update()
+  end
+
+  def unhide_topic(topic) do
+    Topic.unhide_changeset(topic)
+    |> Repo.update()
+  end
+
+  def clear_notification(nil, _user), do: nil
   def clear_notification(_topic, nil), do: nil
   def clear_notification(topic, user) do
     Notifications.delete_unread_notification("Topic", topic.id, user)

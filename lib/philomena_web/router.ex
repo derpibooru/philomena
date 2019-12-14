@@ -126,6 +126,10 @@ defmodule PhilomenaWeb.Router do
       resources "/topics", TopicController, only: [:new, :create] do
         resources "/subscription", Topic.SubscriptionController, only: [:create, :delete], singleton: true
         resources "/read", Topic.ReadController, only: [:create], singleton: true
+        resources "/move", Topic.MoveController, only: [:create], singleton: true
+        resources "/stick", Topic.StickController, only: [:create, :delete], singleton: true
+        resources "/lock", Topic.LockController, only: [:create, :delete], singleton: true
+        resources "/hide", Topic.HideController, only: [:create, :delete], singleton: true
         resources "/posts", Topic.PostController, only: [:edit, :update] do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
           resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
