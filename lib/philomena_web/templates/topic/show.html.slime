@@ -5,7 +5,7 @@ elixir:
 h1 = @topic.title
 = if @topic.hidden_from_users do
   .block.block--fixed.block--danger
-    h4 This topic has been deleted by a moderator.
+    h4 This topic has been deleted by a moderator
     p
       strong> Reason:
       em
