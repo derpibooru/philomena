@@ -11,6 +11,11 @@ defmodule Philomena.Tags do
   alias Philomena.Tags.Uploader
   alias Philomena.Images
   alias Philomena.Images.Image
+  alias Philomena.Users.User
+  alias Philomena.Filters.Filter
+  alias Philomena.Images.Tagging
+  alias Philomena.UserLinks.UserLink
+  alias Philomena.DnpEntries.DnpEntry
 
   @spec get_or_create_tags(String.t()) :: List.t()
   def get_or_create_tags(tag_list) do
@@ -164,6 +169,77 @@ defmodule Philomena.Tags do
     |> where([i], i.id in ^image_ids)
     |> preload(^Images.indexing_preloads())
     |> Image.reindex()
+  end
+
+  def alias_tag(%Tag{} = tag, attrs) do
+    target_tag = Repo.get_by!(Tag, name: attrs["target_tag"])
+
+    filters_hidden = where(Filter, [f], fragment("? @> ARRAY[?]", f.hidden_tag_ids, ^tag.id))
+    filters_spoilered = where(Filter, [f], fragment("? @> ARRAY[?]", f.spoilered_tag_ids, ^tag.id))
+    users_watching = where(User, [u], fragment("? @> ARRAY[?]", u.watched_tag_ids, ^tag.id))
+
+    array_replace(filters_hidden, :hidden_tag_ids, tag.id, target_tag.id)
+    array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
+    array_replace(users_watching, :watched_tag_ids, tag.id, target_tag.id)
+
+    # Manual insert all because ecto won't do it for us
+    Repo.query!(
+      "INSERT INTO image_taggings (image_id, tag_id) " <>
+      "SELECT i.id, #{target_tag.id} FROM images i " <>
+      "INNER JOIN image_tagging it on it.image_id = i.id " <>
+      "WHERE it.tag_id = #{tag.id} " <>
+      "ON CONFLICT DO NOTHING"
+    )
+
+    # Delete taggings on the source tag
+    Tagging
+    |> where(tag_id: ^tag.id)
+    |> Repo.delete_all()
+
+    # Update other assocations
+    UserLink
+    |> where(tag_id: ^tag.id)
+    |> Repo.update_all(set: [tag_id: target_tag.id])
+
+    DnpEntry
+    |> where(tag_id: ^tag.id)
+    |> Repo.update_all(set: [tag_id: target_tag.id])
+
+    # Update counters
+    new_count =
+      Image
+      |> join(:inner, [i], _ in assoc(i, :tags))
+      |> where([_i, t], t.id == ^target_tag.id)
+      |> Repo.aggregate(:count, :id)
+
+    Tag
+    |> where(id: ^target_tag.id)
+    |> Repo.update_all(set: [images_count: new_count])
+
+    Tag
+    |> where(id: ^tag.id)
+    |> Repo.update_all(set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()])
+
+    # Finally, update images
+    Image
+    |> join(:inner, [i], _ in assoc(i, :tags))
+    |> where([_i, t], t.id == ^target_tag.id)
+    |> preload(^Images.indexing_preloads())
+    |> Image.reindex()
+  end
+
+  defp array_replace(queryable, column, old_value, new_value) do
+    queryable
+    |> update(
+      [q],
+      set: [
+        {
+          ^column,
+          fragment("ARRAY(SELECT DISTINCT unnest(array_replace(?, ?, ?)) ORDER BY 1)", field(q, ^column), ^old_value, ^new_value)
+        }
+      ]
+    )
+    |> Repo.update_all([])
   end
 
   @doc """

@@ -32,6 +32,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View images
   def can?(%User{role: "moderator"}, :show, %Image{}), do: true
+  def can?(%User{role: "moderator"}, :hide, %Image{}), do: true
 
   # View comments
   def can?(%User{role: "moderator"}, :show, %Comment{}), do: true
@@ -67,7 +68,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Edit posts and comments
   def can?(%User{role: "moderator"}, :edit, %Post{}), do: true
+  def can?(%User{role: "moderator"}, :hide, %Post{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Comment{}), do: true
+  def can?(%User{role: "moderator"}, :hide, %Comment{}), do: true
 
   # Show the DNP list
   def can?(%User{role: "moderator"}, :index, DnpEntry), do: true
@@ -82,6 +85,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, _action, FingerprintBan), do: true
 
   # Hide topics
+  def can?(%User{role: "moderator"}, :show, %Topic{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Topic{}), do: true
 
   # Edit tags
