@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Tag.AliasController do
 
     conn
     |> put_flash(:info, "Tag alias queued.")
-    |> redirect(to: Routes.tag_path(conn, :show, conn.assigns.tag))
+    |> redirect(to: Routes.tag_alias_path(conn, :edit, conn.assigns.tag))
   end
 
   def delete(conn, _params) do

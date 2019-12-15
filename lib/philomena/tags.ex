@@ -241,10 +241,11 @@ defmodule Philomena.Tags do
       set: [
         {
           ^column,
-          fragment("ARRAY(SELECT DISTINCT unnest(array_replace(?, ?, ?)) ORDER BY 1)", field(q, ^column), ^old_value, ^new_value)
+          fragment("array_replace(?, ?, ?)", field(q, ^column), ^old_value, ^new_value)
         }
       ]
     )
+    |> IO.inspect()
     |> Repo.update_all([])
   end
 

@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   # Undo the previous private parameter screwery
-  plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:edit, :update]
+  plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:show, :edit, :update]
   plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
   plug :authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
 
