@@ -21,7 +21,7 @@ defmodule Philomena.StaticPages.Version do
   @doc false
   def changeset(version, attrs) do
     version
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:title, :slug, :body])
+    |> validate_required([:title, :slug, :body])
   end
 end

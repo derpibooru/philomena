@@ -214,6 +214,8 @@ defmodule PhilomenaWeb.Router do
       resources "/image", Tag.ImageController, only: [:edit, :update, :delete], singleton: true
       resources "/alias", Tag.AliasController, only: [:edit, :update, :delete], singleton: true
     end
+
+    resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
   end
 
   scope "/", PhilomenaWeb do

@@ -15,6 +15,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.UserLinks.UserLink
   alias Philomena.Tags.Tag
   alias Philomena.Reports.Report
+  alias Philomena.StaticPages.StaticPage
 
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Bans.Subnet, as: SubnetBan
@@ -219,6 +220,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Gallery{}), do: true
   def can?(%User{}, action, Gallery) when action in [:new, :create], do: true
   def can?(%User{id: id}, action, %Gallery{creator_id: id}) when action in [:edit, :update, :delete], do: true
+
+  # Show static pages
+  def can?(_user, :show, %StaticPage{}), do: true
 
   # Otherwise...
   def can?(_user, _action, _model), do: false

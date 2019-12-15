@@ -1,0 +1,3 @@
+h1 Editing static page
+
+= render PhilomenaWeb.PageView, "_form.html", changeset: @changeset, action: Routes.page_path(@conn, :update, @static_page), conn: @conn

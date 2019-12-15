@@ -4,9 +4,11 @@ defmodule Philomena.StaticPages do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.StaticPages.StaticPage
+  alias Philomena.StaticPages.Version
 
   @doc """
   Returns the list of static_pages.
@@ -49,10 +51,17 @@ defmodule Philomena.StaticPages do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_static_page(attrs \\ %{}) do
-    %StaticPage{}
-    |> StaticPage.changeset(attrs)
-    |> Repo.insert()
+  def create_static_page(user, attrs \\ %{}) do
+    static_page = StaticPage.changeset(%StaticPage{}, attrs)
+    
+    Multi.new()
+    |> Multi.insert(:static_page, static_page)
+    |> Multi.run(:version, fn repo, %{static_page: static_page} ->
+      %Version{static_page_id: static_page.id, user_id: user.id}
+      |> Version.changeset(attrs)
+      |> repo.insert()
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -67,10 +76,19 @@ defmodule Philomena.StaticPages do
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_static_page(%StaticPage{} = static_page, attrs) do
-    static_page
-    |> StaticPage.changeset(attrs)
-    |> Repo.update()
+  def update_static_page(%StaticPage{} = static_page, user, attrs) do
+    version =
+      %Version{static_page_id: static_page.id, user_id: user.id}
+      |> Version.changeset(attrs)
+
+    static_page =
+      static_page
+      |> StaticPage.changeset(attrs)
+
+    Multi.new()
+    |> Multi.update(:static_page, static_page)
+    |> Multi.insert(:version, version)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """

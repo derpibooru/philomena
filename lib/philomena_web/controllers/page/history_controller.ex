@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Page.HistoryController do
 
   defp generate_differences(pages, current_body) do
     Enum.map_reduce(pages, current_body, fn page, previous_body ->
-      difference = List.myers_difference(split(previous_body), split(page.body))
+      difference = List.myers_difference(split(page.body), split(previous_body))
 
       {%{page | difference: difference}, page.body}
     end)

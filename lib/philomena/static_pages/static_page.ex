@@ -15,7 +15,7 @@ defmodule Philomena.StaticPages.StaticPage do
   @doc false
   def changeset(static_page, attrs) do
     static_page
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:title, :slug, :body])
+    |> validate_required([:title, :slug, :body])
   end
 end

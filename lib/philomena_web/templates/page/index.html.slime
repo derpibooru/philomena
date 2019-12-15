@@ -1,26 +1,14 @@
-section.phx-hero
-  h1 = gettext "Welcome %{name}!", name: "Philomena"
-  p
-    ' A productive web framework that
-    br
-    ' does not compromise speed or maintainability.
+h1 Pages
 
-section.row
-  article.column
-    h2 Resources
-    ul
-      li
-        a href="https://hexdocs.pm/phoenix/overview.html" Guides &amp; Docs
-      li
-        a href="https://github.com/phoenixframework/phoenix" Source
-      li
-        a href="https://github.com/phoenixframework/phoenix/blob/v1.4/CHANGELOG.md" Changelog
-  article.column
-    h2 Help
-    ul
-      li
-        a href="https://elixirforum.com/c/phoenix-forum" Forums
-      li
-        a href="https://webchat.freenode.net/?channels=elixir-lang" #elixir-lang on Freenode IRC
-      li
-        a href="https://twitter.com/elixirphoenix" Twitter @elixirphoenix
+table.table
+  thead
+    tr
+      th Title
+
+  tbody
+    = for static_page <- @static_pages do
+      tr
+        td = link static_page.title, to: Routes.page_path(@conn, :show, static_page)
+
+br
+= link "New static page", to: Routes.page_path(@conn, :new)
