@@ -201,6 +201,8 @@ defmodule PhilomenaWeb.Router do
 
       resources "/site_notices", SiteNoticeController, except: [:show]
       resources "/adverts", AdvertController, except: [:show]
+
+      resources "/forums", ForumController, except: [:show, :delete]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

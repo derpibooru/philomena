@@ -1,0 +1,17 @@
+h2 Listing Forums
+
+table.table
+  thead
+    tr
+      th Name
+      th Options
+  tbody
+    = for forum <- @forums do
+      tr
+        td
+          = link forum.name, to: Routes.forum_path(@conn, :show, forum)
+
+        td class="text-right"
+          = link "Edit", to: Routes.admin_forum_path(@conn, :edit, forum)
+
+= link "New Forum", to: Routes.admin_forum_path(@conn, :new)

@@ -1,0 +1,26 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :name, "Name:"
+    = text_input f, :name, class: "input input--wide"
+    = error_tag f, :name
+
+  .field
+    => label f, :short_name, "Slug:"
+    = text_input f, :short_name, class: "input input--wide"
+    = error_tag f, :short_name
+
+  .field
+    => label f, :description, "Description:"
+    = textarea f, :description, class: "input input--wide"
+    = error_tag f, :description
+
+  .field
+    => label f, :access_level, "Access level:"
+    = select f, :access_level, ["normal", "assistant", "staff"], class: "input"
+    = error_tag f, :access_level
+
+  = submit "Save Forum", class: "button"

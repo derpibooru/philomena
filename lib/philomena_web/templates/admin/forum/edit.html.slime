@@ -1,0 +1,5 @@
+h2 Edit Forum
+
+= render "_form.html", Map.put(assigns, :action, Routes.admin_forum_path(@conn, :update, @forum))
+
+= link "Back", to: Routes.admin_forum_path(@conn, :index)
