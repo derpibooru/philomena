@@ -209,7 +209,7 @@ defmodule Philomena.Tags do
     new_count =
       Image
       |> join(:inner, [i], _ in assoc(i, :tags))
-      |> where([i, t], i.hidden_from_users == true and t.id == ^target_tag.id)
+      |> where([i, t], i.hidden_from_users == false and t.id == ^target_tag.id)
       |> Repo.aggregate(:count, :id)
 
     Tag
