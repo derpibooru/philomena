@@ -9,6 +9,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Images.Image
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
+  alias Philomena.ModNotes.ModNote
   alias Philomena.Posts.Post
   alias Philomena.Filters.Filter
   alias Philomena.Galleries.Gallery
@@ -96,6 +97,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Award badges
   def can?(%User{role: "moderator"}, :create, %Award{}), do: true
+
+  # Create mod notes
+  def can?(%User{role: "moderator"}, :index, ModNote), do: true
 
   #
   # Assistants can...

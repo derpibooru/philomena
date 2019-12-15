@@ -37,7 +37,7 @@
           ' Pages
 
       = if manages_mod_notes?(@conn) do
-        = link to: "#", class: "header__link" do
+        = link to: Routes.admin_mod_note_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-sticky-note>
           ' Mod Notes
 

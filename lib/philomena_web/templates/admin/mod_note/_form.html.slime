@@ -1,0 +1,15 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :body, "Note"
+    = text_input f, :body, class: "input input--wide", required: true
+    = error_tag f, :body
+
+  = hidden_input f, :notable_id
+  = hidden_input f, :notable_type
+
+  .field
+    = submit "Save", class: "button"

@@ -12,7 +12,8 @@ defmodule Philomena.ModNotes.ModNote do
     field :notable_type, :string
 
     field :body, :string
-    field :deleted, :boolean, default: false
+
+    field :notable, :any, virtual: true
 
     timestamps(inserted_at: :created_at)
   end
@@ -20,7 +21,8 @@ defmodule Philomena.ModNotes.ModNote do
   @doc false
   def changeset(mod_note, attrs) do
     mod_note
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:notable_id, :notable_type, :body])
+    |> validate_required([:notable_id, :notable_type, :body])
+    |> validate_inclusion(:notable_type, ["User", "Report", "DnpEntry"])
   end
 end

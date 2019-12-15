@@ -49,8 +49,8 @@ defmodule Philomena.ModNotes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_mod_note(attrs \\ %{}) do
-    %ModNote{}
+  def create_mod_note(creator, attrs \\ %{}) do
+    %ModNote{moderator_id: creator.id}
     |> ModNote.changeset(attrs)
     |> Repo.insert()
   end

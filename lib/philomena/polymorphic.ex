@@ -7,12 +7,14 @@ defmodule Philomena.Polymorphic do
     "Comment" => Philomena.Comments.Comment,
     "Commission" => Philomena.Commissions.Commission,
     "Conversation" => Philomena.Conversations.Conversation,
+    "DnpEntry" => Philomena.DnpEntries.DnpEntry,
     "Filter" => Philomena.Filters.Filter,
     "Forum" => Philomena.Forums.Forum,
     "Gallery" => Philomena.Galleries.Gallery,
     "Image" => Philomena.Images.Image,
     "LivestreamChannel" => Philomena.Channels.Channel,
     "Post" => Philomena.Posts.Post,
+    "Report" => Philomena.Reports.Report,
     "Topic" => Philomena.Topics.Topic,
     "User" => Philomena.Users.User
   }
@@ -21,10 +23,12 @@ defmodule Philomena.Polymorphic do
     "Comment" => [:user, image: :tags],
     "Commission" => [:user],
     "Conversation" => [:from, :to],
+    "DnpEntry" => [:requesting_user],
     "Gallery" => [:creator],
     "Image" => [:user, :tags],
     "Post" => [:user, topic: :forum],
-    "Topic" => [:forum, :user]
+    "Topic" => [:forum, :user],
+    "Report" => [:user]
   }
 
   # Deal with Rails polymorphism BS
