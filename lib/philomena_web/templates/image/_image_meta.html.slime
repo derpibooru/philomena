@@ -58,7 +58,7 @@
           => link_to_ip(@conn, @image.ip)
           => link_to_fingerprint(@conn, @image.fingerprint)
           a href="#"
-            i.fa.fa-edit
+            i.fas.fa-edit
     span.image-size
       | &nbsp;
       = @image.image_width

@@ -6,7 +6,7 @@
   .block
     .block__header.block__header--js-tabbed
       a.selected href="#" data-click-tab="write"
-        i.fa.fa-pencil>
+        i.fas.fa-edit>
         ' Edit
 
       a href="#" data-click-tab="preview"

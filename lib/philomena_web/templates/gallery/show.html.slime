@@ -22,7 +22,7 @@ elixir:
 
         = if can?(@conn, :edit, @gallery) do
           a href=Routes.gallery_path(@conn, :edit, @gallery)
-            i.fa.fa-pencil>
+            i.fas.fa-edit>
             span.hide-mobile Edit
 
         = if can?(@conn, :edit, @gallery) do

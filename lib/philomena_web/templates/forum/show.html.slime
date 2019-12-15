@@ -7,7 +7,7 @@ h1 = @forum.name
     ' &raquo;
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
     a href=Routes.forum_topic_path(@conn, :new, @forum)
-      i.fa.fa-fw.fa-pencil>
+      i.fa.fa-fw.fa-edit>
       ' New Topic
 
     /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path(forum_id: @forum.id)
