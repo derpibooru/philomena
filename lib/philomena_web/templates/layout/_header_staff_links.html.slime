@@ -7,14 +7,9 @@
 
     .dropdown__content.js-burger-links
       = if manages_site_notices?(@conn) do
-        = link to: "/admin/site_notices", class: "header__link" do
+        = link to: Routes.admin_site_notice_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-info-circle>
           ' Site Notices
-
-      = if manages_tags?(@conn) do
-        = link to: "#", class: "header__link" do
-          i.fa.fa-fw.fa-tags>
-          ' Tags
 
       = if manages_users?(@conn) do
         = link to: "#", class: "header__link" do
@@ -27,9 +22,9 @@
           ' Forums
 
       = if manages_ads?(@conn) do
-        = link to: "#", class: "header__link" do
+        = link to: Routes.admin_advert_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-shopping-bag>
-          ' Advertisements
+          ' Adverts
 
       = if manages_badges?(@conn) do
         = link to: "#", class: "header__link" do

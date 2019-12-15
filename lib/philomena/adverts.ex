@@ -4,9 +4,11 @@ defmodule Philomena.Adverts do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Adverts.Advert
+  alias Philomena.Adverts.Uploader
 
 
   def random_live do
@@ -104,9 +106,20 @@ defmodule Philomena.Adverts do
 
   """
   def create_advert(attrs \\ %{}) do
-    %Advert{}
-    |> Advert.changeset(attrs)
-    |> Repo.insert()
+    advert =
+      %Advert{}
+      |> Advert.save_changeset(attrs)
+      |> Uploader.analyze_upload(attrs)
+
+    Multi.new()
+    |> Multi.insert(:advert, advert)
+    |> Multi.run(:after, fn _repo, %{advert: advert} ->
+      Uploader.persist_upload(advert)
+      Uploader.unpersist_old_upload(advert)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -123,7 +136,7 @@ defmodule Philomena.Adverts do
   """
   def update_advert(%Advert{} = advert, attrs) do
     advert
-    |> Advert.changeset(attrs)
+    |> Advert.save_changeset(attrs)
     |> Repo.update()
   end
 

@@ -245,7 +245,6 @@ defmodule Philomena.Tags do
         }
       ]
     )
-    |> IO.inspect()
     |> Repo.update_all([])
   end
 

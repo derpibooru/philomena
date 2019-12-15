@@ -1,0 +1,73 @@
+- route = fn p -> Routes.admin_advert_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @adverts, route: route
+
+.block
+  .block__header
+    a href=Routes.admin_advert_path(@conn, :new)
+      i.fa.fa-plus>
+      ' New advert
+
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th.table--adverts__image Image
+          th Ad Information
+          th Start
+          th Finish
+          th Enabled
+          th Restriction
+          th Statistics
+          th Options
+      tbody
+        = for advert <- @adverts do
+          tr
+            td
+              img src=advert_image_url(advert)
+
+            td
+              strong
+                ' URL:
+              = link advert.link, to: advert.link
+              br
+
+              strong
+                ' Title:
+              em
+                = advert.title
+
+              = if present?(advert.notes) do
+                br
+                strong
+                  ' Notes:
+                = advert.notes
+
+            td class=time_column_class(advert.start_date)
+              = pretty_time advert.start_date
+
+            td class=time_column_class(advert.finish_date)
+              = pretty_time advert.finish_date
+
+            td
+              = live_text(advert)
+
+            td
+              = advert.restrictions
+
+            td
+              ' Impressions:
+              = advert.impressions
+
+              br
+              ' Clicks:
+              = advert.clicks
+
+            td
+              => link "Edit", to: Routes.admin_advert_path(@conn, :edit, advert)
+              ' &bull;
+              = link "Destroy", to: Routes.admin_advert_path(@conn, :delete, advert), data: [confirm: "Are you really, really sure?", method: "delete"]
+
+  .block__header.block__header--light
+    = pagination
