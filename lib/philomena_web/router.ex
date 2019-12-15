@@ -147,6 +147,7 @@ defmodule PhilomenaWeb.Router do
       end
       resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
       resources "/user_links", Profile.UserLinkController
+      resources "/awards", Profile.AwardController, except: [:index, :show]
     end
 
     scope "/filters", Filter, as: :filter do
@@ -203,6 +204,7 @@ defmodule PhilomenaWeb.Router do
       resources "/adverts", AdvertController, except: [:show]
 
       resources "/forums", ForumController, except: [:show, :delete]
+      resources "/badges", BadgeController, except: [:show, :delete]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

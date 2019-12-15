@@ -1,0 +1,34 @@
+h2 Badges
+
+- route = fn p -> Routes.admin_badge_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @badges, route: route, conn: @conn
+
+.block
+  .block__header
+    a href=Routes.admin_badge_path(@conn, :new)
+      i.fa.fa-plus>
+      ' New Badge
+
+    = pagination
+
+  .block__content
+    table.table
+      thead
+        tr
+          th Badge
+          th Image
+          th Options
+      tbody
+        = for badge <- @badges do
+          tr
+            td
+              = badge.title
+
+            td
+              = badge_image(badge, width: 32, height: 32)
+
+            td
+              = link "Edit", to: Routes.admin_badge_path(@conn, :edit, badge)
+
+  .block__header.block__header--light
+    = pagination

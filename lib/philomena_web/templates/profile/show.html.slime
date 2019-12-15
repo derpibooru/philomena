@@ -81,6 +81,14 @@
           .flex__grow.center
             = pretty_time(award.awarded_on)
 
+          = if manages_awards?(@conn) do
+            .flex__grow.center
+              a href=Routes.profile_award_path(@conn, :delete, @user, award) data-method="delete" data-confirm="Are you really, really sure?"
+                ' Remove
+              br
+              a href=Routes.profile_award_path(@conn, :edit, @user, award)
+                ' Edit
+
     .block
       .block__header
         = if can?(@conn, :edit_description, @user) do

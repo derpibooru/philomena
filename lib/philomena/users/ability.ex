@@ -1,5 +1,6 @@
 defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Users.User
+  alias Philomena.Badges.Award
   alias Philomena.Comments.Comment
   alias Philomena.Commissions.Commission
   alias Philomena.Conversations.Conversation
@@ -92,6 +93,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Edit and alias tags
   def can?(%User{role: "moderator"}, :edit, %Tag{}), do: true
   def can?(%User{role: "moderator"}, :alias, %Tag{}), do: true
+
+  # Award badges
+  def can?(%User{role: "moderator"}, :create, %Award{}), do: true
 
   #
   # Assistants can...

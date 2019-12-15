@@ -1,0 +1,27 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :badge_id, "Badge type"
+    = select f, :badge_id, badge_options(@badges), class: "input", data: [change_selectvalue: "#award_label"]
+    = error_tag f, :badge_id
+
+  .field
+    => label f, :label, "Label (Public)"
+    = text_input f, :label, class: "input input--wide"
+    = error_tag f, :label
+
+  .field
+    => label f, :reason, "Reason (Private)"
+    = text_input f, :reason, class: "input input--wide"
+    = error_tag f, :reason
+
+  .field
+    => label f, :badge_name, "Badge name (overrides default name if set, leave blank for default badge name)"
+    = text_input f, :badge_name, class: "input input--wide"
+    = error_tag f, :badge_name
+
+  .field
+    = submit "Save", class: "button", data: [disable_with: raw("Saving&hellip;")]

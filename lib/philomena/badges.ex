@@ -4,9 +4,11 @@ defmodule Philomena.Badges do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Badges.Badge
+  alias Philomena.Badges.Uploader
 
   @doc """
   Returns the list of badges.
@@ -50,9 +52,20 @@ defmodule Philomena.Badges do
 
   """
   def create_badge(attrs \\ %{}) do
-    %Badge{}
-    |> Badge.changeset(attrs)
-    |> Repo.insert()
+    badge =
+      %Badge{}
+      |> Badge.changeset(attrs)
+      |> Uploader.analyze_upload(attrs)
+
+    Multi.new()
+    |> Multi.insert(:badge, badge)
+    |> Multi.run(:after, fn _repo, %{badge: badge} ->
+      Uploader.persist_upload(badge)
+      Uploader.unpersist_old_upload(badge)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -68,9 +81,20 @@ defmodule Philomena.Badges do
 
   """
   def update_badge(%Badge{} = badge, attrs) do
-    badge
-    |> Badge.changeset(attrs)
-    |> Repo.update()
+    badge =
+      badge
+      |> Badge.changeset(attrs)
+      |> Uploader.analyze_upload(attrs)
+
+    Multi.new()
+    |> Multi.update(:badge, badge)
+    |> Multi.run(:after, fn _repo, %{badge: badge} ->
+      Uploader.persist_upload(badge)
+      Uploader.unpersist_old_upload(badge)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -145,8 +169,8 @@ defmodule Philomena.Badges do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_badge_award(attrs \\ %{}) do
-    %Award{}
+  def create_badge_award(creator, user, attrs \\ %{}) do
+    %Award{awarded_by_id: creator.id, user_id: user.id}
     |> Award.changeset(attrs)
     |> Repo.insert()
   end

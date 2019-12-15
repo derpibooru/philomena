@@ -1,0 +1,5 @@
+h2 Edit Badge
+
+= render "_form.html", Map.put(assigns, :action, Routes.admin_badge_path(@conn, :update, @badge))
+
+= link "Back", to: Routes.admin_badge_path(@conn, :index)

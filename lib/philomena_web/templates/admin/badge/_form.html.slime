@@ -1,0 +1,31 @@
+= form_for @changeset, @action, [multipart: true], fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    => label f, :title, "Badge name:"
+    = text_input f, :title, class: "input input--wide", placeholder: "Name", required: true
+    = error_tag f, :title
+
+  .field
+    => label f, :description, "An optional short description:"
+    = text_input f, :description, class: "input input--wide", placeholder: "Description"
+    = error_tag f, :description
+
+  .field
+    => checkbox f, :disable_award, class: "checkbox"
+    = label f, :disable_award, "Prevent image from appearing in \"Badge to award\" list"
+
+  .field
+    => checkbox f, :priority, class: "checkbox"
+    = label f, :priority, "Displays before badges that don't have this checkbox checked"
+
+  h4 Image
+  .field
+    => label f, :image, "Upload SVG image:"
+    = file_input f, :image, class: "input input--wide"
+    = error_tag f, :image
+    = error_tag f, :image_mime_type
+
+  = submit "Save Badge", class: "button", data: [disable_with: raw("Saving&hellip;")]

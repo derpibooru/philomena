@@ -17,7 +17,7 @@
           ' Users
 
       = if manages_forums?(@conn) do
-        = link to: "#", class: "header__link" do
+        = link to: Routes.admin_forum_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-paragraph>
           ' Forums
 
@@ -27,7 +27,7 @@
           ' Adverts
 
       = if manages_badges?(@conn) do
-        = link to: "#", class: "header__link" do
+        = link to: Routes.admin_badge_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-trophy>
           ' Badges
 

@@ -21,7 +21,14 @@ defmodule Philomena.Badges.Award do
   @doc false
   def changeset(badge_award, attrs) do
     badge_award
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:badge_id, :label, :reason, :badge_name])
+    |> put_awarded_on()
   end
+
+  defp put_awarded_on(%{data: %{awarded_on: nil}} = changeset) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    put_change(changeset, :awarded_on, now)
+  end
+  defp put_awarded_on(changeset), do: changeset
 end

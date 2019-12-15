@@ -12,6 +12,9 @@ defmodule PhilomenaWeb.ProfileView do
   def current?(%{id: id}, %{id: id}), do: true
   def current?(_user1, _user2), do: false
 
+  def manages_awards?(conn),
+    do: can?(conn, :create, Philomena.Badges.Award)
+
   def award_title(%{badge_name: nil} = award),
     do: award.badge.title
   def award_title(%{badge_name: ""} = award),

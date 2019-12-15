@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
 
   def create(conn, %{"forum" => forum_params}) do
     case Forums.create_forum(forum_params) do
-      {:ok, forum} ->
+      {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum created successfully.")
         |> redirect(to: Routes.admin_forum_path(conn, :index))
@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
 
   def update(conn, %{"forum" => forum_params}) do
     case Forums.update_forum(conn.assigns.forum, forum_params) do
-      {:ok, forum} ->
+      {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum updated successfully.")
         |> redirect(to: Routes.admin_forum_path(conn, :index))
