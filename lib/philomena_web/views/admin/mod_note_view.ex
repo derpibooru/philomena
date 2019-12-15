@@ -17,5 +17,5 @@ defmodule PhilomenaWeb.Admin.ModNoteView do
   def link_to_noted_thing(conn, %User{} = user),
     do: link("User #{user.name}", to: Routes.profile_path(conn, :show, user))
 
-  def link_to_noted_thing(_conn, notable), do: "Item permanently deleted"
+  def link_to_noted_thing(_conn, _notable), do: "Item permanently deleted"
 end

@@ -26,6 +26,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
     mod_notes =
       queryable
       |> preload(:moderator)
+      |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
     bodies = Renderer.render_collection(mod_notes, conn)
