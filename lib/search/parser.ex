@@ -274,19 +274,25 @@ defmodule Search.Parser do
   end
 
   # Flattens the child of a disjunction or conjunction to improve performance.
-  defp flatten_disjunction_child(this_child, %{bool: %{should: next_child}}),
+  defp flatten_disjunction_child(this_child, %{bool: %{should: next_child}} = child)
+    when child == %{bool: %{should: next_child}} and is_list(next_child),
     do: %{bool: %{should: [this_child | next_child]}}
+
   defp flatten_disjunction_child(this_child, next_child),
     do: %{bool: %{should: [this_child, next_child]}}
 
-  defp flatten_conjunction_child(this_child, %{bool: %{must: next_child}}),
+  defp flatten_conjunction_child(this_child, %{bool: %{must: next_child}} = child)
+    when child == %{bool: %{must: next_child}} and is_list(next_child),
     do: %{bool: %{must: [this_child | next_child]}}
+
   defp flatten_conjunction_child(this_child, next_child),
     do: %{bool: %{must: [this_child, next_child]}}
 
   # Flattens the child of a negation to eliminate double negation.
-  defp flatten_negation_child(%{bool: %{must_not: next_child}}),
+  defp flatten_negation_child(%{bool: %{must_not: next_child}} = child)
+    when child == %{bool: %{must_not: next_child}} and is_map(next_child),
     do: next_child
+
   defp flatten_negation_child(next_child),
     do: %{bool: %{must_not: next_child}}
 end
