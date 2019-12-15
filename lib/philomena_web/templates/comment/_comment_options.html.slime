@@ -6,7 +6,7 @@ div
     i.fa.fa-flag>
     ' Report
 
-  = if not is_nil(@comment.edited_at) and can?(@conn, :read, @comment) do
+  = if not is_nil(@comment.edited_at) and can?(@conn, :show, @comment) do
     br
     a href=Routes.image_comment_history_path(@conn, :index, @comment.image, @comment)
       ' Edited

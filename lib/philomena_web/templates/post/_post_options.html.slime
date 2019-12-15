@@ -6,7 +6,7 @@ div
     i.fa.fa-flag>
     ' Report
 
-  = if not is_nil(@post.edited_at) and can?(@conn, :read, @post) do
+  = if not is_nil(@post.edited_at) and can?(@conn, :show, @post) do
     br
     a href=Routes.forum_topic_post_history_path(@conn, :index, @post.topic.forum, @post.topic, @post)
       ' Edited
