@@ -36,7 +36,7 @@ defmodule Philomena.Users.User do
     has_many :notifications, through: [:unread_notifications, :notification]
     has_many :linked_tags, through: [:verified_links, :tag]
     has_one :commission, Commission
-    many_to_many :roles, Role, join_through: "users_roles"
+    many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
 
     belongs_to :current_filter, Filter
     belongs_to :deleted_by_user, User
@@ -145,6 +145,15 @@ defmodule Philomena.Users.User do
     |> cast(attrs, [])
     |> validate_required([])
     |> unique_constraint(:email, name: :index_users_on_email)
+  end
+
+  def update_changeset(user, attrs, roles) do
+    user
+    |> cast(attrs, [:name, :email, :role, :secondary_role, :hide_default_role])
+    |> validate_required([:name, :email, :role])
+    |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
+    |> put_assoc(:roles, roles)
+    |> put_slug()
   end
 
   def creation_changeset(user, attrs) do

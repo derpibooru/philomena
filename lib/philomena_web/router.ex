@@ -206,6 +206,9 @@ defmodule PhilomenaWeb.Router do
       resources "/forums", ForumController, except: [:show, :delete]
       resources "/badges", BadgeController, except: [:show, :delete]
       resources "/mod_notes", ModNoteController, except: [:show]
+      resources "/users", UserController, only: [:index, :edit, :update] do
+        resources "/avatar", User.AvatarController, only: [:delete], singleton: true
+      end
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

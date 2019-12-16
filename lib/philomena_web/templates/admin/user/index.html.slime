@@ -1,0 +1,75 @@
+h1 Users
+
+= form_for :user, Routes.admin_user_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+  .field
+    => text_input f, :q, name: "q", class: "hform__text input", placeholder: "Search query"
+    = submit "Search", class: "button hform__button"
+
+=> link "Site staff", to: Routes.admin_user_path(@conn, :index, staff: 1)
+' &bull;
+=> link "2FA users", to: Routes.admin_user_path(@conn, :index, twofactor: 1)
+
+- route = fn p -> Routes.admin_user_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn
+
+.block
+  .block__header
+    = pagination
+
+  .block__content
+  table.table
+    thead
+      tr
+        th Name
+        th Email
+        th Activated
+        th Role
+        th Created
+        th Options
+    tbody
+      = for user <- @users do
+        tr
+          td
+            = link user.name, to: Routes.profile_path(@conn, :show, user)
+
+            = cond do
+              - user.otp_required_for_login ->
+                span.banner__2fa.success 2FA
+
+              - user.role != "user" and !user.otp_required_for_login ->
+                span.banner__2fa.danger 1FA
+
+              - true ->
+
+          td
+            = user.email
+
+          td
+            = if user.deleted_at do
+              strong> Deactivated
+              = pretty_time user.deleted_at
+            - else
+              ' Active
+
+          td
+            = String.capitalize(user.role)
+
+          td
+            = pretty_time user.created_at
+
+          td
+            => link "Edit", to: Routes.admin_user_path(@conn, :edit, user)
+            ' &bull;
+
+            /= if user.deleted_at do
+            /  => link_to 'Reactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :create
+            /- else
+            /  => link_to 'Deactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :delete
+            /' &bull;
+
+            => link "Ban", to: Routes.admin_user_ban_path(@conn, :new, username: user.name)
+            ' &bull;
+            => link "Add link", to: Routes.profile_user_link_path(@conn, :new, user)
+
+  .block__header.block__header--light
+    = pagination

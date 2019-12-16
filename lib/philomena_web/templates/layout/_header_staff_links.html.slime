@@ -12,7 +12,7 @@
           ' Site Notices
 
       = if manages_users?(@conn) do
-        = link to: "#", class: "header__link" do
+        = link to: Routes.admin_user_path(@conn, :index), class: "header__link" do
           i.fa.fa-fw.fa-users>
           ' Users
 

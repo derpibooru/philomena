@@ -1,0 +1,3 @@
+h1 Editing user
+
+= render PhilomenaWeb.Admin.UserView, "_form.html", Map.put(assigns, :action, Routes.admin_user_path(@conn, :update, @user))

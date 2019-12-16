@@ -9,6 +9,7 @@ defmodule Philomena.Users do
 
   alias Philomena.Users.Uploader
   alias Philomena.Users.User
+  alias Philomena.Roles.Role
 
   use Pow.Ecto.Context,
     repo: Repo,
@@ -56,6 +57,7 @@ defmodule Philomena.Users do
 
   """
   def create_user(attrs \\ %{}) do
+    roles = 
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()
@@ -74,10 +76,18 @@ defmodule Philomena.Users do
 
   """
   def update_user(%User{} = user, attrs) do
+    roles =
+      Role
+      |> where([r], r.id in ^clean_roles(attrs["roles"]))
+      |> Repo.all()
+
     user
-    |> User.changeset(attrs)
+    |> User.update_changeset(attrs, roles)
     |> Repo.update()
   end
+
+  defp clean_roles(nil), do: []
+  defp clean_roles(roles), do: Enum.filter(roles, &"" != &1)
 
   def update_spoiler_type(%User{} = user, attrs) do
     user

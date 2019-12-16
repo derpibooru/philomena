@@ -1,4 +1,4 @@
-h1 Your Links
+h1 User Links
 p
   a.button href=Routes.profile_user_link_path(@conn, :new, @user)
     ' Create a link

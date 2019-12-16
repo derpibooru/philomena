@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Tags.Tag, Users.User}
+alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Roles.Role, Tags.Tag, Users.User}
 alias Philomena.Tags
 import Ecto.Query
 
@@ -58,6 +58,13 @@ IO.puts "---- Generating users"
 for user_def <- resources["users"] do
   %User{}
   |> User.creation_changeset(user_def)
+  |> Repo.insert(on_conflict: :nothing)
+end
+
+IO.puts "---- Generating roles"
+for role_def <- resources["roles"] do
+  %Role{name: role_def["name"], resource_type: role_def["resource_type"]}
+  |> Role.changeset(%{})
   |> Repo.insert(on_conflict: :nothing)
 end
 

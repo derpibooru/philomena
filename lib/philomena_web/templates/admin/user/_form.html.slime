@@ -1,0 +1,44 @@
+= form_for @changeset, @action, fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .block
+    .block__header
+      span.block__header__title Essential user details
+    label.table-list__label
+      .table-list__label__text Name:
+      .table-list__label__input = text_input f, :name, class: "input"
+    label.table-list__label
+      .table-list__label__text Email:
+      .table-list__label__input = text_input f, :email, class: "input"
+    label.table-list__label
+      .table-list__label__text Role:
+      .table-list__label__input = select f, :role, ["user", "assistant", "moderator", "admin"], class: "input"
+    label.table-list__label
+      .table-list__label__text Secondary banner:
+      .table-list__label__input = select f, :secondary_role, [[key: "-", value: ""], "Site Developer", "System Administrator"], class: "input"
+    label.table-list__label
+      .table-list__label__text Hide staff banner:
+      .table-list__label__input = checkbox f, :hide_default_role, class: "checkbox"
+    .table-list__label
+      .table-list__label__text Avatar
+      .table-list__label__input
+        = link "Remove avatar", to: Routes.admin_user_avatar_path(@conn, :delete, @user), class: "button", data: [method: "delete", confirm: "Are you really, really sure?"]
+
+  .block
+    .block__header
+      span.block__header__title General user flags
+    ul = collection_checkboxes f, :roles, filtered_roles(general_permissions, @roles), mapper: &checkbox_mapper/6
+
+  .block
+    .block__header.warning
+      span.block__header__title Special roles for assistants
+    ul = collection_checkboxes f, :roles, filtered_roles(assistant_permissions, @roles), mapper: &checkbox_mapper/6
+
+  .block
+    .block__header.danger
+      span.block__header__title Special roles for moderators
+    ul = collection_checkboxes f, :roles, filtered_roles(moderator_permissions, @roles), mapper: &checkbox_mapper/6
+
+  = submit "Save User", class: "button"
