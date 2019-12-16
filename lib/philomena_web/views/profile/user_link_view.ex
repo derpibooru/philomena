@@ -14,4 +14,7 @@ defmodule PhilomenaWeb.Profile.UserLinkView do
 
   def public_as_string(%{public: true}), do: "Yes"
   def public_as_string(_user_link), do: "No"
+
+  def tag_name(%{tag: nil}), do: nil
+  def tag_name(%{tag: tag}), do: tag.name
 end
