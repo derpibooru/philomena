@@ -20,7 +20,7 @@ html lang="en"
     = csrf_meta_tag()
     script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
     = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns
-  body data-theme="default"
+  body data-theme=theme_name(@current_user)
     = render PhilomenaWeb.LayoutView, "_burger.html", assigns
     #container class=container_class(@current_user)
       = render PhilomenaWeb.LayoutView, "_header.html", assigns

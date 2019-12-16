@@ -74,6 +74,9 @@ defmodule PhilomenaWeb.LayoutView do
   def stylesheet_path(conn, _user),
     do: Routes.static_path(conn, "/css/default.css")
 
+  def theme_name(%{theme: theme}), do: theme
+  def theme_name(_user), do: "default"
+
   def artist_tags(tags),
     do: Enum.filter(tags, & &1.namespace == "artist")
 
