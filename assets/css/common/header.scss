@@ -113,6 +113,15 @@ select.header__input, select.header__input:focus {
   max-width: 300px;
 }
 
+/* fix webkit's invisible coloring of the search bar */
+.header__input--search:-webkit-autofill,
+.header__input--search:-webkit-autofill:hover,
+.header__input--search:-webkit-autofill:focus {
+  -webkit-text-fill-color: $text_light_color;
+  box-shadow: 0 0 0px 1000px $header_field_color inset;
+  border: none;
+}
+
 .header__search__button {
   border: none;
   // Chrome loves extra padding for some reason
