@@ -306,8 +306,8 @@ defmodule Philomena.Bans do
       user_query(user, now)
 
     bans =
-      union_all_queries(queries)
-      |> limit(1)
+      queries
+      |> union_all_queries()
       |> Repo.all()
 
     # Don't return a ban if the user is currently signed in.
