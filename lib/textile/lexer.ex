@@ -146,7 +146,8 @@ defmodule Textile.Lexer do
       blockquote_open,
       blockquote_open_cite,
       blockquote_close,
-      link_markup_start,
+      bracketed_literal,
+      link_markup_start
     ])
 
   link_contents_element =
@@ -157,6 +158,7 @@ defmodule Textile.Lexer do
       blockquote_open,
       blockquote_open_cite,
       blockquote_close,
+      bracketed_literal,
       link_markup_element
     ])
 
