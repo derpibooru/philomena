@@ -35,8 +35,13 @@ elixir:
         = pagination
 
       .block__content.js-resizable-media-container
-        = for gallery <- @galleries do
-          = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
+        = if Enum.any?(@galleries) do
+          = for gallery <- @galleries do
+            = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
+
+        - else
+          .block.block--fixed.block--no-margin.block--warning
+            ' No galleries found!
 
       .block__header.block__header--light
         = pagination

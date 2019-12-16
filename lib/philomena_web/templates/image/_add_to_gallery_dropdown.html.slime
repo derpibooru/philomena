@@ -8,7 +8,7 @@
     .block
       .block__content.add-to-gallery-list
         .block__list
-          a.block__list__link.primary href=Routes.gallery_path(@conn, :index, include_image: @image.id)
+          a.block__list__link.primary href=Routes.gallery_path(@conn, :index, gallery: [include_image: @image.id])
             i.fa.fa-table>
             span.hide-mobile Featured in
 
