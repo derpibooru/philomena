@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.ForumController do
 
     topic_count = Repo.aggregate(Forum, :sum, :topic_count)
 
-    render(conn, "index.html", forums: forums, topic_count: topic_count)
+    render(conn, "index.html", title: "Forums", forums: forums, topic_count: topic_count)
   end
 
   def show(conn, %{"id" => _id}) do
@@ -35,6 +35,6 @@ defmodule PhilomenaWeb.ForumController do
 
     watching = Forums.subscribed?(forum, user)
 
-    render(conn, "show.html", forum: conn.assigns.forum, watching: watching, topics: topics)
+    render(conn, "show.html", title: "Showing Forum", forum: conn.assigns.forum, watching: watching, topics: topics)
   end
 end

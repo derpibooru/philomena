@@ -39,6 +39,6 @@ defmodule PhilomenaWeb.PostController do
     posts =
       %{posts | entries: Enum.zip(rendered, posts.entries)}
 
-    render(conn, "index.html", posts: posts)
+    render(conn, "index.html", title: "Posts", posts: posts)
   end
 end

@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Tag.AliasController do
 
   def edit(conn, _params) do
     changeset = Tags.change_tag(conn.assigns.tag)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Tag Alias", changeset: changeset)
   end
 
   def update(conn, %{"tag" => tag_params}) do

@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.GalleryController do
         Gallery |> preload([:creator, thumbnail: :tags])
       )
 
-    render(conn, "index.html", galleries: galleries, layout_class: "layout--wide")
+    render(conn, "index.html", title: "Galleries", galleries: galleries, layout_class: "layout--wide")
   end
 
   def show(conn, _params) do
@@ -49,12 +49,12 @@ defmodule PhilomenaWeb.GalleryController do
     |> NotificationCountPlug.call([])
     |> Map.put(:params, params)
     |> assign(:clientside_data, [gallery_images: gallery_images])
-    |> render("show.html", layout_class: "layout--wide", watching: watching, gallery: gallery, images: images, interactions: interactions)
+    |> render("show.html", title: "Showing Gallery", layout_class: "layout--wide", watching: watching, gallery: gallery, images: images, interactions: interactions)
   end
 
   def new(conn, _params) do
     changeset = Galleries.change_gallery(%Gallery{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Gallery", changeset: changeset)
   end
 
   def create(conn, %{"gallery" => gallery_params}) do
@@ -78,7 +78,7 @@ defmodule PhilomenaWeb.GalleryController do
     gallery = conn.assigns.gallery
     changeset = Galleries.change_gallery(gallery)
 
-    render(conn, "edit.html", gallery: gallery, changeset: changeset)
+    render(conn, "edit.html", title: "Editing Gallery", gallery: gallery, changeset: changeset)
   end
 
   def update(conn, %{"gallery" => gallery_params}) do

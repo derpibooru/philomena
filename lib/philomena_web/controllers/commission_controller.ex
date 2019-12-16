@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.CommissionController do
       commission_search(params["commission"])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", commissions: commissions, layout_class: "layout--wide")
+    render(conn, "index.html", title: "Commissions", commissions: commissions, layout_class: "layout--wide")
   end
 
   defp commission_search(attrs) when is_map(attrs) do

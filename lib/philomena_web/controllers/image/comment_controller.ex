@@ -89,7 +89,7 @@ defmodule PhilomenaWeb.Image.CommentController do
       conn.assigns.comment
       |> Comments.change_comment()
 
-    render(conn, "edit.html", comment: conn.assigns.comment, changeset: changeset)
+    render(conn, "edit.html", title: "Editing Comment", comment: conn.assigns.comment, changeset: changeset)
   end
 
   def update(conn, %{"comment" => comment_params}) do

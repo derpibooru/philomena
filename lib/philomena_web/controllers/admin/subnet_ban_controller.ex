@@ -34,12 +34,12 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
   def new(conn, %{"specification" => ip}) do
     {:ok, ip} = EctoNetwork.INET.cast(ip)
     changeset = Bans.change_subnet(%SubnetBan{specification: ip})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Subnet Ban", changeset: changeset)
   end
 
   def new(conn, _params) do
     changeset = Bans.change_subnet(%SubnetBan{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Subnet Ban", changeset: changeset)
   end
 
   def create(conn, %{"subnet" => subnet_ban_params}) do
@@ -56,7 +56,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
   def edit(conn, _params) do
     changeset = Bans.change_subnet(conn.assigns.subnet)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Subnet Ban", changeset: changeset)
   end
 
   def update(conn, %{"subnet" => subnet_ban_params}) do
@@ -86,7 +86,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       |> preload(:banning_user)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", subnet_bans: subnet_bans)
+    render(conn, "index.html", title: "Admin - Subnet Bans", layout_class: "layout--wide", subnet_bans: subnet_bans)
   end
 
   defp verify_authorized(conn, _opts) do

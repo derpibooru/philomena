@@ -92,6 +92,7 @@ defmodule PhilomenaWeb.ActivityController do
     render(
       conn,
       "index.html",
+      title: "Homepage",
       images: images,
       comments: comments,
       top_scoring: top_scoring,

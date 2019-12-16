@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Topic.Post.HistoryController do
   plug PhilomenaWeb.LoadPostPlug
 
   def index(conn, _params) do
+    topic = conn.assigns.topic
     post = conn.assigns.post
 
     versions =
@@ -24,6 +25,6 @@ defmodule PhilomenaWeb.Topic.Post.HistoryController do
       |> Repo.all()
       |> Versions.load_data_and_associations(post)
 
-    render(conn, "index.html", versions: versions)
+    render(conn, "index.html", title: "Post History for Post #{post.id} - #{topic.title} - Forums", versions: versions)
   end
 end

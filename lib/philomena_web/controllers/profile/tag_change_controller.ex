@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", user: user, tag_changes: tag_changes)
+    render(conn, "index.html", title: "Tag Changes for User `#{user.name}'", user: user, tag_changes: tag_changes)
   end
 
   defp added_filter(query, %{"added" => "1"}),

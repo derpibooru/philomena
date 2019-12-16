@@ -72,7 +72,9 @@ defmodule PhilomenaWeb.TopicController do
       %Post{}
       |> Posts.change_post()
 
-    render(conn, "show.html", posts: posts, changeset: changeset, watching: watching)
+    title = "#{topic.title} - #{forum.name} - Forums"
+
+    render(conn, "show.html", title: title, posts: posts, changeset: changeset, watching: watching)
   end
 
   def new(conn, _params) do
@@ -80,7 +82,7 @@ defmodule PhilomenaWeb.TopicController do
       %Topic{poll: %Poll{options: [%PollOption{}, %PollOption{}]}, posts: [%Post{}]}
       |> Topics.change_topic()
 
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Topic", changeset: changeset)
   end
 
   def create(conn, %{"topic" => topic_params}) do

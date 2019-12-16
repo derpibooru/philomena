@@ -19,6 +19,6 @@ defmodule PhilomenaWeb.Image.SourceChangeController do
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
     
-    render(conn, "index.html", image: image, source_changes: source_changes)
+    render(conn, "index.html", title: "Source Changes on Image #{image.id}", image: image, source_changes: source_changes)
   end
 end

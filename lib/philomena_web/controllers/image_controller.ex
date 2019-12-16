@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.ImageController do
     interactions =
       Interactions.user_interactions(images, conn.assigns.current_user)
 
-    render(conn, "index.html", layout_class: "layout--wide", images: images, interactions: interactions)
+    render(conn, "index.html", title: "Images", layout_class: "layout--wide", images: images, interactions: interactions)
   end
 
   def show(conn, %{"id" => _id}) do
@@ -83,7 +83,8 @@ defmodule PhilomenaWeb.ImageController do
       description: description,
       interactions: interactions,
       watching: watching,
-      layout_class: "layout--wide"
+      layout_class: "layout--wide",
+      title: "Image ##{image.id} - #{image.tag_list_cache}"
     ]
 
     if image.hidden_from_users do
@@ -98,7 +99,7 @@ defmodule PhilomenaWeb.ImageController do
       %Image{}
       |> Images.change_image()
 
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Image", changeset: changeset)
   end
 
   def create(conn, %{"image" => image_params}) do

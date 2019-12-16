@@ -37,6 +37,6 @@ defmodule PhilomenaWeb.CommentController do
     comments =
       %{comments | entries: Enum.zip(rendered, comments.entries)}
 
-    render(conn, "index.html", comments: comments)
+    render(conn, "index.html", title: "Comments", comments: comments)
   end
 end

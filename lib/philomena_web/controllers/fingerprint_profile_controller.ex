@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.FingerprintProfileController do
       |> where(fingerprint: ^fingerprint)
       |> Repo.all()
 
-    render(conn, "show.html", fingerprint: fingerprint, user_fps: user_fps, fingerprint_bans: fp_bans)
+    render(conn, "show.html", title: "#{fingerprint}'s fingerprint profile", fingerprint: fingerprint, user_fps: user_fps, fingerprint_bans: fp_bans)
   end
 
   defp authorize_ip(conn, _opts) do

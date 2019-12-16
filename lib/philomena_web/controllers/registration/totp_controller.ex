@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
         changeset = Pow.Plug.change_user(conn)
         secret = User.totp_secret(user)
         qrcode = User.totp_qrcode(user)
-        render(conn, "edit.html", changeset: changeset, totp_secret: secret, totp_qrcode: qrcode)
+        render(conn, "edit.html", title: "Two-Factor Authentication", changeset: changeset, totp_secret: secret, totp_qrcode: qrcode)
     end
   end
 

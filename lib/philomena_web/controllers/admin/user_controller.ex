@@ -39,12 +39,12 @@ defmodule PhilomenaWeb.Admin.UserController do
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--medium", users: users)
+    render(conn, "index.html", title: "Admin - Users", layout_class: "layout--medium", users: users)
   end
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.user)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing User", changeset: changeset)
   end
 
   def update(conn, %{"user" => user_params}) do

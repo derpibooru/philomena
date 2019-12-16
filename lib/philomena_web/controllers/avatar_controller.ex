@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.AvatarController do
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.current_user)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Avatar", changeset: changeset)
   end
 
   def update(conn, %{"user" => user_params}) do

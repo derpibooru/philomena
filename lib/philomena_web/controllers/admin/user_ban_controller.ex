@@ -35,12 +35,12 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   def new(conn, %{"username" => username}) do
     changeset = Bans.change_user(%UserBan{username: username})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New User Ban", changeset: changeset)
   end
 
   def new(conn, _params) do
     changeset = Bans.change_user(%UserBan{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New User Ban", changeset: changeset)
   end
 
   def create(conn, %{"user" => user_ban_params}) do
@@ -57,7 +57,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   def edit(conn, _params) do
     changeset = Bans.change_user(conn.assigns.user)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing User Ban", changeset: changeset)
   end
 
   def update(conn, %{"user" => user_ban_params}) do
@@ -87,7 +87,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       |> preload([:user, :banning_user])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", user_bans: user_bans)
+    render(conn, "index.html", title: "Admin - User Bans", layout_class: "layout--wide", user_bans: user_bans)
   end
 
   defp verify_authorized(conn, _opts) do

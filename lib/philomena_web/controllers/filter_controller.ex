@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.FilterController do
       |> preload(:user)
       |> Repo.all()
 
-    render(conn, "index.html", my_filters: my_filters, system_filters: system_filters)
+    render(conn, "index.html", title: "Filters", my_filters: my_filters, system_filters: system_filters)
   end
 
   def show(conn, _params) do
@@ -46,13 +46,12 @@ defmodule PhilomenaWeb.FilterController do
       |> order_by(asc: :name)
       |> Repo.all()
 
-    render(conn, "show.html", filter: filter, spoilered_tags: spoilered_tags, hidden_tags: hidden_tags)
+    render(conn, "show.html", title: "Showing Filter", filter: filter, spoilered_tags: spoilered_tags, hidden_tags: hidden_tags)
   end
 
   def new(conn, _params) do
     changeset = Filters.change_filter(%Filter{})
-
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Filter", changeset: changeset)
   end
 
   def create(conn, %{"filter" => filter_params}) do
@@ -75,7 +74,7 @@ defmodule PhilomenaWeb.FilterController do
 
     changeset = Filters.change_filter(filter)
 
-    render(conn, "edit.html", filter: filter, changeset: changeset)
+    render(conn, "edit.html", title: "Editing Filter", filter: filter, changeset: changeset)
   end
 
   def update(conn, %{"filter" => filter_params}) do

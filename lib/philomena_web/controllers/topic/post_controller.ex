@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Topic.PostController do
 
   def edit(conn, _params) do
     changeset = Posts.change_post(conn.assigns.post)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Post", changeset: changeset)
   end
 
   def update(conn, %{"post" => post_params}) do

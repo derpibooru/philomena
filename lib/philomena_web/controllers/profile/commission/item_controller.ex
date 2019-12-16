@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     commission = user.commission
 
     changeset = Commissions.change_item(%Item{})
-    render(conn, "new.html", user: user, commission: commission, changeset: changeset)
+    render(conn, "new.html", title: "New Commission Item", user: user, commission: commission, changeset: changeset)
   end
 
   def create(conn, %{"item" => item_params}) do
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     item = Repo.get_by!(Item, commission_id: commission.id, id: id)
 
     changeset = Commissions.change_item(item)
-    render(conn, "edit.html", user: user, commission: commission, item: item, changeset: changeset)
+    render(conn, "edit.html", title: "Editing Commission Item", user: user, commission: commission, item: item, changeset: changeset)
   end
 
   def update(conn, %{"id" => id, "item" => item_params}) do

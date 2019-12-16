@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     dnp_entries =
       %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
-    render(conn, "index.html", layout_class: "layout--medium", dnp_entries: dnp_entries, status_column: status)
+    render(conn, "index.html", title: "Do-Not-Post List", layout_class: "layout--medium", dnp_entries: dnp_entries, status_column: status)
   end
 
   def show(conn, _params) do
@@ -55,12 +55,12 @@ defmodule PhilomenaWeb.DnpEntryController do
         conn
       )
 
-    render(conn, "show.html", dnp_entry: dnp_entry, conditions: conditions, reason: reason, instructions: instructions)
+    render(conn, "show.html", title: "Showing DNP Listing", dnp_entry: dnp_entry, conditions: conditions, reason: reason, instructions: instructions)
   end
 
   def new(conn, _params) do
     changeset = DnpEntries.change_dnp_entry(%DnpEntry{})
-    render(conn, "new.html", changeset: changeset, selectable_tags: selectable_tags(conn))
+    render(conn, "new.html", title: "New DNP Listing", changeset: changeset, selectable_tags: selectable_tags(conn))
   end
 
   def create(conn, %{"dnp_entry" => dnp_entry_params}) do
@@ -77,14 +77,14 @@ defmodule PhilomenaWeb.DnpEntryController do
 
   def edit(conn, _params) do
     changeset = DnpEntries.change_dnp_entry(conn.assigns.dnp_entry)
-    render(conn, "edit.html", changeset: changeset, selectable_tags: selectable_tags(conn))
+    render(conn, "edit.html", title: "Editing DNP Listing", changeset: changeset, selectable_tags: selectable_tags(conn))
   end
 
   def update(conn, %{"dnp_entry" => dnp_entry_params}) do
     case DnpEntries.update_dnp_entry(conn.assigns.dnp_entry, selectable_tags(conn), dnp_entry_params) do
       {:ok, dnp_entry} ->
         conn
-        |> put_flash(:info, "Successfully submupdateditted DNP request.")
+        |> put_flash(:info, "Successfully updated DNP request.")
         |> redirect(to: Routes.dnp_entry_path(conn, :show, dnp_entry))
 
       {:error, changeset} ->

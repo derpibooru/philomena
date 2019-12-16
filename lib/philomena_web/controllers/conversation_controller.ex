@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.ConversationController do
       |> select([c, cnt], {c, cnt.count})
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", conversations: conversations)
+    render(conn, "index.html", title: "Conversations", conversations: conversations)
   end
 
   def show(conn, _params) do
@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.ConversationController do
     # Update the conversation ticker in the header
     conn = NotificationCountPlug.call(conn)
 
-    render(conn, "show.html", conversation: conversation, messages: messages, changeset: changeset)
+    render(conn, "show.html", title: "Showing Conversation", conversation: conversation, messages: messages, changeset: changeset)
   end
 
   def new(conn, params) do
@@ -61,7 +61,7 @@ defmodule PhilomenaWeb.ConversationController do
       %Conversation{recipient: params["recipient"], messages: [%Message{}]}
       |> Conversations.change_conversation()
 
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Conversation", changeset: changeset)
   end
 
   def create(conn, %{"conversation" => conversation_params}) do

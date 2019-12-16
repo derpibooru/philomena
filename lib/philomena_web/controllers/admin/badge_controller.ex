@@ -15,12 +15,12 @@ defmodule PhilomenaWeb.Admin.BadgeController do
       |> order_by(asc: :title)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", badges: badges)
+    render(conn, "index.html", title: "Admin - Badges", badges: badges)
   end
 
   def new(conn, _params) do
     changeset = Badges.change_badge(%Badge{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Badge", changeset: changeset)
   end
 
   def create(conn, %{"badge" => badge_params}) do
@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Admin.BadgeController do
 
   def edit(conn, _params) do
     changeset = Badges.change_badge(conn.assigns.badge)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Badge", changeset: changeset)
   end
 
   def update(conn, %{"badge" => badge_params}) do

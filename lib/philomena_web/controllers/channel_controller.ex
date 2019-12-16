@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.ChannelController do
 
     subscriptions = Channels.subscriptions(channels, conn.assigns.current_user)
 
-    render(conn, "index.html", layout_class: "layout--wide", channels: channels, subscriptions: subscriptions)
+    render(conn, "index.html", title: "Livestreams", layout_class: "layout--wide", channels: channels, subscriptions: subscriptions)
   end
 
   def show(conn, _params) do

@@ -47,12 +47,12 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     items = Enum.zip([item_descriptions, item_add_ons, commission.items])
 
-    render(conn, "show.html", rendered: rendered, commission: commission, items: items, layout_class: "layout--wide")
+    render(conn, "show.html", title: "Showing Commission", rendered: rendered, commission: commission, items: items, layout_class: "layout--wide")
   end
 
   def new(conn, _params) do
     changeset = Commissions.change_commission(%Commission{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Commission", changeset: changeset)
   end
 
   def create(conn, %{"commission" => commission_params}) do
@@ -71,7 +71,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
   def edit(conn, _params) do
     changeset = Commissions.change_commission(conn.assigns.user.commission)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Commission", changeset: changeset)
   end
 
   def update(conn, %{"commission" => commission_params}) do

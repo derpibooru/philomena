@@ -15,12 +15,12 @@ defmodule PhilomenaWeb.Admin.SiteNoticeController do
       |> order_by(desc: :start_date)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", admin_site_notices: site_notices)
+    render(conn, "index.html", title: "Admin - Site Notices", admin_site_notices: site_notices)
   end
 
   def new(conn, _params) do
     changeset = SiteNotices.change_site_notice(%SiteNotice{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Site Notice", changeset: changeset)
   end
 
   def create(conn, %{"site_notice" => site_notice_params}) do
@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Admin.SiteNoticeController do
 
   def edit(conn, _params) do
     changeset = SiteNotices.change_site_notice(conn.assigns.site_notice)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Site Notices", changeset: changeset)
   end
 
   def update(conn, %{"site_notice" => site_notice_params}) do

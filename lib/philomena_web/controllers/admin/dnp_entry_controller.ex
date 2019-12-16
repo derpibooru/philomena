@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
     dnp_entries =
       %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
-    render(conn, "index.html", layout_class: "layout--wide", dnp_entries: dnp_entries)
+    render(conn, "index.html", layout_class: "layout--wide", title: "Admin - DNP Entries", dnp_entries: dnp_entries)
   end
 
   defp verify_authorized(conn, _opts) do

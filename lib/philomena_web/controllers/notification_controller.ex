@@ -28,6 +28,6 @@ defmodule PhilomenaWeb.NotificationController do
     notifications =
       %{notifications | entries: entries}
 
-    render(conn, "index.html", notifications: notifications)
+    render(conn, "index.html", title: "Notification Area", notifications: notifications)
   end
 end

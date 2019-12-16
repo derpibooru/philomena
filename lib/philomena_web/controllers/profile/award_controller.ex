@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Profile.AwardController do
 
   def new(conn, _params) do
     changeset = Badges.change_badge_award(%Award{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Award", changeset: changeset)
   end
 
   def create(conn, %{"award" => award_params}) do
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Profile.AwardController do
 
   def edit(conn, _params) do
     changeset = Badges.change_badge_award(conn.assigns.award)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Award", changeset: changeset)
   end
 
   def update(conn, %{"award" => award_params}) do

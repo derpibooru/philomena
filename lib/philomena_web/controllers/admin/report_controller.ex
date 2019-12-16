@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
 
     reports = load_reports(conn, query)
 
-    render(conn, "index.html", layout_class: "layout--wide", reports: reports, my_reports: [])
+    render(conn, "index.html", title: "Admin - Reports", layout_class: "layout--wide", reports: reports, my_reports: [])
   end
 
   def index(conn, _params) do
@@ -47,14 +47,14 @@ defmodule PhilomenaWeb.Admin.ReportController do
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
 
-    render(conn, "index.html", layout_class: "layout--wide", reports: reports, my_reports: my_reports)
+    render(conn, "index.html", title: "Admin - Reports", layout_class: "layout--wide", reports: reports, my_reports: my_reports)
   end
 
   def show(conn, _params) do
     [report] = Polymorphic.load_polymorphic([conn.assigns.report], reportable: [reportable_id: :reportable_type])
     body = Renderer.render_one(%{body: report.reason}, conn)
 
-    render(conn, "show.html", report: report, body: body)
+    render(conn, "show.html", title: "Showing Report", report: report, body: body)
   end
 
   defp load_reports(conn, query) do

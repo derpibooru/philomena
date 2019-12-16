@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
 
     conn
     |> put_view(ReportView)
-    |> render("new.html", reportable: comment, changeset: changeset, action: action)
+    |> render("new.html", title: "Reporting Comment", reportable: comment, changeset: changeset, action: action)
   end
 
   def create(conn, params) do

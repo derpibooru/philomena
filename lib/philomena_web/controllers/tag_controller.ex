@@ -26,10 +26,10 @@ defmodule PhilomenaWeb.TagController do
           Tag
         )
 
-      render(conn, "index.html", tags: tags)
+      render(conn, "index.html", title: "Tags", tags: tags)
     else
       {:error, msg} ->
-        render(conn, "index.html", tags: [], error: msg)
+        render(conn, "index.html", title: "Tags", tags: [], error: msg)
     end
   end
 
@@ -65,13 +65,14 @@ defmodule PhilomenaWeb.TagController do
       dnp_entries: dnp_entries,
       interactions: interactions,
       images: images,
-      layout_class: "layout--wide"
+      layout_class: "layout--wide",
+      title: "#{tag.name} - Tags"
     )
   end
 
   def edit(conn, _params) do
     changeset = Tags.change_tag(conn.assigns.tag)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Tag", changeset: changeset)
   end
 
   def update(conn, %{"tag" => tag_params}) do

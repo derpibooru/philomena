@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Session.TotpController do
   def new(conn, _params) do
     changeset = Pow.Plug.change_user(conn)
 
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "Two-Factor Authentication", changeset: changeset)
   end
 
   def create(conn, params) do

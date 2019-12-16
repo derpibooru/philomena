@@ -7,16 +7,16 @@ defmodule PhilomenaWeb.PageController do
   plug :load_and_authorize_resource, model: StaticPage, id_field: "slug"
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    render(conn, "index.html", title: "Pages")
   end
 
   def show(conn, _params) do
-    render(conn, "show.html")
+    render(conn, "show.html", title: conn.assigns.page.title)
   end
 
   def new(conn, _params) do
     changeset = StaticPages.change_static_page(%StaticPage{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Page", changeset: changeset)
   end
 
   def create(conn, %{"static_page" => static_page_params}) do
@@ -33,7 +33,7 @@ defmodule PhilomenaWeb.PageController do
 
   def edit(conn, _params) do
     changeset = StaticPages.change_static_page(conn.assigns.static_page)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Page", changeset: changeset)
   end
 
   def update(conn, %{"static_page" => static_page_params}) do

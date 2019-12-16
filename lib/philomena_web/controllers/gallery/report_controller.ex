@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Gallery.ReportController do
 
     conn
     |> put_view(ReportView)
-    |> render("new.html", reportable: gallery, changeset: changeset, action: action)
+    |> render("new.html", title: "Reporting Gallery", reportable: gallery, changeset: changeset, action: action)
   end
 
   def create(conn, params) do

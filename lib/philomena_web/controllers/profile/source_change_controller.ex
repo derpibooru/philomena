@@ -21,6 +21,6 @@ defmodule PhilomenaWeb.Profile.SourceChangeController do
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
     
-    render(conn, "index.html", user: user, source_changes: source_changes)
+    render(conn, "index.html", title: "Source Changes for User `#{user.name}'", user: user, source_changes: source_changes)
   end
 end

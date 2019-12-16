@@ -6,13 +6,13 @@ defmodule PhilomenaWeb.Search.ReverseController do
   plug PhilomenaWeb.ScraperPlug, [params_key: "image", params_name: "image"] when action in [:create]
 
   def index(conn, _params) do
-    render(conn, "index.html", images: nil)
+    render(conn, "index.html", title: "Reverse Search", images: nil)
   end
 
   def create(conn, %{"image" => image_params}) do
     images = ImageReverse.images(image_params)
 
     conn
-    |> render("index.html", images: images)
+    |> render("index.html", title: "Reverse Search", images: images)
   end
 end

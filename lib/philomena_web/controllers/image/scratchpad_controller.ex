@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Image.ScratchpadController do
 
   def edit(conn, _params) do
     changeset = Images.change_image(conn.assigns.image)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Moderation Notes", changeset: changeset)
   end
 
   def update(conn, %{"image" => image_params}) do

@@ -15,12 +15,12 @@ defmodule PhilomenaWeb.Admin.AdvertController do
       |> order_by(desc: :finish_date)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", adverts: adverts)
+    render(conn, "index.html", title: "Admin - Adverts", layout_class: "layout--wide", adverts: adverts)
   end
 
   def new(conn, _params) do
     changeset = Adverts.change_advert(%Advert{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Advert", changeset: changeset)
   end
 
   def create(conn, %{"advert" => advert_params}) do
@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
 
   def edit(conn, _params) do
     changeset = Adverts.change_advert(conn.assigns.advert)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Advert", changeset: changeset)
   end
 
   def update(conn, %{"advert" => advert_params}) do

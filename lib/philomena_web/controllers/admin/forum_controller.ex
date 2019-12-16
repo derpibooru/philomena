@@ -8,12 +8,12 @@ defmodule PhilomenaWeb.Admin.ForumController do
   plug :load_resource, model: Forum, id_field: "short_name"
 
   def index(conn, _params) do
-    render(conn, "index.html")
+    render(conn, "index.html", title: "Admin - Forums")
   end
 
   def new(conn, _params) do
     changeset = Forums.change_forum(%Forum{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Forum", changeset: changeset)
   end
 
   def create(conn, %{"forum" => forum_params}) do
@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
 
   def edit(conn, _params) do
     changeset = Forums.change_forum(conn.assigns.forum)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Forum", changeset: changeset)
   end
 
   def update(conn, %{"forum" => forum_params}) do

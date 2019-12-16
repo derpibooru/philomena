@@ -41,7 +41,8 @@ defmodule PhilomenaWeb.StatController do
       gallery_count: gallery_count,
       gallery_size: gallery_size,
       distinct_creators: distinct_creators,
-      images_in_galleries: images_in_galleries
+      images_in_galleries: images_in_galleries,
+      title: "Statistics"
     )
   end
 

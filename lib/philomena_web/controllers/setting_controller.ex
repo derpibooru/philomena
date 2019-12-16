@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.SettingController do
       |> TagList.assign_tag_list(:watched_tag_ids, :watched_tag_list)
       |> Users.change_user()
 
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Settings", changeset: changeset)
   end
 
   def update(conn, %{"user" => user_params}) do

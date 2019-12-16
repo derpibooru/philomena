@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.pagination)
 
-    render(conn, "index.html", duplicate_reports: duplicate_reports, layout_class: "layout--wide")
+    render(conn, "index.html", title: "Duplicate Reports", duplicate_reports: duplicate_reports, layout_class: "layout--wide")
   end
 
   def create(conn, %{"duplicate_report" => duplicate_report_params}) do
@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
   def show(conn, _params) do
     dr = conn.assigns.duplicate_report
 
-    render(conn, "show.html", duplicate_report: dr, layout_class: "layout--wide")
+    render(conn, "show.html", title: "Showing Duplicate Report", duplicate_report: dr, layout_class: "layout--wide")
   end
 
   defp wrap(list) when is_list(list), do: list

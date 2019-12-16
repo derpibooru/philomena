@@ -33,12 +33,12 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
     preloaded = Polymorphic.load_polymorphic(mod_notes, notable: [notable_id: :notable_type])
     mod_notes = %{mod_notes | entries: Enum.zip(bodies, preloaded)}
 
-    render(conn, "index.html", mod_notes: mod_notes)
+    render(conn, "index.html", title: "Admin - Mod Notes", mod_notes: mod_notes)
   end
 
   def new(conn, %{"notable_type" => type, "notable_id" => id}) do
     changeset = ModNotes.change_mod_note(%ModNote{notable_type: type, notable_id: id})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Mod Note", changeset: changeset)
   end
 
   def create(conn, %{"mod_note" => mod_note_params}) do
@@ -55,7 +55,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
 
   def edit(conn, _params) do
     changeset = ModNotes.change_mod_note(conn.assigns.mod_note)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Mod Note", changeset: changeset)
   end
 
   def update(conn, %{"mod_note" => mod_note_params}) do

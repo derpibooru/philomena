@@ -32,12 +32,12 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   def new(conn, %{"fingerprint" => fingerprint}) do
     changeset = Bans.change_fingerprint(%FingerprintBan{fingerprint: fingerprint})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Fingerprint Ban", changeset: changeset)
   end
 
   def new(conn, _params) do
     changeset = Bans.change_fingerprint(%FingerprintBan{})
-    render(conn, "new.html", changeset: changeset)
+    render(conn, "new.html", title: "New Fingerprint Ban", changeset: changeset)
   end
 
   def create(conn, %{"fingerprint" => fingerprint_ban_params}) do
@@ -54,7 +54,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   def edit(conn, _params) do
     changeset = Bans.change_fingerprint(conn.assigns.fingerprint)
-    render(conn, "edit.html", changeset: changeset)
+    render(conn, "edit.html", title: "Editing Fingerprint Ban", changeset: changeset)
   end
 
   def update(conn, %{"fingerprint" => fingerprint_ban_params}) do
@@ -84,7 +84,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       |> preload(:banning_user)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", fingerprint_bans: fingerprint_bans)
+    render(conn, "index.html", layout_class: "layout--wide", title: "Admin - Fingerprint Bans", fingerprint_bans: fingerprint_bans)
   end
 
   defp verify_authorized(conn, _opts) do

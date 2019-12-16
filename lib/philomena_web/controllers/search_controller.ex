@@ -15,10 +15,10 @@ defmodule PhilomenaWeb.SearchController do
           Interactions.user_interactions(images, user)
 
         conn
-        |> render("index.html", images: images, tags: tags, search_query: params["q"], interactions: interactions, layout_class: "layout--wide")
+        |> render("index.html", title: "Searching for #{params["q"]}", images: images, tags: tags, search_query: params["q"], interactions: interactions, layout_class: "layout--wide")
 
       {:error, msg} ->
-        render(conn, "index.html", images: [], error: msg, search_query: params["q"])
+        render(conn, "index.html", title: "Searching for #{params["q"]}", images: [], error: msg, search_query: params["q"])
     end
   end
 end

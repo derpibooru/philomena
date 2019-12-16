@@ -137,7 +137,8 @@ defmodule PhilomenaWeb.ProfileController do
       about_me: about_me,
       tags: tags,
       bans: bans,
-      layout_class: "layout--medium"
+      layout_class: "layout--medium",
+      title: "#{user.name}'s profile"
     )
   end
 
