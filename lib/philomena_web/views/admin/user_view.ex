@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Admin.UserView do
   use PhilomenaWeb, :view
 
-  def checkbox_mapper(form, field, input_opts, role, label_opts, _opts) do
+  def checkbox_mapper(form, field, input_opts, role, _label_opts, _opts) do
     input_id = "user_roles_#{role.id}"
     label_opts = [for: input_id]
     input_opts =
@@ -24,13 +24,12 @@ defmodule PhilomenaWeb.Admin.UserView do
   def description("moderator", "Image"), do: "Manage images"
   def description("moderator", "DuplicateReport"), do: "Manage duplicates"
   def description("moderator", "Comment"), do: "Manage comments"
-  def description("moderator", "Tag"), do: "Manage tag details"
   def description("moderator", "UserLink"), do: "Manage user links"
   def description("moderator", "Topic"), do: "Moderate forums"
 
+  def description("moderator", "Tag"), do: "Manage tag details"
   def description("admin", "Tag"), do: "Alias tags"
   def description("batch_update", "Tag"), do: "Update tags in batches"
-  def description("moderator", "Tag"), do: "Manage tags"
 
   def description("moderator", "User"), do: "Manage users and wipe votes"
   def description("admin", "Role"), do: "Manage permissions"

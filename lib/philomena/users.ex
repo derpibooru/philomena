@@ -57,7 +57,6 @@ defmodule Philomena.Users do
 
   """
   def create_user(attrs \\ %{}) do
-    roles = 
     %User{}
     |> User.changeset(attrs)
     |> Repo.insert()

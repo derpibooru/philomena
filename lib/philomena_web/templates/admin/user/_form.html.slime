@@ -29,16 +29,16 @@
   .block
     .block__header
       span.block__header__title General user flags
-    ul = collection_checkboxes f, :roles, filtered_roles(general_permissions, @roles), mapper: &checkbox_mapper/6
+    ul = collection_checkboxes f, :roles, filtered_roles(general_permissions(), @roles), mapper: &checkbox_mapper/6
 
   .block
     .block__header.warning
       span.block__header__title Special roles for assistants
-    ul = collection_checkboxes f, :roles, filtered_roles(assistant_permissions, @roles), mapper: &checkbox_mapper/6
+    ul = collection_checkboxes f, :roles, filtered_roles(assistant_permissions(), @roles), mapper: &checkbox_mapper/6
 
   .block
     .block__header.danger
       span.block__header__title Special roles for moderators
-    ul = collection_checkboxes f, :roles, filtered_roles(moderator_permissions, @roles), mapper: &checkbox_mapper/6
+    ul = collection_checkboxes f, :roles, filtered_roles(moderator_permissions(), @roles), mapper: &checkbox_mapper/6
 
   = submit "Save User", class: "button"
