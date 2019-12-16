@@ -2,12 +2,16 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageReverse
+  alias PhilomenaWeb.ImageJson
 
   plug :set_scraper_cache
   plug PhilomenaWeb.ScraperPlug, [params_key: "image", params_name: "image"]
 
   def create(conn, %{"image" => image_params}) do
-    images = ImageReverse.images(image_params)
+    images =
+      image_params
+      |> ImageReverse.images()
+      |> Enum.map(&ImageJson.as_json(conn, &1))
 
     conn
     |> json(%{images: images})
