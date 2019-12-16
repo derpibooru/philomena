@@ -147,6 +147,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Users and anonymous users can...
   #
 
+  # Batch tag
+  def can?(%User{role_map: %{"Tag" => "batch_update"}}, :batch_update, Tag), do: true
+
   # Edit their description and personal title
   def can?(%User{id: id}, :edit_description, %User{id: id}), do: true
   def can?(%User{id: id}, :edit_title, %User{id: id}), do: true

@@ -11,6 +11,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
+  alias Philomena.Images.Tagging
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
@@ -224,7 +225,7 @@ defmodule Philomena.Images do
     Multi.new
     |> Multi.run(:image, fn repo, _chg ->
       image
-      |> repo.preload(:tags, force: true)
+      |> repo.preload(:tags)
       |> Image.tag_changeset(%{}, old_tags, new_tags)
       |> repo.update()
       |> case do
@@ -362,6 +363,48 @@ defmodule Philomena.Images do
     |> Repo.isolated_transaction(:serializable)
   end
   def unhide_image(image), do: {:ok, image}
+
+  def batch_update(image_ids, added_tags, removed_tags, tag_change_attributes) do
+    added_tags = Enum.map(added_tags, & &1.id)
+    removed_tags = Enum.map(removed_tags, & &1.id)
+
+    # Change everything in one go, ignoring any validation errors
+
+    # Note: computing the Cartesian product
+    insertions =
+      for tag_id <- added_tags, image_id <- image_ids do
+        %{tag_id: tag_id, image_id: image_id}
+      end
+
+    deletions =
+      Tagging
+      |> where([t], t.image_id in ^image_ids and t.tag_id in ^removed_tags)
+      |> select([t], [t.image_id, t.tag_id])
+
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    tag_change_attributes = Map.merge(tag_change_attributes, %{created_at: now, updated_at: now})
+
+    Repo.transaction fn ->
+      {added_count, inserted} = Repo.insert_all(Tagging, insertions, on_conflict: :nothing, returning: [:image_id, :tag_id])
+      {removed_count, deleted} = Repo.delete_all(deletions)
+
+      inserted = Enum.map(inserted, &[&1.image_id, &1.tag_id])
+
+      added_changes = Enum.map(inserted, fn [image_id, tag_id] ->
+        Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: true})
+      end)
+
+      removed_changes = Enum.map(deleted, fn [image_id, tag_id] ->
+        Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: false})
+      end)
+
+      changes = added_changes ++ removed_changes
+
+      Repo.insert_all(TagChange, changes)
+      Repo.update_all(where(Tag, [t], t.id in ^added_tags), inc: [images_count: added_count])
+      Repo.update_all(where(Tag, [t], t.id in ^removed_tags), inc: [images_count: -removed_count])
+    end
+  end
 
   @doc """
   Deletes a Image.

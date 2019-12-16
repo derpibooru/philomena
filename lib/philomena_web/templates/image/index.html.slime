@@ -12,7 +12,11 @@ elixir:
   section.block__header.flex
     span.block__header__title.hide-mobile
       => header
+
     = pagination
+
+    .flex__right
+      = quick_tag @conn
 
   = info_row @conn, tags
 

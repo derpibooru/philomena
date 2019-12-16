@@ -220,6 +220,8 @@ defmodule PhilomenaWeb.Router do
       resources "/users", UserController, only: [:index, :edit, :update] do
         resources "/avatar", User.AvatarController, only: [:delete], singleton: true
       end
+
+      resources "/batch/tags", Batch.TagController, only: [:update], singleton: true
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

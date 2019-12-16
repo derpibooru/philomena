@@ -156,6 +156,12 @@ defmodule PhilomenaWeb.ImageView do
     render PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags
   end
 
+  def quick_tag(conn) do
+    if can?(conn, :batch_update, Tag) do
+      render PhilomenaWeb.ImageView, "_quick_tag.html", conn: conn
+    end
+  end
+
   def deleter(%{deleter: %{name: name}}), do: name
   def deleter(_image), do: "System"
 
