@@ -19,7 +19,7 @@ defmodule Philomena.Http do
   defp add_host(headers, url) do
     %{host: host} = URI.parse(url)
 
-    Keyword.merge(["Host": host], headers)
+    Keyword.merge(["Host": host, "Connection": "close"], headers)
   end
 
   defp proxy_host do
