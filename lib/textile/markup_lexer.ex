@@ -117,7 +117,7 @@ defmodule Textile.MarkupLexer do
         code_open,
         ins_open,
         sup_open,
-        del_open,
+        del_open |> lookahead_not(string(">")),
         sub_open
       ])
 

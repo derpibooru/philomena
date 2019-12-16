@@ -102,13 +102,13 @@ defmodule Textile.Parser do
   # markup =
   #   blockquote | spoiler | link | image | bold | italic | strong | emphasis |
   #   code | inserted | superscript | deleted | subscript | newline | literal |
-  #   bracketed_literal | text;
+  #   literal | text;
   #
   defp markup(parser, tokens) do
     markups = [
       &blockquote/2, &spoiler/2, &link/2, &image/2, &bold/2, &italic/2, &strong/2,
       &emphasis/2, &code/2, &inserted/2, &superscript/2, &deleted/2, &subscript/2,
-      &newline/2, &literal/2, &bracketed_literal/2, &text/2
+      &newline/2, &literal/2, &literal/2, &text/2
     ]
 
     value =
@@ -303,13 +303,6 @@ defmodule Textile.Parser do
 
   defp newline(_parser, _tokens),
     do: {:error, "Expected a line break"}
-
-
-  defp bracketed_literal(_parser, [{:bracketed_literal, text} | r_tokens]),
-    do: {:ok, [markup: escape_nl2br(text)], r_tokens}
-
-  defp bracketed_literal(_parser, _tokens),
-    do: {:error, "Expected a bracketed literal"}
 
 
   defp text(_parser, [{:text, text} | r_tokens]),

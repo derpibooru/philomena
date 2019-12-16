@@ -14,13 +14,24 @@ defmodule Textile.Lexer do
     ignore(string("[=="))
     |> repeat(lookahead_not(string("==]")) |> utf8_char([]))
     |> ignore(string("==]"))
+
+  unbracketed_literal =
+    ignore(string("=="))
+    |> repeat(lookahead_not(string("==")) |> utf8_char([]))
+    |> ignore(string("=="))
+
+  literal =
+    choice([
+      bracketed_literal,
+      unbracketed_literal
+    ])
     |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:bracketed_literal)
+    |> unwrap_and_tag(:literal)
 
   blockquote_cite =
     lookahead_not(string("\""))
     |> choice([
-      bracketed_literal |> reduce(:unwrap),
+      literal |> reduce(:unwrap),
       utf8_char([])
     ])
     |> repeat()
@@ -146,7 +157,7 @@ defmodule Textile.Lexer do
       blockquote_open,
       blockquote_open_cite,
       blockquote_close,
-      bracketed_literal,
+      literal,
       link_markup_start
     ])
 
@@ -158,7 +169,7 @@ defmodule Textile.Lexer do
       blockquote_open,
       blockquote_open_cite,
       blockquote_close,
-      bracketed_literal,
+      literal,
       link_markup_element
     ])
 
@@ -215,7 +226,7 @@ defmodule Textile.Lexer do
 
   textile_default =
     choice([
-      bracketed_literal,
+      literal,
       blockquote_open_cite |> optional(markup_start),
       blockquote_open |> optional(markup_start),
       blockquote_close,
