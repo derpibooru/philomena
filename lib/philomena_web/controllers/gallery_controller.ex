@@ -127,7 +127,7 @@ defmodule PhilomenaWeb.GalleryController do
 
   defp parse_included_image(%{"include_image" => image_id}) when is_binary(image_id) and image_id not in [nil, ""] do
     with {image_id, _rest} <- Integer.parse(image_id) do
-      [%{term: %{image_id: image_id}}]
+      [%{term: %{image_ids: image_id}}]
     else
       _ ->
         []
@@ -136,7 +136,7 @@ defmodule PhilomenaWeb.GalleryController do
   defp parse_included_image(_params), do: []
 
   defp parse_description(%{"description" => description}) when is_binary(description) and description not in [nil, ""],
-    do: [%{match: %{description: %{query: description, operator: :and}}}]
+    do: [%{match_phrase: %{description: description}}]
   defp parse_description(_params), do: []
 
   defp parse_sort(%{"gallery" => %{"sf" => sf, "sd" => sd}})
