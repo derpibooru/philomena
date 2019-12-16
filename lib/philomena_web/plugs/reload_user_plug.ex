@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.ReloadUserPlug do
   alias Pow.Plug
-  alias Philomena.Users.User
-  alias Philomena.Repo
+  alias Philomena.Users
 
   def init(opts), do: opts
 
@@ -13,7 +12,7 @@ defmodule PhilomenaWeb.ReloadUserPlug do
         conn
 
       user ->
-        reloaded_user = Repo.get!(User, user.id)
+        reloaded_user = Users.get_by(id: user.id)
 
         Plug.assign_current_user(conn, reloaded_user, config)
     end
