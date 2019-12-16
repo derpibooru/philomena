@@ -41,3 +41,9 @@
           | History (
           = @source_change_count
           | )
+
+      = if can?(@conn, :hide, @image) do
+        = form_for @changeset, Routes.image_source_history_path(@conn, :delete, @image), [method: "delete"], fn _f ->
+          button.button.button--state-danger.button--separate-left type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
+            i.fas.fa-eraser>
+            ' Wipe

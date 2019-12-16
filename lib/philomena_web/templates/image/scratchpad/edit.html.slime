@@ -1,0 +1,9 @@
+h1
+  ' Editing moderation notes for image
+  = link "##{@image.id}", to: Routes.image_path(@conn, :show, @image)
+
+= form_for @changeset, Routes.image_scratchpad_path(@conn, :update, @image), fn f ->
+  .field
+    = textarea f, :scratchpad, placeholder: "Scratchpad contents", class: "input input--wide"
+
+  = submit "Update", class: "button", data: [disable_with: raw("Saving&hellip;")]

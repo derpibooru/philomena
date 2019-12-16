@@ -120,6 +120,17 @@ defmodule PhilomenaWeb.Router do
         resources "/delete", Image.Comment.DeleteController, only: [:create], singleton: true
       end
       resources "/delete", Image.DeleteController, only: [:create, :delete], singleton: true
+
+      resources "/hash", Image.HashController, only: [:delete], singleton: true
+      resources "/source_history", Image.SourceHistoryController, only: [:delete], singleton: true
+      resources "/repair", Image.RepairController, only: [:create], singleton: true
+      resources "/feature", Image.FeatureController, only: [:create], singleton: true
+      resources "/file", Image.FileController, only: [:update], singleton: true
+      resources "/scratchpad", Image.ScratchpadController, only: [:edit, :update], singleton: true
+
+      resources "/comment_lock", Image.CommentLockController, only: [:create, :delete], singleton: true
+      resources "/description_lock", Image.DescriptionLockController, only: [:create, :delete], singleton: true
+      resources "/tag_lock", Image.TagLockController, only: [:create, :delete], singleton: true
     end
 
     resources "/forums", ForumController, only: [] do

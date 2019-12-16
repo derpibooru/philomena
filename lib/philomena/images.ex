@@ -11,6 +11,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
+  alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
@@ -75,6 +76,91 @@ defmodule Philomena.Images do
     |> Multi.run(:subscribe, fn _repo, %{image: image} ->
       create_subscription(image, attribution[:user])
     end)
+    |> Multi.run(:after, fn _repo, %{image: image} ->
+      Uploader.persist_upload(image)
+      Uploader.unpersist_old_upload(image)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def feature_image(featurer, %Image{} = image) do
+    image = Repo.preload(image, :tags)
+    [featured] = Tags.get_or_create_tags("featured image")
+
+    feature =
+      %ImageFeature{user_id: featurer.id, image_id: image.id}
+      |> ImageFeature.changeset(%{})
+
+    image =
+      image
+      |> Image.tag_changeset(%{}, image.tags, [featured | image.tags])
+      |> Image.cache_changeset()
+
+    Multi.new()
+    |> Multi.insert(:feature, feature)
+    |> Multi.update(:image, image)
+    |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
+      tag_ids = image.added_tags |> Enum.map(& &1.id)
+      tags = Tag |> where([t], t.id in ^tag_ids)
+
+      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  def lock_comments(%Image{} = image, locked) do
+    image
+    |> Image.lock_comments_changeset(locked)
+    |> Repo.update()
+  end
+
+  def lock_description(%Image{} = image, locked) do
+    image
+    |> Image.lock_description_changeset(locked)
+    |> Repo.update()
+  end
+
+  def lock_tags(%Image{} = image, locked) do
+    image
+    |> Image.lock_tags_changeset(locked)
+    |> Repo.update()
+  end
+
+  def remove_hash(%Image{} = image) do
+    image
+    |> Image.remove_hash_changeset()
+    |> Repo.update()
+  end
+
+  def update_scratchpad(%Image{} = image, attrs) do
+    image
+    |> Image.scratchpad_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def remove_source_history(%Image{} = image) do
+    image
+    |> Repo.preload(:source_changes)
+    |> Image.remove_source_history_changeset()
+    |> Repo.update()
+  end
+
+  def repair_image(%Image{} = image) do
+    Philomena.Images.Thumbnailer.generate_thumbnails(image.id)
+  end
+
+  def update_file(%Image{} = image, attrs) do
+    image =
+      image
+      |> Image.changeset(attrs)
+      |> Uploader.analyze_upload(attrs)
+
+    Multi.new()
+    |> Multi.update(:image, image)
     |> Multi.run(:after, fn _repo, %{image: image} ->
       Uploader.persist_upload(image)
       Uploader.unpersist_old_upload(image)

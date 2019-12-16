@@ -35,7 +35,7 @@ defmodule Philomena.Images.Image do
     has_many :hides, ImageHide
     has_many :gallery_interactions, Galleries.Interaction
     has_many :subscriptions, Subscription
-    has_many :source_changes, SourceChange
+    has_many :source_changes, SourceChange, on_replace: :delete
     has_many :tag_changes, TagChange
     has_many :upvoters, through: [:upvotes, :user]
     has_many :downvoters, through: [:downvotes, :user]
@@ -202,6 +202,32 @@ defmodule Philomena.Images.Image do
     |> put_change(:hidden_from_users, false)
     |> put_change(:deletion_reason, nil)
     |> put_change(:duplicate_id, nil)
+  end
+
+  def lock_comments_changeset(image, locked) do
+    change(image, commenting_allowed: not locked)
+  end
+
+  def lock_description_changeset(image, locked) do
+    change(image, description_editing_allowed: not locked)
+  end
+
+  def lock_tags_changeset(image, locked) do
+    change(image, tag_editing_allowed: not locked)
+  end
+
+  def remove_hash_changeset(image) do
+    change(image, image_orig_sha512_hash: nil)
+  end
+
+  def scratchpad_changeset(image, attrs) do
+    cast(image, attrs, [:scratchpad])
+  end
+
+  def remove_source_history_changeset(image) do
+    change(image)
+    |> put_change(:source_url, nil)
+    |> put_assoc(:source_changes, [])
   end
 
   def cache_changeset(image) do

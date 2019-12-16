@@ -65,15 +65,18 @@
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_thumbnail_tag rows="2" cols="100" readonly="readonly"
           = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+
   = if display_mod_tools? do
     .block__tab.hidden data-tab="replace"
-      /= form_tag image_file_path(@image), method: :put, multipart: true do
-        = render partial: 'layouts/image_upload', locals: { form: nil, field: :image }
-        = submit_tag 'Save changes', class: 'button', autocomplete: 'off', data: { disable_with: 'Replacing...' }
+      = form_for @changeset, Routes.image_file_path(@conn, :update, @image), [method: "put", multipart: true], fn f ->
+        #js-image-upload-previews
+        p Upload a file from your computer
+        .field = file_input f, :image, class: "input js-scraper"
+        = submit "Save changes", class: "button", data: [disable_with: raw("Replacing&hellip;")]
 
     .block__tab.hidden data-tab="administration"
       .block.block--danger
-        a.button.button--link> href="#"
+        a.button.button--link> href=Routes.image_scratchpad_path(@conn, :edit, @image)
           i.far.fa-edit
         = if present?(@image.scratchpad) do
           strong> Mod notes:
@@ -90,3 +93,37 @@
 
       - else
         = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"
+
+      .flex.flex--spaced-out.flex--wrap
+        = if not @image.hidden_from_users do
+          = form_for @changeset, Routes.image_feature_path(@conn, :create, @image), [method: "post"], fn _f ->
+            .field
+              p Automatically tags 'featured image'
+              = submit "Feature", data: [confirm: "Are you really, really sure?"], class: "button button--state-success"
+
+          = form_for @changeset, Routes.image_repair_path(@conn, :create, @image), [method: "post"], fn _f ->
+            .field
+              = submit "Repair", class: "button button--state-success"
+
+        = form_for @changeset, Routes.image_hash_path(@conn, :delete, @image), [method: "delete"], fn _f ->
+          .field
+            p Allows reuploading the image
+            .flex.flex--end-bunched
+              = submit "Clear hash", data: [confirm: "Are you really, really sure?"], class: "button button--state-danger"
+
+      br
+      .flex.flex--spaced-out
+        = if @image.commenting_allowed do
+          = button_to "Lock commenting", Routes.image_comment_lock_path(@conn, :create, @image), method: "post", class: "button"
+        - else
+          = button_to "Unlock commenting", Routes.image_comment_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+
+        = if @image.description_editing_allowed do
+          = button_to "Lock description editing", Routes.image_description_lock_path(@conn, :create, @image), method: "post", class: "button"
+        - else
+          = button_to "Unlock description editing", Routes.image_description_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+
+        = if @image.tag_editing_allowed do
+          = button_to "Lock tag editing", Routes.image_tag_lock_path(@conn, :create, @image), method: "post", class: "button"
+        - else
+          = button_to "Unlock tag editing", Routes.image_tag_lock_path(@conn, :delete, @image), method: "delete", class: "button"
