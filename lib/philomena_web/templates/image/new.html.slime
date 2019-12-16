@@ -35,6 +35,7 @@
       = error_tag f, :image_height
       = error_tag f, :image_name
       = error_tag f, :image_mime_type
+      = error_tag f, :image_orig_sha512_hash
 
     .field.field--inline
       = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
