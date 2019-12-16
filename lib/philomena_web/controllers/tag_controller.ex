@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.TagController do
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
   plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [:aliases, :aliased_tag, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user]
-  plug :redirect_alias when action in [:show, :edit, :update, :delete]
+  plug :redirect_alias when action in [:show]
 
   def index(conn, params) do
     query_string = params["tq"] || "*"

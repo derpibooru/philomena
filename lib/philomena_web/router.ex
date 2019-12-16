@@ -232,6 +232,7 @@ defmodule PhilomenaWeb.Router do
     resources "/tags", TagController, only: [:edit, :update, :delete] do
       resources "/image", Tag.ImageController, only: [:edit, :update, :delete], singleton: true
       resources "/alias", Tag.AliasController, only: [:edit, :update, :delete], singleton: true
+      resources "/reindex", Tag.ReindexController, only: [:create], singleton: true
     end
 
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]

@@ -163,7 +163,9 @@ defmodule Philomena.Tags do
       |> select([i, _t], i.id)
       |> Repo.all()
 
-    {:ok, _tag} = Repo.delete(tag)
+    {:ok, tag} = Repo.delete(tag)
+
+    Tag.delete_document(tag.id)
 
     Image
     |> where([i], i.id in ^image_ids)
@@ -205,25 +207,32 @@ defmodule Philomena.Tags do
     |> where(tag_id: ^tag.id)
     |> Repo.update_all(set: [tag_id: target_tag.id])
 
-    # Update counters
-    new_count =
-      Image
-      |> join(:inner, [i], _ in assoc(i, :tags))
-      |> where([i, t], i.hidden_from_users == false and t.id == ^target_tag.id)
-      |> Repo.aggregate(:count, :id)
-
-    Tag
-    |> where(id: ^target_tag.id)
-    |> Repo.update_all(set: [images_count: new_count])
-
+    # Update counter
     Tag
     |> where(id: ^tag.id)
     |> Repo.update_all(set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()])
 
-    # Finally, update images
+    # Finally, reindex
+    reindex_tag_images(target_tag)
+    reindex_tags([tag, target_tag])
+  end
+
+  def reindex_tag_images(%Tag{} = tag) do
+    # First recount the tag
+    image_count =
+      Image
+      |> join(:inner, [i], _ in assoc(i, :tags))
+      |> where([i, t], i.hidden_from_users == false and t.id == ^tag.id)
+      |> Repo.aggregate(:count, :id)
+
+    Tag
+    |> where(id: ^tag.id)
+    |> Repo.update_all(set: [images_count: image_count])
+
+    # Then reindex
     Image
     |> join(:inner, [i], _ in assoc(i, :tags))
-    |> where([_i, t], t.id == ^target_tag.id)
+    |> where([_i, t], t.id == ^tag.id)
     |> preload(^Images.indexing_preloads())
     |> Image.reindex()
   end

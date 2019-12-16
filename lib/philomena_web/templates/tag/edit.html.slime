@@ -36,26 +36,19 @@ p = link "Edit aliases", to: Routes.tag_alias_path(@conn, :edit, @tag)
   br
   = submit "Save Tag", class: "button button--state-primary"
 
-  / not ready yet
-    br
-    br
-    input.toggle-box#tag-management checked="false" type="checkbox"
-    label for="tag-management" Tag Processing
-    .toggle-box-container
-      .toggle-box-container__content
-        = link_to "Rebuild index", admin_tag_reindex_path(@tag), class: "button", data: { confirm: t("are_you_sure") }, method: :post
-        p Use this if the tag displays the wrong number of images or returns the wrong search results.
-        = link_to "Recreate slug", admin_tag_slug_path(@tag), class: "button", method: :post
-        p
-          | Use this for old tags with invalid slugs (
-          code
-            ' /mlp/ &rarr;
-            = Tag.generate_slug "/mlp/"
-          | )
-        = link_to "Destroy tag", admin_tag_path(@tag), class: "button button--state-danger", data: { confirm: t("are_you_sure") }, method: :delete
-        p
-          strong Irreversible. Use with extreme caution!
-        ul
-          li Intended use is removing garbage tags.
-          li Will remove tag changes on the tag, but not on images or profiles.
-          li Will fail if the tag is the target of an alias, is implied by other tags, or is a rating tag.
+br
+br
+input.toggle-box#tag-management checked="false" type="checkbox"
+label for="tag-management" Tag Processing
+.toggle-box-container
+  .toggle-box-container__content
+    = button_to "Rebuild index", Routes.tag_reindex_path(@conn, :create, @tag), method: "post", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Reindexing&hellip;")]
+    p Use this if the tag displays the wrong number of images or returns the wrong search results.
+
+    = button_to "Destroy tag", Routes.tag_path(@conn, :delete, @tag), method: "delete", class: "button button--state-danger", data: [confirm: "Are you really, really sure?", disable_with: raw("Deleting&hellip;")]
+    p
+      strong Irreversible. Use with extreme caution!
+    ul
+      li Intended use is removing garbage tags.
+      li Will remove tag changes on the tag, but not on images or profiles.
+      li Will unset the alias if this tag is an alias target, and will automatically remove any implications that exist to it.

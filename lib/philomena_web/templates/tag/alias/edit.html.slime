@@ -15,7 +15,7 @@ h1
     => submit "Alias tag", class: "button"
 
 br
-= button_to "Remove tag alias", Routes.tag_alias_path(@conn, :delete, @tag), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
+= button_to "Remove tag alias", Routes.tag_alias_path(@conn, :delete, @tag), method: "delete", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Saving&hellip;")]
 
 br
 = link "Back", to: Routes.tag_path(@conn, :show, @tag)
