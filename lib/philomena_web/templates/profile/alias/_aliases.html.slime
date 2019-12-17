@@ -1,0 +1,37 @@
+= for u <- @aliases do
+  tr
+    td
+      = link u.name, to: Routes.profile_path(@conn, :show, u)
+
+    td
+      = @type
+
+    = cond do
+      - younger_than_7_days?(u) ->
+        td.danger
+          = pretty_time u.created_at
+
+      - younger_than_14_days?(u) ->
+        td.warning
+          = pretty_time u.created_at
+
+      - true ->
+        td.success
+          = pretty_time u.created_at
+
+    = cond do
+      - not is_nil(u.deleted_at) ->
+        td.danger
+          ' Account Disabled
+
+      - currently_banned?(u) ->
+        td.danger
+          ' Currently Banned
+
+      - previously_banned?(u) ->
+        td.danger
+          ' Previously banned
+
+      - true ->
+        td.success
+          ' Never banned

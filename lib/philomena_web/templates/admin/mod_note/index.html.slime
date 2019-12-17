@@ -9,30 +9,4 @@ h2 Mod Notes
     = pagination
 
   .block__content
-    table.table
-      thead
-        tr
-          td Object
-          td Note
-          td Time
-          td Moderator
-          td Actions
-      tbody
-        = for {body, note} <- @mod_notes do
-          tr
-            td
-              = link_to_noted_thing(@conn, note.notable)
-
-            td
-              == body
-
-            td
-              = pretty_time note.created_at
-
-            td
-              = link note.moderator.name, to: Routes.profile_path(@conn, :show, note.moderator)
-
-            td
-              => link "Edit", to: Routes.admin_mod_note_path(@conn, :edit, note)
-              ' &bull;
-              => link "Delete", to: Routes.admin_mod_note_path(@conn, :delete, note), data: [confirm: "Are you really, really sure?", method: "delete"]
+    = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn

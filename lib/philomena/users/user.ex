@@ -23,6 +23,9 @@ defmodule Philomena.Users.User do
   alias Philomena.Users.User
   alias Philomena.Commissions.Commission
   alias Philomena.Roles.Role
+  alias Philomena.UserFingerprints.UserFingerprint
+  alias Philomena.UserIps.UserIp
+  alias Philomena.Bans.User, as: UserBan
 
   @derive {Phoenix.Param, key: :slug}
 
@@ -35,6 +38,9 @@ defmodule Philomena.Users.User do
     has_many :unread_notifications, UnreadNotification
     has_many :notifications, through: [:unread_notifications, :notification]
     has_many :linked_tags, through: [:verified_links, :tag]
+    has_many :user_ips, UserIp
+    has_many :user_fingerprints, UserFingerprint
+    has_many :bans, UserBan
     has_one :commission, Commission
     many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
 

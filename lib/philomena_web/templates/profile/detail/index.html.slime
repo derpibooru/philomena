@@ -1,0 +1,24 @@
+h2
+  = link @user.name, to: Routes.profile_path(@conn, :show, @user)
+  | 's User Details
+
+h4 Mod Notes
+= render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
+
+h4 Name History
+table.table
+  thead
+    tr
+      th Name
+      th Changed
+  tbody
+    = for nc <- @name_changes do
+      tr
+        td = nc.name
+        td = pretty_time nc.created_at
+
+h4 More Details
+ul
+  li = link "IP Address Usage History", to: Routes.profile_ip_history_path(@conn, :index, @user)
+  li = link "Fingerprint Usage History", to: Routes.profile_fp_history_path(@conn, :index, @user)
+  li = link "Potential Aliases", to: Routes.profile_alias_path(@conn, :index, @user)

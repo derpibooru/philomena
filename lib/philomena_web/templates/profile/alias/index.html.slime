@@ -1,0 +1,20 @@
+h2 Potential Aliases
+p
+  ' Remember that aliases, especially fingerprints, aren't infallible by a
+  em> long
+  ' margin. Use this data only in supplement to other evidence when considering bans.
+
+br
+br
+
+table.table
+  thead
+    tr
+      td User
+      td Method
+      td Creation Date
+      td Ban Status
+  tbody
+    = render PhilomenaWeb.Profile.AliasView, "_aliases.html", aliases: @both_matches, type: "IP + FP", conn: @conn
+    = render PhilomenaWeb.Profile.AliasView, "_aliases.html", aliases: @ip_matches, type: "IP", conn: @conn
+    = render PhilomenaWeb.Profile.AliasView, "_aliases.html", aliases: @fp_matches, type: "FP", conn: @conn

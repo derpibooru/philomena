@@ -1,0 +1,18 @@
+h2
+  ' FP History for
+  = @user.name
+
+ul
+  = for ufp <- @user_fps do
+    li
+      = link_to_fingerprint @conn, ufp.fingerprint
+
+      ul
+        = for u <- @other_users[ufp.fingerprint] do
+          li
+            => link u.user.name, Routes.profile_path(@conn, :show, u.user)
+            | (
+            => u.uses
+            ' uses, last used
+            = pretty_time(u.updated_at)
+            ' )

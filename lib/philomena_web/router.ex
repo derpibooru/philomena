@@ -159,6 +159,11 @@ defmodule PhilomenaWeb.Router do
       resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
       resources "/user_links", Profile.UserLinkController
       resources "/awards", Profile.AwardController, except: [:index, :show]
+
+      resources "/details", Profile.DetailController, only: [:index]
+      resources "/ip_history", Profile.IpHistoryController, only: [:index]
+      resources "/fp_history", Profile.FpHistoryController, only: [:index]
+      resources "/aliases", Profile.AliasController, only: [:index]
     end
 
     scope "/filters", Filter, as: :filter do
