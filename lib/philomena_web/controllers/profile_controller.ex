@@ -11,12 +11,15 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Comments.Comment
   alias Philomena.Interactions
   alias Philomena.Tags.Tag
+  alias Philomena.UserIps.UserIp
+  alias Philomena.UserFingerprints.UserFingerprint
   alias Philomena.Repo
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [
     awards: :badge, public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
   ]
+  plug :set_admin_metadata
 
   def show(conn, _params) do
     current_user = conn.assigns.current_user
@@ -189,5 +192,34 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     images
+  end
+
+  defp set_admin_metadata(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, User) do
+      true ->
+        user = Repo.preload(conn.assigns.user, :current_filter)
+        filter = user.current_filter
+        last_ip =
+          UserIp
+          |> where(user_id: ^user.id)
+          |> order_by(desc: :updated_at)
+          |> limit(1)
+          |> Repo.one()
+
+        last_fp =
+          UserFingerprint
+          |> where(user_id: ^user.id)
+          |> order_by(desc: :updated_at)
+          |> limit(1)
+          |> Repo.one()
+
+        conn
+        |> assign(:filter, filter)
+        |> assign(:last_ip, last_ip)
+        |> assign(:last_fp, last_fp)
+
+      _false ->
+        conn
+    end
   end
 end

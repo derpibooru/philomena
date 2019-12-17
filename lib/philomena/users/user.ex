@@ -249,6 +249,20 @@ defmodule Philomena.Users.User do
     change(user, watched_tag_ids: watched_tag_ids)
   end
 
+  def reactivate_changeset(user) do
+    change(user, deleted_at: nil, deleted_by_user_id: nil)
+  end
+
+  def deactivate_changeset(user, moderator) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+    change(user, deleted_at: now, deleted_by_user_id: moderator.id)
+  end
+
+  def api_key_changeset(user) do
+    put_api_key(user)
+  end
+
   def create_totp_secret_changeset(user) do
     secret = :crypto.strong_rand_bytes(15) |> Base.encode32()
     data = Philomena.Users.Encryptor.encrypt_model(secret)

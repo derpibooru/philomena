@@ -149,6 +149,24 @@ defmodule Philomena.Users do
     |> Repo.isolated_transaction(:serializable)
   end
 
+  def reactivate_user(%User{} = user) do
+    user
+    |> User.reactivate_changeset()
+    |> Repo.update()
+  end
+
+  def deactivate_user(moderator, %User{} = user) do
+    user
+    |> User.deactivate_changeset(moderator)
+    |> Repo.update()
+  end
+
+  def reset_api_key(%User{} = user) do
+    user
+    |> User.api_key_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

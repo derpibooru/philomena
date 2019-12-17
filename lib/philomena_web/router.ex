@@ -224,11 +224,18 @@ defmodule PhilomenaWeb.Router do
       resources "/mod_notes", ModNoteController, except: [:show]
       resources "/users", UserController, only: [:index, :edit, :update] do
         resources "/avatar", User.AvatarController, only: [:delete], singleton: true
+        resources "/activation", User.ActivationController, only: [:create, :delete], singleton: true
+        resources "/api_key", User.ApiKeyController, only: [:delete], singleton: true
+        resources "/downvotes", User.DownvoteController, only: [:delete], singleton: true
+        resources "/votes", User.VoteController, only: [:delete], singleton: true
+        resources "/wipe", User.WipeController, only: [:create], singleton: true
       end
 
       resources "/batch/tags", Batch.TagController, only: [:update], singleton: true
+      scope "/donations", Donation, as: :donation do
+        resources "/user", UserController, only: [:show]
+      end
       resources "/donations", DonationController, only: [:index, :create]
-      resources "/donations/user", Donation.UserController, only: [:show]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do

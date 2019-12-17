@@ -56,6 +56,12 @@ defmodule PhilomenaWeb.ProfileView do
   def can_ban?(conn),
     do: can?(conn, :index, Philomena.Bans.User)
 
+  def can_index_user?(conn),
+    do: can?(conn, :index, Philomena.Users.User)
+
+  def enabled_text(true), do: "Enabled"
+  def enabled_text(_else), do: "Disabled"
+
   def user_abbrv(conn, %{name: name} = user) do
     abbrv = String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
     abbrv = "(" <> abbrv <> ")"

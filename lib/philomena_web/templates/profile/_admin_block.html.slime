@@ -1,0 +1,124 @@
+.block--fixed
+  i.fa.fa-fw.fa-calendar>
+  ' Account created
+  = @user.created_at
+
+  br
+  i.fa.fa-fw.fa-filter>
+  ' Current Filter:
+  = if @filter do
+    = link @filter.name, to: Routes.filter_path(@conn, :show, @filter)
+  - else
+    em
+      ' (none)
+
+  br
+  i.far.fa-fw.fa-clock>
+  ' Last seen
+  = if @last_ip do
+    => pretty_time(@last_ip.updated_at)
+    ' from
+    => link_to_ip(@conn, @last_ip.ip)
+
+    = if @last_fp do
+      => link_to_fingerprint(@conn, @last_fp.fingerprint)
+  - else
+    em
+      ' (never)
+
+  br
+  ' Two factor auth:
+  strong = enabled_text(@user.otp_required_for_login)
+
+br
+
+a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__options__toggle" title="Toggle Controls"
+  i.fa.fa-fw.fa-bars
+  span Toggle Controls
+
+.profile-top__options.js-admin__options__toggle.hidden
+  ul.profile-admin__options__column
+    li
+      = link to: Routes.profile_detail_path(@conn, :index, @user) do
+        i.fa.fa-fw.fa-eye
+        span.admin__button View Details
+    li
+      = link to: Routes.search_path(@conn, :index, q: "upvoted_by_id:#{@user.id}") do
+        i.fa.fa-fw.fa-arrow-up
+        span.admin__button Upvotes
+    li
+      = link to: Routes.search_path(@conn, :index, q: "downvoted_by_id:#{@user.id}") do
+        i.fa.fa-fw.fa-arrow-down
+        span.admin__button Downvotes
+    li
+      = link to: Routes.search_path(@conn, :index, q: "hidden_by_id:#{@user.id}") do
+        i.fa.fa-fw.fa-eye-slash
+        span.admin__button Hidden Images
+    li
+      = link to: Routes.admin_report_path(@conn, :index, rq: "user_id:#{@user.id}") do
+        i.fa.fa-fw.fa-exclamation
+        span.admin__button Reports
+    li
+      = link to: Routes.profile_ip_history_path(@conn, :index, @user) do
+        i.fab.fa-fw.fa-internet-explorer
+        span.admin__button IP History
+    li
+      = link to: Routes.profile_fp_history_path(@conn, :index, @user) do
+        i.fa.fa-fw.fa-desktop
+        span.admin__button FP History
+    li
+      = link to: Routes.profile_alias_path(@conn, :index, @user) do
+        i.fa.fa-fw.fa-users
+        span.admin__button Potential Aliases
+
+  ul.profile-admin__options__column
+
+    li 
+      = link to: Routes.admin_user_path(@conn, :edit, @user) do
+        i.fas.fa-fw.fa-edit
+        span.admin__button Edit User
+
+    = if @user.deleted_at do
+      li
+        = link to: Routes.admin_user_activation_path(@conn, :create, @user), data: [confirm: "Are you really, really sure?", method: "post"] do
+          i.fa.fa-fw.fa-check
+          span.admin__button Reactivate Account
+    - else
+      li
+        = link to: Routes.admin_user_activation_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+          i.fa.fa-fw.fa-times
+          span.admin__button Deactivate Account
+    li 
+      = link to: Routes.admin_donation_user_path(@conn, :show, @user) do
+        i.fas.fa-fw.fa-dollar-sign
+        span.admin__button Donations
+
+    li 
+      = link to: Routes.profile_user_link_path(@conn, :new, @user) do
+        i.fa.fa-fw.fa-link
+        span.admin__button Add User Link
+
+    li 
+      = link to: Routes.admin_user_vote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        i.far.fa-fw.fa-file-excel
+        span.admin__button Remove All Votes/Faves
+
+    li 
+      = link to: Routes.admin_user_downvote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        i.fa.fa-fw.fa-arrow-down
+        span.admin__button Remove All Downvotes
+
+    li 
+      = link to: Routes.admin_user_ban_path(@conn, :new, username: @user.name) do
+        i.fa.fa-fw.fa-ban
+        span.admin__button Ban this sucker
+
+    li 
+      = link to: Routes.admin_user_wipe_path(@conn, :create, @user), data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do
+        i.fas.fa-fw.fa-eraser
+        span.admin__button Wipe PII
+
+    li
+      = link to: Routes.admin_user_api_key_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        i.fas.fa-fw.fa-key
+        span.admin__button Reset API key
