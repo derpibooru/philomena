@@ -308,9 +308,11 @@ defmodule Philomena.Images do
       |> internal_hide_image(image)
 
     case result do
-      {:ok, _changes} ->
+      {:ok, changes} ->
+        tags = Tags.copy_tags(image, duplicate_of_image)
         Interactions.migrate_interactions(image, duplicate_of_image)
-        result
+
+        {:ok, %{changes | tags: changes.tags ++ tags}}
 
       _error ->
         result

@@ -91,7 +91,11 @@ defmodule Philomena.DuplicateReports do
     {:ok, duplicate_report} = reject_duplicate_report(duplicate_report, user)
 
     # Need a constraint for upsert, so have to do it the hard way
-    new_report = Repo.get_by(DuplicateReport, duplicate_of_image_id: duplicate_report.image_id)
+    new_report =
+      DuplicateReport
+      |> where(duplicate_of_image_id: ^duplicate_report.image_id)
+      |> limit(1)
+      |> Repo.one()
 
     new_report =
       if new_report do

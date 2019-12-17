@@ -257,6 +257,39 @@ defmodule Philomena.Tags do
     |> Repo.update_all([])
   end
 
+  def copy_tags(source, target) do
+    # Ecto bug:
+    # ** (DBConnection.EncodeError) Postgrex expected a binary, got 5.
+    #
+    # what I would like to do:
+    #   |> select([t], %{image_id: ^target.id, tag_id: t.tag_id})
+    #
+    # what I have to do instead:
+
+    taggings =
+      Tagging
+      |> where(image_id: ^source.id)
+      |> select([t], %{image_id: ^to_string(target.id), tag_id: t.tag_id})
+      |> Repo.all()
+      |> Enum.map(&%{&1 | image_id: String.to_integer(&1.image_id)})
+
+    {:ok, tag_ids} = 
+      Repo.transaction fn ->
+        {_count, taggings} = Repo.insert_all(Tagging, taggings, on_conflict: :nothing, returning: [:tag_id])
+        tag_ids = Enum.map(taggings, & &1.tag_id)
+
+        Tag
+        |> where([t], t.id in ^tag_ids)
+        |> Repo.update_all(inc: [images_count: 1])
+
+        tag_ids
+      end
+
+    Tag
+    |> where([t], t.id in ^tag_ids)
+    |> Repo.all()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking tag changes.
 
