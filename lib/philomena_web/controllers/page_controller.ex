@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.PageController do
   end
 
   def show(conn, _params) do
-    render(conn, "show.html", title: conn.assigns.page.title)
+    render(conn, "show.html", title: conn.assigns.static_page.title)
   end
 
   def new(conn, _params) do
