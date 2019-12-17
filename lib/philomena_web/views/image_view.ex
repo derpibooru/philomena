@@ -142,6 +142,9 @@ defmodule PhilomenaWeb.ImageView do
     Tag.display_order(tags)
   end
 
+  def username(%{name: name}), do: name
+  def username(_user), do: nil
+
   def scope(conn), do: Philomena.ImageScope.scope(conn)
 
   def anonymous_by_default?(conn) do

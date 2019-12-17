@@ -297,6 +297,12 @@ defmodule Philomena.Images do
     }
   end
 
+  def update_uploader(%Image{} = image, attrs) do
+    image
+    |> Image.uploader_changeset(attrs)
+    |> Repo.update()
+  end
+
   def hide_image(%Image{} = image, user, attrs) do
     Image.hide_changeset(image, attrs, user)
     |> internal_hide_image(image)

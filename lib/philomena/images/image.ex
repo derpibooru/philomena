@@ -230,6 +230,21 @@ defmodule Philomena.Images.Image do
     |> put_assoc(:source_changes, [])
   end
 
+  def uploader_changeset(image, attrs) do
+    user_id =
+      if attrs["username"] not in [nil, ""] do
+        Repo.get_by!(User, name: attrs["username"]).id
+      else
+        nil
+      end
+
+    image
+    |> cast(attrs, [:anonymous])
+    |> put_change(:user_id, user_id)
+    |> put_change(:ip, %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32})
+    |> put_change(:fingerprint, "ffff")
+  end
+
   def cache_changeset(image) do
     changeset = change(image)
     image = apply_changes(changeset)
