@@ -1,0 +1,27 @@
+table.table
+  thead
+    tr
+      th User
+      th Email
+      th Amount
+      th Note
+      th At
+
+  tbody
+    = for donation <- @donations do
+      tr
+        td
+          = if donation.user do
+            = link donation.user.name, to: Routes.profile_path(@conn, :show, donation.user)
+
+        td
+          = donation.email
+
+        td
+          = donation.amount
+
+        td title=donation.note
+          = String.slice(donation.note, 0, 30)
+
+        td
+          = pretty_time donation.created_at

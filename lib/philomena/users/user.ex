@@ -26,6 +26,7 @@ defmodule Philomena.Users.User do
   alias Philomena.UserFingerprints.UserFingerprint
   alias Philomena.UserIps.UserIp
   alias Philomena.Bans.User, as: UserBan
+  alias Philomena.Donations.Donation
 
   @derive {Phoenix.Param, key: :slug}
 
@@ -41,6 +42,7 @@ defmodule Philomena.Users.User do
     has_many :user_ips, UserIp
     has_many :user_fingerprints, UserFingerprint
     has_many :bans, UserBan
+    has_many :donations, Donation
     has_one :commission, Commission
     many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
 

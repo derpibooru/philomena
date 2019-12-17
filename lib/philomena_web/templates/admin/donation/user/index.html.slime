@@ -1,0 +1,26 @@
+.walloftext
+  h1
+    = @user.name
+    | 's Donations
+
+  = render PhilomenaWeb.Admin.DonationView, "_table.html", donations: @donations, conn: @conn
+
+  h1 Add Donation
+  = form_for @changeset, Routes.admin_donation_path(@conn, :create), fn f ->
+    .field
+      => label f, :user_id, "User ID:"
+      = number_input f, :user_id, class: "input input--short", value: @user.id
+
+    .field
+      => label f, :email, "Email:"
+      = text_input f, :email, class: "input input--wide", value: @user.email
+
+    .field
+      => label f, :amount, "Amount:"
+      = number_input f, :amount, class: "input input--wide", min: 0, step: 0.01
+
+    .field
+      => label f, :note, "Note:"
+      = textarea f, :note, class: "input input--wide"
+
+    = submit "Create Donation", class: "button"

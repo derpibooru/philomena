@@ -227,6 +227,8 @@ defmodule PhilomenaWeb.Router do
       end
 
       resources "/batch/tags", Batch.TagController, only: [:update], singleton: true
+      resources "/donations", DonationController, only: [:index, :create]
+      resources "/donations/user", Donation.UserController, only: [:show]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do
