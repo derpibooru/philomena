@@ -10,7 +10,7 @@ ul
       ul
         = for u <- @other_users[uip.ip] do
           li
-            => link u.user.name, Routes.profile_path(@conn, :show, u.user)
+            => link u.user.name, to: Routes.profile_path(@conn, :show, u.user)
             | (
             => u.uses
             ' uses, last used
