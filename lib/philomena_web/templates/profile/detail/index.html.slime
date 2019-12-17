@@ -4,6 +4,7 @@ h2
 
 h4 Mod Notes
 = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
+= link "Add New Note", to: Routes.admin_mod_note_path(@conn, :new, notable_id: @user.id, notable_type: "User")
 
 h4 Name History
 table.table

@@ -31,6 +31,7 @@ article.block.communication
 = if assigns[:mod_notes] do
   h4 Mod Notes
   = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
+  = link "Add New Note", to: Routes.admin_mod_note_path(@conn, :new, notable_id: @report.id, notable_type: "Report")
 
 p
   = if @report.user do
