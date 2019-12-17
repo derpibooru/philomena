@@ -1,0 +1,17 @@
+h1
+  ' Tag Usage for
+  = link @tag.name, to: Routes.tag_path(@conn, :show, @tag)
+
+h3 Filters that spoiler this tag:
+= render PhilomenaWeb.Tag.DetailView, "_filters.html", filters: @filters_spoilering, conn: @conn
+
+h3 Filters that hide this tag:
+= render PhilomenaWeb.Tag.DetailView, "_filters.html", filters: @filters_hiding, conn: @conn
+
+h3
+  | Users that watch this tag (
+  = length(@users_watching)
+  | )
+
+= for u <- @users_watching do
+  = link u.name, to: Routes.profile_path(@conn, :show, u), class: "interaction-user-list-item"

@@ -1,0 +1,31 @@
+table.table
+  thead
+    tr
+      th Filter
+      th Type
+      th Owner
+      th Spoilers
+      th Hides
+  tbody
+    = for filter <- @filters do
+      tr
+        td = link filter.name, to: Routes.filter_path(@conn, :show, filter)
+        td
+          = cond do
+            - filter.system ->
+              ' System
+
+            - filter.public ->
+              ' Public
+
+            - true ->
+              ' Private
+
+        td
+          = if filter.user do
+            = link filter.user.name, to: Routes.profile_path(@conn, :show, filter.user)
+          - else
+            ' No user associated
+
+        td = length(filter.spoilered_tag_ids)
+        td = length(filter.hidden_tag_ids)

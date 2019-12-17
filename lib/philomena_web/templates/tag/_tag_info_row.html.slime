@@ -10,6 +10,7 @@
     = link "Tag changes", to: Routes.tag_tag_change_path(@conn, :index, @tag), class: "detail-link"
     = if manages_tags?(@conn) do
       = link "Edit details", to: Routes.tag_path(@conn, :edit, @tag), class: "detail-link"
+      = link "Usage", to: Routes.tag_detail_path(@conn, :index, @tag), class: "detail-link"
 
     br
   
