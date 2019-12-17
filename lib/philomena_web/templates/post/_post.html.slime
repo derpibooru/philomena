@@ -11,7 +11,7 @@ article.block.communication id="post_#{@post.id}"
           strong.comment_deleted
             ' Deletion reason:
             => @post.deletion_reason
-            = if can?(@conn, :hide, @post) do
+            = if can?(@conn, :hide, @post) and not is_nil(@post.deleted_by) do
               | (
               = @post.deleted_by.name
               | )
