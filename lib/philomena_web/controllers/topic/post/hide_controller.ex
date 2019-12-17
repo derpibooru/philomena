@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Posts.Post
+  alias Philomena.Reports
   alias Philomena.Posts
 
   plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
@@ -12,8 +13,9 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
     user = conn.assigns.current_user
 
     case Posts.hide_post(post, post_params, user) do
-      {:ok, post} ->
+      {:ok, %{post: post, reports: {_count, reports}}} ->
         Posts.reindex_post(post)
+        Reports.reindex_reports(reports)
 
         conn
         |> put_flash(:info, "Post successfully hidden!")

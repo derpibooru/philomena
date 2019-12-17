@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
 
   alias Philomena.Comments.Comment
   alias Philomena.Comments
+  alias Philomena.Reports
 
   plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
   plug :load_and_authorize_resource, model: Comment, id_name: "comment_id", persisted: true
@@ -12,13 +13,15 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
     user = conn.assigns.current_user
 
     case Comments.hide_comment(comment, comment_params, user) do
-      {:ok, comment} ->
+      {:ok, %{comment: comment, reports: {_count, reports}}} ->
         Comments.reindex_comment(comment)
+        Reports.reindex_reports(reports)
 
         conn
         |> put_flash(:info, "Comment successfully hidden!")
         |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
-      {:error, _changeset} ->
+
+      _error ->
         conn
         |> put_flash(:error, "Unable to hide comment!")
         |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
@@ -35,6 +38,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
         conn
         |> put_flash(:info, "Comment successfully unhidden!")
         |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unhide comment!")

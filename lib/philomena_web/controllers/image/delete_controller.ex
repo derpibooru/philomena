@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Tags
+  alias Philomena.Reports
 
   plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
@@ -16,8 +17,9 @@ defmodule PhilomenaWeb.Image.DeleteController do
     user = conn.assigns.current_user
 
     case Images.hide_image(image, user, image_params) do
-      {:ok, %{image: image, tags: tags}} ->
+      {:ok, %{image: image, tags: tags, reports: {_count, reports}}} ->
         Images.reindex_image(image)
+        Reports.reindex_reports(reports)
         Tags.reindex_tags(tags)
 
         conn

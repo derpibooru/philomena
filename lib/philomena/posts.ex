@@ -13,6 +13,7 @@ defmodule Philomena.Posts do
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
   alias Philomena.Versions
+  alias Philomena.Reports.Report
 
   @doc """
   Gets a single post.
@@ -161,9 +162,18 @@ defmodule Philomena.Posts do
   end
 
   def hide_post(%Post{} = post, attrs, user) do
-    post
-    |> Post.hide_changeset(attrs, user)
-    |> Repo.update()
+    reports =
+      Report
+      |> where(reportable_type: "Post", reportable_id: ^post.id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed"])
+
+    post = Post.hide_changeset(post, attrs, user)
+
+    Multi.new()
+    |> Multi.update(:post, post)
+    |> Multi.update_all(:reports, reports, [])
+    |> Repo.transaction()
   end
 
   def unhide_post(%Post{} = post) do

@@ -7,6 +7,7 @@ defmodule Philomena.Comments do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Reports.Report
   alias Philomena.Comments.Comment
   alias Philomena.Images.Image
   alias Philomena.Images
@@ -135,9 +136,18 @@ defmodule Philomena.Comments do
   end
 
   def hide_comment(%Comment{} = comment, attrs, user) do
-    comment
-    |> Comment.hide_changeset(attrs, user)
-    |> Repo.update()
+    reports =
+      Report
+      |> where(reportable_type: "Comment", reportable_id: ^comment.id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed"])
+
+    comment = Comment.hide_changeset(comment, attrs, user)
+
+    Multi.new()
+    |> Multi.update(:comment, comment)
+    |> Multi.update_all(:reports, reports, [])
+    |> Repo.transaction()
   end
 
   def unhide_comment(%Comment{} = comment) do

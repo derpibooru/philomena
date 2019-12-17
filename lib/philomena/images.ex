@@ -19,6 +19,7 @@ defmodule Philomena.Images do
   alias Philomena.Tags.Tag
   alias Philomena.Notifications
   alias Philomena.Interactions
+  alias Philomena.Reports.Report
 
   @doc """
   Gets a single image.
@@ -298,13 +299,13 @@ defmodule Philomena.Images do
 
   def hide_image(%Image{} = image, user, attrs) do
     Image.hide_changeset(image, attrs, user)
-    |> internal_hide_image()
+    |> internal_hide_image(image)
   end
 
   def merge_image(%Image{} = image, duplicate_of_image) do
     result =
       Image.merge_changeset(image, duplicate_of_image)
-      |> internal_hide_image()
+      |> internal_hide_image(image)
 
     case result do
       {:ok, _changes} ->
@@ -316,9 +317,16 @@ defmodule Philomena.Images do
     end
   end
 
-  defp internal_hide_image(changeset) do
-    Multi.new
+  defp internal_hide_image(changeset, image) do
+    reports =
+      Report
+      |> where(reportable_type: "Image", reportable_id: ^image.id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed"])
+
+    Multi.new()
     |> Multi.update(:image, changeset)
+    |> Multi.update_all(:reports, reports, [])
     |> Multi.run(:tags, fn repo, %{image: image} ->
       image = Repo.preload(image, :tags, force: true)
 

@@ -121,16 +121,21 @@ defmodule Philomena.Reports do
     |> Repo.update()
   end
 
-  def reindex_report(%Report{} = report) do
+  def reindex_reports(report_ids) do
     spawn fn ->
       Report
-      |> where(id: ^report.id)
+      |> where([r], r.id in ^report_ids)
       |> preload([:user, :admin])
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
-      |> hd()
-      |> Report.index_document()
+      |> Enum.map(&Report.index_document/1)
     end
+
+    report_ids
+  end
+
+  def reindex_report(%Report{} = report) do
+    reindex_reports([report.id])
 
     report
   end
