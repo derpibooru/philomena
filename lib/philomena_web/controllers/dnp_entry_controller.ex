@@ -5,11 +5,14 @@ defmodule PhilomenaWeb.DnpEntryController do
   alias Philomena.Textile.Renderer
   alias Philomena.DnpEntries
   alias Philomena.Tags.Tag
+  alias Philomena.ModNotes.ModNote
+  alias Philomena.Polymorphic
   alias Philomena.Repo
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug :load_and_authorize_resource, model: DnpEntry, only: [:show, :edit, :update], preload: [:tag]
+  plug :set_mod_notes when action in [:show]
 
   def index(%{assigns: %{current_user: user}} = conn, %{"mine" => _mine}) when not is_nil(user) do
     DnpEntry
@@ -103,5 +106,30 @@ defmodule PhilomenaWeb.DnpEntryController do
     conn.assigns.current_user
     |> Repo.preload(:linked_tags)
     |> Map.get(:linked_tags)
+  end
+
+  defp set_mod_notes(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      true ->
+        dnp_entry = conn.assigns.dnp_entry
+
+        mod_notes =
+          ModNote
+          |> where(notable_type: "DnpEntry", notable_id: ^dnp_entry.id)
+          |> order_by(desc: :id)
+          |> preload(:moderator)
+          |> Repo.all()
+          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
+
+        mod_notes =
+          mod_notes
+          |> Renderer.render_collection(conn)
+          |> Enum.zip(mod_notes)
+
+        assign(conn, :mod_notes, mod_notes)
+
+      _false ->
+        conn
+    end
   end
 end

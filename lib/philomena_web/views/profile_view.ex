@@ -59,6 +59,9 @@ defmodule PhilomenaWeb.ProfileView do
   def can_index_user?(conn),
     do: can?(conn, :index, Philomena.Users.User)
 
+  def can_read_mod_notes?(conn),
+    do: can?(conn, :index, Philomena.ModNotes.ModNote)
+
   def enabled_text(true), do: "Enabled"
   def enabled_text(_else), do: "Disabled"
 

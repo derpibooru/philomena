@@ -13,6 +13,8 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Tags.Tag
   alias Philomena.UserIps.UserIp
   alias Philomena.UserFingerprints.UserFingerprint
+  alias Philomena.ModNotes.ModNote
+  alias Philomena.Polymorphic
   alias Philomena.Repo
   import Ecto.Query
 
@@ -20,6 +22,7 @@ defmodule PhilomenaWeb.ProfileController do
     awards: :badge, public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
   ]
   plug :set_admin_metadata
+  plug :set_mod_notes
 
   def show(conn, _params) do
     current_user = conn.assigns.current_user
@@ -213,10 +216,36 @@ defmodule PhilomenaWeb.ProfileController do
           |> limit(1)
           |> Repo.one()
 
+
         conn
         |> assign(:filter, filter)
         |> assign(:last_ip, last_ip)
         |> assign(:last_fp, last_fp)
+
+      _false ->
+        conn
+    end
+  end
+
+  defp set_mod_notes(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      true ->
+        user = conn.assigns.user
+
+        mod_notes =
+          ModNote
+          |> where(notable_type: "User", notable_id: ^user.id)
+          |> order_by(desc: :id)
+          |> preload(:moderator)
+          |> Repo.all()
+          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
+
+        mod_notes =
+          mod_notes
+          |> Renderer.render_collection(conn)
+          |> Enum.zip(mod_notes)
+
+        assign(conn, :mod_notes, mod_notes)
 
       _false ->
         conn

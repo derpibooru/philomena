@@ -5,11 +5,13 @@ defmodule PhilomenaWeb.Admin.ReportController do
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
   alias Philomena.Polymorphic
+  alias Philomena.ModNotes.ModNote
   alias Philomena.Repo
   import Ecto.Query
 
   plug :verify_authorized
   plug :load_and_authorize_resource, model: Report, only: [:show], preload: [:admin, user: [:linked_tags, awards: :badge]]
+  plug :set_mod_notes when action in [:show]
 
   def index(conn, %{"rq" => query_string}) do
     {:ok, query} = Query.compile(query_string)
@@ -86,6 +88,31 @@ defmodule PhilomenaWeb.Admin.ReportController do
     case Canada.Can.can?(conn.assigns.current_user, :index, Report) do
       true  -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    end
+  end
+
+  defp set_mod_notes(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      true ->
+        report = conn.assigns.report
+
+        mod_notes =
+          ModNote
+          |> where(notable_type: "Report", notable_id: ^report.id)
+          |> order_by(desc: :id)
+          |> preload(:moderator)
+          |> Repo.all()
+          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
+
+        mod_notes =
+          mod_notes
+          |> Renderer.render_collection(conn)
+          |> Enum.zip(mod_notes)
+
+        assign(conn, :mod_notes, mod_notes)
+
+      _false ->
+        conn
     end
   end
 end

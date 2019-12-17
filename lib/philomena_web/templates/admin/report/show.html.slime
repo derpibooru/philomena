@@ -28,6 +28,10 @@ article.block.communication
       code
         = @report.user_agent
 
+= if assigns[:mod_notes] do
+  h4 Mod Notes
+  = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
+
 p
   = if @report.user do
     => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: @report.user.name), class: "button button--link"

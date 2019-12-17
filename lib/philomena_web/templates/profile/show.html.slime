@@ -99,6 +99,20 @@
 
       = render PhilomenaWeb.ProfileView, "_about_me.html", user: @user, about_me: @about_me, conn: @conn
 
+    = if can_read_mod_notes?(@conn) do
+      .block
+        a.block__header--single-item href=Routes.profile_detail_path(@conn, :index, @user) Mod Notes
+        table.table
+          thead
+            tr
+              th Note
+              th Created
+          tbody
+            = for {body, mod_note} <- @mod_notes do
+              tr
+                td == body
+                td = pretty_time(mod_note.created_at)
+
   .column-layout__main
     = render PhilomenaWeb.ProfileView, "_statistics.html", user: @user, statistics: @statistics, conn: @conn
     = render PhilomenaWeb.ProfileView, "_recent_images.html", title: "Recent Artwork", images: @recent_artwork, view_all_path: Routes.search_path(@conn, :index, q: tag_disjunction(@tags)), conn: @conn

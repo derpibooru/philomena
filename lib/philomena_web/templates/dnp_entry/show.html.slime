@@ -49,3 +49,7 @@ h2
             td Status:
             td
               = String.capitalize(@dnp_entry.aasm_state)
+
+= if assigns[:mod_notes] do
+  h4 Mod Notes
+  = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
