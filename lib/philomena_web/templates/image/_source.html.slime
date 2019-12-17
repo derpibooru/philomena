@@ -35,7 +35,7 @@
       - else
         em> not provided yet
 
-      = if @source_change_count > 0 do
+      = if @source_change_count > 1 do
         a.button.button--link.button--separate-left href=Routes.image_source_change_path(@conn, :index, @image) title="Source history"
           i.fa.fa-history>
           | History (

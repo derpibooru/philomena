@@ -67,6 +67,11 @@ defmodule Philomena.Images do
       |> Image.cache_changeset()
       |> repo.update()
     end)
+    |> Multi.run(:source_change, fn repo, %{image: image} ->
+      %SourceChange{image_id: image.id, initial: true}
+      |> SourceChange.creation_changeset(attrs, attribution)
+      |> repo.insert()
+    end)
     |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
       tag_ids = image.added_tags |> Enum.map(& &1.id)
       tags = Tag |> where([t], t.id in ^tag_ids)
