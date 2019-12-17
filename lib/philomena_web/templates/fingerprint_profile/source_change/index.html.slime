@@ -1,0 +1,8 @@
+h1
+  ' Source changes by
+  = @fingerprint
+
+- route = fn p -> Routes.fingerprint_profile_source_change_path(@conn, :index, @fingerprint, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
+
+= render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination

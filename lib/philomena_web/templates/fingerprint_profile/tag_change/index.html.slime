@@ -1,0 +1,17 @@
+h1
+  ' Tag changes by
+  = @fingerprint
+
+- route = fn p -> Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn
+
+.block
+  .block__header
+    span.block__header_title
+      | Display only:
+
+    = link "Removed", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, added: 0)
+    = link "Added", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, added: 1)
+    = link "All", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint)
+
+  = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination

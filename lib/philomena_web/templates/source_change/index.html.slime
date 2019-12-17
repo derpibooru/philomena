@@ -27,7 +27,11 @@
               = pretty_time(source_change.created_at)
 
             td class=user_column_class(source_change)
-              = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: source_change, conn: @conn
+              => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: source_change, conn: @conn
+
+              = if can?(@conn, :show, :ip_address) do
+                => link_to_ip @conn, source_change.ip
+                => link_to_fingerprint @conn,source_change.fingerprint
 
               = if staff?(source_change) do
                 br

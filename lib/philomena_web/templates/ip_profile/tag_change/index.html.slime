@@ -1,0 +1,17 @@
+h1
+  ' Tag changes by
+  = @ip
+
+- route = fn p -> Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip), p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn
+
+.block
+  .block__header
+    span.block__header_title
+      | Display only:
+
+    = link "Removed", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip), added: 0)
+    = link "Added", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip), added: 1)
+    = link "All", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip))
+
+  = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination

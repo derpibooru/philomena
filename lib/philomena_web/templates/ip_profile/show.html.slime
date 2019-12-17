@@ -11,8 +11,8 @@ ul
 
 h2 Administration Options
 ul
-  /li = link "View tag changes", "/ip_profiles/#{@ip}/tag_changes"
-  /li = link "View source URL history", "/ip_profiles/#{@ip}/source_changes"
+  li = link "View tag changes", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip))
+  li = link "View source URL history", to: Routes.ip_profile_source_change_path(@conn, :index, to_string(@ip))
   li = link "View reports this IP has made", to: Routes.admin_report_path(@conn, :index, rq: "ip:#{@ip}")
   li = link "View IP ban history", to: Routes.admin_subnet_ban_path(@conn, :index, ip: to_string(@ip))
   li = link "Ban this sucker", to: Routes.admin_subnet_ban_path(@conn, :new, specification: to_string(@ip))

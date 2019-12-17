@@ -193,8 +193,14 @@ defmodule PhilomenaWeb.Router do
 
     resources "/dnp", DnpEntryController, only: [:new, :create, :edit, :update]
 
-    resources "/ip_profiles", IpProfileController, only: [:show]
-    resources "/fingerprint_profiles", FingerprintProfileController, only: [:show]
+    resources "/ip_profiles", IpProfileController, only: [:show] do
+      resources "/tag_changes", IpProfile.TagChangeController, only: [:index]
+      resources "/source_changes", IpProfile.SourceChangeController, only: [:index]
+    end
+    resources "/fingerprint_profiles", FingerprintProfileController, only: [:show] do
+      resources "/tag_changes", FingerprintProfile.TagChangeController, only: [:index]
+      resources "/source_changes", FingerprintProfile.SourceChangeController, only: [:index]
+    end
 
     scope "/admin", Admin, as: :admin do
       resources "/reports", ReportController, only: [:index, :show] do

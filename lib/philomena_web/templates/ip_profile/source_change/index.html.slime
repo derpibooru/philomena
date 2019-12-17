@@ -1,0 +1,8 @@
+h1
+  ' Source changes by
+  = @ip
+
+- route = fn p -> Routes.ip_profile_source_change_path(@conn, :index, to_string(@ip), p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
+
+= render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination
