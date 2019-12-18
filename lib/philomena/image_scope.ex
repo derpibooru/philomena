@@ -4,6 +4,8 @@ defmodule Philomena.ImageScope do
     |> scope(conn, "q", :q)
     |> scope(conn, "sf", :sf)
     |> scope(conn, "sd", :sd)
+    |> scope(conn, "del", :del)
+    |> scope(conn, "hidden", :hidden)
   end
 
   defp scope(list, conn, key, key_atom) do

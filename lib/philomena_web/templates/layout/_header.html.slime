@@ -11,15 +11,18 @@ header.header
       a.header__link.hide-mobile href="/images/new" title="Upload"
         i.fa.fa-upload
 
-    form.header__search.flex.flex--no-wrap.flex--centered action="/search" method="get"
-      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=(assigns[:search_query] || @conn.params["q"]) placeholder="Search" autocapitalize="none"
+    = form_for @conn, Routes.search_path(@conn, :index), [method: "get", class: "header__search flex flex--no-wrap flex--centered"], fn f ->
+      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=@conn.params["q"] placeholder="Search" autocapitalize="none"
 
       = if present?(@conn.params["sf"]) do
         input type="hidden" name="sf" value=@conn.params["sf"]
       = if present?(@conn.params["sd"]) do
         input type="hidden" name="sd" value=@conn.params["sd"]
 
-      button.header__search__button type="submit" title='Search'
+      = if hides_images?(@conn) do
+        = select f, :del, [{"-D", ""}, {"+D", 1}, {"DO", "only"}], name: "del", class: "input header__input", autocomplete: "off"
+
+      button.header__search__button type="submit" title="Search"
         i.fa-embedded--search
       a.header__search__button href="/search/reverse" title="Search using an image"
         i.fa-embedded--camera

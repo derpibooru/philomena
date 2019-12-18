@@ -171,6 +171,19 @@ defmodule PhilomenaWeb.ImageView do
   def scaled_value(%{scale_large_images: false}), do: "false"
   def scaled_value(_user), do: "true"
 
+  def hides_images?(conn), do: can?(conn, :hide, %Philomena.Images.Image{})
+
+  def hidden_toggle(%{assigns: %{current_user: nil}}, _route, _params), do: nil
+  def hidden_toggle(%{assigns: %{current_user: user}} = conn, route, params) do
+    render PhilomenaWeb.ImageView, "_hidden_toggle.html", route: route, params: params, conn: conn
+  end
+
+  def deleted_toggle(conn, route, params) do
+    if hides_images?(conn) do
+      render PhilomenaWeb.ImageView, "_deleted_toggle.html", route: route, params: params, conn: conn
+    end
+  end
+
   defp thumb_format("svg", _name), do: "png"
   defp thumb_format(_, :rendered), do: "png"
   defp thumb_format(format, _name), do: format

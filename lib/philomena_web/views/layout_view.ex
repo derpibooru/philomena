@@ -83,6 +83,9 @@ defmodule PhilomenaWeb.LayoutView do
   def opengraph?(conn),
     do: !is_nil(conn.assigns[:image]) and conn.assigns.image.__meta__.state == :loaded and is_list(conn.assigns.image.tags)
 
+  def hides_images?(conn),
+    do: can?(conn, :hide, %Philomena.Images.Image{})
+
   def manages_site_notices?(conn),
     do: can?(conn, :index, Philomena.SiteNotices.SiteNotice)
 

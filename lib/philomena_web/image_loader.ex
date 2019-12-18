@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.ImageLoader do
 
     user    = conn.assigns.current_user
     filter  = conn.assigns.compiled_filter
-    filters = create_filters(user, filter)
+    filters = create_filters(conn, user, filter)
 
     records =
       Image.search_records(
@@ -50,18 +50,42 @@ defmodule PhilomenaWeb.ImageLoader do
     {records, tags}
   end
 
-  defp create_filters(user, filter) do
+  defp create_filters(conn, user, filter) do
+    show_hidden? = Canada.Can.can?(user, :hide, %Image{})
+    del = conn.params["del"]
+    hidden = conn.params["hidden"]
+
     [
-      filter,
-      %{term: %{hidden_from_users: true}}
+      filter
     ]
-    |> maybe_custom_hide(user)
+    |> maybe_show_deleted(show_hidden?, del)
+    |> maybe_custom_hide(user, hidden)
   end
 
-  defp maybe_custom_hide(filters, %{id: id}),
+  # Allow moderators to index hidden images
+
+  defp maybe_show_deleted(filters, false, _param),
+    do: [%{term: %{hidden_from_users: true}} | filters]
+
+  defp maybe_show_deleted(filters, true, "1"),
+    do: filters
+
+  defp maybe_show_deleted(filters, true, "only"),
+    do: [%{term: %{hidden_from_users: false}} | filters]
+
+  defp maybe_show_deleted(filters, true, _param),
+    do: [%{term: %{hidden_from_users: true}} | filters]
+
+  # Allow users to reverse the effect of hiding images,
+  # if desired
+
+  defp maybe_custom_hide(filters, %{id: id}, "1"),
+    do: filters
+
+  defp maybe_custom_hide(filters, %{id: id}, _param),
     do: [%{term: %{hidden_by_user_ids: id}} | filters]
 
-  defp maybe_custom_hide(filters, _user),
+  defp maybe_custom_hide(filters, _user, _param),
     do: filters
 
   # TODO: the search parser should try to optimize queries

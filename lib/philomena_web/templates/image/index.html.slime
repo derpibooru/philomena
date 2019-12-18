@@ -16,6 +16,8 @@ elixir:
     = pagination
 
     .flex__right
+      = hidden_toggle @conn, route, params
+      = deleted_toggle @conn, route, params
       = quick_tag @conn
 
   = info_row @conn, tags
