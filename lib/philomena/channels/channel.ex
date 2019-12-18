@@ -30,6 +30,8 @@ defmodule Philomena.Channels.Channel do
     field :channel_image, :string
     field :remote_stream_id, :integer
     field :thumbnail_url, :string, default: ""
+
+    timestamps(inserted_at: :created_at)
   end
 
   @doc false

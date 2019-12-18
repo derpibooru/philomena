@@ -16,6 +16,7 @@ defmodule Philomena.Application do
       # {Philomena.Worker, arg},
       Philomena.Servers.ImageProcessor,
       Philomena.Servers.UserLinkUpdater,
+      Philomena.Servers.PicartoChannelUpdater,
       Pow.Store.Backend.MnesiaCache,
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)}
     ]
