@@ -1,0 +1,3 @@
+h1 Editing Channel
+
+= render PhilomenaWeb.ChannelView, "_form.html", changeset: @changeset, action: Routes.channel_path(@conn, :update, @channel), conn: @conn

@@ -1,0 +1,3 @@
+h1 Adding Channel
+
+= render PhilomenaWeb.ChannelView, "_form.html", changeset: @changeset, action: Routes.channel_path(@conn, :new), conn: @conn

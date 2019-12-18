@@ -7,6 +7,7 @@ h1 Livestreams
   .field
     = text_field_tag :cq, params[:cq], class: 'input hform__text', placeholder: 'Search channels'
     = submit_tag 'Search', class: 'hform__button button'
+
 .block
   .block__header
     = pagination
@@ -19,7 +20,9 @@ h1 Livestreams
     = pagination
 
 br
-.clearfix &nbsp;
+= if can?(@conn, :create, Philomena.Channels.Channel) do
+  = link "New Channel", to: Routes.channel_path(@conn, :new)
+
 h2 FAQ
 p
   strong> Q: Do you host streams?

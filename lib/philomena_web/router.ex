@@ -260,6 +260,7 @@ defmodule PhilomenaWeb.Router do
     end
 
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
+    resources "/channels", ChannelController, only: [:new, :create, :edit, :update]
   end
 
   scope "/", PhilomenaWeb do

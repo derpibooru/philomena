@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.ChannelController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_resource, model: Channel
+  plug :load_and_authorize_resource, model: Channel, only: [:show, :new, :create, :edit, :update]
 
   def index(conn, _params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
@@ -30,6 +30,40 @@ defmodule PhilomenaWeb.ChannelController do
     if user, do: Channels.clear_notification(channel, user)
 
     redirect(conn, external: url(channel))
+  end
+
+  def new(conn, _params) do
+    changeset = Channels.change_channel(%Channel{})
+    render(conn, "new.html", title: "New Channel", changeset: changeset)
+  end
+
+  def create(conn, %{"channel" => channel_params}) do
+    case Channels.create_channel(channel_params) do
+      {:ok, _channel} ->
+        conn
+        |> put_flash(:info, "Channel created successfully.")
+        |> redirect(to: Routes.channel_path(conn, :index))
+
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
+    end
+  end
+
+  def edit(conn, _params) do
+    changeset = Channels.change_channel(conn.assigns.channel)
+    render(conn, "edit.html", title: "Editing Channel", changeset: changeset)
+  end
+
+  def update(conn, %{"channel" => channel_params}) do
+    case Channels.update_channel(conn.assigns.channel, channel_params) do
+      {:ok, _channel} ->
+        conn
+        |> put_flash(:info, "Channel updated successfully.")
+        |> redirect(to: Routes.channel_path(conn, :index))
+
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset)
+    end
   end
 
   defp maybe_show_nsfw(query, true), do: query

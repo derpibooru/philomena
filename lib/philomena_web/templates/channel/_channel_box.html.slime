@@ -28,4 +28,9 @@
   - else
     .media-box__header.media-box__header--channel No artist tag
 
+  = if can?(@conn, :edit, @channel) do
+    a href=Routes.channel_path(@conn, :edit, @channel) class=link_class
+      i.fas.fa-fw.fa-edit>
+      ' Edit
+
   = render PhilomenaWeb.Channel.SubscriptionView, "_subscription.html", conn: @conn, watching: @subscriptions[@channel.id], channel: @channel
