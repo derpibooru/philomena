@@ -38,11 +38,11 @@ p
     => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: @report.user.name), class: "button button--link"
 
   = if @report.open do
-    => link "Close", to: "#", class: "button", data: [method: "post"]
+    => link "Close", to: Routes.admin_report_close_path(@conn, :create, @report), class: "button", data: [method: "post"]
 
     = if current?(@report.admin, @conn.assigns.current_user) do
-      => link "Release", to: "#", class: "button", data: [method: "delete"]
+      => link "Release", to: Routes.admin_report_claim_path(@conn, :delete, @report), class: "button", data: [method: "delete"]
     - else
-      => link "Claim", to: "#", class: "button", data: [method: "post"]
+      => link "Claim", to: Routes.admin_report_claim_path(@conn, :create, @report), class: "button", data: [method: "post"]
 
 = link "Back", to: Routes.admin_report_path(@conn, :index), class: "button button-link"
