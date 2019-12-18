@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.LoadCommentPlug do
 
     Comment
     |> where(image_id: ^image.id, id: ^to_string(conn.params[param]))
-    |> preload([:image, user: [awards: :badge]])
+    |> preload([:image, :deleted_by, user: [awards: :badge]])
     |> Repo.one()
     |> maybe_hide_comment(conn, show_hidden)
   end
