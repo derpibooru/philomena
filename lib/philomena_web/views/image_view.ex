@@ -174,7 +174,7 @@ defmodule PhilomenaWeb.ImageView do
   def hides_images?(conn), do: can?(conn, :hide, %Philomena.Images.Image{})
 
   def hidden_toggle(%{assigns: %{current_user: nil}}, _route, _params), do: nil
-  def hidden_toggle(%{assigns: %{current_user: user}} = conn, route, params) do
+  def hidden_toggle(conn, route, params) do
     render PhilomenaWeb.ImageView, "_hidden_toggle.html", route: route, params: params, conn: conn
   end
 

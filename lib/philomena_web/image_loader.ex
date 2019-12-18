@@ -79,7 +79,7 @@ defmodule PhilomenaWeb.ImageLoader do
   # Allow users to reverse the effect of hiding images,
   # if desired
 
-  defp maybe_custom_hide(filters, %{id: id}, "1"),
+  defp maybe_custom_hide(filters, %{id: _id}, "1"),
     do: filters
 
   defp maybe_custom_hide(filters, %{id: id}, _param),
