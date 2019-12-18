@@ -23,7 +23,7 @@ defmodule Philomena.Scrapers.Deviantart do
   # artists give you.
   def scrape(_uri, url) do
     url
-    |> Philomena.Http.get!([], follow_redirect: true, max_redirect: 2)
+    |> follow_redirect(2)
     |> extract_data!()
     |> try_intermediary_hires!()
     |> try_new_hires!()
@@ -132,4 +132,21 @@ defmodule Philomena.Scrapers.Deviantart do
         data
     end
   end
+
+  # Workaround for benoitc/hackney#273
+  defp follow_redirect(_url, 0), do: nil
+  defp follow_redirect(url, max_times) do
+    case Philomena.Http.get!(url) do
+      %HTTPoison.Response{headers: headers, status_code: code} when code in [301, 302] ->
+        location = Enum.find_value(headers, &location_header/1)
+        follow_redirect(location, max_times - 1)
+
+      response ->
+        response
+    end
+  end
+
+  defp location_header({"Location", location}), do: location
+  defp location_header({"location", location}), do: location
+  defp location_header(_), do: nil
 end

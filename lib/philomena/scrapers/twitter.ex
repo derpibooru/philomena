@@ -17,7 +17,7 @@ defmodule Philomena.Scrapers.Twitter do
   defp extract_data(tweet) do
     images =
       tweet["entities"]["media"]
-      |> Enum.map(&%{url: &1["media_url_https"], camo_url: Camo.Image.image_url(&1["media_url_https"])})
+      |> Enum.map(&%{url: &1["media_url_https"] <> ":orig", camo_url: Camo.Image.image_url(&1["media_url_https"])})
 
     %{
       source_url: tweet["url"],

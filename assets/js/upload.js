@@ -20,6 +20,7 @@ function setupImageUpload() {
   const [ fileField, remoteUrl, scraperError ] = $$('.js-scraper', form);
   const [ sourceEl, tagsEl, descrEl ] = $$('.js-image-input', form);
   const fetchButton = $('#js-scraper-preview');
+  if (!fetchButton) return;
 
   function showImages(images) {
     clearEl(imgPreviews);

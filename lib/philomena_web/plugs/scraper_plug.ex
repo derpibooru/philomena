@@ -2,7 +2,13 @@ defmodule PhilomenaWeb.ScraperPlug do
   def init(opts), do: opts
 
   def call(conn, opts) do
+    params_name = Keyword.get(opts, :params_name, "image")
+    params_key = Keyword.get(opts, :params_key, "image")
+
     case conn.params do
+      %{^params_name => %{^params_key => %Plug.Upload{}}} ->
+        conn
+
       %{"scraper_cache" => url} ->
         Philomena.Http.get!(url, [], max_body_length: 30_000_000)
         |> maybe_fixup_params(opts, conn)
