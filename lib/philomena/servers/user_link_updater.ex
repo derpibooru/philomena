@@ -34,7 +34,7 @@ defmodule Philomena.Servers.UserLinkUpdater do
 
   defp automatic_verify(user_link) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    diff = DateTime.diff(now, user_link.created_at, :second)
+    diff = DateTime.diff(now, DateTime.from_naive!(user_link.created_at, "Etc/UTC"), :second)
 
     # Set next check time according to how long link has been pending
 
