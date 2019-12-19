@@ -34,10 +34,14 @@ h1 Users
 
             = cond do
               - user.otp_required_for_login ->
-                span.banner__2fa.success 2FA
+                span.banner__2fa.success
+                  i.fas.fa-check>
+                  ' 2FA
 
               - user.role != "user" and !user.otp_required_for_login ->
-                span.banner__2fa.danger 1FA
+                span.banner__2fa.danger 
+                  i.fas.fa-times>
+                  ' 2FA
 
               - true ->
 
