@@ -8,8 +8,8 @@ meta name="robots" content="noindex, nofollow"
   - filtered = ImageView.filter_or_spoiler_hits?(@conn, image) or not image.thumbnails_generated
   - description = "##{image.id} - #{image.tag_list_cache} - Derpibooru"
 
-  meta name="description" content=image.tag_list_cache
   meta name="keywords" content=image.tag_list_cache
+  meta name="og:description" content=description
   meta name="og:title" content=description
   meta name="og:url" content=Routes.image_url(@conn, :show, image)
 
