@@ -25,6 +25,7 @@ defmodule PhilomenaWeb.ProfileController do
   plug :set_mod_notes
 
   def show(conn, _params) do
+    current_filter = conn.assigns.current_filter
     current_user = conn.assigns.current_user
     user = conn.assigns.user
 
@@ -68,6 +69,9 @@ defmodule PhilomenaWeb.ProfileController do
                 %{term: %{user_id: user.id}},
                 %{term: %{anonymous: false}},
                 %{term: %{hidden_from_users: false}}
+              ],
+              must_not: [
+                %{terms: %{image_tag_ids: current_filter.hidden_tag_ids}}
               ]
             }
           },
