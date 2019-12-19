@@ -1,5 +1,5 @@
 meta name="generator" content="philomena"
-meta name="theme-color" 
+meta name="theme-color" content="#618fc3"
 meta name="format-detection" content="telephone=no"
 meta name="robots" content="noindex, nofollow"
 
@@ -9,7 +9,7 @@ meta name="robots" content="noindex, nofollow"
   - description = "##{image.id} - #{image.tag_list_cache} - Derpibooru"
 
   meta name="keywords" content=image.tag_list_cache
-  meta property="og:description" content=description
+  meta name="description" content=description
   meta property="og:title" content=description
   meta property="og:url" content=Routes.image_url(@conn, :show, image)
 
