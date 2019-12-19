@@ -9,9 +9,9 @@ meta name="robots" content="noindex, nofollow"
   - description = "##{image.id} - #{image.tag_list_cache} - Derpibooru"
 
   meta name="keywords" content=image.tag_list_cache
-  meta name="og:description" content=description
-  meta name="og:title" content=description
-  meta name="og:url" content=Routes.image_url(@conn, :show, image)
+  meta property="og:description" content=description
+  meta property="og:title" content=description
+  meta property="og:url" content=Routes.image_url(@conn, :show, image)
 
   = for tag <- artist_tags(image.tags) do
     meta property="dc:creator" content=tag.name_in_namespace
@@ -23,20 +23,20 @@ meta name="robots" content="noindex, nofollow"
 
   = cond do
     - image.image_mime_type == "video/webm" and not filtered ->
-      meta name="og:type" content="video.other"
-      meta name="og:image" content=ImageView.thumb_url(image, false, :rendered)
-      meta name="og:video" content=ImageView.thumb_url(image, false, :large)
+      meta property="og:type" content="video.other"
+      meta property="og:image" content=ImageView.thumb_url(image, false, :rendered)
+      meta property="og:video" content=ImageView.thumb_url(image, false, :large)
 
     - image.image_mime_type == "image/svg+xml" and not filtered ->
-      meta name="og:type" content="website"
-      meta name="og:image" content=ImageView.thumb_url(image, false, :rendered)
+      meta property="og:type" content="website"
+      meta property="og:image" content=ImageView.thumb_url(image, false, :rendered)
 
     - not filtered ->
-      meta name="og:type" content="website"
-      meta name="og:image" content=ImageView.thumb_url(image, false, :large)
+      meta property="og:type" content="website"
+      meta property="og:image" content=ImageView.thumb_url(image, false, :large)
 
     - true ->
-      meta name="og:type" content="website"
+      meta property="og:type" content="website"
 
 - else
   meta name="description" content="Derpibooru is a linear imagebooru which lets you share, find and discover new art and media surrounding the show My Little Pony: Friendship is Magic"
