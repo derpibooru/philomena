@@ -1,5 +1,8 @@
 defmodule PhilomenaWeb.Admin.BadgeView do
   use PhilomenaWeb, :view
 
-  import PhilomenaWeb.ProfileView, only: [badge_image: 2]
+  alias PhilomenaWeb.ProfileView
+
+  defp badge_image(badge, options),
+    do: ProfileView.badge_image(badge, options)
 end

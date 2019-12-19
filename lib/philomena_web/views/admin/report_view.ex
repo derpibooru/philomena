@@ -4,8 +4,23 @@ defmodule PhilomenaWeb.Admin.ReportView do
   alias Philomena.Images.Image
   alias Philomena.Comments.Comment
 
-  import PhilomenaWeb.ReportView, only: [link_to_reported_thing: 2, report_row_class: 1, pretty_state: 1]
-  import PhilomenaWeb.ProfileView, only: [user_abbrv: 2, current?: 2]
+  alias PhilomenaWeb.ReportView
+  alias PhilomenaWeb.ProfileView
+
+  defp link_to_reported_thing(conn, reportable),
+    do: ReportView.link_to_reported_thing(conn, reportable)
+
+  defp report_row_class(report),
+    do: ReportView.report_row_class(report)
+
+  defp pretty_state(report),
+    do: ReportView.pretty_state(report)
+
+  defp user_abbrv(conn, user),
+    do: ProfileView.user_abbrv(conn, user)
+
+  defp current?(current_user, user),
+    do: ProfileView.current?(current_user, user)
 
   def truncate(<<string::binary-size(50), _rest::binary>>), do: string <> "..."
   def truncate(string), do: string

@@ -1,5 +1,4 @@
 defmodule PhilomenaWeb.AppView do
-  alias PhilomenaWeb.Router.Helpers, as: Routes
   use Phoenix.HTML
 
   @time_strings %{
@@ -127,8 +126,8 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def link_to_ip(_conn, nil), do: content_tag(:code, "null")
-  def link_to_ip(conn, ip) do
-    link(to: Routes.ip_profile_path(conn, :show, to_string(ip))) do
+  def link_to_ip(_conn, ip) do
+    link(to: "/ip_profiles/#{ip}") do
       [
         content_tag(:i, "", class: "fas fa-network-wired"),
         " ",
@@ -138,8 +137,8 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def link_to_fingerprint(_conn, nil), do: content_tag(:code, "null")
-  def link_to_fingerprint(conn, fp) do
-    link(to: Routes.fingerprint_profile_path(conn, :show, fp)) do
+  def link_to_fingerprint(_conn, fp) do
+    link(to: "/fingerprint_profiles/#{fp}") do
       [
         content_tag(:i, "", class: "fas fa-desktop"),
         " ",

@@ -11,6 +11,9 @@ defmodule Philomena.Textile.Renderer do
     image_transform: &Camo.Image.image_url/1
   }
 
+  # Kill bogus compile time dependency on ImageView
+  @image_view Module.concat(["PhilomenaWeb.ImageView"])
+
   def render_one(post, conn) do
     hd(render_collection([post], conn))
   end
@@ -79,15 +82,15 @@ defmodule Philomena.Textile.Renderer do
           match
 
         [image, "p"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :medium, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :medium, conn: conn)
           |> safe_to_string()
 
         [image, "t"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :small, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :small, conn: conn)
           |> safe_to_string()
 
         [image, "s"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :thumb_small, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :thumb_small, conn: conn)
           |> safe_to_string()
 
         [image] ->

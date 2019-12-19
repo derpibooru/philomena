@@ -1,7 +1,10 @@
 defmodule PhilomenaWeb.Admin.AdvertView do
   use PhilomenaWeb, :view
 
-  import PhilomenaWeb.AdvertView, only: [advert_image_url: 1]
+  alias PhilomenaWeb.AdvertView
+
+  defp advert_image_url(advert),
+    do: AdvertView.advert_image_url(advert)
 
   def time_column_class(other_time) do
     now = DateTime.utc_now()

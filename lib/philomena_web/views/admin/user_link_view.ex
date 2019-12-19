@@ -1,7 +1,10 @@
 defmodule PhilomenaWeb.Admin.UserLinkView do
   use PhilomenaWeb, :view
 
-  import Philomena.Tags.Tag, only: [display_order: 1]
+  alias Philomena.Tags.Tag
+
+  defp display_order(tags),
+    do: Tag.display_order(tags)
 
   def link_state_class(%{aasm_state: state}) when state in ["verified", "link_verified"], do: "success"
   def link_state_class(%{aasm_state: state}) when state in ["unverified", "rejected"], do: "danger"
