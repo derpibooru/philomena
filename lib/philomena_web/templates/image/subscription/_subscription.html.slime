@@ -9,15 +9,12 @@ elixir:
   span#js-subscription-target
     a.js-subscription-link href=watch_path class=watch_class data-remote="true" data-method="post"
       i.fa.fa-bell>
-      span.hide-mobile
-        ' Subscribe
+      ' Subscribe
 
     a.js-subscription-link href=unwatch_path class=unwatch_class data-remote="true" data-method="delete"
       i.fa.fa-bell-slash>
-      span.hide-mobile
-        ' Unsubscribe
+      ' Unsubscribe
 - else
     a href=Routes.pow_session_path(@conn, :new)
       i.fa.fa-bell>
-      span.hide-mobile
-        ' Subscribe
+      ' Subscribe

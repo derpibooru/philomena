@@ -155,16 +155,20 @@ defmodule Philomena.Galleries do
   def remove_image_from_gallery(gallery, image) do
     Multi.new()
     |> Multi.run(:interaction, fn repo, %{} ->
-      %Interaction{gallery_id: gallery.id, image_id: image.id}
-      |> repo.delete()
+      {count, nil} =
+        Interaction
+        |> where(gallery_id: ^gallery.id, image_id: ^image.id)
+        |> repo.delete_all()
+
+      {:ok, count}
     end)
-    |> Multi.run(:gallery, fn repo, %{} ->
+    |> Multi.run(:gallery, fn repo, %{interaction: interaction_count} ->
       now = DateTime.utc_now()
 
       {count, nil} =
         Gallery
         |> where(id: ^gallery.id)
-        |> repo.update_all(inc: [image_count: -1], set: [updated_at: now])
+        |> repo.update_all(inc: [image_count: -interaction_count], set: [updated_at: now])
 
       {:ok, count}
     end)

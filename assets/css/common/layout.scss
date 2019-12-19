@@ -241,7 +241,7 @@ nav {
     width: 100%;
 
     /* Do not use a descendant selector here as it affects dropdowns */
-    > a {
+    > a, span {
       text-align: center;
       flex: 1 1 auto;
       padding: 0 1vw; /* Having smaller padding makes it harder to click the right link on small mobile screens */
