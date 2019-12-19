@@ -52,7 +52,7 @@
         tr
           = cond do
             - same_res?(report) ->
-              td.sucecss Same resolution
+              td.success Same resolution
 
             - higher_res?(report) ->
               td.warning Target resolution better
