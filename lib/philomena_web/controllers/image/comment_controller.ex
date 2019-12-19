@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Image.CommentController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.CommentLoader
   alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
   alias Philomena.UserStatistics
   alias Philomena.Comments
@@ -20,36 +21,15 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug :authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
 
   def index(conn, %{"comment_id" => comment_id}) do
-    comment =
-      Comment
-      |> where(image_id: ^conn.assigns.image.id)
-      |> where(id: ^comment_id)
-      |> Repo.one!()
+    page = CommentLoader.find_page(conn, conn.assigns.image, comment_id)
 
-    offset =
-      Comment
-      |> where(image_id: ^conn.assigns.image.id)
-      |> where([c], c.created_at > ^comment.created_at)
-      |> Repo.aggregate(:count, :id)
-
-    %{page_size: page_size} = conn.assigns.pagination
-    page = div(offset, page_size)
-
-    conn
-    |> redirect(to: Routes.image_comment_path(conn, :index, conn.assigns.image, page: page))
+    redirect(conn, to: Routes.image_comment_path(conn, :index, conn.assigns.image, page: page))
   end
 
   def index(conn, _params) do
-    comments =
-      Comment
-      |> where(image_id: ^conn.assigns.image.id)
-      |> order_by(desc: :created_at)
-      |> preload([:image, user: [awards: :badge]])
-      |> Repo.paginate(conn.assigns.comment_scrivener)
+    comments = CommentLoader.load_comments(conn, conn.assigns.image)
 
-    rendered =
-      comments.entries
-      |> Renderer.render_collection(conn)
+    rendered = Renderer.render_collection(comments.entries, conn)
 
     comments =
       %{comments | entries: Enum.zip(comments.entries, rendered)}

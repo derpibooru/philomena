@@ -60,6 +60,10 @@ h1 Content Settings
             => checkbox f, :hide_vote_counts, class: "checkbox"
             .fieldlabel: i Hide upvote and downvote counts on images, showing only the overall score
           .field
+            => label f, :comments_newest_first, "Newest comments first"
+            => checkbox f, :comments_newest_first
+            .fieldlabel: i Display the newest comments at the top of the page.
+          .field
             => label f, :images_per_page
             => number_input f, :images_per_page, min: 15, max: 50, step: 1, class: "input"
             = error_tag f, :images_per_page

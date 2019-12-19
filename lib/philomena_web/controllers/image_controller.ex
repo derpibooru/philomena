@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias PhilomenaWeb.CommentLoader
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Images, Images.Image, Comments.Comment, Galleries.Gallery, Galleries.Interaction, Textile.Renderer}
   alias Philomena.Servers.ImageProcessor
@@ -38,17 +39,9 @@ defmodule PhilomenaWeb.ImageController do
     # Update the notification ticker in the header
     conn = NotificationCountPlug.call(conn)
 
-    comments =
-      Comment
-      |> where(image_id: ^image.id)
-      |> preload([:image, :deleted_by, user: [awards: :badge]])
-      |> order_by(desc: :created_at)
-      |> limit(25)
-      |> Repo.paginate(conn.assigns.comment_scrivener)
+    comments = CommentLoader.load_comments(conn, image)
 
-    rendered =
-      comments.entries
-      |> Renderer.render_collection(conn)
+    rendered = Renderer.render_collection(comments.entries, conn)
 
     comments =
       %{comments | entries: Enum.zip(comments.entries, rendered)}

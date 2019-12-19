@@ -201,7 +201,7 @@ defmodule Philomena.Users.User do
       :fancy_tag_field_on_edit, :anonymous_by_default, :scale_large_images,
       :comments_per_page, :theme, :watched_images_query_str,
       :no_spoilered_in_watched, :watched_images_exclude_str,
-      :use_centered_layout, :hide_vote_counts
+      :use_centered_layout, :hide_vote_counts, :comments_newest_first
     ])
     |> validate_required([
       :images_per_page, :fancy_tag_field_on_upload, :fancy_tag_field_on_edit,

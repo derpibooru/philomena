@@ -33,14 +33,14 @@ defmodule PhilomenaWeb.ProfileController do
       ImageLoader.search_string(
         conn,
         "uploader_id:#{user.id}",
-        pagination: %{page_number: 1, page_size: 6}
+        pagination: %{page_number: 1, page_size: 8}
       )
 
     {:ok, {recent_faves, _tags}} =
       ImageLoader.search_string(
         conn,
         "faved_by_id:#{user.id}",
-        pagination: %{page_number: 1, page_size: 6}
+        pagination: %{page_number: 1, page_size: 8}
       )
 
     tags = tags(conn.assigns.user.public_links)
@@ -195,7 +195,7 @@ defmodule PhilomenaWeb.ProfileController do
       ImageLoader.query(
         conn,
         %{terms: %{tag_ids: Enum.map(tags, & &1.id)}},
-        pagination: %{page_number: 1, page_size: 6}
+        pagination: %{page_number: 1, page_size: 8}
       )
 
     images
