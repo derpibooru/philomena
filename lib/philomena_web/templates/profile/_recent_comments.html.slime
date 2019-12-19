@@ -5,5 +5,5 @@
       = link "View all", to: Routes.comment_path(@conn, :index, cq: "user_id:#{@user.id}")
 
     .block__content
-      = for {body, comment} <- @comments do
+      = for {body, comment} <- @comments, can?(@conn, :show, comment.image) do
         = render PhilomenaWeb.CommentView, "_comment_with_image.html", comment: comment, body: body, conn: @conn
