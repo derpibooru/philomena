@@ -141,6 +141,8 @@ defmodule Philomena.Filters do
         [key: name, value: id]
       end
     )
+    |> Enum.to_list()
+    |> Enum.reverse()
   end
 
   def hide_tag(filter, tag) do

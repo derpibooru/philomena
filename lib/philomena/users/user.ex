@@ -184,7 +184,7 @@ defmodule Philomena.Users.User do
 
     changeset
     |> put_change(:current_filter_id, filter.id)
-    |> put_change(:recent_filter_ids, Enum.take([filter.id | user.recent_filter_ids], 10))
+    |> put_change(:recent_filter_ids, Enum.take(Enum.uniq([filter.id | user.recent_filter_ids]), 10))
   end
 
   def spoiler_type_changeset(user, attrs) do
