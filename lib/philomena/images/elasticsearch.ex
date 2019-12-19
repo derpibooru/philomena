@@ -24,6 +24,7 @@ defmodule Philomena.Images.Elasticsearch do
             downvoter_ids: %{type: "keyword"},
             downvoters: %{type: "keyword"},
             downvotes: %{type: "integer"},
+            duplicate_id: %{type: "integer"},
             faves: %{type: "integer"},
             favourited_by_user_ids: %{type: "keyword"},
             favourited_by_users: %{type: "keyword"},
@@ -118,6 +119,7 @@ defmodule Philomena.Images.Elasticsearch do
       upvoter_ids: image.upvoters |> Enum.map(& &1.id),
       downvoter_ids: image.downvoters |> Enum.map(& &1.id),
       deleted_by_user_id: image.deleter_id,
+      duplicate_id: image.duplicate_id,
       galleries:
         image.gallery_interactions |> Enum.map(&%{id: &1.gallery_id, position: &1.position}),
       namespaced_tags: %{

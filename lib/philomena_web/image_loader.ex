@@ -73,6 +73,9 @@ defmodule PhilomenaWeb.ImageLoader do
   defp maybe_show_deleted(filters, true, "only"),
     do: [%{term: %{hidden_from_users: false}} | filters]
 
+  defp maybe_show_deleted(filters, true, "deleted"),
+    do: [%{term: %{hidden_from_users: false}},  %{exists: %{field: :duplicate_id}} | filters]
+
   defp maybe_show_deleted(filters, true, _param),
     do: [%{term: %{hidden_from_users: true}} | filters]
 
