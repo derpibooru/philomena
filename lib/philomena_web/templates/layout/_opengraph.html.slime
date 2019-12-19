@@ -5,11 +5,12 @@ meta name="robots" content="noindex, nofollow"
 
 = if opengraph?(@conn) do
   - image = @conn.assigns.image
-  - filtered = ImageView.filter_or_spoiler_hits?(@conn, image)
+  - filtered = ImageView.filter_or_spoiler_hits?(@conn, image) or not image.thumbnails_generated
+  - description = "##{image.id} - #{image.tag_list_cache} - Derpibooru"
 
-  meta name="description" content="##{image.id} - Derpibooru"
+  meta name="description" content=image.tag_list_cache
   meta name="keywords" content=image.tag_list_cache
-  meta name="og:title" content="##{image.id} - Derpibooru"
+  meta name="og:title" content=description
   meta name="og:url" content=Routes.image_url(@conn, :show, image)
 
   = for tag <- artist_tags(image.tags) do
@@ -21,18 +22,18 @@ meta name="robots" content="noindex, nofollow"
   link rel="alternate" type="application/json+oembed" href=Routes.api_json_oembed_url(@conn, :index, url: Routes.image_path(@conn, :show, image)) title="oEmbed JSON Profile"
 
   = cond do
-    - image.image_mime_type == "video/webm" and !filtered ->
+    - image.image_mime_type == "video/webm" and not filtered ->
       meta name="og:type" content="video.other"
       meta name="og:image" content=ImageView.thumb_url(image, false, :rendered)
-      meta name="og:video" content=ImageView.thumb_url(image, false, :full)
+      meta name="og:video" content=ImageView.thumb_url(image, false, :large)
 
-    - image.image_mime_type == "image/svg+xml" and !filtered ->
+    - image.image_mime_type == "image/svg+xml" and not filtered ->
       meta name="og:type" content="website"
       meta name="og:image" content=ImageView.thumb_url(image, false, :rendered)
 
-    - !filtered ->
+    - not filtered ->
       meta name="og:type" content="website"
-      meta name="og:image" content=ImageView.thumb_url(image, false, :full)
+      meta name="og:image" content=ImageView.thumb_url(image, false, :large)
 
     - true ->
       meta name="og:type" content="website"
