@@ -6,8 +6,6 @@ defmodule PhilomenaWeb.Image.CommentController do
   alias Philomena.UserStatistics
   alias Philomena.Comments
   alias Philomena.Images
-  alias Philomena.Repo
-  import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
