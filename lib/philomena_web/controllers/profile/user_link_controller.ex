@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Profile.UserLinkController do
       {:ok, user_link} ->
         conn
         |> put_flash(:info, "Link submitted! Please put '#{user_link.verification_code}' on your linked webpage now.")
-        |> redirect(to: Routes.profile_user_link_path(conn, :show, conn.assigns.user_link, user_link))
+        |> redirect(to: Routes.profile_user_link_path(conn, :show, conn.assigns.user, user_link))
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
