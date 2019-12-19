@@ -79,15 +79,15 @@ defmodule Philomena.Textile.Renderer do
           match
 
         [image, "p"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :medium, conn: conn)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :medium, conn: conn)
           |> safe_to_string()
 
         [image, "t"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :small, conn: conn)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :small, conn: conn)
           |> safe_to_string()
 
         [image, "s"] ->
-          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_small, conn: conn)
+          Phoenix.View.render(PhilomenaWeb.ImageView, "_image_target.html", image: image, size: :thumb_small, conn: conn)
           |> safe_to_string()
 
         [image] ->

@@ -1,4 +1,6 @@
-= content_tag :div, [data: image_container_data(@conn, @image, :full), class: "image-show-container"] do
+- size = assigns[:size] || :full
+
+= content_tag :div, [data: image_container_data(@conn, @image, size), class: "image-show-container"] do
   .block.block--fixed.block--warning.block--no-margin.image-filtered.hidden
     strong
       = link("This image is blocked by your current filter - click here to display it anyway", to: "#", data: [click_unfilter: @image.id])
@@ -8,8 +10,22 @@
     =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
     ' .
 
-  #image_target.hidden.image-show data-scaled=scaled_value(@conn.assigns.current_user) data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height
-    = if @image.image_mime_type == "video/webm" do
-      video controls=true
-    - else
-      picture
+  = if size == :full do
+    #image_target.hidden.image-show data-scaled=scaled_value(@conn.assigns.current_user) data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height
+      = if @image.image_mime_type == "video/webm" do
+        video controls=true
+      - else
+        picture
+  - else
+    .image-show.hidden
+      a href=Routes.image_path(@conn, :show, @image)
+        span.imgspoiler
+          - thumb_url = thumb_url(@image, can?(@conn, :show, @image), size)
+
+          = if @image.image_mime_type == "video/webm" do
+            video data-image-id=@image.id autoplay="autoplay" loop="loop" muted="muted" playsinline="playsinline"
+              source src=thumb_url type="video/webm"
+              source src=String.replace(thumb_url, ".webm", ".mp4") type="video/mp4"
+          - else
+            picture data-image-id=@image.id
+              img src=thumb_url
