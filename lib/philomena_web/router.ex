@@ -80,7 +80,7 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/api/v1/rss", PhilomenaWeb.Api.Rss, as: :api_rss do
-    pipe_through [:accepts_rss, :protected, :api]
+    pipe_through [:accepts_rss, :api, :protected]
     resources "/watched", WatchedController, only: [:index]
   end
 
