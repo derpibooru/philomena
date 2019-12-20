@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
         |> put_flash(:info, "User was successfully banned.")
         |> redirect(to: Routes.admin_user_ban_path(conn, :index))
 
-      {:error, changeset} ->
+      {:error, :user_ban, changeset, _changes} ->
         render(conn, "new.html", changeset: changeset)
     end
   end
