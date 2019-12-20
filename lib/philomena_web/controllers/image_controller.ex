@@ -145,6 +145,13 @@ defmodule PhilomenaWeb.ImageController do
       |> preload([:tags, :deleter, user: [awards: :badge]])
       |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
+      |> case do
+        nil ->
+          {nil, nil, nil}
+
+        result ->
+          result
+      end
 
     cond do
       is_nil(image) ->
