@@ -21,6 +21,7 @@ defmodule Philomena.SiteNotices do
     now = DateTime.utc_now()
 
     SiteNotice
+    |> where(live: true)
     |> where([n], n.start_date < ^now and n.finish_date > ^now)
     |> order_by(desc: :start_date)
     |> Repo.all()
