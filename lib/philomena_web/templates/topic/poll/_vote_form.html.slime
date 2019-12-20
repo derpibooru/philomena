@@ -1,0 +1,24 @@
+= form_for :poll_vote, Routes.forum_topic_poll_vote_path(@conn, :create, @forum, @topic), [class: "poll-vote-form"], fn _f ->
+  h4.poll__header
+    ' Poll:
+    = @poll.title
+
+  .poll-form__options
+    elixir:
+      input_type = input_type(@poll)
+      input_name = input_name(@poll)
+      require_answer? = require_answer?(@poll)
+
+    = for option <- @poll.options do
+      label.poll-form__options__label
+        input.button--separate-right> type=input_type name=input_name value=option.id required=require_answer?
+        span = option.label
+
+  .poll-form__status
+    p
+      ' Voting ends
+      = pretty_time(@poll.active_until)
+
+  button.button.button--state-success>
+    i.fa.fa-check>
+    ' Vote

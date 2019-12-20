@@ -1,13 +1,19 @@
-= if @poll.hidden_from_users do
-  .walloftext
-  .block.block--fixed.block--warning
-    h1 This poll has been deleted
-    p
-      ' Reason:
-      strong
-        = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
+= cond do
+  - @poll.hidden_from_users ->
+    .walloftext
+    .block.block--fixed.block--warning
+      h1 This poll has been deleted
+      p
+        ' Reason:
+        strong
+          = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
 
-- else
-  .poll
-    .poll-area
-      = render PhilomenaWeb.Topic.PollView, "_results.html", poll: @poll, conn: @conn
+  - not @voted and not is_nil(@conn.assigns.current_user) ->
+    .poll
+      .poll-area
+        = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns
+
+  - true ->
+    .poll
+      .poll-area
+        = render PhilomenaWeb.Topic.PollView, "_results.html", assigns

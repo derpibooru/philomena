@@ -146,6 +146,7 @@ defmodule PhilomenaWeb.Router do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
           resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
         end
+        resources "/poll/votes", Topic.Poll.VoteController, as: :poll_vote, only: [:index, :create, :delete]
       end
 
       resources "/subscription", Forum.SubscriptionController, only: [:create, :delete], singleton: true

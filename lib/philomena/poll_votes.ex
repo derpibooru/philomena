@@ -4,22 +4,12 @@ defmodule Philomena.PollVotes do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Polls.Poll
   alias Philomena.PollVotes.PollVote
-
-  @doc """
-  Returns the list of poll_votes.
-
-  ## Examples
-
-      iex> list_poll_votes()
-      [%PollVote{}, ...]
-
-  """
-  def list_poll_votes do
-    Repo.all(PollVote)
-  end
+  alias Philomena.PollOptions.PollOption
 
   @doc """
   Gets a single poll_vote.
@@ -49,10 +39,70 @@ defmodule Philomena.PollVotes do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_poll_vote(attrs \\ %{}) do
-    %PollVote{}
-    |> PollVote.changeset(attrs)
-    |> Repo.insert()
+  def create_poll_votes(user, poll, attrs) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    poll_votes = filter_options(user, poll, now, attrs)
+
+    Multi.new()
+    |> Multi.run(:existing_votes, fn _repo, _changes ->
+      # Don't proceed if any votes exist
+      case voted?(poll, user) do
+        true   -> {:error, []}
+        _false -> {:ok, []}
+      end
+    end)
+    |> Multi.run(:new_votes, fn repo, _changes ->
+      {_count, votes} =
+        repo.insert_all(PollVote, poll_votes, returning: true)
+
+      {:ok, votes}
+    end)
+    |> Multi.run(:update_option_counts, fn repo, %{new_votes: new_votes} ->
+      option_ids = Enum.map(new_votes, & &1.poll_option_id)
+
+      {count, nil} =
+        PollOption
+        |> where([po], po.id in ^option_ids)
+        |> repo.update_all(inc: [vote_count: 1])
+
+      {:ok, count}
+    end)
+    |> Multi.run(:update_poll_votes_count, fn repo, %{new_votes: new_votes} ->
+      length = length(new_votes)
+
+      {count, nil} =
+        Poll
+        |> where(id: ^poll.id)
+        |> repo.update_all(inc: [total_votes: length])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
+  defp filter_options(user, poll, now, %{"option_ids" => options}) when is_list(options) do
+    # TODO: enforce integrity at the constraint level
+
+    votes =
+      options
+      |> Enum.map(&String.to_integer/1)
+      |> Enum.uniq()
+      |> Enum.map(&%{poll_option_id: &1, user_id: user.id, created_at: now})
+
+    case poll.vote_method do
+      "single" -> Enum.take(votes, 1)
+      _other   -> votes
+    end
+  end
+  defp filter_options(_user, _poll, _now, _attrs), do: []
+
+  def voted?(nil, _user), do: false
+  def voted?(_poll, nil), do: false
+  def voted?(%{id: poll_id}, %{id: user_id}) do
+    PollVote
+    |> join(:inner, [pv], _ in assoc(pv, :poll_option))
+    |> where([pv, po], po.poll_id == ^poll_id and pv.user_id == ^user_id)
+    |> Repo.exists?()
   end
 
   @doc """

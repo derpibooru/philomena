@@ -4,6 +4,7 @@ defmodule PhilomenaWeb.TopicController do
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
   alias Philomena.{Forums, Topics, Posts}
+  alias Philomena.PollVotes
   alias Philomena.Textile.Renderer
   alias Philomena.Repo
   import Ecto.Query
@@ -68,13 +69,16 @@ defmodule PhilomenaWeb.TopicController do
     watching =
       Topics.subscribed?(topic, conn.assigns.current_user)
 
+    voted =
+      PollVotes.voted?(topic.poll, conn.assigns.current_user)
+
     changeset =
       %Post{}
       |> Posts.change_post()
 
     title = "#{topic.title} - #{forum.name} - Forums"
 
-    render(conn, "show.html", title: title, posts: posts, changeset: changeset, watching: watching)
+    render(conn, "show.html", title: title, posts: posts, changeset: changeset, watching: watching, voted: voted)
   end
 
   def new(conn, _params) do

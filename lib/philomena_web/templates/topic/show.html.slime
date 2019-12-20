@@ -54,7 +54,7 @@ h1 = @topic.title
 = if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
   / Display the poll, if any
   = if @topic.poll do
-    = render PhilomenaWeb.Topic.PollView, "_display.html", poll: @topic.poll, conn: @conn
+    = render PhilomenaWeb.Topic.PollView, "_display.html", Map.put(assigns, :poll, @topic.poll)
 
   / The actual posts
   .posts-area
