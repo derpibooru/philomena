@@ -21,6 +21,8 @@ meta name="robots" content="noindex, nofollow"
 
   link rel="alternate" type="application/json+oembed" href=Routes.api_json_oembed_url(@conn, :index, url: Routes.image_path(@conn, :show, image)) title="oEmbed JSON Profile"
 
+  link rel="canonical" href=Routes.image_url(@conn, :show, image)
+
   = cond do
     - image.image_mime_type == "video/webm" and not filtered ->
       meta property="og:type" content="video.other"
