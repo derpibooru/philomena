@@ -43,7 +43,7 @@ whenReady(() => {
   listenAutocomplete();
   registerEvents();
   setupBurgerMenu();
-  bindCaptchaLinks(); 
+  bindCaptchaLinks();
   initImagesClientside();
   setupComments();
   setupDupeReports();
