@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.NotificationController do
 
     notifications =
       notifications
+      |> order_by(desc: :updated_at)
       |> Repo.paginate(conn.assigns.scrivener)
 
     entries =
