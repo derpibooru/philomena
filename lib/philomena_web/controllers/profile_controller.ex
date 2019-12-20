@@ -33,14 +33,14 @@ defmodule PhilomenaWeb.ProfileController do
       ImageLoader.search_string(
         conn,
         "uploader_id:#{user.id}",
-        pagination: %{page_number: 1, page_size: 8}
+        pagination: %{page_number: 1, page_size: 4}
       )
 
     {:ok, {recent_faves, _tags}} =
       ImageLoader.search_string(
         conn,
         "faved_by_id:#{user.id}",
-        pagination: %{page_number: 1, page_size: 8}
+        pagination: %{page_number: 1, page_size: 4}
       )
 
     tags = tags(conn.assigns.user.public_links)
@@ -117,7 +117,7 @@ defmodule PhilomenaWeb.ProfileController do
       Gallery
       |> where(creator_id: ^user.id)
       |> preload([:creator, thumbnail: :tags])
-      |> limit(5)
+      |> limit(4)
       |> Repo.all()
 
     statistics = calculate_statistics(user)
@@ -195,7 +195,7 @@ defmodule PhilomenaWeb.ProfileController do
       ImageLoader.query(
         conn,
         %{terms: %{tag_ids: Enum.map(tags, & &1.id)}},
-        pagination: %{page_number: 1, page_size: 8}
+        pagination: %{page_number: 1, page_size: 4}
       )
 
     images
