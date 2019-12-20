@@ -53,8 +53,11 @@
       = render PhilomenaWeb.ProfileView, "_commission.html", user: @user, commission_information: @commission_information, conn: @conn
 
     .block
-      .block__header
-        span.block__header__title User Links
+      = if current?(@user, @conn.assigns.current_user) do
+        a.block__header--single-item href=Routes.profile_user_link_path(@conn, :new, @user) User Links
+      - else
+        .block__header
+          span.block__header__title User Links
       = for link <- @user.verified_links, link.public or can?(@conn, :edit, link) do
         - watchers = if link.tag, do: @watcher_counts[link.tag.id] || 0, else: 0
 
@@ -71,8 +74,11 @@
               = pluralize("user", "users", watchers)
 
     .block
-      .block__header
-        span.block__header__title Badges
+      = if manages_awards?(@conn) do
+        a.block__header--single-item href=Routes.profile_award_path(@conn, :new, @user) Badges
+      - else
+        .block__header
+          span.block__header__title Badges
       = for award <- award_order(@user.awards) do
         .block__content.flex.flex--centered.flex--center-distributed.alternating-color.no-overflow title=award.label
           .flex__grow.center
