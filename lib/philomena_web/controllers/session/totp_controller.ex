@@ -1,13 +1,14 @@
 defmodule PhilomenaWeb.Session.TotpController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.LayoutView
   alias Philomena.Users.User
   alias Philomena.Repo
 
   def new(conn, _params) do
     changeset = Pow.Plug.change_user(conn)
 
-    render(conn, "new.html", title: "Two-Factor Authentication", changeset: changeset)
+    render(conn, "new.html", layout: {LayoutView, "two_factor.html"}, changeset: changeset)
   end
 
   def create(conn, params) do
