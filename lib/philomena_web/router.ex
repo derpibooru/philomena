@@ -275,6 +275,7 @@ defmodule PhilomenaWeb.Router do
       resources "/random", RandomController, only: [:index]
     end
     resources "/images", ImageController, only: [:index, :show, :new, :create] do
+      resources "/related", Image.RelatedController, only: [:index]
       resources "/comments", Image.CommentController, only: [:index, :show, :create] do
         resources "/reports", Image.Comment.ReportController, only: [:new, :create]
         resources "/history", Image.Comment.HistoryController, only: [:index]

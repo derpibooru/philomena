@@ -81,6 +81,7 @@ defmodule PowLockout.Phoenix.ControllerCallbacks do
     |> Conn.assign(:changeset, Plug.change_user(conn, conn.params["user"]))
     |> Controller.put_flash(:error, messages(conn).invalid_credentials(conn))
     |> Controller.render("new.html")
+    |> Conn.halt()
   end
 
   @doc """
