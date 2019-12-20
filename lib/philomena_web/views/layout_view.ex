@@ -90,26 +90,26 @@ defmodule PhilomenaWeb.LayoutView do
     do: can?(conn, :index, Philomena.SiteNotices.SiteNotice)
 
   def manages_tags?(conn),
-    do: can?(conn, :index, Philomena.Tags.Tag)
+    do: can?(conn, :edit, %Philomena.Tags.Tag{})
 
   def manages_users?(conn),
     do: can?(conn, :index, Philomena.Users.User)
 
   def manages_forums?(conn),
-    do: conn.assigns.current_user.role == "admin"
+    do: can?(conn, :edit, Philomena.Forums.Forum)
 
   def manages_ads?(conn),
-    do: conn.assigns.current_user.role == "admin"
+    do: can?(conn, :index, Philomena.Adverts.Advert)
 
   def manages_badges?(conn),
     do: can?(conn, :index, Philomena.Badges.Badge)
 
   def manages_static_pages?(conn),
-    do: conn.assigns.current_user.role == "admin"
+    do: can?(conn, :edit, %Philomena.StaticPages.StaticPage{})
 
   def manages_mod_notes?(conn),
-    do: conn.assigns.current_user.role in ["admin", "moderator"]
+    do: can?(conn, :index, Philomena.ModNotes.ModNote)
 
   def manages_bans?(conn),
-    do: conn.assigns.current_user.role in ["admin", "moderator"]
+    do: can?(conn, :create, Philomena.Bans.User)
 end

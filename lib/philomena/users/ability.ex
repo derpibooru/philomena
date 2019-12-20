@@ -1,6 +1,8 @@
 defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Users.User
+  alias Philomena.Roles.Role
   alias Philomena.Badges.Award
+  alias Philomena.Badges.Badge
   alias Philomena.Channels.Channel
   alias Philomena.Comments.Comment
   alias Philomena.Commissions.Commission
@@ -19,6 +21,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Tags.Tag
   alias Philomena.Reports.Report
   alias Philomena.StaticPages.StaticPage
+  alias Philomena.Adverts.Advert
+  alias Philomena.SiteNotices.SiteNotice
 
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Bans.Subnet, as: SubnetBan
@@ -31,8 +35,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Moderators can...
   #
 
-  # Show details of profiles
+  # Show details of profiles and view user list
   def can?(%User{role: "moderator"}, :show_details, %User{}), do: true
+  def can?(%User{role: "moderator"}, :index, User), do: true
 
   # View filters
   def can?(%User{role: "moderator"}, :show, %Filter{}), do: true
@@ -69,6 +74,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :edit_links, %User{}), do: true
   def can?(%User{role: "moderator"}, :edit, %UserLink{}), do: true
   def can?(%User{role: "moderator"}, :index, UserLink), do: true
+  def can?(%User{role: "moderator"}, :show, %UserLink{}), do: true
 
   # Reveal anon users
   def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
@@ -95,15 +101,45 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Topic{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Topic{}), do: true
 
-  # Edit and alias tags
+  # Edit tags
   def can?(%User{role: "moderator"}, :edit, %Tag{}), do: true
-  def can?(%User{role: "moderator"}, :alias, %Tag{}), do: true
 
   # Award badges
   def can?(%User{role: "moderator"}, :create, %Award{}), do: true
 
   # Create mod notes
   def can?(%User{role: "moderator"}, :index, ModNote), do: true
+
+  # And some privileged moderators can...
+
+  # Manage site notices
+  def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, SiteNotice), do: true
+  def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, %SiteNotice{}), do: true
+
+  # Manage badges
+  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, Award), do: true
+  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, %Award{}), do: true
+  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, Badge), do: true
+  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, %Badge{}), do: true
+
+  # Manage tags
+  def can?(%User{role: "moderator", role_map: %{"Tag" => "admin"}}, _action, Tag), do: true
+  def can?(%User{role: "moderator", role_map: %{"Tag" => "admin"}}, _action, %Tag{}), do: true
+
+  # Manage user roles
+  def can?(%User{role: "moderator", role_map: %{"Role" => "admin"}}, _action, %Role{}), do: true
+
+  # Manage users
+  def can?(%User{role: "moderator", role_map: %{"User" => "moderator"}}, _action, User), do: true
+  def can?(%User{role: "moderator", role_map: %{"User" => "moderator"}}, _action, %User{}), do: true
+
+  # Manage advertisements
+  def can?(%User{role: "moderator", role_map: %{"Advert" => "admin"}}, _action, Advert), do: true
+  def can?(%User{role: "moderator", role_map: %{"Advert" => "admin"}}, _action, %Advert{}), do: true
+
+  # Manage static pages
+  def can?(%User{role: "moderator", role_map: %{"StaticPage" => "admin"}}, _action, StaticPage), do: true
+  def can?(%User{role: "moderator", role_map: %{"StaticPage" => "admin"}}, _action, %StaticPage{}), do: true
 
   #
   # Assistants can...
