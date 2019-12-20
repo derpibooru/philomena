@@ -123,7 +123,7 @@ defmodule PhilomenaWeb.ProfileController do
     statistics = calculate_statistics(user)
 
     interactions =
-      Interactions.user_interactions([recent_uploads, recent_faves], current_user)
+      Interactions.user_interactions([recent_uploads, recent_faves, recent_artwork], current_user)
 
     bans =
       Bans.User

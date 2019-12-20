@@ -27,7 +27,6 @@ defmodule PhilomenaWeb.CommentLoader do
       |> where(image_id: ^image.id)
       |> filter_direction(comment.created_at, user)
       |> Repo.aggregate(:count, :id)
-      |> IO.inspect()
 
     page_size = conn.assigns.comment_scrivener[:page_size]
 
