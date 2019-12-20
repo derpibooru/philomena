@@ -117,4 +117,20 @@ defmodule PhilomenaWeb.LayoutView do
 
   def manages_bans?(conn),
     do: can?(conn, :create, Philomena.Bans.User)
+
+  def viewport_meta_tag(conn) do
+    ua = get_user_agent(conn)
+
+    case String.contains?(ua, ["Mobile", "webOS"]) do
+      true   -> tag(:meta, name: "viewport", content: "width=device-width, initial-scale=1")
+      _false -> tag(:meta, name: "viewport", content: "width=1024, initial-scale=1")
+    end
+  end
+
+  defp get_user_agent(conn) do
+    case Plug.Conn.get_req_header(conn, "user-agent") do
+      [ua] -> ua
+      _    -> ""
+    end
+  end
 end
