@@ -176,6 +176,7 @@ defmodule Philomena.Users.User do
     |> unique_constraint(:slug, name: :index_users_on_slug)
     |> unique_constraint(:email, name: :index_users_on_email)
     |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
+    |> unique_constraint(:name, name: :temp_unique_index_users_on_name)
   end
 
   def filter_changeset(user, filter) do
