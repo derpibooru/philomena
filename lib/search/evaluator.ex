@@ -68,6 +68,13 @@ defmodule Search.Evaluator do
     |> Enum.member?(query_val)
   end
 
+  def hits?(doc, %{terms: terms_query}) do
+    [{term, query_vals}] = Enum.to_list(terms_query)
+
+    wrap(doc[atomify(term)])
+    |> Enum.any?(&Enum.member?(query_vals, &1))
+  end
+
   def hits?(_doc, %{match_all: %{}}), do: true
   def hits?(_doc, %{match_none: %{}}), do: false
   def hits?(doc, %{function_score: %{query: query}}), do: hits?(doc, query)
