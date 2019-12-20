@@ -11,7 +11,7 @@
     a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorite_path(@conn, :index, @image)
       i.fa.fa-star>
       | List favoriters
-    = if display_mod_tools? do
+    = if display_mod_tools? and not hide_staff_tools?(@conn) do
       a href="#" data-click-tab="replace"
         i.fa.fa-upload>
         | Replace

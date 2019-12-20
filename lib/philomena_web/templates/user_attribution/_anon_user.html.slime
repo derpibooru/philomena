@@ -5,7 +5,7 @@
     = if assigns[:awards] do
       = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
 
-  - not is_nil(@object.user) and can?(@conn, :reveal_anon, @object) ->
+  - not is_nil(@object.user) and (can?(@conn, :reveal_anon, @object) and @conn.cookies["hide_staff_tools"] != "true") ->
     strong<>
       = link(anonymous_name(@object, true), to: Routes.profile_path(@conn, :show, @object.user))
 

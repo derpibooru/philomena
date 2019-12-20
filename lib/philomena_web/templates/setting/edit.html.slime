@@ -122,6 +122,11 @@ h1 Content Settings
         => label f, :chan_nsfw, "Show NSFW channels"
         => checkbox f, :chan_nsfw
         .fieldlabel: i Show streams marked as NSFW on the channels page.
+      = if @conn.assigns.current_user.role != "user" do
+      .field
+        => label f, :hide_staff_tools
+        => checkbox f, :hide_staff_tools, class: "checkbox"
+        .fieldlabel: i Hide most of the staff tools (e.g. IPs, anon names) making your site appear as if you weren't staff, this is useful when browsing in public.
 
     = if !@conn.assigns.current_user do
       .block__tab.hidden data-tab="join-the-herd"

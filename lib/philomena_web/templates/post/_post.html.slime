@@ -32,7 +32,7 @@ article.block.communication id="post_#{@post.id}"
     .flex.flex--wrap.flex--spaced-out
       = render PhilomenaWeb.PostView, "_post_options.html", conn: @conn, post: @post
 
-    = if can?(@conn, :hide, @post) do
+    = if can?(@conn, :hide, @post) and not hide_staff_tools?(@conn) do
       = cond do
         - @post.hidden_from_users and not @post.destroyed_content ->
           = link(to: Routes.forum_topic_post_hide_path(@conn, :delete, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: "delete", class: "communication__interaction") do

@@ -58,9 +58,9 @@ article.block.communication id="comment_#{@comment.id}"
           - true ->
 
         = if can?(@conn, :show, :ip_address) do
-          .communication__info
+          .communication__info.js-staff-action
             =<> link_to_ip(@conn, @comment.ip)
-          .communication__info
+          .communication__info.js-staff-action
             =<> link_to_fingerprint(@conn, @comment.fingerprint)
 
         = form_for :comment, Routes.image_comment_hide_path(@conn, :create, @comment.image_id, @comment), [class: "togglable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->

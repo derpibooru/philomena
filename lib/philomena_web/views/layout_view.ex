@@ -32,6 +32,7 @@ defmodule PhilomenaWeb.LayoutView do
     interactions = Map.get(conn.assigns, :interactions, [])
     user = conn.assigns.current_user
     filter = conn.assigns.current_filter
+    conn = Plug.Conn.fetch_cookies(conn)
 
     data = [
       filter_id: filter.id,
@@ -49,7 +50,8 @@ defmodule PhilomenaWeb.LayoutView do
       fancy_tag_edit: if(user, do: user.fancy_tag_field_on_edit, else: true),
       fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: true),
       interactions: Jason.encode!(interactions),
-      ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags]))
+      ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags])),
+      hide_staff_tools: Jason.encode!(conn.cookies["hide_staff_tools"])
     ]
 
     data = Keyword.merge(data, extra)

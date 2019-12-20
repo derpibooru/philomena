@@ -36,7 +36,8 @@
         li = link("Source changes", to: Routes.profile_source_change_path(@conn, :index, @user))
 
 = if can_index_user?(@conn) do
-  = render PhilomenaWeb.ProfileView, "_admin_block.html", assigns
+  .js-staff-action
+    = render PhilomenaWeb.ProfileView, "_admin_block.html", assigns
 
 = if (current?(@user, @conn.assigns.current_user) or can?(@conn, :index, Philomena.Bans.User)) and Enum.any?(@bans) do
   .block
@@ -74,7 +75,7 @@
               = pluralize("user", "users", watchers)
 
     .block
-      = if manages_awards?(@conn) do
+      = if manages_awards?(@conn) and not hide_staff_tools?(@conn) do
         a.block__header--single-item href=Routes.profile_award_path(@conn, :new, @user) Badges
       - else
         .block__header
@@ -105,7 +106,7 @@
 
       = render PhilomenaWeb.ProfileView, "_about_me.html", user: @user, about_me: @about_me, conn: @conn
 
-    = if can_read_mod_notes?(@conn) do
+    = if can_read_mod_notes?(@conn) and not hide_staff_tools?(@conn) do
       .block
         a.block__header--single-item href=Routes.profile_detail_path(@conn, :index, @user) Mod Notes
         table.table

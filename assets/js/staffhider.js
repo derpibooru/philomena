@@ -7,7 +7,7 @@
 import { $$ } from './utils/dom';
 
 function hideStaffTools() {
-  if (window.booru.hideStaffTools) {
+  if (window.booru.hideStaffTools == "true") {
     $$('.js-staff-action').forEach(el => {
       el.classList.add('hidden');
     });

@@ -1,31 +1,31 @@
 - del = @conn.params["del"]
 
 = if blank?(del) do
-  a href=@route.(Keyword.put(@params, :del, 1)) title="Include Deleted/Merged Images"
+  a.js-staff-action href=@route.(Keyword.put(@params, :del, 1)) title="Include Deleted/Merged Images"
     i.fa.fa-plus
     i.fa.fa-exclamation>
     span.hide-mobile.hide-limited-desktop Show Deleted
 
 = if del != "only" do
-  a href=@route.(Keyword.put(@params, :del, "only")) title="Only Deleted/Merged Images"
+  a.js-staff-action href=@route.(Keyword.put(@params, :del, "only")) title="Only Deleted/Merged Images"
     i.fa.fa-minus
     i.fa.fa-check>
     span.hide-mobile.hide-limited-desktop Only Deleted
 
 = if del == "only" do
-  a href=@route.(Keyword.put(@params, :del, 1)) title="Include Images Visible to Users"
+  a.js-staff-action href=@route.(Keyword.put(@params, :del, 1)) title="Include Images Visible to Users"
     i.fa.fa-plus
     i.fa.fa-check>
     span.hide-mobile.hide-limited-desktop Show Non-Deleted
 
 = if present?(del) do
-  a href=@route.(Keyword.delete(@params, :del)) title="Hide Deleted/Merged Images"
+  a.js-staff-action href=@route.(Keyword.delete(@params, :del)) title="Hide Deleted/Merged Images"
     i.fa.fa-minus
     i.fa.fa-exclamation>
     span.hide-mobile.hide-limited-desktop Hide Deleted
 
 = if present?(del) and del != "deleted" do
-  a href=@route.(Keyword.put(@params, :del, "deleted")) title="Only Deleted (Strict)"
+  a.js-staff-action href=@route.(Keyword.put(@params, :del, "deleted")) title="Only Deleted (Strict)"
     i.fa.fa-minus
     i.fa.fa-object-group>
     span.hide-mobile.hide-limited-desktop Exclude Merges

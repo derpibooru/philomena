@@ -20,7 +20,7 @@ header.header
         input type="hidden" name="sd" value=@conn.params["sd"]
 
       = if hides_images?(@conn) do
-        = select f, :del, [{"-D", ""}, {"+D", 1}, {"*D", "deleted"}, {"DO", "only"}], name: "del", class: "input header__input", autocomplete: "off"
+        = select f, :del, [{"-D", ""}, {"+D", 1}, {"*D", "deleted"}, {"DO", "only"}], name: "del", class: "input header__input js-staff-action", autocomplete: "off"
 
       button.header__search__button type="submit" title="Search"
         i.fa-embedded--search
