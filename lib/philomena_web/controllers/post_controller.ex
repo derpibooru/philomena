@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.PostController do
           sort: %{created_at: :desc}
         },
         conn.assigns.pagination,
-        Post |> preload([topic: :forum, user: [awards: :badge]])
+        Post |> preload([:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 
     rendered =
