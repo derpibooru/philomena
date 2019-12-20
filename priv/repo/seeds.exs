@@ -56,7 +56,7 @@ end
 
 IO.puts "---- Generating users"
 for user_def <- resources["users"] do
-  %User{}
+  %User{role: user_def["role"]}
   |> User.creation_changeset(user_def)
   |> Repo.insert(on_conflict: :nothing)
 end
