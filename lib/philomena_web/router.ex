@@ -287,7 +287,7 @@ defmodule PhilomenaWeb.Router do
       resources "/navigate", Image.NavigateController, only: [:index]
       resources "/reports", Image.ReportController, only: [:new, :create]
       resources "/reporting", Image.ReportingController, only: [:show], singleton: true
-      resources "/favorites", Image.FavoritesController, only: [:index]
+      resources "/favorites", Image.FavoriteController, only: [:index]
     end
     scope "/tags", Tag, as: :tag do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true

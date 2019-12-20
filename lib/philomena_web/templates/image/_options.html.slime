@@ -8,7 +8,7 @@
     a href="#" data-click-tab="sharing"
       i.fa.fa-share>
       | Share
-    a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorites_path(@conn, :index, @image)
+    a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorite_path(@conn, :index, @image)
       i.fa.fa-star>
       | List favoriters
     = if display_mod_tools? do

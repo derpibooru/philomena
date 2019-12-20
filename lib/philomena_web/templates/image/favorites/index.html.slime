@@ -1,7 +1,0 @@
-h5
-  ' Faved by
-  => @image.faves_count
-  = pluralize("user", "users", @image.faves_count)
-
-= for fave <- Enum.sort_by(@image.faves, & &1.user.name) do
-  => link fave.user.name, to: Routes.profile_path(@conn, :show, fave.user), class: "interaction-user-list-item"
