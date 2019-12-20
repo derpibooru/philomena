@@ -28,14 +28,8 @@ defmodule Philomena.Images.Query do
 
     tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
 
-    {:ok, include_query} =
-      Philomena.Images.Query.parse_user(ctx, user.watched_images_query_str |> Search.String.normalize())
-
-    {:ok, exclude_query} =
-      Philomena.Images.Query.parse_user(
-        ctx,
-        user.watched_images_exclude_str |> Search.String.normalize()
-      )
+    include_query = invalid_filter_guard(ctx, user.watched_images_query_str)
+    exclude_query = invalid_filter_guard(ctx, user.watched_images_exclude_str)
 
     should = [tag_include, include_query]
     must_not = [exclude_query]
@@ -45,12 +39,7 @@ defmodule Philomena.Images.Query do
         user = user |> Repo.preload(:current_filter)
 
         tag_exclude = %{terms: %{tag_ids: user.current_filter.spoilered_tag_ids}}
-
-        {:ok, spoiler_query} =
-          Philomena.Images.Query.parse_user(
-            ctx,
-            user.current_filter.spoilered_complex_str |> Search.String.normalize()
-          )
+        spoiler_query = invalid_filter_guard(ctx, user.current_filter.spoilered_complex_str)
 
         [tag_exclude, spoiler_query | must_not]
       else
@@ -63,6 +52,12 @@ defmodule Philomena.Images.Query do
   def user_my_transform(_ctx, _value),
     do: {:error, "Unknown `my' value."}
 
+  defp invalid_filter_guard(ctx, search_string) do
+    case Philomena.Images.Query.parse_user(ctx, Search.String.normalize(search_string)) do
+      {:ok, query} -> query
+      _error -> %{match_all: %{}}
+    end
+  end
 
   int_fields         = ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count)
   float_fields       = ~W(aspect_ratio wilson_score)
