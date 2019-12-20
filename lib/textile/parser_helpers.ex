@@ -30,6 +30,7 @@ defmodule Textile.ParserHelpers do
 
   def remove_linefeeds(text) do
     text
+    |> to_string()
     |> String.replace("\r", "")
   end
 
