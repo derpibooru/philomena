@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.Admin.UserController do
   import Ecto.Query
 
   plug :verify_authorized
-  plug :load_resource, model: User, only: [:edit, :update], id_field: "slug", preload: [:roles]
+  plug :load_and_authorize_resource, model: User, only: [:edit, :update], id_field: "slug", preload: [:roles]
   plug :load_roles when action in [:edit]
 
   def index(conn, %{"q" => q}) do
