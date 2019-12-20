@@ -77,7 +77,7 @@ defmodule PhilomenaWeb.ImageController do
       interactions: interactions,
       watching: watching,
       layout_class: "layout--wide",
-      title: "Image ##{image.id} - #{image.tag_list_cache}"
+      title: "##{image.id} - #{image.tag_list_cache}"
     ]
 
     if image.hidden_from_users do
