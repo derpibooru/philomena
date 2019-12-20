@@ -151,6 +151,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :show, %Image{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :hide, %Image{}), do: true
   def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit, %Image{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit_description, %Image{}), do: true
 
   # Dupe assistant actions
   def can?(%User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}}, :index, DuplicateReport), do: true
