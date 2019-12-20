@@ -17,13 +17,14 @@ defmodule Philomena.Servers.PicartoChannelUpdater do
   end
 
   defp run do
+    :timer.sleep(:timer.seconds(60))
+
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     @api_online
     |> Philomena.Http.get!()
     |> handle_response(now)
 
-    :timer.sleep(:timer.seconds(60))
     run()
   end
 
