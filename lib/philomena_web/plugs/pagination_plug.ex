@@ -11,31 +11,37 @@ defmodule PhilomenaWeb.PaginationPlug do
     user = conn |> Plug.current_user()
     params = conn.params
 
-    page_number =
-      case Integer.parse(params["page"] |> to_string()) do
-        {int, _rest} ->
-          int
-        _ ->
-          1
-      end
-
-    page_number = page_number |> max(1)
-
-    page_size =
-      case Integer.parse(params["per_page"] |> to_string()) do
-        {int, _rest} ->
-          int
-        _ ->
-          25
-      end
-
-    page_size = page_size |> max(1) |> min(50)
+    page_size = get_page_size(params)
+    page_number = get_page_number(params)
+    image_page_size = page_size || image_page_size(user)
+    comment_page_size = page_size || comment_page_size(user)
 
     conn
-    |> assign(:pagination, %{page_number: page_number, page_size: page_size})
-    |> assign(:image_pagination, %{page_number: page_number, page_size: image_page_size(user)})
-    |> assign(:scrivener, [page: page_number, page_size: page_size])
-    |> assign(:comment_scrivener, [page: page_number, page_size: comment_page_size(user)])
+    |> assign(:pagination, %{page_number: page_number, page_size: page_size || 25})
+    |> assign(:image_pagination, %{page_number: page_number, page_size: image_page_size})
+    |> assign(:scrivener, [page: page_number, page_size: page_size || 25])
+    |> assign(:comment_scrivener, [page: page_number, page_size: comment_page_size])
+  end
+
+  defp get_page_number(%{"page" => page}) do
+    to_integer(page) || 1
+  end
+  defp get_page_number(_params), do: 1
+
+  defp get_page_size(%{"per_page" => per_page}) do
+    per_page
+    |> to_integer()
+    |> Kernel.||(25)
+    |> max(1)
+    |> min(50)
+  end
+  defp get_page_size(_params), do: nil
+
+  defp to_integer(string) do
+    case Integer.parse(string) do
+      {int, _rest} -> int
+      _ -> nil
+    end
   end
 
   defp image_page_size(%{images_per_page: x}), do: x
