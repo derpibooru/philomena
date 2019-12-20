@@ -35,6 +35,6 @@ defmodule PhilomenaWeb.ForumController do
 
     watching = Forums.subscribed?(forum, user)
 
-    render(conn, "show.html", title: "Showing Forum", forum: conn.assigns.forum, watching: watching, topics: topics)
+    render(conn, "show.html", title: forum.name, forum: conn.assigns.forum, watching: watching, topics: topics)
   end
 end

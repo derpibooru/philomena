@@ -50,7 +50,10 @@ defmodule PhilomenaWeb.ProfileView do
   end
 
   def tag_disjunction(tags) do
-    Enum.map_join(tags, " || ", & &1.name)
+    tags
+    |> Enum.map(& &1.name)
+    |> Enum.uniq()
+    |> Enum.join(" || ")
   end
 
   def can_ban?(conn),
