@@ -22,6 +22,11 @@ defmodule PhilomenaWeb.LayoutView do
     host |> to_string
   end
 
+  defp ignored_tag_list(nil), do: []
+  defp ignored_tag_list([]), do: []
+  defp ignored_tag_list([{tag, _body, _dnp_entries}]), do: [tag.id]
+  defp ignored_tag_list(tags), do: Enum.map(tags, & &1.id)
+
   def clientside_data(conn) do
     extra = Map.get(conn.assigns, :clientside_data, [])
     interactions = Map.get(conn.assigns, :interactions, [])
@@ -44,7 +49,7 @@ defmodule PhilomenaWeb.LayoutView do
       fancy_tag_edit: if(user, do: user.fancy_tag_field_on_edit, else: true),
       fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: true),
       interactions: Jason.encode!(interactions),
-      ignored_tag_list: "[]"
+      ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags]))
     ]
 
     data = Keyword.merge(data, extra)

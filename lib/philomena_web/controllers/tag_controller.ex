@@ -59,10 +59,8 @@ defmodule PhilomenaWeb.TagController do
     render(
       conn,
       "show.html",
-      tag: tag,
-      body: body,
+      tags: [{tag, body, dnp_entries}],
       search_query: search_query,
-      dnp_entries: dnp_entries,
       interactions: interactions,
       images: images,
       layout_class: "layout--wide",
