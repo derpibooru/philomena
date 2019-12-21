@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.PostController do
             bool: %{
               must: [query | filters(user)]
             }
-          } |> IO.inspect(),
+          },
           sort: %{created_at: :desc}
         },
         conn.assigns.pagination,
