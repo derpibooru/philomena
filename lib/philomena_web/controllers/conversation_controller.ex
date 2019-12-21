@@ -13,19 +13,17 @@ defmodule PhilomenaWeb.ConversationController do
   def index(conn, %{"with" => partner}) do
     user = conn.assigns.current_user
 
-    conversations =
-      Conversation
-      |> where([c], (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden))
-      |> load_conversations(conn)
+    Conversation
+    |> where([c], (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden))
+    |> load_conversations(conn)
   end
 
   def index(conn, _params) do
     user = conn.assigns.current_user
 
-    conversations =
-      Conversation
-      |> where([c], (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden))
-      |> load_conversations(conn)
+    Conversation
+    |> where([c], (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden))
+    |> load_conversations(conn)
   end
 
   defp load_conversations(queryable, conn) do
