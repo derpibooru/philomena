@@ -57,12 +57,14 @@ defmodule Philomena.Posts.Query do
     "my" => &Philomena.Posts.Query.user_my_transform/2
   })
 
-  mod_literal_fields = literal_fields ++ ~W(fingerprint)
+  mod_literal_fields = ~W(forum_id topic_id user_id author fingerprint)
   mod_ip_fields      = ~W(ip)
   mod_bool_fields    = ~W(anonymous deleted)
   mod_aliases        = %{
     "deleted" => "hidden_from_users"
   }
+  mod_custom         = user_custom -- ~W(author user_id)
+  mod_transforms     = Map.drop(user_transforms, ["user_id", "author"])
 
 
   @anonymous_parser Parser.parser(
@@ -92,8 +94,8 @@ defmodule Philomena.Posts.Query do
     ip_fields: mod_ip_fields,
     ngram_fields: ngram_fields,
     bool_fields: mod_bool_fields,
-    custom_fields: user_custom,
-    transforms: user_transforms,
+    custom_fields: mod_custom,
+    transforms: mod_transforms,
     aliases: mod_aliases,
     default_field: default_field
   )
