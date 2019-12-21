@@ -1,4 +1,3 @@
-/ Dummy view for the admin bar
 .flex.flex--centered.header--secondary__admin-links.stretched-mobile-links.js-staff-action
   .dropdown.hide-mobile
     a.header__link title="Admin"

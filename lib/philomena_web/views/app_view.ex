@@ -150,6 +150,9 @@ defmodule PhilomenaWeb.AppView do
   def communication_body_class(%{destroyed_content: true}), do: "communication--destroyed"
   def communication_body_class(_communication), do: nil
 
+  def hide_staff_tools?(conn),
+    do: conn.cookies["hide_staff_tools"] == "true"
+
   def blank?(nil), do: true
   def blank?(""), do: true
   def blank?([]), do: true
