@@ -29,7 +29,6 @@ defmodule PowLockout.Phoenix.ControllerCallbacks do
 
   alias Plug.Conn
   alias Pow.Plug
-  alias Phoenix.Controller
   alias PowLockout.Phoenix.{UnlockController, Mailer}
   alias PowLockout.Plug, as: PowLockoutPlug
 
