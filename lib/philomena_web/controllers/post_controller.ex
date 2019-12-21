@@ -9,23 +9,18 @@ defmodule PhilomenaWeb.PostController do
 
     params = Map.put(conn.params, "pq", pq)
     conn = Map.put(conn, :params, params)
+    user = conn.assigns.current_user
 
-    {:ok, query} = Query.compile(conn.assigns.current_user, pq)
+    {:ok, query} = Query.compile(user, pq)
 
     posts =
       Post.search_records(
         %{
           query: %{
             bool: %{
-              must: [
-                query,
-                %{term: %{access_level: "normal"}},
-              ],
-              must_not: [
-                %{term: %{hidden_from_users: true}}
-              ]
+              must: [query | filters(user)]
             }
-          },
+          } |> IO.inspect(),
           sort: %{created_at: :desc}
         },
         conn.assigns.pagination,
@@ -40,5 +35,21 @@ defmodule PhilomenaWeb.PostController do
       %{posts | entries: Enum.zip(rendered, posts.entries)}
 
     render(conn, "index.html", title: "Posts", posts: posts)
+  end
+
+  defp filters(%{role: role}) when role in ["moderator", "admin"], do: []
+
+  defp filters(%{role: "assistant"}) do
+    [
+      %{terms: %{access_level: ["normal", "assistant"]}},
+      %{term: %{deleted: false}}
+    ]
+  end
+
+  defp filters(_user) do
+    [
+      %{term: %{access_level: "normal"}},
+      %{term: %{deleted: false}}
+    ]
   end
 end
