@@ -1,8 +1,5 @@
 # Philomena
-
-Next generation imageboard.
-
-![](https://derpicdn.net/img/2019/8/23/2125268/full.svg)
+![Philomena](/assets/static/images/phoenix.svg)
 
 ## Getting started
 On systems with `docker` and `docker-compose` installed, the process should be as simple as:
