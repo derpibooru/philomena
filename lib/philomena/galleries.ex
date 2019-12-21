@@ -90,7 +90,22 @@ defmodule Philomena.Galleries do
 
   """
   def delete_gallery(%Gallery{} = gallery) do
+    images =
+      Interaction
+      |> where(gallery_id: ^gallery.id)
+      |> select([i], i.image_id)
+      |> Repo.all()
+
     Repo.delete(gallery)
+    |> case do
+      {:ok, gallery} ->
+        Images.reindex_images(images)
+
+        {:ok, gallery}
+
+      error ->
+        error
+    end
   end
 
   @doc """

@@ -34,6 +34,10 @@ elixir:
             i.fa.fa-check>
             ' Save
 
+          a href=Routes.gallery_path(@conn, :delete, @gallery) data-method="delete" data-confirm="Are you really, really sure?"
+            i.fa.fa-trash>
+            span.hide-mobile Delete
+
         = if show_subscription_link?(@gallery.creator, @conn.assigns.current_user) do
           = render PhilomenaWeb.Gallery.SubscriptionView, "_subscription.html", watching: @watching, gallery: @gallery, conn: @conn
 

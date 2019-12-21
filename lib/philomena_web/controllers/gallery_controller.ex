@@ -34,8 +34,8 @@ defmodule PhilomenaWeb.GalleryController do
     gallery = conn.assigns.gallery
     user = conn.assigns.current_user
     query = "gallery_id:#{gallery.id}"
-    params = Map.put(conn.params, "q", query)
-    sort = ImageSorter.parse_sort(%{"sf" => "gallery_id:#{gallery.id}", "sd" => position_order(gallery)})
+    params = Map.merge(conn.params, %{"q" => query, "sf" => "gallery_id:#{gallery.id}", "sd" => position_order(gallery)})
+    sort = ImageSorter.parse_sort(params)
 
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
     interactions = Interactions.user_interactions(images, user)
