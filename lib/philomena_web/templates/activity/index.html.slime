@@ -1,6 +1,6 @@
 .column-layout
   aside.column-layout__left#activity-side
-    = if @featured_image do
+    = if not is_nil(@featured_image) and not PhilomenaWeb.ImageView.filter_or_spoiler_hits?(@conn, @featured_image) do
       .center
         h4.remove-top-margin Featured Image
         = render PhilomenaWeb.ImageView, "_image_box.html", image: @featured_image, size: :medium, conn: @conn
