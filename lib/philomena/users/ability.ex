@@ -73,9 +73,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Manage user links
   def can?(%User{role: "moderator"}, :create_links, %User{}), do: true
   def can?(%User{role: "moderator"}, :edit_links, %User{}), do: true
-  def can?(%User{role: "moderator"}, :edit, %UserLink{}), do: true
-  def can?(%User{role: "moderator"}, :index, UserLink), do: true
-  def can?(%User{role: "moderator"}, :show, %UserLink{}), do: true
+  def can?(%User{role: "moderator"}, _action, UserLink), do: true
+  def can?(%User{role: "moderator"}, _action, %UserLink{}), do: true
 
   # Reveal anon users
   def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
@@ -87,11 +86,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :hide, %Comment{}), do: true
 
   # Show the DNP list
-  def can?(%User{role: "moderator"}, :index, DnpEntry), do: true
-  def can?(%User{role: "moderator"}, :edit, %DnpEntry{}), do: true
-  def can?(%User{role: "moderator"}, :update, %DnpEntry{}), do: true
-  def can?(%User{role: "moderator"}, :show_reason, %DnpEntry{}), do: true
-  def can?(%User{role: "moderator"}, :show_feedback, %DnpEntry{}), do: true
+  def can?(%User{role: "moderator"}, _action, DnpEntry), do: true
+  def can?(%User{role: "moderator"}, _action, %DnpEntry{}), do: true
 
   # Create bans
   def can?(%User{role: "moderator"}, _action, UserBan), do: true
@@ -230,7 +226,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}), do: true
 
   # Edit comments on images
-  def can?(%User{id: id}, :edit, %Comment{hidden_from_users: false, user_id: id} = comment) do
+  def can?(%User{id: id}, action, %Comment{hidden_from_users: false, user_id: id} = comment) when action in [:edit, :update] do
     # comment must have been made no later than 15 minutes ago
     time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-15 * 60)
 
@@ -255,7 +251,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   
   # Create and edit posts
   def can?(_user, :create_post, %Topic{locked_at: nil, hidden_from_users: false}), do: true
-  def can?(%User{id: id}, :edit, %Post{hidden_from_users: false, user_id: id}), do: true
+  def can?(%User{id: id}, action, %Post{hidden_from_users: false, user_id: id}) when action in [:edit, :update], do: true
 
   # View profile pages
   def can?(_user, :show, %User{}), do: true
