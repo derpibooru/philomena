@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
   alias PhilomenaWeb.ImageView
+  alias Plug.Conn
 
   def layout_class(conn) do
     conn.assigns[:layout_class] || "layout--narrow"
@@ -28,11 +29,12 @@ defmodule PhilomenaWeb.LayoutView do
   defp ignored_tag_list(tags), do: Enum.map(tags, & &1.id)
 
   def clientside_data(conn) do
+    conn = Conn.fetch_cookies(conn)
+
     extra = Map.get(conn.assigns, :clientside_data, [])
     interactions = Map.get(conn.assigns, :interactions, [])
     user = conn.assigns.current_user
     filter = conn.assigns.current_filter
-    conn = Plug.Conn.fetch_cookies(conn)
 
     data = [
       filter_id: filter.id,
@@ -51,7 +53,7 @@ defmodule PhilomenaWeb.LayoutView do
       fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: true),
       interactions: Jason.encode!(interactions),
       ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags])),
-      hide_staff_tools: Jason.encode!(conn.cookies["hide_staff_tools"])
+      hide_staff_tools: conn.cookies["hide_staff_tools"]
     ]
 
     data = Keyword.merge(data, extra)
