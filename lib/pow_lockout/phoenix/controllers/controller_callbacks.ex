@@ -74,14 +74,9 @@ defmodule PowLockout.Phoenix.ControllerCallbacks do
   end
 
   defp invalid_credentials(conn) do
-    {:ok, conn} =
-      Plug.clear_authenticated_user(conn)
+    {:ok, conn} = Plug.clear_authenticated_user(conn)
 
     conn
-    |> Conn.assign(:changeset, Plug.change_user(conn, conn.params["user"]))
-    |> Controller.put_flash(:error, messages(conn).invalid_credentials(conn))
-    |> Controller.render("new.html")
-    |> Conn.halt()
   end
 
   @doc """
