@@ -15,6 +15,9 @@ defmodule PhilomenaWeb.ProfileView do
   def manages_awards?(conn),
     do: can?(conn, :create, Philomena.Badges.Award)
 
+  def manages_links?(conn, user),
+    do: can?(conn, :edit_links, user)
+
   def award_title(%{badge_name: nil} = award),
     do: award.badge.title
   def award_title(%{badge_name: ""} = award),

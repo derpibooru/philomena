@@ -73,6 +73,11 @@
               => watchers
               = pluralize("user", "users", watchers)
 
+            = if manages_links?(@conn, @user) do
+              br
+              a href=Routes.profile_user_link_path(@conn, :edit, @user, link)
+                ' Edit
+
     .block
       = if manages_awards?(@conn) do
         a.block__header--single-item href=Routes.profile_award_path(@conn, :new, @user) Badges
