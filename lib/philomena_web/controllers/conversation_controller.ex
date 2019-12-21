@@ -10,12 +10,27 @@ defmodule PhilomenaWeb.ConversationController do
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug :load_and_authorize_resource, model: Conversation, id_field: "slug", only: :show, preload: [:to, :from]
 
+  def index(conn, %{"with" => partner}) do
+    user = conn.assigns.current_user
+
+    conversations =
+      Conversation
+      |> where([c], (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden))
+      |> load_conversations(conn)
+  end
+
   def index(conn, _params) do
     user = conn.assigns.current_user
 
     conversations =
       Conversation
       |> where([c], (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden))
+      |> load_conversations(conn)
+  end
+
+  defp load_conversations(queryable, conn) do
+    conversations =
+      queryable
       |> join(:inner_lateral, [c], _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id))
       |> order_by(desc: :last_message_at)
       |> preload([:to, :from])
