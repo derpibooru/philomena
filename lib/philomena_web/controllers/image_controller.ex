@@ -124,6 +124,7 @@ defmodule PhilomenaWeb.ImageController do
       Gallery
       |> where(creator_id: ^user.id)
       |> join(:inner, [g], gi in Interaction, on: g.id == gi.gallery_id and gi.image_id == ^image.id)
+      |> order_by(desc: :created_at)
       |> Repo.all()
 
     image_gallery_ids = Enum.map(image_galleries, & &1.id)
@@ -132,6 +133,7 @@ defmodule PhilomenaWeb.ImageController do
       Gallery
       |> where(creator_id: ^user.id)
       |> where([g], g.id not in ^image_gallery_ids)
+      |> order_by(desc: :created_at)
       |> Repo.all()
 
     {user_galleries, image_galleries}
