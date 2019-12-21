@@ -20,6 +20,7 @@ defmodule Philomena.Images do
   alias Philomena.Notifications
   alias Philomena.Interactions
   alias Philomena.Reports.Report
+  alias Philomena.Comments
 
   @doc """
   Gets a single image.
@@ -321,6 +322,7 @@ defmodule Philomena.Images do
     case result do
       {:ok, changes} ->
         tags = Tags.copy_tags(image, duplicate_of_image)
+        Comments.migrate_comments(image, duplicate_of_image)
         Interactions.migrate_interactions(image, duplicate_of_image)
 
         {:ok, %{changes | tags: changes.tags ++ tags}}

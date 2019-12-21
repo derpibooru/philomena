@@ -162,6 +162,14 @@ defmodule Philomena.Comments do
     |> Repo.update()
   end
 
+  def migrate_comments(image, duplicate_of_image) do
+    Comment
+    |> where(image_id: ^image.id)
+    |> Repo.update_all(set: [image_id: duplicate_of_image.id])
+
+    reindex_comments(duplicate_of_image)
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking comment changes.
 
@@ -185,6 +193,17 @@ defmodule Philomena.Comments do
     end
 
     comment
+  end
+
+  def reindex_comments(image) do
+    spawn fn ->
+      Comment
+      |> preload(^indexing_preloads())
+      |> where(image_id: ^image.id)
+      |> Comment.reindex()
+    end
+
+    image
   end
 
   def indexing_preloads do

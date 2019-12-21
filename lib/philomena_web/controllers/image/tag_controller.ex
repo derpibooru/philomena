@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.Image.TagController do
 
   alias Philomena.TagChanges.TagChange
   alias Philomena.UserStatistics
+  alias Philomena.Comments
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Tags
@@ -21,6 +22,7 @@ defmodule PhilomenaWeb.Image.TagController do
 
     case Images.update_tags(image, attributes, image_params) do
       {:ok, %{image: {image, added_tags, removed_tags}}} ->
+        Comments.reindex_comments(image)
         Images.reindex_image(image)
         Tags.reindex_tags(added_tags ++ removed_tags)
 
