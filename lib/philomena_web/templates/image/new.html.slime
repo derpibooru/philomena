@@ -56,6 +56,7 @@
       ' tags, including ratings and applicable artist tags
 
     = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :upload
+    = error_tag f, :tag_input
 
     button.button.button--state-success.button--separate-left.button--bold id="tagsinput-save" type="button" title="This button saves the tags listed above to your browser, allowing you to retrieve them again by clicking the Load button" Save
     button.button.button--state-warning.button--separate-left.button--bold id="tagsinput-load" type="button" title="This button loads any saved tags from your browser" Load

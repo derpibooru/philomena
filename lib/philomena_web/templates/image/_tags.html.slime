@@ -20,6 +20,7 @@
             ' .
 
           = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: @image.tag_list_cache]
+          = error_tag f, :tag_input
 
         = if !@conn.assigns.current_user do
           .block.block--fixed.block--warning
