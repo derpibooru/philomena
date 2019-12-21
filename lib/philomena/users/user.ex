@@ -152,7 +152,7 @@ defmodule Philomena.Users.User do
     |> pow_extension_changeset(attrs)
     |> cast(attrs, [])
     |> validate_required([])
-    |> unique_constraint(:email, name: :index_users_on_email)
+    |> unique_constraints()
   end
 
   def update_changeset(user, attrs, roles) do
@@ -162,6 +162,7 @@ defmodule Philomena.Users.User do
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
     |> put_assoc(:roles, roles)
     |> put_slug()
+    |> unique_constraints()
   end
 
   def creation_changeset(user, attrs) do
@@ -172,11 +173,7 @@ defmodule Philomena.Users.User do
     |> validate_required([:name])
     |> put_api_key()
     |> put_slug()
-    |> unique_constraint(:name, name: :index_users_on_name)
-    |> unique_constraint(:slug, name: :index_users_on_slug)
-    |> unique_constraint(:email, name: :index_users_on_email)
-    |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
-    |> unique_constraint(:name, name: :temp_unique_index_users_on_name)
+    |> unique_constraints()
   end
 
   def filter_changeset(user, filter) do
@@ -373,6 +370,15 @@ defmodule Philomena.Users.User do
       encrypted_otp_secret_iv: nil,
       encrypted_otp_secret_salt: nil
     })
+  end
+
+  defp unique_constraints(changeset) do
+    changeset
+    |> unique_constraint(:name, name: :index_users_on_name)
+    |> unique_constraint(:slug, name: :index_users_on_slug)
+    |> unique_constraint(:email, name: :index_users_on_email)
+    |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
+    |> unique_constraint(:name, name: :temp_unique_index_users_on_name)
   end
 
   defp extract_token(%{"user" => %{"twofactor_token" => t}}),

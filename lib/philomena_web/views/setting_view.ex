@@ -15,4 +15,7 @@ defmodule PhilomenaWeb.SettingView do
       _user -> "hidden"
     end
   end
+
+  def staff?(%{role: role}), do: role != "user"
+  def staff?(_), do: false
 end
