@@ -8,7 +8,11 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
   import Ecto.Query
   
   plug :verify_authorized when action in [:index, :delete]
+  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
+
+  plug PhilomenaWeb.CanaryMapPlug, index: :show, create: :show, delete: :show
   plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.LoadPollPlug
 
