@@ -13,7 +13,7 @@
             <![CDATA[
               <% mouseovertext = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{image.tag_list_cache}" %>
               <a href="<%= Routes.image_url(@conn, :show, image) %>">
-                <img src="https:<%= medium_url(image) %>" alt="<%= mouseovertext %>" title="<%= mouseovertext %>"/>
+                <img src="<%= medium_url(image) %>" alt="<%= mouseovertext %>" title="<%= mouseovertext %>"/>
               </a>
             ]]>
           </description>
