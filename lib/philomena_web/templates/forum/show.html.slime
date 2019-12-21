@@ -23,7 +23,6 @@ h1 = @forum.name
       thead
         tr
           th.table--communication-list__name Topic
-          th.table--communication-list__stats.hide-mobile Views
           th.table--communication-list__stats.hide-mobile Posts
           th.table--communication-list__last-post Last Post
       tbody
@@ -42,7 +41,6 @@ h1 = @forum.name
                 => pretty_time(topic.created_at)
                 ' by
                 = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic, conn: @conn
-            td.table--communication-list__stats.hide-mobile = topic.view_count
             td.table--communication-list__stats.hide-mobile = topic.post_count
             td.table--communication-list__last-post
               = if topic.last_post do
