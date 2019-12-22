@@ -19,7 +19,7 @@ h1 Updating Moderation Scratchpad
       = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
 
       .field
-        = textarea f, :scratchpad, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "God I sure could go for some dragon dick"
+        = textarea f, :scratchpad, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Scratchpad Contents"
         = error_tag f, :scratchpad
 
     .block__tab.communication-edit__tab.hidden data-tab="preview"
