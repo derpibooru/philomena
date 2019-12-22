@@ -40,6 +40,7 @@ defmodule Philomena.Topics do
 
   """
   def create_topic(forum, attribution, attrs \\ %{}) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     topic =
       %Topic{}
       |> Topic.creation_changeset(attrs, forum, attribution)
@@ -50,7 +51,7 @@ defmodule Philomena.Topics do
       {count, nil} =
         Topic
         |> where(id: ^topic.id)
-        |> repo.update_all(set: [last_post_id: hd(topic.posts).id])
+        |> repo.update_all(set: [last_post_id: hd(topic.posts).id, last_replied_to_at: now])
 
       {:ok, count}
     end)

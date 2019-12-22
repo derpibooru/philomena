@@ -24,7 +24,7 @@ defmodule Philomena.Topics.Topic do
     field :post_count, :integer, default: 1
     field :view_count, :integer, default: 0
     field :sticky, :boolean, default: false
-    field :last_replied_to_at, :naive_datetime
+    field :last_replied_to_at, :utc_datetime
     field :locked_at, :utc_datetime
     field :deletion_reason, :string
     field :lock_reason, :string
