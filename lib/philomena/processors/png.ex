@@ -49,7 +49,7 @@ defmodule Philomena.Processors.Png do
 
   defp scale(file, {width, height}) do
     scaled = Briefly.create!(extname: ".png")
-    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
+    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease,format=rgb32"
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
