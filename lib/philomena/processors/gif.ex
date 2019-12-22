@@ -89,7 +89,7 @@ defmodule Philomena.Processors.Gif do
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-pix_fmt", "yuv420p", "-c:v", "libvpx", "-quality", "good", "-b:v", "5M", webm])
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "scale=ceil(iw/2)*2:ceil(ih/2)*2", "-c:v", "libx264", "-preset", "medium", "-profile:v", "main", "-crf", "18", "-b:v", "5M", mp4])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "scale=ceil(iw/2)*2:ceil(ih/2)*2", "-c:v", "libx264", "-preset", "medium", "-pix_fmt", "yuv420p", "-profile:v", "main", "-crf", "18", "-b:v", "5M", mp4])
     
     [
       {:copy, webm, "full.webm"},
