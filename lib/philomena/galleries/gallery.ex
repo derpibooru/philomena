@@ -20,8 +20,8 @@ defmodule Philomena.Galleries.Gallery do
     has_many :subscribers, through: [:subscriptions, :user]
 
     field :title, :string
-    field :spoiler_warning, :string
-    field :description, :string
+    field :spoiler_warning, :string, default: ""
+    field :description, :string, default: ""
     field :image_count, :integer
     field :order_position_asc, :boolean
 
