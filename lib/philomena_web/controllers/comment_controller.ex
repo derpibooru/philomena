@@ -11,8 +11,12 @@ defmodule PhilomenaWeb.CommentController do
     conn = Map.put(conn, :params, params)
     user = conn.assigns.current_user
 
-    {:ok, query} = Query.compile(user, cq)
+    user
+    |> Query.compile(cq)
+    |> render_index(conn, user)
+  end
 
+  defp render_index({:ok, query}, conn, user) do
     comments =
       Comment.search_records(
         %{
@@ -38,6 +42,9 @@ defmodule PhilomenaWeb.CommentController do
       %{comments | entries: Enum.zip(rendered, comments.entries)}
 
     render(conn, "index.html", title: "Comments", comments: comments)
+  end
+  defp render_index({:error, msg}, conn, _user) do
+    render(conn, "index.html", title: "Comments", error: msg, comments: [])
   end
 
   defp filters(%{role: role}) when role in ["moderator", "admin"], do: []

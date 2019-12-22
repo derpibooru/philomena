@@ -3,7 +3,7 @@ h1 Tags
 = form_for :tags, Routes.tag_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
     = text_input f, :tq, name: :tq, value: @conn.params["tq"] || "*", class: "input hform__text", placeholder: "Search tags", autocapitalize: "none"
-    = submit "Search", class: "hform__button button", data: [disable_with: false]
+    = submit "Search", class: "hform__button button"
 
   .fieldlabel
     ' For more information, see the
