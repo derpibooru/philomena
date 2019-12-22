@@ -163,9 +163,14 @@ defmodule Philomena.Comments do
   end
 
   def migrate_comments(image, duplicate_of_image) do
-    Comment
-    |> where(image_id: ^image.id)
-    |> Repo.update_all(set: [image_id: duplicate_of_image.id])
+    {count, nil} =
+      Comment
+      |> where(image_id: ^image.id)
+      |> Repo.update_all(set: [image_id: duplicate_of_image.id])
+
+    Image
+    |> where(id: ^duplicate_of_image.id)
+    |> Repo.update_all(inc: [comments_count: count])
 
     reindex_comments(duplicate_of_image)
   end
