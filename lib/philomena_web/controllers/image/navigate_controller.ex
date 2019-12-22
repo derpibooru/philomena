@@ -35,11 +35,10 @@ defmodule PhilomenaWeb.Image.NavigateController do
     redirect(conn, to: Routes.image_path(conn, :index, page: page_num))
   end
 
-  defp page_for_offset(_per_page, 0), do: 1
   defp page_for_offset(per_page, offset) do
-    ((offset + 1) / per_page)
-    |> Float.ceil()
-    |> trunc()
+    offset
+    |> div(per_page)
+    |> Kernel.+(1)
     |> to_string()
   end
 
