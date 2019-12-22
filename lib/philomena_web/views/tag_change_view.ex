@@ -10,4 +10,7 @@ defmodule PhilomenaWeb.TagChangeView do
       false -> nil
     end
   end
+
+  def reverts_tag_changes?(conn),
+    do: can?(conn, :revert, Philomena.TagChanges.TagChange)
 end

@@ -260,6 +260,8 @@ defmodule PhilomenaWeb.Router do
       resources "/reindex", Tag.ReindexController, only: [:create], singleton: true
     end
 
+    resources "/tag_changes/revert", TagChange.RevertController, as: :tag_change_revert, only: [:create], singleton: true
+
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
     resources "/channels", ChannelController, only: [:new, :create, :edit, :update]
   end

@@ -1,52 +1,62 @@
 .block__header
   = @pagination
 
-.block__content
-  table.table
-    thead
-      tr
-        th colspan=2 Image
-        th Tag
-        th Action
-        th Timestamp
-        th User
-
-    tbody
-      = for tag_change <- @tag_changes do
+= form_for :tag_changes, Routes.tag_change_revert_path(@conn, :create), fn _f ->
+  .block__content
+    table.table
+      thead
         tr
-          td.center
-            = link tag_change.image_id, to: Routes.image_path(@conn, :show, tag_change.image)
-          td.center
-            = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
+          = if reverts_tag_changes?(@conn) do
+            th Revert?
+          th colspan=2 Image
+          th Tag
+          th Action
+          th Timestamp
+          th User
 
-          td
-            = if tag_change.tag do
-              = render PhilomenaWeb.TagView, "_tag.html", tag: tag_change.tag, conn: @conn
+      tbody
+        = for tag_change <- @tag_changes do
+          tr
+            = if reverts_tag_changes?(@conn) do
+              td.center
+                input type="checkbox" name="ids[]" value=tag_change.id
+
+            td.center
+              = link tag_change.image_id, to: Routes.image_path(@conn, :show, tag_change.image)
+            td.center
+              = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
+
+            td
+              = if tag_change.tag do
+                = render PhilomenaWeb.TagView, "_tag.html", tag: tag_change.tag, conn: @conn
+              - else
+                = tag_change.tag_name_cache || "Unknown tag"
+
+            = if tag_change.added do
+              td.success Added
             - else
-              = tag_change.tag_name_cache || "Unknown tag"
-          
-          = if tag_change.added do
-            td.success Added
-          - else
-            td.danger Removed
-          
-          td
-            = pretty_time(tag_change.created_at)
+              td.danger Removed
 
-          td class=user_column_class(tag_change)
-            => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: tag_change, conn: @conn
+            td
+              = pretty_time(tag_change.created_at)
 
-            = if can?(@conn, :show, :ip_address) do
-              => link_to_ip @conn, tag_change.ip
-              => link_to_fingerprint @conn, tag_change.fingerprint
+            td class=user_column_class(tag_change)
+              => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: tag_change, conn: @conn
 
-            = if staff?(tag_change) do
-              br
-              small
-                strong> Stop!
-                ' This user is a staff member.
+              = if can?(@conn, :show, :ip_address) do
+                => link_to_ip @conn, tag_change.ip
+                => link_to_fingerprint @conn, tag_change.fingerprint
+
+              = if staff?(tag_change) do
                 br
-                ' Ask them before reverting their changes.
+                small
+                  strong> Stop!
+                  ' This user is a staff member.
+                  br
+                  ' Ask them before reverting their changes.
 
-.block__header
-  = @pagination
+  .block__header
+    = @pagination
+
+  = if reverts_tag_changes?(@conn) do
+    = submit "Revert selected", class: "button", data: [confirm: "Are you really, really sure?"]
