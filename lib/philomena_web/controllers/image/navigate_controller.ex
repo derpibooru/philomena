@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Image.NavigateController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ImageLoader
   alias Philomena.Images.Image
   alias Philomena.Images.Query
   alias Philomena.ImageNavigator
@@ -21,34 +22,17 @@ defmodule PhilomenaWeb.Image.NavigateController do
   end
 
   def index(conn, %{"rel" => "find"}) do
-    image = conn.assigns.image
-    filter = conn.assigns.compiled_filter
-    pagination = conn.assigns.pagination
+    pagination = %{conn.assigns.image_pagination | page_number: 1}
 
-    # Global find does not use the current search scope.
-    resp =
-      Image.search(
-        %{
-          query: %{
-            bool: %{
-              must: %{
-                range: %{id: %{gt: image.id}}
-              },
-              must_not: [
-                filter,
-                %{term: %{hidden_from_users: true}}
-              ]
-            }
-          },
-          sort: %{created_at: :desc},
-          size: 0
-        }
-      )
+    # Find does not use the current search scope
+    # (although it probably should).
+    body = %{range: %{id: %{gt: conn.assigns.image.id}}}
 
-    page_num = page_for_offset(pagination.page_size, resp["hits"]["total"])
+    {images, _tags} = ImageLoader.query(conn, body, queryable: Image, pagination: pagination)
 
-    conn
-    |> redirect(to: Routes.image_path(conn, :index, page: page_num))
+    page_num = page_for_offset(pagination.page_size, images.total_entries)
+
+    redirect(conn, to: Routes.image_path(conn, :index, page: page_num))
   end
 
   defp page_for_offset(_per_page, 0), do: 1
