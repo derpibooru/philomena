@@ -94,10 +94,16 @@ defmodule PhilomenaWeb.FilterController do
   def delete(conn, _params) do
     filter = conn.assigns.filter
 
-    {:ok, _filter} = Filters.delete_filter(filter)
+    case Filters.delete_filter(filter) do
+      {:ok, _filter} ->
+        conn
+        |> put_flash(:info, "Filter deleted successfully.")
+        |> redirect(to: Routes.filter_path(conn, :index))
 
-    conn
-    |> put_flash(:info, "Filter deleted successfully.")
-    |> redirect(to: Routes.filter_path(conn, :index))
+      _error ->
+        conn
+        |> put_flash(:error, "Filter is still in use, not deleted.")
+        |> redirect(to: Routes.filter_path(conn, :show, filter))
+    end
   end
 end

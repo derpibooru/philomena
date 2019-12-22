@@ -45,6 +45,12 @@ defmodule Philomena.Filters.Filter do
     |> unsafe_validate_unique([:user_id, :name], Repo)
   end
 
+  def deletion_changeset(filter) do
+    filter
+    |> change()
+    |> foreign_key_constraint(:id, name: :fk_rails_d2b4c2768f)
+  end
+
   def hidden_tags_changeset(filter, hidden_tag_ids) do
     change(filter, hidden_tag_ids: hidden_tag_ids)
   end

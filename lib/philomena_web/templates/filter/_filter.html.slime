@@ -6,7 +6,10 @@
     p
       ' Maintained by
       = render PhilomenaWeb.UserAttributionView, "_user.html", object: @filter, conn: @conn
-      ' .
+
+  = if @filter.system do
+    p
+      ' Maintained by staff
 
   .filter-options
     ul
@@ -17,7 +20,11 @@
         = length(@filter.hidden_tag_ids)
 
       li
-        = link("View this filter", to: Routes.filter_path(@conn, :show, @filter), class: "button")
+        = link "View this filter", to: Routes.filter_path(@conn, :show, @filter), class: "button"
+
+      = if can?(@conn, :edit, @filter) do
+        li
+          = link "Edit this filter", to: Routes.filter_path(@conn, :edit, @filter), class: "button"
 
       = if @filter.id == @conn.assigns.current_filter.id do
         li

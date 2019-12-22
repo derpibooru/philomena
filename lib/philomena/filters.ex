@@ -101,7 +101,9 @@ defmodule Philomena.Filters do
 
   """
   def delete_filter(%Filter{} = filter) do
-    Repo.delete(filter)
+    filter
+    |> Filter.deletion_changeset()
+    |> Repo.delete()
   end
 
   @doc """
@@ -132,6 +134,9 @@ defmodule Philomena.Filters do
 
     union(recent_filters, ^user_filters)
     |> Repo.all()
+    |> Enum.sort_by(fn f ->
+      Enum.find_index(user.recent_filter_ids, fn id -> f.id == id end)
+    end)
     |> Enum.group_by(
       fn
         %{recent: "t"}  -> "Recent Filters"
