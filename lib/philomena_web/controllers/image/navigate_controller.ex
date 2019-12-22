@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
 
     page_num = page_for_offset(pagination.page_size, images.total_entries)
 
-    redirect(conn, to: Routes.image_path(conn, :index, page: page_num))
+    redirect(conn, to: Routes.search_path(conn, :index, q: "*", page: page_num))
   end
 
   defp page_for_offset(per_page, offset) do
