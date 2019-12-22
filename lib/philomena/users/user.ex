@@ -222,6 +222,11 @@ defmodule Philomena.Users.User do
     |> validate_format(:personal_title, ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu)
   end
 
+  def scratchpad_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:scratchpad])
+  end
+
   def avatar_changeset(user, attrs) do
     user
     |> cast(attrs, [

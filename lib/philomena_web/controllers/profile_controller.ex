@@ -108,7 +108,10 @@ defmodule PhilomenaWeb.ProfileController do
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.topic))
 
     about_me =
-      Renderer.render_one(%{body: user.description || ""}, conn)
+      Renderer.render_one(%{body: user.description || ""}, conn)      
+
+    scratchpad =
+      Renderer.render_one(%{body: user.scratchpad || ""}, conn)
 
     commission_information =
       commission_info(user.commission, conn)
@@ -145,6 +148,7 @@ defmodule PhilomenaWeb.ProfileController do
       statistics: statistics,
       watcher_counts: watcher_counts,
       about_me: about_me,
+      scratchpad: scratchpad,
       tags: tags,
       bans: bans,
       layout_class: "layout--medium",

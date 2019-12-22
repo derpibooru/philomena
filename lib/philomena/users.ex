@@ -106,6 +106,12 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def update_scratchpad(%User{} = user, attrs) do
+    user
+    |> User.scratchpad_changeset(attrs)
+    |> Repo.update()
+  end
+
   def watch_tag(%User{} = user, tag) do
     watched_tag_ids = Enum.uniq([tag.id | user.watched_tag_ids])
 

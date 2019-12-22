@@ -159,6 +159,7 @@ defmodule PhilomenaWeb.Router do
         resources "/reports", Profile.Commission.ReportController, only: [:new, :create]
       end
       resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
+      resources "/scratchpad", Profile.ScratchpadController, only: [:edit, :update], singleton: true
       resources "/user_links", Profile.UserLinkController
       resources "/awards", Profile.AwardController, except: [:index, :show]
 
@@ -286,7 +287,6 @@ defmodule PhilomenaWeb.Router do
       resources "/sources", Image.SourceController, only: [:update], singleton: true
       resources "/tag_changes", Image.TagChangeController, only: [:index]
       resources "/source_changes", Image.SourceChangeController, only: [:index]
-      resources "/description", Image.DescriptionController, only: [:update], singleton: true
       resources "/navigate", Image.NavigateController, only: [:index]
       resources "/reports", Image.ReportController, only: [:new, :create]
       resources "/reporting", Image.ReportingController, only: [:show], singleton: true
