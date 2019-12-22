@@ -19,7 +19,7 @@
             a href="/pages/spoilers" spoiler guidelines
             ' .
 
-          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: @image.tag_list_cache]
+          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: Enum.map_join(display_order(@image.tags), ", ", & &1.name)]
           = error_tag f, :tag_input
 
         = if !@conn.assigns.current_user do
