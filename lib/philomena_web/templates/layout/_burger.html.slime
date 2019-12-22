@@ -5,6 +5,9 @@ nav#burger
   a href="/images/new"
     i.fa.fa-fw.fa-upload<>
     ' Upload
+  a href="/search?q=first_seen_at.gt:3 days ago&sf=score&sd=desc"
+    i.fas.fa-fw.fa-trophy<>
+    ' Rankings
   a href="/forums"
     i.fas.fa-fw.fa-pen-square<>
     ' Forums
