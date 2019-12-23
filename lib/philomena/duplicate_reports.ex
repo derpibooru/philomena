@@ -4,6 +4,7 @@ defmodule Philomena.DuplicateReports do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.DuplicateReports.DuplicateReport
@@ -71,19 +72,34 @@ defmodule Philomena.DuplicateReports do
 
   # TODO: can we get this in a single transaction?
   def accept_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
-    result =
+    changeset =
       duplicate_report
       |> DuplicateReport.accept_changeset(user)
-      |> Repo.update()
 
-    case result do
-      {:ok, duplicate_report} ->
+    Multi.new()
+    |> Multi.update(:duplicate_report, changeset)
+    |> Multi.run(:other_reports, fn repo, %{duplicate_report: duplicate_report} ->
+      {count, nil} =
+        DuplicateReport
+        |> where(
+          [dr],
+          (dr.image_id == ^duplicate_report.image_id and dr.duplicate_of_image_id == ^duplicate_report.duplicate_of_image_id) or
+          (dr.image_id == ^duplicate_report.duplicate_of_image_id and dr.duplicate_of_image_id == ^duplicate_report.image_id)
+        )
+        |> where([dr], dr.id != ^duplicate_report.id)
+        |> repo.update_all(set: [state: "rejected"])
+
+      {:ok, count}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+    |> case do
+      {:ok, %{duplicate_report: duplicate_report}} ->
         duplicate_report = Repo.preload(duplicate_report, [:image, :duplicate_of_image])
 
         Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image)
 
-      _error ->
-        result
+      error ->
+        error
     end
   end
 

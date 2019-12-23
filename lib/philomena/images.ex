@@ -261,21 +261,29 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> Multi.run(:added_tag_count, fn repo, %{image: {_image, added_tags, _removed}} ->
-      tag_ids = added_tags |> Enum.map(& &1.id)
-      tags = Tag |> where([t], t.id in ^tag_ids)
+    |> Multi.run(:added_tag_count, fn
+      _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
+        {:ok, 0}
 
-      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+      repo, %{image: {_image, added_tags, _removed}} ->
+        tag_ids = added_tags |> Enum.map(& &1.id)
+        tags = Tag |> where([t], t.id in ^tag_ids)
 
-      {:ok, count}
+        {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+
+        {:ok, count}
     end)
-    |> Multi.run(:removed_tag_count, fn repo, %{image: {_image, _added, removed_tags}} ->
-      tag_ids = removed_tags |> Enum.map(& &1.id)
-      tags = Tag |> where([t], t.id in ^tag_ids)
+    |> Multi.run(:removed_tag_count, fn
+      _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
+        {:ok, 0}
 
-      {count, nil} = repo.update_all(tags, inc: [images_count: -1])
+      repo, %{image: {_image, _added, removed_tags}} ->
+        tag_ids = removed_tags |> Enum.map(& &1.id)
+        tags = Tag |> where([t], t.id in ^tag_ids)
 
-      {:ok, count}
+        {count, nil} = repo.update_all(tags, inc: [images_count: -1])
+
+        {:ok, count}
     end)
     |> Repo.isolated_transaction(:serializable)
   end
@@ -388,6 +396,12 @@ defmodule Philomena.Images do
   def unhide_image(image), do: {:ok, image}
 
   def batch_update(image_ids, added_tags, removed_tags, tag_change_attributes) do
+    image_ids =
+      Image
+      |> where([i], i.id in ^image_ids and i.hidden_from_users == false)
+      |> select([i], i.id)
+      |> Repo.all()
+
     added_tags = Enum.map(added_tags, & &1.id)
     removed_tags = Enum.map(removed_tags, & &1.id)
 

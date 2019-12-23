@@ -43,9 +43,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Filter{}), do: true
 
   # Manage images
-  def can?(%User{role: "moderator"}, :show, %Image{}), do: true
-  def can?(%User{role: "moderator"}, :hide, %Image{}), do: true
-  def can?(%User{role: "moderator"}, :edit_description, %Image{}), do: true
+  def can?(%User{role: "moderator"}, _action, Image), do: true
+  def can?(%User{role: "moderator"}, _action, %Image{}), do: true
 
   # View comments
   def can?(%User{role: "moderator"}, :show, %Comment{}), do: true
