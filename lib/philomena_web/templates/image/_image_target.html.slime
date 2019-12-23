@@ -18,7 +18,7 @@
         picture
   - else
     .image-show.hidden
-      a href=Routes.image_path(@conn, :show, @image)
+      a href=Routes.image_path(@conn, :show, @image) title=title_text(@image)
         span.imgspoiler
           - thumb_url = thumb_url(@image, can?(@conn, :show, @image), size)
 

@@ -6,14 +6,19 @@ defmodule PhilomenaWeb.ImageView do
   def show_vote_counts?(%{hide_vote_counts: true}), do: false
   def show_vote_counts?(_user), do: true
 
-  # this is a bit ridculous
+  def title_text(image) do
+    tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
+
+    "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tags}"
+  end
+
+  # this is a bit ridiculous
   def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
   def render_intent(conn, image, size) do
     uris = thumb_urls(image, can?(conn, :show, image))
     vid? = image.image_mime_type == "video/webm"
     gif? = image.image_mime_type == "image/gif"
-    tags = Tag.display_order(image.tags) |> Enum.map_join(", ", & &1.name)
-    alt = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tags}"
+    alt = title_text(image)
 
     hidpi? = conn.cookies["hidpi"] == "true"
     webm? = conn.cookies["webm"] == "true"
