@@ -16,12 +16,12 @@ defmodule PhilomenaWeb.Topic.Post.DeleteController do
 
         conn
         |> put_flash(:info, "Post successfully destroyed!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic) <> "#post_#{post.id}")
+        |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to destroy post!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic) <> "#post_#{post.id}")
+        |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}")
     end
   end
 end
