@@ -5,4 +5,4 @@
     = number_input f, :duplicate_of_image_id, class: "input", min: 0, placeholder: "image number.", required: true
     = text_input f, :reason, class: "input input--separate-left", placeholder: "Explanation"
   .actions
-    = submit "Report Duplicate", class: "button"
+    = submit "Report Duplicate", class: "button", data: [disable_with: raw("Saving&hellip;")]
