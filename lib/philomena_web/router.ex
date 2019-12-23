@@ -44,6 +44,10 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.TotpPlug
   end
 
+  pipeline :ensure_tor_authorized do
+    plug PhilomenaWeb.TorPlug
+  end
+
   pipeline :ensure_not_banned do
     plug PhilomenaWeb.FilterBannedUsersPlug
   end
@@ -54,15 +58,20 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/" do
-    pipe_through [:browser, :ensure_totp, :ensure_not_banned]
+    pipe_through [:browser, :ensure_totp, :ensure_not_banned, :ensure_tor_authorized]
 
     pow_registration_routes()
   end
 
   scope "/" do
     pipe_through [:browser, :ensure_totp]
-  
+
     pow_session_routes()
+  end
+
+  scope "/" do
+    pipe_through [:browser, :ensure_totp, :ensure_tor_authorized]
+
     pow_extension_routes()
   end
 
@@ -85,7 +94,7 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/api/v1/json", PhilomenaWeb.Api.Json, as: :api_json do
-    pipe_through [:accepts_json, :api]
+    pipe_through [:accepts_json, :api, :ensure_tor_authorized]
     resources "/images", ImageController, only: [:show]
 
     scope "/search", Search, as: :search do
@@ -270,7 +279,7 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/", PhilomenaWeb do
-    pipe_through [:browser, :ensure_totp]
+    pipe_through [:browser, :ensure_totp, :ensure_tor_authorized]
 
     get "/", ActivityController, :index
 
