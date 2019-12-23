@@ -3,15 +3,6 @@ defmodule PhilomenaWeb.CommentLoader do
   alias Philomena.Repo
   import Ecto.Query
 
-  # More aggressive preloading skipped due to overhead
-  # from scrivener:
-  #
-  # |> join(:left, [c], _ in assoc(c, :image))
-  # |> join(:left, [c, _i], _ in assoc(c, :user))
-  # |> join(:left, [_c, _i, u], _ in assoc(u, :awards))
-  # |> join(:left, [_c, _i, _u, a], _ in assoc(a, :badge))
-  # |> preload([_c, i, u, a, b], [:deleted_by, image: i, user: {u, awards: {a, badge: b}}])
-
   def load_comments(conn, image) do
     pref = load_direction(conn.assigns.current_user)
 

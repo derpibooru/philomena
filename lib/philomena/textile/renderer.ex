@@ -101,21 +101,17 @@ defmodule Philomena.Textile.Renderer do
   end
 
   defp find_images(text_segments) do
-    text_segments
-    |> Enum.flat_map(fn t ->
-      Regex.scan(~r|&gt;&gt;(\d+)|, t, capture: :all_but_first)
-      |> Enum.map(fn [first] -> String.to_integer(first) end)
-    end)
-    |> find_image_ids()
-  end
+    image_ids =
+      text_segments
+      |> Enum.flat_map(fn t ->
+        Regex.scan(~r|&gt;&gt;(\d+)|, t, capture: :all_but_first)
+        |> Enum.map(fn [first] -> String.to_integer(first) end)
+      end)
 
-  defp find_image_ids([]), do: %{}
-  defp find_image_ids(image_ids) do
     Image
     |> where([i], i.id in ^image_ids)
     |> where([i], i.hidden_from_users == false)
-    |> join(:left, [i], _ in assoc(i, :tags))
-    |> preload([_i, t], tags: t)
+    |> preload(:tags)
     |> Repo.all()
     |> Map.new(fn image -> {image.id, image} end)
   end

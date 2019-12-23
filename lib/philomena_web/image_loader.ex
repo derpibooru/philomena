@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.ImageLoader do
     sort_queries = Keyword.get(options, :queries, [])
     sort_sorts   = Keyword.get(options, :sorts, [%{created_at: :desc}])
     pagination   = Keyword.get(options, :pagination, conn.assigns.image_pagination)
-    queryable    = Keyword.get(options, :queryable, default_queryable())
+    queryable    = Keyword.get(options, :queryable, Image |> preload(:tags))
 
     user    = conn.assigns.current_user
     filter  = conn.assigns.compiled_filter
@@ -126,10 +126,4 @@ defmodule PhilomenaWeb.ImageLoader do
     [{tag, description, dnp_entries}]
   end
   defp render_bodies(tags, _conn), do: tags
-
-  defp default_queryable do
-    Image
-    |> join(:left, [i], _ in assoc(i, :tags))
-    |> preload([_i, t], tags: t)
-  end
 end

@@ -147,12 +147,8 @@ defmodule PhilomenaWeb.ImageController do
       |> where(id: ^id)
       |> join(:inner_lateral, [i], _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id))
       |> join(:inner_lateral, [i, _], _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id))
-      |> join(:left, [i, _tc, _sc], _ in assoc(i, :user))
-      |> join(:left, [_i, _tc, _sc, u], _ in assoc(u, :awards))
-      |> join(:left, [_i, _tc, _sc, _u, a], _ in assoc(a, :badge))
-      |> join(:left, [i, _tc, _sc, _u, _a, _b], _ in assoc(i, :tags))
-      |> preload([_i, _tc, _sc, u, a, b, t], [:deleter, tags: t, user: {u, awards: {a, badge: b}}])
-      |> select([i, tc, sc, _u], {i, tc.count, sc.count})
+      |> preload([:tags, :deleter, user: [awards: :badge]])
+      |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
       |> case do
         nil ->
