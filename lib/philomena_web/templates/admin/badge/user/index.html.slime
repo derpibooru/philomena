@@ -1,0 +1,25 @@
+h1
+  ' Users with
+  => @badge.title
+  ' badge
+
+- route = fn p -> Routes.admin_badge_user_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn
+
+.block
+  .block__header
+    = pagination
+  
+  .block__content
+    table.table
+      thead
+        tr
+          th User
+      tbody
+        = for user <- @users do
+          tr
+            td
+              = link user.name, to: Routes.profile_path(@conn, :show, user)
+
+  .block__header.block__header--light
+    = pagination
