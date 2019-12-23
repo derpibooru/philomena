@@ -83,7 +83,7 @@ defmodule PhilomenaWeb.ImageView do
       image.image_format
       |> to_string()
       |> String.downcase()
-      |> thumb_format(name)
+      |> thumb_format(name, false)
 
     id_fragment =
       if deleted and show_hidden do
@@ -105,7 +105,7 @@ defmodule PhilomenaWeb.ImageView do
       image.image_format
       |> to_string()
       |> String.downcase()
-      |> thumb_format(nil)
+      |> thumb_format(nil, download)
 
     "#{root}/#{view}/#{year}/#{month}/#{day}/#{filename}.#{format}"
   end
@@ -184,9 +184,9 @@ defmodule PhilomenaWeb.ImageView do
     end
   end
 
-  defp thumb_format("svg", _name), do: "png"
-  defp thumb_format(_, :rendered), do: "png"
-  defp thumb_format(format, _name), do: format
+  defp thumb_format("svg", _name, false), do: "png"
+  defp thumb_format(_, :rendered, _download), do: "png"
+  defp thumb_format(format, _name, _download), do: format
 
   defp image_filter_data(image) do
     %{
