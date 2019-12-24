@@ -57,7 +57,8 @@ defmodule Philomena.ImageNavigator do
         },
         sort: List.flatten(sorts)
       },
-      %{page_size: 1}
+      %{page_size: 1},
+      Image
     )
     |> Enum.to_list()
     |> case do
