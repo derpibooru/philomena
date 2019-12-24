@@ -127,7 +127,7 @@ defmodule Philomena.Elasticsearch do
     }
   end
 
-  def search_records(module, elastic_query, pagination_params \\ %{}, ecto_query) do
+  def search_records(module, elastic_query, pagination_params, ecto_query) do
     page = search_results(module, elastic_query, pagination_params)
     ids = page.entries
 

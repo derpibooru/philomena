@@ -45,7 +45,8 @@ defmodule PhilomenaWeb.Image.RandomController do
         },
         sort: sort.sorts
       },
-      %{page_size: 1}
+      %{page_size: 1},
+      Image
     )
     |> Enum.to_list()
     |> unwrap()
