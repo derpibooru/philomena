@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
   alias Philomena.Textile.Renderer
   alias Philomena.Interactions
@@ -16,7 +17,8 @@ defmodule PhilomenaWeb.TagController do
 
     with {:ok, query} <- Tags.Query.compile(query_string) do
       tags =
-        Tag.search_records(
+        Elasticsearch.search_records(
+          Tag,
           %{
             query: query,
             size: 250,

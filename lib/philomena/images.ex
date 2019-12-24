@@ -8,6 +8,7 @@ defmodule Philomena.Images do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
@@ -483,7 +484,7 @@ defmodule Philomena.Images do
       Image
       |> preload(^indexing_preloads())
       |> where([i], i.id in ^image_ids)
-      |> Image.reindex()
+      |> Elasticsearch.reindex(Image)
     end
 
     image_ids

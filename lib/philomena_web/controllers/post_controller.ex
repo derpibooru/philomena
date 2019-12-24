@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.PostController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Elasticsearch
   alias Philomena.{Posts.Query, Posts.Post, Textile.Renderer}
   import Ecto.Query
 
@@ -18,7 +19,8 @@ defmodule PhilomenaWeb.PostController do
 
   defp render_index({:ok, query}, conn, user) do
     posts =
-      Post.search_records(
+      Elasticsearch.search_records(
+        Post,
         %{
           query: %{
             bool: %{

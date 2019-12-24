@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.GalleryController do
 
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.NotificationCountPlug
+  alias Philomena.Elasticsearch
   alias Philomena.ImageSorter
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
@@ -14,7 +15,8 @@ defmodule PhilomenaWeb.GalleryController do
 
   def index(conn, params) do
     galleries =
-      Gallery.search_records(
+      Elasticsearch.search_records(
+        Gallery,
         %{
           query: %{
             bool: %{

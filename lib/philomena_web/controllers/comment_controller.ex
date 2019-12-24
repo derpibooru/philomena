@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.CommentController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Elasticsearch
   alias Philomena.{Comments.Query, Comments.Comment, Textile.Renderer}
   import Ecto.Query
 
@@ -18,7 +19,8 @@ defmodule PhilomenaWeb.CommentController do
 
   defp render_index({:ok, query}, conn, user) do
     comments =
-      Comment.search_records(
+      Elasticsearch.search_records(
+        Comment,
         %{
           query: %{
             bool: %{

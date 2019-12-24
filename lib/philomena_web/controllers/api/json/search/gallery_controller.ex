@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Api.Json.Search.GalleryController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.GalleryJson
+  alias Philomena.Elasticsearch
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Query
   import Ecto.Query
@@ -10,7 +11,8 @@ defmodule PhilomenaWeb.Api.Json.Search.GalleryController do
     case Query.compile(params["q"] || "") do
       {:ok, query} ->
         galleries =
-          Gallery.search_records(
+          Elasticsearch.search_records(
+            Gallery,
             %{
               query: query,
               sort: %{created_at: :desc}

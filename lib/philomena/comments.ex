@@ -7,6 +7,7 @@ defmodule Philomena.Comments do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Reports.Report
   alias Philomena.Comments.Comment
   alias Philomena.Images.Image
@@ -194,7 +195,7 @@ defmodule Philomena.Comments do
       |> preload(^indexing_preloads())
       |> where(id: ^comment.id)
       |> Repo.one()
-      |> Comment.index_document()
+      |> Elasticsearch.index_document(Comment)
     end
 
     comment
@@ -205,7 +206,7 @@ defmodule Philomena.Comments do
       Comment
       |> preload(^indexing_preloads())
       |> where(image_id: ^image.id)
-      |> Comment.reindex()
+      |> Elasticsearch.reindex(Comment)
     end
 
     image

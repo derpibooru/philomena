@@ -1,6 +1,7 @@
 defmodule Philomena.ImageNavigator do
   alias Philomena.ImageSorter
-  alias Philomena.Images.{Image, Elasticsearch}
+  alias Philomena.Images.{Image, ElasticsearchIndex}
+  alias Philomena.Elasticsearch
   alias Philomena.Repo
   import Ecto.Query
 
@@ -30,7 +31,7 @@ defmodule Philomena.ImageNavigator do
       |> preload(:gallery_interactions)
       |> Repo.one()
       |> Map.merge(empty_fields())
-      |> Elasticsearch.as_json()
+      |> ElasticsearchIndex.as_json()
 
     sort_data = ImageSorter.parse_sort(params)
 
@@ -42,7 +43,8 @@ defmodule Philomena.ImageNavigator do
     sorts = sortify(sorts, image_index)
     filters = filterify(filters, image_index)
 
-    Image.search_records(
+    Elasticsearch.search_records(
+      Image,
       %{
         query: %{
           bool: %{

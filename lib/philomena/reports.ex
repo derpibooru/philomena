@@ -6,6 +6,7 @@ defmodule Philomena.Reports do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Reports.Report
   alias Philomena.Polymorphic
 
@@ -128,7 +129,7 @@ defmodule Philomena.Reports do
       |> preload([:user, :admin])
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
-      |> Enum.map(&Report.index_document/1)
+      |> Enum.map(&Elasticsearch.index_document(&1, Report))
     end
 
     report_ids

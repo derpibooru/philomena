@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Image.RandomController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Elasticsearch
   alias Philomena.Images.Query
   alias Philomena.Images.Image
   alias Philomena.ImageSorter
@@ -30,7 +31,8 @@ defmodule PhilomenaWeb.Image.RandomController do
   defp random_image_id(query, filter) do
     sort = ImageSorter.parse_sort(%{"sf" => "random"})
 
-    Image.search_records(
+    Elasticsearch.search_records(
+      Image,
       %{
         query: %{
           bool: %{

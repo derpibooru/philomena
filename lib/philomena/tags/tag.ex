@@ -2,11 +2,6 @@ defmodule Philomena.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
-  use Philomena.Elasticsearch,
-    definition: Philomena.Tags.Elasticsearch,
-    index_name: "tags",
-    doc_type: "tag"
-
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
   alias Philomena.Tags.Tag

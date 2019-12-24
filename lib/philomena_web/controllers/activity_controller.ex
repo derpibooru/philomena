@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ActivityController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias Philomena.Elasticsearch
   alias Philomena.{Images.Image, ImageFeatures.ImageFeature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
   alias Philomena.Interactions
   alias Philomena.Repo
@@ -26,7 +27,8 @@ defmodule PhilomenaWeb.ActivityController do
       )
 
     comments =
-      Comment.search_records(
+      Elasticsearch.search_records(
+        Comment,
         %{
           query: %{
             bool: %{

@@ -1,4 +1,5 @@
 defmodule PhilomenaWeb.ImageLoader do
+  alias Philomena.Elasticsearch
   alias Philomena.Images.{Image, Query}
   alias Philomena.Textile.Renderer
   alias Philomena.Tags.Tag
@@ -27,7 +28,8 @@ defmodule PhilomenaWeb.ImageLoader do
     filters = create_filters(conn, user, filter)
 
     records =
-      Image.search_records(
+      Elasticsearch.search_records(
+        Image,
         %{
           query: %{
             bool: %{

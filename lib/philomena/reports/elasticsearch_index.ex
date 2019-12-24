@@ -1,4 +1,17 @@
-defmodule Philomena.Reports.Elasticsearch do
+defmodule Philomena.Reports.ElasticsearchIndex do
+  @behaviour Philomena.ElasticsearchIndex
+
+  @impl true
+  def index_name do
+    "reports"
+  end
+
+  @impl true
+  def doc_type do
+    "report"
+  end
+
+  @impl true
   def mapping do
     %{
       settings: %{
@@ -32,6 +45,7 @@ defmodule Philomena.Reports.Elasticsearch do
     }
   end
 
+  @impl true
   def as_json(report) do
     %{
       id: report.id,

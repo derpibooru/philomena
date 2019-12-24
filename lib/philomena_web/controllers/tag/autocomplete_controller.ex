@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Tag.AutocompleteController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
 
   def show(conn, params) do
@@ -10,7 +11,8 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
           []
 
         term ->
-          Tag.search_records(
+          Elasticsearch.search_records(
+            Tag,
             %{
               query: %{
                 bool: %{

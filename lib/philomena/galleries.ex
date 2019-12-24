@@ -7,6 +7,7 @@ defmodule Philomena.Galleries do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
   alias Philomena.Notifications
@@ -127,7 +128,7 @@ defmodule Philomena.Galleries do
       |> preload(^indexing_preloads())
       |> where(id: ^gallery.id)
       |> Repo.one()
-      |> Gallery.index_document()
+      |> Elasticsearch.index_document(Gallery)
     end
 
     gallery
@@ -135,7 +136,7 @@ defmodule Philomena.Galleries do
 
   def unindex_gallery(%Gallery{} = gallery) do
     spawn fn ->
-      Gallery.delete_document(gallery.id)
+      Elasticsearch.delete_document(gallery.id, Gallery)
     end
 
     gallery

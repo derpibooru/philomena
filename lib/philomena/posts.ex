@@ -7,6 +7,7 @@ defmodule Philomena.Posts do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Topics.Topic
   alias Philomena.Topics
   alias Philomena.Posts.Post
@@ -207,7 +208,7 @@ defmodule Philomena.Posts do
       |> preload(^indexing_preloads())
       |> where(id: ^post.id)
       |> Repo.one()
-      |> Post.index_document()
+      |> Elasticsearch.index_document(Post)
     end
 
     post

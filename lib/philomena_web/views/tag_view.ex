@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.TagView do
   use PhilomenaWeb, :view
 
   # this is bad practice, don't copy this.
+  alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
@@ -124,7 +125,8 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp implied_by_multitag(tag_names, ignore_tag_names) do
-    Tag.search_records(
+    Elasticsearch.search_records(
+      Tag,
       %{
         query: %{
           bool: %{

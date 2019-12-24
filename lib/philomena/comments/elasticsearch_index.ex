@@ -1,4 +1,17 @@
-defmodule Philomena.Comments.Elasticsearch do
+defmodule Philomena.Comments.ElasticsearchIndex do
+  @behaviour Philomena.ElasticsearchIndex
+
+  @impl true
+  def index_name do
+    "comments"
+  end
+
+  @impl true
+  def doc_type do
+    "comment"
+  end
+
+  @impl true
   def mapping do
     %{
       settings: %{
@@ -29,6 +42,7 @@ defmodule Philomena.Comments.Elasticsearch do
     }
   end
 
+  @impl true
   def as_json(comment) do
     %{
       id: comment.id,

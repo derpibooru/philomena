@@ -1,4 +1,17 @@
-defmodule Philomena.Tags.Elasticsearch do
+defmodule Philomena.Tags.ElasticsearchIndex do
+  @behaviour Philomena.ElasticsearchIndex
+
+  @impl true
+  def index_name do
+    "tags"
+  end
+
+  @impl true
+  def doc_type do
+    "tag"
+  end
+
+  @impl true
   def mapping do
     %{
       settings: %{
@@ -48,9 +61,7 @@ defmodule Philomena.Tags.Elasticsearch do
     }
   end
 
-  # preload([
-  #   :aliased_tag, :aliases, :implied_tags, :implied_by_tags
-  # ])
+  @impl true
   def as_json(tag) do
     %{
       id: tag.id,

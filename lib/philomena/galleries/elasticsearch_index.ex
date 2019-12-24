@@ -1,4 +1,17 @@
-defmodule Philomena.Galleries.Elasticsearch do
+defmodule Philomena.Galleries.ElasticsearchIndex do
+  @behaviour Philomena.ElasticsearchIndex
+
+  @impl true
+  def index_name do
+    "galleries"
+  end
+
+  @impl true
+  def doc_type do
+    "gallery"
+  end
+
+  @impl true
   def mapping do
     %{
       settings: %{
@@ -28,7 +41,7 @@ defmodule Philomena.Galleries.Elasticsearch do
     }
   end
 
-  # [:subscribers, :creator, :interactions]
+  @impl true
   def as_json(gallery) do
     %{
       id: gallery.id,

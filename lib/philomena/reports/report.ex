@@ -2,11 +2,6 @@ defmodule Philomena.Reports.Report do
   use Ecto.Schema
   import Ecto.Changeset
 
-  use Philomena.Elasticsearch,
-    definition: Philomena.Reports.Elasticsearch,
-    index_name: "reports",
-    doc_type: "report"
-
   alias Philomena.Users.User
 
   schema "reports" do

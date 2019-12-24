@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ProfileController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias Philomena.Elasticsearch
   alias Philomena.Textile.Renderer
   alias Philomena.UserStatistics.UserStatistic
   alias Philomena.Users.User
@@ -61,7 +62,8 @@ defmodule PhilomenaWeb.ProfileController do
     recent_artwork = recent_artwork(conn, tags)
 
     recent_comments =
-      Comment.search_records(
+      Elasticsearch.search_records(
+        Comment,
         %{
           query: %{
             bool: %{
@@ -88,7 +90,8 @@ defmodule PhilomenaWeb.ProfileController do
       |> Enum.zip(recent_comments)
 
     recent_posts =
-      Post.search_records(
+      Elasticsearch.search_records(
+        Post,
         %{
           query: %{
             bool: %{

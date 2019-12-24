@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.CommentJson
+  alias Philomena.Elasticsearch
   alias Philomena.Comments.Comment
   alias Philomena.Comments.Query
   import Ecto.Query
@@ -13,7 +14,8 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
     case Query.compile(user, params["q"] || "") do
       {:ok, query} ->
         comments =
-          Comment.search_records(
+          Elasticsearch.search_records(
+            Comment,
             %{
               query: %{
                 bool: %{

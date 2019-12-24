@@ -1,141 +1,142 @@
 defmodule Philomena.Elasticsearch do
-  defmacro __using__(opts) do
-    definition = Keyword.fetch!(opts, :definition)
-    index_name = Keyword.fetch!(opts, :index_name)
-    doc_type = Keyword.fetch!(opts, :doc_type)
+  alias Philomena.Batch
+  alias Philomena.Repo
+  require Logger
+  import Ecto.Query
 
-    elastic_url = Application.get_env(:philomena, :elasticsearch_url)
+  alias Philomena.Comments.Comment
+  alias Philomena.Galleries.Gallery
+  alias Philomena.Images.Image
+  alias Philomena.Posts.Post
+  alias Philomena.Reports.Report
+  alias Philomena.Tags.Tag
 
-    quote do
-      alias Philomena.Repo
-      import Ecto.Query, warn: false
-      require Logger
+  alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
+  alias Philomena.Galleries.ElasticsearchIndex, as: GalleryIndex
+  alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
+  alias Philomena.Posts.ElasticsearchIndex, as: PostIndex
+  alias Philomena.Reports.ElasticsearchIndex, as: ReportIndex
+  alias Philomena.Tags.ElasticsearchIndex, as: TagIndex
 
-      def create_index! do
-        Elastix.Index.create(
-          unquote(elastic_url),
-          unquote(index_name),
-          unquote(definition).mapping()
-        )
-      end
+  defp index_for(Comment), do: CommentIndex
+  defp index_for(Gallery), do: GalleryIndex
+  defp index_for(Image), do: ImageIndex
+  defp index_for(Post), do: PostIndex
+  defp index_for(Report), do: ReportIndex
+  defp index_for(Tag), do: TagIndex
 
-      def delete_index! do
-        Elastix.Index.delete(unquote(elastic_url), unquote(index_name))
-      end
+  defp elastic_url do
+    Application.get_env(:philomena, :elasticsearch_url)
+  end
 
-      def index_document(doc) do
-        data = unquote(definition).as_json(doc)
+  def create_index!(module) do
+    index = index_for(module)
 
-        Elastix.Document.index(
-          unquote(elastic_url),
-          unquote(index_name),
-          [unquote(doc_type)],
-          data.id,
-          data
-        )
-      end
+    Elastix.Index.create(
+      elastic_url(),
+      index.index_name(),
+      index.mapping()
+    )
+  end
 
-      def delete_document(id) do
-        Elastix.Document.delete(
-          unquote(elastic_url),
-          unquote(index_name),
-          unquote(doc_type),
-          id
-        )
-      end
+  def delete_index!(module) do
+    index = index_for(module)
 
-      def reindex(ecto_query, batch_size \\ 1000) do
-        ids =
-          ecto_query
-          |> exclude(:preload)
-          |> exclude(:order_by)
-          |> order_by(asc: :id)
-          |> select([m], m.id)
-          |> limit(^batch_size)
-          |> Repo.all()
+    Elastix.Index.delete(elastic_url(), index.index_name())
+  end
 
-        reindex(ecto_query, batch_size, ids)
-      end
+  def index_document(doc, module) do
+    index = index_for(module)
+    data = index.as_json(doc)
 
-      def reindex(ecto_query, batch_size, []), do: nil
+    Elastix.Document.index(
+      elastic_url(),
+      index.index_name(),
+      [index.doc_type()],
+      data.id,
+      data
+    )
+  end
 
-      def reindex(ecto_query, batch_size, ids) do
-        lines =
-          ecto_query
-          |> where([m], m.id in ^ids)
-          |> Repo.all()
-          |> Enum.flat_map(fn m ->
-            doc = unquote(definition).as_json(m)
+  def delete_document(id, module) do
+    index = index_for(module)
 
-            [
-              %{index: %{_index: unquote(index_name), _type: unquote(doc_type), _id: doc.id}},
-              doc
-            ]
-          end)
+    Elastix.Document.delete(
+      elastic_url(),
+      index.index_name(),
+      index.doc_type(),
+      id
+    )
+  end
 
-        Elastix.Bulk.post(unquote(elastic_url), lines,
-          index: unquote(index_name),
-          httpoison_options: [timeout: 30_000]
-        )
+  def reindex(queryable, module, opts \\ []) do
+    index = index_for(module)
 
-        ids =
-          ecto_query
-          |> exclude(:preload)
-          |> exclude(:order_by)
-          |> order_by(asc: :id)
-          |> where([m], m.id > ^Enum.max(ids))
-          |> select([m], m.id)
-          |> limit(^batch_size)
-          |> Repo.all()
+    Batch.record_batches(queryable, opts, fn records ->
+      lines =
+        Enum.flat_map(records, fn record ->
+          doc = index.as_json(record)
 
-        reindex(ecto_query, batch_size, ids)
-      end
+          [
+            %{index: %{_index: index.index_name(), _type: index.doc_type(), _id: doc.id}},
+            doc
+          ]
+        end)
 
-      def search(query_body) do
-        {:ok, %{body: results, status_code: 200}} =
-          Elastix.Search.search(
-            unquote(elastic_url),
-            unquote(index_name),
-            [unquote(doc_type)],
-            query_body
-          )
+      Elastix.Bulk.post(
+        elastic_url(),
+        lines,
+        index: index.index_name(),
+        httpoison_options: [timeout: 30_000]
+      )
+    end)
+  end
 
-        results
-      end
+  def search(module, query_body) do
+    index = index_for(module)
 
-      def search_results(elastic_query, pagination_params \\ %{}) do
-        page_number = pagination_params[:page_number] || 1
-        page_size = pagination_params[:page_size] || 25
-        elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
+    {:ok, %{body: results, status_code: 200}} =
+      Elastix.Search.search(
+        elastic_url(),
+        index.index_name(),
+        [index.doc_type()],
+        query_body
+      )
 
-        results = search(elastic_query)
-        time = results["took"]
-        count = results["hits"]["total"]
-        entries = results["hits"]["hits"] |> Enum.map(&String.to_integer(&1["_id"]))
+    results
+  end
 
-        Logger.debug("[Elasticsearch] Query took #{time}ms")
+  def search_results(module, elastic_query, pagination_params \\ %{}) do
+    page_number = pagination_params[:page_number] || 1
+    page_size = pagination_params[:page_size] || 25
+    elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
 
-        %Scrivener.Page{
-          entries: entries,
-          page_number: page_number,
-          page_size: page_size,
-          total_entries: count,
-          total_pages: div(count + page_size - 1, page_size)
-        }
-      end
+    results = search(module, elastic_query)
+    time = results["took"]
+    count = results["hits"]["total"]
+    entries = Enum.map(results["hits"]["hits"], &String.to_integer(&1["_id"]))
 
-      def search_records(elastic_query, pagination_params \\ %{}, ecto_query \\ __MODULE__) do
-        page = search_results(elastic_query, pagination_params)
-        ids = page.entries
+    Logger.debug("[Elasticsearch] Query took #{time}ms")
 
-        records =
-          ecto_query
-          |> where([m], m.id in ^ids)
-          |> Repo.all()
-          |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
+    %Scrivener.Page{
+      entries: entries,
+      page_number: page_number,
+      page_size: page_size,
+      total_entries: count,
+      total_pages: div(count + page_size - 1, page_size)
+    }
+  end
 
-        %{page | entries: records}
-      end
-    end
+  def search_records(module, elastic_query, pagination_params \\ %{}, ecto_query \\ __MODULE__) do
+    page = search_results(module, elastic_query, pagination_params)
+    ids = page.entries
+
+    records =
+      ecto_query
+      |> where([m], m.id in ^ids)
+      |> Repo.all()
+      |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
+
+    %{page | entries: records}
   end
 end

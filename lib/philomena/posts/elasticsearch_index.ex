@@ -1,4 +1,17 @@
-defmodule Philomena.Posts.Elasticsearch do
+defmodule Philomena.Posts.ElasticsearchIndex do
+  @behaviour Philomena.ElasticsearchIndex
+
+  @impl true
+  def index_name do
+    "posts"
+  end
+
+  @impl true
+  def doc_type do
+    "post"
+  end
+
+  @impl true
   def mapping do
     %{
       settings: %{
@@ -36,7 +49,7 @@ defmodule Philomena.Posts.Elasticsearch do
     }
   end
 
-  # [:user, topic: :forum]
+  @impl true
   def as_json(post) do
     %{
       id: post.id,

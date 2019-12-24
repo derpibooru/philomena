@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.PostJson
+  alias Philomena.Elasticsearch
   alias Philomena.Posts.Post
   alias Philomena.Posts.Query
   import Ecto.Query
@@ -12,7 +13,8 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
     case Query.compile(user, params["q"] || "") do
       {:ok, query} ->
         posts =
-          Post.search_records(
+          Elasticsearch.search_records(
+            Post,
             %{
               query: %{
                 bool: %{

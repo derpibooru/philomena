@@ -7,6 +7,7 @@ defmodule Philomena.Tags do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
   alias Philomena.Tags.Uploader
   alias Philomena.Images
@@ -165,12 +166,12 @@ defmodule Philomena.Tags do
 
     {:ok, tag} = Repo.delete(tag)
 
-    Tag.delete_document(tag.id)
+    Elasticsearch.delete_document(tag.id, Tag)
 
     Image
     |> where([i], i.id in ^image_ids)
     |> preload(^Images.indexing_preloads())
-    |> Image.reindex()
+    |> Elasticsearch.reindex(Image)
   end
 
   def alias_tag(%Tag{} = tag, attrs) do
@@ -234,7 +235,7 @@ defmodule Philomena.Tags do
     |> join(:inner, [i], _ in assoc(i, :tags))
     |> where([_i, t], t.id == ^tag.id)
     |> preload(^Images.indexing_preloads())
-    |> Image.reindex()
+    |> Elasticsearch.reindex(Image)
   end
 
   def unalias_tag(%Tag{} = tag) do
@@ -316,7 +317,7 @@ defmodule Philomena.Tags do
       Tag
       |> preload(^indexing_preloads())
       |> where([t], t.id in ^ids)
-      |> Tag.reindex()
+      |> Elasticsearch.reindex(Tag)
     end
 
     tags

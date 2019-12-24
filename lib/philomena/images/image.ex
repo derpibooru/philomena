@@ -1,11 +1,6 @@
 defmodule Philomena.Images.Image do
   use Ecto.Schema
 
-  use Philomena.Elasticsearch,
-    definition: Philomena.Images.Elasticsearch,
-    index_name: "images",
-    doc_type: "image"
-
   import Ecto.Changeset
   import Ecto.Query
 

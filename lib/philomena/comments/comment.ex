@@ -2,11 +2,6 @@ defmodule Philomena.Comments.Comment do
   use Ecto.Schema
   import Ecto.Changeset
 
-  use Philomena.Elasticsearch,
-    definition: Philomena.Comments.Elasticsearch,
-    index_name: "comments",
-    doc_type: "comment"
-
   alias Philomena.Images.Image
   alias Philomena.Users.User
 

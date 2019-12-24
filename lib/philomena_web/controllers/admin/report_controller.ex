@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Admin.ReportController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Elasticsearch
   alias Philomena.Textile.Renderer
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
@@ -61,7 +62,8 @@ defmodule PhilomenaWeb.Admin.ReportController do
 
   defp load_reports(conn, query) do
     reports =
-      Report.search_records(
+      Elasticsearch.search_records(
+        Report,
         %{
           query: query,
           sort: sorts()
