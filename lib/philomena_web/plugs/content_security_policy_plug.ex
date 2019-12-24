@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   end
 
   def call(conn, [csp_value: csp_value]) do
-    Conn.put_resp_header(conn, "Content-Security-Policy", csp_value)
+    Conn.put_resp_header(conn, "content-security-policy", csp_value)
   end
 
   defp cdn_uri, do: Application.get_env(:philomena, :cdn_host) |> to_uri()

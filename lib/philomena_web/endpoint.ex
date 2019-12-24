@@ -40,6 +40,7 @@ defmodule PhilomenaWeb.Endpoint do
   # Set :encryption_salt if you would also like to encrypt it.
   plug Plug.Session,
     store: :cookie,
+    extra: "SameSite=Lax",
     key: "_philomena_key",
     signing_salt: "signed cookie",
     encryption_salt: "authenticated encrypted cookie"
