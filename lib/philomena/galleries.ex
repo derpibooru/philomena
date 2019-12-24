@@ -265,7 +265,7 @@ defmodule Philomena.Galleries do
       Repo.insert_all(
         Interaction,
         changes,
-        on_conflict: :replace_all_except_primary_key,
+        on_conflict: {:replace_all_except, [:id]},
         conflict_target: [:id]
       )
 
