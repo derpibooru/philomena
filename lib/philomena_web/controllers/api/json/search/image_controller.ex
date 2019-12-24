@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.Json.SearchController do
+defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader

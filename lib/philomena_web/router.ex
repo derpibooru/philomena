@@ -99,8 +99,16 @@ defmodule PhilomenaWeb.Router do
 
     scope "/search", Search, as: :search do
       resources "/reverse", ReverseController, only: [:create]
+      resources "/images", ImageController, only: [:index]
+      resources "/tags", TagController, only: [:index]
+      resources "/posts", PostController, only: [:index]
+      resources "/comments", CommentController, only: [:index]
+      resources "/galleries", GalleryController, only: [:index]
     end
-    resources "/search", SearchController, only: [:index]
+
+    # Convenience alias
+    get "/search", Search.ImageController, :index
+
     resources "/oembed", OembedController, only: [:index]
     resources "/tags", TagController, only: [:show]
   end
