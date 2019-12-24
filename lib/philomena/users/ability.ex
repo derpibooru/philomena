@@ -19,6 +19,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
   alias Philomena.Tags.Tag
+  alias Philomena.TagChanges.TagChange
   alias Philomena.Reports.Report
   alias Philomena.StaticPages.StaticPage
   alias Philomena.Adverts.Advert
@@ -106,6 +107,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Create mod notes
   def can?(%User{role: "moderator"}, :index, ModNote), do: true
 
+  # Revert tag changes
+  def can?(%User{role: "moderator"}, :revert, TagChange), do: true
+
   # And some privileged moderators can...
 
   # Manage site notices
@@ -170,6 +174,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Tag assistant actions
   def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :edit, %Tag{}), do: true
+  def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :batch_update, Tag), do: true
 
   # User link assistant actions
   def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :show, %UserLink{}), do: true
