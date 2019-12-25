@@ -144,7 +144,7 @@ defmodule Philomena.Images.ElasticsearchIndex do
   end
 
   def wilson_score(%{upvotes_count: upvotes, downvotes_count: downvotes})
-      when upvotes > 0 or downvotes > 0 do
+      when upvotes > 0 do
     # Population size
     n = (upvotes + downvotes) / 1
 
