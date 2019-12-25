@@ -41,7 +41,7 @@
       br
       = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
 
-      .tag-info__more.hidden
+      .tag-info__more
         hr
 
         = if Enum.any?(@tag.public_links) do
