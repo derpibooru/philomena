@@ -330,6 +330,7 @@ defmodule Philomena.Images do
 
     case result do
       {:ok, changes} ->
+        update_first_seen_at(duplicate_of_image, image.first_seen_at)
         tags = Tags.copy_tags(image, duplicate_of_image)
         Comments.migrate_comments(image, duplicate_of_image)
         Interactions.migrate_interactions(image, duplicate_of_image)
@@ -339,6 +340,12 @@ defmodule Philomena.Images do
       _error ->
         result
     end
+  end
+
+  defp update_first_seen_at(image, time) do
+    Image
+    |> where(id: ^image.id)
+    |> Repo.update_all(set: [first_seen_at: time])
   end
 
   defp internal_hide_image(changeset, image) do
