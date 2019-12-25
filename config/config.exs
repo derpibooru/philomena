@@ -28,7 +28,8 @@ config :philomena,
   channel_banner_file_root: "priv/static/system/images",
   tag_file_root: "priv/static/system/images",
   cdn_host: "",
-  proxy_host: nil
+  proxy_host: nil,
+  app_dir: File.cwd!()
 
 config :philomena, :pow,
   user: Philomena.Users.User,

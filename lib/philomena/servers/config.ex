@@ -46,10 +46,14 @@ defmodule Philomena.Servers.Config do
   defp maybe_update_state(state, _key, _true), do: state
 
   defp load_config(name) do
-    with {:ok, text} <- File.read("config/#{name}.json"),
+    with {:ok, text} <- File.read("#{app_dir()}/config/#{name}.json"),
          {:ok, json} <- Jason.decode(text)
     do
       json
     end
+  end
+
+  defp app_dir do
+    Application.get_env(:philomena, :app_dir)
   end
 end
