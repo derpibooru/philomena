@@ -1,4 +1,22 @@
 defmodule Philomena.ImageSorter do
+  @allowed_fields ~W(
+    created_at
+    updated_at
+    first_seen_at
+    aspect_ratio
+    faves
+    id
+    downvotes
+    upvotes
+    width
+    height
+    score
+    comment_count
+    tag_count
+    wilson_score
+    _score
+  )
+
   def parse_sort(params) do
     sd = parse_sd(params)
 
@@ -8,9 +26,7 @@ defmodule Philomena.ImageSorter do
   defp parse_sd(%{"sd" => sd}) when sd in ~W(asc desc), do: sd
   defp parse_sd(_params), do: "desc"
 
-  defp parse_sf(%{"sf" => sf}, sd) when
-    sf in ~W(created_at updated_at first_seen_at width height score comment_count tag_count wilson_score _score)
-  do
+  defp parse_sf(%{"sf" => sf}, sd) when sf in @allowed_fields do
     %{queries: [], sorts: [%{sf => sd}]}
   end
 
