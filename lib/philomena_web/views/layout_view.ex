@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
   alias PhilomenaWeb.ImageView
+  alias Philomena.Servers.Config
   alias Plug.Conn
 
   def layout_class(conn) do
@@ -62,16 +63,7 @@ defmodule PhilomenaWeb.LayoutView do
   end
 
   def footer_data do
-    case Application.get_env(:philomena, :footer) do
-      nil ->
-        footer = Jason.decode!(Application.get_env(:philomena, :footer_json))
-        Application.put_env(:philomena, :footer, footer)
-
-        footer
-
-      footer ->
-        footer
-    end
+    Config.get(:footer)
   end
 
   def stylesheet_path(conn, %{theme: "dark"}),

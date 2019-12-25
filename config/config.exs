@@ -28,10 +28,7 @@ config :philomena,
   channel_banner_file_root: "priv/static/system/images",
   tag_file_root: "priv/static/system/images",
   cdn_host: "",
-  proxy_host: nil,
-  quick_tags_json: File.read!("config/quick_tag_table.json"),
-  aggregation_json: File.read!("config/aggregation.json"),
-  footer_json: File.read!("config/footer.json")
+  proxy_host: nil
 
 config :philomena, :pow,
   user: Philomena.Users.User,

@@ -10,8 +10,7 @@ defmodule Philomena.Application do
     children = [
       # Start the Ecto repository
       Philomena.Repo,
-      # Start the endpoint when the application starts
-      PhilomenaWeb.Endpoint,
+
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
       Philomena.Servers.ImageProcessor,
@@ -20,8 +19,12 @@ defmodule Philomena.Application do
       Philomena.Servers.PiczelChannelUpdater,
       Philomena.Servers.UserFingerprintUpdater,
       Philomena.Servers.UserIpUpdater,
+      Philomena.Servers.Config,
       Pow.Store.Backend.MnesiaCache,
-      {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)}
+      {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
+
+      # Start the endpoint when the application starts
+      PhilomenaWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

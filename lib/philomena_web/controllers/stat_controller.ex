@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.StatController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Elasticsearch
+  alias Philomena.Servers.Config
   alias Philomena.Images.Image
   alias Philomena.Comments.Comment
   alias Philomena.Topics.Topic
@@ -48,9 +49,7 @@ defmodule PhilomenaWeb.StatController do
   end
 
   defp aggregations do
-    data =
-      Application.get_env(:philomena, :aggregation_json)
-      |> Jason.decode!()
+    data = Config.get(:aggregation)
 
     {
       Elasticsearch.search(Image, data["images"]),
