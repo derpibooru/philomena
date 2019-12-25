@@ -42,7 +42,7 @@ defmodule Philomena.Slug do
     |> String.replace(":", "-colon-")
     |> String.replace(".", "-dot-")
     |> String.replace("+", "-plus-")
-    |> URI.encode()
+    |> URI.encode_www_form()
     |> String.replace("%20", "+")
   end
 
