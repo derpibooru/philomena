@@ -50,7 +50,7 @@
   "porcelain": {:git, "https://github.com/walkr/porcelain.git", "4a497495beb8cab7af0d47ae50f720d31a13f039", [ref: "4a49749"]},
   "postgrex": {:hex, :postgrex, "0.15.3", "5806baa8a19a68c4d07c7a624ccdb9b57e89cbc573f1b98099e3741214746ae4", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.5", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
   "pot": {:hex, :pot, "0.10.1", "af7dc220fd45478719b821fb4c1222975132516478483213507f95026298d8ab", [:rebar3], [], "hexpm"},
-  "pow": {:git, "https://github.com/liamwhite/pow.git", "f654b36320b1afb3e348a6b578773807fa421489", [ref: "f654b36"]},
+  "pow": {:hex, :pow, "1.0.15", "9267b5c75df2d59968585c042e2a0ec6217b1959d3afd629817461f0a20e903c", [:mix], [{:ecto, "~> 2.2 or ~> 3.0", [hex: :ecto, repo: "hexpm", optional: false]}, {:phoenix, "~> 1.3.0 or ~> 1.4.0", [hex: :phoenix, repo: "hexpm", optional: false]}, {:phoenix_html, ">= 2.0.0 and <= 3.0.0", [hex: :phoenix_html, repo: "hexpm", optional: false]}, {:plug, ">= 1.5.0 and < 2.0.0", [hex: :plug, repo: "hexpm", optional: true]}], "hexpm"},
   "qrcode": {:hex, :qrcode, "0.1.5", "551271830515c150f34568345b060c625deb0e6691db2a01b0a6de3aafc93886", [:mix], [], "hexpm"},
   "ranch": {:hex, :ranch, "1.7.1", "6b1fab51b49196860b733a49c07604465a47bdb78aa10c1c16a3d199f7f8c881", [:rebar3], [], "hexpm"},
   "redix": {:hex, :redix, "0.10.2", "a9eabf47898aa878650df36194aeb63966d74f5bd69d9caa37babb32dbb93c5d", [:mix], [{:telemetry, "~> 0.4.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm"},
