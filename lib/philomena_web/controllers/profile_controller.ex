@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.ProfileController do
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [
-    awards: :badge, public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
+    awards: [:badge, :awarded_by], public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
   ]
   plug :set_admin_metadata
   plug :set_mod_notes

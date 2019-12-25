@@ -102,7 +102,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :edit, %Tag{}), do: true
 
   # Award badges
-  def can?(%User{role: "moderator"}, :create, %Award{}), do: true
+  def can?(%User{role: "moderator"}, _action, %Award{}), do: true
+  def can?(%User{role: "moderator"}, _action, Award), do: true
 
   # Create mod notes
   def can?(%User{role: "moderator"}, :index, ModNote), do: true
@@ -117,8 +118,6 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, %SiteNotice{}), do: true
 
   # Manage badges
-  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, Award), do: true
-  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, %Award{}), do: true
   def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, Badge), do: true
   def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, %Badge{}), do: true
 

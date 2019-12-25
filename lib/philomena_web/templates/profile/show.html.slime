@@ -54,7 +54,7 @@
       = render PhilomenaWeb.ProfileView, "_commission.html", user: @user, commission_information: @commission_information, conn: @conn
 
     .block
-      = if current?(@user, @conn.assigns.current_user) do
+      = if current?(@user, @conn.assigns.current_user) or manages_links?(@conn, @user) do
         a.block__header--single-item href=Routes.profile_user_link_path(@conn, :new, @user) User Links
       - else
         .block__header
@@ -92,7 +92,9 @@
             br
             = award_title(award)
           .flex__grow.center
-            = pretty_time(award.awarded_on)
+            => pretty_time(award.awarded_on)
+            = if manages_awards?(@conn) do
+              = user_abbrv(@conn, award.awarded_by)
 
           = if manages_awards?(@conn) do
             .flex__grow.center

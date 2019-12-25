@@ -28,6 +28,8 @@ h2 Badges
               = badge_image(badge, width: 32, height: 32)
 
             td
+              => link "Users", to: Routes.admin_badge_user_path(@conn, :index, badge)
+              ' &bull;
               = link "Edit", to: Routes.admin_badge_path(@conn, :edit, badge)
 
   .block__header.block__header--light
