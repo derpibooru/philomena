@@ -20,6 +20,6 @@ defmodule PhilomenaWeb.StaffController do
       "Assistants": Enum.filter(users, & &1.role == "assistant" and &1.secondary_role in [nil, ""])
     ]
 
-    render(conn, "index.html", index: "Site Staff", categories: categories)
+    render(conn, "index.html", title: "Site Staff", categories: categories)
   end
 end

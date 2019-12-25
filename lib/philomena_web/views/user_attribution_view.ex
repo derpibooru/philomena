@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.UserAttributionView do
-  alias Philomena.Attribution
-  use Bitwise
   use PhilomenaWeb, :view
+  use Bitwise
+
+  alias Philomena.Attribution
 
   def anonymous?(object) do
     Attribution.anonymous?(object)
@@ -23,20 +24,20 @@ defmodule PhilomenaWeb.UserAttributionView do
     end
   end
 
-  def anonymous_avatar(_object, class \\ "avatar--100px") do
+  def anonymous_avatar(name, class \\ "avatar--100px") do
     class = Enum.join(["image-constrained", class], " ")
 
     content_tag :div, [class: class] do
-      img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/no_avatar.svg"))
+      PhilomenaWeb.AvatarGeneratorView.generated_avatar(name)
     end
   end
 
   def user_avatar(object, class \\ "avatar--100px")
 
   def user_avatar(%{user: nil} = object, class),
-    do: anonymous_avatar(object, class)
+    do: anonymous_avatar(anonymous_name(object), class)
   def user_avatar(%{user: %{avatar: nil}} = object, class),
-    do: anonymous_avatar(object, class)
+    do: anonymous_avatar(object.user.name, class)
   def user_avatar(%{user: %{avatar: avatar}}, class) do
     class = Enum.join(["image-constrained", class], " ")
 
