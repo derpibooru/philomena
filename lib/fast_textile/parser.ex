@@ -240,7 +240,7 @@ defmodule FastTextile.Parser do
   defp bracketed_image(parser, [{:bracketed_image, img} | r_tokens], _state) do
     src = escape(parser.image_transform.(img))
 
-    {:ok, [{:markup, "<span class=\"imagespoiler\"><img src=\""}, {:markup, src}, {:markup, "\"/></span>"}], r_tokens}
+    {:ok, [{:markup, "<span class=\"imgspoiler\"><img src=\""}, {:markup, src}, {:markup, "\"/></span>"}], r_tokens}
   end
   defp bracketed_image(_parser, _tokens, _state), do: {:error, "Expected a bracketed image"}
 
