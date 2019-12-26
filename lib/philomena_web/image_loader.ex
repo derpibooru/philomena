@@ -18,14 +18,16 @@ defmodule PhilomenaWeb.ImageLoader do
   end
 
   def query(conn, body, options \\ []) do
-    sort_queries = Keyword.get(options, :queries, [])
-    sort_sorts   = Keyword.get(options, :sorts, [%{created_at: :desc}])
-    pagination   = Keyword.get(options, :pagination, conn.assigns.image_pagination)
-    queryable    = Keyword.get(options, :queryable, Image |> preload(:tags))
+    sort_queries   = Keyword.get(options, :queries, [])
+    sort_sorts     = Keyword.get(options, :sorts, [%{created_at: :desc}])
+    pagination     = Keyword.get(options, :pagination, conn.assigns.image_pagination)
+    queryable      = Keyword.get(options, :queryable, Image |> preload(:tags))
+    constant_score = Keyword.get(options, :constant_score, true)
 
     user    = conn.assigns.current_user
     filter  = conn.assigns.compiled_filter
     filters = create_filters(conn, user, filter)
+    body    = maybe_constant_score(body, constant_score)
 
     records =
       Elasticsearch.search_records(
@@ -92,6 +94,9 @@ defmodule PhilomenaWeb.ImageLoader do
 
   defp maybe_custom_hide(filters, _user, _param),
     do: filters
+
+  defp maybe_constant_score(body, false), do: body
+  defp maybe_constant_score(body, _), do: %{bool: %{filter: body}}
 
   # TODO: the search parser should try to optimize queries
   defp search_tag_name(%{term: %{"namespaced_tags.name" => tag_name}}), do: [tag_name]

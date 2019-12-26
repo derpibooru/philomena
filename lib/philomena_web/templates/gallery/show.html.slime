@@ -8,7 +8,7 @@ elixir:
 #sortable
   .block#imagelist-container
     section.block__header.flex
-      h1.block__header__title.hide-mobile
+      span.block__header__title.hide-mobile
         ' Viewing gallery
         strong>
           = @gallery.title
@@ -16,6 +16,8 @@ elixir:
       = pagination
 
       .flex__right
+        = render PhilomenaWeb.ImageView, "_random_button.html", conn: @conn, params: scope
+
         a href=Routes.gallery_report_path(@conn, :new, @gallery)
           i.fa.fa-exclamation-triangle>
           span.hide-mobile Report

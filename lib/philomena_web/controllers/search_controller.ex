@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.SearchController do
     user = conn.assigns.current_user
     sort = ImageSorter.parse_sort(params)
 
-    case ImageLoader.search_string(conn, params["q"], sorts: sort.sorts, queries: sort.queries) do
+    case ImageLoader.search_string(conn, params["q"], sorts: sort.sorts, queries: sort.queries, constant_score: sort.constant_score) do
       {:ok, {images, tags}} ->
         interactions =
           Interactions.user_interactions(images, user)

@@ -8,15 +8,15 @@ defmodule Philomena.ImageNavigator do
   # We get consecutive images by finding all images greater than or less than
   # the current image, and grabbing the FIRST one
   @range_comparison_for_order %{
-    asc: :gt,
-    desc: :lt
+    "asc" => :gt,
+    "desc" => :lt
   }
 
   # If we didn't reverse for prev, it would be the LAST image, which would
   # make Elasticsearch choke on deep pagination
   @order_for_dir %{
-    next: %{"asc" => :asc, "desc" => :desc},
-    prev: %{"asc" => :desc, "desc" => :asc}
+    next: %{"asc" => "asc", "desc" => "desc"},
+    prev: %{"asc" => "desc", "desc" => "asc"}
   }
 
   @range_map %{
@@ -28,7 +28,7 @@ defmodule Philomena.ImageNavigator do
     image_index =
       Image
       |> where(id: ^image.id)
-      |> preload(:gallery_interactions)
+      |> preload([:gallery_interactions, tags: :aliases])
       |> Repo.one()
       |> Map.merge(empty_fields())
       |> ElasticsearchIndex.as_json()
@@ -69,13 +69,13 @@ defmodule Philomena.ImageNavigator do
 
   defp extract_filters(%{"galleries.position" => term} = sort, image, rel) do
     # Extract gallery ID and current position
-    gid = term["nested_filter"]["term"]["galleries.id"]
+    gid = term.nested_filter.term."galleries.id"
     pos = Enum.find(image[:galleries], & &1.id == gid).position
 
     # Sort in the other direction if we are going backwards
-    sd = term["order"]
-    order = @order_for_dir[rel][sd]
-    term = %{term | "order" => order}
+    sd = term.order
+    order = @order_for_dir[rel][to_string(sd)]
+    term = %{term | order: order}
     sort = %{sort | "galleries.position" => term}
 
     filter = gallery_range_filter(@range_comparison_for_order[order], pos)
@@ -164,8 +164,7 @@ defmodule Philomena.ImageNavigator do
       upvoters: [],
       downvoters: [],
       favers: [],
-      hiders: [],
-      tags: []
+      hiders: []
     }
   end
 

@@ -117,6 +117,7 @@ defmodule Philomena.Elasticsearch do
     entries = Enum.map(results["hits"]["hits"], &String.to_integer(&1["_id"]))
 
     Logger.debug("[Elasticsearch] Query took #{time}ms")
+    Logger.debug("[Elasticsearch] #{Jason.encode!(elastic_query)}")
 
     %Scrivener.Page{
       entries: entries,

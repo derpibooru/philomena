@@ -16,6 +16,7 @@ elixir:
     = pagination
 
     .flex__right
+      = random_button @conn, params
       = hidden_toggle @conn, route, params
       = deleted_toggle @conn, route, params
       = quick_tag @conn

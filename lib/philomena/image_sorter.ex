@@ -14,7 +14,6 @@ defmodule Philomena.ImageSorter do
     comment_count
     tag_count
     wilson_score
-    _score
   )
 
   def parse_sort(params) do
@@ -27,7 +26,11 @@ defmodule Philomena.ImageSorter do
   defp parse_sd(_params), do: "desc"
 
   defp parse_sf(%{"sf" => sf}, sd) when sf in @allowed_fields do
-    %{queries: [], sorts: [%{sf => sd}]}
+    %{queries: [], sorts: [%{sf => sd}], constant_score: true}
+  end
+
+  defp parse_sf(%{"sf" => "_score"}, sd) do
+    %{queries: [], sorts: [%{"_score" => sd}], constant_score: false}
   end
 
   defp parse_sf(%{"sf" => "random"}, sd) do
@@ -52,23 +55,24 @@ defmodule Philomena.ImageSorter do
           sorts: [%{
             "galleries.position" => %{
               order: sd,
-              nested_path: :galleries,
-              nested_filter: %{
-                term: %{
-                  "galleries.id": gallery
+              nested: %{
+                path: :galleries,
+                filter: %{
+                  term: %{"galleries.id" => gallery}
                 }
               }
             }
-          }]
+          }],
+          constant_score: true
         }
 
       _ ->
-        %{queries: [%{match_none: %{}}], sorts: []}
+        %{queries: [%{match_none: %{}}], sorts: [], constant_score: true}
     end
   end
 
   defp parse_sf(_params, sd) do
-    %{queries: [], sorts: [%{"created_at" => sd}]}
+    %{queries: [], sorts: [%{"created_at" => sd}], constant_score: true}
   end
 
   defp random_query(seed, sd) do
@@ -76,11 +80,12 @@ defmodule Philomena.ImageSorter do
       queries: [%{
         function_score: %{
           query:        %{match_all: %{}},
-          random_score: %{seed: seed},
+          random_score: %{seed: seed, field: :id},
           boost_mode:   :replace
         }
       }],
-      sorts: [%{"_score" => sd}]
+      sorts: [%{"_score" => sd}],
+      constant_score: true
     }
   end
 end
