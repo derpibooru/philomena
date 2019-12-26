@@ -1,13 +1,14 @@
 defmodule Philomena.Textile.Renderer do
   # todo: belongs in PhilomenaWeb
-  alias Textile.Parser
+  alias Textile.Parser, as: SlowParser
+  alias FastTextile.Parser, as: FastParser
   alias Philomena.Images.Image
   alias Philomena.Repo
   import Phoenix.HTML
   import Phoenix.HTML.Link
   import Ecto.Query
 
-  @parser %Parser{
+  @parser %SlowParser{
     image_transform: &Camo.Image.image_url/1
   }
 
@@ -19,10 +20,16 @@ defmodule Philomena.Textile.Renderer do
   end
 
   def render_collection(posts, conn) do
+    parser =
+      case conn.cookies["new_parser"] do
+        "true" -> FastParser
+        _      -> SlowParser
+      end
+
     parsed =
       posts
       |> Enum.map(fn post ->
-        Parser.parse(@parser, post.body)
+        parser.parse(@parser, post.body)
       end)
 
     images =
@@ -101,18 +108,21 @@ defmodule Philomena.Textile.Renderer do
   end
 
   defp find_images(text_segments) do
-    image_ids =
-      text_segments
-      |> Enum.flat_map(fn t ->
-        Regex.scan(~r|&gt;&gt;(\d+)|, t, capture: :all_but_first)
-        |> Enum.map(fn [first] -> String.to_integer(first) end)
-      end)
+    text_segments
+    |> Enum.flat_map(fn t ->
+      Regex.scan(~r|&gt;&gt;(\d+)|, t, capture: :all_but_first)
+      |> Enum.map(fn [first] -> String.to_integer(first) end)
+    end)
+    |> load_images()
+  end
 
+  defp load_images([]), do: %{}
+  defp load_images(ids) do
     Image
-    |> where([i], i.id in ^image_ids)
+    |> where([i], i.id in ^ids)
     |> where([i], i.hidden_from_users == false)
     |> preload(:tags)
     |> Repo.all()
-    |> Map.new(fn image -> {image.id, image} end)
+    |> Map.new(&{&1.id, &1})
   end
 end

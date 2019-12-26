@@ -262,6 +262,10 @@ blockquote {
   }
 }
 
+.literal {
+  white-space: pre-wrap;
+}
+
 .textile-syntax-reference {
   margin-bottom: 6px;
 }
