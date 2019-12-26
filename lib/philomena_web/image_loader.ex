@@ -24,11 +24,16 @@ defmodule PhilomenaWeb.ImageLoader do
     queryable      = Keyword.get(options, :queryable, Image |> preload(:tags))
     constant_score = Keyword.get(options, :constant_score, true)
 
+    tags =
+      body
+      |> search_tag_names()
+      |> load_tags()
+      |> render_bodies(conn)
+
     user    = conn.assigns.current_user
     filter  = conn.assigns.compiled_filter
     filters = create_filters(conn, user, filter)
     body    = maybe_constant_score(body, constant_score)
-
     records =
       Elasticsearch.search_records(
         Image,
@@ -44,12 +49,6 @@ defmodule PhilomenaWeb.ImageLoader do
         pagination,
         queryable
       )
-
-    tags =
-      body
-      |> search_tag_names()
-      |> load_tags()
-      |> render_bodies(conn)
 
     {records, tags}
   end
