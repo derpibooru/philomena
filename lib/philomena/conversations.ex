@@ -108,6 +108,11 @@ defmodule Philomena.Conversations do
   
   def mark_conversation_read(conversation, user, read \\ true)
 
+  def mark_conversation_read(%Conversation{to_id: user_id, from_id: user_id} = conversation, %{id: user_id}, read) do
+    conversation
+    |> Conversation.read_changeset(%{to_read: read, from_read: read})
+    |> Repo.update()
+  end
   def mark_conversation_read(%Conversation{to_id: user_id} = conversation, %{id: user_id}, read) do
     conversation
     |> Conversation.read_changeset(%{to_read: read})
