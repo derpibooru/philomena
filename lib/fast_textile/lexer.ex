@@ -29,6 +29,9 @@ defmodule FastTextile.Lexer do
   link_ending_characters =
     utf8_char('#$%&(),./:;<=?\\`|\'')
 
+  bracket_link_ending_characters =
+    utf8_char('" []')
+
   end_of_link =
     choice([
       concat(link_ending_characters, extended_space),
@@ -137,7 +140,7 @@ defmodule FastTextile.Lexer do
   bracketed_link_url =
     string("\":")
     |> concat(link_url_scheme)
-    |> repeat(utf8_char(not: ?]))
+    |> repeat(lookahead_not(bracket_link_ending_characters) |> utf8_char([]))
     |> ignore(string("]"))
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:bracketed_link_url)

@@ -362,14 +362,14 @@ defmodule FastTextile.Parser do
   defp simple_unbracketed_attr(_this_state, _delim_token, _open_attr, _close_attr, _callback, _parser, _tokens, _state),
     do: {:error, "Expected a simple unbracketed attribute"}
 
-  defp escape(text), do: HTML.html_escape(text) |> HTML.safe_to_string()
-  defp flatten(tree) do
+  def flatten(tree) do
     tree
     |> List.flatten()
     |> Enum.map(fn {_k, v} -> v end)
     |> Enum.join()
   end
 
+  defp escape(text), do: HTML.html_escape(text) |> HTML.safe_to_string()
   defp partial_flatten(tree) do
     List.flatten(tree)
   end
