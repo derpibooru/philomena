@@ -90,7 +90,7 @@ defmodule FastTextile.Parser do
   alias Phoenix.HTML
 
   def parse(parser, input) do
-    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
+    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(String.trim(input)),
          {:ok, tree, []} <- textile_top(parser, tokens)
     do
       partial_flatten(tree)
@@ -184,6 +184,7 @@ defmodule FastTextile.Parser do
   # Text is not escaped here because it will be escaped when it is read into
   # the author attribute of the <blockquote>.
   defp blockquote_cite_element([{:literal, lit} | r_tokens]), do: {:ok, [{:text, lit}], r_tokens}
+  defp blockquote_cite_element([{:space, _} | r_tokens]), do: {:ok, [{:text, " "}], r_tokens}
   defp blockquote_cite_element([tok | r_tokens]) when is_integer(tok) do
     {rest, r2_tokens} = extract_string(r_tokens, "")
 
@@ -266,7 +267,7 @@ defmodule FastTextile.Parser do
   defp unbracketed_image(parser, [{:unbracketed_image, img} | r_tokens], _state) do
     src = escape(parser.image_transform.(img))
 
-    {:ok, [{:markup, "<span class=\"imagespoiler\"><img src=\""}, {:markup, src}, {:markup, "\"/></span>"}], r_tokens}
+    {:ok, [{:markup, "<span class=\"imgspoiler\"><img src=\""}, {:markup, src}, {:markup, "\"/></span>"}], r_tokens}
   end
   defp unbracketed_image(_parser, _tokens, _state),
     do: {:error, "Expected an unbracketed image"}
