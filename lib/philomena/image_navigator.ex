@@ -69,7 +69,7 @@ defmodule Philomena.ImageNavigator do
 
   defp extract_filters(%{"galleries.position" => term} = sort, image, rel) do
     # Extract gallery ID and current position
-    gid = term.nested_filter.term."galleries.id"
+    gid = term.nested.filter.term["galleries.id"]
     pos = Enum.find(image[:galleries], & &1.id == gid).position
 
     # Sort in the other direction if we are going backwards
