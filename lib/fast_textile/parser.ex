@@ -238,6 +238,9 @@ defmodule FastTextile.Parser do
   defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
+  defp bq_cite_text(_parser, [{:space, _} | r_tokens]) do
+    {:ok, [{:text, " "}], r_tokens}
+  end
   defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
@@ -269,16 +272,13 @@ defmodule FastTextile.Parser do
 
     {:ok, [{:text, escape(binary)}], r2_tokens}
   end
-  defp inline_textile_element_not_opening_markup(parser, [{:quicktxt, lit} | r_tokens]) do
-    {binary, r2_tokens} = assemble_binary(:quicktxt, <<lit::utf8>>, r_tokens)
-
-    case inline_textile_element_not_opening_markup(parser, r2_tokens) do
-      {:ok, tree, r3_tokens} ->
-        {:ok, [{:text, escape(binary)}, tree], r3_tokens}
-
-      _ ->
-        {:ok, [{:text, escape(binary)}], r2_tokens}
-    end
+  defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, q1}, {token, t}, {:quicktxt, q2} | r_tokens])
+    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
+  do
+    {:ok, [{:text, escape(<<q1::utf8>>)}, {:text, escape(t)}, {:text, escape(<<q2::utf8>>)}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, lit} | r_tokens]) do
+    {:ok, [{:text, escape(<<lit::utf8>>)}], r_tokens}
   end
   defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
@@ -349,7 +349,7 @@ defmodule FastTextile.Parser do
 
   #
   #  textile =
-  #    (block_textile_element TOKEN)* eos;
+  #    (block_textile_element | TOKEN)* eos;
   #
 
   defp textile(parser, tokens) do
