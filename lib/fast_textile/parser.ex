@@ -115,7 +115,7 @@ defmodule FastTextile.Parser do
   #  inline_textile_element =
   #    opening_markup inline_textile_element* closing_markup (?!quicktxt) |
   #    closing_markup (?=quicktxt) |
-  #    link_delim inline_textile_element* link_url |
+  #    link_delim block_textile_element* link_url |
   #    image url? |
   #    code_delim inline_textile_element* code_delim |
   #    inline_textile_element_not_opening_markup;
@@ -170,7 +170,7 @@ defmodule FastTextile.Parser do
     end
   end
   defp inner_inline_textile_element(parser, [{:link_delim, open} | r_tokens]) do
-    case repeat(&inline_textile_element/2, parser, r_tokens) do
+    case repeat(&block_textile_element/2, parser, r_tokens) do
       {:ok, tree, [{:unbracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
         href = escape(url)
 
@@ -221,13 +221,32 @@ defmodule FastTextile.Parser do
   end
 
   #
+  # bq_cite_text = literal | char | quicktxt;
+  #
+
+  # Note that text is not escaped here because it will be escaped
+  # when the tree is flattened
+  defp bq_cite_text(_parser, [{:literal, lit} | r_tokens]) do
+    {:ok, [{:text, lit}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
+    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
+    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  end
+  defp bq_cite_text(_parser, _tokens) do
+    {:error, "Expected cite tokens"}
+  end
+
+  #
   #  inline_textile_element_not_opening_markup =
   #    literal inline_textile_element |
   #    newline inline_textile_element |
   #    space inline_textile_element |
   #    char inline_textile_element |
   #    quicktxt inline_textile_element_not_opening_markup |
-  #    block_textile_element;
+  #    opening_block_tag block_textile_element* closing_block_tag;
   #
 
   defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens]) do
@@ -255,39 +274,7 @@ defmodule FastTextile.Parser do
         {:ok, [{:text, escape(binary)}], r2_tokens}
     end
   end
-  defp inline_textile_element_not_opening_markup(parser, tokens) do
-    block_textile_element(parser, tokens)
-  end
-
-  #
-  # bq_cite_text = literal | char | quicktxt;
-  #
-
-  # Note that text is not escaped here because it will be escaped
-  # when the tree is flattened
-  defp bq_cite_text(_parser, [{:literal, lit} | r_tokens]) do
-    {:ok, [{:text, lit}], r_tokens}
-  end
-  defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
-    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
-  end
-  defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
-    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
-  end
-  defp bq_cite_text(_parser, _tokens) do
-    {:error, "Expected cite tokens"}
-  end
-
-  #
-  #  block_textile_element =
-  #    double_newline |
-  #    opening_block_tag inline_textile_element* closing_block_tag;
-  #
-
-  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
-    {:ok, [{:markup, "<br/><br/>"}], r_tokens}
-  end
-  defp block_textile_element(parser, [{:bq_cite_start, start} | r_tokens]) do
+  defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
       {:ok, tree, [{:bq_cite_open, _} | r2_tokens]} ->
         case repeat(&inline_textile_element/2, parser, r2_tokens) do
@@ -307,7 +294,7 @@ defmodule FastTextile.Parser do
         {:ok, [{:text, escape(start)}], r_tokens}
     end
   end
-  defp block_textile_element(parser, tokens) do
+  defp inline_textile_element_not_opening_markup(parser, tokens) do
     [
       {:bq_open, :bq_close, "<blockquote>", "</blockquote>"},
       {:spoiler_open, :spoiler_close, "<span class=\"spoiler\">", "</span>"},
@@ -327,7 +314,7 @@ defmodule FastTextile.Parser do
         close_token,
         open_tag,
         close_tag,
-        &inline_textile_element/2,
+        &block_textile_element/2,
         parser,
         tokens
       )
@@ -343,12 +330,24 @@ defmodule FastTextile.Parser do
   end
 
   #
+  #  block_textile_element =
+  #    double_newline | inline_textile_element;
+  #
+
+  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
+    {:ok, [{:markup, "<br/><br/>"}], r_tokens}
+  end
+  defp block_textile_element(parser, tokens) do
+    inline_textile_element(parser, tokens)
+  end
+
+  #
   #  textile =
-  #    (inline_textile_element TOKEN)* eos;
+  #    (block_textile_element TOKEN)* eos;
   #
 
   defp textile(parser, tokens) do
-    case inline_textile_element(parser, tokens) do
+    case block_textile_element(parser, tokens) do
       {:ok, tree, r_tokens} ->
         {:ok, tree, r_tokens}
 
