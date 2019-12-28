@@ -121,11 +121,6 @@ defmodule FastTextile.Parser do
   #
 
   defp inline_textile_element(parser, tokens) do
-    # IO.puts "block_textile_element"
-    # IO.inspect [parser, tokens]
-    # IO.inspect Process.info(self(), :current_stacktrace)
-    # :timer.sleep(:timer.seconds(2))
-
     [
       {:b_delim, :b, "<b>", "</b>"},
       {:i_delim, :i, "<i>", "</i>"},
