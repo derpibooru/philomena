@@ -330,7 +330,7 @@ defmodule Philomena.Images do
 
     case result do
       {:ok, changes} ->
-        update_first_seen_at(duplicate_of_image, image.first_seen_at)
+        update_first_seen_at(duplicate_of_image, image.first_seen_at, duplicate_of_image.first_seen_at)
         tags = Tags.copy_tags(image, duplicate_of_image)
         Comments.migrate_comments(image, duplicate_of_image)
         Interactions.migrate_interactions(image, duplicate_of_image)
@@ -342,10 +342,16 @@ defmodule Philomena.Images do
     end
   end
 
-  defp update_first_seen_at(image, time) do
+  defp update_first_seen_at(image, time_1, time_2) do
+    min_time =
+      case NaiveDateTime.compare(time_1, time_2) do
+        :gt -> time_2
+        _   -> time_1
+      end
+
     Image
     |> where(id: ^image.id)
-    |> Repo.update_all(set: [first_seen_at: time])
+    |> Repo.update_all(set: [first_seen_at: min_time])
   end
 
   defp internal_hide_image(changeset, image) do
