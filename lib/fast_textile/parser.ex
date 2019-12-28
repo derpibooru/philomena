@@ -182,7 +182,7 @@ defmodule FastTextile.Parser do
   defp inner_inline_textile_element(parser, [{token, img}, {:unbracketed_image_url, <<":", url::binary>>} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
     img = parser.image_transform.(img)
 
-    {:ok, [{:markup, "<a href=\""}, {:markup, escape(url)}, {:markup, "\"><span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"></span></a>"}], r_tokens}
+    {:ok, [{:markup, "<a href=\""}, {:markup, escape(url)}, {:markup, "\"><span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span></a>"}], r_tokens}
   end
   defp inner_inline_textile_element(parser, [{token, img} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
     img = parser.image_transform.(img)
