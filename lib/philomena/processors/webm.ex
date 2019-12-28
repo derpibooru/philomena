@@ -72,7 +72,7 @@ defmodule Philomena.Processors.Webm do
     scale_filter = "scale=w=#{width}:h=#{height}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libvpx", "-auto-alt-ref", "0", "-crf", "10", "-b:v", "5M", "-vf", scale_filter, webm])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libvpx", "-quality", "good", "-cpu-used", "3", "-auto-alt-ref", "0", "-crf", "10", "-b:v", "5M", "-vf", scale_filter, webm])
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-profile:v", "main", "-preset", "medium", "-crf", "18", "-b:v", "5M", "-vf", scale_filter, mp4])
 

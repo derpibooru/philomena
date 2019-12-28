@@ -278,7 +278,7 @@ defmodule Philomena.Images.Image do
     file_name_slug_fragment =
       tags
       |> Enum.map_join("_", & &1.slug)
-      |> String.replace("%2F", "")
+      |> String.replace("%", "")
       |> String.replace("/", "")
       |> String.slice(0..150)
 
