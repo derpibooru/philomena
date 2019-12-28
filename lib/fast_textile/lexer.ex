@@ -118,8 +118,7 @@ defmodule FastTextile.Lexer do
     |> repeat(lookahead_not(end_of_link) |> utf8_char([]))
 
   unbracketed_image_url =
-    string("!")
-    |> concat(unbracketed_url)
+    unbracketed_url
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:unbracketed_image_url)
 
@@ -129,9 +128,9 @@ defmodule FastTextile.Lexer do
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:unbracketed_link_url)
 
-  unbracketed_link_delim =
+  link_delim =
     string("\"")
-    |> unwrap_and_tag(:unbracketed_link_delim)
+    |> unwrap_and_tag(:link_delim)
 
   bracketed_link_open =
     string("[\"")
@@ -165,16 +164,24 @@ defmodule FastTextile.Lexer do
   bracketed_del_close = string("-]") |> unwrap_and_tag(:bracketed_del_close)
   bracketed_sub_close = string("~]") |> unwrap_and_tag(:bracketed_sub_close)
 
-  b_delim = string("**") |> unwrap_and_tag(:unbracketed_b_delim)
-  i_delim = string("__") |> unwrap_and_tag(:unbracketed_i_delim)
-  strong_delim = string("*") |> unwrap_and_tag(:unbracketed_strong_delim)
-  em_delim = string("_") |> unwrap_and_tag(:unbracketed_em_delim)
-  code_delim = string("@") |> unwrap_and_tag(:unbracketed_code_delim)
-  ins_delim = string("+") |> unwrap_and_tag(:unbracketed_ins_delim)
-  sup_delim = string("^") |> unwrap_and_tag(:unbracketed_sup_delim)
-  sub_delim = string("~") |> unwrap_and_tag(:unbracketed_sub_delim)
+  b_delim = string("**") |> unwrap_and_tag(:b_delim)
+  i_delim = string("__") |> unwrap_and_tag(:i_delim)
+  strong_delim = string("*") |> unwrap_and_tag(:strong_delim)
+  em_delim = string("_") |> unwrap_and_tag(:em_delim)
+  code_delim = string("@") |> unwrap_and_tag(:code_delim)
+  ins_delim = string("+") |> unwrap_and_tag(:ins_delim)
+  sup_delim = string("^") |> unwrap_and_tag(:sup_delim)
+  sub_delim = string("~") |> unwrap_and_tag(:sub_delim)
 
-  del_delim = lookahead_not(string("-"), string(">")) |> unwrap_and_tag(:unbracketed_del_delim)
+  del_delim = lookahead_not(string("-"), string(">")) |> unwrap_and_tag(:del_delim)
+
+  quicktxt =
+    utf8_char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*@_{}')
+    |> unwrap_and_tag(:quicktxt)
+
+  char =
+    utf8_char([])
+    |> unwrap_and_tag(:char)
 
   textile =
     choice([
@@ -194,7 +201,7 @@ defmodule FastTextile.Lexer do
       bracketed_link_url,
       unbracketed_link_url,
       unbracketed_image_url,
-      unbracketed_link_delim,
+      link_delim,
       bracketed_b_open,
       bracketed_i_open,
       bracketed_strong_open,
@@ -222,7 +229,8 @@ defmodule FastTextile.Lexer do
       sup_delim,
       del_delim,
       sub_delim,
-      utf8_char([])
+      quicktxt,
+      char
     ])
     |> repeat()
     |> eos()
