@@ -114,6 +114,7 @@ defmodule FastTextile.Parser do
   #
   #  inline_textile_element =
   #    opening_markup inline_textile_element* closing_markup (?!quicktxt) |
+  #    closing_markup (?=quicktxt) |
   #    link_delim inline_textile_element* link_url |
   #    image url? |
   #    code_delim inline_textile_element* code_delim |
@@ -157,6 +158,17 @@ defmodule FastTextile.Parser do
     end
   end
 
+  defp inner_inline_textile_element(parser, [{token, t}, {:quicktxt, q} | r_tokens])
+    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
+  do
+    case inline_textile_element(parser, [{:quicktxt, q} | r_tokens]) do
+      {:ok, tree, r2_tokens} ->
+        {:ok, [{:text, escape(t)}, tree], r2_tokens}
+
+        _ ->
+        {:ok, [{:text, escape(t)}], [{:quicktxt, q} | r_tokens]}
+    end
+  end
   defp inner_inline_textile_element(parser, [{:link_delim, open} | r_tokens]) do
     case repeat(&inline_textile_element/2, parser, r_tokens) do
       {:ok, tree, [{:unbracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
@@ -215,7 +227,6 @@ defmodule FastTextile.Parser do
   #    space inline_textile_element |
   #    char inline_textile_element |
   #    quicktxt inline_textile_element_not_opening_markup |
-  #    opening_markup inline_textile_element_not_opening_markup |
   #    block_textile_element;
   #
 
@@ -236,23 +247,12 @@ defmodule FastTextile.Parser do
   defp inline_textile_element_not_opening_markup(parser, [{:quicktxt, lit} | r_tokens]) do
     {binary, r2_tokens} = assemble_binary(:quicktxt, <<lit::utf8>>, r_tokens)
 
-    case repeat(&inline_textile_element_not_opening_markup/2, parser, r2_tokens) do
+    case inline_textile_element_not_opening_markup(parser, r2_tokens) do
       {:ok, tree, r3_tokens} ->
         {:ok, [{:text, escape(binary)}, tree], r3_tokens}
 
       _ ->
         {:ok, [{:text, escape(binary)}], r2_tokens}
-    end
-  end
-  defp inline_textile_element_not_opening_markup(parser, [{token, t} | r_tokens])
-    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
-  do
-    case repeat(&inline_textile_element_not_opening_markup/2, parser, r_tokens) do
-      {:ok, tree, r2_tokens} ->
-        {:ok, [{:text, escape(t)}, tree], r2_tokens}
-
-      _ ->
-        {:ok, [{:text, escape(t)}], r_tokens}
     end
   end
   defp inline_textile_element_not_opening_markup(parser, tokens) do
