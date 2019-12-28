@@ -82,26 +82,27 @@ defmodule FastTextile.Parser do
   #
   #   open_token callback* close_token (?!lookahead_not)
   #
-  defp simple_lookahead_not(open_token, _close_token, _open_tag, _close_tag, _lookahead_not, _callback, _state, _parser, [{open_token, open}, {forbidden_lookahead, t} | r_tokens])
-    when forbidden_lookahead in [:space, :newline]
-  do
-    {:ok, [{:text, escape(open)}], [{forbidden_lookahead, t} | r_tokens]}
-  end
   defp simple_lookahead_not(open_token, close_token, open_tag, close_tag, lookahead_not, callback, state, parser, [{open_token, open} | r_tokens]) do
     case parser.state do
       %{^state => _} ->
         {:error, "End of rule"}
 
       _ ->
-        case repeat(callback, put_state(parser, state), r_tokens) do
-          {:ok, tree, [{^close_token, close}, {^lookahead_not, ln} | r2_tokens]} ->
-            {:ok, [{:text, escape(open)}, tree, {:text, escape(close)}], [{lookahead_not, ln} | r2_tokens]}
+        case r_tokens do
+          [{forbidden_lookahead, _la} | _] when forbidden_lookahead in [:space, :newline] ->
+            {:ok, [{:text, escape(open)}], r_tokens}
 
-          {:ok, tree, [{^close_token, _} | r2_tokens]} ->
-            {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
+          _ ->
+            case repeat(callback, put_state(parser, state), r_tokens) do
+              {:ok, tree, [{^close_token, close}, {^lookahead_not, ln} | r2_tokens]} ->
+                {:ok, [{:text, escape(open)}, tree, {:text, escape(close)}], [{lookahead_not, ln} | r2_tokens]}
 
-          {:ok, tree, r2_tokens} ->
-            {:ok, [{:text, escape(open)}, tree], r2_tokens}
+              {:ok, tree, [{^close_token, _} | r2_tokens]} ->
+                {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
+
+              {:ok, tree, r2_tokens} ->
+                {:ok, [{:text, escape(open)}, tree], r2_tokens}
+            end
         end
     end
   end
