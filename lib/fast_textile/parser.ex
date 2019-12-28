@@ -34,12 +34,12 @@ defmodule FastTextile.Parser do
     tree
     |> List.flatten()
     |> Enum.chunk_by(fn {k, _v} -> k end)
-    |> Enum.flat_map(fn list ->
+    |> Enum.map(fn list ->
       [{type, _v} | _rest] = list
 
       value = Enum.map_join(list, "", fn {_k, v} -> v end)
 
-      [{type, value}]
+      {type, value}
     end)
   end
 
@@ -165,7 +165,7 @@ defmodule FastTextile.Parser do
         {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
-        {:ok, [{:markup, escape(open)}, tree], r2_tokens}
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
   defp inner_inline_textile_element(parser, [{:bracketed_link_open, open} | r_tokens]) do
@@ -176,7 +176,7 @@ defmodule FastTextile.Parser do
         {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
-        {:ok, [{:markup, escape(open)}, tree], r2_tokens}
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
   defp inner_inline_textile_element(parser, [{token, img}, {:unbracketed_image_url, <<":", url::binary>>} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
@@ -189,9 +189,6 @@ defmodule FastTextile.Parser do
 
     {:ok, [{:markup, "<span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span>"}], r_tokens}
   end
-  defp inner_inline_textile_element(_parser, [{:unbracketed_image_url, img} | r_tokens]) do
-    {:ok, [{:text, escape(img)}], r_tokens}
-  end
   defp inner_inline_textile_element(parser, [{:code_delim, open} | r_tokens]) do
     case parser.state do
       %{code: _} ->
@@ -203,7 +200,7 @@ defmodule FastTextile.Parser do
             {:ok, [{:markup, "<code>"}, tree, {:markup, "</code>"}], r2_tokens}
 
           {:ok, tree, r2_tokens} ->
-            {:ok, [{:markup, escape(open)}, tree], r2_tokens}
+            {:ok, [{:text, escape(open)}, tree], r2_tokens}
         end
     end
   end
@@ -218,11 +215,12 @@ defmodule FastTextile.Parser do
   #    space inline_textile_element |
   #    char inline_textile_element |
   #    quicktxt inline_textile_element_not_opening_markup |
+  #    opening_markup inline_textile_element_not_opening_markup |
   #    block_textile_element;
   #
 
   defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens]) do
-    {:ok, [{:markup, escape(lit)}], r_tokens}
+    {:ok, [{:markup, "<span class=\"literal\">"}, {:markup, escape(lit)}, {:markup, "</span>"}], r_tokens}
   end
   defp inline_textile_element_not_opening_markup(_parser, [{:newline, _} | r_tokens]) do
     {:ok, [{:markup, "<br/>"}], r_tokens}
@@ -238,12 +236,23 @@ defmodule FastTextile.Parser do
   defp inline_textile_element_not_opening_markup(parser, [{:quicktxt, lit} | r_tokens]) do
     {binary, r2_tokens} = assemble_binary(:quicktxt, <<lit::utf8>>, r_tokens)
 
-    case inline_textile_element_not_opening_markup(parser, r2_tokens) do
+    case repeat(&inline_textile_element_not_opening_markup/2, parser, r2_tokens) do
       {:ok, tree, r3_tokens} ->
         {:ok, [{:text, escape(binary)}, tree], r3_tokens}
 
       _ ->
         {:ok, [{:text, escape(binary)}], r2_tokens}
+    end
+  end
+  defp inline_textile_element_not_opening_markup(parser, [{token, t} | r_tokens])
+    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
+  do
+    case repeat(&inline_textile_element_not_opening_markup/2, parser, r_tokens) do
+      {:ok, tree, r2_tokens} ->
+        {:ok, [{:text, escape(t)}, tree], r2_tokens}
+
+      _ ->
+        {:ok, [{:text, escape(t)}], r_tokens}
     end
   end
   defp inline_textile_element_not_opening_markup(parser, tokens) do
