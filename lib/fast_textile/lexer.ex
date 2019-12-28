@@ -94,24 +94,6 @@ defmodule FastTextile.Lexer do
       image_url_scheme
     ])
 
-  unbracketed_image =
-    ignore(string("!"))
-    |> concat(image_url_scheme)
-    |> repeat(utf8_char(not: ?!))
-    |> ignore(string("!"))
-    |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:unbracketed_image)
-
-  bracketed_image =
-    ignore(string("[!"))
-    |> concat(image_url_scheme)
-    |> repeat(lookahead_not(string("!]")) |> utf8_char([]))
-    |> ignore(string("!]"))
-    |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:bracketed_image)
-
-  defparsec :bracketed_image, bracketed_image
-
   unbracketed_url =
     string(":")
     |> concat(link_url_scheme)
@@ -127,6 +109,24 @@ defmodule FastTextile.Lexer do
     |> concat(unbracketed_url)
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:unbracketed_link_url)
+
+  unbracketed_image =
+    ignore(string("!"))
+    |> concat(image_url_scheme)
+    |> repeat(utf8_char(not: ?!))
+    |> ignore(string("!"))
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:unbracketed_image)
+    |> concat(optional(unbracketed_image_url))
+
+  bracketed_image =
+    ignore(string("[!"))
+    |> concat(image_url_scheme)
+    |> repeat(lookahead_not(string("!]")) |> utf8_char([]))
+    |> ignore(string("!]"))
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:bracketed_image)
+    |> concat(optional(unbracketed_image_url))
 
   link_delim =
     string("\"")
@@ -200,7 +200,6 @@ defmodule FastTextile.Lexer do
       bracketed_link_open,
       bracketed_link_url,
       unbracketed_link_url,
-      unbracketed_image_url,
       link_delim,
       bracketed_b_open,
       bracketed_i_open,
