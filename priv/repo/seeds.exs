@@ -70,6 +70,6 @@ for role_def <- resources["roles"] do
 end
 
 IO.puts "---- Indexing content"
-Tag.reindex(Tag |> preload(^Tags.indexing_preloads()))
+Elasticsearch.reindex(Tag |> preload(^Tags.indexing_preloads()), Tag)
 
 IO.puts "---- Done."
