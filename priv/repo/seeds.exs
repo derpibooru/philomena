@@ -11,13 +11,14 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Roles.Role, Tags.Tag, Users.User}
+alias Philomena.Elasticsearch
 alias Philomena.Tags
 import Ecto.Query
 
 IO.puts "---- Creating Elasticsearch indices"
 for model <- [Image, Comment, Gallery, Tag, Post, Report] do
-  model.delete_index!
-  model.create_index!
+  Elasticsearch.delete_index!(model)
+  Elasticsearch.create_index!(model)
 end
 
 resources =
