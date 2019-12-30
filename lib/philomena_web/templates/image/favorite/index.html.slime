@@ -10,10 +10,12 @@ h5
   h5
     ' Upvoted by
     => @image.upvotes_count
-    = pluralize("user", "users", @image.faves_count)
+    = pluralize("user", "users", @image.upvotes_count)
 
   = for upvote <- Enum.sort_by(@image.upvotes, & &1.user.name) do
-    => link upvote.user.name, to: Routes.profile_path(@conn, :show, upvote.user), class: "interaction-user-list-item"
+    span.interaction-user-list-item
+      => link upvote.user.name, to: Routes.profile_path(@conn, :show, upvote.user)
+      => link "(x)", to: Routes.image_tamper_path(@conn, :create, @image, user_id: upvote.user_id), method: "post"
 
   h5
     ' Downvoted by
@@ -21,4 +23,14 @@ h5
     = pluralize("user", "users", @image.downvotes_count)
 
   = for downvote <- Enum.sort_by(@image.downvotes, & &1.user.name) do
-    => link downvote.user.name, to: Routes.profile_path(@conn, :show, downvote.user), class: "interaction-user-list-item"
+    span.interaction-user-list-item
+      => link downvote.user.name, to: Routes.profile_path(@conn, :show, downvote.user)
+      => link "(x)", to: Routes.image_tamper_path(@conn, :create, @image, user_id: downvote.user_id), method: "post"
+
+  h5
+    ' Hidden by
+    => @image.hides_count
+    = pluralize("user", "users", @image.hides_count)
+
+  = for hide <- Enum.sort_by(@image.hides, & &1.user.name) do
+    => link hide.user.name, to: Routes.profile_path(@conn, :show, hide.user), class: "interaction-user-list-item"
