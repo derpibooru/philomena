@@ -18,6 +18,14 @@ a href=Routes.image_report_path(@conn, :new, @image)
           a> href=Routes.pow_session_path(@conn, :new) log in
           ' to report duplicate images.
 
-      h4 Existing duplicate reports
-      = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: Enum.filter(@dupe_reports, & &1.duplicate_of_image_id == @image.id), conn: @conn
-      = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: Enum.filter(@dupe_reports, & &1.image_id == @image.id), conn: @conn
+      - target_reports = Enum.filter(@dupe_reports, & &1.duplicate_of_image_id == @image.id)
+      - source_reports = Enum.filter(@dupe_reports, & &1.image_id == @image.id)
+
+      = if Enum.any?(@dupe_reports) do
+        h4 Existing duplicate reports
+
+        = if Enum.any?(target_reports) do
+          = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: target_reports, conn: @conn
+
+        = if Enum.any?(source_reports) do
+          = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: source_reports, conn: @conn
