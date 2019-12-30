@@ -1,7 +1,7 @@
 defmodule Philomena.Posts.Query do
   alias Search.Parser
 
-  def user_id_transform(_ctx, data) do
+  defp user_id_transform(_ctx, data) do
     case Integer.parse(data) do
       {int, _rest} ->
         {
@@ -21,7 +21,7 @@ defmodule Philomena.Posts.Query do
     end
   end
 
-  def author_transform(_ctx, data) do
+  defp author_transform(_ctx, data) do
     {
       :ok,
       %{
@@ -35,77 +35,52 @@ defmodule Philomena.Posts.Query do
     }
   end
 
-  def user_my_transform(%{user: %{id: id}}, "posts"),
+  defp user_my_transform(%{user: %{id: id}}, "posts"),
     do: {:ok, %{term: %{user_id: id}}}
 
-  def user_my_transform(_ctx, _value),
+  defp user_my_transform(_ctx, _value),
     do: {:error, "Unknown `my' value."}
 
-  int_fields         = ~W(id)
-  date_fields        = ~W(created_at updated_at)
-  literal_fields     = ~W(forum_id topic_id)
-  ngram_fields       = ~W(body subject)
-  custom_fields      = ~W(author user_id)
-  default_field      = {"body", :ngram}
-  transforms         = %{
-    "user_id" => &Philomena.Posts.Query.user_id_transform/2,
-    "author" => &Philomena.Posts.Query.author_transform/2
-  }
-
-  user_custom        = custom_fields ++ ~W(my)
-  user_transforms    = Map.merge(transforms, %{
-    "my" => &Philomena.Posts.Query.user_my_transform/2
-  })
-
-  mod_literal_fields = ~W(forum_id topic_id user_id author fingerprint)
-  mod_ip_fields      = ~W(ip)
-  mod_bool_fields    = ~W(anonymous deleted)
-  mod_custom         = user_custom -- ~W(author user_id)
-  mod_transforms     = Map.drop(user_transforms, ["user_id", "author"])
-
-
-  @anonymous_parser Parser.parser(
-    int_fields: int_fields,
-    date_fields: date_fields,
-    literal_fields: literal_fields,
-    ngram_fields: ngram_fields,
-    custom_fields: custom_fields,
-    default_field: default_field,
-    transforms: transforms
-  )
-
-  @user_parser Parser.parser(
-    int_fields: int_fields,
-    date_fields: date_fields,
-    literal_fields: literal_fields,
-    ngram_fields: ngram_fields,
-    custom_fields: user_custom,
-    transforms: user_transforms,
-    default_field: default_field
-  )
-
-  @moderator_parser Parser.parser(
-    int_fields: int_fields,
-    date_fields: date_fields,
-    literal_fields: mod_literal_fields,
-    ip_fields: mod_ip_fields,
-    ngram_fields: ngram_fields,
-    bool_fields: mod_bool_fields,
-    custom_fields: mod_custom,
-    transforms: mod_transforms,
-    default_field: default_field
-  )
-
-  def parse_anonymous(context, query_string) do
-    Parser.parse(@anonymous_parser, query_string, context)
+  defp anonymous_fields do
+    [
+      int_fields: ~W(id),
+      date_fields: ~W(created_at updated_at),
+      literal_fields: ~W(forum_id topic_id),
+      ngram_fields: ~W(body subject),
+      custom_fields: ~W(author user_id),
+      default_field: {"body", :ngram},
+      transforms: %{
+        "user_id" => &user_id_transform/2,
+        "author" => &author_transform/2
+      }
+    ]
   end
 
-  def parse_user(context, query_string) do
-    Parser.parse(@user_parser, query_string, context)
+  defp user_fields do
+    fields = anonymous_fields()
+
+    Keyword.merge(fields, [
+      custom_fields: fields[:custom_fields] ++ ~W(my),
+      transforms: Map.merge(fields[:transforms], %{"my" => &user_my_transform/2})
+    ])
   end
 
-  def parse_moderator(context, query_string) do
-    Parser.parse(@moderator_parser, query_string, context)
+  defp moderator_fields do
+    fields = user_fields()
+
+    Keyword.merge(fields, [
+      literal_fields: ~W(forum_id topic_id user_id author fingerprint),
+      ip_fields: ~W(ip),
+      bool_fields: ~W(anonymous deleted),
+      custom_fields: fields[:custom_fields] -- ~W(author user_id),
+      transforms: Map.drop(fields[:transforms], ["user_id", "author"])
+    ])
+  end
+
+  defp parse(fields, context, query_string) do
+    fields
+    |> Parser.parser()
+    |> Parser.parse(query_string, context)
   end
 
   def compile(user, query_string) do
@@ -113,13 +88,13 @@ defmodule Philomena.Posts.Query do
 
     case user do
       nil ->
-        parse_anonymous(%{user: nil}, query_string)
+        parse(anonymous_fields(), %{user: nil}, query_string)
 
       %{role: role} when role in ~W(user assistant) ->
-        parse_user(%{user: user}, query_string)
+        parse(user_fields(), %{user: user}, query_string)
 
       %{role: role} when role in ~W(moderator admin) ->
-        parse_moderator(%{user: user}, query_string)
+        parse(moderator_fields(), %{user: user}, query_string)
 
       _ ->
         raise ArgumentError, "Unknown user role."
