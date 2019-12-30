@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Image.FileController do
         spawn fn ->
           Images.repair_image(image)
         end
+        Images.reindex_image(image)
 
         conn
         |> put_flash(:info, "Successfully updated file.")
