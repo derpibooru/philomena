@@ -1,19 +1,31 @@
-= cond do
-  - @poll.hidden_from_users ->
-    .walloftext
-    .block.block--fixed.block--warning
-      h1 This poll has been deleted
-      p
-        ' Reason:
-        strong
-          = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
+.block__header.block__header--js-tabbed
+  = link "Voting", to: "#", class: "selected", data: [click_tab: "voting"]
 
-  - not @voted and not is_nil(@conn.assigns.current_user) ->
-    .poll
-      .poll-area
-        = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns
+  = if can?(@conn, :hide, @topic) do
+    = link "Voters", to: "#", data: [click_tab: "voters", load_tab: Routes.forum_topic_poll_vote_path(@conn, :index, @forum, @topic)]
 
-  - true ->
-    .poll
-      .poll-area
-        = render PhilomenaWeb.Topic.PollView, "_results.html", assigns
+.block__tab data-tab="voting"
+  = cond do
+    - @poll.hidden_from_users ->
+      .walloftext
+      .block.block--fixed.block--warning
+        h1 This poll has been deleted
+        p
+          ' Reason:
+          strong
+            = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
+
+    - not @voted and not is_nil(@conn.assigns.current_user) ->
+      .poll
+        .poll-area
+          = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns
+
+    - true ->
+      .poll
+        .poll-area
+          = render PhilomenaWeb.Topic.PollView, "_results.html", assigns
+
+
+= if can?(@conn, :hide, @topic) do
+  .block__tab.hidden data-tab="voters"
+    p Loading&hellip;

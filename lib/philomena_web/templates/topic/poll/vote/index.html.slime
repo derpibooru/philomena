@@ -1,0 +1,12 @@
+= if Enum.any?(@options) do
+  = for option <- @options do
+    h5 = option.label
+
+    = for vote <- option.poll_votes do
+      span.interaction-user-list-item
+        => link vote.user.name, to: Routes.profile_path(@conn, :show, vote.user)
+        /= link "(x)", to: Routes.forum_topic_poll_vote_path(@conn, :delete, @forum, @topic, vote)
+
+- else
+  p
+    em No votes to display
