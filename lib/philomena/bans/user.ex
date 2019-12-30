@@ -4,8 +4,8 @@ defmodule Philomena.Bans.User do
 
   alias Philomena.Users.User
   alias Philomena.Repo
-  import Philomena.Schema.Time
-  import Philomena.Schema.BanId
+  alias Philomena.Schema.Time
+  alias Philomena.Schema.BanId
 
   schema "user_bans" do
     belongs_to :user, User
@@ -28,16 +28,16 @@ defmodule Philomena.Bans.User do
   def changeset(user_ban, attrs) do
     user_ban
     |> cast(attrs, [])
-    |> propagate_time(:valid_until, :until)
+    |> Time.propagate_time(:valid_until, :until)
     |> populate_username()
   end
 
   def save_changeset(user_ban, attrs) do
     user_ban
     |> cast(attrs, [:reason, :note, :enabled, :override_ip_ban, :username, :until])
-    |> assign_time(:until, :valid_until)
+    |> Time.assign_time(:until, :valid_until)
     |> populate_user_id()
-    |> put_ban_id("U")
+    |> BanId.put_ban_id("U")
     |> validate_required([:reason, :enabled, :user_id, :valid_until])
   end
 

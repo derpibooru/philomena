@@ -3,7 +3,7 @@ defmodule Philomena.SiteNotices.SiteNotice do
   import Ecto.Changeset
 
   alias Philomena.Users.User
-  import Philomena.Schema.Time
+  alias Philomena.Schema.Time
 
   schema "site_notices" do
     belongs_to :user, User
@@ -26,15 +26,15 @@ defmodule Philomena.SiteNotices.SiteNotice do
   def changeset(site_notice, attrs) do
     site_notice
     |> cast(attrs, [])
-    |> propagate_time(:start_date, :start_time)
-    |> propagate_time(:finish_date, :finish_time)
+    |> Time.propagate_time(:start_date, :start_time)
+    |> Time.propagate_time(:finish_date, :finish_time)
     |> validate_required([])
   end
 
   def save_changeset(site_notice, attrs) do
     site_notice
     |> cast(attrs, [:title, :text, :link, :link_text, :live, :start_time, :finish_time])
-    |> assign_time(:start_time, :start_date)
-    |> assign_time(:finish_time, :finish_date)
+    |> Time.assign_time(:start_time, :start_date)
+    |> Time.assign_time(:finish_time, :finish_date)
   end
 end

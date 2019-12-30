@@ -2,7 +2,7 @@ defmodule Philomena.Adverts.Advert do
   use Ecto.Schema
   import Ecto.Changeset
 
-  import Philomena.Schema.Time
+  alias Philomena.Schema.Time
 
   schema "adverts" do
     field :image, :string
@@ -34,15 +34,15 @@ defmodule Philomena.Adverts.Advert do
   def changeset(advert, attrs) do
     advert
     |> cast(attrs, [])
-    |> propagate_time(:start_date, :start_time)
-    |> propagate_time(:finish_date, :finish_time)
+    |> Time.propagate_time(:start_date, :start_time)
+    |> Time.propagate_time(:finish_date, :finish_time)
   end
 
   def save_changeset(advert, attrs) do
     advert
     |> cast(attrs, [:title, :link, :start_time, :finish_time, :live, :restrictions, :notes])
-    |> assign_time(:start_time, :start_date)
-    |> assign_time(:finish_time, :finish_date)
+    |> Time.assign_time(:start_time, :start_date)
+    |> Time.assign_time(:finish_time, :finish_date)
     |> validate_required([:title, :link, :start_date, :finish_date])
     |> validate_inclusion(:restrictions, ["none", "nsfw", "sfw"])
   end

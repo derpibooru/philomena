@@ -3,8 +3,8 @@ defmodule Philomena.Bans.Subnet do
   import Ecto.Changeset
 
   alias Philomena.Users.User
-  import Philomena.Schema.Time
-  import Philomena.Schema.BanId
+  alias Philomena.Schema.Time
+  alias Philomena.Schema.BanId
 
   schema "subnet_bans" do
     belongs_to :banning_user, User
@@ -25,14 +25,14 @@ defmodule Philomena.Bans.Subnet do
   def changeset(subnet_ban, attrs) do
     subnet_ban
     |> cast(attrs, [])
-    |> propagate_time(:valid_until, :until)
+    |> Time.propagate_time(:valid_until, :until)
   end
 
   def save_changeset(subnet_ban, attrs) do
     subnet_ban
     |> cast(attrs, [:reason, :note, :enabled, :specification, :until])
-    |> assign_time(:until, :valid_until)
-    |> put_ban_id("S")
+    |> Time.assign_time(:until, :valid_until)
+    |> BanId.put_ban_id("S")
     |> validate_required([:reason, :enabled, :specification, :valid_until])
     |> mask_specification()
   end

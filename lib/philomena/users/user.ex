@@ -12,8 +12,9 @@ defmodule Philomena.Users.User do
     extensions: [PowResetPassword, PowLockout]
 
   import Ecto.Changeset
-  import Philomena.Schema.TagList
-  import Philomena.Schema.Search
+
+  alias Philomena.Schema.TagList
+  alias Philomena.Schema.Search
 
   alias Philomena.Filters.Filter
   alias Philomena.UserLinks.UserLink
@@ -206,12 +207,12 @@ defmodule Philomena.Users.User do
       :anonymous_by_default, :scale_large_images, :comments_per_page, :theme,
       :no_spoilered_in_watched, :use_centered_layout, :hide_vote_counts
     ])
-    |> propagate_tag_list(:watched_tag_list, :watched_tag_ids)
+    |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
     |> validate_inclusion(:theme, ~W(default dark red))
     |> validate_inclusion(:images_per_page, 15..50)
     |> validate_inclusion(:comments_per_page, 15..100)
-    |> validate_search(:watched_images_query_str, user, true)
-    |> validate_search(:watched_images_exclude_str, user, true)
+    |> Search.validate_search(:watched_images_query_str, user, true)
+    |> Search.validate_search(:watched_images_exclude_str, user, true)
   end
 
   def description_changeset(user, attrs) do

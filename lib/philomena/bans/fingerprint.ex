@@ -3,8 +3,8 @@ defmodule Philomena.Bans.Fingerprint do
   import Ecto.Changeset
 
   alias Philomena.Users.User
-  import Philomena.Schema.Time
-  import Philomena.Schema.BanId
+  alias Philomena.Schema.Time
+  alias Philomena.Schema.BanId
 
   schema "fingerprint_bans" do
     belongs_to :banning_user, User
@@ -25,14 +25,14 @@ defmodule Philomena.Bans.Fingerprint do
   def changeset(fingerprint_ban, attrs) do
     fingerprint_ban
     |> cast(attrs, [])
-    |> propagate_time(:valid_until, :until)
+    |> Time.propagate_time(:valid_until, :until)
   end
 
   def save_changeset(fingerprint_ban, attrs) do
     fingerprint_ban
     |> cast(attrs, [:reason, :note, :enabled, :fingerprint, :until])
-    |> assign_time(:until, :valid_until)
-    |> put_ban_id("F")
+    |> Time.assign_time(:until, :valid_until)
+    |> BanId.put_ban_id("F")
     |> validate_required([:reason, :enabled, :fingerprint, :valid_until])
   end
 end
