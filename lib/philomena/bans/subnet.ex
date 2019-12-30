@@ -34,5 +34,21 @@ defmodule Philomena.Bans.Subnet do
     |> assign_time(:until, :valid_until)
     |> put_ban_id("S")
     |> validate_required([:reason, :enabled, :specification, :valid_until])
+    |> mask_specification()
+  end
+
+  defp mask_specification(changeset) do
+    specification =
+      changeset
+      |> get_field(:specification)
+      |> case do
+        %Postgrex.INET{address: {h1, h2, h3, h4, h5, h6, h7, h8}, netmask: 128} ->
+          %Postgrex.INET{address: {h1, h2, h3, h4, 0, 0, 0, 0}, netmask: 64}
+
+        val ->
+          val
+      end
+
+    put_change(changeset, :specification, specification)
   end
 end
