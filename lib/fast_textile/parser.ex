@@ -227,7 +227,7 @@ defmodule FastTextile.Parser do
   end
 
   #
-  # bq_cite_text = literal | char | quicktxt;
+  # bq_cite_text = literal | char | space | quicktxt;
   #
 
   # Note that text is not escaped here because it will be escaped
@@ -250,19 +250,14 @@ defmodule FastTextile.Parser do
 
   #
   #  inline_textile_element_not_opening_markup =
-  #    literal inline_textile_element |
-  #    newline inline_textile_element |
-  #    space inline_textile_element |
-  #    char inline_textile_element |
-  #    quicktxt inline_textile_element_not_opening_markup |
+  #    literal | space | char |
+  #    quicktxt opening_markup quicktxt |
+  #    quicktxt |
   #    opening_block_tag block_textile_element* closing_block_tag;
   #
 
   defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens]) do
     {:ok, [{:markup, "<span class=\"literal\">"}, {:markup, escape(lit)}, {:markup, "</span>"}], r_tokens}
-  end
-  defp inline_textile_element_not_opening_markup(_parser, [{:newline, _} | r_tokens]) do
-    {:ok, [{:markup, "<br/>"}], r_tokens}
   end
   defp inline_textile_element_not_opening_markup(_parser, [{:space, _} | r_tokens]) do
     {:ok, [{:text, " "}], r_tokens}
@@ -340,11 +335,14 @@ defmodule FastTextile.Parser do
 
   #
   #  block_textile_element =
-  #    double_newline | inline_textile_element;
+  #    double_newline | newline | inline_textile_element;
   #
 
   defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
     {:ok, [{:markup, "<br/><br/>"}], r_tokens}
+  end
+  defp block_textile_element(_parser, [{:newline, _} | r_tokens]) do
+    {:ok, [{:markup, "<br/>"}], r_tokens}
   end
   defp block_textile_element(parser, tokens) do
     inline_textile_element(parser, tokens)
