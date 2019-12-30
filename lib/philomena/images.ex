@@ -159,6 +159,10 @@ defmodule Philomena.Images do
   end
 
   def repair_image(%Image{} = image) do
+    Image
+    |> where(id: ^image.id)
+    |> Repo.update_all(set: [thumbnails_generated: false, processed: false])
+
     Philomena.Images.Thumbnailer.generate_thumbnails(image.id)
   end
 
