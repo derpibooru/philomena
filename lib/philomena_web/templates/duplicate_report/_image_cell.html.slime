@@ -1,6 +1,6 @@
 .grid--dupe-report-list__cell.flex.flex--column.flex--spaced-out.flex--centered.flex--no-wrap.center.dr__image-cell.border-vertical
   p
-    - if is_nil(@image) do
+    = if is_nil(@image) do
       | (Image now hard-deleted)
     - else
       | #
