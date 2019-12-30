@@ -282,7 +282,7 @@ defmodule FastTextile.Parser do
   end
   defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
-      {:ok, tree, [{:bq_cite_open, _} | r2_tokens]} ->
+      {:ok, tree, [{:bq_cite_open, open} | r2_tokens]} ->
         case repeat(&block_textile_element/2, parser, r2_tokens) do
           {:ok, tree2, [{:bq_close, _} | r3_tokens]} ->
             cite = escape(flatten(tree))
@@ -290,15 +290,18 @@ defmodule FastTextile.Parser do
             {:ok, [{:markup, "<blockquote author=\""}, {:markup, cite}, {:markup, "\">"}, tree2, {:markup, "</blockquote>"}], r3_tokens}
 
           {:ok, tree2, r3_tokens} ->
-            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, tree2], r3_tokens}
+            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}, tree2], r3_tokens}
 
           _ ->
-            {:ok, [{:text, escape(start)}], r_tokens}
+            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}], r_tokens}
         end
 
       _ ->
         {:ok, [{:text, escape(start)}], r_tokens}
     end
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:bq_cite_open, tok} | r_tokens]) do
+    {:ok, [{:text, escape(tok)}], r_tokens}
   end
   defp inline_textile_element_not_opening_markup(parser, tokens) do
     [
