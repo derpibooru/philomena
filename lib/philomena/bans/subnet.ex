@@ -42,7 +42,7 @@ defmodule Philomena.Bans.Subnet do
       changeset
       |> get_field(:specification)
       |> case do
-        %Postgrex.INET{address: {h1, h2, h3, h4, h5, h6, h7, h8}, netmask: 128} ->
+        %Postgrex.INET{address: {h1, h2, h3, h4, _h5, _h6, _h7, _h8}, netmask: 128} ->
           %Postgrex.INET{address: {h1, h2, h3, h4, 0, 0, 0, 0}, netmask: 64}
 
         val ->

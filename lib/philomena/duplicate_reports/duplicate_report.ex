@@ -30,6 +30,7 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     |> cast(attrs, [:reason])
     |> put_assoc(:user, attribution[:user])
     |> validate_length(:reason, max: 250, count: :bytes)
+    |> validate_source_is_not_target()
   end
 
   def accept_changeset(duplicate_report, user) do
@@ -54,5 +55,15 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     change(duplicate_report)
     |> put_change(:modifier_id, user.id)
     |> put_change(:state, "rejected")
+  end
+
+  defp validate_source_is_not_target(changeset) do
+    source_id = get_field(changeset, :image_id)
+    target_id = get_field(changeset, :duplicate_of_image_id)
+
+    case source_id == target_id do
+      true  -> add_error(changeset, :image_id, "must be different from the target")
+      false -> changeset
+    end
   end
 end
