@@ -9,6 +9,7 @@ defmodule Philomena.Images do
   alias Philomena.Repo
 
   alias Philomena.Elasticsearch
+  alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
@@ -323,6 +324,11 @@ defmodule Philomena.Images do
   end
 
   def hide_image(%Image{} = image, user, attrs) do
+    DuplicateReport
+    |> where(state: "open")
+    |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
+    |> Repo.update_all(set: [state: "rejected"])
+
     Image.hide_changeset(image, attrs, user)
     |> internal_hide_image(image)
   end
