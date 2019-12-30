@@ -11,12 +11,14 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 
   plug PhilomenaWeb.CanaryMapPlug, create: :create_comment, edit: :create_comment, update: :create_comment
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
+  plug :load_resource, model: Image, id_name: "image_id", persisted: true
+  plug :verify_authorized when action in [:show]
 
   # Undo the previous private parameter screwery
-  plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:show, :edit, :update]
+  plug PhilomenaWeb.LoadCommentPlug, [param: "id", show_hidden: true] when action in [:show]
+  plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:edit, :update]
   plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
-  plug :authorize_resource, model: Comment, only: [:show, :edit, :update], preload: [:image, user: [awards: :badge]]
+  plug :authorize_resource, model: Comment, only: [:edit, :update], preload: [:image, user: [awards: :badge]]
 
   def index(conn, %{"comment_id" => comment_id}) do
     page = CommentLoader.find_page(conn, conn.assigns.image, comment_id)
@@ -81,6 +83,22 @@ defmodule PhilomenaWeb.Image.CommentController do
 
       {:error, :comment, changeset, _changes} ->
         render(conn, "edit.html", comment: conn.assigns.comment, changeset: changeset)
+    end
+  end
+
+  defp verify_authorized(conn, _params) do
+    image = conn.assigns.image
+    image =
+      case is_nil(image.duplicate_id) do
+        true   -> image
+        _false -> Images.get_image!(image.duplicate_id)
+      end
+
+    conn = assign(conn, :image, image)
+
+    case Canada.Can.can?(conn.assigns.current_user, :show, image) do
+      true   -> conn
+      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end
