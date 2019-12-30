@@ -1,5 +1,18 @@
 .badges
-  = for award <- award_order(@awards) do
+  - awards = award_order(@awards)
+  - {awards, overflow} = Enum.split(awards, 10)
+
+  = for award <- awards do
     - title = [award_title(award), award.label] |> Enum.join(" - ")
     .badge
       = badge_image(award.badge, alt: title, title: title, width: "18", height: "18")
+
+  = if Enum.any?(overflow) do
+    .dropdown
+      i.fa.fa-caret-down
+      .dropdown__content.block__header
+        .badges.flex--column
+          = for award <- overflow do
+            - title = [award_title(award), award.label] |> Enum.join(" - ")
+            .badge
+              = badge_image(award.badge, alt: title, title: title, width: "18", height: "18")
