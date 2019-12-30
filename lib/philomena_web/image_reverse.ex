@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.ImageReverse do
         dist = normalize_dist(image_params)
 
         DuplicateReports.duplicates_of(intensities, aspect, dist, dist)
-        |> preload([:tags, :user])
+        |> preload([:tags, :user, :intensity])
         |> Repo.all()
     end
   end

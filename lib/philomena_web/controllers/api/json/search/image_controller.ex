@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   import Ecto.Query
 
   def index(conn, params) do
-    queryable = Image |> preload([:tags, :user])
+    queryable = Image |> preload([:tags, :user, :intensity])
     user = conn.assigns.current_user
     sort = ImageSorter.parse_sort(params)
 

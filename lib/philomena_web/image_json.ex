@@ -20,6 +20,7 @@ defmodule PhilomenaWeb.ImageJson do
       uploader: if(!!image.user and !image.anonymous, do: image.user.name),
       uploader_id: if(!!image.user and !image.anonymous, do: image.user.id),
       wilson_score: Philomena.Images.ElasticsearchIndex.wilson_score(image),
+      intensities: intensities(image),
       score: image.score,
       upvotes: image.upvotes_count,
       downvotes: image.downvotes_count,
@@ -35,4 +36,7 @@ defmodule PhilomenaWeb.ImageJson do
       processed: image.processed
     }
   end
+
+  defp intensities(%{intensity: %{nw: nw, ne: ne, sw: sw, se: se}}), do: %{nw: nw, ne: ne, sw: sw, se: se}
+  defp intensities(_), do: nil
 end
