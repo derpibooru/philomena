@@ -283,7 +283,7 @@ defmodule FastTextile.Parser do
   defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
       {:ok, tree, [{:bq_cite_open, _} | r2_tokens]} ->
-        case repeat(&inline_textile_element/2, parser, r2_tokens) do
+        case repeat(&block_textile_element/2, parser, r2_tokens) do
           {:ok, tree2, [{:bq_close, _} | r3_tokens]} ->
             cite = escape(flatten(tree))
 
