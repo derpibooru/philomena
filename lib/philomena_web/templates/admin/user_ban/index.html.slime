@@ -25,7 +25,6 @@ h1 User Bans
           th Expires
           th Reason/Note
           th Ban ID
-          th Auto IP Ban
           th Options
 
       tbody
@@ -52,11 +51,6 @@ h1 User Bans
 
             td
               = ban.generated_ban_id
-
-            = if ban.override_ip_ban do
-              td.danger Disabled
-            - else
-              td.success Enabled
 
             td
                 => link "Edit", to: Routes.admin_user_ban_path(@conn, :edit, ban)

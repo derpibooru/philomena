@@ -1,6 +1,23 @@
 defmodule RelativeDate.Parser do
   import NimbleParsec
 
+  number_words =
+    choice([
+      string("a") |> replace(1),
+      string("an") |> replace(1),
+      string("one") |> replace(1),
+      string("two") |> replace(2),
+      string("three") |> replace(3),
+      string("four") |> replace(4),
+      string("five") |> replace(5),
+      string("six") |> replace(6),
+      string("seven") |> replace(7),
+      string("eight") |> replace(8),
+      string("nine") |> replace(9),
+      string("ten") |> replace(10),
+      integer(min: 1)
+    ])
+
   time_specifier =
     choice([
       string("second") |> replace(1),
@@ -37,7 +54,7 @@ defmodule RelativeDate.Parser do
 
   date =
     space
-    |> integer(min: 1)
+    |> concat(number_words)
     |> concat(space)
     |> concat(time_specifier)
     |> concat(space)
