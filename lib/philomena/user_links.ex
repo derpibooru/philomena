@@ -91,8 +91,8 @@ defmodule Philomena.UserLinks do
     |> Multi.run(:add_award, fn repo, _changes ->
       now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-      with badge when not is_nil(badge) <- repo.get_by(Badge, title: "Artist"),
-           nil <- repo.get_by(Award, badge_id: badge.id, user_id: user_link.user_id)
+      with badge when not is_nil(badge) <- repo.get_by(limit(Badge, 1), title: "Artist"),
+           nil <- repo.get_by(limit(Award, 1), badge_id: badge.id, user_id: user_link.user_id)
       do
         %Award{badge_id: badge.id, user_id: user_link.user_id, awarded_by_id: user.id, awarded_on: now}
         |> Award.changeset(%{})

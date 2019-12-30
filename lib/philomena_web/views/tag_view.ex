@@ -141,6 +141,9 @@ defmodule PhilomenaWeb.TagView do
     )
   end
 
+  defp manages_links?(conn),
+    do: can?(conn, :index, Philomena.UserLinks.UserLink)
+
   defp tag_url_root do
     Application.get_env(:philomena, :tag_url_root)
   end

@@ -23,13 +23,14 @@
     = url_input f, :uri, class: "input input--wide", placeholder: "https://www.deviantart.com/your-name", required: true
     = error_tag f, :uri
 
-  .field
-    => radio_button f, :public, "true"
-    => label f, :public, "Visible to everyone"
+  elixir:
+    options = [
+      {"Visible to everyone", true},
+      {"Visible only to site staff", false}
+    ]
 
   .field
-    => radio_button f, :public, "false"
-    => label f, :public, "Visible only to site staff"
+    => select f, :public, options, class: "input", autocomplete: "off"
 
   h4 Instructions
   p

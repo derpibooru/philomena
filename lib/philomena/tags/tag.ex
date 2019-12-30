@@ -48,6 +48,7 @@ defmodule Philomena.Tags.Tag do
     many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id], on_replace: :delete
     many_to_many :implied_by_tags, Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
     has_many :public_links, UserLink, where: [public: true, aasm_state: "verified"]
+    has_many :hidden_links, UserLink, where: [public: false, aasm_state: "verified"]
     has_many :dnp_entries, DnpEntry, where: [aasm_state: "listed"]
 
     field :slug, :string

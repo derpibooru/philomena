@@ -37,6 +37,17 @@
       = map_join(@tag.implied_tags, ", ", &link(&1.name, to: Routes.tag_path(@conn, :show, &1)))
       br
 
+    = if Enum.any?(@tag.hidden_links) and manages_links?(@conn) do
+      strong.comment_deleted> Hidden links:
+      br
+
+      = for user_link <- @tag.hidden_links do
+        => link user_link.user.name, to: Routes.profile_path(@conn, :show, user_link.user)
+        ' &rarr;
+        => link user_link.uri, to: user_link.uri
+        br
+
+
     = if present?(@tag.public_links) or present?(@tag.implied_by_tags) or present?(@tag.description) do
       br
       = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
@@ -54,7 +65,7 @@
 
         = if Enum.any?(@tag.public_links) do
           strong> Associated users:
-          - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq()
+          - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq_by(& &1.id)
 
           = for user <- users do
             => link user.name, to: Routes.profile_path(@conn, :show, user)

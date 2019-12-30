@@ -76,6 +76,11 @@
 
             = if manages_links?(@conn, @user) do
               br
+              => if link.public do
+                ' Public
+              - else
+                ' Hidden
+              ' &bull;
               a href=Routes.profile_user_link_path(@conn, :edit, @user, link)
                 ' Edit
 
