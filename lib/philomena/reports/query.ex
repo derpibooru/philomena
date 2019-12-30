@@ -7,7 +7,7 @@ defmodule Philomena.Reports.Query do
   ip_fields          = ~W(ip)
   bool_fields        = ~W(open)
   ngram_fields       = ~W(reason)
-  default_field      = "reason"
+  default_field      = {"reason", :ngram}
 
   @parser Parser.parser(
     int_fields: int_fields,

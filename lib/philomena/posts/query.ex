@@ -46,7 +46,7 @@ defmodule Philomena.Posts.Query do
   literal_fields     = ~W(forum_id topic_id)
   ngram_fields       = ~W(body subject)
   custom_fields      = ~W(author user_id)
-  default_field      = "body"
+  default_field      = {"body", :ngram}
   transforms         = %{
     "user_id" => &Philomena.Posts.Query.user_id_transform/2,
     "author" => &Philomena.Posts.Query.author_transform/2

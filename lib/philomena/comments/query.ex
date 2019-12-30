@@ -46,7 +46,7 @@ defmodule Philomena.Comments.Query do
   literal_fields     = ~W(image_id)
   ngram_fields       = ~W(body)
   custom_fields      = ~W(author user_id)
-  default_field      = "body"
+  default_field      = {"body", :ngram}
   transforms         = %{
     "user_id" => &Philomena.Comments.Query.user_id_transform/2,
     "author" => &Philomena.Comments.Query.author_transform/2

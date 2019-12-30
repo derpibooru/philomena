@@ -5,7 +5,7 @@ defmodule Philomena.Galleries.Query do
   literal_fields = ~W(title user image_ids watcher_ids)
   date_fields    = ~W(created_at updated_at)
   ngram_fields   = ~W(description)
-  default_field  = "title"
+  default_field  = {"title", :term}
   aliases        = %{
     "user" => "creator"
   }

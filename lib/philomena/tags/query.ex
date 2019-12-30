@@ -5,7 +5,7 @@ defmodule Philomena.Tags.Query do
   literal_fields = ~W(slug name name_in_namespace namespace implies alias_of implied_by aliases category analyzed_name)
   bool_fields    = ~W(aliased)
   ngram_fields   = ~W(description short_description)
-  default_field  = "analyzed_name"
+  default_field  = {"analyzed_name", :ngram}
   aliases        = %{
     "implies" => "implied_tags",
     "implied_by" => "implied_by_tags",

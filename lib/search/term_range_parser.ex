@@ -1,17 +1,21 @@
 defmodule Search.TermRangeParser do
   alias Search.LiteralParser
+  alias Search.NgramParser
 
   # Unfortunately, we can't use NimbleParsec here. It requires
   # the compiler, and we're not in a macro environment.
 
-  def parse(input, fields, default_field) do
+  def parse(input, fields, {default_field, type}) do
     tokens =
       Enum.find_value(fields, fn {f, p} ->
         field(input, f, p)
       end)
 
-    tokens || [{LiteralParser, default_field}, range: :eq, value: input]
+    tokens || [{parser(type), default_field}, range: :eq, value: input]
   end
+
+  defp parser(:term), do: LiteralParser
+  defp parser(:ngram), do: NgramParser
 
   defp field(input, field_name, field_parser) do
     field_sz = byte_size(field_name)

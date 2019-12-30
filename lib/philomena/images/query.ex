@@ -65,7 +65,7 @@ defmodule Philomena.Images.Query do
   literal_fields     = ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format)
   ngram_fields       = ~W(description)
   custom_fields      = ~W(gallery_id)
-  default_field      = "namespaced_tags.name"
+  default_field      = {"namespaced_tags.name", :term}
   transforms         = %{
     "gallery_id" => &Philomena.Images.Query.gallery_id_transform/2
   }
