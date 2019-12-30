@@ -1,6 +1,7 @@
 defmodule Search.LiteralParser do
   import NimbleParsec
-  import Search.Helpers
+
+  defp to_number(input), do: Search.Helpers.to_number(input)
 
   float =
     ascii_string([?0..?9], min: 1)

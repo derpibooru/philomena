@@ -1,6 +1,8 @@
 defmodule Search.IntParser do
   import NimbleParsec
-  import Search.Helpers
+
+  defp to_int(input), do: Search.Helpers.to_int(input)
+  defp range(input), do: Search.Helpers.range(input)
 
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])

@@ -1,6 +1,7 @@
 defmodule Search.Lexer do
   import NimbleParsec
-  import Search.Helpers
+
+  defp to_number(input), do: Search.Helpers.to_number(input)
 
   float =
     optional(ascii_char('-+'))

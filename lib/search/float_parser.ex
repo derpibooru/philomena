@@ -1,6 +1,8 @@
 defmodule Search.FloatParser do
   import NimbleParsec
-  import Search.Helpers
+
+  defp to_number(input), do: Search.Helpers.to_number(input)
+  defp range(input), do: Search.Helpers.range(input)
 
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
