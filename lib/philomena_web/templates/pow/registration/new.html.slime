@@ -16,7 +16,7 @@ h1 Register
     ' You'll use your email address to log in, and we'll use this to get in
     ' touch if we need to. Don't worry, we won't share this or spam you.
   .field
-    = text_input f, :email, class: "input", placeholder: "Email", required: true
+    = text_input f, :email, class: "input", placeholder: "Email", required: true, pattern: ".*@.*"
     = error_tag f, :email
 
   .fieldlabel
