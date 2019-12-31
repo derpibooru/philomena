@@ -33,6 +33,7 @@ defmodule PhilomenaWeb.DnpEntryController do
 
   defp load_entries(dnp_entries, conn, status) do
     dnp_entries = Repo.paginate(dnp_entries, conn.assigns.scrivener)
+    linked_tags = linked_tags(conn)
 
     bodies =
       dnp_entries
@@ -42,7 +43,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     dnp_entries =
       %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
-    render(conn, "index.html", title: "Do-Not-Post List", layout_class: "layout--medium", dnp_entries: dnp_entries, status_column: status)
+    render(conn, "index.html", title: "Do-Not-Post List", layout_class: "layout--medium", dnp_entries: dnp_entries, status_column: status, linked_tags: linked_tags)
   end
 
   def show(conn, _params) do
@@ -102,11 +103,12 @@ defmodule PhilomenaWeb.DnpEntryController do
     end
   end
 
-  defp linked_tags(conn) do
-    conn.assigns.current_user
+  defp linked_tags(%{assigns: %{current_user: user}}) when not is_nil(user) do
+    user
     |> Repo.preload(:linked_tags)
     |> Map.get(:linked_tags)
   end
+  defp linked_tags(_), do: []
 
   defp set_mod_notes(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do

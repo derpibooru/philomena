@@ -10,6 +10,25 @@ h3 Information
     p We ask that you please respect the wishes of artists in regards to their artworks, and check the list before uploading. Note that just because an artist is not listed may not mean that their artwork is ok to post, especially if they have a note at their "source" that they do not wish for their artwork to be reposted.
 br
 
+.block
+  .block__header
+    span.block__header__title Manage My Listings
+  .block__content
+    = cond do
+      - not is_nil(@current_user) and Enum.any?(@linked_tags) ->
+        = link "Create an entry", to: Routes.dnp_entry_path(@conn, :new)
+        br
+        = link "My Listings", to: Routes.dnp_entry_path(@conn, :index, mine: "1")
+
+      - not is_nil(@current_user) ->
+        ' You must have a verified user link to create and manage DNP entries.
+        = link "Request a user link", to: Routes.profile_user_link_path(@conn, :new, @current_user)
+        | .
+
+      - true ->
+        ' You must be logged in and have a verified user link to create and manage DNP entries.
+
+
 h3 The List
 .block
   - route = fn p -> Routes.dnp_entry_path(@conn, :index, p) end
