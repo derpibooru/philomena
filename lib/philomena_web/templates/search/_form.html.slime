@@ -112,8 +112,12 @@ h1 Search
 
       sort_fields = [
         "Sort by upload date": :created_at,
-        "Sort by last modified": :updated_at,
+        "Sort by last modification date": :updated_at,
         "Sort by initial post date": :first_seen_at,
+        "Sort by aspect ratio": :aspect_ratio,
+        "Sort by fave count": :faves,
+        "Sort by upvotes": :upvotes,
+        "Sort by downvotes": :downvotes,
         "Sort by score": :score,
         "Sort by Wilson score": :wilson_score,
         "Sort by relevance": :_score,
