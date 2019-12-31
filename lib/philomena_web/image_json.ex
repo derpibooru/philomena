@@ -1,7 +1,29 @@
 defmodule PhilomenaWeb.ImageJson do
   alias PhilomenaWeb.ImageView
 
-  def as_json(conn, image) do
+  def as_json(_conn, %{hidden_from_users: true, duplicate_id: duplicate_id} = image) when not is_nil(duplicate_id) do
+    %{
+      id: image.id,
+      created_at: image.created_at,
+      updated_at: image.updated_at,
+      first_seen_at: image.first_seen_at,
+      duplicate_of: image.duplicate_id,
+      deletion_reason: nil,
+      hidden_from_users: true
+    }
+  end
+  def as_json(_conn, %{hidden_from_users: true} = image) do
+    %{
+      id: image.id,
+      created_at: image.created_at,
+      updated_at: image.updated_at,
+      first_seen_at: image.first_seen_at,
+      deletion_reason: image.deletion_reason,
+      duplicate_of: nil,
+      hidden_from_users: true
+    }
+  end
+  def as_json(conn, %{hidden_from_users: false} = image) do
     %{
       id: image.id,
       created_at: image.created_at,
@@ -33,7 +55,10 @@ defmodule PhilomenaWeb.ImageJson do
       representations: ImageView.thumb_urls(image, false),
       spoilered: ImageView.filter_or_spoiler_hits?(conn, image),
       thumbnails_generated: image.thumbnails_generated,
-      processed: image.processed
+      processed: image.processed,
+      deletion_reason: nil,
+      duplicate_of: nil,
+      hidden_from_users: false
     }
   end
 
