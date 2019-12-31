@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.PostView do
   alias Philomena.Attribution
-  alias FastTextile.Parser
+  alias Textile.Parser
 
   use PhilomenaWeb, :view
 

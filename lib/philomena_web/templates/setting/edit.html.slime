@@ -122,10 +122,6 @@ h1 Content Settings
         => label f, :chan_nsfw, "Show NSFW channels"
         => checkbox f, :chan_nsfw
         .fieldlabel: i Show streams marked as NSFW on the channels page.
-      .field
-        => label f, :new_parser, "Use experimental parser"
-        => checkbox f, :new_parser
-        .fieldlabel: i Use the experimental Textile parser.
       = if staff?(@conn.assigns.current_user) do
         .field
           => label f, :hide_staff_tools

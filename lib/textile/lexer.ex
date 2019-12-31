@@ -1,15 +1,43 @@
 defmodule Textile.Lexer do
   import NimbleParsec
-  import Textile.Helpers
-  import Textile.MarkupLexer
-  import Textile.UrlLexer
 
+  space =
+    utf8_char('\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200a))
 
-  # Structural tags
+  extended_space =
+    choice([
+      space,
+      string("\n"),
+      eos()
+    ])
 
+  space_token =
+    space
+    |> unwrap_and_tag(:space)
 
-  # Literals enclosed via [== ==]
-  # Will never contain any markup
+  double_newline =
+    string("\n")
+    |> repeat(space)
+    |> string("\n")
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:double_newline)
+
+  newline =
+    string("\n")
+    |> unwrap_and_tag(:newline)
+
+  link_ending_characters =
+    utf8_char('@#$%&(),.:;<=?\\`|\'')
+
+  bracket_link_ending_characters =
+    utf8_char('" []')
+
+  end_of_link =
+    choice([
+      concat(link_ending_characters, extended_space),
+      extended_space
+    ])
+
   bracketed_literal =
     ignore(string("[=="))
     |> repeat(lookahead_not(string("==]")) |> utf8_char([]))
@@ -28,231 +56,183 @@ defmodule Textile.Lexer do
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:literal)
 
-  blockquote_cite =
-    lookahead_not(string("\""))
-    |> choice([
-      literal |> reduce(:unwrap),
-      utf8_char([])
-    ])
-    |> repeat()
+  bq_cite_start =
+    string("[bq=\"")
+    |> unwrap_and_tag(:bq_cite_start)
 
-  # Blockquote opening tag with cite: [bq="the author"]
-  # Cite can contain bracketed literals or text
-  blockquote_open_cite =
-    ignore(string("[bq=\""))
-    |> concat(blockquote_cite)
-    |> ignore(string("\"]"))
-    |> reduce({List, :to_string, []})
-    |> unwrap_and_tag(:blockquote_open_cite)
+  bq_cite_open =
+    string("\"]")
+    |> unwrap_and_tag(:bq_cite_open)
 
-  # Blockquote opening tag
-  blockquote_open =
+  bq_open =
     string("[bq]")
-    |> unwrap_and_tag(:blockquote_open)
+    |> unwrap_and_tag(:bq_open)
 
-  # Blockquote closing tag
-  blockquote_close =
+  bq_close =
     string("[/bq]")
-    |> unwrap_and_tag(:blockquote_close)
+    |> unwrap_and_tag(:bq_close)
 
-  # Spoiler open tag
   spoiler_open =
     string("[spoiler]")
     |> unwrap_and_tag(:spoiler_open)
 
-  # Spoiler close tag
   spoiler_close =
     string("[/spoiler]")
     |> unwrap_and_tag(:spoiler_close)
 
-
-  # Images
-
-
-  image_url_with_title =
-    url_ending_in(string("("))
-    |> unwrap_and_tag(:image_url)
-    |> concat(
-      ignore(string("("))
-      |> repeat(utf8_char(not: ?)))
-      |> ignore(string(")"))
-      |> lookahead(string("!"))
-      |> reduce({List, :to_string, []})
-      |> unwrap_and_tag(:image_title)
-    )
-
-  image_url_without_title =
-    url_ending_in(string("!"))
-    |> unwrap_and_tag(:image_url)
-
-  image_url =
+  image_url_scheme =
     choice([
-      image_url_with_title,
-      image_url_without_title
+      string("//"),
+      string("/"),
+      string("https://"),
+      string("http://")
     ])
 
-  bracketed_image_with_link =
-    ignore(string("[!"))
-    |> concat(image_url)
-    |> ignore(string("!:"))
-    |> concat(
-      url_ending_in(string("]"))
-      |> unwrap_and_tag(:image_link_url)
-    )
-
-  bracketed_image_without_link =
-    ignore(string("[!"))
-    |> concat(image_url)
-    |> ignore(string("!]"))
-
-  image_with_link =
-    ignore(string("!"))
-    |> concat(image_url)
-    |> ignore(string("!:"))
-    |> concat(
-      url_ending_in(space())
-      |> unwrap_and_tag(:image_link_url)
-    )
-
-  image_without_link =
-    ignore(string("!"))
-    |> concat(image_url)
-    |> ignore(string("!"))
-
-  image =
+  link_url_scheme =
     choice([
-      bracketed_image_with_link,
-      bracketed_image_without_link,
-      image_with_link,
-      image_without_link
+      string("#"),
+      image_url_scheme
     ])
 
+  unbracketed_url =
+    string(":")
+    |> concat(link_url_scheme)
+    |> repeat(lookahead_not(end_of_link) |> utf8_char([]))
 
-  # Links
+  unbracketed_image_url =
+    unbracketed_url
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:unbracketed_image_url)
 
-
-  {link_markup_start, link_markup_element} = markup_ending_in(string("\""))
-
-  link_url_stop =
-    choice([
-      string("*"),
-      string("@"),
-      string("^"),
-      string("~"),
-      string(".") |> concat(choice([space(), eos()])),
-      string("!") |> concat(choice([space(), eos()])),
-      string(",") |> concat(choice([space(), eos()])),
-      string("_") |> concat(choice([space(), eos()])),
-      string("?") |> concat(choice([space(), eos()])),
-      string(";") |> concat(choice([space(), eos()])),
-      space(),
-      eos()
-    ])
-
-  link_contents_start =
-    choice([
-      image,
-      spoiler_open,
-      spoiler_close,
-      blockquote_open,
-      blockquote_open_cite,
-      blockquote_close,
-      literal,
-      link_markup_start
-    ])
-
-  link_contents_element =
-    choice([
-      image,
-      spoiler_open,
-      spoiler_close,
-      blockquote_open,
-      blockquote_open_cite,
-      blockquote_close,
-      literal,
-      link_markup_element
-    ])
-
-  link_contents =
-    optional(link_contents_start)
-    |> repeat(link_contents_element)
-
-  bracketed_link_end =
-    string("\":")
-    |> unwrap_and_tag(:link_end)
-    |> concat(
-      url_ending_in(string("]"))
-      |> ignore(string("]"))
-      |> unwrap_and_tag(:link_url)
-    )
-
-  bracketed_link =
-    string("[\"")
-    |> unwrap_and_tag(:link_start)
-    |> concat(link_contents)
-    |> concat(bracketed_link_end)
-
-  unbracketed_link_end =
-    string("\":")
-    |> unwrap_and_tag(:link_end)
-    |> concat(
-      url_ending_in(link_url_stop)
-      |> unwrap_and_tag(:link_url)
-    )
-
-  unbracketed_link =
+  unbracketed_link_url =
     string("\"")
-    |> unwrap_and_tag(:link_start)
-    |> concat(link_contents)
-    |> concat(unbracketed_link_end)
+    |> concat(unbracketed_url)
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:unbracketed_link_url)
 
-  link =
-    choice([
-      bracketed_link,
-      unbracketed_link
-    ])
+  unbracketed_image =
+    ignore(string("!"))
+    |> concat(image_url_scheme)
+    |> repeat(utf8_char(not: ?!))
+    |> ignore(string("!"))
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:unbracketed_image)
+    |> concat(optional(unbracketed_image_url))
 
+  bracketed_image =
+    ignore(string("[!"))
+    |> concat(image_url_scheme)
+    |> repeat(lookahead_not(string("!]")) |> utf8_char([]))
+    |> ignore(string("!]"))
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:bracketed_image)
+    |> concat(optional(unbracketed_image_url))
 
-  # Textile
+  link_delim =
+    string("\"")
+    |> unwrap_and_tag(:link_delim)
 
-  markup_ends =
-    choice([
-      spoiler_close,
-      blockquote_close,
-      eos()
-    ])
+  bracketed_link_open =
+    string("[\"")
+    |> unwrap_and_tag(:bracketed_link_open)
 
-  {markup_start, markup_element} = markup_ending_in(markup_ends)
+  bracketed_link_url =
+    string("\":")
+    |> concat(link_url_scheme)
+    |> repeat(lookahead_not(bracket_link_ending_characters) |> utf8_char([]))
+    |> ignore(string("]"))
+    |> reduce({List, :to_string, []})
+    |> unwrap_and_tag(:bracketed_link_url)
 
-  textile_default =
-    choice([
-      literal,
-      blockquote_open_cite |> optional(markup_start),
-      blockquote_open |> optional(markup_start),
-      blockquote_close,
-      spoiler_open |> optional(markup_start),
-      spoiler_close,
-      link,
-      image
-    ])
+  bracketed_b_open = string("[**") |> unwrap_and_tag(:bracketed_b_open)
+  bracketed_i_open = string("[__") |> unwrap_and_tag(:bracketed_i_open)
+  bracketed_strong_open = string("[*") |> unwrap_and_tag(:bracketed_strong_open)
+  bracketed_em_open = string("[_") |> unwrap_and_tag(:bracketed_em_open)
+  bracketed_code_open = string("[@") |> unwrap_and_tag(:bracketed_code_open)
+  bracketed_ins_open = string("[+") |> unwrap_and_tag(:bracketed_ins_open)
+  bracketed_sup_open = string("[^") |> unwrap_and_tag(:bracketed_sup_open)
+  bracketed_del_open = string("[-") |> unwrap_and_tag(:bracketed_del_open)
+  bracketed_sub_open = string("[~") |> unwrap_and_tag(:bracketed_sub_open)
 
-  textile_main =
-    choice([
-      textile_default,
-      markup_element
-    ])
+  bracketed_b_close = string("**]") |> unwrap_and_tag(:bracketed_b_close)
+  bracketed_i_close = string("__]") |> unwrap_and_tag(:bracketed_i_close)
+  bracketed_strong_close = string("*]") |> unwrap_and_tag(:bracketed_strong_close)
+  bracketed_em_close = string("_]") |> unwrap_and_tag(:bracketed_em_close)
+  bracketed_code_close = string("@]") |> unwrap_and_tag(:bracketed_code_close)
+  bracketed_ins_close = string("+]") |> unwrap_and_tag(:bracketed_ins_close)
+  bracketed_sup_close = string("^]") |> unwrap_and_tag(:bracketed_sup_close)
+  bracketed_del_close = string("-]") |> unwrap_and_tag(:bracketed_del_close)
+  bracketed_sub_close = string("~]") |> unwrap_and_tag(:bracketed_sub_close)
 
-  textile_start =
-    choice([
-      textile_default,
-      markup_start
-    ])
+  b_delim = string("**") |> unwrap_and_tag(:b_delim)
+  i_delim = string("__") |> unwrap_and_tag(:i_delim)
+  strong_delim = string("*") |> unwrap_and_tag(:strong_delim)
+  em_delim = string("_") |> unwrap_and_tag(:em_delim)
+  code_delim = string("@") |> unwrap_and_tag(:code_delim)
+  ins_delim = string("+") |> unwrap_and_tag(:ins_delim)
+  sup_delim = string("^") |> unwrap_and_tag(:sup_delim)
+  sub_delim = string("~") |> unwrap_and_tag(:sub_delim)
+
+  del_delim = lookahead_not(string("-"), string(">")) |> unwrap_and_tag(:del_delim)
+
+  quicktxt =
+    utf8_char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*@_{}')
+    |> unwrap_and_tag(:quicktxt)
+
+  char =
+    utf8_char([])
+    |> unwrap_and_tag(:char)
 
   textile =
-    optional(textile_start)
-    |> repeat(textile_main)
+    choice([
+      literal,
+      double_newline,
+      newline,
+      space_token,
+      bq_cite_start,
+      bq_cite_open,
+      bq_open,
+      bq_close,
+      spoiler_open,
+      spoiler_close,
+      unbracketed_image,
+      bracketed_image,
+      bracketed_link_open,
+      bracketed_link_url,
+      unbracketed_link_url,
+      link_delim,
+      bracketed_b_open,
+      bracketed_i_open,
+      bracketed_strong_open,
+      bracketed_em_open,
+      bracketed_code_open,
+      bracketed_ins_open,
+      bracketed_sup_open,
+      bracketed_del_open,
+      bracketed_sub_open,
+      bracketed_b_close,
+      bracketed_i_close,
+      bracketed_strong_close,
+      bracketed_em_close,
+      bracketed_code_close,
+      bracketed_ins_close,
+      bracketed_sup_close,
+      bracketed_del_close,
+      bracketed_sub_close,
+      b_delim,
+      i_delim,
+      strong_delim,
+      em_delim,
+      code_delim,
+      ins_delim,
+      sup_delim,
+      del_delim,
+      sub_delim,
+      quicktxt,
+      char
+    ])
+    |> repeat()
     |> eos()
-
 
   defparsec :lex, textile
 end

@@ -1,16 +1,11 @@
 defmodule Philomena.Textile.Renderer do
   # todo: belongs in PhilomenaWeb
-  alias Textile.Parser, as: SlowParser
-  alias FastTextile.Parser, as: FastParser
+  alias Textile.Parser
   alias Philomena.Images.Image
   alias Philomena.Repo
   import Phoenix.HTML
   import Phoenix.HTML.Link
   import Ecto.Query
-
-  @parser %SlowParser{
-    image_transform: &Camo.Image.image_url/1
-  }
 
   # Kill bogus compile time dependency on ImageView
   @image_view Module.concat(["PhilomenaWeb.ImageView"])
@@ -20,17 +15,8 @@ defmodule Philomena.Textile.Renderer do
   end
 
   def render_collection(posts, conn) do
-    parser =
-      case conn.cookies["new_parser"] do
-        "true" -> FastParser
-        _      -> SlowParser
-      end
-
-    parsed =
-      posts
-      |> Enum.map(fn post ->
-        parser.parse(@parser, post.body)
-      end)
+    opts = %{image_transform: &Camo.Image.image_url/1}
+    parsed = Enum.map(posts, &Parser.parse(opts, &1.body))
 
     images =
       parsed

@@ -1,313 +1,371 @@
 defmodule Textile.Parser do
-  import Textile.ParserHelpers
+  alias Textile.Lexer
+  alias Phoenix.HTML
 
-  alias Textile.{
-    Lexer,
-    Parser,
-    TokenCoalescer
-  }
+  def parse(parser, input) do
+    parser = Map.put(parser, :state, %{})
 
-  defstruct [
-    image_transform: nil
-  ]
-
-  def parse(%Parser{} = parser, input) do
-    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input |> remove_linefeeds()),
-         tokens <- TokenCoalescer.coalesce_lex(tokens),
-         {:ok, tree, []} <- textile_top(parser, tokens),
-         tree <- TokenCoalescer.coalesce_parse(tree)
+    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(String.trim(input)),
+         {:ok, tree, []} <- repeat(&textile/2, parser, tokens)
     do
-      tree
-    else
-      err ->
-        err
-    end
-  end
-
-
-  #
-  # Backtracking LL packrat parser for simplified Textile grammar
-  #
-
-
-  #
-  # textile = (well_formed_including_paragraphs | TOKEN)*;
-  #    
-  defp textile_top(_parser, []), do: {:ok, [], []}
-  defp textile_top(parser, tokens) do
-    with {:ok, tree, r_tokens} <- well_formed_including_paragraphs(parser, nil, tokens),
-         false <- tree == [],
-         {:ok, next_tree, r2_tokens} <- textile_top(parser, r_tokens)
-    do
-      {:ok, [tree, next_tree], r2_tokens}
+      partial_flatten(tree)
     else
       _ ->
-        [{_token, string} | r_tokens] = tokens
-        {:ok, next_tree, r2_tokens} = textile_top(parser, r_tokens)
-
-        {:ok, [{:text, escape_nl2br(string)}, next_tree], r2_tokens}
+        []
     end
   end
 
-
-  #
-  # well_formed_including_paragraphs = (markup | double_newline)*;
-  #
-  defp well_formed_including_paragraphs(_parser, _closing_token, []), do: {:ok, [], []}
-  defp well_formed_including_paragraphs(parser, closing_token, [{:double_newline, _nl} | r_tokens]) do
-    {:ok, tree, r2_tokens} = well_formed_including_paragraphs(parser, closing_token, r_tokens)
-
-    {:ok, [{:markup, "<br/><br/>"}, tree], r2_tokens}
+  # Helper to turn a parse tree into a string
+  def flatten(tree) do
+    tree
+    |> List.flatten()
+    |> Enum.map_join("", fn {_k, v} -> v end)
   end
 
-  defp well_formed_including_paragraphs(parser, closing_token, tokens) do
-    with {:markup, {:ok, tree, r_tokens}} <- {:markup, markup(parser, tokens)},
-         {:ok, next_tree, r2_tokens} <- well_formed_including_paragraphs(parser, closing_token, r_tokens)
-    do
-      {:ok, [tree, next_tree], r2_tokens}
-    else
-      _ ->
-        consume_nonclosing(parser, closing_token, tokens)
-    end
+  # Helper to escape HTML
+  defp escape(text) do
+    text
+    |> HTML.html_escape()
+    |> HTML.safe_to_string()
   end
 
-  defp consume_nonclosing(_parser, closing_token, [{closing_token, _string} | _r_tokens] = tokens) do
-    {:ok, [], tokens}
-  end
-  defp consume_nonclosing(parser, closing_token, [{_next_token, string} | r_tokens]) do
-    {:ok, next_tree, r2_tokens} = well_formed_including_paragraphs(parser, closing_token, r_tokens)
+  # Helper to turn a parse tree into a list
+  def partial_flatten(tree) do
+    tree
+    |> List.flatten()
+    |> Enum.chunk_by(fn {k, _v} -> k end)
+    |> Enum.map(fn list ->
+      [{type, _v} | _rest] = list
 
-    {:ok, [{:text, escape_nl2br(string)}, next_tree], r2_tokens}
-  end
-  defp consume_nonclosing(_parser, _closing_token, []) do
-    {:ok, [], []}
+      value = Enum.map_join(list, "", fn {_k, v} -> v end)
+
+      {type, value}
+    end)
   end
 
-  #
-  # well_formed = (markup)*;
-  #
-  defp well_formed(parser, tokens) do
-    case markup(parser, tokens) do
+  defp put_state(parser, new_state) do
+    state = Map.put(parser.state, new_state, true)
+    Map.put(parser, :state, state)
+  end
+
+  # Helper corresponding to Kleene star (*) operator
+  # Match a specificed rule zero or more times
+  defp repeat(rule, parser, tokens) do
+    case rule.(parser, tokens) do
       {:ok, tree, r_tokens} ->
-        {:ok, next_tree, r2_tokens} = well_formed(parser, r_tokens)
-        {:ok, [tree, next_tree], r2_tokens}
+        {:ok, tree2, r2_tokens} = repeat(rule, parser, r_tokens)
+        {:ok, [tree, tree2], r2_tokens}
 
       _ ->
         {:ok, [], tokens}
     end
   end
 
-
+  # Helper to match a simple recursive grammar rule of the following form:
   #
-  # markup =
-  #   blockquote | spoiler | link | image | bold | italic | strong | emphasis |
-  #   code | inserted | superscript | deleted | subscript | newline | literal |
-  #   literal | text;
+  #   open_token callback* close_token
   #
-  defp markup(parser, tokens) do
-    markups = [
-      &blockquote/2, &spoiler/2, &link/2, &image/2, &bold/2, &italic/2, &strong/2,
-      &emphasis/2, &code/2, &inserted/2, &superscript/2, &deleted/2, &subscript/2,
-      &newline/2, &literal/2, &literal/2, &text/2
-    ]
+  defp simple_recursive(open_token, close_token, open_tag, close_tag, callback, parser, [{open_token, open} | r_tokens]) do
+    case repeat(callback, parser, r_tokens) do
+      {:ok, tree, [{^close_token, _} | r2_tokens]} ->
+        {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
 
-    value =
-      markups
-      |> Enum.find_value(fn func ->
-        case func.(parser, tokens) do
-          {:ok, tree, r_tokens} ->
-            {:ok, tree, r_tokens}
+      {:ok, tree, r2_tokens} ->
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
+    end
+  end
+  defp simple_recursive(_open_token, _close_token, _open_tag, _close_tag, _callback, _parser, _tokens) do
+    {:error, "Expected a simple recursive rule"}
+  end
+
+  # Helper to match a simple recursive grammar rule with negative lookahead:
+  #
+  #   open_token callback* close_token (?!lookahead_not)
+  #
+  defp simple_lookahead_not(open_token, close_token, open_tag, close_tag, lookahead_not, callback, state, parser, [{open_token, open} | r_tokens]) do
+    case parser.state do
+      %{^state => _} ->
+        {:error, "End of rule"}
+
+      _ ->
+        case r_tokens do
+          [{forbidden_lookahead, _la} | _] when forbidden_lookahead in [:space, :newline] ->
+            {:ok, [{:text, escape(open)}], r_tokens}
 
           _ ->
-            nil
+            case repeat(callback, put_state(parser, state), r_tokens) do
+              {:ok, tree, [{^close_token, close}, {^lookahead_not, ln} | r2_tokens]} ->
+                {:ok, [{:text, escape(open)}, tree, {:text, escape(close)}], [{lookahead_not, ln} | r2_tokens]}
+
+              {:ok, tree, [{^close_token, _} | r2_tokens]} ->
+                {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
+
+              {:ok, tree, r2_tokens} ->
+                {:ok, [{:text, escape(open)}, tree], r2_tokens}
+            end
         end
-      end)
-
-    value || {:error, "Expected markup"}
+    end
+  end
+  defp simple_lookahead_not(_open_token, _close_token, _open_tag, _close_tag, _lookahead_not, _callback, _state, _parser, _tokens) do
+    {:error, "Expected a simple lookahead not rule"}
   end
 
+  # Helper to efficiently assemble a UTF-8 binary from tokens of the
+  # given type
+  defp assemble_binary(token_type, accumulator, [{token_type, t} | stream]) do
+    assemble_binary(token_type, accumulator <> <<t::utf8>>, stream)
+  end
+  defp assemble_binary(_token_type, accumulator, tokens), do: {accumulator, tokens}
 
   #
-  # blockquote =
-  #   blockquote_open_cite well_formed_including_paragraphs blockquote_close |
-  #   blockquote_open well_formed_including_paragraphs blockquote_close;
+  #  inline_textile_element =
+  #    opening_markup inline_textile_element* closing_markup (?!quicktxt) |
+  #    closing_markup (?=quicktxt) |
+  #    link_delim block_textile_element* link_url |
+  #    image url? |
+  #    code_delim inline_textile_element* code_delim |
+  #    inline_textile_element_not_opening_markup;
   #
-  defp blockquote(parser, [{:blockquote_open_cite, author} | r_tokens]) do
-    case well_formed_including_paragraphs(parser, :blockquote_close, r_tokens) do
-      {:ok, tree, [{:blockquote_close, _close} | r2_tokens]} ->
-        {:ok, [{:markup, ~s|<blockquote author="#{escape_html(author)}">|}, tree, {:markup, ~s|</blockquote>|}], r2_tokens}
 
-      {:ok, tree, r2_tokens} ->
-        {:ok, [{:text, escape_nl2br(~s|[bq="#{author}"]|)}, tree], r2_tokens}
+  defp inline_textile_element(parser, tokens) do
+    [
+      {:b_delim, :b, "<b>", "</b>"},
+      {:i_delim, :i, "<i>", "</i>"},
+      {:strong_delim, :strong, "<strong>", "</strong>"},
+      {:em_delim, :em, "<em>", "</em>"},
+      {:ins_delim, :ins, "<ins>", "</ins>"},
+      {:sup_delim, :sup, "<sup>", "</sup>"},
+      {:del_delim, :del, "<del>", "</del>"},
+      {:sub_delim, :sub, "<sub>", "</sub>"}
+    ]
+    |> Enum.find_value(fn {delim_token, state, open_tag, close_tag} ->
+      simple_lookahead_not(
+        delim_token,
+        delim_token,
+        open_tag,
+        close_tag,
+        :quicktxt,
+        &inline_textile_element/2,
+        state,
+        parser,
+        tokens
+      )
+      |> case do
+        {:ok, tree, r_tokens} ->
+          {:ok, tree, r_tokens}
+
+        _ ->
+          nil
+      end
+    end)
+    |> case do
+      nil   -> inner_inline_textile_element(parser, tokens)
+      value -> value
     end
   end
 
-  defp blockquote(parser, [{:blockquote_open, open} | r_tokens]) do
-    case well_formed_including_paragraphs(parser, :blockquote_close, r_tokens) do
-      {:ok, tree, [{:blockquote_close, _close} | r2_tokens]} ->
-        {:ok, [{:markup, ~s|<blockquote>|}, tree, {:markup, ~s|</blockquote>|}], r2_tokens}
-
+  defp inner_inline_textile_element(parser, [{token, t}, {:quicktxt, q} | r_tokens])
+    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
+  do
+    case inline_textile_element(parser, [{:quicktxt, q} | r_tokens]) do
       {:ok, tree, r2_tokens} ->
-        {:ok, [{:text, escape_nl2br(open)}, tree], r2_tokens}
+        {:ok, [{:text, escape(t)}, tree], r2_tokens}
+
+        _ ->
+        {:ok, [{:text, escape(t)}], [{:quicktxt, q} | r_tokens]}
     end
   end
+  defp inner_inline_textile_element(parser, [{:link_delim, open} | r_tokens]) do
+    case repeat(&block_textile_element/2, parser, r_tokens) do
+      {:ok, tree, [{:unbracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
+        href = escape(url)
 
-  defp blockquote(_parser, _tokens),
-    do: {:error, "Expected a blockquote tag with optional citation"}
-
-
-  #
-  # spoiler =
-  #   spoiler_open well_formed_including_paragraphs spoiler_close;
-  #
-  defp spoiler(parser, [{:spoiler_open, open} | r_tokens]) do
-    case well_formed_including_paragraphs(parser, :spoiler_close, r_tokens) do
-      {:ok, tree, [{:spoiler_close, _close} | r2_tokens]} ->
-        {:ok, [{:markup, ~s|<span class="spoiler">|}, tree, {:markup, ~s|</span>|}], r2_tokens}
+        {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
-        {:ok, [{:text, escape_nl2br(open)}, tree], r2_tokens}
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
+  defp inner_inline_textile_element(parser, [{:bracketed_link_open, open} | r_tokens]) do
+    case repeat(&inline_textile_element/2, parser, r_tokens) do
+      {:ok, tree, [{:bracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
+        href = escape(url)
 
-  defp spoiler(_parser, _tokens),
-    do: {:error, "Expected a spoiler tag"}
-
-
-  #
-  # link =
-  #   link_start well_formed_including_paragraphs link_end link_url;
-  #
-  defp link(parser, [{:link_start, start} | r_tokens]) do
-    case well_formed_including_paragraphs(parser, :link_end, r_tokens) do
-      {:ok, tree, [{:link_end, _end}, {:link_url, url} | r2_tokens]} ->
-        {:ok, [{:markup, ~s|<a href="#{escape_html(url)}">|}, tree, {:markup, ~s|</a>|}], r2_tokens}
+        {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
-        {:ok, [{:text, escape_nl2br(start)}, tree], r2_tokens}
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
+  defp inner_inline_textile_element(parser, [{token, img}, {:unbracketed_image_url, <<":", url::binary>>} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
+    img = parser.image_transform.(img)
 
-  defp link(_parser, _tokens),
-    do: {:error, "Expected a link"}
+    {:ok, [{:markup, "<a href=\""}, {:markup, escape(url)}, {:markup, "\"><span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span></a>"}], r_tokens}
+  end
+  defp inner_inline_textile_element(parser, [{token, img} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
+    img = parser.image_transform.(img)
 
+    {:ok, [{:markup, "<span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span>"}], r_tokens}
+  end
+  defp inner_inline_textile_element(parser, [{:code_delim, open} | r_tokens]) do
+    case parser.state do
+      %{code: _} ->
+        {:error, "End of rule"}
 
-  #
-  # image =
-  #   image_url image_title? image_link_url?;
-  #
-  defp image(parser, [{:image_url, image_url}, {:image_title, title}, {:image_link_url, link_url} | r_tokens]) do
-    image_url = parser.image_transform.(image_url)
+      _ ->
+        case repeat(&inline_textile_element/2, put_state(parser, :code), r_tokens) do
+          {:ok, tree, [{:code_delim, _} | r2_tokens]} ->
+            {:ok, [{:markup, "<code>"}, tree, {:markup, "</code>"}], r2_tokens}
 
-    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><span class="imgspoiler"><img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/></span></a>|], r_tokens}
+          {:ok, tree, r2_tokens} ->
+            {:ok, [{:text, escape(open)}, tree], r2_tokens}
+        end
+    end
+  end
+  defp inner_inline_textile_element(parser, tokens) do
+    inline_textile_element_not_opening_markup(parser, tokens)
   end
 
-  defp image(parser, [{:image_url, image_url}, {:image_title, title} | r_tokens]) do
-    image_url = parser.image_transform.(image_url)
+  #
+  # bq_cite_text = literal | char | space | quicktxt;
+  #
 
-    {:ok, [markup: ~s|<span class="imgspoiler"><img src="#{escape_html(image_url)}" title="#{escape_html(title)}"/></span>|], r_tokens}
+  # Note that text is not escaped here because it will be escaped
+  # when the tree is flattened
+  defp bq_cite_text(_parser, [{:literal, lit} | r_tokens]) do
+    {:ok, [{:text, lit}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
+    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:space, _} | r_tokens]) do
+    {:ok, [{:text, " "}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
+    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  end
+  defp bq_cite_text(_parser, _tokens) do
+    {:error, "Expected cite tokens"}
   end
 
-  defp image(parser, [{:image_url, image_url}, {:image_link_url, link_url} | r_tokens]) do
-    image_url = parser.image_transform.(image_url)
+  #
+  #  inline_textile_element_not_opening_markup =
+  #    literal | space | char |
+  #    quicktxt opening_markup quicktxt |
+  #    quicktxt |
+  #    opening_block_tag block_textile_element* closing_block_tag;
+  #
 
-    {:ok, [markup: ~s|<a href="#{escape_html(link_url)}"><span class="imgspoiler"><img src="#{escape_html(image_url)}"/></span></a>|], r_tokens}
+  defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens]) do
+    {:ok, [{:markup, "<span class=\"literal\">"}, {:markup, escape(lit)}, {:markup, "</span>"}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:space, _} | r_tokens]) do
+    {:ok, [{:text, " "}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:char, lit} | r_tokens]) do
+    {binary, r2_tokens} = assemble_binary(:char, <<lit::utf8>>, r_tokens)
+
+    {:ok, [{:text, escape(binary)}], r2_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, q1}, {token, t}, {:quicktxt, q2} | r_tokens])
+    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
+  do
+    {:ok, [{:text, escape(<<q1::utf8>>)}, {:text, escape(t)}, {:text, escape(<<q2::utf8>>)}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, lit} | r_tokens]) do
+    {:ok, [{:text, escape(<<lit::utf8>>)}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
+    case repeat(&bq_cite_text/2, parser, r_tokens) do
+      {:ok, tree, [{:bq_cite_open, open} | r2_tokens]} ->
+        case repeat(&block_textile_element/2, parser, r2_tokens) do
+          {:ok, tree2, [{:bq_close, _} | r3_tokens]} ->
+            cite = escape(flatten(tree))
+
+            {:ok, [{:markup, "<blockquote author=\""}, {:markup, cite}, {:markup, "\">"}, tree2, {:markup, "</blockquote>"}], r3_tokens}
+
+          {:ok, tree2, r3_tokens} ->
+            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}, tree2], r3_tokens}
+
+          _ ->
+            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}], r_tokens}
+        end
+
+      _ ->
+        {:ok, [{:text, escape(start)}], r_tokens}
+    end
+  end
+  defp inline_textile_element_not_opening_markup(_parser, [{:bq_cite_open, tok} | r_tokens]) do
+    {:ok, [{:text, escape(tok)}], r_tokens}
+  end
+  defp inline_textile_element_not_opening_markup(parser, tokens) do
+    [
+      {:bq_open, :bq_close, "<blockquote>", "</blockquote>"},
+      {:spoiler_open, :spoiler_close, "<span class=\"spoiler\">", "</span>"},
+      {:bracketed_b_open, :bracketed_b_close, "<b>", "</b>"},
+      {:bracketed_i_open, :bracketed_i_close, "<i>", "</i>"},
+      {:bracketed_strong_open, :bracketed_strong_close, "<strong>", "</strong>"},
+      {:bracketed_em_open, :bracketed_em_close, "<em>", "</em>"},
+      {:bracketed_code_open, :bracketed_code_close, "<code>", "</code>"},
+      {:bracketed_ins_open, :bracketed_ins_close, "<ins>", "</ins>"},
+      {:bracketed_sup_open, :bracketed_sup_close, "<sup>", "</sup>"},
+      {:bracketed_del_open, :bracketed_del_close, "<del>", "</del>"},
+      {:bracketed_sub_open, :bracketed_sub_close, "<sub>", "</sub>"}
+    ]
+    |> Enum.find_value(fn {open_token, close_token, open_tag, close_tag} ->
+      simple_recursive(
+        open_token,
+        close_token,
+        open_tag,
+        close_tag,
+        &block_textile_element/2,
+        parser,
+        tokens
+      )
+      |> case do
+        {:ok, tree, r_tokens} ->
+          {:ok, tree, r_tokens}
+
+        _ ->
+          nil
+      end
+    end)
+    |> Kernel.||({:error, "Expected block markup"})
   end
 
-  defp image(parser, [{:image_url, image_url} | r_tokens]) do
-    image_url = parser.image_transform.(image_url)
+  #
+  #  block_textile_element =
+  #    double_newline | newline | inline_textile_element;
+  #
 
-    {:ok, [markup: ~s|<span class="imgspoiler"><img src="#{escape_html(image_url)}"/></span>|], r_tokens}
+  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
+    {:ok, [{:markup, "<br/><br/>"}], r_tokens}
+  end
+  defp block_textile_element(_parser, [{:newline, _} | r_tokens]) do
+    {:ok, [{:markup, "<br/>"}], r_tokens}
+  end
+  defp block_textile_element(parser, tokens) do
+    inline_textile_element(parser, tokens)
   end
 
-  defp image(_parser, _tokens),
-    do: {:error, "Expected an image tag"}
-
   #
-  # bold =
-  #   b_open well_formed b_close |
-  #   b_b_open well_formed b_b_close;
-  #
-  attribute_parser(:bold, :b_open, :b_close, "<b>", "</b>")
-
-  #
-  # italic =
-  #   i_open well_formed i_close |
-  #   b_i_open well_formed b_i_close;
-  #
-  attribute_parser(:italic, :i_open, :i_close, "<i>", "</i>")
-
-  #
-  # strong =
-  #   strong_open well_formed strong_close |
-  #   b_strong_open well_formed b_strong_close;
-  #
-  attribute_parser(:strong, :strong_open, :strong_close, "<strong>", "</strong>")
-
-  #
-  # emphasis =
-  #   em_open well_formed em_close |
-  #   b_em_open well_formed b_em_close;
-  #
-  attribute_parser(:emphasis, :em_open, :em_close, "<em>", "</em>")
-
-  #
-  # code =
-  #   code_open well_formed code_close |
-  #   b_code_open well_formed b_code_close;
-  #
-  attribute_parser(:code, :code_open, :code_close, "<code>", "</code>")
- 
-  #
-  # inserted =
-  #   ins_open well_formed ins_close |
-  #   b_ins_open well_formed b_ins_close;
-  #
-  attribute_parser(:inserted, :ins_open, :ins_close, "<ins>", "</ins>")
-
-  #
-  # superscript =
-  #   sup_open well_formed sup_close |
-  #   b_sup_open well_formed b_sup_close;
-  #
-  attribute_parser(:superscript, :sup_open, :sup_close, "<sup>", "</sup>")
-
-  #
-  # deleted =
-  #   del_open well_formed del_close |
-  #   b_del_open well_formed b_del_close;
-  #
-  attribute_parser(:deleted, :del_open, :del_close, "<del>", "</del>")
-
-  # 
-  # subscript =
-  #   sub_open well_formed sub_close |
-  #   b_sub_open well_formed b_sub_close;
-  #
-  attribute_parser(:subscript, :sub_open, :sub_close, "<sub>", "</sub>")
-
-
-  #
-  # Terminals
+  #  textile =
+  #    (block_textile_element | TOKEN)* eos;
   #
 
-  defp literal(_parser, [{:literal, text} | r_tokens]),
-    do: {:ok, [markup: escape_nl2br(text)], r_tokens}
+  defp textile(parser, tokens) do
+    case block_textile_element(parser, tokens) do
+      {:ok, tree, r_tokens} ->
+        {:ok, tree, r_tokens}
 
-  defp literal(_parser, _tokens),
-    do: {:error, "Expected a literal"}
+      _ ->
+        case tokens do
+          [{_, string} | r_tokens] ->
+            {:ok, [{:text, escape(string)}], r_tokens}
 
-
-  defp newline(_parser, [{:newline, _nl} | r_tokens]),
-    do: {:ok, [markup: "<br/>"], r_tokens}
-
-  defp newline(_parser, _tokens),
-    do: {:error, "Expected a line break"}
-
-
-  defp text(_parser, [{:text, text} | r_tokens]),
-    do: {:ok, [text: escape_nl2br(text)], r_tokens}
-
-  defp text(_parser, _tokens),
-    do: {:error, "Expected text"}
+          _ ->
+            {:error, "Expected textile"}
+        end
+    end
+  end
 end
