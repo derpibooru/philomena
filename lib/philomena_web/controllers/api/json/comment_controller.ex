@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
       |> Repo.one()
 
     cond do
-      is_nil(comment) ->
+      is_nil(comment) or comment.destroyed_content ->
         conn
         |> put_status(:not_found)
         |> text("")
@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
 
       true ->
         json(conn, %{comment: CommentJson.as_json(comment)})
-        
+
     end
   end
 end
