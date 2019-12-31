@@ -11,6 +11,8 @@
     = if manages_tags?(@conn) do
       = link "Edit details", to: Routes.tag_path(@conn, :edit, @tag), class: "detail-link"
       = link "Usage", to: Routes.tag_detail_path(@conn, :index, @tag), class: "detail-link"
+    = if manages_dnp?(@conn) do
+      = link "Create new DNP entry", to: Routes.dnp_entry_path(@conn, :new, tag_id: @tag.id), class: "detail-link"
 
     br
   

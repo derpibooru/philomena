@@ -23,6 +23,6 @@ defmodule PhilomenaWeb.DnpEntryView do
   def pretty_state(_dnp_entry), do: "Requested"
 
   def show_steps?(changeset) do
-    not is_nil(changeset.action) and not changeset.data.state == :loaded
+    changeset.action == nil and changeset.data.__meta__.state != :loaded
   end
 end
