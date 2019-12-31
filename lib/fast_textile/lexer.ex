@@ -27,7 +27,7 @@ defmodule FastTextile.Lexer do
     |> unwrap_and_tag(:newline)
 
   link_ending_characters =
-    utf8_char('#$%&(),.:;<=?\\`|\'')
+    utf8_char('@#$%&(),.:;<=?\\`|\'')
 
   bracket_link_ending_characters =
     utf8_char('" []')
