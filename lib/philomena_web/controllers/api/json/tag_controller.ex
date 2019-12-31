@@ -3,11 +3,24 @@ defmodule PhilomenaWeb.Api.Json.TagController do
 
   alias PhilomenaWeb.TagJson
   alias Philomena.Tags.Tag
+  alias Philomena.Repo
+  import Ecto.Query
 
-  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
-  plug :load_resource, model: Tag, id_field: "slug", persisted: true, preload: [:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries]
+  def show(conn, %{"id" => slug}) do
+    tag = 
+      Tag
+      |> where(slug: ^slug)
+      |> preload([:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries])
+      |> Repo.one()
 
-  def show(conn, _params) do
-    json(conn, %{tag: TagJson.as_json(conn.assigns.tag)})
+    case tag do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> text("")
+
+      _ ->
+        json(conn, %{tag: TagJson.as_json(tag)})
+    end
   end
 end
