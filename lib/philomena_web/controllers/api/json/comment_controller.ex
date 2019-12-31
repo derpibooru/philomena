@@ -13,14 +13,20 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
       |> preload([:image, :user])
       |> Repo.one()
 
-    case comment do
-      nil ->
+    cond do
+      is_nil(comment) ->
         conn
         |> put_status(:not_found)
         |> text("")
 
-      _ ->
+      comment.image.hidden_from_users ->
+        conn
+        |> put_status(:forbidden)
+        |> text("")
+
+      true ->
         json(conn, %{comment: CommentJson.as_json(comment)})
+        
     end
   end
 end
