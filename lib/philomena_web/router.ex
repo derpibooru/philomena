@@ -112,6 +112,11 @@ defmodule PhilomenaWeb.Router do
     resources "/oembed", OembedController, only: [:index]
     resources "/tags", TagController, only: [:show]
     resources "/comments", CommentController, only: [:show]
+    resources "/forums", ForumsController, only: [:show, :index] do
+      resources "/topics", TopicsController, only: [:show, :index] do
+        resources "/posts", PostsController, only: [:show, :index]
+      end
+    end
   end
 
   scope "/", PhilomenaWeb do
