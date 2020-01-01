@@ -38,10 +38,9 @@ defmodule Philomena.Channels.Channel do
   @doc false
   def changeset(channel, attrs) do
     tag_id =
-      if attrs["artist_tag"] do
-        Repo.get_by(Tag, name: attrs["artist_tag"]).id
-      else
-        nil
+      case Repo.get_by(Tag, name: attrs["artist_tag"] || "") do
+        %{id: id} -> id
+        _ -> nil
       end
 
     channel
