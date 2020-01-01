@@ -1,6 +1,8 @@
 defmodule Search.DateParser do
   import NimbleParsec
 
+  defp to_int(input), do: Search.Helpers.to_int(input)
+
   defp build_datetime(naive, tz_off, tz_hour, tz_minute) do
     tz_hour =
       tz_hour
@@ -103,9 +105,14 @@ defmodule Search.DateParser do
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
     |> ignore()
 
+  pos_2dig_int =
+    ascii_char('123456789')
+    |> ascii_char('0123456789')
+    |> reduce(:to_int)
+
   year = integer(4)
-  month = integer(2)
-  day = integer(2)
+  month = pos_2dig_int
+  day = pos_2dig_int
 
   hour = integer(2)
   minute = integer(2)

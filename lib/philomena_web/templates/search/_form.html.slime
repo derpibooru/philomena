@@ -37,7 +37,7 @@ h1 Search
             a data-search-add="my:watched" data-search-show-help=" " My watched tags
       .flex__right
         a href="#" data-click-toggle="#js-search-tags" Quick tags
-        a href="/search/syntax" Help
+        a href="/pages/search_syntax" Help
 
     .block__content
       .hidden.walloftext data-search-help="numeric"
