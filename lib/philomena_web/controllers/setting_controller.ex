@@ -38,6 +38,7 @@ defmodule PhilomenaWeb.SettingController do
     conn
     |> set_cookie(user_params, "hidpi", "hidpi")
     |> set_cookie(user_params, "webm", "webm")
+    |> set_cookie(user_params, "serve_webm", "serve_webm")
     |> set_cookie(user_params, "chan_nsfw", "chan_nsfw")
     |> set_cookie(user_params, "hide_staff_tools", "hide_staff_tools")
   end

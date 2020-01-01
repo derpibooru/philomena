@@ -10,7 +10,7 @@ defmodule Philomena.Processors.Webm do
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled = Enum.flat_map(versions, &scale_if_smaller(file, palette, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale_if_smaller(file, palette, duration, dimensions, &1))
 
     %{
       intensities: intensities,
@@ -35,7 +35,7 @@ defmodule Philomena.Processors.Webm do
     preview
   end
 
-  defp scale_if_smaller(file, palette, dimensions, {:full, _target_dim}) do
+  defp scale_if_smaller(file, palette, _duration, dimensions, {:full, _target_dim}) do
     {_webm, mp4} = scale_videos(file, palette, dimensions, dimensions)
 
     [
@@ -44,12 +44,12 @@ defmodule Philomena.Processors.Webm do
     ]
   end
 
-  defp scale_if_smaller(file, palette, dimensions, {thumb_name, {target_width, target_height}}) do
+  defp scale_if_smaller(file, palette, duration, dimensions, {thumb_name, {target_width, target_height}}) do
     {webm, mp4} = scale_videos(file, palette, dimensions, {target_width, target_height})
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(file, palette, {target_width, target_height})
+        gif = scale_gif(file, palette, duration, {target_width, target_height})
 
         [
           {:copy, webm, "#{thumb_name}.webm"},
@@ -79,14 +79,15 @@ defmodule Philomena.Processors.Webm do
     {webm, mp4}
   end
 
-  defp scale_gif(file, palette, {width, height}) do
+  defp scale_gif(file, palette, duration, {width, height}) do
     gif = Briefly.create!(extname: ".gif")
-    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
+    scale_filter   = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    filter_graph   = "[0:v] #{scale_filter} [x]; [x][1:v] #{palette_filter}"
+    rate_filter    = "fps=1/#{duration},settb=1/2,setpts=N"
+    filter_graph   = "[0:v] #{scale_filter},#{rate_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, gif])
+      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, "-r", "2", gif])
     
     gif
   end
