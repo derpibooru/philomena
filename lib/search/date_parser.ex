@@ -106,8 +106,8 @@ defmodule Search.DateParser do
     |> ignore()
 
   pos_2dig_int =
-    ascii_char('123456789')
-    |> ascii_char('0123456789')
+    ascii_char('0123456789')
+    |> ascii_char('123456789')
     |> reduce(:to_int)
 
   year = integer(4)
