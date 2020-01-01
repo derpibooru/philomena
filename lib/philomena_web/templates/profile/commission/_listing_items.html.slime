@@ -2,6 +2,9 @@
   .block__header
     span.block__header__title Available Items and Prices
 
+    = if current?(@user, @conn.assigns.current_user) do
+      = link "Add an item", to: Routes.profile_commission_item_path(@conn, :new, @user)
+
   .block__content
 
     = if not Enum.any?(@commission.items) do
