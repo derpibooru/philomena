@@ -1,8 +1,6 @@
 defmodule Search.DateParser do
   import NimbleParsec
 
-  defp to_int(input), do: Search.Helpers.to_int(input)
-
   defp build_datetime(naive, tz_off, tz_hour, tz_minute) do
     tz_hour =
       tz_hour
@@ -18,78 +16,78 @@ defmodule Search.DateParser do
 
     # Unbelievable that there is no way to build this with integer arguments.
     # WTF, Elixir?
-    {:ok, datetime, _offset} = DateTime.from_iso8601(iso8601_string)
+    case DateTime.from_iso8601(iso8601_string) do
+      {:ok, datetime, _offset} ->
+        {:ok, datetime}
 
-    datetime
+      _ ->
+        :error
+    end
   end
 
   defp timezone_bounds([]), do: ["+", 0, 0]
   defp timezone_bounds([tz_off, tz_hour]), do: [tz_off, tz_hour, 0]
   defp timezone_bounds([tz_off, tz_hour, tz_minute]), do: [tz_off, tz_hour, tz_minute]
 
+  defp days_in_month(year, month) when month in 1..12 do
+    Calendar.ISO.days_in_month(year, month)
+  end
+  defp days_in_month(_year, _month) do
+    0
+  end
+
+  defp lower_upper(tuple, offset_amount) do
+    case NaiveDateTime.from_erl(tuple) do
+      {:ok, lower} ->
+        upper = NaiveDateTime.add(lower, offset_amount, :second)
+        {:ok, [lower, upper]}
+
+      _ ->
+        :error
+    end
+  end
+
   defp date_bounds([year]) do
-    lower = %NaiveDateTime{year: year, month: 1, day: 1, hour: 0, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 31_536_000, :second)
-    [lower, upper]
+    lower_upper({{year, 1, 1}, {0, 0, 0}}, 31_536_000)
   end
 
   defp date_bounds([year, month]) do
-    lower = %NaiveDateTime{year: year, month: month, day: 1, hour: 0, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 2_592_000, :second)
-    [lower, upper]
+    days = days_in_month(year, month)
+    lower_upper({{year, month, 1}, {0, 0, 0}}, 86_400 * days)
   end
 
   defp date_bounds([year, month, day]) do
-    lower = %NaiveDateTime{year: year, month: month, day: day, hour: 0, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 86400, :second)
-    [lower, upper]
+    lower_upper({{year, month, day}, {0, 0, 0}}, 86_400)
   end
 
   defp date_bounds([year, month, day, hour]) do
-    lower = %NaiveDateTime{year: year, month: month, day: day, hour: hour, minute: 0, second: 0}
-    upper = NaiveDateTime.add(lower, 3600, :second)
-    [lower, upper]
+    lower_upper({{year, month, day}, {hour, 0, 0}}, 3_600)
   end
 
   defp date_bounds([year, month, day, hour, minute]) do
-    lower = %NaiveDateTime{
-      year: year,
-      month: month,
-      day: day,
-      hour: hour,
-      minute: minute,
-      second: 0
-    }
-
-    upper = NaiveDateTime.add(lower, 60, :second)
-    [lower, upper]
+    lower_upper({{year, month, day}, {hour, minute, 0}}, 60)
   end
 
   defp date_bounds([year, month, day, hour, minute, second]) do
-    lower = %NaiveDateTime{
-      year: year,
-      month: month,
-      day: day,
-      hour: hour,
-      minute: minute,
-      second: second
-    }
-
-    upper = NaiveDateTime.add(lower, 1, :second)
-    [lower, upper]
+    lower_upper({{year, month, day}, {hour, minute, second}}, 1)
   end
 
-  defp absolute_datetime(opts) do
+  defp absolute_datetime(_rest, opts, context, _line, _offset) do
     date = Keyword.fetch!(opts, :date)
     timezone = Keyword.get(opts, :timezone, [])
 
-    [lower, upper] = date_bounds(date)
     [tz_off, tz_hour, tz_minute] = timezone_bounds(timezone)
 
-    lower = build_datetime(lower, tz_off, tz_hour, tz_minute)
-    upper = build_datetime(upper, tz_off, tz_hour, tz_minute)
-
-    [lower, upper]
+    with {:ok, [lower, upper]} <- date_bounds(date),
+         {:ok, lower} <- build_datetime(lower, tz_off, tz_hour, tz_minute),
+         {:ok, upper} <- build_datetime(upper, tz_off, tz_hour, tz_minute)
+    do
+      {[[lower, upper]], context}
+    else
+      _ ->
+        date = Enum.join(date ++ timezone, ", ")
+        {:error, "invalid date format in input, parsed as #{date}"}
+    end
   end
 
   defp relative_datetime([count, scale]) do
@@ -105,14 +103,9 @@ defmodule Search.DateParser do
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
     |> ignore()
 
-  pos_2dig_int =
-    ascii_char('0123456789')
-    |> ascii_char('123456789')
-    |> reduce(:to_int)
-
   year = integer(4)
-  month = pos_2dig_int
-  day = pos_2dig_int
+  month = integer(2)
+  day = integer(2)
 
   hour = integer(2)
   minute = integer(2)
@@ -164,7 +157,7 @@ defmodule Search.DateParser do
   absolute_date =
     date_part
     |> optional(timezone_part)
-    |> reduce(:absolute_datetime)
+    |> post_traverse(:absolute_datetime)
     |> unwrap_and_tag(:date)
 
   relative_date =
