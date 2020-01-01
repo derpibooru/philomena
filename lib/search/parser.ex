@@ -110,7 +110,7 @@ defmodule Search.Parser do
   defp search_boost(parser, tokens) do
     case search_not(parser, tokens) do
       {:ok, {child, [{:boost, value} | r_tokens]}} ->
-        {:ok, {%{function_score: %{query: child, boost_factor: value}}, r_tokens}}
+        {:ok, {%{function_score: %{query: child, boost: value}}, r_tokens}}
 
       value ->
         value
