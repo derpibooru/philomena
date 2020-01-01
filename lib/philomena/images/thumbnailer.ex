@@ -29,11 +29,11 @@ defmodule Philomena.Images.Thumbnailer do
     {:ok, analysis} = Analyzers.analyze(file)
 
     apply_edit_script(image, Processors.process(analysis, file, @versions))
-    recompute_sha512(image, file, &Image.thumbnail_changeset/2)
+    recompute_meta(image, file, &Image.thumbnail_changeset/2)
     generate_dupe_reports(image)
 
     apply_edit_script(image, Processors.post_process(analysis, file))
-    recompute_sha512(image, file, &Image.process_changeset/2)
+    recompute_meta(image, file, &Image.process_changeset/2)
   end
 
 
@@ -58,11 +58,17 @@ defmodule Philomena.Images.Thumbnailer do
     do: symlink(image_file(image), Path.join(thumb_dir, destination))
 
 
-  defp recompute_sha512(image, file, changeset_fn),
-    do: Repo.update!(changeset_fn.(image, %{"image_sha512_hash" => Sha512.file(file)}))
-
   defp generate_dupe_reports(image),
     do: DuplicateReports.generate_reports(image)
+
+  defp recompute_meta(image, file, changeset_fn) do
+    image
+    |> changeset_fn.(%{
+      "image_sha512_hash" => Sha512.file(file),
+      "image_size" => File.stat!(file).size
+    })
+    |> Repo.update!()
+  end
 
 
   # Copy from source to destination, creating parent directories along
