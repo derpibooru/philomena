@@ -1,4 +1,6 @@
-= form_for @changeset, Routes.image_comment_path(@conn, :create, @image), fn f ->
+- options = if(assigns[:remote], do: [data: [remote: "true"], id: "js-comment-form"], else: [])
+
+= form_for @changeset, Routes.image_comment_path(@conn, :create, @image), options, fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

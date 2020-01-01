@@ -19,7 +19,7 @@
       = render PhilomenaWeb.BanView, "_ban_reason.html", conn: @conn
 
     - @image.commenting_allowed ->
-      = render PhilomenaWeb.Image.CommentView, "_form.html", image: @image, changeset: @comment_changeset, conn: @conn
+      = render PhilomenaWeb.Image.CommentView, "_form.html", image: @image, changeset: @comment_changeset, remote: true, conn: @conn
 
     - true ->
 

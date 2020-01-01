@@ -53,9 +53,7 @@ defmodule PhilomenaWeb.Image.CommentController do
         Images.reindex_image(conn.assigns.image)
         UserStatistics.inc_stat(conn.assigns.current_user, :comments_posted)
 
-        conn
-        |> put_flash(:info, "Comment created successfully.")
-        |> redirect(to: Routes.image_path(conn, :show, image) <> "#comment_#{comment.id}")
+        index(conn, %{"comment_id" => comment.id})
 
       _error ->
         conn
