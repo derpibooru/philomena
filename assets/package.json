@@ -4,9 +4,9 @@
     "watch": "brunch watch --stdin"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.12.0",
     "brunch": "^2.10.17",
-    "copycat-brunch": "^1.1.1",
-    "@fortawesome/fontawesome-free": "^5.11.2"
+    "copycat-brunch": "^1.1.1"
   },
   "devDependencies": {
     "acorn": "^7.1.0",
