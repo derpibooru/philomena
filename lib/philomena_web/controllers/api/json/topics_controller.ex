@@ -9,14 +9,12 @@ defmodule PhilomenaWeb.Api.Json.TopicController do
   def show(conn, %{"forum_id" => forum_id, "id" => id}) do
     topic = 
       Topic
+      |> join(:inner, [t], _ in assoc(t, :forum))
       |> where(slug: ^id)
       |> where(hidden_from_users: false)
-      |> join(:inner, [t], _ in assoc(t, :forum))
-      |> where([_t, f], f.access_level == "normal")
-      |> where([_t, f], f.short_name == ^forum_id)
+      |> where([_t, f], f.access_level == "normal" and f.short_name == ^forum_id)
       |> order_by(desc: :sticky, desc: :last_replied_to_at)
-      |> preload([:poll, :forum, :user, last_post: :user])
-      |> preload([:user, :forum])
+      |> preload([:user])
       |> Repo.one()
 
     cond do
@@ -33,12 +31,11 @@ defmodule PhilomenaWeb.Api.Json.TopicController do
   def index(conn, %{"forum_id" => id}) do
     topics =
       Topic
-      |> where(hidden_from_users: false)
       |> join(:inner, [t], _ in assoc(t, :forum))
-      |> where([_t, f], f.access_level == "normal")
-      |> where([_t, f], f.short_name == ^id)
+      |> where(hidden_from_users: false)
+      |> where([_t, f], f.access_level == "normal" and f.short_name == ^id)
       |> order_by(desc: :sticky, desc: :last_replied_to_at)
-      |> preload([:poll, :forum, :user, last_post: :user])
+      |> preload([:user])
       |> Repo.paginate(conn.assigns.scrivener)
 
     json(conn, %{topic: Enum.map(topics, &TopicJson.as_json/1)})
