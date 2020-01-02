@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Api.Json.PostController do
       |> where([_p, t], t.slug == ^topic_id)
       |> where([_p, _t, f], f.access_level == "normal")
       |> where([_p, _t, f], f.short_name == ^forum_id)      
-      |> preload([:user, :topic])
+      |> preload([:user])
       |> Repo.one()
 
     cond do
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Api.Json.PostController do
       |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)
       |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :topic_position)
-      |> preload([:user, :topic])
+      |> preload([:user])
       |> Repo.all()
 
     json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
