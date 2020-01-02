@@ -2,9 +2,7 @@ defmodule PhilomenaWeb.Api.Json.PostController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.PostJson
-  alias Philomena.Topics.Topic
   alias Philomena.Posts.Post
-  alias Philomena.Forums.Forum
   alias Philomena.Repo
   import Ecto.Query
 
