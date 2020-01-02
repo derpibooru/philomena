@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.TopicJson do
   alias PhilomenaWeb.UserAttributionView
 
-  def as_json(%{hidden_from_users: true} = _topic) do
+  def as_json(%{hidden_from_users: true}) do
     %{
       slug: nil,
       title: nil,
