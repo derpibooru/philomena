@@ -7,7 +7,6 @@ defmodule PhilomenaWeb.Api.Json.TopicController do
   import Ecto.Query
 
   def show(conn, %{"forum_id" => forum_id, "id" => id}) do
-
     topic = 
       Topic
       |> where(slug: ^id)
@@ -32,7 +31,6 @@ defmodule PhilomenaWeb.Api.Json.TopicController do
   end
 
   def index(conn, %{"forum_id" => id}) do
-
     topics =
       Topic
       |> where(hidden_from_users: false)
