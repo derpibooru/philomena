@@ -10,7 +10,6 @@ defmodule PhilomenaWeb.PostJson do
       body: nil
     }
   end
-
   def as_json(%{hidden_from_users: true} = post) do
     %{
       id: post.id,
@@ -20,7 +19,6 @@ defmodule PhilomenaWeb.PostJson do
       body: nil
     }
   end
-
   def as_json(post) do
     %{
       id: post.id,
@@ -30,5 +28,4 @@ defmodule PhilomenaWeb.PostJson do
       body: post.body
     }
   end
-
 end
