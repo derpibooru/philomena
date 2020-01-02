@@ -140,7 +140,7 @@ defmodule PhilomenaWeb.TagController do
 
       %{aliased_tag: tag} ->
         conn
-        |> put_flash(:info, "This tag (`#{conn.assigns.tag.name}') has been aliased into the tag `#{tag.name}'.")
+        |> put_flash(:info, "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\".")
         |> redirect(to: Routes.tag_path(conn, :show, tag))
     end
   end
