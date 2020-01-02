@@ -10,25 +10,16 @@ defmodule PhilomenaWeb.Api.Json.PostController do
 
   def show(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "id" => post_id}) do
 
-    forum =
-      Forum
-      |> where(short_name: ^forum_id)
-      |> where(destroyed_content: false)
-      |> Repo.one()
-
-    topic = 
-      Topic
-      |> where(forum_id: ^forum.id)
-      |> where(slug: ^topic_id)
-      |> where(hidden_from_users: false)
-      |> preload([:user, :forum])
-      |> Repo.one()
-
     post = 
       Post
       |> where(id: ^post_id)
-      |> where(topic_id: ^topic.id)
       |> where(destroyed_content: false)
+      |> join(:inner, [p], _ in assoc(p, :topic))
+      |> where([_p, t], t.hidden_from_users == false)
+      |> where([_p, t], t.slug == ^topic_id)
+      |> join(:inner, [_p, t], _ in assoc(t, :forum))
+      |> where([_p, _t, f], f.access_level == "normal")
+      |> where([_p, _t, f], f.short_name == ^forum_id)      
       |> preload([:user, :topic])
       |> Repo.one()
 
@@ -46,38 +37,21 @@ defmodule PhilomenaWeb.Api.Json.PostController do
   def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
 
     page = paginate(params["page"])
-    forum =
-      Forum
-      |> where(short_name: ^forum_id)
-      |> where(access_level: "normal")
-      |> Repo.one()
-
-    topic = 
-      Topic
-      |> where(forum_id: ^forum.id)
-      |> where(slug: ^topic_id)
-      |> where(hidden_from_users: false)
-      |> preload([:user, :forum])
-      |> Repo.one()
-
     posts = 
       Post
-      |> where(topic_id: ^topic.id)
       |> where(destroyed_content: false)
+      |> join(:inner, [p], _ in assoc(p, :topic))
+      |> where([_p, t], t.hidden_from_users == false)
+      |> where([_p, t], t.slug == ^topic_id)
+      |> join(:inner, [_p, t], _ in assoc(t, :forum))
+      |> where([_p, _t, f], f.access_level == "normal")
+      |> where([_p, _t, f], f.short_name == ^forum_id)      
       |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :topic_position)
       |> preload([:user, :topic])
       |> Repo.all()
 
-    cond do
-      is_nil(posts) ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
-
-      true ->
-        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
-    end
+    json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
   end
 
   defp paginate(page) do
