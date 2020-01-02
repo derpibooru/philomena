@@ -13,10 +13,8 @@ defmodule PhilomenaWeb.Api.Json.PostController do
       |> join(:inner, [_p, t], _ in assoc(t, :forum))
       |> where(id: ^post_id)
       |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false)
-      |> where([_p, t], t.slug == ^topic_id)
-      |> where([_p, _t, f], f.access_level == "normal")
-      |> where([_p, _t, f], f.short_name == ^forum_id)      
+      |> where([_p, t], t.hidden_from_users == false and t.slug == ^topic_id)
+      |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)      
       |> preload([:user])
       |> Repo.one()
 
