@@ -16,13 +16,17 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   def show(conn, _params) do
     commission = conn.assigns.user.commission
 
-    item_descriptions =
+    items =
       commission.items
+      |> Enum.sort(&Decimal.cmp(&1.base_price, &2.base_price) != :gt)
+
+    item_descriptions =
+      items
       |> Enum.map(&%{body: &1.description })
       |> Renderer.render_collection(conn)
 
     item_add_ons =
-      commission.items
+      items
       |> Enum.map(&%{body: &1.add_ons})
       |> Renderer.render_collection(conn)
 
@@ -45,7 +49,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
         will_not_create: will_not_create
       }
 
-    items = Enum.zip([item_descriptions, item_add_ons, commission.items])
+    items = Enum.zip([item_descriptions, item_add_ons, items])
 
     render(conn, "show.html", title: "Showing Commission", rendered: rendered, commission: commission, items: items, layout_class: "layout--wide")
   end

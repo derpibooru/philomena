@@ -5,7 +5,7 @@ defmodule Textile.Parser do
   def parse(parser, input) do
     parser = Map.put(parser, :state, %{})
 
-    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(String.trim(input)),
+    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(String.trim(input || "")),
          {:ok, tree, []} <- repeat(&textile/2, parser, tokens)
     do
       partial_flatten(tree)
