@@ -173,7 +173,7 @@ defmodule Textile.Lexer do
   sup_delim = string("^") |> unwrap_and_tag(:sup_delim)
   sub_delim = string("~") |> unwrap_and_tag(:sub_delim)
 
-  del_delim = lookahead_not(string("-"), string(">")) |> unwrap_and_tag(:del_delim)
+  del_delim = lookahead_not(string("-"), choice([string("-"), string(">")])) |> unwrap_and_tag(:del_delim)
 
   quicktxt =
     utf8_char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*@_{}')
