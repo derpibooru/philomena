@@ -25,12 +25,10 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
   end
 
   def index(conn, _params) do
-    user = conn.assigns.current_user
     forums =
       Forum
-      |> order_by(asc: :name)
       |> where(access_level: "normal")
-      |> preload([last_post: [:user, topic: :forum]])
+      |> order_by(asc: :name)
       |> Repo.all()
 
     json(conn, %{forums: Enum.map(forums, &ForumJson.as_json/1)})
