@@ -15,7 +15,6 @@ defmodule PhilomenaWeb.TopicJson do
       author: nil
     }
   end
-
   def as_json(topic) do
     %{
       id: topic.id,
