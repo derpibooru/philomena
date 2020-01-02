@@ -7,7 +7,6 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
   import Ecto.Query
 
   def show(conn, %{"id" => id}) do
-
     forum = 
       Forum
       |> where(short_name: ^id)
@@ -26,7 +25,6 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
   end
 
   def index(conn, _params) do
-
     user = conn.assigns.current_user
     forums =
       Forum
