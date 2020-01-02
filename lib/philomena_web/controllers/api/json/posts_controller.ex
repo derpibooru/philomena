@@ -7,7 +7,6 @@ defmodule PhilomenaWeb.Api.Json.PostController do
   import Ecto.Query
 
   def show(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "id" => post_id}) do
-
     post = 
       Post
       |> where(id: ^post_id)
@@ -33,7 +32,6 @@ defmodule PhilomenaWeb.Api.Json.PostController do
   end
 
   def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
-
     page = paginate(params["page"])
     posts = 
       Post
@@ -53,7 +51,6 @@ defmodule PhilomenaWeb.Api.Json.PostController do
   end
 
   defp paginate(page) do
-
     cond do
       is_nil(page) ->
         1
