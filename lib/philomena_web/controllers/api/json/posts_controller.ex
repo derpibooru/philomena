@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Api.Json.PostController do
     end
   end
 
-  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
+  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id}) do
     page = conn.assigns.pagination.page_number
     posts = 
       Post
