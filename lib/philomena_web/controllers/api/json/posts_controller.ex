@@ -41,8 +41,9 @@ defmodule PhilomenaWeb.Api.Json.PostController do
       |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :topic_position)
       |> preload([:user])
+      |> preload([_p, t, _f], topic: t)
       |> Repo.all()
 
-    json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
+    json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
   end
 end
