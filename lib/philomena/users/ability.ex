@@ -82,8 +82,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Edit posts and comments
   def can?(%User{role: "moderator"}, :edit, %Post{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Post{}), do: true
+  def can?(%User{role: "moderator"}, :delete, %Post{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Comment{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Comment{}), do: true
+  def can?(%User{role: "moderator"}, :delete, %Comment{}), do: true
 
   # Show the DNP list
   def can?(%User{role: "moderator"}, _action, DnpEntry), do: true
