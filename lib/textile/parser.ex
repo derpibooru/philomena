@@ -227,22 +227,25 @@ defmodule Textile.Parser do
   end
 
   #
-  # bq_cite_text = literal | char | space | quicktxt;
+  # bq_cite_text = (?!bq_cite_open);
   #
 
   # Note that text is not escaped here because it will be escaped
   # when the tree is flattened
-  defp bq_cite_text(_parser, [{:literal, lit} | r_tokens]) do
-    {:ok, [{:text, lit}], r_tokens}
+  defp bq_cite_text(_parser, [{:bq_cite_open, _open} | _rest]) do
+    {:error, "Expected cite tokens"}
   end
   defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
+    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  end
+  defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
   defp bq_cite_text(_parser, [{:space, _} | r_tokens]) do
     {:ok, [{:text, " "}], r_tokens}
   end
-  defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
-    {:ok, [{:text, <<lit::utf8>>}], r_tokens}
+  defp bq_cite_text(_parser, [{_token, t} | r_tokens]) do
+    {:ok, [{:text, t}], r_tokens}
   end
   defp bq_cite_text(_parser, _tokens) do
     {:error, "Expected cite tokens"}
