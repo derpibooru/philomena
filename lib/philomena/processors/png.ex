@@ -29,7 +29,10 @@ defmodule Philomena.Processors.Png do
 
     {_output, 0} =
       System.cmd("optipng", ["-fix", "-i0", "-o2", "-quiet", "-clobber", file, "-out", optimized])
-    
+
+    # Remove useless .bak file
+    File.rm(optimized <> ".bak")
+
     optimized
   end
 
