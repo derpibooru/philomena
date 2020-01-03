@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   def create(conn, %{"image" => image_params}) do
     images =
       image_params
+      |> Map.put("distance", conn.params["distance"])
       |> ImageReverse.images()
       |> Enum.map(&ImageJson.as_json(conn, &1))
 
@@ -21,8 +22,17 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
     params =
       conn.params
       |> Map.put("image", %{})
+      |> Map.put("distance", normalize_dist(conn.params))
       |> Map.put("scraper_cache", conn.params["url"])
 
     %{conn | params: params}
   end
+
+  defp normalize_dist(%{"distance" => distance}) do
+    "0" <> distance
+    |> Float.parse()
+    |> elem(0)
+    |> Float.to_string()
+  end
+  defp normalize_dist(_dist), do: "0.25"
 end
