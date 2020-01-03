@@ -19,7 +19,6 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   end
 
   defp set_scraper_cache(conn, _opts) do
-
     params =
       conn.params
       |> Map.put("image", %{})
