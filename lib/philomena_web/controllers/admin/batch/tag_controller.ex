@@ -22,7 +22,10 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     added_tags =
       Tag
       |> where([t], t.name in ^added_tag_names)
+      |> preload([:implied_tags, aliased_tag: :implied_tags])
       |> Repo.all()
+      |> Enum.map(& &1.aliased_tag || &1)
+      |> Enum.flat_map(&[&1 | &1.implied_tags])
 
     removed_tags =
       Tag
