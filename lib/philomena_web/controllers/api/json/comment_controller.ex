@@ -9,11 +9,11 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
   def show(conn, %{"image_id" => image_id, "id" => id}) do
     comment = 
       Comment
-      |> preload([:image, :user])
       |> join(:inner, [c], _ in assoc(c, :image))
       |> where(id: ^id)
       |> where(destroyed_content: false)
       |> where([_c, i], i.hidden_from_users == false and i.id == ^image_id)
+      |> preload([:image, :user])
       |> Repo.one()
 
     cond do
@@ -51,10 +51,10 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
     page = conn.assigns.pagination.page_number
     comments = 
       Comment
-      |> preload([:image, :user])
       |> join(:inner, [c], _ in assoc(c, :image))
       |> where(destroyed_content: false)
       |> where([_c, i], i.hidden_from_users == false and i.id == ^image_id)
+      |> preload([:image, :user])
       |> Repo.all()
 
     case comments do
