@@ -31,6 +31,14 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
       |> order_by(asc: :name)
       |> Repo.all()
 
-    json(conn, %{forums: Enum.map(forums, &ForumJson.as_json/1)})
+    case forums do
+      [] ->
+        conn
+        |> put_status(:not_found)
+        |> text("")
+
+      _ ->
+        json(conn, %{forums: Enum.map(forums, &ForumJson.as_json/1)})
+    end
   end
 end
