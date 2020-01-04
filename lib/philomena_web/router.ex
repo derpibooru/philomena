@@ -95,7 +95,9 @@ defmodule PhilomenaWeb.Router do
 
   scope "/api/v1/json", PhilomenaWeb.Api.Json, as: :api_json do
     pipe_through [:accepts_json, :api, :ensure_tor_authorized]
-    resources "/images", ImageController, only: [:show]
+    resources "/images", ImageController, only: [:show] do
+      resources "/comments", CommentController, only: [:show, :index]
+    end
 
     scope "/search", Search, as: :search do
       resources "/reverse", ReverseController, only: [:create]
@@ -117,6 +119,7 @@ defmodule PhilomenaWeb.Router do
         resources "/posts", PostController, only: [:show, :index]
       end
     end
+    resources "/posts", PostController, only: [:show]
     
   end
 
