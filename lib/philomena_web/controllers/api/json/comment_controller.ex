@@ -29,8 +29,10 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
   def show(conn, %{"id" => id}) do
     comment = 
       Comment
+      |> join(:inner, [c], _ in assoc(c, :image))
       |> where(id: ^id)
       |> where(destroyed_content: false)
+      |> where([_c, i], i.hidden_from_users == false)
       |> preload([:image, :user])
       |> Repo.one()
 
