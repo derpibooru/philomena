@@ -38,6 +38,14 @@ defmodule PhilomenaWeb.Api.Json.TopicController do
       |> preload([:user])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    json(conn, %{topic: Enum.map(topics, &TopicJson.as_json/1)})
+    case topics do
+      [] ->
+        conn
+        |> put_status(:not_found)
+        |> text("")
+
+      _ ->
+        json(conn, %{topic: Enum.map(topics, &TopicJson.as_json/1)})
+    end
   end
 end
