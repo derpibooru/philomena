@@ -10,10 +10,10 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
     comment = 
       Comment
       |> preload([:image, :user])
-      |> join(:inner, [p], _ in assoc(p, :image))
+      |> join(:inner, [c], _ in assoc(c, :image))
       |> where(id: ^id)
       |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false and t.id == ^image_id)
+      |> where([_c, i], i.hidden_from_users == false and i.id == ^image_id)
       |> Repo.one()
 
     cond do
@@ -50,10 +50,11 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
     comments = 
       Comment
       |> preload([:image, :user])
-      |> join(:inner, [p], _ in assoc(p, :image))
+      |> join(:inner, [c], _ in assoc(c, :image))
       |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false and t.id == ^image_id)
+      |> where([_c, i], i.hidden_from_users == false and i.id == ^image_id)
       |> Repo.all()
+      |> IO.inspect
 
     case comments do
       [] ->
