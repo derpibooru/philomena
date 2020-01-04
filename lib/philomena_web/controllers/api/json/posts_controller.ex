@@ -28,6 +28,28 @@ defmodule PhilomenaWeb.Api.Json.PostController do
         json(conn, %{post: PostJson.as_json(post)})
     end
   end
+  def show(conn, %{"id" => post_id}) do
+    post = 
+      Post
+      |> join(:inner, [p], _ in assoc(p, :topic))
+      |> join(:inner, [_p, t], _ in assoc(t, :forum))
+      |> where(id: ^post_id)
+      |> where(destroyed_content: false)
+      |> where([_p, t], t.hidden_from_users == false)
+      |> where([_p, _t, f], f.access_level == "normal")      
+      |> preload([:user, :topic])
+      |> Repo.one()
+
+    cond do
+      is_nil(post) ->
+        conn
+        |> put_status(:not_found)
+        |> text("")
+
+      true ->
+        json(conn, %{post: PostJson.as_json(post)})
+    end
+  end
 
   def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id}) do
     page = conn.assigns.pagination.page_number
@@ -44,6 +66,14 @@ defmodule PhilomenaWeb.Api.Json.PostController do
       |> preload([_p, t, _f], topic: t)
       |> Repo.all()
 
-    json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
+    case posts do
+      [] ->
+        conn
+        |> put_status(:not_found)
+        |> text("")
+
+      _ ->
+        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
+    end
   end
 end
