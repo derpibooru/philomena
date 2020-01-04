@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Api.Json.FeatureController do
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
-      |> order_by([i, f], desc: f.created_at)
+      |> order_by([_i, f], desc: f.created_at)
       |> limit(1)
       |> preload([:tags, :user, :intensity])
       |> Repo.one()
