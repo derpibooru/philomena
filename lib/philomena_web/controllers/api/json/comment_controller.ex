@@ -54,7 +54,6 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
       |> where(destroyed_content: false)
       |> where([_c, i], i.hidden_from_users == false and i.id == ^image_id)
       |> Repo.all()
-      |> IO.inspect
 
     case comments do
       [] ->
