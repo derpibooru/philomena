@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.StatView do
 
     content_tag :svg, class: "upload-stats", viewBox: "0 0 #{graph_width} #{graph_height}" do
       for {datum, i} <- Enum.with_index(data) do
-        bar_height = safe_div(datum["doc_count"], max_docs) * graph_height
+        bar_height = safe_div(datum["doc_count"], max_docs - min_docs) * graph_height
 
         x = i * bar_width
         y = graph_height-bar_height
