@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
+defmodule PhilomenaWeb.Api.Json.FeaturedController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageJson
