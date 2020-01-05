@@ -116,3 +116,6 @@ elixir:
     span.stat>
       = @response_time
     ' hour(s) between a report being made and the report being resolved.
+
+  h3 Upload History
+  = upload_graph(img_bucket["non_deleted"]["all_time"]["buckets"])
