@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.StatView do
         height = bar_height
 
         content_tag :rect, width: bar_width, height: height, x: x, y: y, fill: "#000" do
-          content_tag :title, "#{datum["key_as_string"]} - #{datum["doc_count"]} uploads"
+          content_tag :title, do: [datum["key_as_string"], " - ", Integer.to_string(datum["doc_count"]), " uploads"]
         end
       end
     end
