@@ -43,7 +43,13 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
       |> preload([:user, :topic])
       |> preload([_p, t, _f], topic: t)
       |> Repo.all()
+      
+    case posts do
+      [] ->
+        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
 
-    json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
+      _ ->
+        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
+    end
   end
 end
