@@ -46,7 +46,9 @@ defmodule PhilomenaWeb.Endpoint do
     encryption_salt: "authenticated encrypted cookie"
 
   plug Pow.Plug.Session, otp_app: :philomena
-  plug PowPersistentSession.Plug.Cookie, otp_app: :philomena
+  plug PowPersistentSession.Plug.Cookie,
+    otp_app: :philomena,
+    persistent_session_cookie_opts: [extra: "SameSite=Lax"]
 
   plug PhilomenaWeb.ReloadUserPlug
   plug PhilomenaWeb.RenderTimePlug
