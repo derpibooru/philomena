@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.Json.PostController do
+defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.PostJson
