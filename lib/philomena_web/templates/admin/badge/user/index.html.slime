@@ -3,7 +3,7 @@ h1
   => @badge.title
   ' badge
 
-- route = fn p -> Routes.admin_badge_user_path(@conn, :index, p) end
+- route = fn p -> Routes.admin_badge_user_path(@conn, :index, @badge, p) end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn
 
 .block
