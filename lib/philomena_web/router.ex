@@ -96,7 +96,7 @@ defmodule PhilomenaWeb.Router do
   scope "/api/v1/json", PhilomenaWeb.Api.Json, as: :api_json do
     pipe_through [:accepts_json, :api, :ensure_tor_authorized]
     resources "/images", ImageController, only: [:show] do
-      resources "/comments", CommentController, only: [:show, :index]
+      resources "/comments", Image.CommentController, only: [:show, :index]
     end
 
     scope "/search", Search, as: :search do
