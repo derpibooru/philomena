@@ -45,7 +45,7 @@ defmodule Philomena.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:phoenix_slime, "~> 0.12.0"},
       {:ecto_network, "~> 1.1"},
-      {:pow, github: "danschultzer/pow", ref: "90d674a458faacb0314aec751477cae3d3c0fbb3"},
+      {:pow, "~> 1.0.16"},
       {:bcrypt_elixir, "~> 2.0"},
       {:pot, "~> 0.10.1"},
       {:secure_compare, "~> 0.1.0"},
