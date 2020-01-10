@@ -6,6 +6,8 @@ defmodule PhilomenaWeb.Api.Rss.WatchedController do
   def index(conn, _params) do
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, "my:watched")
 
-    render(conn, "index.rss", images: images)
+    # NB: this is RSS, but using the RSS format causes Phoenix not to
+    # escape HTML
+    render(conn, "index.html", layout: false, images: images)
   end
 end

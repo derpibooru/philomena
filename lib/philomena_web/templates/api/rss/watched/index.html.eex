@@ -8,7 +8,7 @@
 
     <%= for image <- @images do %>
         <item>
-          <title><%= "##{image.id} - #{image.tag_list_cache}" %></title>
+          <title>#<%= image.id %> - <%= image.tag_list_cache %></title>
           <description>
             <![CDATA[
               <% mouseovertext = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{image.tag_list_cache}" %>
