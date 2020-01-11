@@ -31,6 +31,9 @@ h1 New Conversation
           | Preview
 
       .block__tab.communication-edit__tab.selected data-tab="write"
+        = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
+        = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
+
         = textarea fm, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Your message", required: true
         = error_tag fm, :body
 
