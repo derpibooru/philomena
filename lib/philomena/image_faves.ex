@@ -23,7 +23,7 @@ defmodule Philomena.ImageFaves do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:fave, fave)
     |> Multi.update_all(:inc_faves_count, image_query, inc: [faves_count: 1])
     |> Multi.run(:inc_fave_stat, fn _repo, _changes ->
@@ -45,7 +45,7 @@ defmodule Philomena.ImageFaves do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.delete_all(:unfave, fave_query)
     |> Multi.run(:dec_faves_count, fn repo, %{unfave: {faves, nil}} ->
       {count, nil} =

@@ -68,11 +68,9 @@ config :logger, :console, format: "[$level] $message\n"
 config :logger, compile_time_purge_matching: [[application: :remote_ip]]
 
 # Set up mailer
-config :philomena, PhilomenaWeb.Mailer,
-  adapter: Bamboo.LocalAdapter
+config :philomena, PhilomenaWeb.Mailer, adapter: Bamboo.LocalAdapter
 
-config :philomena, :mailer_address,
-  "noreply@philomena.lc"
+config :philomena, :mailer_address, "noreply@philomena.lc"
 
 # Use this to debug slime templates
 # config :slime, :keep_lines, true

@@ -22,7 +22,7 @@ defmodule Philomena.ImageHides do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:hide, hide)
     |> Multi.update_all(:inc_hides_count, image_query, inc: [hides_count: 1])
   end
@@ -41,7 +41,7 @@ defmodule Philomena.ImageHides do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.delete_all(:unhide, hide_query)
     |> Multi.run(:dec_hides_count, fn repo, %{unhide: {hides, nil}} ->
       {count, nil} =

@@ -11,7 +11,12 @@ defmodule PhilomenaWeb.DnpEntryController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
-  plug :load_and_authorize_resource, model: DnpEntry, only: [:show, :edit, :update], preload: [:tag]
+
+  plug :load_and_authorize_resource,
+    model: DnpEntry,
+    only: [:show, :edit, :update],
+    preload: [:tag]
+
   plug :set_mod_notes when action in [:show]
 
   def index(%{assigns: %{current_user: user}} = conn, %{"mine" => _mine}) when not is_nil(user) do
@@ -40,10 +45,15 @@ defmodule PhilomenaWeb.DnpEntryController do
       |> Enum.map(&%{body: &1.conditions || "-"})
       |> Renderer.render_collection(conn)
 
-    dnp_entries =
-      %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
+    dnp_entries = %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
-    render(conn, "index.html", title: "Do-Not-Post List", layout_class: "layout--medium", dnp_entries: dnp_entries, status_column: status, linked_tags: linked_tags)
+    render(conn, "index.html",
+      title: "Do-Not-Post List",
+      layout_class: "layout--medium",
+      dnp_entries: dnp_entries,
+      status_column: status,
+      linked_tags: linked_tags
+    )
   end
 
   def show(conn, _params) do
@@ -59,16 +69,31 @@ defmodule PhilomenaWeb.DnpEntryController do
         conn
       )
 
-    render(conn, "show.html", title: "Showing DNP Listing", dnp_entry: dnp_entry, conditions: conditions, reason: reason, instructions: instructions)
+    render(conn, "show.html",
+      title: "Showing DNP Listing",
+      dnp_entry: dnp_entry,
+      conditions: conditions,
+      reason: reason,
+      instructions: instructions
+    )
   end
 
   def new(conn, _params) do
     changeset = DnpEntries.change_dnp_entry(%DnpEntry{})
-    render(conn, "new.html", title: "New DNP Listing", changeset: changeset, selectable_tags: selectable_tags(conn))
+
+    render(conn, "new.html",
+      title: "New DNP Listing",
+      changeset: changeset,
+      selectable_tags: selectable_tags(conn)
+    )
   end
 
   def create(conn, %{"dnp_entry" => dnp_entry_params}) do
-    case DnpEntries.create_dnp_entry(conn.assigns.current_user, selectable_tags(conn), dnp_entry_params) do
+    case DnpEntries.create_dnp_entry(
+           conn.assigns.current_user,
+           selectable_tags(conn),
+           dnp_entry_params
+         ) do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully submitted DNP request.")
@@ -81,11 +106,20 @@ defmodule PhilomenaWeb.DnpEntryController do
 
   def edit(conn, _params) do
     changeset = DnpEntries.change_dnp_entry(conn.assigns.dnp_entry)
-    render(conn, "edit.html", title: "Editing DNP Listing", changeset: changeset, selectable_tags: selectable_tags(conn))
+
+    render(conn, "edit.html",
+      title: "Editing DNP Listing",
+      changeset: changeset,
+      selectable_tags: selectable_tags(conn)
+    )
   end
 
   def update(conn, %{"dnp_entry" => dnp_entry_params}) do
-    case DnpEntries.update_dnp_entry(conn.assigns.dnp_entry, selectable_tags(conn), dnp_entry_params) do
+    case DnpEntries.update_dnp_entry(
+           conn.assigns.dnp_entry,
+           selectable_tags(conn),
+           dnp_entry_params
+         ) do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully updated DNP request.")
@@ -97,7 +131,8 @@ defmodule PhilomenaWeb.DnpEntryController do
   end
 
   defp selectable_tags(conn) do
-    case not is_nil(conn.params["tag_id"]) and Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
+    case not is_nil(conn.params["tag_id"]) and
+           Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
       true -> [Repo.get!(Tag, conn.params["tag_id"])]
       false -> linked_tags(conn)
     end
@@ -108,6 +143,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     |> Repo.preload(:linked_tags)
     |> Map.get(:linked_tags)
   end
+
   defp linked_tags(_), do: []
 
   defp set_mod_notes(conn, _opts) do

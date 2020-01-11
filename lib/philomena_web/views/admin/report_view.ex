@@ -40,10 +40,20 @@ defmodule PhilomenaWeb.Admin.ReportView do
   end
 
   def reported_image(conn, %Image{} = image) do
-    render PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_tiny, conn: conn
+    render(PhilomenaWeb.ImageView, "_image_container.html",
+      image: image,
+      size: :thumb_tiny,
+      conn: conn
+    )
   end
+
   def reported_image(conn, %Comment{image: image}) do
-    render PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_tiny, conn: conn
+    render(PhilomenaWeb.ImageView, "_image_container.html",
+      image: image,
+      size: :thumb_tiny,
+      conn: conn
+    )
   end
+
   def reported_image(_conn, _reportable), do: nil
 end

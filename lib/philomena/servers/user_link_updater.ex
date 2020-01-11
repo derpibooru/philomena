@@ -3,11 +3,11 @@ defmodule Philomena.Servers.UserLinkUpdater do
   alias Philomena.Repo
   import Ecto.Query
 
-  @seven_days 7*24*60*60
-  @three_days 3*24*60*60
-  @twelve_hours 12*60*60
-  @one_hour 60*60
-  @two_minutes 2*60
+  @seven_days 7 * 24 * 60 * 60
+  @three_days 3 * 24 * 60 * 60
+  @twelve_hours 12 * 60 * 60
+  @one_hour 60 * 60
+  @two_minutes 2 * 60
 
   def child_spec([]) do
     %{

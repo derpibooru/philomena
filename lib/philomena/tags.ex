@@ -40,7 +40,7 @@ defmodule Philomena.Tags do
     # Now get rid of the aliases
     existent_tags =
       existent_tags
-      |> Enum.map(& &1.aliased_tag || &1)
+      |> Enum.map(&(&1.aliased_tag || &1))
 
     new_tags =
       nonexistent_tag_names
@@ -107,6 +107,7 @@ defmodule Philomena.Tags do
   """
   def update_tag(%Tag{} = tag, attrs) do
     tag_input = Tag.parse_tag_list(attrs["implied_tag_list"])
+
     implied_tags =
       Tag
       |> where([t], t.name in ^tag_input)
@@ -120,7 +121,7 @@ defmodule Philomena.Tags do
   def update_tag_image(%Tag{} = tag, attrs) do
     changeset = Uploader.analyze_upload(tag, attrs)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:tag, changeset)
     |> Multi.run(:update_file, fn _repo, %{tag: tag} ->
       Uploader.persist_upload(tag)
@@ -134,7 +135,7 @@ defmodule Philomena.Tags do
   def remove_tag_image(%Tag{} = tag) do
     changeset = Tag.remove_image_changeset(tag)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:tag, changeset)
     |> Multi.run(:remove_file, fn _repo, %{tag: tag} ->
       Uploader.unpersist_old_upload(tag)
@@ -177,9 +178,14 @@ defmodule Philomena.Tags do
   def alias_tag(%Tag{} = tag, attrs) do
     target_tag = Repo.get_by!(Tag, name: attrs["target_tag"])
 
-    filters_hidden = where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
-    filters_spoilered = where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
-    users_watching = where(User, [u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
+    filters_hidden =
+      where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
+
+    filters_spoilered =
+      where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
+
+    users_watching =
+      where(User, [u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
 
     array_replace(filters_hidden, :hidden_tag_ids, tag.id, target_tag.id)
     array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
@@ -188,10 +194,10 @@ defmodule Philomena.Tags do
     # Manual insert all because ecto won't do it for us
     Repo.query!(
       "INSERT INTO image_taggings (image_id, tag_id) " <>
-      "SELECT i.id, #{target_tag.id} FROM images i " <>
-      "INNER JOIN image_taggings it on it.image_id = i.id " <>
-      "WHERE it.tag_id = #{tag.id} " <>
-      "ON CONFLICT DO NOTHING"
+        "SELECT i.id, #{target_tag.id} FROM images i " <>
+        "INNER JOIN image_taggings it on it.image_id = i.id " <>
+        "WHERE it.tag_id = #{tag.id} " <>
+        "ON CONFLICT DO NOTHING"
     )
 
     # Delete taggings on the source tag
@@ -211,7 +217,9 @@ defmodule Philomena.Tags do
     # Update counter
     Tag
     |> where(id: ^tag.id)
-    |> Repo.update_all(set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()])
+    |> Repo.update_all(
+      set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()]
+    )
 
     # Finally, reindex
     reindex_tag_images(target_tag)
@@ -274,9 +282,11 @@ defmodule Philomena.Tags do
       |> Repo.all()
       |> Enum.map(&%{&1 | image_id: String.to_integer(&1.image_id)})
 
-    {:ok, tag_ids} = 
-      Repo.transaction fn ->
-        {_count, taggings} = Repo.insert_all(Tagging, taggings, on_conflict: :nothing, returning: [:tag_id])
+    {:ok, tag_ids} =
+      Repo.transaction(fn ->
+        {_count, taggings} =
+          Repo.insert_all(Tagging, taggings, on_conflict: :nothing, returning: [:tag_id])
+
         tag_ids = Enum.map(taggings, & &1.tag_id)
 
         Tag
@@ -284,7 +294,7 @@ defmodule Philomena.Tags do
         |> Repo.update_all(inc: [images_count: 1])
 
         tag_ids
-      end
+      end)
 
     Tag
     |> where([t], t.id in ^tag_ids)
@@ -309,7 +319,7 @@ defmodule Philomena.Tags do
   end
 
   def reindex_tags(tags) do
-    spawn fn ->
+    spawn(fn ->
       ids =
         tags
         |> Enum.map(& &1.id)
@@ -318,7 +328,7 @@ defmodule Philomena.Tags do
       |> preload(^indexing_preloads())
       |> where([t], t.id in ^ids)
       |> Elasticsearch.reindex(Tag)
-    end
+    end)
 
     tags
   end

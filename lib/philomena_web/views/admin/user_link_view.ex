@@ -6,8 +6,12 @@ defmodule PhilomenaWeb.Admin.UserLinkView do
   defp display_order(tags),
     do: Tag.display_order(tags)
 
-  def link_state_class(%{aasm_state: state}) when state in ["verified", "link_verified"], do: "success"
-  def link_state_class(%{aasm_state: state}) when state in ["unverified", "rejected"], do: "danger"
+  def link_state_class(%{aasm_state: state}) when state in ["verified", "link_verified"],
+    do: "success"
+
+  def link_state_class(%{aasm_state: state}) when state in ["unverified", "rejected"],
+    do: "danger"
+
   def link_state_class(%{aasm_state: "contacted"}), do: "warning"
   def link_state_class(_link), do: nil
 
@@ -19,7 +23,7 @@ defmodule PhilomenaWeb.Admin.UserLinkView do
 
   def link_scope(conn) do
     case conn.params["all"] do
-      nil  -> []
+      nil -> []
       _val -> [all: true]
     end
   end

@@ -31,11 +31,12 @@ defmodule Philomena.Versions.Version do
     body = get_field(changeset, :body)
     edit_reason = get_field(changeset, :edit_reason)
 
-    object = Jason.encode!(%{
-      id: item_id,
-      body: body,
-      edit_reason: edit_reason
-    })
+    object =
+      Jason.encode!(%{
+        id: item_id,
+        body: body,
+        edit_reason: edit_reason
+      })
 
     change(changeset, object: object)
   end

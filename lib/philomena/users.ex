@@ -86,7 +86,7 @@ defmodule Philomena.Users do
   end
 
   defp clean_roles(nil), do: []
-  defp clean_roles(roles), do: Enum.filter(roles, &"" != &1)
+  defp clean_roles(roles), do: Enum.filter(roles, &("" != &1))
 
   def update_spoiler_type(%User{} = user, attrs) do
     user
@@ -131,7 +131,7 @@ defmodule Philomena.Users do
   def update_avatar(%User{} = user, attrs) do
     changeset = Uploader.analyze_upload(user, attrs)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:user, changeset)
     |> Multi.run(:update_file, fn _repo, %{user: user} ->
       Uploader.persist_upload(user)
@@ -145,7 +145,7 @@ defmodule Philomena.Users do
   def remove_avatar(%User{} = user) do
     changeset = User.remove_avatar_changeset(user)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:user, changeset)
     |> Multi.run(:remove_file, fn _repo, %{user: user} ->
       Uploader.unpersist_old_upload(user)
@@ -203,12 +203,13 @@ defmodule Philomena.Users do
     User
     |> join(:left, [u], _ in assoc(u, :roles))
     |> join(:left, [u, _], _ in assoc(u, :current_filter))
-    |> preload([_, r, cf], [current_filter: cf, roles: r])
+    |> preload([_, r, cf], current_filter: cf, roles: r)
     |> Repo.get_by(clauses)
     |> setup_roles()
   end
 
   defp setup_roles(nil), do: nil
+
   defp setup_roles(user) do
     role_map = Map.new(user.roles, &{&1.resource_type || &1.name, &1.name})
 

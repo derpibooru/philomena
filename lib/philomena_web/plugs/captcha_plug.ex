@@ -14,13 +14,19 @@ defmodule PhilomenaWeb.CaptchaPlug do
 
   defp maybe_check_captcha(conn, nil) do
     case Captcha.valid_solution?(conn.params) do
-      true  -> conn
+      true ->
+        conn
+
       false ->
         conn
-        |> Controller.put_flash(:error, "There was an error verifying you're not a robot. Please try again.")
+        |> Controller.put_flash(
+          :error,
+          "There was an error verifying you're not a robot. Please try again."
+        )
         |> Controller.redirect(external: conn.assigns.referrer)
         |> Conn.halt()
     end
   end
+
   defp maybe_check_captcha(conn, _user), do: conn
 end

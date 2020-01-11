@@ -2,7 +2,16 @@ defmodule Mix.Tasks.ReindexAll do
   use Mix.Task
 
   alias Philomena.Elasticsearch
-  alias Philomena.{Comments.Comment, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Tags.Tag}
+
+  alias Philomena.{
+    Comments.Comment,
+    Galleries.Gallery,
+    Posts.Post,
+    Images.Image,
+    Reports.Report,
+    Tags.Tag
+  }
+
   alias Philomena.{Comments, Galleries, Posts, Images, Tags}
   alias Philomena.Polymorphic
   alias Philomena.Repo
@@ -10,13 +19,19 @@ defmodule Mix.Tasks.ReindexAll do
 
   @shortdoc "Destroys and recreates all Elasticsearch indices."
   def run(_) do
-    if Mix.env == "prod" do
+    if Mix.env() == "prod" do
       raise "do not run this task in production"
     end
 
     {:ok, _apps} = Application.ensure_all_started(:philomena)
 
-    for {context, schema} <- [{Images, Image}, {Comments, Comment}, {Galleries, Gallery}, {Tags, Tag}, {Posts, Post}] do
+    for {context, schema} <- [
+          {Images, Image},
+          {Comments, Comment},
+          {Galleries, Gallery},
+          {Tags, Tag},
+          {Posts, Post}
+        ] do
       Elasticsearch.delete_index!(schema)
       Elasticsearch.create_index!(schema)
 

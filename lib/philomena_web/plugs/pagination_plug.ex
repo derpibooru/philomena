@@ -19,13 +19,14 @@ defmodule PhilomenaWeb.PaginationPlug do
     conn
     |> assign(:pagination, %{page_number: page_number, page_size: page_size || 25})
     |> assign(:image_pagination, %{page_number: page_number, page_size: image_page_size})
-    |> assign(:scrivener, [page: page_number, page_size: page_size || 25])
-    |> assign(:comment_scrivener, [page: page_number, page_size: comment_page_size])
+    |> assign(:scrivener, page: page_number, page_size: page_size || 25)
+    |> assign(:comment_scrivener, page: page_number, page_size: comment_page_size)
   end
 
   defp get_page_number(%{"page" => page}) do
     to_integer(page) || 1
   end
+
   defp get_page_number(_params), do: 1
 
   defp get_page_size(%{"per_page" => per_page}) do
@@ -35,6 +36,7 @@ defmodule PhilomenaWeb.PaginationPlug do
     |> max(1)
     |> min(50)
   end
+
   defp get_page_size(_params), do: nil
 
   defp to_integer(string) do

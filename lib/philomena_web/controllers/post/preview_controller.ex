@@ -17,6 +17,7 @@ defmodule PhilomenaWeb.Post.PreviewController do
   end
 
   defp preload_awards(nil), do: nil
+
   defp preload_awards(user) do
     Repo.preload(user, awards: :badge)
   end

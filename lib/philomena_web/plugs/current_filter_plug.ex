@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
       else
         filter_id = conn |> get_session(:filter_id)
 
-        filter = if filter_id, do: Repo.get(Filter, filter_id) 
+        filter = if filter_id, do: Repo.get(Filter, filter_id)
 
         filter || Filters.default_filter()
       end
@@ -40,5 +40,6 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
 
     Map.put(user, :current_filter, filter)
   end
+
   defp maybe_set_default_filter(user), do: user
 end

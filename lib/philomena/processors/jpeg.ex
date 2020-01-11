@@ -23,12 +23,10 @@ defmodule Philomena.Processors.Jpeg do
     intensities
   end
 
-  
   defp strip(file) do
     stripped = Briefly.create!(extname: ".jpg")
 
-    {_output, 0} =
-      System.cmd("convert", [file, "-auto-orient", "-strip", stripped])
+    {_output, 0} = System.cmd("convert", [file, "-auto-orient", "-strip", stripped])
 
     stripped
   end
@@ -36,8 +34,7 @@ defmodule Philomena.Processors.Jpeg do
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".jpg")
 
-    {_output, 0} =
-      System.cmd("jpegtran", ["-optimize", "-outfile", optimized, file])
+    {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", optimized, file])
 
     optimized
   end
@@ -62,8 +59,8 @@ defmodule Philomena.Processors.Jpeg do
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
-    {_output, 0} =
-      System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
+
+    {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
 
     scaled
   end

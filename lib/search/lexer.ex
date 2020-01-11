@@ -64,12 +64,14 @@ defmodule Search.Lexer do
 
   quoted_text =
     ignore(quot)
-    |> repeat(choice([
-      ignore(string("\\")) |> string("\""),
-      ignore(string("\\")) |> string("\\"),
-      string("\\") |> utf8_char([]),
-      utf8_char(not: ?")
-    ]))
+    |> repeat(
+      choice([
+        ignore(string("\\")) |> string("\""),
+        ignore(string("\\")) |> string("\\"),
+        string("\\") |> utf8_char([]),
+        utf8_char(not: ?")
+      ])
+    )
     |> ignore(quot)
     |> reduce({List, :to_string, []})
     |> unwrap_and_tag(:term)
@@ -97,5 +99,5 @@ defmodule Search.Lexer do
     repeat(outer)
     |> eos()
 
-  defparsec :lex, search
+  defparsec(:lex, search)
 end

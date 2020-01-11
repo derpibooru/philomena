@@ -11,7 +11,8 @@ defmodule PhilomenaWeb.NotificationController do
 
     notifications =
       from n in Notification,
-        join: un in UnreadNotification, on: un.notification_id == n.id,
+        join: un in UnreadNotification,
+        on: un.notification_id == n.id,
         where: un.user_id == ^user.id
 
     notifications =
@@ -26,8 +27,7 @@ defmodule PhilomenaWeb.NotificationController do
         actor_child: [actor_child_id: :actor_child_type]
       )
 
-    notifications =
-      %{notifications | entries: entries}
+    notifications = %{notifications | entries: entries}
 
     render(conn, "index.html", title: "Notification Area", notifications: notifications)
   end

@@ -9,9 +9,9 @@ defmodule PhilomenaWeb.Image.RepairController do
   plug :verify_not_deleted
 
   def create(conn, _params) do
-    spawn fn ->
+    spawn(fn ->
       Images.repair_image(conn.assigns.image)
-    end
+    end)
 
     conn
     |> put_flash(:info, "Repair job started.")

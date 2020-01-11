@@ -19,13 +19,14 @@ defmodule PhilomenaWeb.TotpPlug do
     conn
     |> Pow.Plug.current_user()
     |> case do
-      nil  -> conn
+      nil -> conn
       user -> maybe_require_totp_phase(user, conn)
     end
   end
-  
+
   defp maybe_require_totp_phase(%{otp_required_for_login: nil}, conn), do: conn
   defp maybe_require_totp_phase(%{otp_required_for_login: false}, conn), do: conn
+
   defp maybe_require_totp_phase(_user, conn) do
     conn.private
     |> Map.get(:pow_session_metadata, [])
@@ -50,12 +51,14 @@ defmodule PhilomenaWeb.TotpPlug do
       |> Keyword.put(:valid_totp_at, DateTime.utc_now())
 
     config = Pow.Plug.fetch_config(conn)
-    plug   = Pow.Plug.get_plug(config)
-    conn   = Plug.Conn.put_private(conn, :pow_session_metadata, metadata)
+    plug = Pow.Plug.get_plug(config)
+    conn = Plug.Conn.put_private(conn, :pow_session_metadata, metadata)
 
     conn =
       conn
-      |> Plug.Conn.put_private(:pow_persistent_session_metadata, session_metadata: Keyword.take(metadata, [:valid_totp_at]))
+      |> Plug.Conn.put_private(:pow_persistent_session_metadata,
+        session_metadata: Keyword.take(metadata, [:valid_totp_at])
+      )
       |> PowPersistentSession.Plug.Cookie.create(user, config)
 
     plug.do_create(conn, user, config)

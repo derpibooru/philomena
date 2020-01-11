@@ -37,7 +37,11 @@ defmodule PhilomenaWeb.PageController do
   end
 
   def update(conn, %{"static_page" => static_page_params}) do
-    case StaticPages.update_static_page(conn.assigns.static_page, conn.assigns.current_user, static_page_params) do
+    case StaticPages.update_static_page(
+           conn.assigns.static_page,
+           conn.assigns.current_user,
+           static_page_params
+         ) do
       {:ok, %{static_page: static_page}} ->
         conn
         |> put_flash(:info, "Static page successfully updated.")

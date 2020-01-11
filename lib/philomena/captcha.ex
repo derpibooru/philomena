@@ -1,7 +1,7 @@
 defmodule Philomena.Captcha do
   defstruct [:image_base64, :solution, :solution_id]
 
-  @numbers ~W(1 2 3 4 5 6)  
+  @numbers ~W(1 2 3 4 5 6)
   @images ~W(1 2 3 4 5 6)
   @base_path File.cwd!() <> "/assets/static/images/captcha"
 
@@ -26,9 +26,15 @@ defmodule Philomena.Captcha do
   @background_file @base_path <> "/background.png"
 
   @geometry %{
-    1 => "+0+0",   2 => "+120+0",   3 => "+240+0",
-    4 => "+0+120", 5 => "+120+120", 6 => "+240+120",
-    7 => "+0+240", 8 => "+120+240", 9 => "+240+240"
+    1 => "+0+0",
+    2 => "+120+0",
+    3 => "+240+0",
+    4 => "+0+120",
+    5 => "+120+120",
+    6 => "+240+120",
+    7 => "+0+240",
+    8 => "+120+240",
+    9 => "+240+240"
   }
 
   @distortion_1 [
@@ -60,7 +66,8 @@ defmodule Philomena.Captcha do
 
     # Base arguments
     args = [
-      "-page", "360x360",
+      "-page",
+      "360x360",
       @background_file
     ]
 
@@ -71,8 +78,18 @@ defmodule Philomena.Captcha do
       |> Enum.flat_map(fn {num, index} ->
         if num do
           [
-            "(", @image_files[solution[num]], ")", "-geometry", @geometry[index + 1], "-composite",
-            "(", @number_files[num], ")", "-geometry", @geometry[index + 1], "-composite"
+            "(",
+            @image_files[solution[num]],
+            ")",
+            "-geometry",
+            @geometry[index + 1],
+            "-composite",
+            "(",
+            @number_files[num],
+            ")",
+            "-geometry",
+            @geometry[index + 1],
+            "-composite"
           ]
         else
           []
@@ -99,6 +116,7 @@ defmodule Philomena.Captcha do
     solution_id =
       :crypto.strong_rand_bytes(12)
       |> Base.encode16(case: :lower)
+
     solution_id = "cp_" <> solution_id
 
     {:ok, _ok} = Redix.command(:redix, ["SET", solution_id, Jason.encode!(solution)])
@@ -116,8 +134,7 @@ defmodule Philomena.Captcha do
     # have minimal impact if the race succeeds.
     with {:ok, sol} <- Redix.command(:redix, ["GET", solution_id]),
          {:ok, _del} <- Redix.command(:redix, ["DEL", solution_id]),
-         {:ok, sol} <- Jason.decode(to_string(sol))
-    do
+         {:ok, sol} <- Jason.decode(to_string(sol)) do
       Map.equal?(solution, sol)
     else
       _ ->

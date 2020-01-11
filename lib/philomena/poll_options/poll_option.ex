@@ -32,6 +32,7 @@ defmodule Philomena.PollOptions.PollOption do
 
   defp ignore_if_blank(%{valid?: false, changes: changes} = changeset) when changes == %{},
     do: %{changeset | action: :ignore}
+
   defp ignore_if_blank(changeset),
     do: changeset
 end

@@ -53,7 +53,7 @@ defmodule Philomena.StaticPages do
   """
   def create_static_page(user, attrs \\ %{}) do
     static_page = StaticPage.changeset(%StaticPage{}, attrs)
-    
+
     Multi.new()
     |> Multi.insert(:static_page, static_page)
     |> Multi.run(:version, fn repo, %{static_page: static_page} ->

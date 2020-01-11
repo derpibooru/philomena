@@ -6,10 +6,15 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
   alias Philomena.PollVotes
   alias Philomena.Repo
   import Ecto.Query
-  
+
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
   plug PhilomenaWeb.CanaryMapPlug, index: :show, create: :show, delete: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.LoadPollPlug
@@ -24,7 +29,7 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
       |> where(poll_id: ^poll.id)
       |> preload(poll_votes: :user)
       |> Repo.all()
-      |> Enum.filter(& &1.vote_count > 0)
+      |> Enum.filter(&(&1.vote_count > 0))
 
     render(conn, "index.html", layout: false, options: options)
   end
@@ -59,7 +64,7 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :hide, conn.assigns.topic) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
   import Ecto.Query
 
   def show(conn, %{"id" => id}) do
-    forum = 
+    forum =
       Forum
       |> where(short_name: ^id)
       |> where(access_level: "normal")

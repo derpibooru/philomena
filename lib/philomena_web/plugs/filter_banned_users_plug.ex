@@ -25,6 +25,7 @@ defmodule PhilomenaWeb.FilterBannedUsersPlug do
   end
 
   defp maybe_halt(nil, conn, _redirect_url), do: conn
+
   defp maybe_halt(_current_ban, conn, redirect_url) do
     conn
     |> Controller.put_flash(:error, "You are currently banned.")
@@ -33,6 +34,7 @@ defmodule PhilomenaWeb.FilterBannedUsersPlug do
   end
 
   defp maybe_halt_no_fingerprint(%{halted: true} = conn), do: conn
+
   defp maybe_halt_no_fingerprint(conn) do
     conn = Conn.fetch_cookies(conn)
 

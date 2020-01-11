@@ -7,7 +7,17 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
   alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
-  plug :load_resource, model: User, id_name: "profile_id", id_field: "slug", preload: [:verified_links, commission: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]], persisted: true
+
+  plug :load_resource,
+    model: User,
+    id_name: "profile_id",
+    id_field: "slug",
+    preload: [
+      :verified_links,
+      commission: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
+    ],
+    persisted: true
+
   plug :ensure_commission
   plug :ensure_correct_user
 
@@ -16,7 +26,13 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     commission = user.commission
 
     changeset = Commissions.change_item(%Item{})
-    render(conn, "new.html", title: "New Commission Item", user: user, commission: commission, changeset: changeset)
+
+    render(conn, "new.html",
+      title: "New Commission Item",
+      user: user,
+      commission: commission,
+      changeset: changeset
+    )
   end
 
   def create(conn, %{"item" => item_params}) do
@@ -40,7 +56,14 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     item = Repo.get_by!(Item, commission_id: commission.id, id: id)
 
     changeset = Commissions.change_item(item)
-    render(conn, "edit.html", title: "Editing Commission Item", user: user, commission: commission, item: item, changeset: changeset)
+
+    render(conn, "edit.html",
+      title: "Editing Commission Item",
+      user: user,
+      commission: commission,
+      item: item,
+      changeset: changeset
+    )
   end
 
   def update(conn, %{"id" => id, "item" => item_params}) do
@@ -55,7 +78,12 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
         |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
 
       {:error, changeset} ->
-        render(conn, "edit.html", user: user, commission: commission, item: item, changeset: changeset)
+        render(conn, "edit.html",
+          user: user,
+          commission: commission,
+          item: item,
+          changeset: changeset
+        )
     end
   end
 
@@ -73,7 +101,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
 
   defp ensure_commission(conn, _opts) do
     case is_nil(conn.assigns.user.commission) do
-      true  -> PhilomenaWeb.NotFoundPlug.call(conn)
+      true -> PhilomenaWeb.NotFoundPlug.call(conn)
       false -> conn
     end
   end
@@ -83,7 +111,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
 
     case conn.assigns.current_user do
       %{id: ^user_id} -> conn
-      _other          -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      _other -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

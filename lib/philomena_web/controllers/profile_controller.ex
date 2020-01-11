@@ -19,9 +19,17 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: User, only: :show, id_field: "slug", preload: [
-    awards: [:badge, :awarded_by], public_links: :tag, verified_links: :tag, commission: [sheet_image: :tags, items: [example_image: :tags]]
-  ]
+  plug :load_and_authorize_resource,
+    model: User,
+    only: :show,
+    id_field: "slug",
+    preload: [
+      awards: [:badge, :awarded_by],
+      public_links: :tag,
+      verified_links: :tag,
+      commission: [sheet_image: :tags, items: [example_image: :tags]]
+    ]
+
   plug :set_admin_metadata
   plug :set_mod_notes
 
@@ -45,8 +53,8 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     tags = tags(conn.assigns.user.public_links)
-    
-    all_tag_ids = 
+
+    all_tag_ids =
       conn.assigns.user.verified_links
       |> tags()
       |> Enum.map(& &1.id)
@@ -54,7 +62,11 @@ defmodule PhilomenaWeb.ProfileController do
     watcher_counts =
       Tag
       |> where([t], t.id in ^all_tag_ids)
-      |> join(:inner_lateral, [t], _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id))
+      |> join(
+        :inner_lateral,
+        [t],
+        _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id)
+      )
       |> select([t, c], {t.id, c.count})
       |> Repo.all()
       |> Map.new()
@@ -110,14 +122,11 @@ defmodule PhilomenaWeb.ProfileController do
       )
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.topic))
 
-    about_me =
-      Renderer.render_one(%{body: user.description || ""}, conn)      
+    about_me = Renderer.render_one(%{body: user.description || ""}, conn)
 
-    scratchpad =
-      Renderer.render_one(%{body: user.scratchpad || ""}, conn)
+    scratchpad = Renderer.render_one(%{body: user.scratchpad || ""}, conn)
 
-    commission_information =
-      commission_info(user.commission, conn)
+    commission_information = commission_info(user.commission, conn)
 
     recent_galleries =
       Gallery
@@ -183,7 +192,7 @@ defmodule PhilomenaWeb.ProfileController do
   end
 
   defp individual_stat(mapping, stat_name) do
-    Enum.map((89..0), &map_fetch(mapping[&1], stat_name) || 0)
+    Enum.map(89..0, &(map_fetch(mapping[&1], stat_name) || 0))
   end
 
   defp map_fetch(nil, _field_name), do: nil
@@ -191,12 +200,14 @@ defmodule PhilomenaWeb.ProfileController do
 
   defp commission_info(%{information: info}, conn) when info not in [nil, ""],
     do: Renderer.render_one(%{body: info}, conn)
+
   defp commission_info(_commission, _conn), do: ""
 
   defp tags([]), do: []
   defp tags(links), do: Enum.map(links, & &1.tag) |> Enum.reject(&is_nil/1)
 
   defp recent_artwork(_conn, []), do: []
+
   defp recent_artwork(conn, tags) do
     {images, _tags} =
       ImageLoader.query(
@@ -213,6 +224,7 @@ defmodule PhilomenaWeb.ProfileController do
       true ->
         user = Repo.preload(conn.assigns.user, :current_filter)
         filter = user.current_filter
+
         last_ip =
           UserIp
           |> where(user_id: ^user.id)
@@ -226,7 +238,6 @@ defmodule PhilomenaWeb.ProfileController do
           |> order_by(desc: :updated_at)
           |> limit(1)
           |> Repo.one()
-
 
         conn
         |> assign(:filter, filter)

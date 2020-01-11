@@ -8,7 +8,12 @@ defmodule PhilomenaWeb.Topic.Post.HistoryController do
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.LoadPostPlug
@@ -25,6 +30,9 @@ defmodule PhilomenaWeb.Topic.Post.HistoryController do
       |> Repo.all()
       |> Versions.load_data_and_associations(post)
 
-    render(conn, "index.html", title: "Post History for Post #{post.id} - #{topic.title} - Forums", versions: versions)
+    render(conn, "index.html",
+      title: "Post History for Post #{post.id} - #{topic.title} - Forums",
+      versions: versions
+    )
   end
 end

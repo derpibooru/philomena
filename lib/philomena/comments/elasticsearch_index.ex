@@ -33,8 +33,10 @@ defmodule Philomena.Comments.ElasticsearchIndex do
             user_id: %{type: "keyword"},
             author: %{type: "keyword"},
             image_tag_ids: %{type: "keyword"},
-            anonymous: %{type: "keyword"}, # boolean
-            hidden_from_users: %{type: "keyword"}, # boolean
+            # boolean
+            anonymous: %{type: "keyword"},
+            # boolean
+            hidden_from_users: %{type: "keyword"},
             body: %{type: "text", analyzer: "snowball"}
           }
         }

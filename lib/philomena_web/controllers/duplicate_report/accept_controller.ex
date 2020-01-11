@@ -6,10 +6,20 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptController do
   alias Philomena.Images
 
   plug PhilomenaWeb.CanaryMapPlug, create: :edit, delete: :edit
-  plug :load_and_authorize_resource, model: DuplicateReport, id_name: "duplicate_report_id", persisted: true, preload: [:image, :duplicate_of_image]
+
+  plug :load_and_authorize_resource,
+    model: DuplicateReport,
+    id_name: "duplicate_report_id",
+    persisted: true,
+    preload: [:image, :duplicate_of_image]
 
   def create(conn, _params) do
-    {:ok, _report} = DuplicateReports.accept_duplicate_report(conn.assigns.duplicate_report, conn.assigns.current_user)
+    {:ok, _report} =
+      DuplicateReports.accept_duplicate_report(
+        conn.assigns.duplicate_report,
+        conn.assigns.current_user
+      )
+
     Images.reindex_image(conn.assigns.duplicate_report.image)
     Images.reindex_image(conn.assigns.duplicate_report.duplicate_of_image)
 

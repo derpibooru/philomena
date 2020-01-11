@@ -20,11 +20,13 @@ defmodule PhilomenaWeb.StatView do
         bar_height = safe_div(datum["doc_count"], max_docs - min_docs) * graph_height
 
         x = i * bar_width
-        y = graph_height-bar_height
+        y = graph_height - bar_height
         height = bar_height
 
         content_tag :rect, width: bar_width, height: height, x: x, y: y, fill: "#000" do
-          content_tag :title, do: [datum["key_as_string"], " - ", Integer.to_string(datum["doc_count"]), " uploads"]
+          content_tag(:title,
+            do: [datum["key_as_string"], " - ", Integer.to_string(datum["doc_count"]), " uploads"]
+          )
         end
       end
     end

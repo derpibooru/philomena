@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.ImageJson do
   alias PhilomenaWeb.ImageView
 
-  def as_json(_conn, %{hidden_from_users: true, duplicate_id: duplicate_id} = image) when not is_nil(duplicate_id) do
+  def as_json(_conn, %{hidden_from_users: true, duplicate_id: duplicate_id} = image)
+      when not is_nil(duplicate_id) do
     %{
       id: image.id,
       created_at: image.created_at,
@@ -12,6 +13,7 @@ defmodule PhilomenaWeb.ImageJson do
       hidden_from_users: true
     }
   end
+
   def as_json(_conn, %{hidden_from_users: true} = image) do
     %{
       id: image.id,
@@ -23,6 +25,7 @@ defmodule PhilomenaWeb.ImageJson do
       hidden_from_users: true
     }
   end
+
   def as_json(conn, %{hidden_from_users: false} = image) do
     %{
       id: image.id,
@@ -62,6 +65,8 @@ defmodule PhilomenaWeb.ImageJson do
     }
   end
 
-  defp intensities(%{intensity: %{nw: nw, ne: ne, sw: sw, se: se}}), do: %{nw: nw, ne: ne, sw: sw, se: se}
+  defp intensities(%{intensity: %{nw: nw, ne: ne, sw: sw, se: se}}),
+    do: %{nw: nw, ne: ne, sw: sw, se: se}
+
   defp intensities(_), do: nil
 end

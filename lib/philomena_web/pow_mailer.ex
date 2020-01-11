@@ -4,7 +4,13 @@ defmodule PhilomenaWeb.PowMailer do
   alias Philomena.Users.User
   import Bamboo.Email
 
-  def cast(%{user: %User{email: email}, subject: subject, text: text, html: html, assigns: _assigns}) do
+  def cast(%{
+        user: %User{email: email},
+        subject: subject,
+        text: text,
+        html: html,
+        assigns: _assigns
+      }) do
     # Build email struct to be used in `process/1`
     new_email(
       to: email,

@@ -21,7 +21,11 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
     DnpEntry
     |> join(:inner, [d], _ in assoc(d, :tag))
     |> join(:inner, [d, _t], _ in assoc(d, :requesting_user))
-    |> where([d, t, u], ilike(u.name, ^q) or ilike(t.name, ^q) or ilike(d.reason, ^q) or ilike(d.conditions, ^q) or ilike(d.instructions, ^q))
+    |> where(
+      [d, t, u],
+      ilike(u.name, ^q) or ilike(t.name, ^q) or ilike(d.reason, ^q) or ilike(d.conditions, ^q) or
+        ilike(d.instructions, ^q)
+    )
     |> load_entries(conn)
   end
 
@@ -43,15 +47,18 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
       |> Enum.map(&%{body: &1.conditions})
       |> Renderer.render_collection(conn)
 
-    dnp_entries =
-      %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
+    dnp_entries = %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
-    render(conn, "index.html", layout_class: "layout--wide", title: "Admin - DNP Entries", dnp_entries: dnp_entries)
+    render(conn, "index.html",
+      layout_class: "layout--wide",
+      title: "Admin - DNP Entries",
+      dnp_entries: dnp_entries
+    )
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Api.Json.TagController do
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
 
   def show(conn, %{"id" => slug}) do
-    tag = 
+    tag =
       Tag
       |> where(slug: ^slug)
       |> preload([:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries])

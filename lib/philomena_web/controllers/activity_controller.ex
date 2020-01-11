@@ -3,7 +3,16 @@ defmodule PhilomenaWeb.ActivityController do
 
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
-  alias Philomena.{Images.Image, ImageFeatures.ImageFeature, Comments.Comment, Channels.Channel, Topics.Topic, Forums.Forum}
+
+  alias Philomena.{
+    Images.Image,
+    ImageFeatures.ImageFeature,
+    Comments.Comment,
+    Channels.Channel,
+    Topics.Topic,
+    Forums.Forum
+  }
+
   alias Philomena.Interactions
   alias Philomena.Repo
   import Ecto.Query
@@ -47,16 +56,17 @@ defmodule PhilomenaWeb.ActivityController do
         Comment |> preload([:user, image: [:tags]])
       )
 
-    watched = if !!user do
-      {:ok, {watched_images, _tags}} =
-        ImageLoader.search_string(
-          conn,
-          "my:watched",
-          pagination: %{conn.assigns.image_pagination | page_number: 1}
-        )
+    watched =
+      if !!user do
+        {:ok, {watched_images, _tags}} =
+          ImageLoader.search_string(
+            conn,
+            "my:watched",
+            pagination: %{conn.assigns.image_pagination | page_number: 1}
+          )
 
-      if Enum.any?(watched_images), do: watched_images
-    end
+        if Enum.any?(watched_images), do: watched_images
+      end
 
     featured_image =
       Image
@@ -68,7 +78,7 @@ defmodule PhilomenaWeb.ActivityController do
 
     streams =
       Channel
-      |> where([c], c.nsfw  == false)
+      |> where([c], c.nsfw == false)
       |> where([c], not is_nil(c.last_fetched_at))
       |> order_by(desc: :is_live, asc: :title)
       |> limit(6)

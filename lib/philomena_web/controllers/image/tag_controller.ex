@@ -39,17 +39,26 @@ defmodule PhilomenaWeb.Image.TagController do
           image
           |> Repo.preload(:tags, force: true)
 
-        changeset =
-          Images.change_image(image)
+        changeset = Images.change_image(image)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", layout: false, tag_change_count: tag_change_count, image: image, changeset: changeset)
+        |> render("_tags.html",
+          layout: false,
+          tag_change_count: tag_change_count,
+          image: image,
+          changeset: changeset
+        )
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_tags.html", layout: false, tag_change_count: 0, image: image, changeset: changeset)
+        |> render("_tags.html",
+          layout: false,
+          tag_change_count: 0,
+          image: image,
+          changeset: changeset
+        )
     end
   end
 end

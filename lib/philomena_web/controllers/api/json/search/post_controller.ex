@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
                     query,
                     %{term: %{deleted: false}},
                     %{term: %{access_level: "normal"}}
-                  ],
+                  ]
                 }
               },
               sort: %{created_at: :desc}

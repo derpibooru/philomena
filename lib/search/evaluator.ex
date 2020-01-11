@@ -16,13 +16,16 @@ defmodule Search.Evaluator do
     range_query[term]
     |> Enum.all?(fn
       {:gt, query_val} ->
-        Enum.any?(doc_values, & &1 > query_val)
+        Enum.any?(doc_values, &(&1 > query_val))
+
       {:gte, query_val} ->
-        Enum.any?(doc_values, & &1 >= query_val)
+        Enum.any?(doc_values, &(&1 >= query_val))
+
       {:lt, query_val} ->
-        Enum.any?(doc_values, & &1 < query_val)
+        Enum.any?(doc_values, &(&1 < query_val))
+
       {:lte, query_val} ->
-        Enum.any?(doc_values, & &1 <= query_val)
+        Enum.any?(doc_values, &(&1 <= query_val))
     end)
   end
 
@@ -110,12 +113,15 @@ defmodule Search.Evaluator do
   end
 
   # Avoid pursuing excessively time-consuming substrings
-  defp levenshtein_execute(s1, s2, lookup, times) when times > 2, do: {max(byte_size(s1), byte_size(s2)), lookup}
+  defp levenshtein_execute(s1, s2, lookup, times) when times > 2,
+    do: {max(byte_size(s1), byte_size(s2)), lookup}
+
   defp levenshtein_execute("", s2, lookup, _times), do: {byte_size(s2), lookup}
   defp levenshtein_execute(s1, "", lookup, _times), do: {byte_size(s1), lookup}
   defp levenshtein_execute(s1, s1, lookup, _times), do: {0, lookup}
+
   defp levenshtein_execute(s1, s2, lookup, times) do
-    {deletion, lookup}  = levenshtein_lookup(chop(s1), s2, lookup, times + 1)
+    {deletion, lookup} = levenshtein_lookup(chop(s1), s2, lookup, times + 1)
     {insertion, lookup} = levenshtein_lookup(s1, chop(s2), lookup, times + 1)
     {substitution, lookup} = levenshtein_lookup(chop(s1), chop(s2), lookup, times + 1)
 
@@ -132,17 +138,26 @@ defmodule Search.Evaluator do
   end
 
   defp chop(str) when is_binary(str), do: binary_part(str, 0, byte_size(str) - 1)
-  defp last_bytes_different?(s1, s2) when binary_part(s1, byte_size(s1) - 1, 1) == binary_part(s2, byte_size(s2) - 1, 1), do: 0
+
+  defp last_bytes_different?(s1, s2)
+       when binary_part(s1, byte_size(s1) - 1, 1) == binary_part(s2, byte_size(s2) - 1, 1),
+       do: 0
+
   defp last_bytes_different?(_s1, _s2), do: 1
 
   defp wildcard_to_regex(input) do
     re =
       input
-      |> String.replace(~r/([.+^$\[\]\\\(\){}|-])/, "\\\\\\1") # escape regex metacharacters
-      |> String.replace(~r/([^\\]|[^\\](?:\\\\)+)\*/, "\\1.*") # * -> .* (kleene star)
-      |> String.replace(~r/\A(?:\\\\)*\*/, ".*")               # * -> .* (kleene star)
-      |> String.replace(~r/([^\\]|[^\\](?:\\\\)+)\?/, "\\1.?") # ? -> .? (concatenation/alternation)
-      |> String.replace(~r/\A(?:\\\\)*\?/, ".?")               # ? -> .? (concatenation/alternation)
+      # escape regex metacharacters
+      |> String.replace(~r/([.+^$\[\]\\\(\){}|-])/, "\\\\\\1")
+      # * -> .* (kleene star)
+      |> String.replace(~r/([^\\]|[^\\](?:\\\\)+)\*/, "\\1.*")
+      # * -> .* (kleene star)
+      |> String.replace(~r/\A(?:\\\\)*\*/, ".*")
+      # ? -> .? (concatenation/alternation)
+      |> String.replace(~r/([^\\]|[^\\](?:\\\\)+)\?/, "\\1.?")
+      # ? -> .? (concatenation/alternation)
+      |> String.replace(~r/\A(?:\\\\)*\?/, ".?")
 
     Regex.compile!("\\A#{re}\\z", "im")
   end

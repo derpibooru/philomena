@@ -28,7 +28,9 @@ defmodule Philomena.Forums.Forum do
     |> cast(attrs, [:name, :short_name, :description, :access_level])
     |> validate_required([:name, :short_name, :description, :access_level])
     |> validate_inclusion(:access_level, ~W(normal assistant staff))
-    |> validate_format(:short_name, ~r/\A[a-z]+\z/, message: "must consist only of lowercase letters")
+    |> validate_format(:short_name, ~r/\A[a-z]+\z/,
+      message: "must consist only of lowercase letters"
+    )
     |> unique_constraint(:short_name, name: :index_forums_on_short_name)
   end
 end

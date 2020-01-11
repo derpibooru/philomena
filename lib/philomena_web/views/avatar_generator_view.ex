@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
 
     # Generate 8 pseudorandom numbers
     seed = :erlang.crc32(displayed_name)
+
     {rand, _acc} =
       Enum.map_reduce(1..8, seed, fn _elem, acc ->
         value = xorshift32(acc)
@@ -42,7 +43,8 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
       for_species(tail_shapes(config), species)["shape"] |> String.replace("HAIR_FILL", color_hr),
       for_species(body_shapes(config), species)["shape"] |> String.replace("BODY_FILL", color_bd),
       style_hr["shape"] |> String.replace("HAIR_FILL", color_hr),
-      all_species(extra_shapes(config), species) |> Enum.map(&String.replace(&1["shape"], "BODY_FILL", color_bd)),
+      all_species(extra_shapes(config), species)
+      |> Enum.map(&String.replace(&1["shape"], "BODY_FILL", color_bd)),
       footer(config)
     ]
     |> List.flatten()
@@ -52,7 +54,7 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
   # https://en.wikipedia.org/wiki/Xorshift
   # 32-bit xorshift deterministic PRNG
   defp xorshift32(state) do
-    state = state &&& 0xffff_ffff
+    state = state &&& 0xFFFF_FFFF
     state = state ^^^ (state <<< 13)
     state = state ^^^ (state >>> 17)
 
@@ -79,7 +81,10 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
   end
 
   defp for_species(styles, species), do: hd(all_species(styles, species))
-  defp all_species(styles, species), do: Enum.filter(styles, &Enum.member?(&1["species"], species))
+
+  defp all_species(styles, species),
+    do: Enum.filter(styles, &Enum.member?(&1["species"], species))
+
   defp format(format_string, args), do: to_string(:io_lib.format(format_string, args))
 
   defp species(%{"species" => species}), do: species

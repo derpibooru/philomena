@@ -33,25 +33,26 @@ defmodule PhilomenaWeb.PostController do
         Post |> preload([:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 
-    rendered =
-      Renderer.render_collection(posts.entries, conn)
+    rendered = Renderer.render_collection(posts.entries, conn)
 
-    posts =
-      %{posts | entries: Enum.zip(rendered, posts.entries)}
+    posts = %{posts | entries: Enum.zip(rendered, posts.entries)}
 
     render(conn, "index.html", title: "Posts", posts: posts)
   end
+
   defp render_index({:error, msg}, conn, _user) do
     render(conn, "index.html", title: "Posts", error: msg, posts: [])
   end
 
   defp filters(%{role: role}) when role in ["moderator", "admin"], do: []
+
   defp filters(%{role: "assistant"}) do
     [
       %{terms: %{access_level: ["normal", "assistant"]}},
       %{term: %{deleted: false}}
     ]
   end
+
   defp filters(_user) do
     [
       %{term: %{access_level: "normal"}},

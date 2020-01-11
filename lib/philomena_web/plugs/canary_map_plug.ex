@@ -5,10 +5,11 @@ defmodule PhilomenaWeb.CanaryMapPlug do
 
   def call(conn, opts) do
     phx_action = conn.private.phoenix_action
+
     canary_action =
       case Keyword.fetch(opts, phx_action) do
         {:ok, action} -> action
-        _             -> phx_action
+        _ -> phx_action
       end
 
     conn

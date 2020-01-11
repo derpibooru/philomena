@@ -25,12 +25,22 @@ defmodule Philomena.Processors.Webm do
     intensities
   end
 
-  
   defp preview(duration, file) do
     preview = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-ss", to_string(duration / 2), "-frames:v", "1", preview])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-ss",
+        to_string(duration / 2),
+        "-frames:v",
+        "1",
+        preview
+      ])
 
     preview
   end
@@ -44,7 +54,13 @@ defmodule Philomena.Processors.Webm do
     ]
   end
 
-  defp scale_if_smaller(file, palette, duration, dimensions, {thumb_name, {target_width, target_height}}) do
+  defp scale_if_smaller(
+         file,
+         palette,
+         duration,
+         dimensions,
+         {thumb_name, {target_width, target_height}}
+       ) do
     {webm, mp4} = scale_videos(file, palette, dimensions, {target_width, target_height})
 
     cond do
@@ -68,27 +84,83 @@ defmodule Philomena.Processors.Webm do
   defp scale_videos(file, _palette, dimensions, target_dimensions) do
     {width, height} = box_dimensions(dimensions, target_dimensions)
     webm = Briefly.create!(extname: ".webm")
-    mp4  = Briefly.create!(extname: ".mp4")
+    mp4 = Briefly.create!(extname: ".mp4")
     scale_filter = "scale=w=#{width}:h=#{height}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libvpx", "-quality", "good", "-cpu-used", "3", "-auto-alt-ref", "0", "-crf", "10", "-b:v", "5M", "-vf", scale_filter, webm])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-c:v",
+        "libvpx",
+        "-quality",
+        "good",
+        "-cpu-used",
+        "3",
+        "-auto-alt-ref",
+        "0",
+        "-crf",
+        "10",
+        "-b:v",
+        "5M",
+        "-vf",
+        scale_filter,
+        webm
+      ])
+
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-c:v", "libx264", "-pix_fmt", "yuv420p", "-profile:v", "main", "-preset", "medium", "-crf", "18", "-b:v", "5M", "-vf", scale_filter, mp4])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-c:v",
+        "libx264",
+        "-pix_fmt",
+        "yuv420p",
+        "-profile:v",
+        "main",
+        "-preset",
+        "medium",
+        "-crf",
+        "18",
+        "-b:v",
+        "5M",
+        "-vf",
+        scale_filter,
+        mp4
+      ])
 
     {webm, mp4}
   end
 
   defp scale_gif(file, palette, duration, {width, height}) do
     gif = Briefly.create!(extname: ".gif")
-    scale_filter   = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
+    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    rate_filter    = "fps=1/#{duration / 10},settb=1/2,setpts=N"
-    filter_graph   = "[0:v] #{scale_filter},#{rate_filter} [x]; [x][1:v] #{palette_filter}"
+    rate_filter = "fps=1/#{duration / 10},settb=1/2,setpts=N"
+    filter_graph = "[0:v] #{scale_filter},#{rate_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, "-r", "2", gif])
-    
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-i",
+        palette,
+        "-lavfi",
+        filter_graph,
+        "-r",
+        "2",
+        gif
+      ])
+
     gif
   end
 
@@ -96,7 +168,16 @@ defmodule Philomena.Processors.Webm do
     palette = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "palettegen=stats_mode=diff", palette])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-vf",
+        "palettegen=stats_mode=diff",
+        palette
+      ])
 
     palette
   end
@@ -104,8 +185,8 @@ defmodule Philomena.Processors.Webm do
   # x264 requires image dimensions to be a multiple of 2
   # -2 = ~1
   def box_dimensions({width, height}, {target_width, target_height}) do
-    ratio      = min(target_width / width, target_height / height)
-    new_width  = min(max(trunc(width  * ratio) &&& -2, 2), target_width)
+    ratio = min(target_width / width, target_height / height)
+    new_width = min(max(trunc(width * ratio) &&& -2, 2), target_width)
     new_height = min(max(trunc(height * ratio) &&& -2, 2), target_height)
 
     {new_width, new_height}

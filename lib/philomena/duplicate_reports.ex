@@ -20,7 +20,9 @@ defmodule Philomena.DuplicateReports do
     |> where([i, _it], i.duplication_checked != true)
     |> Repo.all()
     |> Enum.map(fn target ->
-      create_duplicate_report(source, target, %{}, %{"reason" => "Automated Perceptual dedupe match"})
+      create_duplicate_report(source, target, %{}, %{
+        "reason" => "Automated Perceptual dedupe match"
+      })
     end)
   end
 
@@ -32,7 +34,9 @@ defmodule Philomena.DuplicateReports do
       where: it.ne >= ^(intensities.ne - dist) and it.ne <= ^(intensities.ne + dist),
       where: it.sw >= ^(intensities.sw - dist) and it.sw <= ^(intensities.sw + dist),
       where: it.se >= ^(intensities.se - dist) and it.se <= ^(intensities.se + dist),
-      where: i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
+      where:
+        i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and
+          i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
       limit: 20
   end
 
@@ -83,8 +87,10 @@ defmodule Philomena.DuplicateReports do
         DuplicateReport
         |> where(
           [dr],
-          (dr.image_id == ^duplicate_report.image_id and dr.duplicate_of_image_id == ^duplicate_report.duplicate_of_image_id) or
-          (dr.image_id == ^duplicate_report.duplicate_of_image_id and dr.duplicate_of_image_id == ^duplicate_report.image_id)
+          (dr.image_id == ^duplicate_report.image_id and
+             dr.duplicate_of_image_id == ^duplicate_report.duplicate_of_image_id) or
+            (dr.image_id == ^duplicate_report.duplicate_of_image_id and
+               dr.duplicate_of_image_id == ^duplicate_report.image_id)
         )
         |> where([dr], dr.id != ^duplicate_report.id)
         |> repo.update_all(set: [state: "rejected"])

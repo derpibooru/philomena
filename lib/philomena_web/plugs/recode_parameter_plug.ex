@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.RecodeParameterPlug do
   def init(opts), do: opts
 
-  def call(conn, [name: name]) do
+  def call(conn, name: name) do
     fixed_value =
       conn
       |> Map.get(:params)

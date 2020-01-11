@@ -14,10 +14,12 @@ defmodule Philomena.Servers.UserFingerprintUpdater do
     {:ok, spawn_link(&init/0)}
   end
 
-  def cast(user_id, <<"c", _rest::binary>> = fingerprint, updated_at) when byte_size(fingerprint) <= 12 do
+  def cast(user_id, <<"c", _rest::binary>> = fingerprint, updated_at)
+      when byte_size(fingerprint) <= 12 do
     pid = Process.whereis(:fingerprint_updater)
     if pid, do: send(pid, {user_id, fingerprint, updated_at})
   end
+
   def cast(_user_id, _fingerprint, _updated_at), do: nil
 
   defp init do
@@ -27,9 +29,14 @@ defmodule Philomena.Servers.UserFingerprintUpdater do
 
   defp run do
     user_fps = Enum.map(receive_all(), &into_insert_all/1)
-    update_query = update(UserFingerprint, inc: [uses: 1], set: [updated_at: fragment("EXCLUDED.updated_at")])
 
-    Repo.insert_all(UserFingerprint, user_fps, on_conflict: update_query, conflict_target: [:user_id, :fingerprint])
+    update_query =
+      update(UserFingerprint, inc: [uses: 1], set: [updated_at: fragment("EXCLUDED.updated_at")])
+
+    Repo.insert_all(UserFingerprint, user_fps,
+      on_conflict: update_query,
+      conflict_target: [:user_id, :fingerprint]
+    )
 
     :timer.sleep(:timer.seconds(60))
 

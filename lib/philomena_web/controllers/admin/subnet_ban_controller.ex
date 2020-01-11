@@ -11,10 +11,11 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
   def index(conn, %{"q" => q}) when is_binary(q) do
     SubnetBan
-    |> where([sb],
-      sb.generated_ban_id == ^q
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.reason, ^q)
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.note, ^q)
+    |> where(
+      [sb],
+      sb.generated_ban_id == ^q or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.reason, ^q) or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.note, ^q)
     )
     |> load_bans(conn)
   end
@@ -86,12 +87,16 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       |> preload(:banning_user)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Admin - Subnet Bans", layout_class: "layout--wide", subnet_bans: subnet_bans)
+    render(conn, "index.html",
+      title: "Admin - Subnet Bans",
+      layout_class: "layout--wide",
+      subnet_bans: subnet_bans
+    )
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, SubnetBan) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

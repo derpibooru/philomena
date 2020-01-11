@@ -23,6 +23,7 @@ defmodule Philomena.UserDownvoteWipe do
       |> where(user_id: ^user.id, up: true)
       |> Batch.query_batches([id_field: :image_id], fn queryable ->
         {_, image_ids} = Repo.delete_all(select(queryable, [i_v], i_v.image_id))
+
         Repo.update_all(where(Image, [i], i.id in ^image_ids), inc: [upvotes_count: -1, score: -1])
 
         reindex(image_ids)
@@ -33,7 +34,7 @@ defmodule Philomena.UserDownvoteWipe do
       |> Batch.query_batches([id_field: :image_id], fn queryable ->
         {_, image_ids} = Repo.delete_all(select(queryable, [i_f], i_f.image_id))
         Repo.update_all(where(Image, [i], i.id in ^image_ids), inc: [faves_count: -1])
-  
+
         reindex(image_ids)
       end)
     end

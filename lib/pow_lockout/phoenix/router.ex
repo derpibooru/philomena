@@ -6,7 +6,7 @@ defmodule PowLockout.Phoenix.Router do
 
   defmacro routes(_config) do
     quote location: :keep do
-      Router.pow_resources "/unlock", UnlockController, only: [:show]
+      Router.pow_resources("/unlock", UnlockController, only: [:show])
     end
   end
 end

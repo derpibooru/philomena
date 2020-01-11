@@ -26,7 +26,9 @@ defmodule Philomena.Servers.UserIpUpdater do
 
   defp run do
     user_ips = Enum.map(receive_all(), &into_insert_all/1)
-    update_query = update(UserIp, inc: [uses: 1], set: [updated_at: fragment("EXCLUDED.updated_at")])
+
+    update_query =
+      update(UserIp, inc: [uses: 1], set: [updated_at: fragment("EXCLUDED.updated_at")])
 
     Repo.insert_all(UserIp, user_ips, on_conflict: update_query, conflict_target: [:user_id, :ip])
 

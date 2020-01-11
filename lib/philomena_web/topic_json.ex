@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.TopicJson do
       author: nil
     }
   end
+
   def as_json(topic) do
     %{
       slug: topic.slug,
@@ -24,7 +25,11 @@ defmodule PhilomenaWeb.TopicJson do
       last_replied_to_at: topic.last_replied_to_at,
       locked: not is_nil(topic.locked_at),
       user_id: if(not topic.anonymous, do: topic.user.id),
-      author: if(topic.anonymous or is_nil(topic.user), do: UserAttributionView.anonymous_name(topic), else: topic.user.name)
+      author:
+        if(topic.anonymous or is_nil(topic.user),
+          do: UserAttributionView.anonymous_name(topic),
+          else: topic.user.name
+        )
     }
   end
 end

@@ -70,7 +70,7 @@ defmodule RelativeDate.Parser do
       date
     ])
 
-  defparsecp :relative_date, relative_date
+  defparsecp(:relative_date, relative_date)
 
   def parse(input) do
     input =
@@ -100,13 +100,17 @@ defmodule RelativeDate.Parser do
   def parse_relative(input) do
     case relative_date(input) do
       {:ok, [moon: _moon], _1, _2, _3, _4} ->
-        {:ok, DateTime.utc_now() |> DateTime.add(31_536_000_000, :second) |> DateTime.truncate(:second)}
+        {:ok,
+         DateTime.utc_now() |> DateTime.add(31_536_000_000, :second) |> DateTime.truncate(:second)}
 
       {:ok, [now: _now], _1, _2, _3, _4} ->
         {:ok, DateTime.utc_now() |> DateTime.truncate(:second)}
 
       {:ok, [relative_date: [amount, scale, direction]], _1, _2, _3, _4} ->
-        {:ok, DateTime.utc_now() |> DateTime.add(amount * scale * direction, :second) |> DateTime.truncate(:second)}
+        {:ok,
+         DateTime.utc_now()
+         |> DateTime.add(amount * scale * direction, :second)
+         |> DateTime.truncate(:second)}
 
       _error ->
         {:error, "Parse error"}

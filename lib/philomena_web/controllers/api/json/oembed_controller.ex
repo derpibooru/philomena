@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
 
     try_oembed(conn, parsed)
   end
+
   def index(conn, _params), do: oembed_error(conn)
 
   defp try_oembed(conn, %{path: path}) do
@@ -21,8 +22,8 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
 
     image_id =
       cond do
-        cdn  -> hd(cdn)
-        img  -> hd(img)
+        cdn -> hd(cdn)
+        img -> hd(img)
         true -> nil
       end
 
@@ -31,6 +32,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
   end
 
   defp load_image(nil), do: nil
+
   defp load_image(id) do
     Image
     |> where(id: ^id, hidden_from_users: false)
@@ -66,7 +68,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
 
   defp artist_tags(tags) do
     tags
-    |> Enum.filter(& &1.namespace == "artist")
+    |> Enum.filter(&(&1.namespace == "artist"))
     |> Enum.map_join(", ", & &1.name_in_namespace)
   end
 end

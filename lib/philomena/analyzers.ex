@@ -41,15 +41,16 @@ defmodule Philomena.Analyzers do
   """
   @spec analyze(Plug.Upload.t() | String.t()) :: {:ok, map()} | :error
   def analyze(%Plug.Upload{path: path}), do: analyze(path)
+
   def analyze(path) when is_binary(path) do
     with {:ok, mime} <- Mime.file(path),
-         {:ok, analyzer} <- analyzer(mime)
-    do
+         {:ok, analyzer} <- analyzer(mime) do
       {:ok, analyzer.analyze(path)}
     else
       error ->
         error
     end
   end
+
   def analyze(_path), do: :error
 end

@@ -19,14 +19,20 @@ defmodule PhilomenaWeb.Image.TagChangeController do
       |> preload([:tag, :user, image: [:user, :tags]])
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
-    
-    render(conn, "index.html", title: "Tag Changes on Image #{image.id}", image: image, tag_changes: tag_changes)
+
+    render(conn, "index.html",
+      title: "Tag Changes on Image #{image.id}",
+      image: image,
+      tag_changes: tag_changes
+    )
   end
 
   defp added_filter(query, %{"added" => "1"}),
     do: where(query, added: true)
+
   defp added_filter(query, %{"added" => "0"}),
     do: where(query, added: false)
+
   defp added_filter(query, _params),
     do: query
 end

@@ -12,7 +12,10 @@ defmodule PhilomenaWeb.Admin.ModNoteView do
     do: link("Report #{report.id}", to: Routes.admin_report_path(conn, :show, report))
 
   def link_to_noted_thing(conn, %Report{user: user} = report),
-    do: link("Report #{report.id} by #{user.name}", to: Routes.admin_report_path(conn, :show, report))
+    do:
+      link("Report #{report.id} by #{user.name}",
+        to: Routes.admin_report_path(conn, :show, report)
+      )
 
   def link_to_noted_thing(conn, %User{} = user),
     do: link("User #{user.name}", to: Routes.profile_path(conn, :show, user))

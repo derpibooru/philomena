@@ -6,7 +6,12 @@ defmodule PhilomenaWeb.Image.RelatedController do
   alias Philomena.Images.Image
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags, :faves]
+
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [:tags, :faves]
 
   def index(conn, _params) do
     image = conn.assigns.image
@@ -14,7 +19,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
 
     tags_to_match =
       image.tags
-      |> Enum.reject(& &1.category == "rating")
+      |> Enum.reject(&(&1.category == "rating"))
       |> Enum.sort_by(& &1.images_count)
       |> Enum.take(10)
       |> Enum.map(& &1.id)
@@ -34,17 +39,16 @@ defmodule PhilomenaWeb.Image.RelatedController do
       |> Enum.take(11)
       |> Enum.map(&%{term: %{favourited_by_user_ids: &1.user_id}})
 
-    query =
-      %{
-        bool: %{
-          must: [
-            %{bool: %{should: low_count_tags, boost: 2}},
-            %{bool: %{should: high_count_tags, boost: 3, minimum_should_match: "5%"}},
-            %{bool: %{should: favs_to_match, boost: 0.2, minimum_should_match: "5%"}}
-          ],
-          must_not: %{term: %{id: image.id}}
-        }
+    query = %{
+      bool: %{
+        must: [
+          %{bool: %{should: low_count_tags, boost: 2}},
+          %{bool: %{should: high_count_tags, boost: 3, minimum_should_match: "5%"}},
+          %{bool: %{should: favs_to_match, boost: 0.2, minimum_should_match: "5%"}}
+        ],
+        must_not: %{term: %{id: image.id}}
       }
+    }
 
     {images, _tags} =
       ImageLoader.query(
@@ -56,6 +60,11 @@ defmodule PhilomenaWeb.Image.RelatedController do
 
     interactions = Interactions.user_interactions(images, user)
 
-    render(conn, "index.html", title: "##{image.id} - Related Images", layout_class: "wide", images: images, interactions: interactions)
+    render(conn, "index.html",
+      title: "##{image.id} - Related Images",
+      layout_class: "wide",
+      images: images,
+      interactions: interactions
+    )
   end
 end

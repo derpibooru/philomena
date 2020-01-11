@@ -25,7 +25,15 @@ defmodule Philomena.Commissions.Commission do
   @doc false
   def changeset(commission, attrs) do
     commission
-    |> cast(attrs, [:information, :contact, :will_create, :will_not_create, :open, :sheet_image_id, :categories])
+    |> cast(attrs, [
+      :information,
+      :contact,
+      :will_create,
+      :will_not_create,
+      :open,
+      :sheet_image_id,
+      :categories
+    ])
     |> drop_blank_categories()
     |> validate_required([:user_id, :information, :contact, :open])
     |> validate_length(:information, max: 700, count: :bytes)
@@ -37,25 +45,25 @@ defmodule Philomena.Commissions.Commission do
     categories =
       changeset
       |> get_field(:categories)
-      |> Enum.filter(& &1 not in [nil, ""])
+      |> Enum.filter(&(&1 not in [nil, ""]))
 
     change(changeset, categories: categories)
   end
 
   def categories do
     [
-      "Anthro": "Anthro",
+      Anthro: "Anthro",
       "Canon Characters": "Canon Characters",
-      "Comics": "Comics",
+      Comics: "Comics",
       "Fetish Art": "Fetish Art",
       "Human and EqG": "Human and EqG",
-      "NSFW": "NSFW",
+      NSFW: "NSFW",
       "Original Characters": "Original Characters",
       "Original Species": "Original Species",
-      "Pony": "Pony",
-      "Requests": "Requests",
-      "Safe": "Safe",
-      "Shipping": "Shipping",
+      Pony: "Pony",
+      Requests: "Requests",
+      Safe: "Safe",
+      Shipping: "Shipping",
       "Violence and Gore": "Violence and Gore"
     ]
   end

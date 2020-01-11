@@ -6,7 +6,12 @@ defmodule PhilomenaWeb.Topic.ReadController do
   alias Philomena.Topics
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug, show_hidden: true
 

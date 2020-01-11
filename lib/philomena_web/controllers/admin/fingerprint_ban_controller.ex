@@ -11,11 +11,12 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   def index(conn, %{"q" => q}) when is_binary(q) do
     FingerprintBan
-    |> where([fb],
-      ilike(fb.fingerprint, ^"%#{q}%")
-      or fb.generated_ban_id == ^q
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", fb.reason, ^q)
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", fb.note, ^q)
+    |> where(
+      [fb],
+      ilike(fb.fingerprint, ^"%#{q}%") or
+        fb.generated_ban_id == ^q or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", fb.reason, ^q) or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", fb.note, ^q)
     )
     |> load_bans(conn)
   end
@@ -84,12 +85,16 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       |> preload(:banning_user)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", layout_class: "layout--wide", title: "Admin - Fingerprint Bans", fingerprint_bans: fingerprint_bans)
+    render(conn, "index.html",
+      layout_class: "layout--wide",
+      title: "Admin - Fingerprint Bans",
+      fingerprint_bans: fingerprint_bans
+    )
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, FingerprintBan) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

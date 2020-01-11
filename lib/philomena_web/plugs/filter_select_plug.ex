@@ -35,6 +35,7 @@ defmodule PhilomenaWeb.FilterSelectPlug do
   end
 
   defp maybe_assign_filters(conn, nil), do: conn
+
   defp maybe_assign_filters(conn, user) do
     filters = Filters.recent_and_user_filters(user)
     user = Users.change_user(user)

@@ -9,7 +9,12 @@ defmodule PhilomenaWeb.Topic.PostController do
   plug PhilomenaWeb.UserAttributionPlug
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show, edit: :show, update: :show
-  plug :load_and_authorize_resource, model: Forum, id_field: "short_name", id_name: "forum_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_field: "short_name",
+    id_name: "forum_id",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.CanaryMapPlug, create: :create_post, edit: :create_post, update: :create_post
@@ -32,7 +37,11 @@ defmodule PhilomenaWeb.Topic.PostController do
 
         conn
         |> put_flash(:info, "Post created successfully.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic, post_id: post.id) <> "#post_#{post.id}")
+        |> redirect(
+          to:
+            Routes.forum_topic_path(conn, :show, forum, topic, post_id: post.id) <>
+              "#post_#{post.id}"
+        )
 
       _error ->
         conn
@@ -56,7 +65,11 @@ defmodule PhilomenaWeb.Topic.PostController do
 
         conn
         |> put_flash(:info, "Post successfully edited.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}")
+        |> redirect(
+          to:
+            Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
+              "#post_#{post.id}"
+        )
 
       {:error, :post, changeset, _changes} ->
         render(conn, "edit.html", post: conn.assigns.post, changeset: changeset)

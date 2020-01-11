@@ -183,7 +183,10 @@ defmodule Philomena.Users.User do
 
     changeset
     |> put_change(:current_filter_id, filter.id)
-    |> put_change(:recent_filter_ids, Enum.take(Enum.uniq([filter.id | user.recent_filter_ids]), 10))
+    |> put_change(
+      :recent_filter_ids,
+      Enum.take(Enum.uniq([filter.id | user.recent_filter_ids]), 10)
+    )
   end
 
   def spoiler_type_changeset(user, attrs) do
@@ -196,16 +199,32 @@ defmodule Philomena.Users.User do
   def settings_changeset(user, attrs) do
     user
     |> cast(attrs, [
-      :watched_tag_list, :images_per_page, :fancy_tag_field_on_upload,
-      :fancy_tag_field_on_edit, :anonymous_by_default, :scale_large_images,
-      :comments_per_page, :theme, :watched_images_query_str,
-      :no_spoilered_in_watched, :watched_images_exclude_str,
-      :use_centered_layout, :hide_vote_counts, :comments_newest_first
+      :watched_tag_list,
+      :images_per_page,
+      :fancy_tag_field_on_upload,
+      :fancy_tag_field_on_edit,
+      :anonymous_by_default,
+      :scale_large_images,
+      :comments_per_page,
+      :theme,
+      :watched_images_query_str,
+      :no_spoilered_in_watched,
+      :watched_images_exclude_str,
+      :use_centered_layout,
+      :hide_vote_counts,
+      :comments_newest_first
     ])
     |> validate_required([
-      :images_per_page, :fancy_tag_field_on_upload, :fancy_tag_field_on_edit,
-      :anonymous_by_default, :scale_large_images, :comments_per_page, :theme,
-      :no_spoilered_in_watched, :use_centered_layout, :hide_vote_counts
+      :images_per_page,
+      :fancy_tag_field_on_upload,
+      :fancy_tag_field_on_edit,
+      :anonymous_by_default,
+      :scale_large_images,
+      :comments_per_page,
+      :theme,
+      :no_spoilered_in_watched,
+      :use_centered_layout,
+      :hide_vote_counts
     ])
     |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
     |> validate_inclusion(:theme, ~W(default dark red))
@@ -220,7 +239,10 @@ defmodule Philomena.Users.User do
     |> cast(attrs, [:description, :personal_title])
     |> validate_length(:description, max: 10_000, count: :bytes)
     |> validate_length(:personal_title, max: 24, count: :bytes)
-    |> validate_format(:personal_title, ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu)
+    |> validate_format(
+      :personal_title,
+      ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu
+    )
   end
 
   def scratchpad_changeset(user, attrs) do
@@ -231,11 +253,19 @@ defmodule Philomena.Users.User do
   def avatar_changeset(user, attrs) do
     user
     |> cast(attrs, [
-      :avatar, :avatar_width, :avatar_height, :avatar_size, :uploaded_avatar,
+      :avatar,
+      :avatar_width,
+      :avatar_height,
+      :avatar_size,
+      :uploaded_avatar,
       :removed_avatar
     ])
     |> validate_required([
-      :avatar, :avatar_width, :avatar_height, :avatar_size, :uploaded_avatar
+      :avatar,
+      :avatar_width,
+      :avatar_height,
+      :avatar_size,
+      :uploaded_avatar
     ])
     |> validate_number(:avatar_size, greater_than: 0, less_than_or_equal_to: 300_000)
     |> validate_number(:avatar_width, greater_than: 0, less_than_or_equal_to: 1000)
@@ -321,7 +351,7 @@ defmodule Philomena.Users.User do
   end
 
   def random_backup_codes do
-    (1..10)
+    1..10
     |> Enum.map(fn _i ->
       :crypto.strong_rand_bytes(6) |> Base.encode16(case: :lower)
     end)
@@ -329,14 +359,16 @@ defmodule Philomena.Users.User do
 
   def totp_qrcode(user) do
     secret = totp_secret(user)
+
     provisioning_uri = %URI{
       scheme: "otpauth",
       host: "totp",
       path: "/Derpibooru:" <> user.email,
-      query: URI.encode_query(%{
-        secret: secret,
-        issuer: "Derpibooru"
-      })
+      query:
+        URI.encode_query(%{
+          secret: secret,
+          issuer: "Derpibooru"
+        })
     }
 
     png =
@@ -353,7 +385,6 @@ defmodule Philomena.Users.User do
       user.encrypted_otp_secret_salt
     )
   end
-
 
   defp enable_totp_changeset(user, backup_codes) do
     hashed_codes =
@@ -409,7 +440,8 @@ defmodule Philomena.Users.User do
   defp totp_valid?(user, token) do
     case Integer.parse(token) do
       {int_token, _rest} ->
-        int_token != user.consumed_timestep and :pot.valid_totp(token, totp_secret(user), window: 1)
+        int_token != user.consumed_timestep and
+          :pot.valid_totp(token, totp_secret(user), window: 1)
 
       _error ->
         false

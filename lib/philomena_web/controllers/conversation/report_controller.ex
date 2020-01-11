@@ -11,18 +11,30 @@ defmodule PhilomenaWeb.Conversation.ReportController do
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
-  plug :load_and_authorize_resource, model: Conversation, id_name: "conversation_id", id_field: "slug", persisted: true, preload: [:from, :to]
+
+  plug :load_and_authorize_resource,
+    model: Conversation,
+    id_name: "conversation_id",
+    id_field: "slug",
+    persisted: true,
+    preload: [:from, :to]
 
   def new(conn, _params) do
     conversation = conn.assigns.conversation
     action = Routes.conversation_report_path(conn, :create, conversation)
+
     changeset =
       %Report{reportable_type: "Conversation", reportable_id: conversation.id}
       |> Reports.change_report()
 
     conn
     |> put_view(ReportView)
-    |> render("new.html", title: "Reporting Conversation", reportable: conversation, changeset: changeset, action: action)
+    |> render("new.html",
+      title: "Reporting Conversation",
+      reportable: conversation,
+      changeset: changeset,
+      action: action
+    )
   end
 
   def create(conn, params) do

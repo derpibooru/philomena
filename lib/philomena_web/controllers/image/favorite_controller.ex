@@ -4,7 +4,12 @@ defmodule PhilomenaWeb.Image.FavoriteController do
   alias Philomena.Images.Image
   alias Philomena.Repo
 
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [faves: :user]
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [faves: :user]
+
   plug :load_votes_if_authorized
 
   def index(conn, _params) do

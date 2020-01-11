@@ -5,7 +5,12 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
   alias Philomena.Topics
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug, [show_hidden: true] when action in [:delete]
   plug PhilomenaWeb.LoadTopicPlug when action in [:create]
@@ -16,7 +21,12 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
 
     case Topics.create_subscription(topic, user) do
       {:ok, _subscription} ->
-        render(conn, "_subscription.html", forum: conn.assigns.forum, topic: topic, watching: true, layout: false)
+        render(conn, "_subscription.html",
+          forum: conn.assigns.forum,
+          topic: topic,
+          watching: true,
+          layout: false
+        )
 
       {:error, _changeset} ->
         render(conn, "_error.html", layout: false)
@@ -29,7 +39,12 @@ defmodule PhilomenaWeb.Topic.SubscriptionController do
 
     case Topics.delete_subscription(topic, user) do
       {:ok, _subscription} ->
-        render(conn, "_subscription.html", forum: conn.assigns.forum, topic: topic, watching: false, layout: false)
+        render(conn, "_subscription.html",
+          forum: conn.assigns.forum,
+          topic: topic,
+          watching: false,
+          layout: false
+        )
 
       {:error, _changeset} ->
         render(conn, "_error.html", layout: false)

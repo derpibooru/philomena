@@ -23,11 +23,12 @@ defmodule Philomena.Textile.Renderer do
       |> Enum.flat_map(fn tree ->
         tree
         |> Enum.flat_map(fn
-            {:text, text} ->
-              [text]
-            _ ->
-              []
-          end)
+          {:text, text} ->
+            [text]
+
+          _ ->
+            []
+        end)
       end)
       |> find_images
 
@@ -75,15 +76,27 @@ defmodule Philomena.Textile.Renderer do
           match
 
         [image, "p"] ->
-          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :medium, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html",
+            image: image,
+            size: :medium,
+            conn: conn
+          )
           |> safe_to_string()
 
         [image, "t"] ->
-          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :small, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html",
+            image: image,
+            size: :small,
+            conn: conn
+          )
           |> safe_to_string()
 
         [image, "s"] ->
-          Phoenix.View.render(@image_view, "_image_target.html", image: image, size: :thumb_small, conn: conn)
+          Phoenix.View.render(@image_view, "_image_target.html",
+            image: image,
+            size: :thumb_small,
+            conn: conn
+          )
           |> safe_to_string()
 
         [image] ->
@@ -103,6 +116,7 @@ defmodule Philomena.Textile.Renderer do
   end
 
   defp load_images([]), do: %{}
+
   defp load_images(ids) do
     Image
     |> where([i], i.id in ^ids)

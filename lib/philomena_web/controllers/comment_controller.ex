@@ -36,19 +36,19 @@ defmodule PhilomenaWeb.CommentController do
         Comment |> preload([:deleted_by, image: [:tags], user: [awards: :badge]])
       )
 
-    rendered =
-      Renderer.render_collection(comments.entries, conn)
+    rendered = Renderer.render_collection(comments.entries, conn)
 
-    comments =
-      %{comments | entries: Enum.zip(rendered, comments.entries)}
+    comments = %{comments | entries: Enum.zip(rendered, comments.entries)}
 
     render(conn, "index.html", title: "Comments", comments: comments)
   end
+
   defp render_index({:error, msg}, conn, _user) do
     render(conn, "index.html", title: "Comments", error: msg, comments: [])
   end
 
   defp filters(%{role: role}) when role in ["moderator", "admin"], do: []
+
   defp filters(_user),
     do: [%{term: %{hidden_from_users: false}}]
 end

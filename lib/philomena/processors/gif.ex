@@ -26,12 +26,10 @@ defmodule Philomena.Processors.Gif do
     intensities
   end
 
-  
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".gif")
 
-    {_output, 0} =
-      System.cmd("gifsicle", ["--careful", "-O2", file, "-o", optimized])
+    {_output, 0} = System.cmd("gifsicle", ["--careful", "-O2", file, "-o", optimized])
 
     optimized
   end
@@ -40,7 +38,18 @@ defmodule Philomena.Processors.Gif do
     preview = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-ss", to_string(duration / 2), "-frames:v", "1", preview])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-ss",
+        to_string(duration / 2),
+        "-frames:v",
+        "1",
+        preview
+      ])
 
     preview
   end
@@ -49,7 +58,16 @@ defmodule Philomena.Processors.Gif do
     palette = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "palettegen=stats_mode=diff", palette])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-vf",
+        "palettegen=stats_mode=diff",
+        palette
+      ])
 
     palette
   end
@@ -59,7 +77,12 @@ defmodule Philomena.Processors.Gif do
     [{:symlink_original, "full.gif"}] ++ generate_videos(file)
   end
 
-  defp scale_if_smaller(palette, file, {width, height}, {thumb_name, {target_width, target_height}}) do
+  defp scale_if_smaller(
+         palette,
+         file,
+         {width, height},
+         {thumb_name, {target_width, target_height}}
+       ) do
     if width > target_width or height > target_height do
       scaled = scale(palette, file, {target_width, target_height})
 
@@ -72,25 +95,73 @@ defmodule Philomena.Processors.Gif do
   defp scale(palette, file, {width, height}) do
     scaled = Briefly.create!(extname: ".gif")
 
-    scale_filter   = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
+    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    filter_graph   = "[0:v] #{scale_filter} [x]; [x][1:v] #{palette_filter}"
+    filter_graph = "[0:v] #{scale_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-i", palette, "-lavfi", filter_graph, scaled])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-i",
+        palette,
+        "-lavfi",
+        filter_graph,
+        scaled
+      ])
 
     scaled
   end
 
   defp generate_videos(file) do
     webm = Briefly.create!(extname: ".webm")
-    mp4  = Briefly.create!(extname: ".mp4")
+    mp4 = Briefly.create!(extname: ".mp4")
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-pix_fmt", "yuv420p", "-c:v", "libvpx", "-quality", "good", "-b:v", "5M", webm])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-pix_fmt",
+        "yuv420p",
+        "-c:v",
+        "libvpx",
+        "-quality",
+        "good",
+        "-b:v",
+        "5M",
+        webm
+      ])
+
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", "scale=ceil(iw/2)*2:ceil(ih/2)*2", "-c:v", "libx264", "-preset", "medium", "-pix_fmt", "yuv420p", "-profile:v", "main", "-crf", "18", "-b:v", "5M", mp4])
-    
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-vf",
+        "scale=ceil(iw/2)*2:ceil(ih/2)*2",
+        "-c:v",
+        "libx264",
+        "-preset",
+        "medium",
+        "-pix_fmt",
+        "yuv420p",
+        "-profile:v",
+        "main",
+        "-crf",
+        "18",
+        "-b:v",
+        "5M",
+        mp4
+      ])
+
     [
       {:copy, webm, "full.webm"},
       {:copy, mp4, "full.mp4"}

@@ -47,6 +47,6 @@ defmodule Philomena.Schema.TagList do
     (list || "")
     |> String.split(",")
     |> Enum.map(&String.trim(&1))
-    |> Enum.filter(& &1 != "")
+    |> Enum.filter(&(&1 != ""))
   end
 end

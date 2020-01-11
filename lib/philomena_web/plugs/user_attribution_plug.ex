@@ -21,14 +21,13 @@ defmodule PhilomenaWeb.UserAttributionPlug do
     conn = Conn.fetch_cookies(conn)
     user = Pow.Plug.current_user(conn)
 
-    attributes =
-      [
-        ip:          remote_ip,
-        fingerprint: conn.cookies["_ses"],
-        referrer:    conn.assigns.referrer,
-        user:        user,
-        user_agent:  user_agent(conn)
-      ]
+    attributes = [
+      ip: remote_ip,
+      fingerprint: conn.cookies["_ses"],
+      referrer: conn.assigns.referrer,
+      user: user,
+      user_agent: user_agent(conn)
+    ]
 
     conn
     |> Conn.assign(:attributes, attributes)
@@ -37,7 +36,7 @@ defmodule PhilomenaWeb.UserAttributionPlug do
   defp user_agent(conn) do
     case Conn.get_req_header(conn, "user-agent") do
       [ua] -> ua
-      _    -> nil
+      _ -> nil
     end
   end
 end

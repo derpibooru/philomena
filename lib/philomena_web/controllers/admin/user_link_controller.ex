@@ -30,7 +30,12 @@ defmodule PhilomenaWeb.Admin.UserLinkController do
     links =
       queryable
       |> order_by(desc: :created_at)
-      |> preload([:tag, :verified_by_user, :contacted_by_user, user: [:linked_tags, awards: :badge]])
+      |> preload([
+        :tag,
+        :verified_by_user,
+        :contacted_by_user,
+        user: [:linked_tags, awards: :badge]
+      ])
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html", title: "Admin - User Links", user_links: links)
@@ -38,7 +43,7 @@ defmodule PhilomenaWeb.Admin.UserLinkController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, UserLink) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -47,13 +47,12 @@ defmodule Philomena.PollVotes do
     |> Multi.run(:existing_votes, fn _repo, _changes ->
       # Don't proceed if any votes exist
       case voted?(poll, user) do
-        true   -> {:error, []}
+        true -> {:error, []}
         _false -> {:ok, []}
       end
     end)
     |> Multi.run(:new_votes, fn repo, _changes ->
-      {_count, votes} =
-        repo.insert_all(PollVote, poll_votes, returning: true)
+      {_count, votes} = repo.insert_all(PollVote, poll_votes, returning: true)
 
       {:ok, votes}
     end)
@@ -91,13 +90,15 @@ defmodule Philomena.PollVotes do
 
     case poll.vote_method do
       "single" -> Enum.take(votes, 1)
-      _other   -> votes
+      _other -> votes
     end
   end
+
   defp filter_options(_user, _poll, _now, _attrs), do: []
 
   def voted?(nil, _user), do: false
   def voted?(_poll, nil), do: false
+
   def voted?(%{id: poll_id}, %{id: user_id}) do
     PollVote
     |> join(:inner, [pv], _ in assoc(pv, :poll_option))

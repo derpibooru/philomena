@@ -14,11 +14,12 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
     UserBan
     |> join(:inner, [ub], _ in assoc(ub, :user))
-    |> where([ub, u],
-      ilike(u.name, ^like_q)
-      or ub.generated_ban_id == ^q
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", ub.reason, ^q)
-      or fragment("to_tsvector(?) @@ plainto_tsquery(?)", ub.note, ^q)
+    |> where(
+      [ub, u],
+      ilike(u.name, ^like_q) or
+        ub.generated_ban_id == ^q or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", ub.reason, ^q) or
+        fragment("to_tsvector(?) @@ plainto_tsquery(?)", ub.note, ^q)
     )
     |> load_bans(conn)
   end
@@ -87,12 +88,16 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       |> preload([:user, :banning_user])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Admin - User Bans", layout_class: "layout--wide", user_bans: user_bans)
+    render(conn, "index.html",
+      title: "Admin - User Bans",
+      layout_class: "layout--wide",
+      user_bans: user_bans
+    )
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, UserBan) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

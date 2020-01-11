@@ -29,6 +29,7 @@ defmodule PhilomenaWeb.TorPlug do
     |> Controller.redirect(to: Routes.pow_session_path(conn, :new))
     |> Conn.halt()
   end
+
   def maybe_redirect(conn, _user, _ip, _onion?), do: conn
 
   # This is allowed, because nginx won't forward the request

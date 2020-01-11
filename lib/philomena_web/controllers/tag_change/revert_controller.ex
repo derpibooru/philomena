@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.TagChange.RevertController do
 
   def create(conn, %{"ids" => ids}) when is_list(ids) do
     attributes = conn.assigns.attributes
+
     attributes = %{
       ip: attributes[:ip],
       fingerprint: attributes[:fingerprint],
@@ -32,7 +33,7 @@ defmodule PhilomenaWeb.TagChange.RevertController do
 
   defp verify_authorized(conn, _params) do
     case Canada.Can.can?(conn.assigns.current_user, :revert, TagChange) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

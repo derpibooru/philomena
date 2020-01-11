@@ -1,5 +1,4 @@
 defmodule PhilomenaWeb.ForumJson do
-
   def as_json(%{access_level: "normal"} = forum) do
     %{
       name: forum.name,
@@ -9,6 +8,7 @@ defmodule PhilomenaWeb.ForumJson do
       post_count: forum.post_count
     }
   end
+
   def as_json(_forum) do
     %{
       name: nil,

@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
   import Ecto.Query
 
   def show(conn, %{"id" => id}) do
-    comment = 
+    comment =
       Comment
       |> where(id: ^id)
       |> preload([:image, :user])
@@ -26,7 +26,6 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
 
       true ->
         json(conn, %{comment: CommentJson.as_json(comment)})
-
     end
   end
 end

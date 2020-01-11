@@ -52,17 +52,19 @@ defmodule Philomena.ImageSorter do
       {gallery, _rest} ->
         %{
           queries: [],
-          sorts: [%{
-            "galleries.position" => %{
-              order: sd,
-              nested: %{
-                path: :galleries,
-                filter: %{
-                  term: %{"galleries.id" => gallery}
+          sorts: [
+            %{
+              "galleries.position" => %{
+                order: sd,
+                nested: %{
+                  path: :galleries,
+                  filter: %{
+                    term: %{"galleries.id" => gallery}
+                  }
                 }
               }
             }
-          }],
+          ],
           constant_score: true
         }
 
@@ -77,13 +79,15 @@ defmodule Philomena.ImageSorter do
 
   defp random_query(seed, sd) do
     %{
-      queries: [%{
-        function_score: %{
-          query:        %{match_all: %{}},
-          random_score: %{seed: seed, field: :id},
-          boost_mode:   :replace
+      queries: [
+        %{
+          function_score: %{
+            query: %{match_all: %{}},
+            random_score: %{seed: seed, field: :id},
+            boost_mode: :replace
+          }
         }
-      }],
+      ],
       sorts: [%{"_score" => sd}],
       constant_score: true
     }

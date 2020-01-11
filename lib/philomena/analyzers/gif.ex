@@ -18,7 +18,7 @@ defmodule Philomena.Analyzers.Gif do
       {output, 0} ->
         len =
           output
-          |> String.split("\n", parts: 2, trim: true) 
+          |> String.split("\n", parts: 2, trim: true)
           |> length()
 
         len > 1
@@ -29,10 +29,20 @@ defmodule Philomena.Analyzers.Gif do
   end
 
   defp duration(false, _file), do: 0.0
+
   defp duration(true, file) do
-    with {output, 0} <- System.cmd("ffprobe", ["-i", file, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"]),
-         {duration, _} <- Float.parse(output)
-    do
+    with {output, 0} <-
+           System.cmd("ffprobe", [
+             "-i",
+             file,
+             "-show_entries",
+             "format=duration",
+             "-v",
+             "quiet",
+             "-of",
+             "csv=p=0"
+           ]),
+         {duration, _} <- Float.parse(output) do
       duration
     else
       _ ->

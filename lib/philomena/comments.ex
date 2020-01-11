@@ -52,7 +52,7 @@ defmodule Philomena.Comments do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:comment, comment)
     |> Multi.update_all(:image, image_query, inc: [comments_count: 1])
     |> Multi.run(:subscribe, fn _repo, _changes ->
@@ -62,7 +62,7 @@ defmodule Philomena.Comments do
   end
 
   def notify_comment(comment) do
-    spawn fn ->
+    spawn(fn ->
       image =
         comment
         |> Repo.preload(:image)
@@ -84,7 +84,7 @@ defmodule Philomena.Comments do
           action: "commented on"
         }
       )
-    end
+    end)
 
     comment
   end
@@ -106,10 +106,9 @@ defmodule Philomena.Comments do
     current_body = comment.body
     current_reason = comment.edit_reason
 
-    comment_changes =
-      Comment.changeset(comment, attrs, now)
+    comment_changes = Comment.changeset(comment, attrs, now)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:comment, comment_changes)
     |> Multi.run(:version, fn _repo, _changes ->
       Versions.create_version("Comment", comment.id, editor.id, %{
@@ -190,24 +189,24 @@ defmodule Philomena.Comments do
   end
 
   def reindex_comment(%Comment{} = comment) do
-    spawn fn ->
+    spawn(fn ->
       Comment
       |> preload(^indexing_preloads())
       |> where(id: ^comment.id)
       |> Repo.one()
       |> Elasticsearch.index_document(Comment)
-    end
+    end)
 
     comment
   end
 
   def reindex_comments(image) do
-    spawn fn ->
+    spawn(fn ->
       Comment
       |> preload(^indexing_preloads())
       |> where(image_id: ^image.id)
       |> Elasticsearch.reindex(Comment)
-    end
+    end)
 
     image
   end

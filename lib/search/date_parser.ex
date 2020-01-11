@@ -32,6 +32,7 @@ defmodule Search.DateParser do
   defp days_in_month(year, month) when month in 1..12 do
     Calendar.ISO.days_in_month(year, month)
   end
+
   defp days_in_month(_year, _month) do
     0
   end
@@ -80,8 +81,7 @@ defmodule Search.DateParser do
 
     with {:ok, [lower, upper]} <- date_bounds(date),
          {:ok, lower} <- build_datetime(lower, tz_off, tz_hour, tz_minute),
-         {:ok, upper} <- build_datetime(upper, tz_off, tz_hour, tz_minute)
-    do
+         {:ok, upper} <- build_datetime(upper, tz_off, tz_hour, tz_minute) do
       {[[lower, upper]], context}
     else
       _ ->
@@ -183,7 +183,9 @@ defmodule Search.DateParser do
     ])
     |> repeat(space)
     |> eos()
-    |> label("a RFC3339 datetime fragment, like `2019-01-01', or relative date, like `3 days ago'")
+    |> label(
+      "a RFC3339 datetime fragment, like `2019-01-01', or relative date, like `3 days ago'"
+    )
 
-  defparsec :parse, date
+  defparsec(:parse, date)
 end

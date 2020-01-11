@@ -1,8 +1,7 @@
 defmodule Textile.Lexer do
   import NimbleParsec
 
-  space =
-    utf8_char('\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200a))
+  space = utf8_char('\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200A))
 
   extended_space =
     choice([
@@ -26,11 +25,9 @@ defmodule Textile.Lexer do
     string("\n")
     |> unwrap_and_tag(:newline)
 
-  link_ending_characters =
-    utf8_char('@#$%&(),.:;<=?\\`|\'')
+  link_ending_characters = utf8_char('@#$%&(),.:;<=?\\`|\'')
 
-  bracket_link_ending_characters =
-    utf8_char('" []')
+  bracket_link_ending_characters = utf8_char('" []')
 
   end_of_link =
     choice([
@@ -173,7 +170,8 @@ defmodule Textile.Lexer do
   sup_delim = string("^") |> unwrap_and_tag(:sup_delim)
   sub_delim = string("~") |> unwrap_and_tag(:sub_delim)
 
-  del_delim = lookahead_not(string("-"), choice([string("-"), string(">")])) |> unwrap_and_tag(:del_delim)
+  del_delim =
+    lookahead_not(string("-"), choice([string("-"), string(">")])) |> unwrap_and_tag(:del_delim)
 
   quicktxt =
     utf8_char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*@_{}')
@@ -234,5 +232,5 @@ defmodule Textile.Lexer do
     |> repeat()
     |> eos()
 
-  defparsec :lex, textile
+  defparsec(:lex, textile)
 end

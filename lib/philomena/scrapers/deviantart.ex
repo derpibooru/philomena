@@ -48,7 +48,8 @@ defmodule Philomena.Scrapers.Deviantart do
   end
 
   defp try_intermediary_hires!(%{images: [image]} = data) do
-    [domain, object_uuid, object_name] = Regex.run(@cdnint_regex, image.url, capture: :all_but_first)
+    [domain, object_uuid, object_name] =
+      Regex.run(@cdnint_regex, image.url, capture: :all_but_first)
 
     built_url = "#{domain}/intermediary/f/#{object_uuid}/#{object_name}"
 
@@ -57,13 +58,13 @@ defmodule Philomena.Scrapers.Deviantart do
         # This is the high resolution URL.
 
         %{
-          data |
-          images: [
-            %{
-              url: built_url,
-              camo_url: image.camo_url
-            }
-          ]
+          data
+          | images: [
+              %{
+                url: built_url,
+                camo_url: image.camo_url
+              }
+            ]
         }
 
       _ ->
@@ -76,24 +77,24 @@ defmodule Philomena.Scrapers.Deviantart do
     cond do
       String.match?(image.url, @png_regex) ->
         %{
-          data |
-          images: [
-            %{
-              url: String.replace(image.url, @png_regex, "\\1.png\\3"),
-              camo_url: image.camo_url
-            }
-          ]
+          data
+          | images: [
+              %{
+                url: String.replace(image.url, @png_regex, "\\1.png\\3"),
+                camo_url: image.camo_url
+              }
+            ]
         }
 
       String.match?(image.url, @jpg_regex) ->
         %{
-          data |
-          images: [
-            %{
-              url: String.replace(image.url, @jpg_regex, "\\g{1}100\\3"),
-              camo_url: image.camo_url
-            }
-          ]
+          data
+          | images: [
+              %{
+                url: String.replace(image.url, @jpg_regex, "\\g{1}100\\3"),
+                camo_url: image.camo_url
+              }
+            ]
         }
 
       true ->
@@ -104,6 +105,7 @@ defmodule Philomena.Scrapers.Deviantart do
 
   defp try_old_hires!(%{source_url: source, images: [image]} = data) do
     [serial] = Regex.run(@serial_regex, source, capture: :all_but_first)
+
     base36 =
       serial
       |> String.to_integer()
@@ -118,13 +120,13 @@ defmodule Philomena.Scrapers.Deviantart do
         {_location, link} = Enum.find(headers, fn {header, _val} -> header == "Location" end)
 
         %{
-          data |
-          images: [
-            %{
-              url: link,
-              camo_url: image.camo_url
-            }
-          ]
+          data
+          | images: [
+              %{
+                url: link,
+                camo_url: image.camo_url
+              }
+            ]
         }
 
       _ ->
@@ -135,6 +137,7 @@ defmodule Philomena.Scrapers.Deviantart do
 
   # Workaround for benoitc/hackney#273
   defp follow_redirect(_url, 0), do: nil
+
   defp follow_redirect(url, max_times) do
     case Philomena.Http.get!(url) do
       %HTTPoison.Response{headers: headers, status_code: code} when code in [301, 302] ->

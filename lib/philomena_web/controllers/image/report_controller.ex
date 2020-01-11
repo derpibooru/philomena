@@ -11,18 +11,29 @@ defmodule PhilomenaWeb.Image.ReportController do
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags]
+
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [:tags]
 
   def new(conn, _params) do
     image = conn.assigns.image
     action = Routes.image_report_path(conn, :create, image)
+
     changeset =
       %Report{reportable_type: "Image", reportable_id: image.id}
       |> Reports.change_report()
 
     conn
     |> put_view(ReportView)
-    |> render("new.html", title: "Reporting Image", reportable: image, changeset: changeset, action: action)
+    |> render("new.html",
+      title: "Reporting Image",
+      reportable: image,
+      changeset: changeset,
+      action: action
+    )
   end
 
   def create(conn, params) do

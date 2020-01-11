@@ -7,7 +7,6 @@ defmodule PhilomenaWeb.ConversationView do
   def other_party(_user, conversation),
     do: conversation.to
 
-
   def read_by?(%{id: user_id}, %{to_id: user_id} = conversation),
     do: conversation.to_read
 
@@ -17,11 +16,10 @@ defmodule PhilomenaWeb.ConversationView do
   def read_by?(_user, _conversation),
     do: false
 
-
   def conversation_class(user, conversation) do
     case read_by?(user, conversation) do
       false -> "warning"
-      _     -> nil
+      _ -> nil
     end
   end
 

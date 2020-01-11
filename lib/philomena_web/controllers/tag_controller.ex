@@ -9,9 +9,21 @@ defmodule PhilomenaWeb.TagController do
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
-  plug :load_and_authorize_resource, model: Tag, id_field: "slug", only: [:show, :edit, :update, :delete], preload: [
-    :aliases, :aliased_tag, :implied_tags, :implied_by_tags, :dnp_entries, public_links: :user, hidden_links: :user
-  ]
+
+  plug :load_and_authorize_resource,
+    model: Tag,
+    id_field: "slug",
+    only: [:show, :edit, :update, :delete],
+    preload: [
+      :aliases,
+      :aliased_tag,
+      :implied_tags,
+      :implied_by_tags,
+      :dnp_entries,
+      public_links: :user,
+      hidden_links: :user
+    ]
+
   plug :redirect_alias when action in [:show]
 
   def index(conn, params) do
@@ -41,20 +53,16 @@ defmodule PhilomenaWeb.TagController do
     user = conn.assigns.current_user
     tag = conn.assigns.tag
 
-    {images, _tags} =
-      ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
+    {images, _tags} = ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
 
-    interactions =
-      Interactions.user_interactions(images, user)
+    interactions = Interactions.user_interactions(images, user)
 
-    body =
-      Renderer.render_one(%{body: tag.description || ""}, conn)
+    body = Renderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
       Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
 
-    dnp_entries =
-      Enum.zip(dnp_bodies, tag.dnp_entries)
+    dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 
     search_query = escape_name(tag)
     params = Map.put(conn.params, "q", search_query)
@@ -92,9 +100,9 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def delete(conn, _params) do
-    spawn fn ->
+    spawn(fn ->
       Tags.delete_tag(conn.assigns.tag)
-    end
+    end)
 
     conn
     |> put_flash(:info, "Tag scheduled for deletion.")
@@ -140,7 +148,10 @@ defmodule PhilomenaWeb.TagController do
 
       %{aliased_tag: tag} ->
         conn
-        |> put_flash(:info, "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\".")
+        |> put_flash(
+          :info,
+          "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\"."
+        )
         |> redirect(to: Routes.tag_path(conn, :show, tag))
     end
   end

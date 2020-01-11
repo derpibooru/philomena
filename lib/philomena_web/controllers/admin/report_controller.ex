@@ -11,7 +11,12 @@ defmodule PhilomenaWeb.Admin.ReportController do
   import Ecto.Query
 
   plug :verify_authorized
-  plug :load_and_authorize_resource, model: Report, only: [:show], preload: [:admin, user: [:linked_tags, awards: :badge]]
+
+  plug :load_and_authorize_resource,
+    model: Report,
+    only: [:show],
+    preload: [:admin, user: [:linked_tags, awards: :badge]]
+
   plug :set_mod_notes when action in [:show]
 
   def index(conn, %{"rq" => query_string}) do
@@ -19,26 +24,30 @@ defmodule PhilomenaWeb.Admin.ReportController do
 
     reports = load_reports(conn, query)
 
-    render(conn, "index.html", title: "Admin - Reports", layout_class: "layout--wide", reports: reports, my_reports: [])
+    render(conn, "index.html",
+      title: "Admin - Reports",
+      layout_class: "layout--wide",
+      reports: reports,
+      my_reports: []
+    )
   end
 
   def index(conn, _params) do
     user = conn.assigns.current_user
 
-    query =
-      %{
-        bool: %{
-          should: [
-            %{term: %{open: false}},
-            %{
-              bool: %{
-                must: %{term: %{open: true}},
-                must_not: %{term: %{admin_id: user.id}}
-              }
+    query = %{
+      bool: %{
+        should: [
+          %{term: %{open: false}},
+          %{
+            bool: %{
+              must: %{term: %{open: true}},
+              must_not: %{term: %{admin_id: user.id}}
             }
-          ]
-        }
+          }
+        ]
       }
+    }
 
     reports = load_reports(conn, query)
 
@@ -50,11 +59,20 @@ defmodule PhilomenaWeb.Admin.ReportController do
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
 
-    render(conn, "index.html", title: "Admin - Reports", layout_class: "layout--wide", reports: reports, my_reports: my_reports)
+    render(conn, "index.html",
+      title: "Admin - Reports",
+      layout_class: "layout--wide",
+      reports: reports,
+      my_reports: my_reports
+    )
   end
 
   def show(conn, _params) do
-    [report] = Polymorphic.load_polymorphic([conn.assigns.report], reportable: [reportable_id: :reportable_type])
+    [report] =
+      Polymorphic.load_polymorphic([conn.assigns.report],
+        reportable: [reportable_id: :reportable_type]
+      )
+
     body = Renderer.render_one(%{body: report.reason}, conn)
 
     render(conn, "show.html", title: "Showing Report", report: report, body: body)
@@ -72,8 +90,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
         Report |> preload([:admin, user: :linked_tags])
       )
 
-    entries = 
-      Polymorphic.load_polymorphic(reports, reportable: [reportable_id: :reportable_type])
+    entries = Polymorphic.load_polymorphic(reports, reportable: [reportable_id: :reportable_type])
 
     %{reports | entries: entries}
   end
@@ -88,7 +105,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, Report) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

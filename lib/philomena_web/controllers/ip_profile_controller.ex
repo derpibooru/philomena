@@ -23,13 +23,18 @@ defmodule PhilomenaWeb.IpProfileController do
       |> where([s], fragment("? >>= ?", s.specification, ^ip))
       |> Repo.all()
 
-    render(conn, "show.html", title: "#{ip}'s IP profile", ip: ip, user_ips: user_ips, subnet_bans: subnet_bans)
+    render(conn, "show.html",
+      title: "#{ip}'s IP profile",
+      ip: ip,
+      user_ips: user_ips,
+      subnet_bans: subnet_bans
+    )
   end
 
   defp authorize_ip(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
-      true  -> conn
+      true -> conn
     end
   end
 end

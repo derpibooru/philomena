@@ -50,8 +50,13 @@ defmodule Philomena.Adverts.Advert do
   def image_changeset(advert, attrs) do
     advert
     |> cast(attrs, [
-      :image, :image_mime_type, :image_size, :image_width, :image_height,
-      :uploaded_image, :removed_image
+      :image,
+      :image_mime_type,
+      :image_size,
+      :image_width,
+      :image_height,
+      :uploaded_image,
+      :removed_image
     ])
     |> validate_required([:image])
     |> validate_inclusion(:image_mime_type, ["image/png", "image/jpeg", "image/gif"])

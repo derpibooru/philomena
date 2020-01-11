@@ -17,12 +17,16 @@ defmodule PhilomenaWeb.IpProfile.SourceChangeController do
       |> preload([:user, image: [:user, :tags]])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Source Changes for IP `#{ip}'", ip: ip, source_changes: source_changes)
+    render(conn, "index.html",
+      title: "Source Changes for IP `#{ip}'",
+      ip: ip,
+      source_changes: source_changes
+    )
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -11,7 +11,11 @@ defmodule PhilomenaWeb.GalleryController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
-  plug :load_and_authorize_resource, model: Gallery, except: [:index], preload: [:creator, thumbnail: :tags]
+
+  plug :load_and_authorize_resource,
+    model: Gallery,
+    except: [:index],
+    preload: [:creator, thumbnail: :tags]
 
   def index(conn, params) do
     galleries =
@@ -23,23 +27,36 @@ defmodule PhilomenaWeb.GalleryController do
               must: parse_search(params)
             }
           },
-          sort: parse_sort(params),
+          sort: parse_sort(params)
         },
         conn.assigns.pagination,
         Gallery |> preload([:creator, thumbnail: :tags])
       )
 
-    render(conn, "index.html", title: "Galleries", galleries: galleries, layout_class: "layout--wide")
+    render(conn, "index.html",
+      title: "Galleries",
+      galleries: galleries,
+      layout_class: "layout--wide"
+    )
   end
 
   def show(conn, _params) do
     gallery = conn.assigns.gallery
     user = conn.assigns.current_user
     query = "gallery_id:#{gallery.id}"
-    params = Map.merge(conn.params, %{"q" => query, "sf" => "gallery_id:#{gallery.id}", "sd" => position_order(gallery)})
+
+    params =
+      Map.merge(conn.params, %{
+        "q" => query,
+        "sf" => "gallery_id:#{gallery.id}",
+        "sd" => position_order(gallery)
+      })
+
     sort = ImageSorter.parse_sort(params)
 
-    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
+    {:ok, {images, _tags}} =
+      ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
+
     interactions = Interactions.user_interactions(images, user)
 
     watching = Galleries.subscribed?(gallery, user)
@@ -50,8 +67,15 @@ defmodule PhilomenaWeb.GalleryController do
     conn
     |> NotificationCountPlug.call([])
     |> Map.put(:params, params)
-    |> assign(:clientside_data, [gallery_images: gallery_images])
-    |> render("show.html", title: "Showing Gallery", layout_class: "layout--wide", watching: watching, gallery: gallery, images: images, interactions: interactions)
+    |> assign(:clientside_data, gallery_images: gallery_images)
+    |> render("show.html",
+      title: "Showing Gallery",
+      layout_class: "layout--wide",
+      watching: watching,
+      gallery: gallery,
+      images: images,
+      interactions: interactions
+    )
   end
 
   def new(conn, _params) do
@@ -61,7 +85,7 @@ defmodule PhilomenaWeb.GalleryController do
 
   def create(conn, %{"gallery" => gallery_params}) do
     user = conn.assigns.current_user
-    
+
     case Galleries.create_gallery(user, gallery_params) do
       {:ok, gallery} ->
         Galleries.reindex_gallery(gallery)
@@ -113,21 +137,26 @@ defmodule PhilomenaWeb.GalleryController do
 
   defp parse_search(%{"gallery" => gallery_params}) do
     parse_title(gallery_params) ++
-    parse_creator(gallery_params) ++
-    parse_included_image(gallery_params) ++
-    parse_description(gallery_params)
+      parse_creator(gallery_params) ++
+      parse_included_image(gallery_params) ++
+      parse_description(gallery_params)
   end
+
   defp parse_search(_params), do: [%{match_all: %{}}]
 
   defp parse_title(%{"title" => title}) when is_binary(title) and title not in [nil, ""],
     do: [%{wildcard: %{title: "*" <> String.downcase(title) <> "*"}}]
+
   defp parse_title(_params), do: []
 
-  defp parse_creator(%{"creator" => creator}) when is_binary(creator) and creator not in [nil, ""],
-    do: [%{term: %{creator: String.downcase(creator)}}]
+  defp parse_creator(%{"creator" => creator})
+       when is_binary(creator) and creator not in [nil, ""],
+       do: [%{term: %{creator: String.downcase(creator)}}]
+
   defp parse_creator(_params), do: []
 
-  defp parse_included_image(%{"include_image" => image_id}) when is_binary(image_id) and image_id not in [nil, ""] do
+  defp parse_included_image(%{"include_image" => image_id})
+       when is_binary(image_id) and image_id not in [nil, ""] do
     with {image_id, _rest} <- Integer.parse(image_id) do
       [%{term: %{image_ids: image_id}}]
     else
@@ -135,18 +164,21 @@ defmodule PhilomenaWeb.GalleryController do
         []
     end
   end
+
   defp parse_included_image(_params), do: []
 
-  defp parse_description(%{"description" => description}) when is_binary(description) and description not in [nil, ""],
-    do: [%{match_phrase: %{description: description}}]
+  defp parse_description(%{"description" => description})
+       when is_binary(description) and description not in [nil, ""],
+       do: [%{match_phrase: %{description: description}}]
+
   defp parse_description(_params), do: []
 
   defp parse_sort(%{"gallery" => %{"sf" => sf, "sd" => sd}})
-    when sf in ["created_at", "updated_at", "image_count", "_score"]
-    and sd in ["desc", "asc"]
-  do
+       when sf in ["created_at", "updated_at", "image_count", "_score"] and
+              sd in ["desc", "asc"] do
     %{sf => sd}
   end
+
   defp parse_sort(_params) do
     %{created_at: :desc}
   end

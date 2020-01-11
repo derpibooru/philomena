@@ -29,15 +29,14 @@ defmodule Philomena.Versions do
         body = yaml["body"] || ""
         edit_reason = yaml["edit_reason"]
 
-        v =
-          %{
-            version |
-            parent: parent,
+        v = %{
+          version
+          | parent: parent,
             user: users[version.whodunnit],
             body: body,
             edit_reason: edit_reason,
             difference: difference(body, previous_body)
-          }
+        }
 
         {v, body}
       end)
@@ -61,7 +60,12 @@ defmodule Philomena.Versions do
 
   """
   def create_version(item_type, item_id, whodunnit, attrs \\ %{}) do
-    %Version{item_type: item_type, item_id: item_id, event: "update", whodunnit: whodunnit(whodunnit)}
+    %Version{
+      item_type: item_type,
+      item_id: item_id,
+      event: "update",
+      whodunnit: whodunnit(whodunnit)
+    }
     |> Version.changeset(attrs, item_id)
     |> Repo.insert()
   end

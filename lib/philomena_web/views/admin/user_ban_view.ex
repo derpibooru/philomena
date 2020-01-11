@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Admin.UserBanView do
     now = DateTime.utc_now()
 
     case enabled and DateTime.diff(until, now) > 0 do
-      true   -> "success"
+      true -> "success"
       _false -> "danger"
     end
   end

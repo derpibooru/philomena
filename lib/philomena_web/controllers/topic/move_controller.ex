@@ -8,7 +8,12 @@ defmodule PhilomenaWeb.Topic.MoveController do
   alias Philomena.Repo
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide

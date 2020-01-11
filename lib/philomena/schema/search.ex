@@ -11,7 +11,7 @@ defmodule Philomena.Schema.Search do
       {:ok, _} ->
         changeset
 
-      _ ->        
+      _ ->
         add_error(changeset, field, "is invalid")
     end
   end

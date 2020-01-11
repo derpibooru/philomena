@@ -92,52 +92,64 @@ defmodule Philomena.Conversations do
 
   def count_unread_conversations(user) do
     Conversation
-    |> where([c],
-      (
-        (c.to_id == ^user.id and c.to_read == false) or
-        (c.from_id == ^user.id and c.from_read == false)
-      )
-      and not (
-        (c.to_id == ^user.id and c.to_hidden == true) or
-        (c.from_id == ^user.id and c.from_hidden == true)
-      )
+    |> where(
+      [c],
+      ((c.to_id == ^user.id and c.to_read == false) or
+         (c.from_id == ^user.id and c.from_read == false)) and
+        not ((c.to_id == ^user.id and c.to_hidden == true) or
+               (c.from_id == ^user.id and c.from_hidden == true))
     )
     |> Repo.aggregate(:count, :id)
   end
 
-  
   def mark_conversation_read(conversation, user, read \\ true)
 
-  def mark_conversation_read(%Conversation{to_id: user_id, from_id: user_id} = conversation, %{id: user_id}, read) do
+  def mark_conversation_read(
+        %Conversation{to_id: user_id, from_id: user_id} = conversation,
+        %{id: user_id},
+        read
+      ) do
     conversation
     |> Conversation.read_changeset(%{to_read: read, from_read: read})
     |> Repo.update()
   end
+
   def mark_conversation_read(%Conversation{to_id: user_id} = conversation, %{id: user_id}, read) do
     conversation
     |> Conversation.read_changeset(%{to_read: read})
     |> Repo.update()
   end
+
   def mark_conversation_read(%Conversation{from_id: user_id} = conversation, %{id: user_id}, read) do
     conversation
     |> Conversation.read_changeset(%{from_read: read})
     |> Repo.update()
   end
-  def mark_conversation_read(_conversation, _user, _read), do: {:ok, nil}
 
+  def mark_conversation_read(_conversation, _user, _read), do: {:ok, nil}
 
   def mark_conversation_hidden(conversation, user, hidden \\ true)
 
-  def mark_conversation_hidden(%Conversation{to_id: user_id} = conversation, %{id: user_id}, hidden) do
+  def mark_conversation_hidden(
+        %Conversation{to_id: user_id} = conversation,
+        %{id: user_id},
+        hidden
+      ) do
     conversation
     |> Conversation.hidden_changeset(%{to_hidden: hidden})
     |> Repo.update()
   end
-  def mark_conversation_hidden(%Conversation{from_id: user_id} = conversation, %{id: user_id}, hidden) do
+
+  def mark_conversation_hidden(
+        %Conversation{from_id: user_id} = conversation,
+        %{id: user_id},
+        hidden
+      ) do
     conversation
     |> Conversation.hidden_changeset(%{from_hidden: hidden})
     |> Repo.update()
   end
+
   def mark_conversation_hidden(_conversation, _user, _read), do: {:ok, nil}
 
   alias Philomena.Conversations.Message
@@ -181,9 +193,11 @@ defmodule Philomena.Conversations do
 
     now = DateTime.utc_now()
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:message, message)
-    |> Multi.update_all(:conversation, conversation_query, set: [from_read: false, to_read: false, last_message_at: now])
+    |> Multi.update_all(:conversation, conversation_query,
+      set: [from_read: false, to_read: false, last_message_at: now]
+    )
     |> Repo.isolated_transaction(:serializable)
   end
 

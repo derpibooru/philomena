@@ -123,21 +123,21 @@ defmodule Philomena.Galleries do
   end
 
   def reindex_gallery(%Gallery{} = gallery) do
-    spawn fn ->
+    spawn(fn ->
       Gallery
       |> preload(^indexing_preloads())
       |> where(id: ^gallery.id)
       |> Repo.one()
       |> Elasticsearch.index_document(Gallery)
-    end
+    end)
 
     gallery
   end
 
   def unindex_gallery(%Gallery{} = gallery) do
-    spawn fn ->
+    spawn(fn ->
       Elasticsearch.delete_document(gallery.id, Gallery)
-    end
+    end)
 
     gallery
   end
@@ -198,7 +198,7 @@ defmodule Philomena.Galleries do
   end
 
   def notify_gallery(gallery) do
-    spawn fn ->
+    spawn(fn ->
       subscriptions =
         gallery
         |> Repo.preload(:subscriptions)
@@ -215,13 +215,13 @@ defmodule Philomena.Galleries do
           action: "added images to"
         }
       )
-    end
+    end)
 
     gallery
   end
 
   def reorder_gallery(gallery, image_ids) do
-    spawn fn ->
+    spawn(fn ->
       interactions =
         Interaction
         |> where([gi], gi.image_id in ^image_ids)
@@ -234,6 +234,7 @@ defmodule Philomena.Galleries do
         |> Map.new(fn {interaction, index} -> {index, interaction.position} end)
 
       images_present = Map.new(interactions, &{&1.image_id, true})
+
       requested =
         image_ids
         |> Enum.filter(&images_present[&1])
@@ -272,7 +273,7 @@ defmodule Philomena.Galleries do
 
       # Now update all the associated images
       Images.reindex_images(Map.keys(requested))
-    end
+    end)
 
     gallery
   end
@@ -283,6 +284,7 @@ defmodule Philomena.Galleries do
   alias Philomena.Galleries.Subscription
 
   def subscribed?(_gallery, nil), do: false
+
   def subscribed?(gallery, user) do
     Subscription
     |> where(gallery_id: ^gallery.id, user_id: ^user.id)
@@ -325,6 +327,7 @@ defmodule Philomena.Galleries do
   end
 
   def clear_notification(_gallery, nil), do: nil
+
   def clear_notification(gallery, user) do
     Notifications.delete_unread_notification("Gallery", gallery.id, user)
   end

@@ -185,13 +185,14 @@ defmodule Philomena.Notifications do
   end
 
   def notify(_actor_child, [], _params), do: nil
+
   def notify(actor_child, subscriptions, params) do
     # Don't push to the user that created the notification
     subscriptions =
       case actor_child do
         %{user_id: id} ->
           subscriptions
-          |> Enum.reject(& &1.user_id == id)
+          |> Enum.reject(&(&1.user_id == id))
 
         _ ->
           subscriptions

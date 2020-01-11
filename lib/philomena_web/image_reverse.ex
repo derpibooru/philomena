@@ -29,9 +29,11 @@ defmodule PhilomenaWeb.ImageReverse do
     {:ok, analysis} = Analyzers.analyze(path)
     {analysis, path}
   end
+
   defp analyze(_upload), do: :error
 
   defp intensities(:error), do: :error
+
   defp intensities({analysis, path}) do
     {analysis, Processors.intensities(analysis, path)}
   end
@@ -44,5 +46,6 @@ defmodule PhilomenaWeb.ImageReverse do
     |> max(0.01)
     |> min(1.0)
   end
+
   defp normalize_dist(_dist), do: 0.25
 end

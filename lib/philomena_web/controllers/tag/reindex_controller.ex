@@ -5,12 +5,18 @@ defmodule PhilomenaWeb.Tag.ReindexController do
   alias Philomena.Tags
 
   plug PhilomenaWeb.CanaryMapPlug, create: :alias
-  plug :load_and_authorize_resource, model: Tag, id_name: "tag_id", id_field: "slug", preload: [:implied_tags, :aliased_tag], persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Tag,
+    id_name: "tag_id",
+    id_field: "slug",
+    preload: [:implied_tags, :aliased_tag],
+    persisted: true
 
   def create(conn, _params) do
-    spawn fn ->
+    spawn(fn ->
       Tags.reindex_tag_images(conn.assigns.tag)
-    end
+    end)
 
     conn
     |> put_flash(:info, "Tag reindex started.")

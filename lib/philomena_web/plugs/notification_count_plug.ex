@@ -30,6 +30,7 @@ defmodule PhilomenaWeb.NotificationCountPlug do
   end
 
   defp maybe_assign_notifications(conn, nil), do: conn
+
   defp maybe_assign_notifications(conn, user) do
     notifications = Notifications.count_unread_notifications(user)
 
@@ -38,6 +39,7 @@ defmodule PhilomenaWeb.NotificationCountPlug do
   end
 
   defp maybe_assign_conversations(conn, nil), do: conn
+
   defp maybe_assign_conversations(conn, user) do
     conversations = Conversations.count_unread_conversations(user)
 

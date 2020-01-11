@@ -5,10 +5,18 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
   alias Philomena.DuplicateReports
 
   plug PhilomenaWeb.CanaryMapPlug, create: :edit, delete: :edit
-  plug :load_and_authorize_resource, model: DuplicateReport, id_name: "duplicate_report_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: DuplicateReport,
+    id_name: "duplicate_report_id",
+    persisted: true
 
   def create(conn, _params) do
-    {:ok, _report} = DuplicateReports.claim_duplicate_report(conn.assigns.duplicate_report, conn.assigns.current_user)
+    {:ok, _report} =
+      DuplicateReports.claim_duplicate_report(
+        conn.assigns.duplicate_report,
+        conn.assigns.current_user
+      )
 
     conn
     |> put_flash(:info, "Successfully claimed report.")

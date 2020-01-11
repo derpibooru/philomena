@@ -29,10 +29,12 @@ defmodule PowCaptcha.Phoenix.ControllerCallbacks do
     |> maybe_halt(conn, return_path)
   end
 
-
   defp maybe_halt(false, conn, return_path) do
     conn
-    |> Controller.put_flash(:error, "There was an error verifying you're not a robot. Please try again.")
+    |> Controller.put_flash(
+      :error,
+      "There was an error verifying you're not a robot. Please try again."
+    )
     |> Controller.redirect(to: return_path)
     |> Conn.halt()
   end

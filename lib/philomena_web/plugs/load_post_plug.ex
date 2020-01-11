@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.LoadPostPlug do
 
     Post
     |> where(topic_id: ^topic.id, id: ^to_string(conn.params[param]))
-    |> preload([topic: :forum, user: [awards: :badge]])
+    |> preload(topic: :forum, user: [awards: :badge])
     |> Repo.one()
     |> maybe_hide_post(conn, show_hidden)
   end
@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.LoadPostPlug do
 
   defp maybe_hide_post(post, %{assigns: %{current_user: user}} = conn, show_hidden) do
     case show_hidden or can?(user, :show, post) do
-      true  -> assign(conn, :post, post)
+      true -> assign(conn, :post, post)
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

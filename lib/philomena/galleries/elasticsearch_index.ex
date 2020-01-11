@@ -25,15 +25,18 @@ defmodule Philomena.Galleries.ElasticsearchIndex do
           _all: %{enabled: false},
           dynamic: false,
           properties: %{
-            id: %{type: "integer"}, # keyword
+            # keyword
+            id: %{type: "integer"},
             image_count: %{type: "integer"},
             watcher_count: %{type: "integer"},
             updated_at: %{type: "date"},
             created_at: %{type: "date"},
             title: %{type: "keyword"},
-            creator: %{type: "keyword"}, # missing creator_id
+            # missing creator_id
+            creator: %{type: "keyword"},
             image_ids: %{type: "keyword"},
-            watcher_ids: %{type: "keyword"}, # ???
+            # ???
+            watcher_ids: %{type: "keyword"},
             description: %{type: "text", analyzer: "snowball"}
           }
         }

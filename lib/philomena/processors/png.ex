@@ -23,7 +23,6 @@ defmodule Philomena.Processors.Png do
     intensities
   end
 
-
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".png")
 
@@ -52,12 +51,14 @@ defmodule Philomena.Processors.Png do
 
   defp scale(file, {width, height}) do
     scaled = Briefly.create!(extname: ".png")
-    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease,format=rgb32"
+
+    scale_filter =
+      "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease,format=rgb32"
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
-    {_output, 0} =
-      System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
+
+    {_output, 0} = System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
 
     scaled
   end

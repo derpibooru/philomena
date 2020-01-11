@@ -30,5 +30,6 @@ defmodule Philomena.Badges.Award do
 
     put_change(changeset, :awarded_on, now)
   end
+
   defp put_awarded_on(changeset), do: changeset
 end

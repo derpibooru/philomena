@@ -21,12 +21,10 @@ defmodule Philomena.Processors.Svg do
     intensities
   end
 
-
   defp preview(file) do
     preview = Briefly.create!(extname: ".png")
 
-    {_output, 0} =
-      System.cmd("safe-rsvg-convert", [file, preview])
+    {_output, 0} = System.cmd("safe-rsvg-convert", [file, preview])
 
     preview
   end
@@ -47,8 +45,8 @@ defmodule Philomena.Processors.Svg do
 
     {_output, 0} =
       System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", preview, "-vf", scale_filter, scaled])
-    {_output, 0} =
-      System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
+
+    {_output, 0} = System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
 
     scaled
   end

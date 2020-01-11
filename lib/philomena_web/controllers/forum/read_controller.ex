@@ -5,7 +5,11 @@ defmodule PhilomenaWeb.Forum.ReadController do
   alias Philomena.Forums.Forum
   alias Philomena.Forums
 
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   def create(conn, _params) do
     forum = conn.assigns.forum

@@ -6,5 +6,6 @@ defmodule Philomena.Schema.BanId do
 
     put_change(changeset, :generated_ban_id, "#{prefix}#{ban_id}")
   end
+
   def put_ban_id(changeset, _prefix), do: changeset
 end

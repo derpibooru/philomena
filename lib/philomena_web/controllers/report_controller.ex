@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.ReportController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
+
     reports =
       Report
       |> where(user_id: ^user.id)
@@ -18,8 +19,7 @@ defmodule PhilomenaWeb.ReportController do
       reports
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
 
-    reports =
-      %{reports | entries: polymorphic}
+    reports = %{reports | entries: polymorphic}
 
     render(conn, "index.html", title: "My Reports", reports: reports)
   end
@@ -37,7 +37,10 @@ defmodule PhilomenaWeb.ReportController do
     case too_many_reports?(conn) do
       true ->
         conn
-        |> put_flash(:error, "You may not have more than 5 open reports at a time. Did you read the reporting tips?")
+        |> put_flash(
+          :error,
+          "You may not have more than 5 open reports at a time. Did you read the reporting tips?"
+        )
         |> redirect(to: "/")
 
       _falsy ->
@@ -46,7 +49,10 @@ defmodule PhilomenaWeb.ReportController do
             Reports.reindex_report(report)
 
             conn
-            |> put_flash(:info, "Your report has been received and will be checked by staff shortly.")
+            |> put_flash(
+              :info,
+              "Your report has been received and will be checked by staff shortly."
+            )
             |> redirect(to: redirect_path(conn, conn.assigns.current_user))
 
           {:error, changeset} ->
@@ -65,6 +71,7 @@ defmodule PhilomenaWeb.ReportController do
   end
 
   defp too_many_reports_user?(nil), do: false
+
   defp too_many_reports_user?(user) do
     reports_open =
       Report

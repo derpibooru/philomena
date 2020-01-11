@@ -10,7 +10,6 @@ defmodule Philomena.Adverts do
   alias Philomena.Adverts.Advert
   alias Philomena.Adverts.Uploader
 
-
   def random_live do
     now = DateTime.utc_now()
 
@@ -38,18 +37,19 @@ defmodule Philomena.Adverts do
   end
 
   def click(%Advert{} = advert) do
-    spawn fn ->
+    spawn(fn ->
       query = where(Advert, id: ^advert.id)
       Repo.update_all(query, inc: [clicks: 1])
-    end
+    end)
   end
 
   defp record_impression(nil), do: nil
+
   defp record_impression(advert) do
-    spawn fn ->
+    spawn(fn ->
       query = where(Advert, id: ^advert.id)
       Repo.update_all(query, inc: [impressions: 1])
-    end
+    end)
 
     advert
   end

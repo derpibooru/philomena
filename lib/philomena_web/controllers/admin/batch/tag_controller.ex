@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     tags = Tag.parse_tag_list(tags)
 
     added_tag_names = Enum.reject(tags, &String.starts_with?(&1, "-"))
+
     removed_tag_names =
       tags
       |> Enum.filter(&String.starts_with?(&1, "-"))
@@ -24,7 +25,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
       |> where([t], t.name in ^added_tag_names)
       |> preload([:implied_tags, aliased_tag: :implied_tags])
       |> Repo.all()
-      |> Enum.map(& &1.aliased_tag || &1)
+      |> Enum.map(&(&1.aliased_tag || &1))
       |> Enum.flat_map(&[&1 | &1.implied_tags])
 
     removed_tags =
@@ -33,6 +34,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
       |> Repo.all()
 
     attributes = conn.assigns.attributes
+
     attributes = %{
       ip: attributes[:ip],
       fingerprint: attributes[:fingerprint],
@@ -57,7 +59,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :batch_update, Tag) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.LoadPollPlug do
 
   defp maybe_hide_poll(poll, %{assigns: %{current_user: user}} = conn, show_hidden) do
     case show_hidden or can?(user, :show, poll) do
-      true  -> assign(conn, :poll, poll)
+      true -> assign(conn, :poll, poll)
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

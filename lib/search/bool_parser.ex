@@ -15,5 +15,5 @@ defmodule Search.BoolParser do
     |> eos()
     |> label("a boolean, like `true' or `false'")
 
-  defparsec :parse, bool
+  defparsec(:parse, bool)
 end

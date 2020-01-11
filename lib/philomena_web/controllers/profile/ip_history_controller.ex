@@ -7,7 +7,12 @@ defmodule PhilomenaWeb.Profile.IpHistoryController do
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show_details
-  plug :load_and_authorize_resource, model: User, id_field: "slug", id_name: "profile_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: User,
+    id_field: "slug",
+    id_name: "profile_id",
+    persisted: true
 
   def index(conn, _params) do
     user = conn.assigns.user
@@ -32,6 +37,10 @@ defmodule PhilomenaWeb.Profile.IpHistoryController do
       |> Repo.all()
       |> Enum.group_by(& &1.ip)
 
-    render(conn, "index.html", title: "IP History for `#{user.name}'", user_ips: user_ips, other_users: other_users)
+    render(conn, "index.html",
+      title: "IP History for `#{user.name}'",
+      user_ips: user_ips,
+      other_users: other_users
+    )
   end
 end

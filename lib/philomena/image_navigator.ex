@@ -70,7 +70,7 @@ defmodule Philomena.ImageNavigator do
   defp extract_filters(%{"galleries.position" => term} = sort, image, rel) do
     # Extract gallery ID and current position
     gid = term.nested.filter.term["galleries.id"]
-    pos = Enum.find(image[:galleries], & &1.id == gid).position
+    pos = Enum.find(image[:galleries], &(&1.id == gid)).position
 
     # Sort in the other direction if we are going backwards
     sd = term.order
@@ -111,9 +111,11 @@ defmodule Philomena.ImageNavigator do
       filters
       |> Enum.with_index()
       |> Enum.map(fn
-        {filter, 0} -> filter.this
+        {filter, 0} ->
+          filter.this
+
         {filter, i} ->
-          filters_so_far = 
+          filters_so_far =
             filters
             |> Enum.take(i)
             |> Enum.map(& &1.for_next)
@@ -144,13 +146,13 @@ defmodule Philomena.ImageNavigator do
     %{
       this: %{
         nested: %{
-          path:  :galleries,
+          path: :galleries,
           query: %{range: %{"galleries.position" => %{dir => val}}}
         }
       },
       next: %{
         nested: %{
-          path:  :galleries,
+          path: :galleries,
           query: %{range: %{"galleries.position" => %{@range_map[dir] => val}}}
         }
       }

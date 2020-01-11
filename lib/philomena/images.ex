@@ -63,7 +63,7 @@ defmodule Philomena.Images do
       |> Image.tag_changeset(attrs, [], tags)
       |> Uploader.analyze_upload(attrs)
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:image, image)
     |> Multi.run(:name_caches, fn repo, %{image: image} ->
       image
@@ -217,7 +217,7 @@ defmodule Philomena.Images do
       Ecto.build_assoc(image, :source_changes)
       |> SourceChange.creation_changeset(attrs, attribution)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:image, image_changes)
     |> Multi.run(:source_change, fn repo, _changes ->
       case image_changes.changes do
@@ -235,7 +235,7 @@ defmodule Philomena.Images do
     old_tags = Tags.get_or_create_tags(attrs["old_tag_input"])
     new_tags = Tags.get_or_create_tags(attrs["tag_input"])
 
-    Multi.new
+    Multi.new()
     |> Multi.run(:image, fn repo, _chg ->
       image
       |> repo.preload(:tags)
@@ -253,7 +253,7 @@ defmodule Philomena.Images do
       tag_changes =
         added_tags
         |> Enum.map(&tag_change_attributes(attribution, image, &1, true, attribution[:user]))
-      
+
       {count, nil} = repo.insert_all(TagChange, tag_changes)
 
       {:ok, count}
@@ -296,9 +296,10 @@ defmodule Philomena.Images do
 
   defp tag_change_attributes(attribution, image, tag, added, user) do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
     user_id =
       case user do
-        nil  -> nil
+        nil -> nil
         user -> user.id
       end
 
@@ -340,7 +341,12 @@ defmodule Philomena.Images do
 
     case result do
       {:ok, changes} ->
-        update_first_seen_at(duplicate_of_image, image.first_seen_at, duplicate_of_image.first_seen_at)
+        update_first_seen_at(
+          duplicate_of_image,
+          image.first_seen_at,
+          duplicate_of_image.first_seen_at
+        )
+
         tags = Tags.copy_tags(image, duplicate_of_image)
         Comments.migrate_comments(image, duplicate_of_image)
         Interactions.migrate_interactions(image, duplicate_of_image)
@@ -356,7 +362,7 @@ defmodule Philomena.Images do
     min_time =
       case NaiveDateTime.compare(time_1, time_2) do
         :gt -> time_2
-        _   -> time_1
+        _ -> time_1
       end
 
     Image
@@ -398,7 +404,7 @@ defmodule Philomena.Images do
   def unhide_image(%Image{hidden_from_users: true} = image) do
     key = image.hidden_image_key
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:image, Image.unhide_changeset(image))
     |> Multi.run(:tags, fn repo, %{image: image} ->
       image = Repo.preload(image, :tags, force: true)
@@ -417,6 +423,7 @@ defmodule Philomena.Images do
     end)
     |> Repo.isolated_transaction(:serializable)
   end
+
   def unhide_image(image), do: {:ok, image}
 
   def batch_update(image_ids, added_tags, removed_tags, tag_change_attributes) do
@@ -445,26 +452,33 @@ defmodule Philomena.Images do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     tag_change_attributes = Map.merge(tag_change_attributes, %{created_at: now, updated_at: now})
 
-    Repo.transaction fn ->
-      {added_count, inserted} = Repo.insert_all(Tagging, insertions, on_conflict: :nothing, returning: [:image_id, :tag_id])
+    Repo.transaction(fn ->
+      {added_count, inserted} =
+        Repo.insert_all(Tagging, insertions,
+          on_conflict: :nothing,
+          returning: [:image_id, :tag_id]
+        )
+
       {removed_count, deleted} = Repo.delete_all(deletions)
 
       inserted = Enum.map(inserted, &[&1.image_id, &1.tag_id])
 
-      added_changes = Enum.map(inserted, fn [image_id, tag_id] ->
-        Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: true})
-      end)
+      added_changes =
+        Enum.map(inserted, fn [image_id, tag_id] ->
+          Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: true})
+        end)
 
-      removed_changes = Enum.map(deleted, fn [image_id, tag_id] ->
-        Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: false})
-      end)
+      removed_changes =
+        Enum.map(deleted, fn [image_id, tag_id] ->
+          Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: false})
+        end)
 
       changes = added_changes ++ removed_changes
 
       Repo.insert_all(TagChange, changes)
       Repo.update_all(where(Tag, [t], t.id in ^added_tags), inc: [images_count: added_count])
       Repo.update_all(where(Tag, [t], t.id in ^removed_tags), inc: [images_count: -removed_count])
-    end
+    end)
   end
 
   @doc """
@@ -503,23 +517,33 @@ defmodule Philomena.Images do
   end
 
   def reindex_images(image_ids) do
-    spawn fn ->
+    spawn(fn ->
       Image
       |> preload(^indexing_preloads())
       |> where([i], i.id in ^image_ids)
       |> Elasticsearch.reindex(Image)
-    end
+    end)
 
     image_ids
   end
 
   def indexing_preloads do
-    [:user, :favers, :downvoters, :upvoters, :hiders, :deleter, :gallery_interactions, tags: [:aliases, :aliased_tag]]
+    [
+      :user,
+      :favers,
+      :downvoters,
+      :upvoters,
+      :hiders,
+      :deleter,
+      :gallery_interactions,
+      tags: [:aliases, :aliased_tag]
+    ]
   end
 
   alias Philomena.Images.Subscription
 
   def subscribed?(_image, nil), do: false
+
   def subscribed?(image, user) do
     Subscription
     |> where(image_id: ^image.id, user_id: ^user.id)
@@ -539,6 +563,7 @@ defmodule Philomena.Images do
 
   """
   def create_subscription(_image, nil), do: {:ok, nil}
+
   def create_subscription(image, user) do
     %Subscription{image_id: image.id, user_id: user.id}
     |> Subscription.changeset(%{})
@@ -565,6 +590,7 @@ defmodule Philomena.Images do
   end
 
   def clear_notification(_image, nil), do: nil
+
   def clear_notification(image, user) do
     Notifications.delete_unread_notification("Image", image.id, user)
   end

@@ -125,7 +125,7 @@ defmodule PhilomenaWeb.StatController do
 
     response_time =
       closed_reports
-      |> Enum.reduce(0, & &2 + NaiveDateTime.diff(&1.updated_at, &1.created_at, :second))
+      |> Enum.reduce(0, &(&2 + NaiveDateTime.diff(&1.updated_at, &1.created_at, :second)))
       |> Kernel./(safe_length(closed_reports) * 3600)
       |> trunc()
 

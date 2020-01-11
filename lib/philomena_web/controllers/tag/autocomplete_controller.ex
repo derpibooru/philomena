@@ -39,5 +39,6 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
     |> String.downcase()
     |> String.trim()
   end
+
   defp query(_params), do: nil
 end

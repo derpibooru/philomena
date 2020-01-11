@@ -10,12 +10,26 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Philomena.{Repo, Comments.Comment, Filters.Filter, Forums.Forum, Galleries.Gallery, Posts.Post, Images.Image, Reports.Report, Roles.Role, Tags.Tag, Users.User}
+alias Philomena.{
+  Repo,
+  Comments.Comment,
+  Filters.Filter,
+  Forums.Forum,
+  Galleries.Gallery,
+  Posts.Post,
+  Images.Image,
+  Reports.Report,
+  Roles.Role,
+  Tags.Tag,
+  Users.User
+}
+
 alias Philomena.Elasticsearch
 alias Philomena.Tags
 import Ecto.Query
 
-IO.puts "---- Creating Elasticsearch indices"
+IO.puts("---- Creating Elasticsearch indices")
+
 for model <- [Image, Comment, Gallery, Tag, Post, Report] do
   Elasticsearch.delete_index!(model)
   Elasticsearch.create_index!(model)
@@ -26,14 +40,16 @@ resources =
   |> File.read!()
   |> Jason.decode!()
 
-IO.puts "---- Generating rating tags"
+IO.puts("---- Generating rating tags")
+
 for tag_name <- resources["rating_tags"] do
   %Tag{category: "rating"}
   |> Tag.creation_changeset(%{name: tag_name})
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts "---- Generating system filters"
+IO.puts("---- Generating system filters")
+
 for filter_def <- resources["system_filters"] do
   spoilered_tag_list = Enum.join(filter_def["spoilered"], ",")
   hidden_tag_list = Enum.join(filter_def["hidden"], ",")
@@ -48,28 +64,31 @@ for filter_def <- resources["system_filters"] do
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts "---- Generating forums"
+IO.puts("---- Generating forums")
+
 for forum_def <- resources["forums"] do
   %Forum{}
   |> Forum.changeset(forum_def)
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts "---- Generating users"
+IO.puts("---- Generating users")
+
 for user_def <- resources["users"] do
   %User{role: user_def["role"]}
   |> User.creation_changeset(user_def)
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts "---- Generating roles"
+IO.puts("---- Generating roles")
+
 for role_def <- resources["roles"] do
   %Role{name: role_def["name"], resource_type: role_def["resource_type"]}
   |> Role.changeset(%{})
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts "---- Indexing content"
+IO.puts("---- Indexing content")
 Elasticsearch.reindex(Tag |> preload(^Tags.indexing_preloads()), Tag)
 
-IO.puts "---- Done."
+IO.puts("---- Done.")

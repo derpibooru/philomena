@@ -120,7 +120,7 @@ defmodule Philomena.Filters do
   end
 
   def recent_and_user_filters(user) do
-    user_filters = 
+    user_filters =
       Filter
       |> select([f], %{id: f.id, name: f.name, recent: ^"f"})
       |> where(user_id: ^user.id)
@@ -139,8 +139,8 @@ defmodule Philomena.Filters do
     end)
     |> Enum.group_by(
       fn
-        %{recent: "t"}  -> "Recent Filters"
-        _user           -> "Your Filters"
+        %{recent: "t"} -> "Recent Filters"
+        _user -> "Your Filters"
       end,
       fn %{id: id, name: name} ->
         [key: name, value: id]

@@ -16,7 +16,10 @@ defmodule Philomena.Scrapers.Tumblr do
   def scrape(uri, url) do
     [post_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
-    api_url = "https://api.tumblr.com/v2/blog/#{uri.host}/posts/photo?id=#{post_id}&api_key=#{tumblr_api_key()}"
+    api_url =
+      "https://api.tumblr.com/v2/blog/#{uri.host}/posts/photo?id=#{post_id}&api_key=#{
+        tumblr_api_key()
+      }"
 
     Philomena.Http.get!(api_url)
     |> json!()
@@ -36,7 +39,7 @@ defmodule Philomena.Scrapers.Tumblr do
         image = upsize(photo["original_size"]["url"])
 
         %{"url" => preview} =
-          Enum.find(photo["alt_sizes"], & &1["width"] == 400) || %{"url" => image}
+          Enum.find(photo["alt_sizes"], &(&1["width"] == 400)) || %{"url" => image}
 
         %{url: image, camo_url: Camo.Image.image_url(preview)}
       end)

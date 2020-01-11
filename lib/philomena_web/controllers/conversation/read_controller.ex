@@ -5,7 +5,12 @@ defmodule PhilomenaWeb.Conversation.ReadController do
   alias Philomena.Conversations
 
   plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
-  plug :load_and_authorize_resource, model: Conversation, id_field: "slug", id_name: "conversation_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Conversation,
+    id_field: "slug",
+    id_name: "conversation_id",
+    persisted: true
 
   def create(conn, _params) do
     conversation = conn.assigns.conversation

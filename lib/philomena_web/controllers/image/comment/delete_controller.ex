@@ -16,12 +16,16 @@ defmodule PhilomenaWeb.Image.Comment.DeleteController do
 
         conn
         |> put_flash(:info, "Comment successfully destroyed!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to destroy comment!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
     end
   end
 end

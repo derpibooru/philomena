@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.ChannelController do
 
   def index(conn, _params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
+
     channels =
       Channel
       |> maybe_show_nsfw(show_nsfw?)
@@ -20,7 +21,12 @@ defmodule PhilomenaWeb.ChannelController do
 
     subscriptions = Channels.subscriptions(channels, conn.assigns.current_user)
 
-    render(conn, "index.html", title: "Livestreams", layout_class: "layout--wide", channels: channels, subscriptions: subscriptions)
+    render(conn, "index.html",
+      title: "Livestreams",
+      layout_class: "layout--wide",
+      channels: channels,
+      subscriptions: subscriptions
+    )
   end
 
   def show(conn, _params) do
@@ -71,10 +77,13 @@ defmodule PhilomenaWeb.ChannelController do
 
   defp url(%{type: "LivestreamChannel", short_name: short_name}),
     do: "http://www.livestream.com/#{short_name}"
+
   defp url(%{type: "PicartoChannel", short_name: short_name}),
     do: "https://picarto.tv/#{short_name}"
+
   defp url(%{type: "PiczelChannel", short_name: short_name}),
     do: "https://piczel.tv/watch/#{short_name}"
+
   defp url(%{type: "TwitchChannel", short_name: short_name}),
     do: "https://www.twitch.tv/#{short_name}"
 end

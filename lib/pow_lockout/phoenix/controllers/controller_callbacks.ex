@@ -83,7 +83,7 @@ defmodule PowLockout.Phoenix.ControllerCallbacks do
   """
   @spec send_unlock_email(map(), Conn.t()) :: any()
   def send_unlock_email(user, conn) do
-    url   = unlock_url(conn, user.unlock_token)
+    url = unlock_url(conn, user.unlock_token)
     email = Mailer.email_unlock(conn, user, url)
 
     Pow.Phoenix.Mailer.deliver(conn, email)

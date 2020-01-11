@@ -24,7 +24,8 @@ defmodule Philomena.Images.Hider do
     do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])
 
   defp image_thumb_dir(%Image{created_at: created_at, id: id}, key),
-    do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id) <> "-" <> key])
+    do:
+      Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id) <> "-" <> key])
 
   defp time_identifier(time),
     do: Enum.join([time.year, time.month, time.day], "/")

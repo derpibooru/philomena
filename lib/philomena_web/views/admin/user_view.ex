@@ -4,18 +4,22 @@ defmodule PhilomenaWeb.Admin.UserView do
   def checkbox_mapper(form, field, input_opts, role, _label_opts, _opts) do
     input_id = "user_roles_#{role.id}"
     label_opts = [for: input_id]
+
     input_opts =
-      Keyword.merge(input_opts, [
-        class: "checkbox", id: input_id, checked_value: to_string(role.id), hidden_input: false,
+      Keyword.merge(input_opts,
+        class: "checkbox",
+        id: input_id,
+        checked_value: to_string(role.id),
+        hidden_input: false,
         checked: Enum.member?(Enum.map(input_value(form, field), & &1.id), role.id)
-      ])
+      )
 
     content_tag(:li, class: "table-list__label") do
       content_tag(:div) do
         [
           checkbox(form, field, input_opts),
           " ",
-          content_tag(:label, description(role.name, role.resource_type), label_opts),
+          content_tag(:label, description(role.name, role.resource_type), label_opts)
         ]
       end
     end

@@ -109,7 +109,13 @@ defmodule Philomena.Elasticsearch do
   def search_results(module, elastic_query, pagination_params \\ %{}) do
     page_number = pagination_params[:page_number] || 1
     page_size = pagination_params[:page_size] || 25
-    elastic_query = Map.merge(elastic_query, %{from: (page_number - 1) * page_size, size: page_size, _source: false})
+
+    elastic_query =
+      Map.merge(elastic_query, %{
+        from: (page_number - 1) * page_size,
+        size: page_size,
+        _source: false
+      })
 
     results = search(module, elastic_query)
     time = results["took"]

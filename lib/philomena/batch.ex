@@ -27,6 +27,7 @@ defmodule Philomena.Batch do
   end
 
   defp query_batches(_queryable, _opts, _callback, []), do: []
+
   defp query_batches(queryable, opts, callback, ids) do
     id_field = Keyword.get(opts, :id_field, :id)
 

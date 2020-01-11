@@ -14,6 +14,7 @@ defmodule PowLockout.Phoenix.UnlockController do
     |> put_flash(:info, extension_messages(conn).account_has_been_unlocked(conn))
     |> redirect(to: routes(conn).session_path(conn, :new))
   end
+
   def respond_show({:error, _changeset, conn}) do
     conn
     |> put_flash(:error, extension_messages(conn).account_unlock_failed(conn))

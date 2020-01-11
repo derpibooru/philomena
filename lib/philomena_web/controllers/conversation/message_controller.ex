@@ -8,7 +8,12 @@ defmodule PhilomenaWeb.Conversation.MessageController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CanaryMapPlug, create: :show
-  plug :load_and_authorize_resource, model: Conversation, id_name: "conversation_id", id_field: "slug", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Conversation,
+    id_name: "conversation_id",
+    id_field: "slug",
+    persisted: true
 
   def create(conn, %{"message" => message_params}) do
     conversation = conn.assigns.conversation

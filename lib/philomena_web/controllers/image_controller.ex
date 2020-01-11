@@ -4,7 +4,16 @@ defmodule PhilomenaWeb.ImageController do
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.CommentLoader
   alias PhilomenaWeb.NotificationCountPlug
-  alias Philomena.{Images, Images.Image, Comments.Comment, Galleries.Gallery, Galleries.Interaction, Textile.Renderer}
+
+  alias Philomena.{
+    Images,
+    Images.Image,
+    Comments.Comment,
+    Galleries.Gallery,
+    Galleries.Interaction,
+    Textile.Renderer
+  }
+
   # alias Philomena.Servers.ImageProcessor
   alias Philomena.UserStatistics
   alias Philomena.Interactions
@@ -18,16 +27,23 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
-  plug PhilomenaWeb.ScraperPlug, [params_name: "image", params_key: "image"] when action in [:create]
+
+  plug PhilomenaWeb.ScraperPlug,
+       [params_name: "image", params_key: "image"] when action in [:create]
+
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, "created_at.lte:3 minutes ago")
 
-    interactions =
-      Interactions.user_interactions(images, conn.assigns.current_user)
+    interactions = Interactions.user_interactions(images, conn.assigns.current_user)
 
-    render(conn, "index.html", title: "Images", layout_class: "layout--wide", images: images, interactions: interactions)
+    render(conn, "index.html",
+      title: "Images",
+      layout_class: "layout--wide",
+      images: images,
+      interactions: interactions
+    )
   end
 
   def show(conn, %{"id" => _id}) do
@@ -43,15 +59,13 @@ defmodule PhilomenaWeb.ImageController do
 
     rendered = Renderer.render_collection(comments.entries, conn)
 
-    comments =
-      %{comments | entries: Enum.zip(comments.entries, rendered)}
+    comments = %{comments | entries: Enum.zip(comments.entries, rendered)}
 
     description =
       %{body: image.description}
       |> Renderer.render_one(conn)
 
-    interactions =
-      Interactions.user_interactions([image], conn.assigns.current_user)
+    interactions = Interactions.user_interactions([image], conn.assigns.current_user)
 
     comment_changeset =
       %Comment{}
@@ -61,8 +75,7 @@ defmodule PhilomenaWeb.ImageController do
       image
       |> Images.change_image()
 
-    watching =
-      Images.subscribed?(image, conn.assigns.current_user)
+    watching = Images.subscribed?(image, conn.assigns.current_user)
 
     {user_galleries, image_galleries} = image_and_user_galleries(image, conn.assigns.current_user)
 
@@ -100,9 +113,10 @@ defmodule PhilomenaWeb.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
-        spawn fn ->
+        spawn(fn ->
           Images.repair_image(image)
-        end
+        end)
+
         # ImageProcessor.cast(image.id)
         Images.reindex_image(image)
         Tags.reindex_tags(image.added_tags)
@@ -119,11 +133,14 @@ defmodule PhilomenaWeb.ImageController do
   end
 
   defp image_and_user_galleries(_image, nil), do: {[], []}
+
   defp image_and_user_galleries(image, user) do
     image_galleries =
       Gallery
       |> where(creator_id: ^user.id)
-      |> join(:inner, [g], gi in Interaction, on: g.id == gi.gallery_id and gi.image_id == ^image.id)
+      |> join(:inner, [g], gi in Interaction,
+        on: g.id == gi.gallery_id and gi.image_id == ^image.id
+      )
       |> order_by(desc: :created_at)
       |> Repo.all()
 
@@ -145,8 +162,16 @@ defmodule PhilomenaWeb.ImageController do
     {image, tag_changes, source_changes} =
       Image
       |> where(id: ^id)
-      |> join(:inner_lateral, [i], _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id))
-      |> join(:inner_lateral, [i, _], _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id))
+      |> join(
+        :inner_lateral,
+        [i],
+        _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id)
+      )
+      |> join(
+        :inner_lateral,
+        [i, _],
+        _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id)
+      )
       |> preload([:tags, :deleter, user: [awards: :badge]])
       |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
@@ -162,9 +187,13 @@ defmodule PhilomenaWeb.ImageController do
       is_nil(image) ->
         PhilomenaWeb.NotFoundPlug.call(conn)
 
-      not is_nil(image.duplicate_id) and not Canada.Can.can?(conn.assigns.current_user, :show, image) ->
+      not is_nil(image.duplicate_id) and
+          not Canada.Can.can?(conn.assigns.current_user, :show, image) ->
         conn
-        |> put_flash(:info, "The image you were looking for has been marked a duplicate of the image below")
+        |> put_flash(
+          :info,
+          "The image you were looking for has been marked a duplicate of the image below"
+        )
         |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
         |> Plug.Conn.halt()
 

@@ -7,7 +7,17 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   alias Philomena.Users.User
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
-  plug :load_resource, model: User, id_name: "profile_id", id_field: "slug", preload: [:verified_links, commission: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]], persisted: true
+
+  plug :load_resource,
+    model: User,
+    id_name: "profile_id",
+    id_field: "slug",
+    preload: [
+      :verified_links,
+      commission: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
+    ],
+    persisted: true
+
   plug :ensure_commission when action in [:show, :edit, :update, :delete]
   plug :ensure_no_commission when action in [:new, :create]
   plug :ensure_correct_user when action in [:new, :create, :edit, :update, :delete]
@@ -18,11 +28,11 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     items =
       commission.items
-      |> Enum.sort(&Decimal.cmp(&1.base_price, &2.base_price) != :gt)
+      |> Enum.sort(&(Decimal.cmp(&1.base_price, &2.base_price) != :gt))
 
     item_descriptions =
       items
-      |> Enum.map(&%{body: &1.description })
+      |> Enum.map(&%{body: &1.description})
       |> Renderer.render_collection(conn)
 
     item_add_ons =
@@ -41,17 +51,22 @@ defmodule PhilomenaWeb.Profile.CommissionController do
         conn
       )
 
-    rendered =
-      %{
-        information: information,
-        contact: contact,
-        will_create: will_create,
-        will_not_create: will_not_create
-      }
+    rendered = %{
+      information: information,
+      contact: contact,
+      will_create: will_create,
+      will_not_create: will_not_create
+    }
 
     items = Enum.zip([item_descriptions, item_add_ons, items])
 
-    render(conn, "show.html", title: "Showing Commission", rendered: rendered, commission: commission, items: items, layout_class: "layout--wide")
+    render(conn, "show.html",
+      title: "Showing Commission",
+      rendered: rendered,
+      commission: commission,
+      items: items,
+      layout_class: "layout--wide"
+    )
   end
 
   def new(conn, _params) do
@@ -104,7 +119,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
   defp ensure_commission(conn, _opts) do
     case is_nil(conn.assigns.user.commission) do
-      true  -> PhilomenaWeb.NotFoundPlug.call(conn)
+      true -> PhilomenaWeb.NotFoundPlug.call(conn)
       false -> conn
     end
   end
@@ -112,22 +127,24 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   defp ensure_no_commission(conn, _opts) do
     case is_nil(conn.assigns.user.commission) do
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
-      true  -> conn
+      true -> conn
     end
   end
-  
+
   defp ensure_correct_user(conn, _opts) do
     user_id = conn.assigns.user.id
 
     case conn.assigns.current_user do
       %{id: ^user_id} -> conn
-      _other          -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      _other -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
   defp ensure_links_verified(conn, _opts) do
     case Enum.any?(conn.assigns.user.verified_links) do
-      true  -> conn
+      true ->
+        conn
+
       false ->
         conn
         |> put_flash(:error, "You must have a verified user link to create a commission listing.")

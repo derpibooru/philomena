@@ -29,6 +29,7 @@ defmodule PhilomenaWeb.AdminCountersPlug do
   end
 
   defp maybe_assign_admin_metrics(conn, _user, false), do: conn
+
   defp maybe_assign_admin_metrics(conn, user, true) do
     duplicate_reports = DuplicateReports.count_duplicate_reports(user)
     reports = Reports.count_reports(user)

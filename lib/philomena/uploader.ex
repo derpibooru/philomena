@@ -13,11 +13,11 @@ defmodule Philomena.Uploader do
   callback on the model or changeset passed in with attributes set on
   the field_name.
   """
-  @spec analyze_upload(any(), String.t(), Plug.Upload.t(), (any(), map() -> Ecto.Changeset.t())) :: Ecto.Changeset.t()
+  @spec analyze_upload(any(), String.t(), Plug.Upload.t(), (any(), map() -> Ecto.Changeset.t())) ::
+          Ecto.Changeset.t()
   def analyze_upload(model_or_changeset, field_name, upload_parameter, changeset_fn) do
     with {:ok, analysis} <- Analyzers.analyze(upload_parameter),
-         analysis <- extra_attributes(analysis, upload_parameter)
-    do
+         analysis <- extra_attributes(analysis, upload_parameter) do
       removed =
         model_or_changeset
         |> change()
@@ -25,16 +25,16 @@ defmodule Philomena.Uploader do
 
       attributes =
         %{
-          "name"             => analysis.name,
-          "width"            => analysis.width,
-          "height"           => analysis.height,
-          "size"             => analysis.size,
-          "format"           => analysis.extension,
-          "mime_type"        => analysis.mime_type,
-          "aspect_ratio"     => analysis.aspect_ratio,
+          "name" => analysis.name,
+          "width" => analysis.width,
+          "height" => analysis.height,
+          "size" => analysis.size,
+          "format" => analysis.extension,
+          "mime_type" => analysis.mime_type,
+          "aspect_ratio" => analysis.aspect_ratio,
           "orig_sha512_hash" => analysis.sha512,
-          "sha512_hash"      => analysis.sha512,
-          "is_animated"      => analysis.animated?
+          "sha512_hash" => analysis.sha512,
+          "is_animated" => analysis.animated?
         }
         |> prefix_attributes(field_name)
         |> Map.put(field_name, analysis.new_name)
@@ -55,9 +55,9 @@ defmodule Philomena.Uploader do
   @spec persist_upload(any(), String.t(), String.t()) :: any()
   def persist_upload(model, file_root, field_name) do
     source = Map.get(model, field(upload_key(field_name)))
-    dest   = Map.get(model, field(field_name))
+    dest = Map.get(model, field(field_name))
     target = Path.join(file_root, dest)
-    dir    = Path.dirname(target)
+    dir = Path.dirname(target)
 
     # Create the target directory if it doesn't exist yet,
     # then write the file.
@@ -78,10 +78,10 @@ defmodule Philomena.Uploader do
 
   defp extra_attributes(analysis, %Plug.Upload{path: path, filename: filename}) do
     {width, height} = analysis.dimensions
-    aspect_ratio    = aspect_ratio(width, height)
+    aspect_ratio = aspect_ratio(width, height)
 
-    stat     = File.stat!(path)
-    sha512   = Sha512.file(path)
+    stat = File.stat!(path)
+    sha512 = Sha512.file(path)
     new_name = Filename.build(analysis.extension)
 
     analysis

@@ -1,11 +1,11 @@
 defmodule Philomena.Images.TagValidator do
   import Ecto.Changeset
 
-  @safe_rating    MapSet.new(["safe"])
+  @safe_rating MapSet.new(["safe"])
   @sexual_ratings MapSet.new(["suggestive", "questionable", "explicit"])
   @horror_ratings MapSet.new(["semi-grimdark", "grimdark"])
-  @gross_rating   MapSet.new(["grotesque"])
-  @empty          MapSet.new()
+  @gross_rating MapSet.new(["grotesque"])
+  @empty MapSet.new()
 
   def validate_tags(changeset) do
     tags = changeset |> get_field(:tags)
@@ -14,7 +14,7 @@ defmodule Philomena.Images.TagValidator do
   end
 
   defp validate_tag_input(changeset, tags) do
-    tag_set    = extract_names(tags)
+    tag_set = extract_names(tags)
     rating_set = ratings(tag_set)
 
     changeset
@@ -26,10 +26,10 @@ defmodule Philomena.Images.TagValidator do
   end
 
   defp ratings(%MapSet{} = tag_set) do
-    safe   = MapSet.intersection(tag_set, @safe_rating)
+    safe = MapSet.intersection(tag_set, @safe_rating)
     sexual = MapSet.intersection(tag_set, @sexual_ratings)
     horror = MapSet.intersection(tag_set, @horror_ratings)
-    gross  = MapSet.intersection(tag_set, @gross_rating)
+    gross = MapSet.intersection(tag_set, @gross_rating)
 
     %{
       safe: safe,
@@ -50,16 +50,20 @@ defmodule Philomena.Images.TagValidator do
     end
   end
 
-  defp validate_has_rating(changeset, %{safe: s, sexual: x, horror: h, gross: g}) when s == @empty and x == @empty and h == @empty and g == @empty do
+  defp validate_has_rating(changeset, %{safe: s, sexual: x, horror: h, gross: g})
+       when s == @empty and x == @empty and h == @empty and g == @empty do
     changeset
     |> add_error(:tag_input, "must contain at least one rating tag")
   end
+
   defp validate_has_rating(changeset, _ratings), do: changeset
 
-  defp validate_safe(changeset, %{safe: s, sexual: x, horror: h, gross: g}) when s != @empty and (x != @empty or h != @empty or g != @empty) do
+  defp validate_safe(changeset, %{safe: s, sexual: x, horror: h, gross: g})
+       when s != @empty and (x != @empty or h != @empty or g != @empty) do
     changeset
     |> add_error(:tag_input, "may not contain any other rating if safe")
   end
+
   defp validate_safe(changeset, _ratings), do: changeset
 
   defp validate_sexual_exclusion(changeset, %{sexual: x}) do

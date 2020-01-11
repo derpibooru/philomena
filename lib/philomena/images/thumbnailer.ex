@@ -22,7 +22,6 @@ defmodule Philomena.Images.Thumbnailer do
     full: nil
   ]
 
-
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
     file = image_file(image)
@@ -36,10 +35,8 @@ defmodule Philomena.Images.Thumbnailer do
     recompute_meta(image, file, &Image.process_changeset/2)
   end
 
-
   defp apply_edit_script(image, changes),
     do: Enum.map(changes, &apply_change(image, &1))
-
 
   defp apply_change(image, {:intensities, intensities}),
     do: ImageIntensities.create_image_intensity(image, intensities)
@@ -50,13 +47,11 @@ defmodule Philomena.Images.Thumbnailer do
   defp apply_change(image, {:thumbnails, thumbnails}),
     do: Enum.map(thumbnails, &apply_thumbnail(image, image_thumb_dir(image), &1))
 
-
   defp apply_thumbnail(_image, thumb_dir, {:copy, new_file, destination}),
     do: copy(new_file, Path.join(thumb_dir, destination))
 
   defp apply_thumbnail(image, thumb_dir, {:symlink_original, destination}),
     do: symlink(image_file(image), Path.join(thumb_dir, destination))
-
 
   defp generate_dupe_reports(image),
     do: DuplicateReports.generate_reports(image)
@@ -69,7 +64,6 @@ defmodule Philomena.Images.Thumbnailer do
     })
     |> Repo.update!()
   end
-
 
   # Copy from source to destination, creating parent directories along
   # the way and setting the appropriate permission bits when necessary.
@@ -109,7 +103,6 @@ defmodule Philomena.Images.Thumbnailer do
     |> File.mkdir_p!()
   end
 
-
   defp image_file(%Image{image: image}),
     do: Path.join(image_file_root(), image)
 
@@ -118,7 +111,6 @@ defmodule Philomena.Images.Thumbnailer do
 
   defp time_identifier(time),
     do: Enum.join([time.year, time.month, time.day], "/")
-
 
   defp image_file_root,
     do: Application.get_env(:philomena, :image_file_root)

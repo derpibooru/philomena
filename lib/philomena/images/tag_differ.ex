@@ -9,12 +9,11 @@ defmodule Philomena.Images.TagDiffer do
     old_set = to_set(old_tags)
     new_set = to_set(new_tags)
 
-    tags         = changeset |> get_field(:tags)
-    added_tags   = added_set(old_set, new_set)
+    tags = changeset |> get_field(:tags)
+    added_tags = added_set(old_set, new_set)
     removed_tags = removed_set(old_set, new_set)
 
-    {tags, actually_added, actually_removed} =
-      apply_changes(tags, added_tags, removed_tags)
+    {tags, actually_added, actually_removed} = apply_changes(tags, added_tags, removed_tags)
 
     changeset
     |> put_change(:added_tags, actually_added)
@@ -34,8 +33,7 @@ defmodule Philomena.Images.TagDiffer do
       |> List.flatten()
       |> to_set()
 
-    added_and_implied_set =
-      Map.merge(added_set, implied_set)
+    added_and_implied_set = Map.merge(added_set, implied_set)
 
     oc_set =
       added_and_implied_set
@@ -51,6 +49,7 @@ defmodule Philomena.Images.TagDiffer do
   end
 
   defp get_oc_tag([]), do: Map.new()
+
   defp get_oc_tag(_any_oc_tag) do
     Tag
     |> where(name: "oc")
@@ -82,8 +81,8 @@ defmodule Philomena.Images.TagDiffer do
       tag_set
       |> Map.drop(Map.keys(desired_tags))
 
-    tags             = desired_tags |> to_tag_list()
-    actually_added   = actually_added |> to_tag_list()
+    tags = desired_tags |> to_tag_list()
+    actually_added = actually_added |> to_tag_list()
     actually_removed = actually_removed |> to_tag_list()
 
     {tags, actually_added, actually_removed}

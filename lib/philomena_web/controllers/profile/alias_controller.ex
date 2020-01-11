@@ -8,7 +8,12 @@ defmodule PhilomenaWeb.Profile.AliasController do
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show_details
-  plug :load_and_authorize_resource, model: User, id_field: "slug", id_name: "profile_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: User,
+    id_field: "slug",
+    id_name: "profile_id",
+    persisted: true
 
   def index(conn, _params) do
     user = conn.assigns.user
@@ -37,14 +42,11 @@ defmodule PhilomenaWeb.Profile.AliasController do
       |> Repo.all()
       |> Map.new(&{&1.id, &1})
 
-    both_matches =
-      Map.take(ip_matches, Map.keys(fp_matches))
+    both_matches = Map.take(ip_matches, Map.keys(fp_matches))
 
-    ip_matches =
-      Map.drop(ip_matches, Map.keys(both_matches))
+    ip_matches = Map.drop(ip_matches, Map.keys(both_matches))
 
-    fp_matches =
-      Map.drop(fp_matches, Map.keys(both_matches))
+    fp_matches = Map.drop(fp_matches, Map.keys(both_matches))
 
     both_matches = Map.values(both_matches)
     ip_matches = Map.values(ip_matches)

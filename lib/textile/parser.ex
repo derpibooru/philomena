@@ -6,8 +6,7 @@ defmodule Textile.Parser do
     parser = Map.put(parser, :state, %{})
 
     with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(String.trim(input || "")),
-         {:ok, tree, []} <- repeat(&textile/2, parser, tokens)
-    do
+         {:ok, tree, []} <- repeat(&textile/2, parser, tokens) do
       partial_flatten(tree)
     else
       _ ->
@@ -65,7 +64,9 @@ defmodule Textile.Parser do
   #
   #   open_token callback* close_token
   #
-  defp simple_recursive(open_token, close_token, open_tag, close_tag, callback, parser, [{open_token, open} | r_tokens]) do
+  defp simple_recursive(open_token, close_token, open_tag, close_tag, callback, parser, [
+         {open_token, open} | r_tokens
+       ]) do
     case repeat(callback, parser, r_tokens) do
       {:ok, tree, [{^close_token, _} | r2_tokens]} ->
         {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
@@ -74,7 +75,16 @@ defmodule Textile.Parser do
         {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
-  defp simple_recursive(_open_token, _close_token, _open_tag, _close_tag, _callback, _parser, _tokens) do
+
+  defp simple_recursive(
+         _open_token,
+         _close_token,
+         _open_tag,
+         _close_tag,
+         _callback,
+         _parser,
+         _tokens
+       ) do
     {:error, "Expected a simple recursive rule"}
   end
 
@@ -82,7 +92,17 @@ defmodule Textile.Parser do
   #
   #   open_token callback* close_token (?!lookahead_not)
   #
-  defp simple_lookahead_not(open_token, close_token, open_tag, close_tag, lookahead_not, callback, state, parser, [{open_token, open} | r_tokens]) do
+  defp simple_lookahead_not(
+         open_token,
+         close_token,
+         open_tag,
+         close_tag,
+         lookahead_not,
+         callback,
+         state,
+         parser,
+         [{open_token, open} | r_tokens]
+       ) do
     case parser.state do
       %{^state => _} ->
         {:error, "End of rule"}
@@ -95,7 +115,8 @@ defmodule Textile.Parser do
           _ ->
             case repeat(callback, put_state(parser, state), r_tokens) do
               {:ok, tree, [{^close_token, close}, {^lookahead_not, ln} | r2_tokens]} ->
-                {:ok, [{:text, escape(open)}, tree, {:text, escape(close)}], [{lookahead_not, ln} | r2_tokens]}
+                {:ok, [{:text, escape(open)}, tree, {:text, escape(close)}],
+                 [{lookahead_not, ln} | r2_tokens]}
 
               {:ok, tree, [{^close_token, _} | r2_tokens]} ->
                 {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
@@ -106,7 +127,18 @@ defmodule Textile.Parser do
         end
     end
   end
-  defp simple_lookahead_not(_open_token, _close_token, _open_tag, _close_tag, _lookahead_not, _callback, _state, _parser, _tokens) do
+
+  defp simple_lookahead_not(
+         _open_token,
+         _close_token,
+         _open_tag,
+         _close_tag,
+         _lookahead_not,
+         _callback,
+         _state,
+         _parser,
+         _tokens
+       ) do
     {:error, "Expected a simple lookahead not rule"}
   end
 
@@ -115,6 +147,7 @@ defmodule Textile.Parser do
   defp assemble_binary(token_type, accumulator, [{token_type, t} | stream]) do
     assemble_binary(token_type, accumulator <> <<t::utf8>>, stream)
   end
+
   defp assemble_binary(_token_type, accumulator, tokens), do: {accumulator, tokens}
 
   #
@@ -159,54 +192,88 @@ defmodule Textile.Parser do
       end
     end)
     |> case do
-      nil   -> inner_inline_textile_element(parser, tokens)
+      nil -> inner_inline_textile_element(parser, tokens)
       value -> value
     end
   end
 
   defp inner_inline_textile_element(parser, [{token, t}, {:quicktxt, q} | r_tokens])
-    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
-  do
+       when token in [
+              :b_delim,
+              :i_delim,
+              :strong_delim,
+              :em_delim,
+              :ins_delim,
+              :sup_delim,
+              :del_delim,
+              :sub_delim
+            ] do
     case inline_textile_element(parser, [{:quicktxt, q} | r_tokens]) do
       {:ok, tree, r2_tokens} ->
         {:ok, [{:text, escape(t)}, tree], r2_tokens}
 
-        _ ->
+      _ ->
         {:ok, [{:text, escape(t)}], [{:quicktxt, q} | r_tokens]}
     end
   end
+
   defp inner_inline_textile_element(parser, [{:link_delim, open} | r_tokens]) do
     case repeat(&block_textile_element/2, parser, r_tokens) do
       {:ok, tree, [{:unbracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
         href = escape(url)
 
-        {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
+        {:ok,
+         [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}],
+         r2_tokens}
 
       {:ok, tree, r2_tokens} ->
         {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
+
   defp inner_inline_textile_element(parser, [{:bracketed_link_open, open} | r_tokens]) do
     case repeat(&inline_textile_element/2, parser, r_tokens) do
       {:ok, tree, [{:bracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
         href = escape(url)
 
-        {:ok, [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}], r2_tokens}
+        {:ok,
+         [{:markup, "<a href=\""}, {:markup, href}, {:markup, "\">"}, tree, {:markup, "</a>"}],
+         r2_tokens}
 
       {:ok, tree, r2_tokens} ->
         {:ok, [{:text, escape(open)}, tree], r2_tokens}
     end
   end
-  defp inner_inline_textile_element(parser, [{token, img}, {:unbracketed_image_url, <<":", url::binary>>} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
+
+  defp inner_inline_textile_element(parser, [
+         {token, img},
+         {:unbracketed_image_url, <<":", url::binary>>} | r_tokens
+       ])
+       when token in [:unbracketed_image, :bracketed_image] do
     img = parser.image_transform.(img)
 
-    {:ok, [{:markup, "<a href=\""}, {:markup, escape(url)}, {:markup, "\"><span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span></a>"}], r_tokens}
+    {:ok,
+     [
+       {:markup, "<a href=\""},
+       {:markup, escape(url)},
+       {:markup, "\"><span class=\"imgspoiler\"><img src=\""},
+       {:markup, escape(img)},
+       {:markup, "\"/></span></a>"}
+     ], r_tokens}
   end
-  defp inner_inline_textile_element(parser, [{token, img} | r_tokens]) when token in [:unbracketed_image, :bracketed_image] do
+
+  defp inner_inline_textile_element(parser, [{token, img} | r_tokens])
+       when token in [:unbracketed_image, :bracketed_image] do
     img = parser.image_transform.(img)
 
-    {:ok, [{:markup, "<span class=\"imgspoiler\"><img src=\""}, {:markup, escape(img)}, {:markup, "\"/></span>"}], r_tokens}
+    {:ok,
+     [
+       {:markup, "<span class=\"imgspoiler\"><img src=\""},
+       {:markup, escape(img)},
+       {:markup, "\"/></span>"}
+     ], r_tokens}
   end
+
   defp inner_inline_textile_element(parser, [{:code_delim, open} | r_tokens]) do
     case parser.state do
       %{code: _} ->
@@ -222,6 +289,7 @@ defmodule Textile.Parser do
         end
     end
   end
+
   defp inner_inline_textile_element(parser, tokens) do
     inline_textile_element_not_opening_markup(parser, tokens)
   end
@@ -235,18 +303,23 @@ defmodule Textile.Parser do
   defp bq_cite_text(_parser, [{:bq_cite_open, _open} | _rest]) do
     {:error, "Expected cite tokens"}
   end
+
   defp bq_cite_text(_parser, [{:char, lit} | r_tokens]) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
+
   defp bq_cite_text(_parser, [{:quicktxt, lit} | r_tokens]) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
+
   defp bq_cite_text(_parser, [{:space, _} | r_tokens]) do
     {:ok, [{:text, " "}], r_tokens}
   end
+
   defp bq_cite_text(_parser, [{_token, t} | r_tokens]) do
     {:ok, [{:text, t}], r_tokens}
   end
+
   defp bq_cite_text(_parser, _tokens) do
     {:error, "Expected cite tokens"}
   end
@@ -260,24 +333,43 @@ defmodule Textile.Parser do
   #
 
   defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens]) do
-    {:ok, [{:markup, "<span class=\"literal\">"}, {:markup, escape(lit)}, {:markup, "</span>"}], r_tokens}
+    {:ok, [{:markup, "<span class=\"literal\">"}, {:markup, escape(lit)}, {:markup, "</span>"}],
+     r_tokens}
   end
+
   defp inline_textile_element_not_opening_markup(_parser, [{:space, _} | r_tokens]) do
     {:ok, [{:text, " "}], r_tokens}
   end
+
   defp inline_textile_element_not_opening_markup(_parser, [{:char, lit} | r_tokens]) do
     {binary, r2_tokens} = assemble_binary(:char, <<lit::utf8>>, r_tokens)
 
     {:ok, [{:text, escape(binary)}], r2_tokens}
   end
-  defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, q1}, {token, t}, {:quicktxt, q2} | r_tokens])
-    when token in [:b_delim, :i_delim, :strong_delim, :em_delim, :ins_delim, :sup_delim, :del_delim, :sub_delim]
-  do
-    {:ok, [{:text, escape(<<q1::utf8>>)}, {:text, escape(t)}, {:text, escape(<<q2::utf8>>)}], r_tokens}
+
+  defp inline_textile_element_not_opening_markup(_parser, [
+         {:quicktxt, q1},
+         {token, t},
+         {:quicktxt, q2} | r_tokens
+       ])
+       when token in [
+              :b_delim,
+              :i_delim,
+              :strong_delim,
+              :em_delim,
+              :ins_delim,
+              :sup_delim,
+              :del_delim,
+              :sub_delim
+            ] do
+    {:ok, [{:text, escape(<<q1::utf8>>)}, {:text, escape(t)}, {:text, escape(<<q2::utf8>>)}],
+     r_tokens}
   end
+
   defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, lit} | r_tokens]) do
     {:ok, [{:text, escape(<<lit::utf8>>)}], r_tokens}
   end
+
   defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
       {:ok, tree, [{:bq_cite_open, open} | r2_tokens]} ->
@@ -285,22 +377,38 @@ defmodule Textile.Parser do
           {:ok, tree2, [{:bq_close, _} | r3_tokens]} ->
             cite = escape(flatten(tree))
 
-            {:ok, [{:markup, "<blockquote author=\""}, {:markup, cite}, {:markup, "\">"}, tree2, {:markup, "</blockquote>"}], r3_tokens}
+            {:ok,
+             [
+               {:markup, "<blockquote author=\""},
+               {:markup, cite},
+               {:markup, "\">"},
+               tree2,
+               {:markup, "</blockquote>"}
+             ], r3_tokens}
 
           {:ok, tree2, r3_tokens} ->
-            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}, tree2], r3_tokens}
+            {:ok,
+             [
+               {:text, escape(start)},
+               {:text, escape(flatten(tree))},
+               {:text, escape(open)},
+               tree2
+             ], r3_tokens}
 
           _ ->
-            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}], r_tokens}
+            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}],
+             r_tokens}
         end
 
       _ ->
         {:ok, [{:text, escape(start)}], r_tokens}
     end
   end
+
   defp inline_textile_element_not_opening_markup(_parser, [{:bq_cite_open, tok} | r_tokens]) do
     {:ok, [{:text, escape(tok)}], r_tokens}
   end
+
   defp inline_textile_element_not_opening_markup(parser, tokens) do
     [
       {:bq_open, :bq_close, "<blockquote>", "</blockquote>"},
@@ -344,9 +452,11 @@ defmodule Textile.Parser do
   defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
     {:ok, [{:markup, "<br/><br/>"}], r_tokens}
   end
+
   defp block_textile_element(_parser, [{:newline, _} | r_tokens]) do
     {:ok, [{:markup, "<br/>"}], r_tokens}
   end
+
   defp block_textile_element(parser, tokens) do
     inline_textile_element(parser, tokens)
   end

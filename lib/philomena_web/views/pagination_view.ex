@@ -27,8 +27,8 @@ defmodule PhilomenaWeb.PaginationView do
     min = 1
     max = page.total_pages
 
-    (number - 5..number)
-    |> Enum.filter(& &1 >= min and &1 != number and &1 <= max)
+    (number - 5)..number
+    |> Enum.filter(&(&1 >= min and &1 != number and &1 <= max))
   end
 
   def right_gap?(page) do
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.PaginationView do
     min = 1
     max = page.total_pages
 
-    (number .. number + 5)
-    |> Enum.filter(& &1 >= min and &1 != number and &1 <= max)
+    number..(number + 5)
+    |> Enum.filter(&(&1 >= min and &1 != number and &1 <= max))
   end
 end

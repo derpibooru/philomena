@@ -61,7 +61,15 @@ defmodule Philomena.Reports.Report do
     |> cast(attrs, [:category, :reason])
     |> merge_category()
     |> change(attribution)
-    |> validate_required([:reportable_id, :reportable_type, :category, :reason, :ip, :fingerprint, :user_agent])
+    |> validate_required([
+      :reportable_id,
+      :reportable_type,
+      :category,
+      :reason,
+      :ip,
+      :fingerprint,
+      :user_agent
+    ])
   end
 
   defp merge_category(changeset) do

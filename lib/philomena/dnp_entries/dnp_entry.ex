@@ -53,6 +53,7 @@ defmodule Philomena.DnpEntries.DnpEntry do
 
   defp validate_conditions(%Ecto.Changeset{changes: %{dnp_type: "Other"}} = changeset),
     do: validate_required(changeset, [:conditions])
+
   defp validate_conditions(changeset),
     do: changeset
 
@@ -70,12 +71,18 @@ defmodule Philomena.DnpEntries.DnpEntry do
 
   def reasons do
     [
-      {"No Edits", "I would like to prevent edited versions of my artwork from being uploaded in the future"},
-      {"Artist Tag Change", "I would like my artist tag to be changed to something that can not be connected to my current name"},
-      {"Uploader Credit Change", "I would like the uploader credit for already existing uploads of my art to be assigned to me"},
-      {"Certain Type/Location Only", "I only want to allow art of a certain type or from a certain location to be uploaded to Derpibooru"},
-      {"With Permission Only", "I only want people with my permission to be allowed to upload my art to Derpibooru"},
-      {"Artist Upload Only", "I want to be the only person allowed to upload my art to Derpibooru"},
+      {"No Edits",
+       "I would like to prevent edited versions of my artwork from being uploaded in the future"},
+      {"Artist Tag Change",
+       "I would like my artist tag to be changed to something that can not be connected to my current name"},
+      {"Uploader Credit Change",
+       "I would like the uploader credit for already existing uploads of my art to be assigned to me"},
+      {"Certain Type/Location Only",
+       "I only want to allow art of a certain type or from a certain location to be uploaded to Derpibooru"},
+      {"With Permission Only",
+       "I only want people with my permission to be allowed to upload my art to Derpibooru"},
+      {"Artist Upload Only",
+       "I want to be the only person allowed to upload my art to Derpibooru"},
       {"Other", "I would like a DNP entry under other conditions"}
     ]
   end

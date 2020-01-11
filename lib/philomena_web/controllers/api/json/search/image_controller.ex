@@ -13,10 +13,13 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
     user = conn.assigns.current_user
     sort = ImageSorter.parse_sort(params)
 
-    case ImageLoader.search_string(conn, params["q"], sorts: sort.sorts, queries: sort.queries, queryable: queryable) do
+    case ImageLoader.search_string(conn, params["q"],
+           sorts: sort.sorts,
+           queries: sort.queries,
+           queryable: queryable
+         ) do
       {:ok, {images, _tags}} ->
-        interactions =
-          Interactions.user_interactions(images, user)
+        interactions = Interactions.user_interactions(images, user)
 
         conn
         |> json(%{

@@ -139,5 +139,5 @@ defmodule Search.IpParser do
     |> eos()
     |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")
 
-  defparsec :parse, ip
+  defparsec(:parse, ip)
 end

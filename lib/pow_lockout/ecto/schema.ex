@@ -54,12 +54,11 @@ defmodule PowLockout.Ecto.Schema do
   """
   @spec unlock_changeset(Ecto.Schema.t() | Changeset.t()) :: Changeset.t()
   def unlock_changeset(user_or_changeset) do
-    changes =
-      [
-        locked_at: nil,
-        unlock_token: nil,
-        failed_attempts: 0
-      ]
+    changes = [
+      locked_at: nil,
+      unlock_token: nil,
+      failed_attempts: 0
+    ]
 
     user_or_changeset
     |> Changeset.change(changes)
@@ -74,11 +73,11 @@ defmodule PowLockout.Ecto.Schema do
   def lock_changeset(user_or_changeset) do
     changeset = Changeset.change(user_or_changeset)
     locked_at = Pow.Ecto.Schema.__timestamp_for__(changeset.data.__struct__, :locked_at)
-    changes =
-      [
-        locked_at: locked_at,
-        unlock_token: UUID.generate()
-      ]
+
+    changes = [
+      locked_at: locked_at,
+      unlock_token: UUID.generate()
+    ]
 
     changeset
     |> Changeset.change(changes)
@@ -91,15 +90,25 @@ defmodule PowLockout.Ecto.Schema do
   The first time it becomes greater than 10, it also locks the user.
   """
   @spec attempt_changeset(Ecto.Schema.t() | Changeset.t()) :: Changeset.t()
-  def attempt_changeset(%Changeset{data: %{failed_attempts: attempts}} = changeset) when is_integer(attempts) and attempts < 10 do
+  def attempt_changeset(%Changeset{data: %{failed_attempts: attempts}} = changeset)
+      when is_integer(attempts) and attempts < 10 do
     Changeset.change(changeset, failed_attempts: attempts + 1)
   end
-  def attempt_changeset(%Changeset{data: %{failed_attempts: attempts, locked_at: nil}} = changeset) when is_integer(attempts) do
+
+  def attempt_changeset(
+        %Changeset{data: %{failed_attempts: attempts, locked_at: nil}} = changeset
+      )
+      when is_integer(attempts) do
     lock_changeset(changeset)
   end
-  def attempt_changeset(%Changeset{data: %{failed_attempts: attempts, locked_at: _locked_at}} = changeset) when is_integer(attempts) do
+
+  def attempt_changeset(
+        %Changeset{data: %{failed_attempts: attempts, locked_at: _locked_at}} = changeset
+      )
+      when is_integer(attempts) do
     changeset
   end
+
   def attempt_changeset(%Changeset{} = changeset) do
     Changeset.change(changeset, failed_attempts: 1)
   end

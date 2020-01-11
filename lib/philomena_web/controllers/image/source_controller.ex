@@ -21,8 +21,7 @@ defmodule PhilomenaWeb.Image.SourceController do
 
     case Images.update_source(image, attributes, image_params) do
       {:ok, %{image: image}} ->
-        changeset =
-          Images.change_image(image)
+        changeset = Images.change_image(image)
 
         source_change_count =
           SourceChange
@@ -35,12 +34,22 @@ defmodule PhilomenaWeb.Image.SourceController do
 
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", layout: false, source_change_count: source_change_count, image: image, changeset: changeset)
+        |> render("_source.html",
+          layout: false,
+          source_change_count: source_change_count,
+          image: image,
+          changeset: changeset
+        )
 
       {:error, :image, changeset, _} ->
         conn
         |> put_view(PhilomenaWeb.ImageView)
-        |> render("_source.html", layout: false, source_change_count: 0, image: image, changeset: changeset)
+        |> render("_source.html",
+          layout: false,
+          source_change_count: 0,
+          image: image,
+          changeset: changeset
+        )
     end
   end
 end

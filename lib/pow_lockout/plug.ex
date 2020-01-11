@@ -46,12 +46,13 @@ defmodule PowLockout.Plug do
   defp maybe_unlock_account(nil, conn, _config) do
     {:error, nil, conn}
   end
+
   defp maybe_unlock_account(user, conn, config) do
     user
     |> Context.unlock_account(config)
     |> case do
       {:error, changeset} -> {:error, changeset, conn}
-      {:ok, user}         -> {:ok, user, conn}
+      {:ok, user} -> {:ok, user, conn}
     end
   end
 
@@ -65,7 +66,7 @@ defmodule PowLockout.Plug do
     Context.fail_attempt(user, config)
     |> case do
       {:error, changeset} -> {:error, changeset, conn}
-      {:ok, user}         -> {:ok, user, conn}
+      {:ok, user} -> {:ok, user, conn}
     end
   end
 
@@ -79,7 +80,7 @@ defmodule PowLockout.Plug do
     Context.succeed_attempt(user, config)
     |> case do
       {:error, changeset} -> {:error, changeset, conn}
-      {:ok, user}         -> {:ok, user, conn}
+      {:ok, user} -> {:ok, user, conn}
     end
   end
 end

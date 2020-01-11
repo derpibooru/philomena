@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Admin.AdvertView do
     now = DateTime.utc_now()
 
     case DateTime.diff(other_time, now) > 0 do
-      true   -> "success"
+      true -> "success"
       _false -> "danger"
     end
   end

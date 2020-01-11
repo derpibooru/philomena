@@ -6,6 +6,7 @@ defmodule Camo.Image do
       input
     else
       camo_digest = :crypto.hmac(:sha, camo_key(), input) |> Base.encode16(case: :lower)
+
       camo_uri = %URI{
         host: camo_host(),
         path: "/" <> camo_digest,

@@ -11,6 +11,7 @@ defmodule PhilomenaWeb.ApiTokenPlug do
   end
 
   defp maybe_find_user(conn, nil), do: {conn, nil}
+
   defp maybe_find_user(conn, key) do
     user = Users.get_by(authentication_token: key)
 

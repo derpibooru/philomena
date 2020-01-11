@@ -12,7 +12,11 @@ defmodule PhilomenaWeb.CommissionController do
       commission_search(params["commission"])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Commissions", commissions: commissions, layout_class: "layout--wide")
+    render(conn, "index.html",
+      title: "Commissions",
+      commissions: commissions,
+      layout_class: "layout--wide"
+    )
   end
 
   defp commission_search(attrs) when is_map(attrs) do
@@ -45,7 +49,11 @@ defmodule PhilomenaWeb.CommissionController do
     query =
       if keywords do
         query
-        |> where([c, _ci], ilike(c.information, ^like_sanitize(keywords)) or ilike(c.will_create, ^like_sanitize(keywords)))
+        |> where(
+          [c, _ci],
+          ilike(c.information, ^like_sanitize(keywords)) or
+            ilike(c.will_create, ^like_sanitize(keywords))
+        )
       else
         query
       end
@@ -57,7 +65,8 @@ defmodule PhilomenaWeb.CommissionController do
     from c in Commission,
       where: c.open == true,
       where: c.commission_items_count > 0,
-      inner_join: ci in Item, on: ci.commission_id == c.id,
+      inner_join: ci in Item,
+      on: ci.commission_id == c.id,
       group_by: c.id,
       order_by: [asc: fragment("random()")],
       preload: [user: [awards: :badge], items: [example_image: :tags]]
@@ -65,17 +74,20 @@ defmodule PhilomenaWeb.CommissionController do
 
   defp presence(nil),
     do: nil
+
   defp presence([]),
     do: nil
+
   defp presence(string) when is_binary(string),
     do: if(String.trim(string) == "", do: nil, else: string)
+
   defp presence(object),
     do: object
 
   defp to_f(input) do
     case Float.parse(to_string(input)) do
       {float, _rest} -> float
-      _error         -> 0.0
+      _error -> 0.0
     end
   end
 
@@ -90,7 +102,7 @@ defmodule PhilomenaWeb.CommissionController do
       nil ->
         conn
 
-      user -> 
+      user ->
         user = Repo.preload(user, :commission)
         config = Pow.Plug.fetch_config(conn)
         Pow.Plug.assign_current_user(conn, user, config)

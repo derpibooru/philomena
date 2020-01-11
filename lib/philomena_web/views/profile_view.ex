@@ -20,8 +20,10 @@ defmodule PhilomenaWeb.ProfileView do
 
   def award_title(%{badge_name: nil} = award),
     do: award.badge.title
+
   def award_title(%{badge_name: ""} = award),
     do: award.badge.title
+
   def award_title(award),
     do: award.badge_name
 
@@ -34,7 +36,7 @@ defmodule PhilomenaWeb.ProfileView do
     max = max(max, 0)
     min = max(min, 0)
 
-    content_tag :svg, [width: "100%", preserveAspectRatio: "none", viewBox: "0 0 90 20"] do
+    content_tag :svg, width: "100%", preserveAspectRatio: "none", viewBox: "0 0 90 20" do
       for {val, i} <- Enum.with_index(data) do
         # Filter out negative values
         calc = max(val, 0)
@@ -45,8 +47,8 @@ defmodule PhilomenaWeb.ProfileView do
         # In SVG coords, y grows down
         y = 20 - height
 
-        content_tag :rect, [class: "barline__bar", x: i, y: y, width: 1, height: height] do
-          content_tag :title, val
+        content_tag :rect, class: "barline__bar", x: i, y: y, width: 1, height: height do
+          content_tag(:title, val)
         end
       end
     end
@@ -72,16 +74,24 @@ defmodule PhilomenaWeb.ProfileView do
   def enabled_text(_else), do: "Disabled"
 
   def user_abbrv(conn, %{name: name} = user) do
-    abbrv = String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
+    abbrv =
+      String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
+
     abbrv = "(" <> abbrv <> ")"
 
     link(abbrv, to: Routes.profile_path(conn, :show, user))
   end
+
   def user_abbrv(_conn, _user), do: content_tag(:span, "(n/a)")
 
   defp initials_abbrv(name) do
     case String.split(name, " ", parts: 4) do
-      [<<a1::utf8, _r1::binary>>, <<a2::utf8, _r2::binary>>, <<a3::utf8, _r3::binary>>, <<a4::utf8, _r4::binary>>] ->
+      [
+        <<a1::utf8, _r1::binary>>,
+        <<a2::utf8, _r2::binary>>,
+        <<a3::utf8, _r3::binary>>,
+        <<a4::utf8, _r4::binary>>
+      ] ->
         <<a1::utf8, a2::utf8, a3::utf8, a4::utf8>>
 
       [<<a1::utf8, _r1::binary>>, <<a2::utf8, _r2::binary>>, <<a3::utf8, _r3::binary>>] ->

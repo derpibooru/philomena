@@ -49,6 +49,7 @@ defmodule Philomena.Polymorphic do
 
         {type, ids} ->
           pre = Map.get(@preloads, type, [])
+
           rows =
             @classes[type]
             |> where([m], m.id in ^ids)

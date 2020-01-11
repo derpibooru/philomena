@@ -34,7 +34,14 @@ defmodule Philomena.Filters.Filter do
       |> Map.get(:user)
 
     filter
-    |> cast(attrs, [:spoilered_tag_list, :hidden_tag_list, :description, :name, :spoilered_complex_str, :hidden_complex_str])
+    |> cast(attrs, [
+      :spoilered_tag_list,
+      :hidden_tag_list,
+      :description,
+      :name,
+      :spoilered_complex_str,
+      :hidden_complex_str
+    ])
     |> TagList.propagate_tag_list(:spoilered_tag_list, :spoilered_tag_ids)
     |> TagList.propagate_tag_list(:hidden_tag_list, :hidden_tag_ids)
     |> validate_required([:name, :description])

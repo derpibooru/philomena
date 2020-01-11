@@ -95,9 +95,11 @@ defmodule PhilomenaWeb.Router do
 
   scope "/api/v1/json", PhilomenaWeb.Api.Json, as: :api_json do
     pipe_through [:accepts_json, :api, :ensure_tor_authorized]
+
     scope "/images", Image, as: :image do
       resources "/featured", FeaturedController, only: [:show], singleton: true
     end
+
     resources "/images", ImageController, only: [:show]
 
     scope "/search", Search, as: :search do
@@ -116,6 +118,7 @@ defmodule PhilomenaWeb.Router do
     resources "/tags", TagController, only: [:show]
     resources "/comments", CommentController, only: [:show]
     resources "/posts", PostController, only: [:show]
+
     resources "/forums", ForumController, only: [:show, :index] do
       resources "/topics", Forum.TopicController, only: [:show, :index] do
         resources "/posts", Forum.Topic.PostController, only: [:show, :index]
@@ -129,23 +132,32 @@ defmodule PhilomenaWeb.Router do
     scope "/notifications", Notification, as: :notification do
       resources "/unread", UnreadController, only: [:index]
     end
+
     resources "/notifications", NotificationController, only: [:index, :delete]
+
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
       resources "/reports", Conversation.ReportController, only: [:new, :create]
       resources "/messages", Conversation.MessageController, only: [:create]
       resources "/read", Conversation.ReadController, only: [:create, :delete], singleton: true
       resources "/hide", Conversation.HideController, only: [:create, :delete], singleton: true
     end
+
     resources "/images", ImageController, only: [] do
       resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true
       resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
-      resources "/subscription", Image.SubscriptionController, only: [:create, :delete], singleton: true
+
+      resources "/subscription", Image.SubscriptionController,
+        only: [:create, :delete],
+        singleton: true
+
       resources "/read", Image.ReadController, only: [:create], singleton: true
+
       resources "/comments", Image.CommentController, only: [:edit, :update] do
         resources "/hide", Image.Comment.HideController, only: [:create, :delete], singleton: true
         resources "/delete", Image.Comment.DeleteController, only: [:create], singleton: true
       end
+
       resources "/delete", Image.DeleteController, only: [:create, :delete], singleton: true
 
       resources "/tamper", Image.TamperController, only: [:create], singleton: true
@@ -157,37 +169,64 @@ defmodule PhilomenaWeb.Router do
       resources "/scratchpad", Image.ScratchpadController, only: [:edit, :update], singleton: true
       resources "/uploader", Image.UploaderController, only: [:update], singleton: true
 
-      resources "/comment_lock", Image.CommentLockController, only: [:create, :delete], singleton: true
-      resources "/description_lock", Image.DescriptionLockController, only: [:create, :delete], singleton: true
+      resources "/comment_lock", Image.CommentLockController,
+        only: [:create, :delete],
+        singleton: true
+
+      resources "/description_lock", Image.DescriptionLockController,
+        only: [:create, :delete],
+        singleton: true
+
       resources "/tag_lock", Image.TagLockController, only: [:create, :delete], singleton: true
     end
 
     resources "/forums", ForumController, only: [] do
       resources "/topics", TopicController, only: [:new, :create] do
-        resources "/subscription", Topic.SubscriptionController, only: [:create, :delete], singleton: true
+        resources "/subscription", Topic.SubscriptionController,
+          only: [:create, :delete],
+          singleton: true
+
         resources "/read", Topic.ReadController, only: [:create], singleton: true
         resources "/move", Topic.MoveController, only: [:create], singleton: true
         resources "/stick", Topic.StickController, only: [:create, :delete], singleton: true
         resources "/lock", Topic.LockController, only: [:create, :delete], singleton: true
         resources "/hide", Topic.HideController, only: [:create, :delete], singleton: true
+
         resources "/posts", Topic.PostController, only: [:edit, :update] do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
           resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
         end
-        resources "/poll/votes", Topic.Poll.VoteController, as: :poll_vote, only: [:index, :create, :delete]
+
+        resources "/poll/votes", Topic.Poll.VoteController,
+          as: :poll_vote,
+          only: [:index, :create, :delete]
       end
 
-      resources "/subscription", Forum.SubscriptionController, only: [:create, :delete], singleton: true
+      resources "/subscription", Forum.SubscriptionController,
+        only: [:create, :delete],
+        singleton: true
+
       resources "/read", Forum.ReadController, only: [:create], singleton: true
     end
 
     resources "/profiles", ProfileController, only: [] do
-      resources "/commission", Profile.CommissionController, only: [:new, :create, :edit, :update, :delete], singleton: true do
-        resources "/items", Profile.Commission.ItemController, only: [:new, :create, :edit, :update, :delete]
+      resources "/commission", Profile.CommissionController,
+        only: [:new, :create, :edit, :update, :delete],
+        singleton: true do
+        resources "/items", Profile.Commission.ItemController,
+          only: [:new, :create, :edit, :update, :delete]
+
         resources "/reports", Profile.Commission.ReportController, only: [:new, :create]
       end
-      resources "/description", Profile.DescriptionController, only: [:edit, :update], singleton: true
-      resources "/scratchpad", Profile.ScratchpadController, only: [:edit, :update], singleton: true
+
+      resources "/description", Profile.DescriptionController,
+        only: [:edit, :update],
+        singleton: true
+
+      resources "/scratchpad", Profile.ScratchpadController,
+        only: [:edit, :update],
+        singleton: true
+
       resources "/user_links", Profile.UserLinkController
       resources "/awards", Profile.AwardController, except: [:index, :show]
 
@@ -211,16 +250,23 @@ defmodule PhilomenaWeb.Router do
     resources "/avatar", AvatarController, only: [:edit, :update, :delete], singleton: true
 
     resources "/reports", ReportController, only: [:index]
+
     resources "/galleries", GalleryController, only: [:new, :create, :edit, :update, :delete] do
       resources "/images", Gallery.ImageController, only: [:create, :delete], singleton: true
       resources "/order", Gallery.OrderController, only: [:update], singleton: true
       resources "/read", Gallery.ReadController, only: [:create], singleton: true
-      resources "/subscription", Gallery.SubscriptionController, only: [:create, :delete], singleton: true
+
+      resources "/subscription", Gallery.SubscriptionController,
+        only: [:create, :delete],
+        singleton: true
     end
 
     resources "/channels", ChannelController, only: [] do
       resources "/read", Channel.ReadController, only: [:create], singleton: true
-      resources "/subscription", Channel.SubscriptionController, only: [:create, :delete], singleton: true
+
+      resources "/subscription", Channel.SubscriptionController,
+        only: [:create, :delete],
+        singleton: true
     end
 
     resources "/dnp", DnpEntryController, only: [:new, :create, :edit, :update]
@@ -229,6 +275,7 @@ defmodule PhilomenaWeb.Router do
       resources "/tag_changes", IpProfile.TagChangeController, only: [:index]
       resources "/source_changes", IpProfile.SourceChangeController, only: [:index]
     end
+
     resources "/fingerprint_profiles", FingerprintProfileController, only: [:show] do
       resources "/tag_changes", FingerprintProfile.TagChangeController, only: [:index]
       resources "/source_changes", FingerprintProfile.SourceChangeController, only: [:index]
@@ -241,7 +288,10 @@ defmodule PhilomenaWeb.Router do
       end
 
       resources "/user_links", UserLinkController, only: [:index] do
-        resources "/verification", UserLink.VerificationController, only: [:create], singleton: true
+        resources "/verification", UserLink.VerificationController,
+          only: [:create],
+          singleton: true
+
         resources "/contact", UserLink.ContactController, only: [:create], singleton: true
         resources "/reject", UserLink.RejectController, only: [:create], singleton: true
       end
@@ -250,21 +300,33 @@ defmodule PhilomenaWeb.Router do
         resources "/transition", DnpEntry.TransitionController, only: [:create], singleton: true
       end
 
-      resources "/user_bans",  UserBanController, only: [:index, :new, :create, :edit, :update, :delete]
-      resources "/subnet_bans", SubnetBanController, only: [:index, :new, :create, :edit, :update, :delete]
-      resources "/fingerprint_bans", FingerprintBanController, only: [:index, :new, :create, :edit, :update, :delete]
+      resources "/user_bans", UserBanController,
+        only: [:index, :new, :create, :edit, :update, :delete]
+
+      resources "/subnet_bans", SubnetBanController,
+        only: [:index, :new, :create, :edit, :update, :delete]
+
+      resources "/fingerprint_bans", FingerprintBanController,
+        only: [:index, :new, :create, :edit, :update, :delete]
 
       resources "/site_notices", SiteNoticeController, except: [:show]
       resources "/adverts", AdvertController, except: [:show]
 
       resources "/forums", ForumController, except: [:show, :delete]
+
       resources "/badges", BadgeController, except: [:show, :delete] do
         resources "/users", Badge.UserController, only: [:index]
       end
+
       resources "/mod_notes", ModNoteController, except: [:show]
+
       resources "/users", UserController, only: [:index, :edit, :update] do
         resources "/avatar", User.AvatarController, only: [:delete], singleton: true
-        resources "/activation", User.ActivationController, only: [:create, :delete], singleton: true
+
+        resources "/activation", User.ActivationController,
+          only: [:create, :delete],
+          singleton: true
+
         resources "/api_key", User.ApiKeyController, only: [:delete], singleton: true
         resources "/downvotes", User.DownvoteController, only: [:delete], singleton: true
         resources "/votes", User.VoteController, only: [:delete], singleton: true
@@ -272,17 +334,26 @@ defmodule PhilomenaWeb.Router do
       end
 
       resources "/batch/tags", Batch.TagController, only: [:update], singleton: true
+
       scope "/donations", Donation, as: :donation do
         resources "/user", UserController, only: [:show]
       end
+
       resources "/donations", DonationController, only: [:index, :create]
     end
 
     resources "/duplicate_reports", DuplicateReportController, only: [] do
       resources "/accept", DuplicateReport.AcceptController, only: [:create], singleton: true
-      resources "/accept_reverse", DuplicateReport.AcceptReverseController, only: [:create], singleton: true
+
+      resources "/accept_reverse", DuplicateReport.AcceptReverseController,
+        only: [:create],
+        singleton: true
+
       resources "/reject", DuplicateReport.RejectController, only: [:create], singleton: true
-      resources "/claim", DuplicateReport.ClaimController, only: [:create, :delete], singleton: true
+
+      resources "/claim", DuplicateReport.ClaimController,
+        only: [:create, :delete],
+        singleton: true
     end
 
     resources "/tags", TagController, only: [:edit, :update, :delete] do
@@ -291,7 +362,10 @@ defmodule PhilomenaWeb.Router do
       resources "/reindex", Tag.ReindexController, only: [:create], singleton: true
     end
 
-    resources "/tag_changes/revert", TagChange.RevertController, as: :tag_change_revert, only: [:create], singleton: true
+    resources "/tag_changes/revert", TagChange.RevertController,
+      as: :tag_change_revert,
+      only: [:create],
+      singleton: true
 
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
     resources "/channels", ChannelController, only: [:new, :create, :edit, :update]
@@ -303,16 +377,20 @@ defmodule PhilomenaWeb.Router do
     get "/", ActivityController, :index
 
     resources "/activity", ActivityController, only: [:index]
+
     scope "/images", Image, as: :image do
       resources "/scrape", ScrapeController, only: [:create]
       resources "/random", RandomController, only: [:index]
     end
+
     resources "/images", ImageController, only: [:index, :show, :new, :create] do
       resources "/related", Image.RelatedController, only: [:index]
+
       resources "/comments", Image.CommentController, only: [:index, :show, :create] do
         resources "/reports", Image.Comment.ReportController, only: [:new, :create]
         resources "/history", Image.Comment.HistoryController, only: [:index]
       end
+
       resources "/tags", Image.TagController, only: [:update], singleton: true
       resources "/sources", Image.SourceController, only: [:update], singleton: true
       resources "/tag_changes", Image.TagChangeController, only: [:index]
@@ -323,17 +401,22 @@ defmodule PhilomenaWeb.Router do
       resources "/reporting", Image.ReportingController, only: [:show], singleton: true
       resources "/favorites", Image.FavoriteController, only: [:index]
     end
+
     scope "/tags", Tag, as: :tag do
       resources "/autocomplete", AutocompleteController, only: [:show], singleton: true
       resources "/fetch", FetchController, only: [:index]
     end
+
     resources "/tags", TagController, only: [:index, :show] do
       resources "/tag_changes", Tag.TagChangeController, only: [:index]
     end
+
     scope "/search", Search, as: :search do
       resources "/reverse", ReverseController, only: [:index, :create]
     end
+
     resources "/search", SearchController, only: [:index]
+
     resources "/forums", ForumController, only: [:index, :show] do
       resources "/topics", TopicController, only: [:show] do
         resources "/posts", Topic.PostController, only: [:create] do
@@ -342,31 +425,41 @@ defmodule PhilomenaWeb.Router do
         end
       end
     end
+
     resources "/comments", CommentController, only: [:index]
 
     scope "/filters", Filter, as: :filter do
       resources "/current", CurrentController, only: [:update], singleton: true
     end
+
     resources "/filters", FilterController
+
     resources "/profiles", ProfileController, only: [:show] do
       resources "/reports", Profile.ReportController, only: [:new, :create]
       resources "/commission", Profile.CommissionController, only: [:show], singleton: true
       resources "/tag_changes", Profile.TagChangeController, only: [:index]
       resources "/source_changes", Profile.SourceChangeController, only: [:index]
     end
+
     resources "/captchas", CaptchaController, only: [:create]
+
     scope "/posts", Post, as: :post do
       resources "/preview", PreviewController, only: [:create]
     end
+
     resources "/posts", PostController, only: [:index]
     resources "/commissions", CommissionController, only: [:index]
+
     resources "/galleries", GalleryController, only: [:index, :show] do
       resources "/reports", Gallery.ReportController, only: [:new, :create]
     end
+
     resources "/adverts", AdvertController, only: [:show]
+
     resources "/pages", PageController, only: [:show] do
       resources "/history", Page.HistoryController, only: [:index]
     end
+
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
     resources "/stats", StatController, only: [:index]

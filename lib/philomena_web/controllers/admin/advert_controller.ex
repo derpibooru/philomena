@@ -15,7 +15,11 @@ defmodule PhilomenaWeb.Admin.AdvertController do
       |> order_by(desc: :finish_date)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Admin - Adverts", layout_class: "layout--wide", adverts: adverts)
+    render(conn, "index.html",
+      title: "Admin - Adverts",
+      layout_class: "layout--wide",
+      adverts: adverts
+    )
   end
 
   def new(conn, _params) do
@@ -62,7 +66,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, Advert) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

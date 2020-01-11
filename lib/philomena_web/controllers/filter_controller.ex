@@ -28,13 +28,17 @@ defmodule PhilomenaWeb.FilterController do
       |> preload(:user)
       |> Repo.all()
 
-    render(conn, "index.html", title: "Filters", my_filters: my_filters, system_filters: system_filters)
+    render(conn, "index.html",
+      title: "Filters",
+      my_filters: my_filters,
+      system_filters: system_filters
+    )
   end
 
   def show(conn, _params) do
     filter = conn.assigns.filter
 
-    spoilered_tags = 
+    spoilered_tags =
       Tag
       |> where([t], t.id in ^filter.spoilered_tag_ids)
       |> order_by(asc: :name)
@@ -46,7 +50,12 @@ defmodule PhilomenaWeb.FilterController do
       |> order_by(asc: :name)
       |> Repo.all()
 
-    render(conn, "show.html", title: "Showing Filter", filter: filter, spoilered_tags: spoilered_tags, hidden_tags: hidden_tags)
+    render(conn, "show.html",
+      title: "Showing Filter",
+      filter: filter,
+      spoilered_tags: spoilered_tags,
+      hidden_tags: hidden_tags
+    )
   end
 
   def new(conn, _params) do
@@ -68,7 +77,7 @@ defmodule PhilomenaWeb.FilterController do
 
   def edit(conn, _params) do
     filter =
-      conn.assigns.filter 
+      conn.assigns.filter
       |> TagList.assign_tag_list(:spoilered_tag_ids, :spoilered_tag_list)
       |> TagList.assign_tag_list(:hidden_tag_ids, :hidden_tag_list)
 

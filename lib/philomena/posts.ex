@@ -55,7 +55,7 @@ defmodule Philomena.Posts do
       Forum
       |> where(id: ^topic.forum_id)
 
-    Multi.new
+    Multi.new()
     |> Multi.run(:post, fn repo, _ ->
       last_position =
         Post
@@ -71,7 +71,10 @@ defmodule Philomena.Posts do
     end)
     |> Multi.run(:update_topic, fn repo, %{post: %{id: post_id}} ->
       {count, nil} =
-        repo.update_all(topic_query, inc: [post_count: 1], set: [last_post_id: post_id, last_replied_to_at: now])
+        repo.update_all(topic_query,
+          inc: [post_count: 1],
+          set: [last_post_id: post_id, last_replied_to_at: now]
+        )
 
       {:ok, count}
     end)
@@ -88,7 +91,7 @@ defmodule Philomena.Posts do
   end
 
   def notify_post(post) do
-    spawn fn ->
+    spawn(fn ->
       topic =
         post
         |> Repo.preload(:topic)
@@ -110,7 +113,7 @@ defmodule Philomena.Posts do
           action: "posted a new reply in"
         }
       )
-    end
+    end)
 
     post
   end
@@ -132,10 +135,9 @@ defmodule Philomena.Posts do
     current_body = post.body
     current_reason = post.edit_reason
 
-    post_changes =
-      Post.changeset(post, attrs, now)
+    post_changes = Post.changeset(post, attrs, now)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:post, post_changes)
     |> Multi.run(:version, fn _repo, _changes ->
       Versions.create_version("Post", post.id, editor.id, %{
@@ -203,13 +205,13 @@ defmodule Philomena.Posts do
   end
 
   def reindex_post(%Post{} = post) do
-    spawn fn ->
+    spawn(fn ->
       Post
       |> preload(^indexing_preloads())
       |> where(id: ^post.id)
       |> Repo.one()
       |> Elasticsearch.index_document(Post)
-    end
+    end)
 
     post
   end

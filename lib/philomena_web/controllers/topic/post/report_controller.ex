@@ -12,7 +12,12 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
 
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug
   plug PhilomenaWeb.LoadPostPlug
@@ -21,6 +26,7 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
     topic = conn.assigns.topic
     post = conn.assigns.post
     action = Routes.forum_topic_post_report_path(conn, :create, topic.forum, topic, post)
+
     changeset =
       %Report{reportable_type: "Post", reportable_id: post.id}
       |> Reports.change_report()

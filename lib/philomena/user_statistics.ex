@@ -24,9 +24,16 @@ defmodule Philomena.UserStatistics do
   def inc_stat(user, action, amount \\ 1)
 
   def inc_stat(nil, _action, _amount), do: {:ok, nil}
+
   def inc_stat(%{id: user_id}, action, amount)
-    when action in [:uploads, :images_favourited, :comments_posted, :votes_cast, :metadata_updates, :forum_posts]
-  do
+      when action in [
+             :uploads,
+             :images_favourited,
+             :comments_posted,
+             :votes_cast,
+             :metadata_updates,
+             :forum_posts
+           ] do
     now =
       DateTime.utc_now()
       |> DateTime.to_unix(:second)
@@ -37,6 +44,7 @@ defmodule Philomena.UserStatistics do
 
     run = fn ->
       Repo.update_all(user, inc: [{action_count, amount}])
+
       Repo.insert(
         Map.put(%UserStatistic{day: now, user_id: user_id}, action, amount),
         on_conflict: [inc: [{action, amount}]],

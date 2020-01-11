@@ -8,7 +8,11 @@ defmodule PhilomenaWeb.Profile.UserLinkController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
-  plug :load_and_authorize_resource, model: UserLink, only: [:show, :edit, :update], preload: [:user, :tag, :contacted_by_user]
+
+  plug :load_and_authorize_resource,
+    model: UserLink,
+    only: [:show, :edit, :update],
+    preload: [:user, :tag, :contacted_by_user]
 
   plug PhilomenaWeb.CanaryMapPlug,
     index: :create_links,
@@ -18,10 +22,15 @@ defmodule PhilomenaWeb.Profile.UserLinkController do
     edit: :edit_links,
     update: :edit_links
 
-  plug :load_and_authorize_resource, model: User, id_field: "slug", id_name: "profile_id", persisted: true
+  plug :load_and_authorize_resource,
+    model: User,
+    id_field: "slug",
+    id_name: "profile_id",
+    persisted: true
 
   def index(conn, _params) do
     user = conn.assigns.current_user
+
     user_links =
       UserLink
       |> where(user_id: ^user.id)
@@ -39,7 +48,10 @@ defmodule PhilomenaWeb.Profile.UserLinkController do
     case UserLinks.create_user_link(conn.assigns.user, user_link_params) do
       {:ok, user_link} ->
         conn
-        |> put_flash(:info, "Link submitted! Please put '#{user_link.verification_code}' on your linked webpage now.")
+        |> put_flash(
+          :info,
+          "Link submitted! Please put '#{user_link.verification_code}' on your linked webpage now."
+        )
         |> redirect(to: Routes.profile_user_link_path(conn, :show, conn.assigns.user, user_link))
 
       {:error, %Ecto.Changeset{} = changeset} ->

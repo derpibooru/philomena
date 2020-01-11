@@ -8,13 +8,22 @@ defmodule PhilomenaWeb.ConversationController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
-  plug :load_and_authorize_resource, model: Conversation, id_field: "slug", only: :show, preload: [:to, :from]
+
+  plug :load_and_authorize_resource,
+    model: Conversation,
+    id_field: "slug",
+    only: :show,
+    preload: [:to, :from]
 
   def index(conn, %{"with" => partner}) do
     user = conn.assigns.current_user
 
     Conversation
-    |> where([c], (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden))
+    |> where(
+      [c],
+      (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or
+        (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden)
+    )
     |> load_conversations(conn)
   end
 
@@ -22,14 +31,21 @@ defmodule PhilomenaWeb.ConversationController do
     user = conn.assigns.current_user
 
     Conversation
-    |> where([c], (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden))
+    |> where(
+      [c],
+      (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden)
+    )
     |> load_conversations(conn)
   end
 
   defp load_conversations(queryable, conn) do
     conversations =
       queryable
-      |> join(:inner_lateral, [c], _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id))
+      |> join(
+        :inner_lateral,
+        [c],
+        _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id)
+      )
       |> order_by(desc: :last_message_at)
       |> preload([:to, :from])
       |> select([c, cnt], {c, cnt.count})
@@ -53,8 +69,7 @@ defmodule PhilomenaWeb.ConversationController do
       messages.entries
       |> Renderer.render_collection(conn)
 
-    messages =
-      %{messages | entries: Enum.zip(messages.entries, rendered)}
+    messages = %{messages | entries: Enum.zip(messages.entries, rendered)}
 
     changeset =
       %Message{}
@@ -66,7 +81,12 @@ defmodule PhilomenaWeb.ConversationController do
     # Update the conversation ticker in the header
     conn = NotificationCountPlug.call(conn)
 
-    render(conn, "show.html", title: "Showing Conversation", conversation: conversation, messages: messages, changeset: changeset)
+    render(conn, "show.html",
+      title: "Showing Conversation",
+      conversation: conversation,
+      messages: messages,
+      changeset: changeset
+    )
   end
 
   def new(conn, params) do

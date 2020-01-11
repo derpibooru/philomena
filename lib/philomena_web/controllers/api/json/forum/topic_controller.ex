@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Api.Json.Forum.TopicController do
   import Ecto.Query
 
   def show(conn, %{"forum_id" => forum_id, "id" => id}) do
-    topic = 
+    topic =
       Topic
       |> join(:inner, [t], _ in assoc(t, :forum))
       |> where(slug: ^id)

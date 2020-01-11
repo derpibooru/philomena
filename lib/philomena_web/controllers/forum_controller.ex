@@ -9,10 +9,11 @@ defmodule PhilomenaWeb.ForumController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
+
     forums =
       Forum
       |> order_by(asc: :name)
-      |> preload([last_post: [:user, topic: :forum]])
+      |> preload(last_post: [:user, topic: :forum])
       |> Repo.all()
       |> Enum.filter(&Canada.Can.can?(user, :show, &1))
 
@@ -35,6 +36,11 @@ defmodule PhilomenaWeb.ForumController do
 
     watching = Forums.subscribed?(forum, user)
 
-    render(conn, "show.html", title: forum.name, forum: conn.assigns.forum, watching: watching, topics: topics)
+    render(conn, "show.html",
+      title: forum.name,
+      forum: conn.assigns.forum,
+      watching: watching,
+      topics: topics
+    )
   end
 end

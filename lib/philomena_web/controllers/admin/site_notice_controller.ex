@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.Admin.SiteNoticeController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, SiteNotice) do
-      true  -> conn
+      true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -51,9 +51,10 @@ defmodule PhilomenaWeb.Image.NavigateController do
   end
 
   defp match_all_if_blank(nil), do: "*"
+
   defp match_all_if_blank(input) do
     case String.trim(input) == "" do
-      true  -> "*"
+      true -> "*"
       false -> input
     end
   end

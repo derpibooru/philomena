@@ -7,7 +7,11 @@ defmodule PhilomenaWeb.Image.ReportingController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags]
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [:tags]
 
   def show(conn, _params) do
     image = conn.assigns.image
@@ -22,6 +26,11 @@ defmodule PhilomenaWeb.Image.ReportingController do
       %DuplicateReport{}
       |> DuplicateReports.change_duplicate_report()
 
-    render(conn, "show.html", layout: false, image: image, dupe_reports: dupe_reports, changeset: changeset)
+    render(conn, "show.html",
+      layout: false,
+      image: image,
+      dupe_reports: dupe_reports,
+      changeset: changeset
+    )
   end
 end

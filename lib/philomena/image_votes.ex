@@ -23,12 +23,14 @@ defmodule Philomena.ImageVotes do
       Image
       |> where(id: ^image.id)
 
-    upvotes   = if up, do: 1, else: 0
+    upvotes = if up, do: 1, else: 0
     downvotes = if up, do: 0, else: 1
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:vote, vote)
-    |> Multi.update_all(:inc_vote_count, image_query, inc: [upvotes_count: upvotes, downvotes_count: downvotes, score: upvotes - downvotes])
+    |> Multi.update_all(:inc_vote_count, image_query,
+      inc: [upvotes_count: upvotes, downvotes_count: downvotes, score: upvotes - downvotes]
+    )
     |> Multi.run(:inc_vote_stat, fn _repo, _changes ->
       UserStatistics.inc_stat(user, :votes_cast, 1)
     end)
@@ -55,13 +57,16 @@ defmodule Philomena.ImageVotes do
       Image
       |> where(id: ^image.id)
 
-    Multi.new
+    Multi.new()
     |> Multi.delete_all(:unupvote, upvote_query)
     |> Multi.delete_all(:undownvote, downvote_query)
-    |> Multi.run(:dec_votes_count, fn repo, %{unupvote: {upvotes, nil}, undownvote: {downvotes, nil}} ->
+    |> Multi.run(:dec_votes_count, fn repo,
+                                      %{unupvote: {upvotes, nil}, undownvote: {downvotes, nil}} ->
       {count, nil} =
         image_query
-        |> repo.update_all(inc: [upvotes_count: -upvotes, downvotes_count: -downvotes, score: downvotes - upvotes])
+        |> repo.update_all(
+          inc: [upvotes_count: -upvotes, downvotes_count: -downvotes, score: downvotes - upvotes]
+        )
 
       UserStatistics.inc_stat(user, :votes_cast, -(upvotes + downvotes))
 

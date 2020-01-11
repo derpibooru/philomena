@@ -10,7 +10,12 @@ defmodule PhilomenaWeb.Profile.DescriptionController do
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.user)
-    render(conn, "edit.html", title: "Editing Profile Description", changeset: changeset, user: conn.assigns.user)
+
+    render(conn, "edit.html",
+      title: "Editing Profile Description",
+      changeset: changeset,
+      user: conn.assigns.user
+    )
   end
 
   def update(conn, %{"user" => user_params}) do

@@ -61,10 +61,12 @@ defmodule Philomena.Images.Query do
 
   defp anonymous_fields do
     [
-      int_fields: ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count),
+      int_fields:
+        ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count),
       float_fields: ~W(aspect_ratio wilson_score),
       date_fields: ~W(created_at updated_at first_seen_at),
-      literal_fields: ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format),
+      literal_fields:
+        ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format),
       ngram_fields: ~W(description),
       custom_fields: ~W(gallery_id),
       default_field: {"namespaced_tags.name", :term},
@@ -79,30 +81,35 @@ defmodule Philomena.Images.Query do
   defp user_fields do
     fields = anonymous_fields()
 
-    Keyword.merge(fields, [
+    Keyword.merge(fields,
       custom_fields: fields[:custom_fields] ++ ~W(my),
       transforms: Map.merge(fields[:transforms], %{"my" => &user_my_transform/2})
-    ])
+    )
   end
 
   defp moderator_fields do
     fields = user_fields()
 
-    Keyword.merge(fields, [
-      int_fields: fields[:int_fields] ++ ~W(upvoted_by_id downvoted_by_id true_uploader_id hidden_by_id deleted_by_user_id),
-      literal_fields: fields[:literal_fields] ++ ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
+    Keyword.merge(fields,
+      int_fields:
+        fields[:int_fields] ++
+          ~W(upvoted_by_id downvoted_by_id true_uploader_id hidden_by_id deleted_by_user_id),
+      literal_fields:
+        fields[:literal_fields] ++
+          ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
       ip_fields: ~W(ip),
       bool_fields: ~W(deleted),
-      aliases:  Map.merge(fields[:aliases], %{
-        "upvoted_by" => "upvoters",
-        "downvoted_by" => "downvoters",
-        "upvoted_by_id" => "upvoter_ids",
-        "downvoted_by_id" => "downvoter_ids",
-        "hidden_by" => "hidden_by_users",
-        "hidden_by_id" => "hidden_by_user_ids",
-        "deleted" => "hidden_from_users"
-      })
-    ])
+      aliases:
+        Map.merge(fields[:aliases], %{
+          "upvoted_by" => "upvoters",
+          "downvoted_by" => "downvoters",
+          "upvoted_by_id" => "upvoter_ids",
+          "downvoted_by_id" => "downvoter_ids",
+          "hidden_by" => "hidden_by_users",
+          "hidden_by_id" => "hidden_by_user_ids",
+          "deleted" => "hidden_from_users"
+        })
+    )
   end
 
   defp parse(fields, context, query_string) do

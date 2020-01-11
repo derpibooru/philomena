@@ -18,6 +18,7 @@ defmodule PowLockout.Ecto.Context do
   @spec locked_out?(Context.user(), Config.t()) :: boolean()
   def locked_out?(%{locked_at: time}, _config) when not is_nil(time),
     do: true
+
   def locked_out?(_user, _config),
     do: false
 
@@ -26,7 +27,8 @@ defmodule PowLockout.Ecto.Context do
 
   See `PowLockout.Ecto.Schema.unlock_changeset/1`.
   """
-  @spec unlock_account(Context.user(), Config.t()) :: {:ok, Context.user()} | {:error, Context.changeset()}
+  @spec unlock_account(Context.user(), Config.t()) ::
+          {:ok, Context.user()} | {:error, Context.changeset()}
   def unlock_account(user, config) do
     user
     |> Schema.unlock_changeset()
@@ -38,7 +40,8 @@ defmodule PowLockout.Ecto.Context do
 
   See `PowLockout.Ecto.Schema.attempt_changeset/1`.
   """
-  @spec fail_attempt(Context.user(), Config.t()) :: {:ok, Context.user()} | {:error, Context.changeset()}
+  @spec fail_attempt(Context.user(), Config.t()) ::
+          {:ok, Context.user()} | {:error, Context.changeset()}
   def fail_attempt(user, config) do
     user
     |> Schema.attempt_changeset()
@@ -50,7 +53,8 @@ defmodule PowLockout.Ecto.Context do
 
   See `PowLockout.Ecto.Schema.attempt_reset_changeset/1`.
   """
-  @spec succeed_attempt(Context.user(), Config.t()) :: {:ok, Context.user()} | {:error, Context.changeset()}
+  @spec succeed_attempt(Context.user(), Config.t()) ::
+          {:ok, Context.user()} | {:error, Context.changeset()}
   def succeed_attempt(user, config) do
     user
     |> Schema.attempt_reset_changeset()

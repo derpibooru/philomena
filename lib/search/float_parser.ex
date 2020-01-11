@@ -27,12 +27,16 @@ defmodule Search.FloatParser do
 
   float_parser =
     choice([
-      float |> concat(fuzz) |> concat(unsigned_float) |> reduce(:range) |> unwrap_and_tag(:float_range),
+      float
+      |> concat(fuzz)
+      |> concat(unsigned_float)
+      |> reduce(:range)
+      |> unwrap_and_tag(:float_range),
       float |> unwrap_and_tag(:float)
     ])
     |> repeat(space)
     |> eos()
     |> label("a real number, like `2.7182818' or `-10'")
 
-  defparsec :parse, float_parser
+  defparsec(:parse, float_parser)
 end

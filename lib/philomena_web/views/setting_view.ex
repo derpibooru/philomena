@@ -3,7 +3,11 @@ defmodule PhilomenaWeb.SettingView do
 
   def theme_options(conn) do
     [
-      [key: "Default", value: "default", data: [theme_path: Routes.static_path(conn, "/css/default.css")]],
+      [
+        key: "Default",
+        value: "default",
+        data: [theme_path: Routes.static_path(conn, "/css/default.css")]
+      ],
       [key: "Dark", value: "dark", data: [theme_path: Routes.static_path(conn, "/css/dark.css")]],
       [key: "Red", value: "red", data: [theme_path: Routes.static_path(conn, "/css/red.css")]]
     ]
@@ -11,7 +15,7 @@ defmodule PhilomenaWeb.SettingView do
 
   def local_tab_class(conn) do
     case conn.assigns.current_user do
-      nil   -> ""
+      nil -> ""
       _user -> "hidden"
     end
   end

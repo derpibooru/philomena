@@ -122,22 +122,41 @@ defmodule Philomena.Images.Image do
   def image_changeset(image, attrs) do
     image
     |> cast(attrs, [
-      :image, :image_name, :image_width, :image_height, :image_size,
-      :image_format, :image_mime_type, :image_aspect_ratio,
-      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
-      :removed_image, :image_is_animated
-    ])
-    |> validate_required([
-      :image, :image_width, :image_height, :image_size,
-      :image_format, :image_mime_type, :image_aspect_ratio,
-      :image_orig_sha512_hash, :image_sha512_hash, :uploaded_image,
+      :image,
+      :image_name,
+      :image_width,
+      :image_height,
+      :image_size,
+      :image_format,
+      :image_mime_type,
+      :image_aspect_ratio,
+      :image_orig_sha512_hash,
+      :image_sha512_hash,
+      :uploaded_image,
+      :removed_image,
       :image_is_animated
     ])
-    |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26214400)
+    |> validate_required([
+      :image,
+      :image_width,
+      :image_height,
+      :image_size,
+      :image_format,
+      :image_mime_type,
+      :image_aspect_ratio,
+      :image_orig_sha512_hash,
+      :image_sha512_hash,
+      :uploaded_image,
+      :image_is_animated
+    ])
+    |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26_214_400)
     |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_length(:image_name, max: 255, count: :bytes)
-    |> validate_inclusion(:image_mime_type, ~W(image/gif image/jpeg image/png image/svg+xml video/webm))
+    |> validate_inclusion(
+      :image_mime_type,
+      ~W(image/gif image/jpeg image/png image/svg+xml video/webm)
+    )
     |> unsafe_validate_unique([:image_orig_sha512_hash], Repo)
   end
 
@@ -260,8 +279,7 @@ defmodule Philomena.Images.Image do
       tags
       |> Enum.map_join(", ", & &1.name)
 
-    tag_ids =
-      tags |> Enum.map(& &1.id)
+    tag_ids = tags |> Enum.map(& &1.id)
 
     aliases =
       Tag

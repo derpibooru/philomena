@@ -4,7 +4,9 @@ defmodule PhilomenaWeb.AvatarController do
   alias Philomena.Users
 
   plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.ScraperPlug, [params_name: "user", params_key: "avatar"] when action in [:update]
+
+  plug PhilomenaWeb.ScraperPlug,
+       [params_name: "user", params_key: "avatar"] when action in [:update]
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.current_user)

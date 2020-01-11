@@ -7,14 +7,14 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
   import Ecto.Query
 
   def show(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "id" => post_id}) do
-    post = 
+    post =
       Post
       |> join(:inner, [p], _ in assoc(p, :topic))
       |> join(:inner, [_p, t], _ in assoc(t, :forum))
       |> where(id: ^post_id)
       |> where(destroyed_content: false)
       |> where([_p, t], t.hidden_from_users == false and t.slug == ^topic_id)
-      |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)      
+      |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)
       |> preload([:user, :topic])
       |> Repo.one()
 
@@ -31,7 +31,8 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
 
   def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id}) do
     page = conn.assigns.pagination.page_number
-    posts = 
+
+    posts =
       Post
       |> join(:inner, [p], _ in assoc(p, :topic))
       |> join(:inner, [_p, t], _ in assoc(t, :forum))
@@ -43,13 +44,17 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
       |> preload([:user, :topic])
       |> preload([_p, t, _f], topic: t)
       |> Repo.all()
-      
+
     case posts do
       [] ->
         json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page})
 
       _ ->
-        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1), page: page, total: hd(posts).topic.post_count})
+        json(conn, %{
+          posts: Enum.map(posts, &PostJson.as_json/1),
+          page: page,
+          total: hd(posts).topic.post_count
+        })
     end
   end
 end

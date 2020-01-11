@@ -14,12 +14,12 @@ defmodule PhilomenaWeb.UserAttributionView do
     user_id = Attribution.best_user_identifier(object)
 
     hash =
-      (:erlang.crc32(salt <> id <> user_id) &&& 0xffff)
+      (:erlang.crc32(salt <> id <> user_id) &&& 0xFFFF)
       |> Integer.to_string(16)
       |> String.pad_leading(4, "0")
 
     case not is_nil(object.user) and reveal_anon? do
-      true  -> "#{object.user.name} (##{hash}, hidden)"
+      true -> "#{object.user.name} (##{hash}, hidden)"
       false -> "Background Pony ##{hash}"
     end
   end
@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.UserAttributionView do
   def anonymous_avatar(name, class \\ "avatar--100px") do
     class = Enum.join(["image-constrained", class], " ")
 
-    content_tag :div, [class: class] do
+    content_tag :div, class: class do
       PhilomenaWeb.AvatarGeneratorView.generated_avatar(name)
     end
   end
@@ -36,12 +36,14 @@ defmodule PhilomenaWeb.UserAttributionView do
 
   def user_avatar(%{user: nil} = object, class),
     do: anonymous_avatar(anonymous_name(object), class)
+
   def user_avatar(%{user: %{avatar: nil}} = object, class),
     do: anonymous_avatar(object.user.name, class)
+
   def user_avatar(%{user: %{avatar: avatar}}, class) do
     class = Enum.join(["image-constrained", class], " ")
 
-    content_tag :div, [class: class] do
+    content_tag :div, class: class do
       img_tag(avatar_url_root() <> "/" <> avatar)
     end
   end
@@ -55,26 +57,31 @@ defmodule PhilomenaWeb.UserAttributionView do
 
   defp personal_title(labels, %{personal_title: t}) do
     case blank?(t) do
-      true  -> labels
+      true -> labels
       false -> [{"label--primary", t} | labels]
     end
   end
+
   defp personal_title(labels, _user), do: labels
 
   defp secondary_role(labels, %{secondary_role: t}) do
     case blank?(t) do
-      true  -> labels
+      true -> labels
       false -> [{"label--warning", t} | labels]
     end
   end
+
   defp secondary_role(labels, _user), do: labels
 
   defp staff_role(labels, %{hide_default_role: false, role: "admin"}),
     do: [{"label--danger", "Site Administrator"} | labels]
+
   defp staff_role(labels, %{hide_default_role: false, role: "moderator"}),
     do: [{"label--success", "Site Moderator"} | labels]
+
   defp staff_role(labels, %{hide_default_role: false, role: "assistant"}),
     do: [{"label--purple", "Site Assistant"} | labels]
+
   defp staff_role(labels, _user),
     do: labels
 

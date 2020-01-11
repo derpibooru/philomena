@@ -10,7 +10,11 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :create_comment, edit: :create_comment, update: :create_comment
+  plug PhilomenaWeb.CanaryMapPlug,
+    create: :create_comment,
+    edit: :create_comment,
+    update: :create_comment
+
   plug :load_resource, model: Image, id_name: "image_id", persisted: true
   plug :verify_authorized when action in [:show]
 
@@ -18,7 +22,11 @@ defmodule PhilomenaWeb.Image.CommentController do
   plug PhilomenaWeb.LoadCommentPlug, [param: "id", show_hidden: true] when action in [:show]
   plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:edit, :update]
   plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
-  plug :authorize_resource, model: Comment, only: [:edit, :update], preload: [:image, user: [awards: :badge]]
+
+  plug :authorize_resource,
+    model: Comment,
+    only: [:edit, :update],
+    preload: [:image, user: [awards: :badge]]
 
   def index(conn, %{"comment_id" => comment_id}) do
     page = CommentLoader.find_page(conn, conn.assigns.image, comment_id)
@@ -31,15 +39,20 @@ defmodule PhilomenaWeb.Image.CommentController do
 
     rendered = Renderer.render_collection(comments.entries, conn)
 
-    comments =
-      %{comments | entries: Enum.zip(comments.entries, rendered)}
+    comments = %{comments | entries: Enum.zip(comments.entries, rendered)}
 
     render(conn, "index.html", layout: false, image: conn.assigns.image, comments: comments)
   end
 
   def show(conn, _params) do
     rendered = Renderer.render_one(conn.assigns.comment, conn)
-    render(conn, "show.html", layout: false, image: conn.assigns.image, comment: conn.assigns.comment, body: rendered)
+
+    render(conn, "show.html",
+      layout: false,
+      image: conn.assigns.image,
+      comment: conn.assigns.comment,
+      body: rendered
+    )
   end
 
   def create(conn, %{"comment" => comment_params}) do
@@ -67,7 +80,11 @@ defmodule PhilomenaWeb.Image.CommentController do
       conn.assigns.comment
       |> Comments.change_comment()
 
-    render(conn, "edit.html", title: "Editing Comment", comment: conn.assigns.comment, changeset: changeset)
+    render(conn, "edit.html",
+      title: "Editing Comment",
+      comment: conn.assigns.comment,
+      changeset: changeset
+    )
   end
 
   def update(conn, %{"comment" => comment_params}) do
@@ -77,7 +94,9 @@ defmodule PhilomenaWeb.Image.CommentController do
 
         conn
         |> put_flash(:info, "Comment updated successfully.")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{comment.id}"
+        )
 
       {:error, :comment, changeset, _changes} ->
         render(conn, "edit.html", comment: conn.assigns.comment, changeset: changeset)
@@ -86,16 +105,17 @@ defmodule PhilomenaWeb.Image.CommentController do
 
   defp verify_authorized(conn, _params) do
     image = conn.assigns.image
+
     image =
       case is_nil(image.duplicate_id) do
-        true   -> image
+        true -> image
         _false -> Images.get_image!(image.duplicate_id)
       end
 
     conn = assign(conn, :image, image)
 
     case Canada.Can.can?(conn.assigns.current_user, :show, image) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

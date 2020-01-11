@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.NotAuthorizedPlug do
   def init([]), do: []
 
   def call(conn), do: call(conn, nil)
+
   def call(conn, _opts) do
     conn
     |> Controller.fetch_flash()

@@ -27,11 +27,16 @@ defmodule Philomena.Slug do
   @spec destructive_slug(String.t()) :: String.t()
   def destructive_slug(input) when is_binary(input) do
     input
-    |> String.replace(~r/[^ -~]/, "")         # 1
-    |> String.replace(~r/[^a-zA-Z0-9]+/, "-") # 2
-    |> String.replace(~r/\A-|-\z/, "")        # 3
-    |> String.downcase()                      # 4
+    # 1
+    |> String.replace(~r/[^ -~]/, "")
+    # 2
+    |> String.replace(~r/[^a-zA-Z0-9]+/, "-")
+    # 3
+    |> String.replace(~r/\A-|-\z/, "")
+    # 4
+    |> String.downcase()
   end
+
   def destructive_slug(_input), do: ""
 
   def slug(string) when is_binary(string) do

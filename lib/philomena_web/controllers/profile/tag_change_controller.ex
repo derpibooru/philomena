@@ -16,19 +16,28 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
     tag_changes =
       TagChange
       |> join(:inner, [tc], i in Image, on: tc.image_id == i.id)
-      |> where([tc, i], tc.user_id == ^user.id and not (i.user_id == ^user.id and i.anonymous == true))
+      |> where(
+        [tc, i],
+        tc.user_id == ^user.id and not (i.user_id == ^user.id and i.anonymous == true)
+      )
       |> added_filter(params)
       |> preload([:tag, :user, image: [:user, :tags]])
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Tag Changes for User `#{user.name}'", user: user, tag_changes: tag_changes)
+    render(conn, "index.html",
+      title: "Tag Changes for User `#{user.name}'",
+      user: user,
+      tag_changes: tag_changes
+    )
   end
 
   defp added_filter(query, %{"added" => "1"}),
     do: where(query, added: true)
+
   defp added_filter(query, %{"added" => "0"}),
     do: where(query, added: false)
+
   defp added_filter(query, _params),
     do: query
 end

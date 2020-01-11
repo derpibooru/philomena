@@ -14,7 +14,12 @@ defmodule PhilomenaWeb.TopicController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
-  plug :load_and_authorize_resource, model: Forum, id_name: "forum_id", id_field: "short_name", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Forum,
+    id_name: "forum_id",
+    id_field: "short_name",
+    persisted: true
 
   plug PhilomenaWeb.LoadTopicPlug, [param: "id"] when action in [:show]
 
@@ -35,8 +40,7 @@ defmodule PhilomenaWeb.TopicController do
 
     page =
       with {post_id, _extra} <- Integer.parse(params["post_id"] || ""),
-           [post] <- Post |> where(id: ^post_id) |> Repo.all()
-      do
+           [post] <- Post |> where(id: ^post_id) |> Repo.all() do
         div(post.topic_position, 25) + 1
       else
         _ ->
@@ -51,26 +55,21 @@ defmodule PhilomenaWeb.TopicController do
       |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
       |> Repo.all()
 
-    rendered =
-      Renderer.render_collection(posts, conn)
+    rendered = Renderer.render_collection(posts, conn)
 
-    posts =
-      Enum.zip(posts, rendered)
+    posts = Enum.zip(posts, rendered)
 
-    posts =
-      %Scrivener.Page{
-        entries: posts,
-        page_number: page,
-        page_size: 25,
-        total_entries: topic.post_count,
-        total_pages: div(topic.post_count + 25 - 1, 25)
-      }
+    posts = %Scrivener.Page{
+      entries: posts,
+      page_number: page,
+      page_size: 25,
+      total_entries: topic.post_count,
+      total_pages: div(topic.post_count + 25 - 1, 25)
+    }
 
-    watching =
-      Topics.subscribed?(topic, conn.assigns.current_user)
+    watching = Topics.subscribed?(topic, conn.assigns.current_user)
 
-    voted =
-      PollVotes.voted?(topic.poll, conn.assigns.current_user)
+    voted = PollVotes.voted?(topic.poll, conn.assigns.current_user)
 
     changeset =
       %Post{}
@@ -78,7 +77,13 @@ defmodule PhilomenaWeb.TopicController do
 
     title = "#{topic.title} - #{forum.name} - Forums"
 
-    render(conn, "show.html", title: title, posts: posts, changeset: changeset, watching: watching, voted: voted)
+    render(conn, "show.html",
+      title: title,
+      posts: posts,
+      changeset: changeset,
+      watching: watching,
+      voted: voted
+    )
   end
 
   def new(conn, _params) do

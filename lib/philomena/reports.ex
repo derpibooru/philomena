@@ -123,14 +123,14 @@ defmodule Philomena.Reports do
   end
 
   def reindex_reports(report_ids) do
-    spawn fn ->
+    spawn(fn ->
       Report
       |> where([r], r.id in ^report_ids)
       |> preload([:user, :admin])
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
       |> Enum.map(&Elasticsearch.index_document(&1, Report))
-    end
+    end)
 
     report_ids
   end

@@ -41,11 +41,12 @@ defmodule Philomena.Topics do
   """
   def create_topic(forum, attribution, attrs \\ %{}) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
+
     topic =
       %Topic{}
       |> Topic.creation_changeset(attrs, forum, attribution)
 
-    Multi.new
+    Multi.new()
     |> Multi.insert(:topic, topic)
     |> Multi.run(:update_topic, fn repo, %{topic: topic} ->
       {count, nil} =
@@ -59,7 +60,10 @@ defmodule Philomena.Topics do
       {count, nil} =
         Forum
         |> where(id: ^topic.forum_id)
-        |> repo.update_all(inc: [post_count: 1, topic_count: 1], set: [last_post_id: hd(topic.posts).id])
+        |> repo.update_all(
+          inc: [post_count: 1, topic_count: 1],
+          set: [last_post_id: hd(topic.posts).id]
+        )
 
       {:ok, count}
     end)
@@ -70,7 +74,7 @@ defmodule Philomena.Topics do
   end
 
   def notify_topic(topic) do
-    spawn fn ->
+    spawn(fn ->
       forum =
         topic
         |> Repo.preload(:forum)
@@ -92,7 +96,7 @@ defmodule Philomena.Topics do
           action: "posted a new topic in"
         }
       )
-    end
+    end)
 
     topic
   end
@@ -147,6 +151,7 @@ defmodule Philomena.Topics do
   alias Philomena.Topics.Subscription
 
   def subscribed?(_topic, nil), do: false
+
   def subscribed?(topic, user) do
     Subscription
     |> where(topic_id: ^topic.id, user_id: ^user.id)
@@ -166,6 +171,7 @@ defmodule Philomena.Topics do
 
   """
   def create_subscription(_topic, nil), do: {:ok, nil}
+
   def create_subscription(topic, user) do
     %Subscription{topic_id: topic.id, user_id: user.id}
     |> Subscription.changeset(%{})
@@ -210,12 +216,12 @@ defmodule Philomena.Topics do
     Topic.unlock_changeset(topic)
     |> Repo.update()
   end
-  
+
   def move_topic(topic, new_forum_id) do
     old_forum_id = topic.forum_id
     topic_changes = Topic.move_changeset(topic, new_forum_id)
 
-    Multi.new
+    Multi.new()
     |> Multi.update(:topic, topic_changes)
     |> Multi.run(:update_old_forum, fn repo, %{topic: topic} ->
       {count, nil} =
@@ -247,6 +253,7 @@ defmodule Philomena.Topics do
   end
 
   def clear_notification(_topic, nil), do: nil
+
   def clear_notification(topic, user) do
     Notifications.delete_unread_notification("Topic", topic.id, user)
   end

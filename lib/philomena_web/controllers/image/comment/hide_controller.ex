@@ -19,12 +19,16 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
 
         conn
         |> put_flash(:info, "Comment successfully hidden!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
 
       _error ->
         conn
         |> put_flash(:error, "Unable to hide comment!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
     end
   end
 
@@ -37,12 +41,16 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
 
         conn
         |> put_flash(:info, "Comment successfully unhidden!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unhide comment!")
-        |> redirect(to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}")
+        |> redirect(
+          to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+        )
     end
   end
 end

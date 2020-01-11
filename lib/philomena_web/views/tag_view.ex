@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.TagView do
   import Ecto.Query
 
   def tag_categories do
-    [[key: "-", value: ""] | Tag.categories]
+    [[key: "-", value: ""] | Tag.categories()]
   end
 
   def manages_tags?(conn) do
@@ -48,10 +48,11 @@ defmodule PhilomenaWeb.TagView do
   def tab_body_class(_), do: "hidden"
 
   def tag_link(nil, tag_name), do: tag_name
+
   def tag_link(tag, tag_name) do
     title = title(implications(tag) ++ short_description(tag))
 
-    link tag_name, to: "#", title: title, data: [tag_name: tag_name, click_addtag: tag_name]
+    link(tag_name, to: "#", title: title, data: [tag_name: tag_name, click_addtag: tag_name])
   end
 
   def tags_row_class(%{params: %{"page" => "0"}}), do: nil
@@ -60,6 +61,7 @@ defmodule PhilomenaWeb.TagView do
   def tags_row_class(_conn), do: nil
 
   defp implications(%{implied_tags: []}), do: []
+
   defp implications(%{implied_tags: it}) do
     names =
       it
@@ -84,7 +86,7 @@ defmodule PhilomenaWeb.TagView do
 
     shipping =
       tabs
-      |> Enum.filter(&tab_modes[&1] == "shipping")
+      |> Enum.filter(&(tab_modes[&1] == "shipping"))
       |> Map.new(fn tab ->
         sd = data[tab]
 
@@ -95,7 +97,12 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp render_quick_tags({tags, shipping, data}, conn) do
-    render PhilomenaWeb.TagView, "_quick_tag_table.html", tags: tags, shipping: shipping, data: data, conn: conn
+    render(PhilomenaWeb.TagView, "_quick_tag_table.html",
+      tags: tags,
+      shipping: shipping,
+      data: data,
+      conn: conn
+    )
   end
 
   defp names_in_tab("default", data) do
@@ -131,7 +138,7 @@ defmodule PhilomenaWeb.TagView do
         query: %{
           bool: %{
             must: Enum.map(tag_names, &%{term: %{implied_tags: &1}}),
-            must_not: Enum.map(ignore_tag_names, &%{term: %{implied_tags: &1}}),
+            must_not: Enum.map(ignore_tag_names, &%{term: %{implied_tags: &1}})
           }
         },
         sort: %{images: :desc}

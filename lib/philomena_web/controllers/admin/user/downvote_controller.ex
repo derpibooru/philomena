@@ -8,9 +8,9 @@ defmodule PhilomenaWeb.Admin.User.DownvoteController do
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def delete(conn, _params) do
-    spawn fn ->
+    spawn(fn ->
       UserDownvoteWipe.perform(conn.assigns.user)
-    end
+    end)
 
     conn
     |> put_flash(:info, "Downvote wipe started.")
@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Admin.User.DownvoteController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, User) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

@@ -20,8 +20,12 @@ defmodule Philomena.UserStatistics.UserStatistic do
   def changeset(user_statistic, attrs) do
     user_statistic
     |> cast(attrs, [
-      :uploads, :votes_cast, :comments_posted, :metadata_updates,
-      :images_favourited, :forum_posts
+      :uploads,
+      :votes_cast,
+      :comments_posted,
+      :metadata_updates,
+      :images_favourited,
+      :forum_posts
     ])
   end
 end

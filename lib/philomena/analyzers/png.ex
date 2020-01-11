@@ -13,7 +13,16 @@ defmodule Philomena.Analyzers.Png do
   end
 
   defp animated?(file) do
-    System.cmd("ffprobe", ["-i", file, "-v", "quiet", "-show_entries", "stream=codec_name", "-of", "csv=p=0"])
+    System.cmd("ffprobe", [
+      "-i",
+      file,
+      "-v",
+      "quiet",
+      "-show_entries",
+      "stream=codec_name",
+      "-of",
+      "csv=p=0"
+    ])
     |> case do
       {"apng\n", 0} ->
         true

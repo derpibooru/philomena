@@ -26,20 +26,18 @@ defmodule PhilomenaWeb.ScraperPlug do
 
     File.write!(file, body)
 
-    fake_upload =
-      %Plug.Upload{
-        path: file,
-        content_type: "application/octet-stream",
-        filename: "scraper-#{now}"
-      }
+    fake_upload = %Plug.Upload{
+      path: file,
+      content_type: "application/octet-stream",
+      filename: "scraper-#{now}"
+    }
 
-    updated_form =
-      Map.put(conn.params[params_name], params_key, fake_upload)
+    updated_form = Map.put(conn.params[params_name], params_key, fake_upload)
 
-    updated_params =
-      Map.put(conn.params, params_name, updated_form)
+    updated_params = Map.put(conn.params, params_name, updated_form)
 
     %{conn | params: updated_params}
   end
+
   defp maybe_fixup_params(_response, _opts, conn), do: conn
 end

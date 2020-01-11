@@ -105,6 +105,7 @@ defmodule Philomena.Forums do
   end
 
   def subscribed?(_forum, nil), do: false
+
   def subscribed?(forum, user) do
     Subscription
     |> where(forum_id: ^forum.id, user_id: ^user.id)
@@ -112,6 +113,7 @@ defmodule Philomena.Forums do
   end
 
   def create_subscription(_forum, nil), do: {:ok, nil}
+
   def create_subscription(forum, user) do
     %Subscription{forum_id: forum.id, user_id: user.id}
     |> Subscription.changeset(%{})
@@ -138,6 +140,7 @@ defmodule Philomena.Forums do
   end
 
   def clear_notification(_forum, nil), do: nil
+
   def clear_notification(forum, user) do
     Notifications.delete_unread_notification("Forum", forum.id, user)
   end

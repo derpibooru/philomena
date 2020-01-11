@@ -10,7 +10,12 @@ defmodule PhilomenaWeb.Profile.DetailController do
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show_details
-  plug :load_and_authorize_resource, model: User, id_field: "slug", id_name: "profile_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: User,
+    id_field: "slug",
+    id_name: "profile_id",
+    persisted: true
 
   def index(conn, _params) do
     user = conn.assigns.user
@@ -34,6 +39,10 @@ defmodule PhilomenaWeb.Profile.DetailController do
       |> order_by(desc: :id)
       |> Repo.all()
 
-    render(conn, "index.html", title: "Profile Details for User `#{user.name}'", mod_notes: mod_notes, name_changes: name_changes)
+    render(conn, "index.html",
+      title: "Profile Details for User `#{user.name}'",
+      mod_notes: mod_notes,
+      name_changes: name_changes
+    )
   end
 end

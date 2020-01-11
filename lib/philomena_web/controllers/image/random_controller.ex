@@ -26,6 +26,7 @@ defmodule PhilomenaWeb.Image.RandomController do
 
     query
   end
+
   defp query(_user, _), do: %{match_all: %{}}
 
   defp random_image_id(query, filter) do

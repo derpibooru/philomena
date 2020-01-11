@@ -18,19 +18,25 @@ defmodule PhilomenaWeb.IpProfile.TagChangeController do
       |> order_by(desc: :created_at)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Tag Changes for IP `#{ip}'", ip: ip, tag_changes: tag_changes)
+    render(conn, "index.html",
+      title: "Tag Changes for IP `#{ip}'",
+      ip: ip,
+      tag_changes: tag_changes
+    )
   end
 
   defp added_filter(query, %{"added" => "1"}),
     do: where(query, added: true)
+
   defp added_filter(query, %{"added" => "0"}),
     do: where(query, added: false)
+
   defp added_filter(query, _params),
     do: query
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

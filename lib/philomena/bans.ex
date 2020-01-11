@@ -331,10 +331,11 @@ defmodule Philomena.Bans do
   """
   def exists_for?(user, ip, fingerprint) do
     now = DateTime.utc_now()
+
     queries =
       subnet_query(ip, now) ++
-      fingerprint_query(fingerprint, now) ++
-      user_query(user, now)
+        fingerprint_query(fingerprint, now) ++
+        user_query(user, now)
 
     bans =
       queries
@@ -343,38 +344,56 @@ defmodule Philomena.Bans do
 
     # Don't return a ban if the user is currently signed in.
     case is_nil(user) do
-      true  -> Enum.at(bans, 0)
+      true -> Enum.at(bans, 0)
       false -> user_ban(bans)
     end
   end
 
   defp fingerprint_query(nil, _now), do: []
+
   defp fingerprint_query(fingerprint, now) do
     [
       Fingerprint
-      |> select([f], %{reason: f.reason, valid_until: f.valid_until, generated_ban_id: f.generated_ban_id, type: ^"FingerprintBan"})
+      |> select([f], %{
+        reason: f.reason,
+        valid_until: f.valid_until,
+        generated_ban_id: f.generated_ban_id,
+        type: ^"FingerprintBan"
+      })
       |> where([f], f.enabled and f.valid_until > ^now)
       |> where([f], f.fingerprint == ^fingerprint)
     ]
   end
 
   defp subnet_query(nil, _now), do: []
+
   defp subnet_query(ip, now) do
     {:ok, inet} = EctoNetwork.INET.cast(ip)
 
     [
       Subnet
-      |> select([s], %{reason: s.reason, valid_until: s.valid_until, generated_ban_id: s.generated_ban_id, type: ^"SubnetBan"})
+      |> select([s], %{
+        reason: s.reason,
+        valid_until: s.valid_until,
+        generated_ban_id: s.generated_ban_id,
+        type: ^"SubnetBan"
+      })
       |> where([s], s.enabled and s.valid_until > ^now)
       |> where(fragment("specification >>= ?", ^inet))
     ]
   end
 
   defp user_query(nil, _now), do: []
+
   defp user_query(user, now) do
     [
       User
-      |> select([u], %{reason: u.reason, valid_until: u.valid_until, generated_ban_id: u.generated_ban_id, type: ^"UserBan"})
+      |> select([u], %{
+        reason: u.reason,
+        valid_until: u.valid_until,
+        generated_ban_id: u.generated_ban_id,
+        type: ^"UserBan"
+      })
       |> where([u], u.enabled and u.valid_until > ^now)
       |> where([u], u.user_id == ^user.id)
     ]
@@ -382,12 +401,13 @@ defmodule Philomena.Bans do
 
   defp union_all_queries([query]),
     do: query
+
   defp union_all_queries([query | rest]),
     do: query |> union_all(^union_all_queries(rest))
 
   defp user_ban(bans) do
     bans
-    |> Enum.filter(& &1.type == "UserBan")
+    |> Enum.filter(&(&1.type == "UserBan"))
     |> Enum.at(0)
   end
 end

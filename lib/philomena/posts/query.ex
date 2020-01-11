@@ -59,22 +59,22 @@ defmodule Philomena.Posts.Query do
   defp user_fields do
     fields = anonymous_fields()
 
-    Keyword.merge(fields, [
+    Keyword.merge(fields,
       custom_fields: fields[:custom_fields] ++ ~W(my),
       transforms: Map.merge(fields[:transforms], %{"my" => &user_my_transform/2})
-    ])
+    )
   end
 
   defp moderator_fields do
     fields = user_fields()
 
-    Keyword.merge(fields, [
+    Keyword.merge(fields,
       literal_fields: ~W(forum_id topic_id user_id author fingerprint),
       ip_fields: ~W(ip),
       bool_fields: ~W(anonymous deleted),
       custom_fields: fields[:custom_fields] -- ~W(author user_id),
       transforms: Map.drop(fields[:transforms], ["user_id", "author"])
-    ])
+    )
   end
 
   defp parse(fields, context, query_string) do

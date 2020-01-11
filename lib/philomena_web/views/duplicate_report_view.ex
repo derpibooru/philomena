@@ -30,17 +30,26 @@ defmodule PhilomenaWeb.DuplicateReportView do
     do: duplicate_of_image_id > image_id
 
   def higher_res?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: duplicate_of_image.image_width > image.image_width or duplicate_of_image.image_height > image.image_height
+    do:
+      duplicate_of_image.image_width > image.image_width or
+        duplicate_of_image.image_height > image.image_height
 
   def same_res?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: duplicate_of_image.image_width == image.image_width and duplicate_of_image.image_height == image.image_height
+    do:
+      duplicate_of_image.image_width == image.image_width and
+        duplicate_of_image.image_height == image.image_height
 
   def same_format?(%{image: image, duplicate_of_image: duplicate_of_image}),
     do: duplicate_of_image.image_mime_type == image.image_mime_type
 
   def better_format?(%{image: image, duplicate_of_image: duplicate_of_image}) do
-    source_index = Enum.find_index(@formats_order, &image.image_mime_type == &1) || length(@formats_order) - 1
-    target_index = Enum.find_index(@formats_order, &duplicate_of_image.image_mime_type == &1) || length(@formats_order) - 1
+    source_index =
+      Enum.find_index(@formats_order, &(image.image_mime_type == &1)) ||
+        length(@formats_order) - 1
+
+    target_index =
+      Enum.find_index(@formats_order, &(duplicate_of_image.image_mime_type == &1)) ||
+        length(@formats_order) - 1
 
     target_index < source_index
   end
@@ -95,27 +104,27 @@ defmodule PhilomenaWeb.DuplicateReportView do
 
   defp artist_tags(%{tags: tags}) do
     tags
-    |> Enum.filter(& &1.namespace == "artist")
+    |> Enum.filter(&(&1.namespace == "artist"))
     |> Enum.map(& &1.name)
     |> MapSet.new()
   end
 
   defp rating_tags(%{tags: tags}) do
     tags
-    |> Enum.filter(& &1.category == "rating")
+    |> Enum.filter(&(&1.category == "rating"))
     |> Enum.map(& &1.name)
     |> MapSet.new()
   end
 
   defp edit?(%{tags: tags}) do
     tags
-    |> Enum.filter(& &1.name == "edit")
+    |> Enum.filter(&(&1.name == "edit"))
     |> Enum.any?()
   end
 
   defp alternate_version?(%{tags: tags}) do
     tags
-    |> Enum.filter(& &1.name == "alternate version")
+    |> Enum.filter(&(&1.name == "alternate version"))
     |> Enum.any?()
   end
 

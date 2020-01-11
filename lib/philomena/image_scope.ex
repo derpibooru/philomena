@@ -11,7 +11,7 @@ defmodule Philomena.ImageScope do
   defp scope(list, conn, key, key_atom) do
     case conn.params[key] do
       nil -> list
-      ""  -> list
+      "" -> list
       val -> [{key_atom, val} | list]
     end
   end

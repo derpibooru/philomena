@@ -8,18 +8,21 @@ defmodule PhilomenaWeb.Admin.User.WipeController do
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def create(conn, _params) do
-    spawn fn ->
+    spawn(fn ->
       UserWipe.perform(conn.assigns.user)
-    end
+    end)
 
     conn
-    |> put_flash(:info, "PII wipe started, please verify and then deactivate the account as necessary.")
+    |> put_flash(
+      :info,
+      "PII wipe started, please verify and then deactivate the account as necessary."
+    )
     |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
   end
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, User) do
-      true   -> conn
+      true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end

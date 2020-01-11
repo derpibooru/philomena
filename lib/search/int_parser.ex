@@ -27,5 +27,5 @@ defmodule Search.IntParser do
     |> eos()
     |> label("an integer, like `3' or `-10'")
 
-  defparsec :parse, int_parser
+  defparsec(:parse, int_parser)
 end

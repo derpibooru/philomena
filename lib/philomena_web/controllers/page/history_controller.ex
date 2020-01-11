@@ -19,7 +19,11 @@ defmodule PhilomenaWeb.Page.HistoryController do
       |> Repo.all()
       |> generate_differences(page.body)
 
-    render(conn, "index.html", title: "Revision History for Page `#{page.title}'", layout_class: "layout--wide", versions: versions)
+    render(conn, "index.html",
+      title: "Revision History for Page `#{page.title}'",
+      layout_class: "layout--wide",
+      versions: versions
+    )
   end
 
   defp generate_differences(pages, current_body) do

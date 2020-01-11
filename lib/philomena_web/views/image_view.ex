@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.ImageView do
 
   # this is a bit ridiculous
   def render_intent(_conn, %{thumbnails_generated: false}, _size), do: :not_rendered
+
   def render_intent(conn, image, size) do
     uris = thumb_urls(image, can?(conn, :show, image))
     vid? = image.image_mime_type == "video/webm"
@@ -78,12 +79,14 @@ defmodule PhilomenaWeb.ImageView do
       }
     )
   end
+
   defp append_gif_urls(urls, _image, _show_hidden), do: urls
 
   def thumb_url(image, show_hidden, name) do
     %{year: year, month: month, day: day} = image.created_at
     deleted = image.hidden_from_users
     root = image_url_root()
+
     format =
       image.image_format
       |> to_string()
@@ -106,6 +109,7 @@ defmodule PhilomenaWeb.ImageView do
 
     view = if download, do: "download", else: "view"
     filename = if short, do: image.id, else: image.file_name_cache
+
     format =
       image.image_format
       |> to_string()
@@ -140,7 +144,10 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def image_container(conn, image, size, block) do
-    content_tag(:div, block.(), class: "image-container #{size}", data: image_container_data(conn, image, size))
+    content_tag(:div, block.(),
+      class: "image-container #{size}",
+      data: image_container_data(conn, image, size)
+    )
   end
 
   def display_order(tags) do
@@ -157,16 +164,23 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def info_row(_conn, []), do: []
+
   def info_row(conn, [{tag, description, dnp_entries}]) do
-    render PhilomenaWeb.TagView, "_tag_info_row.html", conn: conn, tag: tag, body: description, dnp_entries: dnp_entries
+    render(PhilomenaWeb.TagView, "_tag_info_row.html",
+      conn: conn,
+      tag: tag,
+      body: description,
+      dnp_entries: dnp_entries
+    )
   end
+
   def info_row(conn, tags) do
-    render PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags
+    render(PhilomenaWeb.TagView, "_tags_row.html", conn: conn, tags: tags)
   end
 
   def quick_tag(conn) do
     if can?(conn, :batch_update, Tag) do
-      render PhilomenaWeb.ImageView, "_quick_tag.html", conn: conn
+      render(PhilomenaWeb.ImageView, "_quick_tag.html", conn: conn)
     end
   end
 
@@ -179,17 +193,22 @@ defmodule PhilomenaWeb.ImageView do
   def hides_images?(conn), do: can?(conn, :hide, %Philomena.Images.Image{})
 
   def random_button(conn, params) do
-    render PhilomenaWeb.ImageView, "_random_button.html", conn: conn, params: params
+    render(PhilomenaWeb.ImageView, "_random_button.html", conn: conn, params: params)
   end
 
   def hidden_toggle(%{assigns: %{current_user: nil}}, _route, _params), do: nil
+
   def hidden_toggle(conn, route, params) do
-    render PhilomenaWeb.ImageView, "_hidden_toggle.html", route: route, params: params, conn: conn
+    render(PhilomenaWeb.ImageView, "_hidden_toggle.html", route: route, params: params, conn: conn)
   end
 
   def deleted_toggle(conn, route, params) do
     if hides_images?(conn) do
-      render PhilomenaWeb.ImageView, "_deleted_toggle.html", route: route, params: params, conn: conn
+      render(PhilomenaWeb.ImageView, "_deleted_toggle.html",
+        route: route,
+        params: params,
+        conn: conn
+      )
     end
   end
 
@@ -199,21 +218,21 @@ defmodule PhilomenaWeb.ImageView do
 
   defp image_filter_data(image) do
     %{
-      id:                     image.id,
+      id: image.id,
       "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache || "", ", "),
-      score:                  image.score,
-      faves:                  image.faves_count,
-      upvotes:                image.upvotes_count,
-      downvotes:              image.downvotes_count,
-      comment_count:          image.comments_count,
-      created_at:             image.created_at,
-      first_seen_at:          image.first_seen_at,
-      source_url:             image.source_url,
-      width:                  image.image_width,
-      height:                 image.image_height,
-      aspect_ratio:           image.image_aspect_ratio,
-      sha512_hash:            image.image_sha512_hash,
-      orig_sha512_hash:       image.image_orig_sha512_hash
+      score: image.score,
+      faves: image.faves_count,
+      upvotes: image.upvotes_count,
+      downvotes: image.downvotes_count,
+      comment_count: image.comments_count,
+      created_at: image.created_at,
+      first_seen_at: image.first_seen_at,
+      source_url: image.source_url,
+      width: image.image_width,
+      height: image.image_height,
+      aspect_ratio: image.image_aspect_ratio,
+      sha512_hash: image.image_sha512_hash,
+      orig_sha512_hash: image.image_orig_sha512_hash
     }
   end
 
@@ -233,6 +252,7 @@ defmodule PhilomenaWeb.ImageView do
     doc = image_filter_data(image)
     complex_filter = conn.assigns.compiled_complex_filter
     complex_spoiler = conn.assigns.compiled_complex_spoiler
+
     query = %{
       bool: %{
         should: [complex_filter, complex_spoiler]

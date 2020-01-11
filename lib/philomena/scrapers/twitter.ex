@@ -17,7 +17,12 @@ defmodule Philomena.Scrapers.Twitter do
   defp extract_data(tweet) do
     images =
       tweet["entities"]["media"]
-      |> Enum.map(&%{url: &1["media_url_https"] <> ":orig", camo_url: Camo.Image.image_url(&1["media_url_https"])})
+      |> Enum.map(
+        &%{
+          url: &1["media_url_https"] <> ":orig",
+          camo_url: Camo.Image.image_url(&1["media_url_https"])
+        }
+      )
 
     %{
       source_url: tweet["url"],
@@ -34,7 +39,10 @@ defmodule Philomena.Scrapers.Twitter do
     [user, status_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     mobile_url = "https://mobile.twitter.com/#{user}/status/#{status_id}"
-    api_url = "https://api.twitter.com/2/timeline/conversation/#{status_id}.json?tweet_mode=extended"
+
+    api_url =
+      "https://api.twitter.com/2/timeline/conversation/#{status_id}.json?tweet_mode=extended"
+
     url = "https://twitter.com/#{user}/status/#{status_id}"
 
     {gt, bearer} =
@@ -42,7 +50,7 @@ defmodule Philomena.Scrapers.Twitter do
       |> Map.get(:body)
       |> extract_guest_token_and_bearer()
 
-    Philomena.Http.get!(api_url, ["Authorization": "Bearer #{bearer}", "x-guest-token": gt])
+    Philomena.Http.get!(api_url, Authorization: "Bearer #{bearer}", "x-guest-token": gt)
     |> Map.get(:body)
     |> Jason.decode!()
     |> Map.get("globalObjects")

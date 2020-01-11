@@ -7,7 +7,10 @@ defmodule PhilomenaWeb.Admin.DnpEntryView do
     do: DnpEntryView.pretty_state(dnp_entry)
 
   def dnp_entry_row_class(%{aasm_state: state}) when state in ["closed", "listed"], do: "success"
-  def dnp_entry_row_class(%{aasm_state: state}) when state in ["claimed", "acknowledged"], do: "warning"
+
+  def dnp_entry_row_class(%{aasm_state: state}) when state in ["claimed", "acknowledged"],
+    do: "warning"
+
   def dnp_entry_row_class(_dnp_entry), do: "danger"
 
   def state_param(states) when is_list(states), do: states

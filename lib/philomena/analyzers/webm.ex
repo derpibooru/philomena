@@ -10,9 +10,18 @@ defmodule Philomena.Analyzers.Webm do
   end
 
   defp duration(file) do
-    with {output, 0} <- System.cmd("ffprobe", ["-i", file, "-show_entries", "format=duration", "-v", "quiet", "-of", "csv=p=0"]),
-         {duration, _} <- Float.parse(output)
-    do
+    with {output, 0} <-
+           System.cmd("ffprobe", [
+             "-i",
+             file,
+             "-show_entries",
+             "format=duration",
+             "-v",
+             "quiet",
+             "-of",
+             "csv=p=0"
+           ]),
+         {duration, _} <- Float.parse(output) do
       duration
     else
       _ ->
@@ -21,7 +30,16 @@ defmodule Philomena.Analyzers.Webm do
   end
 
   defp dimensions(file) do
-    System.cmd("ffprobe", ["-i", file, "-show_entries", "stream=width,height", "-v", "quiet", "-of", "csv=p=0"])
+    System.cmd("ffprobe", [
+      "-i",
+      file,
+      "-show_entries",
+      "stream=width,height",
+      "-v",
+      "quiet",
+      "-of",
+      "csv=p=0"
+    ])
     |> case do
       {output, 0} ->
         [width, height] =

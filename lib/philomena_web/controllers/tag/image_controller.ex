@@ -5,7 +5,13 @@ defmodule PhilomenaWeb.Tag.ImageController do
   alias Philomena.Tags
 
   plug PhilomenaWeb.CanaryMapPlug, update: :edit, delete: :edit
-  plug :load_and_authorize_resource, model: Tag, id_name: "tag_id", id_field: "slug", preload: [:implied_tags], persisted: true
+
+  plug :load_and_authorize_resource,
+    model: Tag,
+    id_name: "tag_id",
+    id_field: "slug",
+    preload: [:implied_tags],
+    persisted: true
 
   def edit(conn, _params) do
     changeset = Tags.change_tag(conn.assigns.tag)

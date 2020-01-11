@@ -62,7 +62,7 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     target_id = get_field(changeset, :duplicate_of_image_id)
 
     case source_id == target_id do
-      true  -> add_error(changeset, :image_id, "must be different from the target")
+      true -> add_error(changeset, :image_id, "must be different from the target")
       false -> changeset
     end
   end

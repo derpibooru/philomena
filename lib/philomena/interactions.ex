@@ -13,7 +13,7 @@ defmodule Philomena.Interactions do
 
   def user_interactions(images, user) do
     ids =
-      images 
+      images
       |> Enum.flat_map(fn
         nil -> []
         %{id: id} -> [id]
@@ -23,25 +23,45 @@ defmodule Philomena.Interactions do
 
     hide_interactions =
       ImageHide
-      |> select([h], %{image_id: h.image_id, user_id: h.user_id, interaction_type: ^"hidden", value: ^""})
+      |> select([h], %{
+        image_id: h.image_id,
+        user_id: h.user_id,
+        interaction_type: ^"hidden",
+        value: ^""
+      })
       |> where([h], h.image_id in ^ids)
       |> where(user_id: ^user.id)
 
     fave_interactions =
       ImageFave
-      |> select([f], %{image_id: f.image_id, user_id: f.user_id, interaction_type: ^"faved", value: ^""})
+      |> select([f], %{
+        image_id: f.image_id,
+        user_id: f.user_id,
+        interaction_type: ^"faved",
+        value: ^""
+      })
       |> where([f], f.image_id in ^ids)
       |> where(user_id: ^user.id)
 
     upvote_interactions =
       ImageVote
-      |> select([v], %{image_id: v.image_id, user_id: v.user_id, interaction_type: ^"voted", value: ^"up"})
+      |> select([v], %{
+        image_id: v.image_id,
+        user_id: v.user_id,
+        interaction_type: ^"voted",
+        value: ^"up"
+      })
       |> where([v], v.image_id in ^ids)
       |> where(user_id: ^user.id, up: true)
 
     downvote_interactions =
       ImageVote
-      |> select([v], %{image_id: v.image_id, user_id: v.user_id, interaction_type: ^"voted", value: ^"down"})
+      |> select([v], %{
+        image_id: v.image_id,
+        user_id: v.user_id,
+        interaction_type: ^"voted",
+        value: ^"down"
+      })
       |> where([v], v.image_id in ^ids)
       |> where(user_id: ^user.id, up: false)
 
@@ -61,10 +81,20 @@ defmodule Philomena.Interactions do
 
     new_hides = Enum.map(source.hiders, &%{image_id: target.id, user_id: &1.id, created_at: now})
     new_faves = Enum.map(source.favers, &%{image_id: target.id, user_id: &1.id, created_at: now})
-    new_upvotes = Enum.map(source.upvoters, &%{image_id: target.id, user_id: &1.id, created_at: now, up: true})
-    new_downvotes = Enum.map(source.downvoters, &%{image_id: target.id, user_id: &1.id, created_at: now, up: false})
 
-    Multi.new
+    new_upvotes =
+      Enum.map(
+        source.upvoters,
+        &%{image_id: target.id, user_id: &1.id, created_at: now, up: true}
+      )
+
+    new_downvotes =
+      Enum.map(
+        source.downvoters,
+        &%{image_id: target.id, user_id: &1.id, created_at: now, up: false}
+      )
+
+    Multi.new()
     |> Multi.run(:hides, fn repo, %{} ->
       {count, nil} = repo.insert_all(ImageHide, new_hides, on_conflict: :nothing)
 
@@ -85,7 +115,8 @@ defmodule Philomena.Interactions do
 
       {:ok, count}
     end)
-    |> Multi.run(:image, fn repo, %{hides: hides, faves: faves, upvotes: upvotes, downvotes: downvotes} ->
+    |> Multi.run(:image, fn repo,
+                            %{hides: hides, faves: faves, upvotes: upvotes, downvotes: downvotes} ->
       image_query = where(Image, id: ^target.id)
 
       repo.update_all(
@@ -106,6 +137,7 @@ defmodule Philomena.Interactions do
 
   defp union_all_queries([query]),
     do: query
+
   defp union_all_queries([query | rest]),
     do: query |> union_all(^union_all_queries(rest))
 end

@@ -55,5 +55,5 @@ defmodule Search.LiteralParser do
       wildcard
     ])
 
-  defparsec :parse, literal
+  defparsec(:parse, literal)
 end

@@ -15,7 +15,8 @@ defmodule Philomena.Repo do
 
   def isolated_transaction(%Multi{} = multi, level) do
     Multi.append(
-      Multi.new |> Multi.run(:isolate, fn repo, _chg ->
+      Multi.new()
+      |> Multi.run(:isolate, fn repo, _chg ->
         repo.query!("SET TRANSACTION ISOLATION LEVEL #{@levels[level]}")
         {:ok, nil}
       end),

@@ -30,15 +30,16 @@ defmodule Search.Parser do
 
   def parser(options) do
     parser = struct(Parser, options)
+
     fields =
       Enum.map(parser.bool_fields, fn f -> {f, BoolParser} end) ++
-      Enum.map(parser.date_fields, fn f -> {f, DateParser} end) ++
-      Enum.map(parser.float_fields, fn f -> {f, FloatParser} end) ++
-      Enum.map(parser.int_fields, fn f -> {f, IntParser} end) ++
-      Enum.map(parser.ip_fields, fn f -> {f, IpParser} end) ++
-      Enum.map(parser.literal_fields, fn f -> {f, LiteralParser} end) ++
-      Enum.map(parser.ngram_fields, fn f -> {f, NgramParser} end) ++
-      Enum.map(parser.custom_fields, fn f -> {f, :custom_field} end)
+        Enum.map(parser.date_fields, fn f -> {f, DateParser} end) ++
+        Enum.map(parser.float_fields, fn f -> {f, FloatParser} end) ++
+        Enum.map(parser.int_fields, fn f -> {f, IntParser} end) ++
+        Enum.map(parser.ip_fields, fn f -> {f, IpParser} end) ++
+        Enum.map(parser.literal_fields, fn f -> {f, LiteralParser} end) ++
+        Enum.map(parser.ngram_fields, fn f -> {f, NgramParser} end) ++
+        Enum.map(parser.custom_fields, fn f -> {f, :custom_field} end)
 
     %{parser | __fields__: Map.new(fields)}
   end
@@ -54,8 +55,7 @@ defmodule Search.Parser do
     parser = %{parser | __data__: context}
 
     with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
-         {:ok, {tree, []}} <- search_top(parser, tokens)
-    do
+         {:ok, {tree, []}} <- search_top(parser, tokens) do
       {:ok, tree}
     else
       {:ok, {_tree, tokens}} ->
@@ -69,7 +69,7 @@ defmodule Search.Parser do
 
       err ->
         err
-        #{:error, "unknown parsing error"}
+        # {:error, "unknown parsing error"}
     end
   end
 
@@ -87,8 +87,7 @@ defmodule Search.Parser do
 
   defp search_or(parser, tokens) do
     with {:ok, {left, [{:or, _} | r_tokens]}} <- search_and(parser, tokens),
-         {:ok, {right, rest}} <- search_or(parser, r_tokens)
-    do
+         {:ok, {right, rest}} <- search_or(parser, r_tokens) do
       {:ok, {flatten_disjunction_child(left, right), rest}}
     else
       value ->
@@ -98,8 +97,7 @@ defmodule Search.Parser do
 
   defp search_and(parser, tokens) do
     with {:ok, {left, [{:and, _} | r_tokens]}} <- search_boost(parser, tokens),
-         {:ok, {right, rest}} <- search_and(parser, r_tokens)
-    do
+         {:ok, {right, rest}} <- search_and(parser, r_tokens) do
       {:ok, {flatten_conjunction_child(left, right), rest}}
     else
       value ->
@@ -160,8 +158,7 @@ defmodule Search.Parser do
     end
   end
 
-  defp search_field(_parser, _tokens), do:
-    {:error, "Expected a term."}
+  defp search_field(_parser, _tokens), do: {:error, "Expected a term."}
 
   #
   # Predictive LL(k) RD parser for search terms in parent grammar
@@ -169,7 +166,7 @@ defmodule Search.Parser do
 
   defp field_top(parser, tokens), do: field_term(parser, tokens)
 
-  defp field_term(parser, [custom_field: field_name, range: :eq, value: value]) do
+  defp field_term(parser, custom_field: field_name, range: :eq, value: value) do
     case parser.transforms[field_name].(parser.__data__, String.trim(value)) do
       {:ok, child} ->
         {:ok, {child, []}}
@@ -187,7 +184,7 @@ defmodule Search.Parser do
 
       err ->
         err
-    end   
+    end
   end
 
   # Types which do not support ranges
@@ -196,7 +193,13 @@ defmodule Search.Parser do
     do: {:ok, {%{term: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
 
   defp field_type(parser, [{LiteralParser, field_name}, range: :eq, literal: value, fuzz: fuzz]),
-    do: {:ok, {%{fuzzy: %{field(parser, field_name) => %{value: normalize_value(parser, value), fuzziness: fuzz}}}, []}}
+    do:
+      {:ok,
+       {%{
+          fuzzy: %{
+            field(parser, field_name) => %{value: normalize_value(parser, value), fuzziness: fuzz}
+          }
+        }, []}}
 
   defp field_type(_parser, [{LiteralParser, _field_name}, range: :eq, wildcard: "*"]),
     do: {:ok, {%{match_all: %{}}, []}}
@@ -204,12 +207,13 @@ defmodule Search.Parser do
   defp field_type(parser, [{LiteralParser, field_name}, range: :eq, wildcard: value]),
     do: {:ok, {%{wildcard: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
 
-
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, literal: value]),
-    do: {:ok, {%{match_phrase: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
+    do:
+      {:ok, {%{match_phrase: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
 
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, literal: value, fuzz: _fuzz]),
-    do: {:ok, {%{match_phrase: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
+    do:
+      {:ok, {%{match_phrase: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
 
   defp field_type(_parser, [{NgramParser, _field_name}, range: :eq, wildcard: "*"]),
     do: {:ok, {%{match_all: %{}}, []}}
@@ -217,13 +221,11 @@ defmodule Search.Parser do
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, wildcard: value]),
     do: {:ok, {%{wildcard: %{field(parser, field_name) => normalize_value(parser, value)}}, []}}
 
-
   defp field_type(parser, [{BoolParser, field_name}, range: :eq, bool: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
 
   defp field_type(parser, [{IpParser, field_name}, range: :eq, ip: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
-
 
   # Types which do support ranges
 
@@ -239,7 +241,6 @@ defmodule Search.Parser do
   defp field_type(_parser, [{IntParser, field_name}, range: _range, int_range: _value]),
     do: {:error, "multiple ranges specified for " <> field_name}
 
-
   defp field_type(parser, [{FloatParser, field_name}, range: :eq, float: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
 
@@ -252,16 +253,16 @@ defmodule Search.Parser do
   defp field_type(_parser, [{FloatParser, field_name}, range: _range, float_range: _value]),
     do: {:error, "multiple ranges specified for " <> field_name}
 
-
   defp field_type(parser, [{DateParser, field_name}, range: :eq, date: [lower, upper]]),
     do: {:ok, {%{range: %{field(parser, field_name) => %{gte: lower, lt: upper}}}, []}}
 
-  defp field_type(parser, [{DateParser, field_name}, range: r, date: [_lower, upper]]) when r in [:lte, :gt],
-    do: {:ok, {%{range: %{field(parser, field_name) => %{r => upper}}}, []}}
+  defp field_type(parser, [{DateParser, field_name}, range: r, date: [_lower, upper]])
+       when r in [:lte, :gt],
+       do: {:ok, {%{range: %{field(parser, field_name) => %{r => upper}}}, []}}
 
-  defp field_type(parser, [{DateParser, field_name}, range: r, date: [lower, _upper]]) when r in [:gte, :lt],
-    do: {:ok, {%{range: %{field(parser, field_name) => %{r => lower}}}, []}}
-
+  defp field_type(parser, [{DateParser, field_name}, range: r, date: [lower, _upper]])
+       when r in [:gte, :lt],
+       do: {:ok, {%{range: %{field(parser, field_name) => %{r => lower}}}, []}}
 
   defp field(parser, field_name) do
     parser.aliases[field_name] || field_name
@@ -275,23 +276,23 @@ defmodule Search.Parser do
 
   # Flattens the child of a disjunction or conjunction to improve performance.
   defp flatten_disjunction_child(this_child, %{bool: %{should: next_child}} = child)
-    when child == %{bool: %{should: next_child}} and is_list(next_child),
-    do: %{bool: %{should: [this_child | next_child]}}
+       when child == %{bool: %{should: next_child}} and is_list(next_child),
+       do: %{bool: %{should: [this_child | next_child]}}
 
   defp flatten_disjunction_child(this_child, next_child),
     do: %{bool: %{should: [this_child, next_child]}}
 
   defp flatten_conjunction_child(this_child, %{bool: %{must: next_child}} = child)
-    when child == %{bool: %{must: next_child}} and is_list(next_child),
-    do: %{bool: %{must: [this_child | next_child]}}
+       when child == %{bool: %{must: next_child}} and is_list(next_child),
+       do: %{bool: %{must: [this_child | next_child]}}
 
   defp flatten_conjunction_child(this_child, next_child),
     do: %{bool: %{must: [this_child, next_child]}}
 
   # Flattens the child of a negation to eliminate double negation.
   defp flatten_negation_child(%{bool: %{must_not: next_child}} = child)
-    when child == %{bool: %{must_not: next_child}} and is_map(next_child),
-    do: next_child
+       when child == %{bool: %{must_not: next_child}} and is_map(next_child),
+       do: next_child
 
   defp flatten_negation_child(next_child),
     do: %{bool: %{must_not: next_child}}

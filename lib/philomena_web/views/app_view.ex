@@ -38,7 +38,10 @@ defmodule PhilomenaWeb.AppView do
 
     words = distance_of_time_in_words(now, time)
 
-    content_tag(:time, "#{words} #{relation}", datetime: DateTime.to_iso8601(time), title: datetime_string(time))
+    content_tag(:time, "#{words} #{relation}",
+      datetime: DateTime.to_iso8601(time),
+      title: datetime_string(time)
+    )
   end
 
   def distance_of_time_in_words(time_2, time_1) do
@@ -75,6 +78,7 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def number_with_delimiter(nil), do: "0"
+
   def number_with_delimiter(number) do
     number
     |> to_charlist()
@@ -99,11 +103,12 @@ defmodule PhilomenaWeb.AppView do
     data = Keyword.get(args, :data, [])
 
     form_for(nil, route, [method: method, class: "button_to"], fn _f ->
-      submit text, class: class, data: data
+      submit(text, class: class, data: data)
     end)
   end
 
   def escape_nl2br(nil), do: nil
+
   def escape_nl2br(text) do
     text
     |> String.split("\n")
@@ -126,6 +131,7 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def link_to_ip(_conn, nil), do: content_tag(:code, "null")
+
   def link_to_ip(_conn, ip) do
     link(to: "/ip_profiles/#{ip}") do
       [
@@ -137,6 +143,7 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def link_to_fingerprint(_conn, nil), do: content_tag(:code, "null")
+
   def link_to_fingerprint(_conn, fp) do
     link(to: "/fingerprint_profiles/#{fp}") do
       [

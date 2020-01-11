@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   alias PhilomenaWeb.ImageJson
 
   plug :set_scraper_cache
-  plug PhilomenaWeb.ScraperPlug, [params_key: "image", params_name: "image"]
+  plug PhilomenaWeb.ScraperPlug, params_key: "image", params_name: "image"
 
   def create(conn, %{"image" => image_params}) do
     images =
@@ -29,10 +29,11 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   end
 
   defp normalize_dist(%{"distance" => distance}) do
-    "0" <> distance
+    ("0" <> distance)
     |> Float.parse()
     |> elem(0)
     |> Float.to_string()
   end
+
   defp normalize_dist(_dist), do: "0.25"
 end

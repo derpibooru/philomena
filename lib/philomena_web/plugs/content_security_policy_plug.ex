@@ -7,14 +7,14 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
 
     csp_value =
       "default-src 'self' #{cdn_uri}; object-src 'none'; " <>
-      "frame-ancestors 'none'; frame-src 'none'; form-action 'self'; " <>
-      "manifest-src 'self'; img-src 'self' data: #{cdn_uri} #{camo_uri}; " <>
-      "block-all-mixed-content"
+        "frame-ancestors 'none'; frame-src 'none'; form-action 'self'; " <>
+        "manifest-src 'self'; img-src 'self' data: #{cdn_uri} #{camo_uri}; " <>
+        "block-all-mixed-content"
 
     [csp_value: csp_value]
   end
 
-  def call(conn, [csp_value: csp_value]) do
+  def call(conn, csp_value: csp_value) do
     Conn.put_resp_header(conn, "content-security-policy", csp_value)
   end
 

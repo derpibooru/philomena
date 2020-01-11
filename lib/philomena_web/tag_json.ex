@@ -25,6 +25,7 @@ defmodule PhilomenaWeb.TagJson do
   # TODO: copied from Tag.Fetch
   defp tag_image(%{image: image}) when image not in [nil, ""],
     do: tag_url_root() <> "/" <> image
+
   defp tag_image(_other),
     do: nil
 

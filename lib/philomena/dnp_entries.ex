@@ -50,7 +50,7 @@ defmodule Philomena.DnpEntries do
 
   """
   def create_dnp_entry(user, tags, attrs \\ %{}) do
-    tag = Enum.find(tags, &to_string(&1.id) == attrs["tag_id"])
+    tag = Enum.find(tags, &(to_string(&1.id) == attrs["tag_id"]))
 
     %DnpEntry{}
     |> DnpEntry.creation_changeset(attrs, tag, user)
@@ -70,7 +70,7 @@ defmodule Philomena.DnpEntries do
 
   """
   def update_dnp_entry(%DnpEntry{} = dnp_entry, tags, attrs) do
-    tag = Enum.find(tags, &to_string(&1.id) == attrs["tag_id"])
+    tag = Enum.find(tags, &(to_string(&1.id) == attrs["tag_id"]))
 
     dnp_entry
     |> DnpEntry.update_changeset(attrs, tag)

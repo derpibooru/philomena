@@ -118,6 +118,7 @@ defmodule Philomena.Channels do
 
   """
   def create_subscription(_channel, nil), do: {:ok, nil}
+
   def create_subscription(channel, user) do
     %Subscription{channel_id: channel.id, user_id: user.id}
     |> Subscription.changeset(%{})
@@ -144,6 +145,7 @@ defmodule Philomena.Channels do
   end
 
   def subscribed?(_channel, nil), do: false
+
   def subscribed?(channel, user) do
     Subscription
     |> where(channel_id: ^channel.id, user_id: ^user.id)
@@ -151,6 +153,7 @@ defmodule Philomena.Channels do
   end
 
   def subscriptions(_channels, nil), do: %{}
+
   def subscriptions(channels, user) do
     channel_ids = Enum.map(channels, & &1.id)
 

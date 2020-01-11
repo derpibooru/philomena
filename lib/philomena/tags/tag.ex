@@ -45,8 +45,16 @@ defmodule Philomena.Tags.Tag do
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
     has_many :aliases, Tag, foreign_key: :aliased_tag_id
-    many_to_many :implied_tags, Tag, join_through: "tags_implied_tags", join_keys: [tag_id: :id, implied_tag_id: :id], on_replace: :delete
-    many_to_many :implied_by_tags, Tag, join_through: "tags_implied_tags", join_keys: [implied_tag_id: :id, tag_id: :id]
+
+    many_to_many :implied_tags, Tag,
+      join_through: "tags_implied_tags",
+      join_keys: [tag_id: :id, implied_tag_id: :id],
+      on_replace: :delete
+
+    many_to_many :implied_by_tags, Tag,
+      join_through: "tags_implied_tags",
+      join_keys: [implied_tag_id: :id, tag_id: :id]
+
     has_many :public_links, UserLink, where: [public: true, aasm_state: "verified"]
     has_many :hidden_links, UserLink, where: [public: false, aasm_state: "verified"]
     has_many :dnp_entries, DnpEntry, where: [aasm_state: "listed"]
@@ -118,23 +126,25 @@ defmodule Philomena.Tags.Tag do
     |> to_string()
     |> String.split(",")
     |> Enum.map(&clean_tag_name/1)
-    |> Enum.reject(&"" == &1)
+    |> Enum.reject(&("" == &1))
   end
 
   def display_order(tags) do
     tags
-    |> Enum.sort_by(&{
-      &1.category != "error",
-      &1.category != "rating",
-      &1.category != "origin",
-      &1.category != "character",
-      &1.category != "oc",
-      &1.category != "species",
-      &1.category != "content-fanmade",
-      &1.category != "content-official",
-      &1.category != "spoiler",
-      &1.name
-    })
+    |> Enum.sort_by(
+      &{
+        &1.category != "error",
+        &1.category != "rating",
+        &1.category != "origin",
+        &1.category != "character",
+        &1.category != "oc",
+        &1.category != "species",
+        &1.category != "content-fanmade",
+        &1.category != "content-official",
+        &1.category != "spoiler",
+        &1.name
+      }
+    )
   end
 
   def categories do
@@ -175,13 +185,16 @@ defmodule Philomena.Tags.Tag do
 
   defp join_namespace_parts([_name], original_name),
     do: original_name
+
   defp join_namespace_parts([namespace, name], _original_name) when namespace in @namespaces,
     do: namespace <> ":" <> name
+
   defp join_namespace_parts([_namespace, _name], original_name),
     do: original_name
 
   defp ununderscore(<<"artist:", _rest::binary>> = name),
     do: name
+
   defp ununderscore(name),
     do: String.replace(name, "_", " ")
 
@@ -222,7 +235,7 @@ defmodule Philomena.Tags.Tag do
     namespace = changeset |> get_field(:namespace)
 
     case @namespace_categories[namespace] do
-      nil      -> changeset
+      nil -> changeset
       category -> change(changeset, category: category)
     end
   end
