@@ -58,6 +58,30 @@ defmodule PhilomenaWeb.FilterController do
     )
   end
 
+  def new(conn, %{"based_on" => filter_id}) do
+    # The last line here is a hack to get Ecto to save a new
+    # model instead of trying to update the existing one.
+    filter =
+      Filter
+      |> where(id: ^filter_id)
+      |> where(
+        [f],
+        f.system == true or f.public == true or f.user_id == ^conn.assigns.current_user.id
+      )
+      |> Repo.one()
+      |> Kernel.||(%Filter{})
+      |> TagList.assign_tag_list(:spoilered_tag_ids, :spoilered_tag_list)
+      |> TagList.assign_tag_list(:hidden_tag_ids, :hidden_tag_list)
+      |> Map.put(:__meta__, %Ecto.Schema.Metadata{
+        state: :built,
+        source: "filters",
+        schema: Filter
+      })
+
+    changeset = Filters.change_filter(filter)
+    render(conn, "new.html", title: "New Filter", changeset: %{changeset | action: nil})
+  end
+
   def new(conn, _params) do
     changeset = Filters.change_filter(%Filter{})
     render(conn, "new.html", title: "New Filter", changeset: changeset)
