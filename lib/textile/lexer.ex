@@ -91,10 +91,19 @@ defmodule Textile.Lexer do
       image_url_scheme
     ])
 
+  defparsec(
+    :unbracketed_url_inside,
+    choice([
+      string("(") |> parsec(:unbracketed_url_inside) |> string(")"),
+      lookahead_not(end_of_link) |> utf8_char([])
+    ])
+    |> repeat()
+  )
+
   unbracketed_url =
     string(":")
     |> concat(link_url_scheme)
-    |> repeat(lookahead_not(end_of_link) |> utf8_char([]))
+    |> parsec(:unbracketed_url_inside)
 
   unbracketed_image_url =
     unbracketed_url
