@@ -18,7 +18,7 @@
   .field
     = label f, :thumbnail_id, "Set an existing image as the gallery cover"
     br
-    = number_input f, :thumbnail_id, class: "input", placeholder: "Image ID (e.g. 100)", min: 0
+    = number_input f, :thumbnail_id, value: input_value(f, :thumbnail_id) || @conn.params["with_image"], class: "input", placeholder: "Image ID (e.g. 100)", min: 0
     = error_tag f, :thumbnail_id
   .field
     = label f, :order_position_asc, "Reverse gallery order (images will be inserted at the end of the gallery)"
