@@ -3,10 +3,10 @@ h1 Reverse Search
 = form_for :image, Routes.search_reverse_path(@conn, :create), [multipart: true], fn f ->
   p
     ' Basic image similarity search. Finds uploaded images similar to the one
-    ' provided based on simple intensities and uses the median frame of GIFs;
-    ' very low contrast images (such as sketches) will produce poor results
-    ' and, regardless of contrast, results may include seemingly random images
-    ' that look very different.
+    ' provided based on simple intensities and uses the median frame of
+    ' animations; very low contrast images (such as sketches) will produce
+    ' poor results and, regardless of contrast, results may include seemingly
+    ' random images that look very different.
 
   .image-other
     #js-image-upload-previews
@@ -15,7 +15,7 @@ h1 Reverse Search
       = file_input f, :image, class: "input js-scraper"
 
     .field.field--inline
-      = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+      = url_input f, :url, name: "url", class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
       button.button.button--separate-left#js-scraper-preview type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch"
         ' Fetch
 
@@ -26,7 +26,7 @@ h1 Reverse Search
   .field
     = label f, :distance, "Match distance (suggested values: between 0.2 and 0.5)"
     br
-    = number_input f, :distance, value: 0.25, min: 0, max: 1, step: 0.01, class: "input"
+    = number_input f, :distance, name: "distance", value: 0.25, min: 0, max: 1, step: 0.01, class: "input"
 
   .field
     = submit "Reverse Search", class: "button"
