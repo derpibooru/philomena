@@ -104,28 +104,28 @@ h1 Content Settings
       .block.block--fixed.block--warning Settings on this tab are saved in the current browser. They are independent of your login.
       .field
         => label f, :hidpi, "Serve HiDPI thumbnails"
-        => checkbox f, :hidpi
+        => checkbox f, :hidpi, value: @conn.cookies["hidpi"]
         .fieldlabel: i Use high quality thumbnails on displays with a high pixel density. Requires more data than regular thumbnails.
       .field
         => label f, :serve_webm, "Serve WebM"
-        => checkbox f, :serve_webm
+        => checkbox f, :serve_webm, value: @conn.cookies["serve_webm"]
         .fieldlabel: i Serve WebM/MP4 versions of GIF images when available. Good for lower-bandwidth connections, but the video versions may have missing start/end frames, and do not support transparency.
       .field
         => label f, :webm, "Use video thumbnails"
-        => checkbox f, :webm
+        => checkbox f, :webm, value: @conn.cookies["webm"]
         .fieldlabel: i Use video thumbnails for WebM videos. Does not apply to GIF images.
       .field
         => label f, :hide_uploader
-        => checkbox f, :hide_uploader
+        => checkbox f, :hide_uploader, value: @conn.cookies["hide_uploader"]
         .fieldlabel: i Hide the uploader and date posted information on image pages.
       .field
         => label f, :chan_nsfw, "Show NSFW channels"
-        => checkbox f, :chan_nsfw
+        => checkbox f, :chan_nsfw, value: @conn.cookies["chan_nsfw"]
         .fieldlabel: i Show streams marked as NSFW on the channels page.
       = if staff?(@conn.assigns.current_user) do
         .field
           => label f, :hide_staff_tools
-          => checkbox f, :hide_staff_tools, class: "checkbox"
+          => checkbox f, :hide_staff_tools, value: @conn.cookies["hide_staff_tools"]
           .fieldlabel: i Hide most of the staff tools (e.g. IPs, anon names) making your site appear as if you weren't staff, this is useful when browsing in public.
 
     = if !@conn.assigns.current_user do
