@@ -1,6 +1,5 @@
 .form
   = form_for @filter, @route, fn f ->
-    - IO.inspect @filter.data
     = if @filter.action do
       #error_explanation
         ' Oops, something went wrong! Please check the errors below.
