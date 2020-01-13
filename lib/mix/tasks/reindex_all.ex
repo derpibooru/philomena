@@ -19,7 +19,7 @@ defmodule Mix.Tasks.ReindexAll do
 
   @shortdoc "Destroys and recreates all Elasticsearch indices."
   def run(_) do
-    if Mix.env() == "prod" do
+    if Mix.env() == :prod do
       raise "do not run this task in production"
     end
 

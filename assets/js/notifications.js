@@ -33,6 +33,8 @@ function getNewNotifications() {
   makeRequest('GET').then(response => response.json()).then(({ notifications }) => {
     updateNotificationTicker(notifications);
     storeNotificationCount(notifications);
+
+    setTimeout(getNewNotifications, NOTIFICATION_INTERVAL);
   });
 }
 
@@ -55,7 +57,7 @@ function setupNotifications() {
   if (!window.booru.userIsSignedIn) return;
 
   // Fetch notifications from the server at a regular interval
-  setInterval(getNewNotifications, NOTIFICATION_INTERVAL);
+  setTimeout(getNewNotifications, NOTIFICATION_INTERVAL);
 
   // Update the current number of notifications based on the latest page load
   storeNotificationCount($('.js-notification-ticker').dataset.notificationCount);
