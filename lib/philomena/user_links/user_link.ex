@@ -30,6 +30,14 @@ defmodule Philomena.UserLinks.UserLink do
     |> validate_required([])
   end
 
+  def edit_changeset(user_link, attrs, nil) do
+    user_link
+    |> cast(attrs, [:uri, :public])
+    |> put_change(:tag_id, nil)
+    |> validate_required([:user, :uri, :public])
+    |> parse_uri()
+  end
+
   def edit_changeset(user_link, attrs, tag) do
     user_link
     |> cast(attrs, [:uri, :public])
