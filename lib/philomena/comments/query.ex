@@ -26,9 +26,10 @@ defmodule Philomena.Comments.Query do
       :ok,
       %{
         bool: %{
-          must: [
-            %{term: %{anonymous: false}},
-            %{wildcard: %{author: data}}
+          must: %{term: %{anonymous: false}},
+          should: [
+            %{wildcard: %{author: data}},
+            %{term: %{author: data}}
           ]
         }
       }
