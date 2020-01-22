@@ -67,28 +67,28 @@ table.table
       td Literal
       td Matches the author of this post. Anonymous authors will never match this term.
       td
-        code = link "author:Joey", to: Routes.post_path(@conn, :index, cq: "author:Joey")
+        code = link "author:Joey", to: Routes.post_path(@conn, :index, pq: "author:Joey")
     tr
       td
         code body
       td Full Text
       td Matches the body of this post. This is the default field.
       td
-        code = link "body:test", to: Routes.post_path(@conn, :index, cq: "body:test")
+        code = link "body:test", to: Routes.post_path(@conn, :index, pq: "body:test")
     tr
       td
         code created_at
       td Date/Time Range
       td Matches the creation time of this post.
       td
-        code = link "created_at:2015", to: Routes.post_path(@conn, :index, cq: "created_at:2015")
+        code = link "created_at:2015", to: Routes.post_path(@conn, :index, pq: "created_at:2015")
     tr
       td
         code id
       td Numeric Range
       td Matches the numeric surrogate key for this post.
       td
-        code = link "id:1000000", to: Routes.post_path(@conn, :index, cq: "id:1000000")
+        code = link "id:1000000", to: Routes.post_path(@conn, :index, pq: "id:1000000")
     tr
       td
         code my
@@ -97,32 +97,39 @@ table.table
         code> my:posts
         ' matches posts you have posted if you are signed in.
       td
-        code = link "my:posts", to: Routes.post_path(@conn, :index, cq: "my:posts")
+        code = link "my:posts", to: Routes.post_path(@conn, :index, pq: "my:posts")
     tr
       td
         code subject
       td Full Text
       td Matches the title of the topic.
       td
-        code = link "subject:time wasting thread", to: Routes.post_path(@conn, :index, cq: "subject:time wasting thread")
+        code = link "subject:time wasting thread", to: Routes.post_path(@conn, :index, pq: "subject:time wasting thread")
     tr
       td
         code topic_id
       td Literal
       td Matches the numeric surrogate key for the topic this post belongs to.
       td
-        code = link "topic_id:7000", to: Routes.post_path(@conn, :index, cq: "topic_id:7000")
+        code = link "topic_id:7000", to: Routes.post_path(@conn, :index, pq: "topic_id:7000")
+    tr
+      td
+        code topic_position
+      td Numeric Range
+      td Matches the offset from the beginning of the topic of this post. Positions begin at 0.
+      td
+        code = link "topic_position:0", to: Routes.post_path(@conn, :index, pq: "topic_position:0")
     tr
       td
         code updated_at
       td Date/Time Range
       td Matches the creation or last edit time of this post.
       td
-        code = link "updated_at.gte:2 weeks ago", to: Routes.post_path(@conn, :index, cq: "updated_at.gte:2 weeks ago")
+        code = link "updated_at.gte:2 weeks ago", to: Routes.post_path(@conn, :index, pq: "updated_at.gte:2 weeks ago")
     tr
       td
         code user_id
       td Literal
       td Matches posts with the specified user_id. Anonymous users will never match this term.
       td
-        code = link "user_id:211190", to: Routes.post_path(@conn, :index, cq: "user_id:211190")
+        code = link "user_id:211190", to: Routes.post_path(@conn, :index, pq: "user_id:211190")
