@@ -43,7 +43,7 @@ defmodule Philomena.Posts.Query do
 
   defp anonymous_fields do
     [
-      int_fields: ~W(id),
+      int_fields: ~W(id topic_position),
       date_fields: ~W(created_at updated_at),
       literal_fields: ~W(forum_id topic_id),
       ngram_fields: ~W(body subject),
