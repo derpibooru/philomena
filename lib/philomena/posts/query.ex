@@ -26,10 +26,16 @@ defmodule Philomena.Posts.Query do
       :ok,
       %{
         bool: %{
-          must: %{term: %{anonymous: false}},
-          should: [
-            %{wildcard: %{author: data}},
-            %{term: %{author: data}}
+          must: [
+            %{term: %{anonymous: false}},
+            %{
+              bool: %{
+                should: [
+                  %{term: %{author: String.downcase(data)}},
+                  %{wildcard: %{author: String.downcase(data)}}
+                ]
+              }
+            }
           ]
         }
       }
