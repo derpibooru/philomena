@@ -6,6 +6,8 @@ defmodule PhilomenaWeb.Gallery.ImageController do
   alias Philomena.Images
   alias Philomena.Galleries
 
+  plug PhilomenaWeb.FilterBannedUsersPlug
+
   plug PhilomenaWeb.CanaryMapPlug, create: :edit, delete: :edit
   plug :load_and_authorize_resource, model: Gallery, id_name: "gallery_id", persisted: true
 

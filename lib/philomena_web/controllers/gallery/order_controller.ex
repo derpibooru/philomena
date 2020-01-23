@@ -4,6 +4,8 @@ defmodule PhilomenaWeb.Gallery.OrderController do
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries
 
+  plug PhilomenaWeb.FilterBannedUsersPlug
+
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
   plug :load_and_authorize_resource, model: Gallery, id_name: "gallery_id", persisted: true
 
