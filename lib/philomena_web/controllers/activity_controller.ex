@@ -71,7 +71,7 @@ defmodule PhilomenaWeb.ActivityController do
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
-      |> filter_hidden(user, conn)
+      |> filter_hidden(user, conn.params["hidden"])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
       |> preload([:tags])
@@ -118,13 +118,17 @@ defmodule PhilomenaWeb.ActivityController do
     )
   end
   
-  def filter_hidden(featured_image, nil, _conn) do
+  def filter_hidden(featured_image, nil, _hidden) do
     featured_image
   end
 
-  def filter_hidden(featured_image, user, conn) do
+  def filter_hidden(featured_image, _user, "1") do
+    featured_image
+  end
+
+  def filter_hidden(featured_image, user, _hidden) do
     featured_image 
       |> join(:left, [i, _f], h in ImageHide, on: h.image_id == i.id)
-      |> where([_i, _f, h], h.user_id != ^user.id or is_nil(h) or ^conn.params["hidden"] == 1)
+      |> where([_i, _f, h], h.user_id != ^user.id or is_nil(h))
   end
 end
