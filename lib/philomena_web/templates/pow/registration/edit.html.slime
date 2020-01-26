@@ -44,8 +44,8 @@ p
     = error_tag f, :password
 
   .field
-    = password_input f, :confirm_password, class: "input", placeholder: "Confirm new password"
-    = error_tag f, :confirm_password
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm new password"
+    = error_tag f, :password_confirmation
 
   .fieldlabel
     ' Leave these blank if you don't want to change your password.

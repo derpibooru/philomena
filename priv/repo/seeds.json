@@ -64,7 +64,7 @@
     "name": "Administrator",
     "email": "admin@example.com",
     "password": "trixieisbestpony",
-    "confirm_password": "trixieisbestpony",
+    "password_confirmation": "trixieisbestpony",
     "role": "admin"
   }],
   "rating_tags": [

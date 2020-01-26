@@ -25,8 +25,8 @@ h1 Register
     = password_input f, :password, class: "input", placeholder: "Password", required: true
     = error_tag f, :password
   .field
-    = password_input f, :confirm_password, class: "input", placeholder: "Confirm password", required: true
-    = error_tag f, :confirm_password
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm password", required: true
+    = error_tag f, :password_confirmation
 
   .field
     = checkbox f, :captcha, class: "js-captcha", value: 0
