@@ -71,6 +71,7 @@ defmodule PhilomenaWeb.ActivityController do
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
+      |> filter_hidden(user, conn.params["hidden"])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
       |> preload([:tags])
@@ -115,5 +116,18 @@ defmodule PhilomenaWeb.ActivityController do
       interactions: interactions,
       layout_class: "layout--wide"
     )
+  end
+  
+  def filter_hidden(featured_image, nil, _hidden) do
+    featured_image
+  end
+
+  def filter_hidden(featured_image, _user, "1") do
+    featured_image
+  end
+
+  def filter_hidden(featured_image, user, _hidden) do
+    featured_image
+    |> where([i], fragment("NOT EXISTS(SELECT 1 FROM image_hides WHERE image_id = ? AND user_id = ?)", i.id, ^user.id))
   end
 end
