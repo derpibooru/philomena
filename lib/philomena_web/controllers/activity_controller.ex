@@ -127,8 +127,7 @@ defmodule PhilomenaWeb.ActivityController do
   end
 
   def filter_hidden(featured_image, user, _hidden) do
-    featured_image 
-      |> join(:left, [i, _f], h in ImageHide, on: h.image_id == i.id)
-      |> where([_i, _f, h], h.user_id != ^user.id or is_nil(h))
+    featured_image
+    |> where([i], fragment("NOT EXISTS(SELECT 1 FROM image_hides WHERE image_id = ? AND user_id = ?)", i.id, ^user.id))
   end
 end
