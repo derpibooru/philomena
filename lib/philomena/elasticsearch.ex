@@ -45,6 +45,19 @@ defmodule Philomena.Elasticsearch do
     Elastix.Index.delete(elastic_url(), index.index_name())
   end
 
+  def update_mapping!(module) do
+    index = index_for(module)
+
+    index_name = index.index_name()
+    doc_type = index.doc_type()
+    mapping =
+      index.mapping().mappings
+      |> Map.get(String.to_atom(doc_type))
+      |> Map.get(:properties)
+
+    Elastix.Mapping.put(elastic_url(), index_name, doc_type, %{properties: mapping})
+  end
+
   def index_document(doc, module) do
     index = index_for(module)
     data = index.as_json(doc)
