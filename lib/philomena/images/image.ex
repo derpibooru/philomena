@@ -202,6 +202,12 @@ defmodule Philomena.Images.Image do
     |> validate_required([:deletion_reason, :deleter_id])
   end
 
+  def hide_reason_changeset(image, attrs) do
+    image
+    |> cast(attrs, [:deletion_reason])
+    |> validate_required([:deletion_reason])
+  end
+
   def merge_changeset(image, duplicate_of_image) do
     change(image)
     |> put_change(:duplicate_id, duplicate_of_image.id)

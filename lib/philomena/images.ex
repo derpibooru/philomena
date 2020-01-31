@@ -334,6 +334,12 @@ defmodule Philomena.Images do
     |> internal_hide_image(image)
   end
 
+  def update_hide_reason(%Image{} = image, attrs) do
+    image
+    |> Image.hide_reason_changeset(attrs)
+    |> Repo.update()
+  end
+
   def merge_image(%Image{} = image, duplicate_of_image) do
     result =
       Image.merge_changeset(image, duplicate_of_image)
