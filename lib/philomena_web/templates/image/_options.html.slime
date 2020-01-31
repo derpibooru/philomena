@@ -91,19 +91,18 @@
             = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
             = submit "Delete", class: "button button--state-danger button--separate-left"
 
-      - else
-        = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"
-
       .flex.flex--spaced-out.flex--wrap
         = if not @image.hidden_from_users do
           = form_for @changeset, Routes.image_feature_path(@conn, :create, @image), [method: "post"], fn _f ->
             .field
               p Automatically tags 'featured image'
               = submit "Feature", data: [confirm: "Are you really, really sure?"], class: "button button--state-success"
+        - else
+          = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"
 
-          = form_for @changeset, Routes.image_repair_path(@conn, :create, @image), [method: "post"], fn _f ->
-            .field
-              = submit "Repair", class: "button button--state-success"
+        = form_for @changeset, Routes.image_repair_path(@conn, :create, @image), [method: "post"], fn _f ->
+          .field
+            = submit "Repair", class: "button button--state-success"
 
         = form_for @changeset, Routes.image_hash_path(@conn, :delete, @image), [method: "delete"], fn _f ->
           .field
