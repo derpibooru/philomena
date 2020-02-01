@@ -40,6 +40,12 @@
       span.block__header__title DNP Request Form
 
     .block__content
+      / Option (set by script depending on the option chosen above)
+      strong Type
+      .field
+        = select f, :dnp_type, selectable_types(), class: "js-dnp-type input input--wide"
+        = error_tag f, :dnp_type
+
       / Artist Tag
       strong Artist Tag
       p Select the artist tag you would like to request a DNP entry for
@@ -79,7 +85,5 @@
         = textarea f, :feedback, class: "input input--wide", placeholder: "Feedback"
         = error_tag f, :feedback
 
-      / Option (hidden, set by script depending on the option chosen above)
-      = hidden_input f, :dnp_type, class: "js-dnp-type"
       hr
       = submit "Submit Request", class: "button"

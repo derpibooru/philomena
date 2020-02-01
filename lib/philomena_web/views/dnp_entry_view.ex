@@ -16,6 +16,10 @@ defmodule PhilomenaWeb.DnpEntryView do
     Enum.map(tags, &{&1.name, &1.id})
   end
 
+  def selectable_types do
+    Enum.map(reasons(), fn {k, v} -> [key: v, value: k] end)
+  end
+
   def pretty_state(%{aasm_state: "claimed"}), do: "Claimed"
   def pretty_state(%{aasm_state: "listed"}), do: "Listed"
   def pretty_state(%{aasm_state: "closed"}), do: "Closed"
