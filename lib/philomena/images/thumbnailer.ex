@@ -106,8 +106,13 @@ defmodule Philomena.Images.Thumbnailer do
   defp image_file(%Image{image: image}),
     do: Path.join(image_file_root(), image)
 
-  defp image_thumb_dir(%Image{created_at: created_at, id: id, hidden_from_users: true, hidden_image_key: key}),
-    do: Path.join([image_thumbnail_root(), time_identifier(created_at), "#{id}-#{key}"])
+  defp image_thumb_dir(%Image{
+         created_at: created_at,
+         id: id,
+         hidden_from_users: true,
+         hidden_image_key: key
+       }),
+       do: Path.join([image_thumbnail_root(), time_identifier(created_at), "#{id}-#{key}"])
 
   defp image_thumb_dir(%Image{created_at: created_at, id: id}),
     do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])

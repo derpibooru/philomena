@@ -50,6 +50,7 @@ defmodule Philomena.Elasticsearch do
 
     index_name = index.index_name()
     doc_type = index.doc_type()
+
     mapping =
       index.mapping().mappings
       |> Map.get(String.to_atom(doc_type))

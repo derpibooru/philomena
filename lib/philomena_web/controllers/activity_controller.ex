@@ -117,7 +117,7 @@ defmodule PhilomenaWeb.ActivityController do
       layout_class: "layout--wide"
     )
   end
-  
+
   def filter_hidden(featured_image, nil, _hidden) do
     featured_image
   end
@@ -128,6 +128,13 @@ defmodule PhilomenaWeb.ActivityController do
 
   def filter_hidden(featured_image, user, _hidden) do
     featured_image
-    |> where([i], fragment("NOT EXISTS(SELECT 1 FROM image_hides WHERE image_id = ? AND user_id = ?)", i.id, ^user.id))
+    |> where(
+      [i],
+      fragment(
+        "NOT EXISTS(SELECT 1 FROM image_hides WHERE image_id = ? AND user_id = ?)",
+        i.id,
+        ^user.id
+      )
+    )
   end
 end

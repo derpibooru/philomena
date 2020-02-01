@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.ImageLoader do
   end
 
   # Allow moderators to index hidden images
-  
+
   defp maybe_show_deleted(filters, _show_hidden?, "1"),
     do: filters
 

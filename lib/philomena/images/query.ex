@@ -97,8 +97,7 @@ defmodule Philomena.Images.Query do
       literal_fields:
         fields[:literal_fields] ++
           ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
-      ngram_fields:
-        fields[:ngram_fields] ++ ~W(deletion_reason),
+      ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
       ip_fields: ~W(ip),
       bool_fields: ~W(deleted),
       aliases:

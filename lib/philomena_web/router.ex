@@ -158,7 +158,9 @@ defmodule PhilomenaWeb.Router do
         resources "/delete", Image.Comment.DeleteController, only: [:create], singleton: true
       end
 
-      resources "/delete", Image.DeleteController, only: [:create, :delete, :update], singleton: true
+      resources "/delete", Image.DeleteController,
+        only: [:create, :delete, :update],
+        singleton: true
 
       resources "/tamper", Image.TamperController, only: [:create], singleton: true
       resources "/hash", Image.HashController, only: [:delete], singleton: true

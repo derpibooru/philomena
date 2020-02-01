@@ -54,6 +54,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
     case conn.assigns.image.hidden_from_users do
       true ->
         conn
+
       _false ->
         conn
         |> put_flash(:error, "Cannot change hide reason on a non-hidden image!")
