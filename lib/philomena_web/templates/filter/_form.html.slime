@@ -65,4 +65,20 @@
         strong> WARNING:
         ' This filter is applied along with your tag filters. Tag filters may hide images that you mean to filter more precisely here. Double-check to make sure they don't interfere.
 
-      = submit "Save Filter", class: "button"
+    = cond do
+      - is_nil(input_value(f, :id)) ->
+        .field
+          = checkbox f, :public, class: "checkbox"
+          = label f, :public
+
+        .fieldlabel
+          strong You probably do not want to check this unless you know what you are doing - it cannot be changed later
+          | . Pulic filters can be shared with other users and used by them; if you make changes to a filter, it will update all users of that filter.
+
+      - input_value(f, :public) == true ->
+        .fieldlabel
+          strong Changes made to this filter will affect anyone else using this filter! Check your changes, and make sure your changes don't change the filter's intent.
+
+      - true ->
+
+    = submit "Save Filter", class: "button"

@@ -66,7 +66,7 @@ defmodule Philomena.Filters do
   """
   def create_filter(user, attrs \\ %{}) do
     %Filter{user_id: user.id}
-    |> Filter.changeset(attrs)
+    |> Filter.creation_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -84,7 +84,7 @@ defmodule Philomena.Filters do
   """
   def update_filter(%Filter{} = filter, attrs) do
     filter
-    |> Filter.changeset(attrs)
+    |> Filter.update_changeset(attrs)
     |> Repo.update()
   end
 

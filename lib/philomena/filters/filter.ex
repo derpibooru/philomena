@@ -11,7 +11,7 @@ defmodule Philomena.Filters.Filter do
     belongs_to :user, User
 
     field :name, :string
-    field :description, :string
+    field :description, :string, default: ""
     field :system, :boolean
     field :public, :boolean
     field :hidden_complex_str, :string
@@ -29,7 +29,7 @@ defmodule Philomena.Filters.Filter do
   @doc false
   def changeset(filter, attrs) do
     user =
-      filter
+      change(filter).data
       |> Repo.preload(:user)
       |> Map.get(:user)
 
@@ -44,12 +44,22 @@ defmodule Philomena.Filters.Filter do
     ])
     |> TagList.propagate_tag_list(:spoilered_tag_list, :spoilered_tag_ids)
     |> TagList.propagate_tag_list(:hidden_tag_list, :hidden_tag_ids)
-    |> validate_required([:name, :description])
+    |> validate_required([:name])
     |> validate_my_downvotes(:spoilered_complex_str)
     |> validate_my_downvotes(:hidden_complex_str)
     |> Search.validate_search(:spoilered_complex_str, user)
     |> Search.validate_search(:hidden_complex_str, user)
     |> unsafe_validate_unique([:user_id, :name], Repo)
+  end
+
+  def creation_changeset(filter, attrs) do
+    filter
+    |> cast(attrs, [:public])
+    |> changeset(attrs)
+  end
+
+  def update_changeset(filter, attrs) do
+    changeset(filter, attrs)
   end
 
   def deletion_changeset(filter) do
