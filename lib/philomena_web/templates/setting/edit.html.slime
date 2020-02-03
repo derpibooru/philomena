@@ -43,7 +43,7 @@ h1 Content Settings
 
         h4 Other
         p
-          ' RSS feed link (for Google Reader, Thunderbird, etc.):
+          ' RSS feed link (for Newsblur, RSSOwl, Thunderbird, etc.):
           br
           = url_input f, :subscribe_url, value: Routes.api_rss_watched_url(@conn, :index, key: @conn.assigns.current_user.authentication_token), class: "input input--wide"
           br
