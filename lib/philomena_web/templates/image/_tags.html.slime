@@ -43,7 +43,7 @@
             button.button.js-tag-sauce-toggle data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input"
               ' Cancel
 
-        .block.js-tagtable data-target='[name="image[tag_input]"]'
+        .block.js-tagtable data-target="[name=&quot;image[tag_input]&quot;]"
           = PhilomenaWeb.TagView.quick_tags(@conn)
 
     - else

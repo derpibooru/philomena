@@ -95,7 +95,7 @@ header.header
             a.header__link href=Routes.pow_registration_path(@conn, :edit)
               i.fa.fa-fw.fa-user>
               | Account
-            a.header__link href="/session" data-method='delete'
+            a.header__link href="/session" data-method="delete"
               i.fa.fa-fw.fa-sign-out-alt>
               | Logout
       - else

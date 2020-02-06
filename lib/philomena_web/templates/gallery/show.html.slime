@@ -28,11 +28,11 @@ elixir:
             span.hide-mobile Edit
 
         = if can?(@conn, :edit, @gallery) do
-          a.rearrange-button.js-rearrange href='#' data-click-hide='.js-rearrange' data-click-show='.js-save,#gallery-rearrange-info'
+          a.rearrange-button.js-rearrange href="#" data-click-hide=".js-rearrange" data-click-show=".js-save,#gallery-rearrange-info"
             i.fa.fa-sort>
             ' Rearrange
 
-          a.rearrange-button.js-save.hidden href='#' data-click-hide='.js-save,#gallery-rearrange-info' data-click-show='.js-rearrange' data-reorder-path=Routes.gallery_order_path(@conn, :update, @gallery)
+          a.rearrange-button.js-save.hidden href="#" data-click-hide=".js-save,#gallery-rearrange-info" data-click-show=".js-rearrange" data-reorder-path=Routes.gallery_order_path(@conn, :update, @gallery)
             i.fa.fa-check>
             ' Save
 
