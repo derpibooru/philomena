@@ -64,7 +64,7 @@
 
     p You can mouse over tags below to view a description, and click to add. Short tag names can be used and will expand to full.
 
-    .block.js-tagtable data-target="[name="image[tag_input]"]"
+    .block.js-tagtable data-target="[name=&quot;image[tag_input]&quot;]"
       = PhilomenaWeb.TagView.quick_tags(@conn)
 
   br
