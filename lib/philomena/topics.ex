@@ -93,7 +93,7 @@ defmodule Philomena.Topics do
           actor_type: "Forum",
           actor_child_id: topic.id,
           actor_child_type: "Topic",
-          action: "posted a new topic in"
+          action: "posted a new topic"
         }
       )
     end)
