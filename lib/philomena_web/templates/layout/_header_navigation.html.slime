@@ -25,7 +25,7 @@
         a.header__link href=Routes.forum_path(@conn, :show, forum)
           = forum.name
 
-      a.header__link href='/posts'
+      a.header__link href="/posts"
         i.fa.fa-fw.fa-search>
         | Post Search
   a.header__link href="/tags"
@@ -35,7 +35,7 @@
     span.header__counter
       = @conn.assigns.live_channels
 
-  a.header__link href='/galleries'
+  a.header__link href="/galleries"
     | Galleries
-  a.header__link href='/commissions'
+  a.header__link href="/commissions"
     | Commissions

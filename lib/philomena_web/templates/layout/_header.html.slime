@@ -2,9 +2,9 @@ header.header
   .flex.flex--centered.flex--start-bunched.flex--maybe-wrap
     .flex.flex--centered
       #js-burger-toggle.hide-desktop
-        a.header__link href='#'
+        a.header__link href="#"
           i.fa.fa-bars
-      a.header__link href='/'
+      a.header__link href="/"
         i.fa.fw.favicon-home
         span.fa__text.hide-limited-desktop.hide-mobile
           ' Derpibooru
