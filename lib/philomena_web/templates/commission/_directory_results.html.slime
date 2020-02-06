@@ -30,7 +30,7 @@ elixir:
                   = render PhilomenaWeb.UserAttributionView, "_user.html", object: c, badges: true, conn: @conn
 
                 .commission__listing__body_text
-                  - {min, max} = Enum.min_max_by(c.items, & &1.base_price)
+                  - {min, max} = Enum.min_max_by(c.items, &Decimal.to_float(&1.base_price))
 
                   p
                     strong> Price Range:

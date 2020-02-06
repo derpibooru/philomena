@@ -14,7 +14,7 @@
 
     = if Enum.any?(@commission.items) do
       strong> Price Range:
-      - {min, max} = Enum.min_max_by(@commission.items, & &1.base_price)
+      - {min, max} = Enum.min_max_by(@commission.items, &Decimal.to_float(&1.base_price))
       | $
       => Decimal.round(min.base_price, 2) |> Decimal.to_string()
       | - $
