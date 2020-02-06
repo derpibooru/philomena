@@ -21,7 +21,7 @@ defmodule Philomena.Commissions.Item do
   def changeset(item, attrs) do
     item
     |> cast(attrs, [:item_type, :description, :base_price, :add_ons, :example_image_id])
-    |> validate_required([:commission_id, :item_type, :description])
+    |> validate_required([:commission_id, :base_price, :item_type, :description])
     |> validate_length(:description, max: 300, count: :bytes)
     |> validate_length(:add_ons, max: 500, count: :bytes)
     |> validate_number(:base_price, greater_than_or_equal_to: 0, less_than_or_equal_to: 500)
