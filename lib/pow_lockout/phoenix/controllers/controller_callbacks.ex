@@ -73,9 +73,7 @@ defmodule PowLockout.Phoenix.ControllerCallbacks do
   end
 
   defp invalid_credentials(conn) do
-    {:ok, conn} = Plug.clear_authenticated_user(conn)
-
-    conn
+    Plug.delete(conn)
   end
 
   @doc """
