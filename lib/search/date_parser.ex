@@ -157,6 +157,7 @@ defmodule Search.DateParser do
   absolute_date =
     date_part
     |> optional(timezone_part)
+    |> eos()
     |> post_traverse(:absolute_datetime)
     |> unwrap_and_tag(:date)
 
@@ -173,6 +174,7 @@ defmodule Search.DateParser do
       string("year") |> optional(string("s")) |> replace(31_536_000)
     ])
     |> ignore(string(" ago"))
+    |> eos()
     |> reduce(:relative_datetime)
     |> unwrap_and_tag(:date)
 
