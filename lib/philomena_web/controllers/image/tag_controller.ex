@@ -51,6 +51,10 @@ defmodule PhilomenaWeb.Image.TagController do
         )
 
       {:error, :image, changeset, _} ->
+        image =
+          image
+          |> Repo.preload(:tags, force: true)
+
         conn
         |> put_view(PhilomenaWeb.ImageView)
         |> render("_tags.html",
