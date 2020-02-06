@@ -62,22 +62,22 @@ header.header
           nav.dropdown__content.dropdown__content-right.hide-mobile.js-burger-links
             a.header__link href=Routes.profile_path(@conn, :show, @current_user)
               = @current_user.name
-            a.header__link href='/search?q=my:watched'
+            a.header__link href="/search?q=my:watched"
               i.fa.fa-fw.fa-eye>
               | Watched
-            a.header__link href='/search?q=my:faves'
+            a.header__link href="/search?q=my:faves"
               i.fa.fa-fw.fa-star>
               | Faves
-            a.header__link href='/search?q=my:upvotes'
+            a.header__link href="/search?q=my:upvotes"
               i.fa.fa-fw.fa-arrow-up>
               | Upvotes
             a.header__link href=Routes.gallery_path(@conn, :index, gallery: [creator: @current_user.name])
               i.fa.fa-fw.fa-image>
               | Galleries
-            a.header__link href='/search?q=my:uploads'
+            a.header__link href="/search?q=my:uploads"
               i.fa.fa-fw.fa-upload>
               | Uploads
-            a.header__link href='/comments?cq=my:comments'
+            a.header__link href="/comments?cq=my:comments"
               i.fa.fa-fw.fa-comments>
               | Comments
             a.header__link href="/posts?pq=my:posts"
@@ -86,7 +86,7 @@ header.header
             a.header__link href=Routes.profile_user_link_path(@conn, :index, @current_user)
               i.fa.fa-fw.fa-link>
               | Links
-            a.header__link href='/settings/edit'
+            a.header__link href="/settings/edit"
               i.fa.fa-fw.fa-cogs>
               | Settings
             a.header__link href="/conversations"
@@ -104,7 +104,7 @@ header.header
           = @current_filter.name
           | )
         span.js-burger-links.hide-mobile
-          a.header__link href='/settings/edit'
+          a.header__link href="/settings/edit"
             i.fa.fa-fw.fa-cogs.hide-desktop>
             | Settings
         a.header__link href="/registration/new"
