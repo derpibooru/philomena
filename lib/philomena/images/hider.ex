@@ -9,14 +9,16 @@ defmodule Philomena.Images.Hider do
     source = image_thumb_dir(image)
     target = image_thumb_dir(image, key)
 
-    File.rename!(source, target)
+    File.rm_rf(target)
+    File.rename(source, target)
   end
 
   def unhide_thumbnails(image, key) do
     source = image_thumb_dir(image, key)
     target = image_thumb_dir(image)
 
-    File.rename!(source, target)
+    File.rm_rf(target)
+    File.rename(source, target)
   end
 
   # fixme: these are copied from the thumbnailer
