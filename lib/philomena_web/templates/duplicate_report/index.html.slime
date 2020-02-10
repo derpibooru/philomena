@@ -1,7 +1,7 @@
 h1 Duplicate Reports
 
 - route = fn p -> Routes.duplicate_report_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn, params: [states: @conn.params["states"]]
 
 .block
   .block__header
