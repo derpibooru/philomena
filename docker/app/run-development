@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Always install assets
-(cd /srv/philomena/assets && npm install)
+(
+cd /srv/philomena/assets
+# workaround for #31
+npm install || (chown -R root:root node_modules && npm install)
+)
 
 # Always install mix dependencies
 (cd /srv/philomena && mix deps.get)
