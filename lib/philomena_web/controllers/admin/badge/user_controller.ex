@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Admin.Badge.UserController do
       |> join(:inner, [u], _ in assoc(u, :awards))
       |> where([_u, a], a.badge_id == ^badge.id)
       |> order_by([u, _a], asc: u.name)
-      |> Repo.paginate(conn.assigns.pagination)
+      |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html", title: "Users with badge #{badge.title}", users: users)
   end
