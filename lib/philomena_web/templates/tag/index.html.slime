@@ -16,7 +16,7 @@ h2 Search Results
 = cond do
   - Enum.any?(@tags) ->
     - route = fn p -> Routes.tag_path(@conn, :index, p) end
-    - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: route, params: [tq: @conn.params["tq"]]
+    - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tags, route: route, params: [tq: @conn.params["tq"] || "*"]
 
     = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags, conn: @conn
 
