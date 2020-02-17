@@ -253,6 +253,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit, %UserLink{}),
     do: true
 
+  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :index, %UserLink{}),
+    do: true
+
   # View forums
   def can?(%User{role: "assistant"}, :show, %Forum{access_level: level})
       when level in ["normal", "assistant"],

@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Admin.UserLinkController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, UserLink) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, %UserLink{}) do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
