@@ -3,7 +3,7 @@ h1 Your Reports
   .block__header
     span.block__header__title Reports
     - route = fn p -> Routes.report_path(@conn, :index, p) end
-    = render PhilomenaWeb.PaginationView, "_pagination.html", page: @reports, route: route, conn: @conn, params: [rq: @conn.params["rq"]]
+    = render PhilomenaWeb.PaginationView, "_pagination.html", page: @reports, route: route, conn: @conn
 
   .block__content
     table.table

@@ -1,5 +1,5 @@
 - route = fn p -> Routes.admin_report_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", route: route, page: @reports, conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", route: route, page: @reports, conn: @conn, params: [rq: @conn.params["rq"]]
 
 h1 Reports
 
