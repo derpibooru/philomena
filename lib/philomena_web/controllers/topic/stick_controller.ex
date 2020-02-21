@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Topic.StickController do
   alias Philomena.Topics.Topic
   alias Philomena.Topics
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show
+  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
 
   plug :load_and_authorize_resource,
     model: Forum,
