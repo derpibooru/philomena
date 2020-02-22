@@ -43,7 +43,7 @@ defmodule Philomena.Comments do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_comment(image, attribution, params \\ %{}) do
+  def create_comment(%Image{commenting_allowed: true} = image, attribution, params \\ %{}) do
     comment =
       Ecto.build_assoc(image, :comments)
       |> Comment.creation_changeset(params, attribution)
