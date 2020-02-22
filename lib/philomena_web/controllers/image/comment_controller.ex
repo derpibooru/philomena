@@ -15,13 +15,13 @@ defmodule PhilomenaWeb.Image.CommentController do
     edit: :create_comment,
     update: :create_comment
 
-  plug :load_resource, model: Image, id_name: "image_id", persisted: true
+  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
   plug :verify_authorized when action in [:show]
 
   # Undo the previous private parameter screwery
   plug PhilomenaWeb.LoadCommentPlug, [param: "id", show_hidden: true] when action in [:show]
   plug PhilomenaWeb.LoadCommentPlug, [param: "id"] when action in [:edit, :update]
-  plug PhilomenaWeb.CanaryMapPlug, create: :create, edit: :edit, update: :edit
+  plug PhilomenaWeb.CanaryMapPlug, create: :create_comment, edit: :edit, update: :edit
 
   plug :authorize_resource,
     model: Comment,

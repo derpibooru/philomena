@@ -29,7 +29,12 @@ function commentPosted(response) {
   commentEditForm.reset();
 
   if (requestOk) {
-    response.text().then(text => displayComments(container, text));
+    response.text().then(text => {
+      if (text.includes('<div class="flash flash--warning">'))
+        window.location.reload();
+      else
+        displayComments(container, text);
+    });
   }
   else {
     window.location.reload();
