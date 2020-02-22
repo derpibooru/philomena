@@ -250,7 +250,13 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :show, %UserLink{}),
     do: true
 
+  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :create_links, %User{}),
+    do: true
+
   def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit, %UserLink{}),
+    do: true
+
+  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit_links, %User{}),
     do: true
 
   def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :index, %UserLink{}),
