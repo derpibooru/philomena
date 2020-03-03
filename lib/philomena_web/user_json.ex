@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.UserJson do
       slug: user.slug,
       role: role(user),
       description: user.description,
-      avatar_url: user.avatar,
+      avatar_url: avatar_url_root() <> "/" <> user.avatar,
       created_at: user.created_at,
       comments_count: user.comments_posted_count,
       uploads_count: user.uploads_count,
@@ -28,4 +28,8 @@ defmodule PhilomenaWeb.UserJson do
   defp role(user) do
     user.role
   end
+
+  defp avatar_url_root do
+    Application.get_env(:philomena, :avatar_url_root)
+  end  
 end
