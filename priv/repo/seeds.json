@@ -89,6 +89,7 @@
     {"name": "admin", "resource_type": "Role"},
     {"name": "batch_update", "resource_type": "Tag"},
     {"name": "moderator", "resource_type": "Topic"},
-    {"name": "admin", "resource_type": "Advert"}
+    {"name": "admin", "resource_type": "Advert"},
+    {"name": "admin", "resource_type": "StaticPage"}
  ]
 }
