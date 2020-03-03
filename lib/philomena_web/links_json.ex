@@ -1,5 +1,4 @@
 defmodule PhilomenaWeb.LinksJson do
-
   def as_json(_conn, %{public: false}), do: nil
 
   def as_json(_conn, link) do

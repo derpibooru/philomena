@@ -1,5 +1,4 @@
 defmodule PhilomenaWeb.AwardsJson do
-
   def as_json(_conn, award) do
     %{
       image_url: badge_url_root() <> "/" <> award.badge.image,

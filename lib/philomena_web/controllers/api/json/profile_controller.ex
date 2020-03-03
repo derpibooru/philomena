@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Api.Json.ProfileController do
     profile =
       User
       |> where(id: ^id)
-      |> preload([public_links: :tag, awards: :badge])
+      |> preload(public_links: :tag, awards: :badge)
       |> Repo.one()
 
     cond do
