@@ -51,9 +51,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Comment{}), do: true
 
   # View forums
-  def can?(%User{role: "moderator"}, :show, %Forum{access_level: level})
-      when level in ["normal", "assistant", "staff"],
-      do: true
+  def can?(%User{role: "moderator"}, :show, %Forum{}), do: true
 
   def can?(%User{role: "moderator"}, :show, %Topic{hidden_from_users: true}), do: true
 
