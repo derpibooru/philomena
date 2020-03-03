@@ -118,6 +118,7 @@ defmodule PhilomenaWeb.Router do
     resources "/tags", TagController, only: [:show]
     resources "/comments", CommentController, only: [:show]
     resources "/posts", PostController, only: [:show]
+    resources "/profiles", ProfileController, only: [:show]
 
     resources "/forums", ForumController, only: [:show, :index] do
       resources "/topics", Forum.TopicController, only: [:show, :index] do
