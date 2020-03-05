@@ -38,6 +38,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Show details of profiles and view user list
   def can?(%User{role: "moderator"}, :show_details, %User{}), do: true
+  def can?(%User{role: "moderator"}, :edit_description, %User{}), do: true
   def can?(%User{role: "moderator"}, :index, User), do: true
 
   # View filters
