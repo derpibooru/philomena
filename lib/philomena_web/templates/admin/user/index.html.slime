@@ -10,7 +10,7 @@ h1 Users
 => link "2FA users", to: Routes.admin_user_path(@conn, :index, twofactor: 1)
 
 - route = fn p -> Routes.admin_user_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: [q: @conn.params["q"] || "*"]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: [q: @conn.params["q"]]
 
 .block
   .block__header
@@ -39,7 +39,7 @@ h1 Users
                   ' 2FA
 
               - user.role != "user" and !user.otp_required_for_login ->
-                span.banner__2fa.danger
+                span.banner__2fa.danger 
                   i.fas.fa-times>
                   ' 2FA
 
