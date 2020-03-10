@@ -1,6 +1,6 @@
 elixir:
   route = fn p -> Routes.commission_path(@conn, :index, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn, params: [commission: @conn.params[:commission]]
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn, params: [commission: @conn.params["commission"]]
 
 .block
   .block__header
