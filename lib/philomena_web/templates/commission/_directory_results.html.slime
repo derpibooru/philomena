@@ -1,6 +1,6 @@
 elixir:
   route = fn p -> Routes.commission_path(@conn, :index, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn, params: [commission: @conn.params[:commission]]
 
 .block
   .block__header
@@ -43,11 +43,11 @@ elixir:
                   p
                     strong> Categories:
                     = Enum.join(c.categories, ", ")
-                  
+
                   p
                     strong> Offers:
                     = Enum.map(c.items, & &1.item_type) |> Enum.join(", ")
-                  
+
                   p
                     strong> Example Artwork:
 
