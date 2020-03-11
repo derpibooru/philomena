@@ -29,37 +29,13 @@ defmodule PhilomenaWeb.Api.Json.FilterController do
     end
   end
 
-  defp check_permissions(nil, _user) do
-    # Filter doesn't exist.
-    nil
-  end
-
-  defp check_permissions(%{system: true} = filter, _user) do
-    # Allow all system filters.
-    filter
-  end
-
-  defp check_permissions(%{public: true} = filter, _user) do
-    # Allow all public filters.
-    filter
-  end
-
-  defp check_permissions(_filter, nil) do
-    # I don't know why this would ever happen. Seemed prudent to add.
-    nil
-  end
-
-  defp check_permissions(%{user: nil}, _user) do
-    # Blocks non system/public filters that don't have a user assigned.
-    nil
-  end
-
   defp check_permissions(filter, user) do
-    # Checks to see if the filter belongs to the user.
-    if filter.user.id != user.id do
-      nil
-    else
-      filter
+    case Canada.Can.can?(user, :show, filter) do
+      true ->
+        filter
+
+      _ -> 
+        nil
     end
   end
 end
