@@ -7,11 +7,7 @@ defmodule PhilomenaWeb.FilterJson do
       public: filter.public,
       system: filter.system,
       user_count: filter.user_count,
-      user_id:
-        if(is_nil(filter.user),
-          do: nil,
-          else: filter.user.id
-        ),
+      user_id: filter.user_id,
       hidden_tag_ids: filter.hidden_tag_ids,
       spoilered_tag_ids: filter.spoilered_tag_ids,
       hidden_complex: filter.hidden_complex_str,

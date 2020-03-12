@@ -6,8 +6,6 @@ defmodule PhilomenaWeb.Api.Json.FilterController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
-
   def show(conn, %{"id" => id}) do
     user = conn.assigns.current_user
 
@@ -16,26 +14,15 @@ defmodule PhilomenaWeb.Api.Json.FilterController do
       |> where(id: ^id)
       |> preload(:user)
       |> Repo.one()
-      |> check_permissions(user)
 
-    case filter do
-      nil ->
+    case Canada.Can.can?(user, :show, filter) do
+      true ->
+        json(conn, %{filter: FilterJson.as_json(filter)})
+
+      _ ->
         conn
         |> put_status(:not_found)
         |> text("")
-
-      _ ->
-        json(conn, %{filter: FilterJson.as_json(filter)})
-    end
-  end
-
-  defp check_permissions(filter, user) do
-    case Canada.Can.can?(user, :show, filter) do
-      true ->
-        filter
-
-      _ -> 
-        nil
     end
   end
 end
