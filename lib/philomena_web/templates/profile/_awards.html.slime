@@ -1,5 +1,5 @@
 .badges
-  - awards = award_order(@awards)
+  - awards = award_order(@user)
   - {awards, overflow} = Enum.split(awards, 10)
 
   = for award <- awards do

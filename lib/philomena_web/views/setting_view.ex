@@ -13,6 +13,13 @@ defmodule PhilomenaWeb.SettingView do
     ]
   end
 
+  def badge_order_options(_conn) do
+    [
+      [key: "Newest First", value: "desc"],
+      [key: "Oldest First", value: "asc"]
+    ]
+  end
+
   def local_tab_class(conn) do
     case conn.assigns.current_user do
       nil -> ""

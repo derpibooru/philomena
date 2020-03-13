@@ -109,6 +109,7 @@ defmodule Philomena.Users.User do
     field :show_hidden_items, :boolean, default: false
     field :hide_vote_counts, :boolean, default: false
     field :hide_advertisements, :boolean, default: false
+    field :badges_order, :string, default: "desc"
 
     # Counters
     field :forum_posts_count, :integer, default: 0
@@ -212,7 +213,8 @@ defmodule Philomena.Users.User do
       :watched_images_exclude_str,
       :use_centered_layout,
       :hide_vote_counts,
-      :comments_newest_first
+      :comments_newest_first,
+      :badges_order
     ])
     |> validate_required([
       :images_per_page,

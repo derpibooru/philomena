@@ -1,8 +1,12 @@
 defmodule PhilomenaWeb.ProfileView do
   use PhilomenaWeb, :view
 
-  def award_order(awards) do
-    Enum.sort_by(awards, &{&1.badge.priority, DateTime.to_unix(&1.awarded_on)}, &>=/2)
+  def award_order(%{badges_order: "desc"} = user) do
+    Enum.sort_by(user.awards, &{&1.badge.priority, DateTime.to_unix(&1.awarded_on)}, &>=/2)
+  end
+
+  def award_order(user) do
+    Enum.sort_by(user.awards, &{!&1.badge.priority, DateTime.to_unix(&1.awarded_on)})
   end
 
   def badge_image(badge, options \\ []) do

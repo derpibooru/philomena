@@ -90,7 +90,7 @@
       - else
         .block__header
           span.block__header__title Badges
-      = for award <- award_order(@user.awards) do
+      = for award <- award_order(@user) do
         .block__content.flex.flex--centered.flex--center-distributed.alternating-color.no-overflow title=award.label
           .flex__grow.center
             .badge = badge_image(award.badge, alt: award.label, width: "32", height: "32")

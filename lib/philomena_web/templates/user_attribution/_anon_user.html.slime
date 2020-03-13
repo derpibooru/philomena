@@ -3,7 +3,7 @@
     strong<>
       = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
     = if assigns[:awards] do
-      = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
+      = render PhilomenaWeb.ProfileView, "_awards.html", user: @object.user
 
   - not is_nil(@object.user) and (can?(@conn, :reveal_anon, @object) and not hide_staff_tools?(@conn)) ->
     strong<>

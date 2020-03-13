@@ -2,4 +2,4 @@
   strong<>
     = link(@object.user.name, to: Routes.profile_path(@conn, :show, @object.user))
   = if assigns[:awards] do
-    = render PhilomenaWeb.ProfileView, "_awards.html", awards: @object.user.awards
+    = render PhilomenaWeb.ProfileView, "_awards.html", user: @object.user

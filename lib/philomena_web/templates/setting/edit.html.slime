@@ -10,6 +10,7 @@ h1 Content Settings
         = link "Watch List", to: "#", class: "selected", data: [click_tab: "watched"]
         = link "Display", to: "#", data: [click_tab: "display"]
         = link "Metadata", to: "#", data: [click_tab: "metadata"]
+        = link "Profile", to: "#", data: [click_tab: "profile"]
         = link "Local", to: "#", data: [click_tab: "local"]
       - else
         = link "Local", to: "#", class: "selected", data: [click_tab: "local"]
@@ -99,6 +100,15 @@ h1 Content Settings
             => label f, :anonymous_by_default
             => checkbox f, :anonymous_by_default, class: "checkbox"
             .fieldlabel: i Check this box to post images and comments as anonymous by default, even if logged in.
+
+      .block__tab.hidden.flex.flex--maybe-wrap data-tab="profile"
+        div
+          h4 Badge Awards
+          .field
+            => label f, :badges_order
+            => select f, :badges_order, badge_order_options(@conn), class: "input"
+            = error_tag f, :badges_order
+            .fieldlabel: i Customize the order of the badges on your profile page and in your posts.
 
     .block__tab class=local_tab_class(@conn) data-tab="local"
       .block.block--fixed.block--warning Settings on this tab are saved in the current browser. They are independent of your login.
