@@ -8,8 +8,6 @@ defmodule PhilomenaWeb.Api.Json.Filter.UserFilterController do
 
   def index(conn, _params) do
     user = conn.assigns.current_user
-    page = conn.assigns.pagination.page_number
-    page_size = conn.assigns.pagination.page_size
 
     case user do
       nil ->
@@ -22,14 +20,10 @@ defmodule PhilomenaWeb.Api.Json.Filter.UserFilterController do
           Filter
           |> where(user_id: ^user.id)
           |> order_by(asc: :id)
-          |> preload(:user)
-          |> limit(^page_size)
-          |> offset((^page - 1) * ^page_size)
-          |> Repo.all()
+          |> Repo.paginate(conn.assigns.scrivener)
 
         json(conn, %{
-          filters: Enum.map(user_filters, &FilterJson.as_json/1),
-          page: page
+          filters: Enum.map(user_filters, &FilterJson.as_json/1)
         })
     end
   end
