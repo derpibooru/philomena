@@ -14,7 +14,8 @@ defmodule PhilomenaWeb.Api.Json.Filter.SystemFilterController do
       |> Repo.paginate(conn.assigns.scrivener)
 
     json(conn, %{
-      filters: Enum.map(system_filters, &FilterJson.as_json/1)
+      filters: Enum.map(system_filters, &FilterJson.as_json/1),
+      total: system_filters.total_entries
     })
   end
 end
