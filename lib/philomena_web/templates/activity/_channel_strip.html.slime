@@ -1,7 +1,7 @@
 .block__content.flex.alternating-color
   .flex__grow
     / TODO
-    a href="/"
+    a href=Routes.channel_path(@conn, :show, @channel)
       /- if channel.channel_image.present?
       /  => image_tag channel.uploaded_channel_image.url, width: 32, height: 32, alt: "#{channel.title}'s logo'", class: 'channel-strip__image'
       /- else
