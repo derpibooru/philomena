@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     commission = user.commission
 
     case Commissions.create_item(commission, item_params) do
-      {:ok, _item} ->
+      {:ok, _multi} ->
         conn
         |> put_flash(:info, "Item successfully created.")
         |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
@@ -92,7 +92,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     commission = user.commission
     item = Repo.get_by!(Item, commission_id: commission.id, id: id)
 
-    {:ok, _item} = Commissions.delete_item(item)
+    {:ok, _multi} = Commissions.delete_item(item)
 
     conn
     |> put_flash(:info, "Item deleted successfully.")

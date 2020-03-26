@@ -4,6 +4,7 @@ defmodule Philomena.Commissions do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Commissions.Commission
@@ -146,9 +147,19 @@ defmodule Philomena.Commissions do
 
   """
   def create_item(commission, attrs \\ %{}) do
-    Ecto.build_assoc(commission, :items)
-    |> Item.changeset(attrs)
-    |> Repo.insert()
+    changeset =
+      Ecto.build_assoc(commission, :items)
+      |> Item.changeset(attrs)
+
+    update =
+      Commission
+      |> where(id: ^commission.id)
+      |> update(inc: [commission_items_count: 1])
+
+    Multi.new()
+    |> Multi.insert(:item, changeset)
+    |> Multi.update_all(:commission, update, [])
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
@@ -182,7 +193,15 @@ defmodule Philomena.Commissions do
 
   """
   def delete_item(%Item{} = item) do
-    Repo.delete(item)
+    update =
+      Commission
+      |> where(id: ^item.commission_id)
+      |> update(inc: [commission_items_count: -1])
+
+    Multi.new()
+    |> Multi.delete(:item, item)
+    |> Multi.update_all(:commission, update, [])
+    |> Repo.isolated_transaction(:serializable)
   end
 
   @doc """
