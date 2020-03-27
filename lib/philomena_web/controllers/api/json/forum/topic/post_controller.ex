@@ -52,7 +52,6 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
       _ ->
         json(conn, %{
           posts: Enum.map(posts, &PostJson.as_json/1),
-          page: page,
           total: hd(posts).topic.post_count
         })
     end
