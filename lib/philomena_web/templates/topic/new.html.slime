@@ -21,6 +21,8 @@
 
       = inputs_for f, :posts, fn fp ->
         .field
+          = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
+          = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
           = textarea fp, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for NSFW stuff in SFW forums.", required: true
           = error_tag fp, :body
 
