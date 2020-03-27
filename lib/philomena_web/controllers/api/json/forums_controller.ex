@@ -29,8 +29,11 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
       Forum
       |> where(access_level: "normal")
       |> order_by(asc: :name)
-      |> Repo.all()
+      |> Repo.paginate(conn.assigns.scrivener)
 
-    json(conn, %{forums: Enum.map(forums, &ForumJson.as_json/1)})
+    json(conn, %{
+      forums: Enum.map(forums, &ForumJson.as_json/1),
+      total: forums.total_entries
+    })
   end
 end
