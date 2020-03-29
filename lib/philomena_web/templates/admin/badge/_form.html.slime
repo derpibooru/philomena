@@ -21,11 +21,15 @@
     => checkbox f, :priority, class: "checkbox"
     = label f, :priority, "Displays before badges that don't have this checkbox checked"
 
-  h4 Image
-  .field
-    => label f, :image, "Upload SVG image:"
-    = file_input f, :image, class: "input input--wide"
-    = error_tag f, :image
-    = error_tag f, :image_mime_type
+  = if @changeset.data.__meta__.state != :loaded do
+    h4 Image
+    .field
+      => label f, :image, "Upload SVG image:"
+      = file_input f, :image, class: "input input--wide"
+      = error_tag f, :image
+      = error_tag f, :image_mime_type
+  - else
+    .field
+      = link "Change image", to: Routes.admin_badge_image_path(@conn, :edit, @changeset.data), class: "button"
 
   = submit "Save Badge", class: "button", data: [disable_with: raw("Saving&hellip;")]

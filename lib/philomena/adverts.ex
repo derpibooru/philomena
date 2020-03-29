@@ -140,6 +140,23 @@ defmodule Philomena.Adverts do
     |> Repo.update()
   end
 
+  def update_advert_image(%Advert{} = advert, attrs) do
+    advert =
+      advert
+      |> Advert.changeset(attrs)
+      |> Uploader.analyze_upload(attrs)
+
+    Multi.new()
+    |> Multi.update(:advert, advert)
+    |> Multi.run(:after, fn _repo, %{advert: advert} ->
+      Uploader.persist_upload(advert)
+      Uploader.unpersist_old_upload(advert)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
   @doc """
   Deletes a Advert.
 

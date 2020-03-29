@@ -1,0 +1,15 @@
+h2 Edit Badge
+
+= form_for @changeset, Routes.admin_badge_image_path(@conn, :update, @badge), [multipart: true], fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  h4 Image
+  .field
+    => label f, :image, "Upload SVG image:"
+    = file_input f, :image, class: "input input--wide"
+    = error_tag f, :image
+    = error_tag f, :image_mime_type
+
+  = submit "Save Badge", class: "button", data: [disable_with: raw("Saving&hellip;")]

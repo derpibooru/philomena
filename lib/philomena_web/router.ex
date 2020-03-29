@@ -320,12 +320,15 @@ defmodule PhilomenaWeb.Router do
         only: [:index, :new, :create, :edit, :update, :delete]
 
       resources "/site_notices", SiteNoticeController, except: [:show]
-      resources "/adverts", AdvertController, except: [:show]
+      resources "/adverts", AdvertController, except: [:show] do
+        resources "/image", Advert.ImageController, only: [:edit, :update], singleton: true
+      end
 
       resources "/forums", ForumController, except: [:show, :delete]
 
       resources "/badges", BadgeController, except: [:show, :delete] do
         resources "/users", Badge.UserController, only: [:index]
+        resources "/image", Badge.ImageController, only: [:edit, :update], singleton: true
       end
 
       resources "/mod_notes", ModNoteController, except: [:show]

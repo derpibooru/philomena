@@ -81,6 +81,12 @@ defmodule Philomena.Badges do
 
   """
   def update_badge(%Badge{} = badge, attrs) do
+    badge
+    |> Badge.changeset(attrs)
+    |> Repo.update()
+  end
+
+  def update_badge_image(%Badge{} = badge, attrs) do
     badge =
       badge
       |> Badge.changeset(attrs)

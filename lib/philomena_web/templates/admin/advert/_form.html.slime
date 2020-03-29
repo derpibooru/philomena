@@ -12,6 +12,9 @@
       = error_tag f, :image_size
       = error_tag f, :image_width
       = error_tag f, :image_height
+  - else
+    .field
+      = link "Change image", to: Routes.admin_advert_image_path(@conn, :edit, @changeset.data), class: "button"
 
   .field
     => label f, :link, "Link which the advert should take users to:"
