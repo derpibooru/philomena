@@ -1,7 +1,20 @@
-defmodule PhilomenaWeb.ImageJson do
+defmodule PhilomenaWeb.Api.Json.ImageView do
+  use PhilomenaWeb, :view
   alias PhilomenaWeb.ImageView
 
-  def as_json(_conn, %{hidden_from_users: true, duplicate_id: duplicate_id} = image)
+  def render("index.json", %{images: images, interactions: interactions, total: total} = assigns) do
+    %{
+      images: render_many(images, PhilomenaWeb.Api.Json.ImageView, "image.json", assigns),
+      interactions: interactions,
+      total: total
+    }
+  end
+
+  def render("show.json", %{image: image} = assigns) do
+    %{image: render_one(image, PhilomenaWeb.Api.Json.ImageView, "image.json", assigns)}
+  end
+
+  def render("image.json", %{image: %{hidden_from_users: true, duplicate_id: duplicate_id} = image})
       when not is_nil(duplicate_id) do
     %{
       id: image.id,
@@ -14,7 +27,7 @@ defmodule PhilomenaWeb.ImageJson do
     }
   end
 
-  def as_json(_conn, %{hidden_from_users: true} = image) do
+  def render("image.json", %{image: %{hidden_from_users: true} = image}) do
     %{
       id: image.id,
       created_at: image.created_at,
@@ -26,7 +39,7 @@ defmodule PhilomenaWeb.ImageJson do
     }
   end
 
-  def as_json(conn, %{hidden_from_users: false} = image) do
+  def render("image.json", %{conn: conn, image: %{hidden_from_users: false} = image}) do
     %{
       id: image.id,
       created_at: image.created_at,

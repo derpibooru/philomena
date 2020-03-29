@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageJson
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.Images.Image
   alias Philomena.Repo
@@ -23,7 +22,9 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
         |> text("")
 
       _ ->
-        json(conn, %{image: ImageJson.as_json(conn, featured_image)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.ImageView)
+        |> render("show.json", image: featured_image)
     end
   end
 end

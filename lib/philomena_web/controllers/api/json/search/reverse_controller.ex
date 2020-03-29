@@ -2,20 +2,23 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageReverse
-  alias PhilomenaWeb.ImageJson
+  alias Philomena.Interactions
 
   plug :set_scraper_cache
   plug PhilomenaWeb.ScraperPlug, params_key: "image", params_name: "image"
 
   def create(conn, %{"image" => image_params}) do
+    user = conn.assigns.current_user
     images =
       image_params
       |> Map.put("distance", conn.params["distance"])
       |> ImageReverse.images()
-      |> Enum.map(&ImageJson.as_json(conn, &1))
+
+    interactions = Interactions.user_interactions(images, user)
 
     conn
-    |> json(%{images: images})
+    |> put_view(PhilomenaWeb.Api.Json.ImageView)
+    |> render("index.json", images: images, total: length(images), interactions: interactions)
   end
 
   defp set_scraper_cache(conn, _opts) do

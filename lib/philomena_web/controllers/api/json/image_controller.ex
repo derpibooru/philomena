@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.ImageController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageJson
   alias Philomena.Images.Image
   alias Philomena.Repo
   import Ecto.Query
@@ -20,7 +19,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
         |> text("")
 
       _ ->
-        json(conn, %{image: ImageJson.as_json(conn, image)})
+        render(conn, "show.json", image: image)
     end
   end
 end
