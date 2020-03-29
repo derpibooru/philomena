@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias PhilomenaWeb.ImageJson
   alias Philomena.ImageSorter
   alias Philomena.Interactions
   alias Philomena.Images.Image
@@ -22,11 +21,8 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
         interactions = Interactions.user_interactions(images, user)
 
         conn
-        |> json(%{
-          images: Enum.map(images, &ImageJson.as_json(conn, &1)),
-          total: images.total_entries,
-          interactions: interactions
-        })
+        |> put_view(PhilomenaWeb.Api.Json.ImageView)
+        |> render("index.json", images: images, total: images.total_entries, interactions: interactions)
 
       {:error, msg} ->
         conn
