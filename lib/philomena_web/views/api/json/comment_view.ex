@@ -1,11 +1,23 @@
-defmodule PhilomenaWeb.CommentJson do
+defmodule PhilomenaWeb.Api.Json.CommentView do
+  use PhilomenaWeb, :view
   alias PhilomenaWeb.UserAttributionView
 
-  def as_json(%{destroyed_content: true}) do
+  def render("index.json", %{comments: comments, total: total} = assigns) do
+    %{
+      comments: render_many(comments, PhilomenaWeb.Api.Json.CommentView, "comment.json", assigns),
+      total: total
+    }
+  end
+
+  def render("show.json", %{comment: comment} = assigns) do
+    %{comment: render_one(comment, PhilomenaWeb.Api.Json.CommentView, "comment.json", assigns)}
+  end
+
+  def render("comment.json", %{comment: %{destroyed_content: true}}) do
     nil
   end
 
-  def as_json(%{image: %{hidden_from_users: true}} = comment) do
+  def render("comment.json", %{comment: %{image: %{hidden_from_users: true}} = comment}) do
     %{
       id: comment.id,
       image_id: comment.image_id,
@@ -15,7 +27,7 @@ defmodule PhilomenaWeb.CommentJson do
     }
   end
 
-  def as_json(%{hidden_from_users: true} = comment) do
+  def render("comment.json", %{comment: %{hidden_from_users: true} = comment}) do
     %{
       id: comment.id,
       image_id: comment.image_id,
@@ -29,7 +41,7 @@ defmodule PhilomenaWeb.CommentJson do
     }
   end
 
-  def as_json(comment) do
+  def render("comment.json", %{comment: comment}) do
     %{
       id: comment.id,
       image_id: comment.image_id,

@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.CommentController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.CommentJson
   alias Philomena.Comments.Comment
   alias Philomena.Repo
   import Ecto.Query
@@ -25,7 +24,7 @@ defmodule PhilomenaWeb.Api.Json.CommentController do
         |> text("")
 
       true ->
-        json(conn, %{comment: CommentJson.as_json(comment)})
+        render(conn, "show.json", comment: comment)
     end
   end
 end

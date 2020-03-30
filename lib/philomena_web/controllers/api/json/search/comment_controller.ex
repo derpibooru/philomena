@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Search.CommentController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.CommentJson
   alias Philomena.Elasticsearch
   alias Philomena.Comments.Comment
   alias Philomena.Comments.Query
@@ -34,7 +33,9 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
             preload(Comment, [:image, :user])
           )
 
-        json(conn, %{comments: Enum.map(comments, &CommentJson.as_json/1)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.CommentView)
+        |> render("index.json", comments: comments, total: comments.total_entries)
 
       {:error, msg} ->
         conn
