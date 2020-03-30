@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Filter.SystemFilterController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.FilterJson
   alias Philomena.Filters.Filter
   alias Philomena.Repo
   import Ecto.Query
@@ -13,9 +12,8 @@ defmodule PhilomenaWeb.Api.Json.Filter.SystemFilterController do
       |> order_by(asc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    json(conn, %{
-      filters: Enum.map(system_filters, &FilterJson.as_json/1),
-      total: system_filters.total_entries
-    })
+    conn
+    |> put_view(PhilomenaWeb.Api.Json.FilterView)
+    |> render("index.json", filters: system_filters, total: system_filters.total_entries)
   end
 end

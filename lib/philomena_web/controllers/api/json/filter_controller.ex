@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.FilterController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.FilterJson
   alias Philomena.Filters.Filter
   alias Philomena.Repo
   import Ecto.Query
@@ -17,7 +16,7 @@ defmodule PhilomenaWeb.Api.Json.FilterController do
 
     case Canada.Can.can?(user, :show, filter) do
       true ->
-        json(conn, %{filter: FilterJson.as_json(filter)})
+        render(conn, "show.json", filter: filter)
 
       _ ->
         conn
