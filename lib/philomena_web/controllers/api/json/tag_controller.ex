@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.TagController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TagJson
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
@@ -22,7 +21,7 @@ defmodule PhilomenaWeb.Api.Json.TagController do
         |> text("")
 
       _ ->
-        json(conn, %{tag: TagJson.as_json(tag)})
+        render(conn, "show.json", tag: tag)
     end
   end
 end
