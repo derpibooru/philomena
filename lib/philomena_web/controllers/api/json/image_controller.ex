@@ -2,10 +2,13 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Images.Image
+  alias Philomena.Interactions
   alias Philomena.Repo
   import Ecto.Query
 
   def show(conn, %{"id" => id}) do
+    user = conn.assigns.current_user
+
     image =
       Image
       |> where(id: ^id)
@@ -19,7 +22,9 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
         |> text("")
 
       _ ->
-        render(conn, "show.json", image: image)
+        interactions = Interactions.user_interactions([image], user)
+
+        render(conn, "show.json", image: image, interactions: interactions)
     end
   end
 end
