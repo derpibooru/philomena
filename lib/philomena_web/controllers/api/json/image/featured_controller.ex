@@ -3,10 +3,13 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
 
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.Images.Image
+  alias Philomena.Interactions
   alias Philomena.Repo
   import Ecto.Query
 
   def show(conn, _params) do
+    user = conn.assigns.current_user
+
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
@@ -22,9 +25,11 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
         |> text("")
 
       _ ->
+        interactions = Interactions.user_interactions([featured_image], user)
+
         conn
         |> put_view(PhilomenaWeb.Api.Json.ImageView)
-        |> render("show.json", image: featured_image)
+        |> render("show.json", image: featured_image, interactions: interactions)
     end
   end
 end
