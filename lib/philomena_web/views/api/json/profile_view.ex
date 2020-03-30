@@ -1,8 +1,11 @@
-defmodule PhilomenaWeb.UserJson do
-  alias PhilomenaWeb.LinksJson
-  alias PhilomenaWeb.AwardsJson
+defmodule PhilomenaWeb.Api.Json.ProfileView do
+  use PhilomenaWeb, :view
 
-  def as_json(conn, user) do
+  def render("show.json", %{user: user} = assigns) do
+    %{user: render_one(user, PhilomenaWeb.Api.Json.ProfileView, "profile.json", assigns)}
+  end
+
+  def render("profile.json", %{user: user} = assigns) do
     %{
       id: user.id,
       name: user.name,
@@ -15,8 +18,8 @@ defmodule PhilomenaWeb.UserJson do
       uploads_count: user.uploads_count,
       posts_count: user.forum_posts_count,
       topics_count: user.topic_count,
-      links: Enum.map(user.public_links, &LinksJson.as_json(conn, &1)),
-      awards: Enum.map(user.awards, &AwardsJson.as_json(conn, &1))
+      links: render_many(user.public_links, PhilomenaWeb.Api.Json.UserLinkView, "user_link.json", assigns),
+      awards: render_many(user.awards, PhilomenaWeb.Api.Json.AwardView, "award.json", assigns)
     }
   end
 

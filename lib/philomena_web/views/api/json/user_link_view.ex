@@ -1,7 +1,11 @@
-defmodule PhilomenaWeb.LinksJson do
-  def as_json(_conn, %{public: false}), do: nil
+defmodule PhilomenaWeb.Api.Json.UserLinkView do
+  use PhilomenaWeb, :view
 
-  def as_json(_conn, link) do
+  def render("user_link.json", %{user_link: %{public: false}}) do
+    nil
+  end
+
+  def render("user_link.json", %{user_link: link}) do
     %{
       user_id: link.user_id,
       created_at: link.created_at,

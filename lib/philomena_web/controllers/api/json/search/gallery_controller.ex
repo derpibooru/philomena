@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Search.GalleryController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.GalleryJson
   alias Philomena.Elasticsearch
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Query
@@ -21,7 +20,9 @@ defmodule PhilomenaWeb.Api.Json.Search.GalleryController do
             preload(Gallery, [:creator])
           )
 
-        json(conn, %{galleries: Enum.map(galleries, &GalleryJson.as_json/1)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.GalleryView)
+        |> render("index.json", galleries: galleries, total: galleries.total_entries)
 
       {:error, msg} ->
         conn

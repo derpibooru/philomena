@@ -1,10 +1,19 @@
 defmodule PhilomenaWeb.Api.Json.ForumController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ForumJson
   alias Philomena.Forums.Forum
   alias Philomena.Repo
   import Ecto.Query
+
+  def index(conn, _params) do
+    forums =
+      Forum
+      |> where(access_level: "normal")
+      |> order_by(asc: :name)
+      |> Repo.paginate(conn.assigns.scrivener)
+
+    render(conn, forums: forums, total: forums.total_entries)
+  end
 
   def show(conn, %{"id" => id}) do
     forum =
@@ -20,20 +29,7 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
         |> text("")
 
       true ->
-        json(conn, %{forum: ForumJson.as_json(forum)})
+        render(conn, forum: forum)
     end
-  end
-
-  def index(conn, _params) do
-    forums =
-      Forum
-      |> where(access_level: "normal")
-      |> order_by(asc: :name)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    json(conn, %{
-      forums: Enum.map(forums, &ForumJson.as_json/1),
-      total: forums.total_entries
-    })
   end
 end

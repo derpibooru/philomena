@@ -1,5 +1,18 @@
-defmodule PhilomenaWeb.TagJson do
-  def as_json(tag) do
+defmodule PhilomenaWeb.Api.Json.TagView do
+  use PhilomenaWeb, :view
+
+  def render("index.json", %{tags: tags, total: total} = assigns) do
+    %{
+      tags: render_many(tags, PhilomenaWeb.Api.Json.TagView, "tag.json", assigns),
+      total: total
+    }
+  end
+
+  def render("show.json", %{tag: tag} = assigns) do
+    %{tag: render_one(tag, PhilomenaWeb.Api.Json.TagView, "tag.json", assigns)}
+  end
+
+  def render("tag.json", %{tag: tag}) do
     %{
       id: tag.id,
       name: tag.name,

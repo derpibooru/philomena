@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Search.PostController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.PostJson
   alias Philomena.Elasticsearch
   alias Philomena.Posts.Post
   alias Philomena.Posts.Query
@@ -31,7 +30,9 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
             preload(Post, [:user, :topic])
           )
 
-        json(conn, %{posts: Enum.map(posts, &PostJson.as_json/1)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)
+        |> render("index.json", posts: posts, total: posts.total_entries)
 
       {:error, msg} ->
         conn

@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Search.TagController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TagJson
   alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
   alias Philomena.Tags.Query
@@ -18,7 +17,9 @@ defmodule PhilomenaWeb.Api.Json.Search.TagController do
             preload(Tag, [:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries])
           )
 
-        json(conn, %{tags: Enum.map(tags, &TagJson.as_json/1)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.TagView)
+        |> render("index.json", tags: tags, total: tags.total_entries)
 
       {:error, msg} ->
         conn

@@ -1,5 +1,7 @@
-defmodule PhilomenaWeb.AwardsJson do
-  def as_json(_conn, award) do
+defmodule PhilomenaWeb.Api.Json.AwardView do
+  use PhilomenaWeb, :view
+
+  def render("award.json", %{award: award}) do
     %{
       image_url: badge_url_root() <> "/" <> award.badge.image,
       title: award.badge.title,
