@@ -17,10 +17,6 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
     }
   end
 
-  def render("show.json", %{image: image} = assigns) do
-    %{image: render_one(image, PhilomenaWeb.Api.Json.ImageView, "image.json", assigns)}
-  end
-
   def render("image.json", %{
         image: %{hidden_from_users: true, duplicate_id: duplicate_id} = image
       })
