@@ -224,7 +224,7 @@ defmodule Philomena.Galleries do
     spawn(fn ->
       interactions =
         Interaction
-        |> where([gi], gi.image_id in ^image_ids)
+        |> where([gi], gi.image_id in ^image_ids and gi.gallery_id == ^gallery.id)
         |> order_by(^position_order(gallery))
         |> Repo.all()
 
@@ -260,15 +260,6 @@ defmodule Philomena.Galleries do
               ]
           end
         end)
-
-      IO.inspect([
-        image_ids: image_ids,
-        interactions: interactions,
-        interaction_positions: interaction_positions,
-        images_present: images_present,
-        requested: requested,
-        changes: changes
-      ], limit: :infinity)
 
       changes
       |> Enum.map(fn change ->
