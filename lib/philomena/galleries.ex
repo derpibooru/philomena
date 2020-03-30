@@ -255,21 +255,29 @@ defmodule Philomena.Galleries do
               [
                 [
                   id: interaction.id,
-                  gallery_id: interaction.gallery_id,
-                  image_id: interaction.image_id,
                   position: interaction_positions[new_index]
                 ]
               ]
           end
         end)
 
+      changes
+      |> Enum.map(fn change ->
+        id = Keyword.fetch!(change, :id)
+        change = Keyword.delete(change, :id)
+
+        Interaction
+        |> where([i], i.id == ^id)
+        |> Repo.update_all(set: change)
+      end)
+
       # Do the update in a single statement
-      Repo.insert_all(
-        Interaction,
-        changes,
-        on_conflict: {:replace, [:position]},
-        conflict_target: [:id]
-      )
+      # Repo.insert_all(
+      #   Interaction,
+      #   changes,
+      #   on_conflict: {:replace, [:position]},
+      #   conflict_target: [:id]
+      # )
 
       # Now update all the associated images
       Images.reindex_images(Map.keys(requested))
