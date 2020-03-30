@@ -23,7 +23,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       image_id: comment.image_id,
       user_id: nil,
       author: nil,
-      body: nil
+      body: nil,
+      posted_at: nil,
+      updated_at: nil
     }
   end
 
@@ -37,7 +39,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
           do: UserAttributionView.anonymous_name(comment),
           else: comment.user.name
         ),
-      body: nil
+      body: nil,
+      posted_at: comment.created_at,
+      updated_at: comment.updated_at
     }
   end
 
@@ -51,7 +55,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
           do: UserAttributionView.anonymous_name(comment),
           else: comment.user.name
         ),
-      body: comment.body
+      body: comment.body,
+      posted_at: comment.created_at,
+      updated_at: comment.updated_at
     }
   end
 end
