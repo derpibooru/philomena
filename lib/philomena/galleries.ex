@@ -261,6 +261,15 @@ defmodule Philomena.Galleries do
           end
         end)
 
+      IO.inspect([
+        image_ids: image_ids,
+        interactions: interactions,
+        interaction_positions: interaction_positions,
+        images_present: images_present,
+        requested: requested,
+        changes: changes
+      ], limit: :infinity)
+
       changes
       |> Enum.map(fn change ->
         id = Keyword.fetch!(change, :id)
