@@ -1,7 +1,19 @@
-defmodule PhilomenaWeb.PostJson do
+defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
+  use PhilomenaWeb, :view
   alias PhilomenaWeb.UserAttributionView
 
-  def as_json(%{topic: %{hidden_from_users: true}} = post) do
+  def render("index.json", %{posts: posts, total: total} = assigns) do
+    %{
+      posts: render_many(posts, PhilomenaWeb.Api.Json.Forum.Topic.PostView, "post.json", assigns),
+      total: total
+    }
+  end
+
+  def render("show.json", %{post: post} = assigns) do
+    %{post: render_one(post, PhilomenaWeb.Api.Json.Forum.Topic.PostView, "post.json", assigns)}
+  end
+
+  def render("post.json", %{post: %{topic: %{hidden_from_users: true}} = post}) do
     %{
       id: post.id,
       user_id: nil,
@@ -10,7 +22,7 @@ defmodule PhilomenaWeb.PostJson do
     }
   end
 
-  def as_json(%{hidden_from_users: true} = post) do
+  def render("post.json", %{post: %{hidden_from_users: true} = post}) do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),
@@ -23,7 +35,7 @@ defmodule PhilomenaWeb.PostJson do
     }
   end
 
-  def as_json(post) do
+  def render("post.json", %{post: post}) do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),

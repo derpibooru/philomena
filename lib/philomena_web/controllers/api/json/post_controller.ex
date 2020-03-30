@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.PostController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.PostJson
   alias Philomena.Posts.Post
   alias Philomena.Repo
   import Ecto.Query
@@ -25,7 +24,9 @@ defmodule PhilomenaWeb.Api.Json.PostController do
         |> text("")
 
       true ->
-        json(conn, %{post: PostJson.as_json(post)})
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)
+        |> render("show.json", post: post)
     end
   end
 end
