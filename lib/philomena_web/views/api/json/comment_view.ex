@@ -25,7 +25,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       author: nil,
       body: nil,
       created_at: nil,
-      updated_at: nil
+      updated_at: nil,
+      edited_at: nil,
+      edit_reason: nil
     }
   end
 
@@ -41,7 +43,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
         ),
       body: nil,
       created_at: comment.created_at,
-      updated_at: comment.updated_at
+      updated_at: comment.updated_at,
+      edited_at: nil,
+      edit_reason: nil
     }
   end
 
@@ -57,7 +61,9 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
         ),
       body: comment.body,
       created_at: comment.created_at,
-      updated_at: comment.updated_at
+      updated_at: comment.updated_at,
+      edited_at: comment.edited_at,
+      edit_reason: comment.edit_reason
     }
   end
 end

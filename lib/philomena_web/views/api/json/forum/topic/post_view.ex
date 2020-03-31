@@ -18,7 +18,11 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
       id: post.id,
       user_id: nil,
       author: nil,
-      body: nil
+      body: nil,
+      created_at: nil,
+      updated_at: nil,
+      edited_at: nil,
+      edit_reason: nil
     }
   end
 
@@ -31,7 +35,11 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
           do: UserAttributionView.anonymous_name(post),
           else: post.user.name
         ),
-      body: nil
+      body: nil,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      edited_at: nil,
+      edit_reason: nil
     }
   end
 
@@ -44,7 +52,11 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
           do: UserAttributionView.anonymous_name(post),
           else: post.user.name
         ),
-      body: post.body
+      body: post.body,
+      created_at: post.created_at,
+      updated_at: post.updated_at,
+      edited_at: post.edited_at,
+      edit_reason: post.edit_reason
     }
   end
 end
