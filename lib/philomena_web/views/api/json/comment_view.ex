@@ -36,11 +36,8 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       id: comment.id,
       image_id: comment.image_id,
       user_id: if(not comment.anonymous, do: comment.user_id),
-      author:
-        if(comment.anonymous or is_nil(comment.user),
-          do: UserAttributionView.anonymous_name(comment),
-          else: comment.user.name
-        ),
+      author: UserAttributionView.name(comment),
+      avatar: UserAttributionView.avatar_url(comment),
       body: nil,
       created_at: comment.created_at,
       updated_at: comment.updated_at,
@@ -54,11 +51,8 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       id: comment.id,
       image_id: comment.image_id,
       user_id: if(not comment.anonymous, do: comment.user_id),
-      author:
-        if(comment.anonymous or is_nil(comment.user),
-          do: UserAttributionView.anonymous_name(comment),
-          else: comment.user.name
-        ),
+      author: UserAttributionView.name(comment),
+      avatar: UserAttributionView.avatar_url(comment),
       body: comment.body,
       created_at: comment.created_at,
       updated_at: comment.updated_at,

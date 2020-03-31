@@ -3,9 +3,24 @@ defmodule PhilomenaWeb.UserAttributionView do
   use Bitwise
 
   alias Philomena.Attribution
+  alias PhilomenaWeb.AvatarGeneratorView
 
   def anonymous?(object) do
     Attribution.anonymous?(object)
+  end
+
+  def name(object) do
+    case is_nil(object.user) or anonymous?(object) do
+      true -> anonymous_name(object)
+      _false -> object.user.name
+    end
+  end
+
+  def avatar_url(object) do
+    case is_nil(object.user) or anonymous?(object) do
+      true -> anonymous_avatar_url(anonymous_name(object))
+      _false -> user_avatar_url(object)
+    end
   end
 
   def anonymous_name(object, reveal_anon? \\ false) do
@@ -28,7 +43,7 @@ defmodule PhilomenaWeb.UserAttributionView do
     class = Enum.join(["image-constrained", class], " ")
 
     content_tag :div, class: class do
-      PhilomenaWeb.AvatarGeneratorView.generated_avatar(name)
+      AvatarGeneratorView.generated_avatar(name)
     end
   end
 
@@ -40,12 +55,29 @@ defmodule PhilomenaWeb.UserAttributionView do
   def user_avatar(%{user: %{avatar: nil}} = object, class),
     do: anonymous_avatar(object.user.name, class)
 
-  def user_avatar(%{user: %{avatar: avatar}}, class) do
+  def user_avatar(object, class) do
     class = Enum.join(["image-constrained", class], " ")
 
     content_tag :div, class: class do
-      img_tag(avatar_url_root() <> "/" <> avatar)
+      user_avatar_url(object)
     end
+  end
+
+  def user_avatar_url(%{user: %{avatar: nil}} = object) do
+    anonymous_avatar_url(object.user.name)
+  end
+
+  def user_avatar_url(%{user: %{avatar: avatar}}) do
+    avatar_url_root() <> "/" <> avatar
+  end
+
+  def anonymous_avatar_url(name) do
+    svg =
+      name
+      |> AvatarGeneratorView.generated_avatar()
+      |> Enum.map_join(&safe_to_string/1)
+
+    "data:image/svg+xml;base64," <> Base.encode64(svg)
   end
 
   def user_labels(%{user: user}) do

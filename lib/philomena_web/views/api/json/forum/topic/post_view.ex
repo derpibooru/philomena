@@ -30,11 +30,8 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),
-      author:
-        if(post.anonymous or is_nil(post.user),
-          do: UserAttributionView.anonymous_name(post),
-          else: post.user.name
-        ),
+      author: UserAttributionView.name(post),
+      avatar: UserAttributionView.avatar_url(post),
       body: nil,
       created_at: post.created_at,
       updated_at: post.updated_at,
@@ -47,11 +44,8 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),
-      author:
-        if(post.anonymous or is_nil(post.user),
-          do: UserAttributionView.anonymous_name(post),
-          else: post.user.name
-        ),
+      author: UserAttributionView.name(post),
+      avatar: UserAttributionView.avatar_url(post),
       body: post.body,
       created_at: post.created_at,
       updated_at: post.updated_at,
