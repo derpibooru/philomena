@@ -59,7 +59,7 @@ defmodule PhilomenaWeb.LayoutView do
 
     data = Keyword.merge(data, extra)
 
-    tag(:div, class: "js-datastore", data: data)
+    content_tag(:div, "", class: "js-datastore", data: data)
   end
 
   def footer_data do

@@ -12,12 +12,12 @@
       ' Issues? Want to chat?
       a href="/pages/contact" Contact us!
     .block.hide-mobile
-      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&sf=score&sd=desc"
+      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&amp;sf=score&amp;sd=desc"
         ' Trending Images
       .block__content.flex.flex--centered.flex--wrap.image-flex-grid
         = for image <- @top_scoring do
           = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
-      a.block__header--single-item.center href="/search?q=*&sf=score&sd=desc"
+      a.block__header--single-item.center href="/search?q=*&amp;sf=score&amp;sd=desc"
         ' All Time Top Scoring
     .block.hide-mobile
       a.block__header--single-item.center href="/channels"
@@ -34,7 +34,7 @@
         ' Recent Comments
       = for comment <- @comments do
         = render PhilomenaWeb.ActivityView, "_comment_strip.html", comment: comment, conn: @conn
-      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&sf=comment_count&sd=desc"
+      a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&amp;sf=comment_count&amp;sd=desc"
         ' Most Commented-on Images
 
   .column-layout__main
