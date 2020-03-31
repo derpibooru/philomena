@@ -3,6 +3,10 @@ defmodule Search.Lexer do
 
   defp to_number(input), do: Search.Helpers.to_number(input)
 
+  space =
+    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
+    |> ignore()
+
   float =
     optional(ascii_char('-+'))
     |> ascii_string([?0..?9], min: 1)
@@ -11,23 +15,32 @@ defmodule Search.Lexer do
     |> reduce(:to_number)
 
   l_and =
-    choice([string("AND"), string("&&"), string(",")])
+    times(space, min: 1)
+    |> choice([string("AND"), string("&&")])
+    |> times(space, min: 1)
+    |> unwrap_and_tag(:and)
+
+  l_comma =
+    string(",")
     |> unwrap_and_tag(:and)
 
   l_or =
-    choice([string("OR"), string("||")])
+    times(space, min: 1)
+    |> choice([string("OR"), string("||")])
+    |> times(space, min: 1)
     |> unwrap_and_tag(:or)
 
   l_not =
-    choice([string("NOT"), string("!"), string("-")])
+    string("NOT")
+    |> times(space, min: 1)
+    |> unwrap_and_tag(:not)
+
+  l_negate =
+    choice([string("!"), string("-")])
     |> unwrap_and_tag(:not)
 
   lparen = string("(") |> unwrap_and_tag(:lparen)
   rparen = string(")") |> unwrap_and_tag(:rparen)
-
-  space =
-    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
-    |> ignore()
 
   quot = string("\"")
 
@@ -37,12 +50,12 @@ defmodule Search.Lexer do
     |> unwrap_and_tag(:boost)
 
   stop_words =
-    repeat(space)
-    |> choice([
+    choice([
+      l_comma,
       l_and,
       l_or,
-      rparen,
-      boost
+      repeat(space) |> concat(rparen),
+      repeat(space) |> concat(boost)
     ])
 
   defcombinatorp(
@@ -85,6 +98,8 @@ defmodule Search.Lexer do
 
   outer =
     choice([
+      l_comma,
+      l_negate,
       l_and,
       l_or,
       l_not,
