@@ -22,7 +22,11 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.ImageView)
-        |> render("index.json", images: images, total: images.total_entries, interactions: interactions)
+        |> render("index.json",
+          images: images,
+          total: images.total_entries,
+          interactions: interactions
+        )
 
       {:error, msg} ->
         conn

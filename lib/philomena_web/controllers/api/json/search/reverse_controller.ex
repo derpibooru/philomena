@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
 
   def create(conn, %{"image" => image_params}) do
     user = conn.assigns.current_user
+
     images =
       image_params
       |> Map.put("distance", conn.params["distance"])

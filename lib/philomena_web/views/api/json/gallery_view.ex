@@ -3,7 +3,8 @@ defmodule PhilomenaWeb.Api.Json.GalleryView do
 
   def render("index.json", %{galleries: galleries, total: total} = assigns) do
     %{
-      galleries: render_many(galleries, PhilomenaWeb.Api.Json.GalleryView, "gallery.json", assigns),
+      galleries:
+        render_many(galleries, PhilomenaWeb.Api.Json.GalleryView, "gallery.json", assigns),
       total: total
     }
   end

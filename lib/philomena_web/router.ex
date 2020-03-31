@@ -320,6 +320,7 @@ defmodule PhilomenaWeb.Router do
         only: [:index, :new, :create, :edit, :update, :delete]
 
       resources "/site_notices", SiteNoticeController, except: [:show]
+
       resources "/adverts", AdvertController, except: [:show] do
         resources "/image", Advert.ImageController, only: [:edit, :update], singleton: true
       end

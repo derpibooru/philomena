@@ -5,7 +5,12 @@ defmodule PhilomenaWeb.Admin.Advert.ImageController do
   alias Philomena.Adverts
 
   plug :verify_authorized
-  plug :load_and_authorize_resource, model: Advert, id_name: "advert_id", persisted: true, only: [:edit, :update, :delete]
+
+  plug :load_and_authorize_resource,
+    model: Advert,
+    id_name: "advert_id",
+    persisted: true,
+    only: [:edit, :update, :delete]
 
   def edit(conn, _params) do
     changeset = Adverts.change_advert(conn.assigns.advert)

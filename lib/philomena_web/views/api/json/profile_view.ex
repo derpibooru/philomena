@@ -18,7 +18,13 @@ defmodule PhilomenaWeb.Api.Json.ProfileView do
       uploads_count: user.uploads_count,
       posts_count: user.forum_posts_count,
       topics_count: user.topic_count,
-      links: render_many(user.public_links, PhilomenaWeb.Api.Json.UserLinkView, "user_link.json", assigns),
+      links:
+        render_many(
+          user.public_links,
+          PhilomenaWeb.Api.Json.UserLinkView,
+          "user_link.json",
+          assigns
+        ),
       awards: render_many(user.awards, PhilomenaWeb.Api.Json.AwardView, "award.json", assigns)
     }
   end
