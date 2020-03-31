@@ -90,13 +90,23 @@ defmodule Search.DateParser do
     end
   end
 
-  defp relative_datetime([count, scale]) do
-    now = DateTime.utc_now()
+  defp relative_datetime(_rest, [count, scale], context, _line, _offset) do
+    millenium_seconds = 31_536_000_000
 
-    lower = DateTime.add(now, (count + 1) * -scale, :second)
-    upper = DateTime.add(now, count * -scale, :second)
+    case count * scale <= millenium_seconds do
+      true ->
+        now = DateTime.utc_now()
 
-    [lower, upper]
+        lower = DateTime.add(now, (count + 1) * -scale, :second)
+        upper = DateTime.add(now, count * -scale, :second)
+
+        {[[lower, upper]], context}
+
+      _false ->
+        {:error, "invalid date format in input; requested time #{
+          count*scale
+        } seconds is over a millenium ago"}
+    end
   end
 
   space =
@@ -175,7 +185,7 @@ defmodule Search.DateParser do
     ])
     |> ignore(string(" ago"))
     |> eos()
-    |> reduce(:relative_datetime)
+    |> post_traverse(:relative_datetime)
     |> unwrap_and_tag(:date)
 
   date =
