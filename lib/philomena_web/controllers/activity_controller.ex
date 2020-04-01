@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.ActivityController do
       ImageLoader.query(
         conn,
         %{range: %{first_seen_at: %{gt: "now-3d"}}},
-        sorts: [%{score: :desc}, %{first_seen_at: :desc}],
+        sorts: [%{wilson_score: :desc}, %{first_seen_at: :desc}],
         pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )
 
