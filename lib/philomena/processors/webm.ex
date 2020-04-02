@@ -32,6 +32,8 @@ defmodule Philomena.Processors.Webm do
       System.cmd("ffmpeg", [
         "-loglevel",
         "0",
+        "-threads",
+        "1",
         "-y",
         "-i",
         file,
@@ -91,6 +93,8 @@ defmodule Philomena.Processors.Webm do
       System.cmd("ffmpeg", [
         "-loglevel",
         "0",
+        "-threads",
+        "1",
         "-y",
         "-i",
         file,
@@ -115,6 +119,8 @@ defmodule Philomena.Processors.Webm do
       System.cmd("ffmpeg", [
         "-loglevel",
         "0",
+        "-threads",
+        "1",
         "-y",
         "-i",
         file,
@@ -149,6 +155,8 @@ defmodule Philomena.Processors.Webm do
       System.cmd("ffmpeg", [
         "-loglevel",
         "0",
+        "-threads",
+        "1",
         "-y",
         "-i",
         file,
@@ -171,6 +179,8 @@ defmodule Philomena.Processors.Webm do
       System.cmd("ffmpeg", [
         "-loglevel",
         "0",
+        "-threads",
+        "1",
         "-y",
         "-i",
         file,
