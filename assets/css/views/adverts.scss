@@ -15,10 +15,14 @@
     margin-bottom: 4px;
   }
   img {
-    max-width: 729px;
-    width: 100%;
+    max-width: 100%;
     height: auto;
   }
+}
+
+#imagespns__link {
+  display: flex;
+  justify-content: center;
 }
 
 .table--adverts__image {

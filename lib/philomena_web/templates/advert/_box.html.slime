@@ -4,8 +4,8 @@
     => link "Click here", to: "/pages/advertising"
     ' for information!
 
-  a href=Routes.advert_path(@conn, :show, @advert) rel="nofollow" title=@advert.title
-    img src=advert_image_url(@advert) alt=@advert.title width="700" height="80"
+  a#imagespns__link href=Routes.advert_path(@conn, :show, @advert) rel="nofollow" title=@advert.title
+    img src=advert_image_url(@advert) alt=@advert.title
 
   p
     strong
