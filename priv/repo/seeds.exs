@@ -21,7 +21,8 @@ alias Philomena.{
   Reports.Report,
   Roles.Role,
   Tags.Tag,
-  Users.User
+  Users.User,
+  StaticPages.StaticPage
 }
 
 alias Philomena.Elasticsearch
@@ -85,6 +86,14 @@ IO.puts("---- Generating roles")
 for role_def <- resources["roles"] do
   %Role{name: role_def["name"], resource_type: role_def["resource_type"]}
   |> Role.changeset(%{})
+  |> Repo.insert(on_conflict: :nothing)
+end
+
+IO.puts("---- Generating static pages")
+
+for page_def <- resources["pages"] do
+  %StaticPage{title: page_def["title"], slug: page_def["slug"], body: page_def["body"]}
+  |> StaticPage.changeset(%{})
   |> Repo.insert(on_conflict: :nothing)
 end
 

@@ -91,5 +91,6 @@
     {"name": "moderator", "resource_type": "Topic"},
     {"name": "admin", "resource_type": "Advert"},
     {"name": "admin", "resource_type": "StaticPage"}
- ]
+  ],
+  "pages": []
 }
