@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
 
   def index(conn, params) do
     states =
-      (params["states"] || ~W(open claimed))
+      (presence(params["states"]) || ~W(open claimed))
       |> wrap()
       |> Enum.filter(&Enum.member?(@valid_states, &1))
 
@@ -72,4 +72,6 @@ defmodule PhilomenaWeb.DuplicateReportController do
 
   defp wrap(list) when is_list(list), do: list
   defp wrap(not_a_list), do: [not_a_list]
+  defp presence(""), do: nil
+  defp presence(x), do: x
 end

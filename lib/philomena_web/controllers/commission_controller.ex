@@ -12,6 +12,10 @@ defmodule PhilomenaWeb.CommissionController do
       commission_search(params["commission"])
       |> Repo.paginate(conn.assigns.scrivener)
 
+    # Scrub parameters to avoid form error...
+    params = Map.put(conn.params, "commission", permit_map(conn.params["commission"]))
+    conn = Map.put(conn, :params, params)
+
     render(conn, "index.html",
       title: "Commissions",
       commissions: commissions,
@@ -77,6 +81,9 @@ defmodule PhilomenaWeb.CommissionController do
 
   defp presence([]),
     do: nil
+
+  defp permit_map(x) when is_map(x), do: x
+  defp permit_map(_), do: nil
 
   defp presence(string) when is_binary(string),
     do: if(String.trim(string) == "", do: nil, else: string)
