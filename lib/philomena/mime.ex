@@ -33,5 +33,5 @@ defmodule Philomena.Mime do
       when mime in ~W(image/gif image/jpeg image/png image/svg+xml video/webm),
       do: {:ok, mime}
 
-  def true_mime(_mime), do: :error
+  def true_mime(mime), do: {:unsupported_mime, mime}
 end
