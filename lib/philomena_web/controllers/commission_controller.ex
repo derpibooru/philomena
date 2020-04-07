@@ -82,14 +82,14 @@ defmodule PhilomenaWeb.CommissionController do
   defp presence([]),
     do: nil
 
-  defp permit_map(x) when is_map(x), do: x
-  defp permit_map(_), do: nil
-
   defp presence(string) when is_binary(string),
     do: if(String.trim(string) == "", do: nil, else: string)
 
   defp presence(object),
     do: object
+
+  defp permit_map(x) when is_map(x), do: x
+  defp permit_map(_), do: nil
 
   defp to_f(input) do
     case Float.parse(to_string(input)) do

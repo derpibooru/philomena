@@ -24,7 +24,10 @@ defmodule Philomena.Application do
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
 
       # Start the endpoint when the application starts
-      PhilomenaWeb.Endpoint
+      PhilomenaWeb.Endpoint,
+
+      # Connection drainer for SIGTERM
+      {RanchConnectionDrainer, ranch_ref: PhilomenaWeb.Endpoint.HTTP, shutdown: 30_000}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
