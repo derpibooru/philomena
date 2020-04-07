@@ -9,7 +9,7 @@
 -setcookie <%= release.profile.cookie %>
 
 ## Path for Mnesia
--mnesia dir ${MNESIA_DIR}
+-mnesia dir '${MNESIA_DIR}'
 
 ## Heartbeat management; auto-restarts VM if it dies or becomes unresponsive
 ## (Disabled by default..use with caution!)
