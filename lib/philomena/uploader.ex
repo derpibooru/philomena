@@ -43,6 +43,10 @@ defmodule Philomena.Uploader do
 
       changeset_fn.(model_or_changeset, attributes)
     else
+      {:unsupported_mime, mime} ->
+        attributes = prefix_attributes(%{"mime_type" => mime}, field_name)
+        changeset_fn.(model_or_changeset, attributes)
+
       _error ->
         changeset_fn.(model_or_changeset, %{})
     end
