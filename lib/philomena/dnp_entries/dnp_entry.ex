@@ -59,7 +59,7 @@ defmodule Philomena.DnpEntries.DnpEntry do
 
   def types do
     reasons()
-    |> Enum.map(fn reason -> elem(reason, 0) end)
+    |> Enum.map(fn {title, _desc} -> title end)
   end
 
   def reasons do
