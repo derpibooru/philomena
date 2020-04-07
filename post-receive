@@ -45,4 +45,32 @@ fi
 echo "Building release"
 mix distillery.release --quiet || die "failed to generate release"
 
-_build/prod/rel/philomena/bin/philomena reboot || die "failed to upgrade app; log in to the server and restart the app manually"
+# Find which instance is already started, if either
+lsof -i :4000
+BLUE_STARTED=$?
+
+lsof -i :4001
+GREEN_STARTED=$1
+
+if [ $BLUE_STARTED -eq 1 -a $GREEN_STARTED -eq 1 ]; then
+  die "both blue and green instances are running; is another deploy in progress?"
+fi
+
+if [ $BLUE_STARTED -eq 0 -a $GREEN_STARTED -eq 0 ]; then
+  echo "app not started, starting it now"
+  NODENAME=philomena_0 PORT=4000 _build/prod/rel/philomena/bin/philomena start
+fi
+
+if [ $BLUE_STARTED -eq 1 -a $GREEN_STARTED -eq 0 ]; then
+  echo "rolling blue (4000) over to green (4001)"
+  BLUE_PID=$(lsof -Fp -i :4000 | head -n1 | sed 's/^p//')
+  NODENAME=philomena_1 PORT=4001 _build/prod/rel/philomena/bin/philomena start
+  kill -TERM $BLUE_PID
+fi
+
+if [ $BLUE_STARTED -eq 0 -a $GREEN_STARTED -eq 1 ]; then
+  echo "rolling green (4001) over to blue (4000)"
+  GREEN_PID=$(lsof -Fp -i :4001 | head -n1 | sed 's/^p//')
+  NODENAME=philomena_0 PORT=4000 _build/prod/rel/philomena/bin/philomena start
+  kill -TERM $GREEN_PID
+fi
