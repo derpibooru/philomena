@@ -45,34 +45,4 @@ fi
 echo "Building release"
 mix distillery.release --quiet || die "failed to generate release"
 
-# Find which instance is already started, if either
-lsof -i :4000
-BLUE_STARTED=$?
-
-lsof -i :4001
-GREEN_STARTED=$?
-
-if [[ $BLUE_STARTED == 1 && $GREEN_STARTED == 1 ]]; then
-  die "both blue and green instances are running; is another deploy in progress?"
-fi
-
-if [[ $BLUE_STARTED == 0 && $GREEN_STARTED == 0 ]]; then
-  echo "app not started, starting it now"
-  NODENAME=philomena_0 PORT=4000 MNESIA_DIR=/home/derpibooru/philomena/_build/prod/rel/philomena/Mnesia.philomena_0@127.0.0.1 _build/prod/rel/philomena/bin/philomena start
-fi
-
-if [[ $BLUE_STARTED == 1 && $GREEN_STARTED == 0 ]]; then
-  echo "rolling blue (4000) over to green (4001)"
-  BLUE_PID=$(lsof -Fp -i :4000 | head -n1 | sed 's/^p//')
-  NODENAME=philomena_1 PORT=4001 MNESIA_DIR=/home/derpibooru/philomena/_build/prod/rel/philomena/Mnesia.philomena_1@127.0.0.1 _build/prod/rel/philomena/bin/philomena start
-  sleep 20
-  kill -TERM $BLUE_PID
-fi
-
-if [[ $BLUE_STARTED == 0 && $GREEN_STARTED == 1 ]]; then
-  echo "rolling green (4001) over to blue (4000)"
-  GREEN_PID=$(lsof -Fp -i :4001 | head -n1 | sed 's/^p//')
-  NODENAME=philomena_0 PORT=4000 MNESIA_DIR=/home/derpibooru/philomena/_build/prod/rel/philomena/Mnesia.philomena_0@127.0.0.1 _build/prod/rel/philomena/bin/philomena start
-  sleep 20
-  kill -TERM $GREEN_PID
-fi
+_build/prod/rel/philomena/bin/philomena reboot || die "failed to upgrade app; log in to the server and restart the app manually"
