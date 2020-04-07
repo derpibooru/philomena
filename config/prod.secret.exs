@@ -66,7 +66,7 @@ config :philomena, PhilomenaWeb.Endpoint,
   secret_key_base: secret_key_base,
   server: true
 
-config :mnesia, :dir, System.get_env("MNESIA_DIR")
+config :mnesia, :dir, System.get_env("MNESIA_DIR") |> String.to_charlist()
 
 # ## Using releases (Elixir v1.9+)
 #
