@@ -254,6 +254,8 @@ defmodule Philomena.Users.User do
     user
     |> cast(attrs, [:name])
     |> validate_required([:name])
+    |> put_slug
+    |> unique_constraints()
   end
 
   def avatar_changeset(user, attrs) do

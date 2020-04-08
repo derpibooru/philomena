@@ -5,8 +5,6 @@ defmodule PhilomenaWeb.Registration.UsernameController do
   alias Philomena.Repo
 
   def edit(conn, _params) do
-    user = conn.assigns.current_user
-
     changeset = Pow.Plug.change_user(conn)
 
     render(conn, "edit.html",
@@ -15,11 +13,11 @@ defmodule PhilomenaWeb.Registration.UsernameController do
     )
   end
 
-  def update(conn, params) do
+  def update(conn, %{"user" => user_params}) do
     user = Pow.Plug.current_user(conn)
 
     user
-    |> User.username_changeset(params)
+    |> User.username_changeset(user_params)
     |> Repo.update
     |> case do
       {:error, changeset} ->
