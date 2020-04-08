@@ -1,0 +1,15 @@
+h1 Editing Username
+
+= form_for @changeset, Routes.registration_username_path(@conn, :update), [as: :user], fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  p Enter your new username here. Usernames may only be changed once every 90 days. Please be aware that once you change your username, your previous name will be available for reuse, and someone else may claim it.
+
+  = text_input f, :name, class: "input", placeholder: "Username", required: true
+  = error_tag f, :name
+  br
+  = submit "Save", class: "button"
+
+p = link "Back", to: Routes.pow_registration_path(@conn, :edit)

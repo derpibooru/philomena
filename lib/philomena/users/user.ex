@@ -250,6 +250,12 @@ defmodule Philomena.Users.User do
     |> cast(attrs, [:scratchpad])
   end
 
+  def username_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:name])
+    |> validate_required([:name])
+  end
+
   def avatar_changeset(user, attrs) do
     user
     |> cast(attrs, [
