@@ -251,11 +251,13 @@ defmodule Philomena.Users.User do
   end
 
   def username_changeset(user, attrs) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     user
     |> cast(attrs, [:name])
     |> validate_required([:name])
     |> put_slug
     |> unique_constraints()
+    |> put_change(:last_renamed_at, now)
   end
 
   def avatar_changeset(user, attrs) do
