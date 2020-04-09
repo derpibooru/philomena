@@ -4,6 +4,8 @@ defmodule PhilomenaWeb.Registration.UsernameController do
   alias Philomena.Users.User
   alias Philomena.Repo
 
+  plug PhilomenaWeb.FilterBannedUsersPlug
+
   def edit(conn, _params) do
     changeset = Pow.Plug.change_user(conn)
 
