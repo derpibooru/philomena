@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Registration.UsernameController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Users.User
+  alias Philomena.Users
   alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
@@ -18,10 +19,7 @@ defmodule PhilomenaWeb.Registration.UsernameController do
   def update(conn, %{"user" => user_params}) do
     user = Pow.Plug.current_user(conn)
 
-    user
-    |> User.username_changeset(user_params)
-    |> Repo.update
-    |> case do
+    case Users.update_username(user,user_params) do
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
       {:ok, user} ->

@@ -155,6 +155,12 @@ defmodule Philomena.Users do
     |> Repo.isolated_transaction(:serializable)
   end
 
+  def update_username(user,user_params) do
+    user
+    |> User.username_changeset(user_params)
+    |> Repo.update
+  end
+
   def reactivate_user(%User{} = user) do
     user
     |> User.reactivate_changeset()
