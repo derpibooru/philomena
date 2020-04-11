@@ -44,12 +44,18 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
     |> Keyword.merge(opts)
   end
 
-  def call(conn, :load) do
+  def call(conn, type) do
+    conn
+    |> Plug.put_config(otp_app: @otp_app)
+    |> do_call(type)
+  end
+
+  defp do_call(conn, :load) do
     Enum.reduce(conn.private[:invalidated_session_opts], conn, fn opts, conn ->
       maybe_load_from_cache(conn, Plug.current_user(conn), opts)
     end)
   end
-  def call(conn, opts) do
+  defp do_call(conn, opts) do
     fetch_fn = Keyword.fetch!(opts, :fetch_token)
     token    = fetch_fn.(conn)
 

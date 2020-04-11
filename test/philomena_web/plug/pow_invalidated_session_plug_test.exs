@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
 
   setup do
     user =
-      %User{}
+      %User{authentication_token: "token", name: "John Doe", slug: "john-doe"}
       |> User.changeset(%{"email" => "test@example.com", "password" => "password", "password_confirmation" => "password"})
       |> Repo.insert!()
 
