@@ -21,18 +21,20 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
   @store_ttl :timer.minutes(1)
   @otp_app :philomena
   @session_key "#{@otp_app}_auth"
+  @session_signing_salt Atom.to_string(Pow.Plug.Session)
   @persistent_cookie_key "#{@otp_app}_persistent_session"
+  @persistent_cookie_signing_salt Atom.to_string(PowPersistentSession.Plug.Cookie)
 
   def init(:load), do: :load
   def init(:pow_session) do
     [
-      fetch_token: &__MODULE__.load_session_value/1,
+      fetch_token: &__MODULE__.client_store_fetch_session/1,
       namespace: :session
     ]
   end
   def init(:pow_persistent_session) do
     [
-      fetch_token: &__MODULE__.load_cookie_value/1,
+      fetch_token: &__MODULE__.client_store_fetch_persistent_cookie/1,
       namespace: :persistent_session
     ]
   end
@@ -104,15 +106,28 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
   end
 
   @doc false
-  def load_session_value(conn) do
-    conn
-    |> Conn.fetch_session()
-    |> Conn.get_session(@session_key)
+  def client_store_fetch_session(conn) do
+    conn = Conn.fetch_session(conn)
+
+    with session_id when is_binary(session_id) <- Conn.get_session(conn, @session_key),
+         {:ok, session_id}                     <- Plug.verify_token(conn, @session_signing_salt, session_id) do
+      session_id
+    else
+      _any -> nil
+    end
   end
 
   @doc false
-  def load_cookie_value(conn) do
-    Conn.fetch_cookies(conn).cookies[@persistent_cookie_key]
+  def client_store_fetch_persistent_cookie(conn) do
+    conn = Conn.fetch_cookies(conn)
+
+    with token when is_binary(token) <- conn.cookies[@persistent_cookie_key],
+         {:ok, token}                <- Plug.verify_token(conn, @persistent_cookie_signing_salt, token) do
+      token
+    else
+      _any -> nil
+    end
+
   end
 
   defp invalidated_cache(conn, opts) do
