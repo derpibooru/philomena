@@ -44,18 +44,12 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
     |> Keyword.merge(opts)
   end
 
-  def call(conn, type) do
-    conn
-    |> Plug.put_config(otp_app: @otp_app)
-    |> do_call(type)
-  end
-
-  defp do_call(conn, :load) do
+  def call(conn, :load) do
     Enum.reduce(conn.private[:invalidated_session_opts], conn, fn opts, conn ->
       maybe_load_from_cache(conn, Plug.current_user(conn), opts)
     end)
   end
-  defp do_call(conn, opts) do
+  def call(conn, opts) do
     fetch_fn = Keyword.fetch!(opts, :fetch_token)
     token    = fetch_fn.(conn)
 
@@ -113,7 +107,10 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
 
   @doc false
   def client_store_fetch_session(conn) do
-    conn = Conn.fetch_session(conn)
+    conn =
+      conn
+      |> Plug.put_config(otp_app: @otp_app)
+      |> Conn.fetch_session()
 
     with session_id when is_binary(session_id) <- Conn.get_session(conn, @session_key),
          {:ok, session_id}                     <- Plug.verify_token(conn, @session_signing_salt, session_id) do
@@ -125,7 +122,10 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
 
   @doc false
   def client_store_fetch_persistent_cookie(conn) do
-    conn = Conn.fetch_cookies(conn)
+    conn =
+      conn
+      |> Plug.put_config(otp_app: @otp_app)
+      |> Conn.fetch_cookies()
 
     with token when is_binary(token) <- conn.cookies[@persistent_cookie_key],
          {:ok, token}                <- Plug.verify_token(conn, @persistent_cookie_signing_salt, token) do
