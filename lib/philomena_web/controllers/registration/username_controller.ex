@@ -20,9 +20,9 @@ defmodule PhilomenaWeb.Registration.UsernameController do
     user = Pow.Plug.current_user(conn)
 
     case Users.update_username(user,user_params) do
-      {:error, changeset} ->
+      {:error, %{account: changeset}} ->
         render(conn, "edit.html", changeset: changeset)
-      {:ok, user} ->
+      {:ok, %{account: user}} ->
         conn
         |> put_flash(:info, "Username successfully updated.")
         |> redirect(to: Routes.profile_path(conn, :show, user))
