@@ -19,21 +19,25 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   setup do
     user =
       %User{authentication_token: "token", name: "John Doe", slug: "john-doe"}
-      |> User.changeset(%{"email" => "test@example.com", "password" => "password", "password_confirmation" => "password"})
+      |> User.changeset(%{
+        "email" => "test@example.com",
+        "password" => "password",
+        "password_confirmation" => "password"
+      })
       |> Repo.insert!()
 
     {:ok, user: user}
   end
 
   test "call/2 session id is reusable for short amount of time", %{conn: init_conn, user: user} do
-    config    = Keyword.put(@config, :session_ttl_renewal, 0)
+    config = Keyword.put(@config, :session_ttl_renewal, 0)
     init_conn = prepare_session_conn(init_conn, user, config)
 
     assert session_id =
-      init_conn
-      |> init_session_plug()
-      |> Conn.fetch_session()
-      |> Conn.get_session(@session_key)
+             init_conn
+             |> init_session_plug()
+             |> Conn.fetch_session()
+             |> Conn.get_session(@session_key)
 
     conn = run_plug(init_conn, config)
 
@@ -84,8 +88,12 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   defp init_plug(conn, config) do
     conn
     |> init_session_plug()
-    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl}))
-    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl}))
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
+    )
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
+    )
     |> Session.call(Session.init(config))
     |> Cookie.call(Cookie.init([]))
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
@@ -128,7 +136,6 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> Session.do_delete(config)
     |> Conn.send_resp(200, "")
   end
-
 
   defp create_session(conn, user, config) do
     conn

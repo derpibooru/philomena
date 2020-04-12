@@ -103,9 +103,8 @@ defmodule Search.DateParser do
         {[[lower, upper]], context}
 
       _false ->
-        {:error, "invalid date format in input; requested time #{
-          count*scale
-        } seconds is over a millenium ago"}
+        {:error,
+         "invalid date format in input; requested time #{count * scale} seconds is over a millenium ago"}
     end
   end
 
