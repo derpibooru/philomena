@@ -87,9 +87,14 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
   defp maybe_put_cache(conn, user, old_token, opts) do
     fetch_fn = Keyword.fetch!(opts, :fetch_token)
 
+    metadata =
+      conn.private
+      |> Map.get(:pow_session_metadata, [])
+      |> Keyword.take([:valid_totp_at])
+
     case fetch_fn.(conn) do
       ^old_token -> conn
-      _token -> put_cache(conn, user, old_token, opts)
+      _token -> put_cache(conn, {user, metadata}, old_token, opts)
     end
   end
 
@@ -106,8 +111,15 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
     {store, store_config} = invalidated_cache(conn, opts)
 
     case store.get(store_config, token) do
-      :not_found -> conn
-      user -> Plug.assign_current_user(conn, user, config)
+      :not_found ->
+        conn
+
+      {user, metadata} ->
+        metadata = Keyword.merge(metadata, conn.private[:pow_session_metadata] || [])
+
+        conn
+        |> Conn.put_private(:pow_session_metadata, metadata)
+        |> Plug.assign_current_user(user, config)
     end
   end
 

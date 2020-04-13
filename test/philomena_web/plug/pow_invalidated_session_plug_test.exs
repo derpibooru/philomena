@@ -43,12 +43,16 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
 
     assert Pow.Plug.current_user(conn).id == user.id
     assert Conn.get_session(conn, @session_key) != session_id
+    assert metadata = conn.private[:pow_session_metadata]
+    refute metadata[:valid_totp_at]
 
     :timer.sleep(100)
     conn = run_plug(init_conn, config)
 
     assert Pow.Plug.current_user(conn).id == user.id
     assert Conn.get_session(conn, @session_key) == session_id
+    assert metadata = conn.private[:pow_session_metadata]
+    refute metadata[:valid_totp_at]
 
     :timer.sleep(@invalidated_ttl - 100)
     conn = run_plug(init_conn)
@@ -65,18 +69,58 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
 
     assert Pow.Plug.current_user(conn).id == user.id
     assert conn.cookies[@cookie_key] != persistent_session_id
+    assert metadata = conn.private[:pow_session_metadata]
+    refute metadata[:valid_totp_at]
 
     :timer.sleep(100)
     conn = run_plug(init_conn)
 
     assert Pow.Plug.current_user(conn).id == user.id
     assert conn.cookies[@cookie_key] == persistent_session_id
+    assert metadata = conn.private[:pow_session_metadata]
+    refute metadata[:valid_totp_at]
 
     :timer.sleep(@invalidated_ttl - 100)
     conn = run_plug(init_conn)
 
     refute Pow.Plug.current_user(conn)
     assert conn.cookies[@cookie_key] == persistent_session_id
+  end
+
+  test "call/2 with TOTP turned on", %{conn: init_conn, user: user} do
+    user =
+      user
+      |> Ecto.Changeset.change(%{otp_required_for_login: true})
+      |> Repo.update!()
+
+    config = Keyword.put(@config, :session_ttl_renewal, 0)
+
+    no_otp_auth_conn =
+      init_conn
+      |> prepare_session_conn(user, config)
+      |> init_plug(config)
+
+    assert no_otp_auth_conn.halted
+
+    init_conn =
+      init_conn
+      |> Conn.put_private(:pow_session_metadata, valid_totp_at: DateTime.utc_now())
+      |> prepare_session_conn(user, config)
+
+    conn = run_plug(init_conn, config)
+
+    assert Pow.Plug.current_user(conn).id == user.id
+    assert metadata = conn.private[:pow_session_metadata]
+    assert metadata[:valid_totp_at]
+    assert metadata[:inserted_at]
+
+    :timer.sleep(100)
+    conn = run_plug(init_conn, config)
+
+    assert Pow.Plug.current_user(conn).id == user.id
+    assert metadata = conn.private[:pow_session_metadata]
+    assert metadata[:valid_totp_at]
+    refute metadata[:inserted_at]
   end
 
   defp init_session_plug(conn) do
@@ -97,6 +141,7 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> Session.call(Session.init(config))
     |> Cookie.call(Cookie.init([]))
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
+    |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
   end
 
   defp run_plug(conn, config \\ @config) do
