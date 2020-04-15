@@ -26,8 +26,10 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
     do: conn
 
   defp password_compromised?(password) do
-    <<prefix::binary-size(5)>> <> rest =
-      :crypto.hash(:sha, password) |> Base.encode16() |> String.upcase()
+    <<prefix::binary-size(5), rest::binary>> =
+      :crypto.hash(:sha, password)
+      |> Base.encode16()
+      |> String.upcase()
 
     case HTTPoison.get(make_api_url(prefix)) do
       {:ok, %HTTPoison.Response{body: body, status_code: 200}} -> String.contains?(body, rest)
