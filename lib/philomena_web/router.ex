@@ -62,7 +62,13 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/" do
-    pipe_through [:browser, :ensure_totp, :ensure_not_banned, :ensure_tor_authorized, :ensure_password_not_compromised]
+    pipe_through [
+      :browser,
+      :ensure_totp,
+      :ensure_not_banned,
+      :ensure_tor_authorized,
+      :ensure_password_not_compromised
+    ]
 
     pow_registration_routes()
   end

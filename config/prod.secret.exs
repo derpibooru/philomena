@@ -36,8 +36,7 @@ config :philomena,
   proxy_host: System.get_env("PROXY_HOST"),
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
-  cdn_host: System.get_env("CDN_HOST"),
-  compromised_password_api_url: System.get_env("COMPROMISED_PASSWORD_API_URL")
+  cdn_host: System.get_env("CDN_HOST")
 
 config :philomena, Philomena.Repo,
   # ssl: true,

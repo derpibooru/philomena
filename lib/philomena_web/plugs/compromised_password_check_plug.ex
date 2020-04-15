@@ -16,7 +16,9 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
           "We've detected that the password you entered has been compromised during a data breach of another website. Please choose a different password."
         )
         |> redirect(external: conn.assigns.referrer)
-      false -> conn
+
+      false ->
+        conn
     end
   end
 
@@ -24,7 +26,9 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
     do: conn
 
   defp password_compromised?(password) do
-    <<prefix :: binary-size(5)>> <> rest = :crypto.hash(:sha, password) |> Base.encode16() |> String.upcase()
+    <<prefix::binary-size(5)>> <> rest =
+      :crypto.hash(:sha, password) |> Base.encode16() |> String.upcase()
+
     case HTTPoison.get(make_api_url(prefix)) do
       {:ok, %HTTPoison.Response{body: body, status_code: 200}} -> String.contains?(body, rest)
       _ -> false
@@ -32,7 +36,6 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   end
 
   defp make_api_url(prefix) do
-    Application.get_env(:philomena, :compromised_password_api_url)
-    |> URI.merge(prefix)
+    "https://api.pwnedpasswords.com/range/#{prefix}"
   end
 end
