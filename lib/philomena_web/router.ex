@@ -52,13 +52,17 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.FilterBannedUsersPlug
   end
 
+  pipeline :ensure_password_not_compromised do
+    plug PhilomenaWeb.CompromisedPasswordCheckPlug
+  end
+
   pipeline :protected do
     plug Pow.Plug.RequireAuthenticated,
       error_handler: Pow.Phoenix.PlugErrorHandler
   end
 
   scope "/" do
-    pipe_through [:browser, :ensure_totp, :ensure_not_banned, :ensure_tor_authorized]
+    pipe_through [:browser, :ensure_totp, :ensure_not_banned, :ensure_tor_authorized, :ensure_password_not_compromised]
 
     pow_registration_routes()
   end

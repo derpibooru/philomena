@@ -11,7 +11,8 @@ config :philomena, Philomena.Repo,
 
 config :philomena,
   elasticsearch_url: "http://elasticsearch:9200",
-  redis_host: "redis"
+  redis_host: "redis",
+  compromised_password_api_url: "https://api.pwnedpasswords.com/range/"
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
