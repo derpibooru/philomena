@@ -32,6 +32,8 @@ defmodule PhilomenaWeb.Image.SourceController do
           UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
+        Images.reindex_image(image)
+
         conn
         |> put_view(PhilomenaWeb.ImageView)
         |> render("_source.html",
