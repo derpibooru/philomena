@@ -120,6 +120,9 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
         conn
         |> Conn.put_private(:pow_session_metadata, metadata)
         |> Plug.assign_current_user(user, config)
+
+      user ->
+        Plug.assign_current_user(conn, user, config)
     end
   end
 
