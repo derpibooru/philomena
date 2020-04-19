@@ -38,3 +38,6 @@ npm-debug.log
 
 # Mnesia
 /Mnesia*
+
+# Intellij IDEA
+.idea

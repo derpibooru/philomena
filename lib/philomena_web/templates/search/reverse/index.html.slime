@@ -16,7 +16,7 @@ h1 Reverse Search
 
     .field.field--inline
       = url_input f, :url, name: "url", class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
-      button.button.button--separate-left#js-scraper-preview type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch"
+      button.button.button--separate-left#js-scraper-preview(type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch" disabled)
         ' Fetch
 
     .field-error-js.hidden.js-scraper
