@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   import Phoenix.Controller
+  import Plug.Conn
 
   def init(opts), do: opts
 
@@ -16,6 +17,7 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
           "We've detected that the password you entered has been compromised during a data breach of another website. Please choose a different password."
         )
         |> redirect(external: conn.assigns.referrer)
+        |> halt()
 
       false ->
         conn
