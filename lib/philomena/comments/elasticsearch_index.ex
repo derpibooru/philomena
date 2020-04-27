@@ -21,24 +21,21 @@ defmodule Philomena.Comments.ElasticsearchIndex do
         }
       },
       mappings: %{
-        comment: %{
-          _all: %{enabled: false},
-          dynamic: false,
-          properties: %{
-            id: %{type: "integer"},
-            posted_at: %{type: "date"},
-            ip: %{type: "ip"},
-            fingerprint: %{type: "keyword"},
-            image_id: %{type: "keyword"},
-            user_id: %{type: "keyword"},
-            author: %{type: "keyword"},
-            image_tag_ids: %{type: "keyword"},
-            # boolean
-            anonymous: %{type: "keyword"},
-            # boolean
-            hidden_from_users: %{type: "keyword"},
-            body: %{type: "text", analyzer: "snowball"}
-          }
+        dynamic: false,
+        properties: %{
+          id: %{type: "integer"},
+          posted_at: %{type: "date"},
+          ip: %{type: "ip"},
+          fingerprint: %{type: "keyword"},
+          image_id: %{type: "keyword"},
+          user_id: %{type: "keyword"},
+          author: %{type: "keyword"},
+          image_tag_ids: %{type: "keyword"},
+          # boolean
+          anonymous: %{type: "keyword"},
+          # boolean
+          hidden_from_users: %{type: "keyword"},
+          body: %{type: "text", analyzer: "snowball"}
         }
       }
     }

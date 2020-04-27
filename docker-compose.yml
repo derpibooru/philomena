@@ -21,17 +21,21 @@ services:
 
   postgres:
     image: postgres:12.2
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
     volumes:
       - postgres_data:/var/lib/postgresql/data
     logging:
       driver: "none"
 
   elasticsearch:
-    image: elasticsearch:6.8.5
+    image: elasticsearch:7.6.2
     volumes:
       - elastic_data:/var/lib/elasticsearch
     logging:
       driver: "none"
+    environment:
+      - discovery.type=single-node
     ulimits:
       nofile:
           soft: 65536
