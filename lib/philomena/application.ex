@@ -22,6 +22,7 @@ defmodule Philomena.Application do
       Philomena.Servers.Config,
       {Pow.Store.Backend.MnesiaCache, extra_db_nodes: Node.list()},
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
+      {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
 
       # Start the endpoint when the application starts
       PhilomenaWeb.Endpoint,
