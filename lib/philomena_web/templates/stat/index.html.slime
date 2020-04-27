@@ -23,7 +23,7 @@ elixir:
   p
     ' There are
     span.stat>
-      = number_with_delimiter(@comment_aggs["hits"]["total"]["value")
+      = number_with_delimiter(@comment_aggs["hits"]["total"]["value"])
     ' comments on the site. Of these,
     => number_with_delimiter(cmt_bucket["deleted"]["doc_count"])
     ' have been deleted.
