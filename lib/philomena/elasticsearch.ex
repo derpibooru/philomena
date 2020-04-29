@@ -67,7 +67,7 @@ defmodule Philomena.Elasticsearch do
     Elastix.Document.index(
       elastic_url(),
       index.index_name(),
-      [index.doc_type()],
+      "_doc",
       data.id,
       data
     )
