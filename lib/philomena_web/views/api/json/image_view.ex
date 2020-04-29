@@ -2,8 +2,6 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
   use PhilomenaWeb, :view
   alias PhilomenaWeb.ImageView
 
-  # import Ecto.Changeset
-
   def render("index.json", %{images: images, interactions: interactions, total: total} = assigns) do
     %{
       images: render_many(images, PhilomenaWeb.Api.Json.ImageView, "image.json", assigns),

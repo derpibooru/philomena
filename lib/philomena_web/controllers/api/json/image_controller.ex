@@ -78,8 +78,6 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
             |> render("show.json", image: image, interactions: interactions)
 
           {:error, :image, changeset, _} ->
-            IO.inspect(changeset, label: "Error")
-
             conn
             |> put_status(:bad_request)
             |> render("error.json", changeset: changeset)
