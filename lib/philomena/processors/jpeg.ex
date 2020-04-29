@@ -58,7 +58,18 @@ defmodule Philomena.Processors.Jpeg do
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
 
     {_output, 0} =
-      System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-vf",
+        scale_filter,
+        "-q:v",
+        "1",
+        scaled
+      ])
 
     {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
 
