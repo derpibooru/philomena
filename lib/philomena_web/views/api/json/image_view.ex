@@ -2,6 +2,8 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
   use PhilomenaWeb, :view
   alias PhilomenaWeb.ImageView
 
+  # import Ecto.Changeset
+
   def render("index.json", %{images: images, interactions: interactions, total: total} = assigns) do
     %{
       images: render_many(images, PhilomenaWeb.Api.Json.ImageView, "image.json", assigns),
@@ -80,6 +82,12 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
       deletion_reason: nil,
       duplicate_of: nil,
       hidden_from_users: false
+    }
+  end
+
+  def render("error.json", %{changeset: changeset}) do
+    %{
+      errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
     }
   end
 

@@ -110,7 +110,7 @@ defmodule PhilomenaWeb.Router do
       resources "/featured", FeaturedController, only: [:show], singleton: true
     end
 
-    resources "/images", ImageController, only: [:show]
+    resources "/images", ImageController, only: [:show, :create]
 
     scope "/search", Search, as: :search do
       resources "/reverse", ReverseController, only: [:create]
