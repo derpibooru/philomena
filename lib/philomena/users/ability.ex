@@ -283,6 +283,13 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{id: id}, :edit_description, %User{id: id}), do: true
   def can?(%User{id: id}, :edit_title, %User{id: id}), do: true
 
+  # Edit their username
+  def can?(%User{id: id}, :change_username, %User{id: id} = user) do
+    # Before merge, change to -1 * 60 * 60 * 24 * 90
+    time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-2 * 60)
+    NaiveDateTime.diff(user.last_renamed_at, time_ago) < 0
+  end
+
   # View conversations they are involved in
   def can?(%User{id: id}, :show, %Conversation{to_id: id}), do: true
   def can?(%User{id: id}, :show, %Conversation{from_id: id}), do: true

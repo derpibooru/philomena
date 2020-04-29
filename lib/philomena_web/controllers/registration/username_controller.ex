@@ -6,6 +6,7 @@ defmodule PhilomenaWeb.Registration.UsernameController do
   alias Philomena.Repo
 
   plug PhilomenaWeb.FilterBannedUsersPlug
+  plug :verify_authorized
 
   def edit(conn, _params) do
     changeset = Pow.Plug.change_user(conn)
@@ -26,6 +27,13 @@ defmodule PhilomenaWeb.Registration.UsernameController do
         conn
         |> put_flash(:info, "Username successfully updated.")
         |> redirect(to: Routes.profile_path(conn, :show, user))
+    end
+  end
+
+  defp verify_authorized(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :change_username, Pow.Plug.current_user(conn)) do
+      true -> conn
+      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end
