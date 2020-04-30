@@ -39,12 +39,14 @@ defmodule Philomena.Reports.Report do
     change(report)
     |> validate_inclusion(:admin_id, [])
     |> put_change(:admin_id, user.id)
+    |> put_change(:open, true)
     |> put_change(:state, "in_progress")
   end
 
   def unclaim_changeset(report) do
     change(report)
     |> put_change(:admin_id, nil)
+    |> put_change(:open, true)
     |> put_change(:state, "open")
   end
 
