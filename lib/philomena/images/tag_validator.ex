@@ -58,7 +58,11 @@ defmodule Philomena.Images.TagValidator do
 
     cond do
       MapSet.size(intersection) > 0 ->
-        Enum.reduce(intersection, changeset, &add_error(&2, :tag_input, "contains forbidden tag `#{&1}'"))
+        Enum.reduce(
+          intersection,
+          changeset,
+          &add_error(&2, :tag_input, "contains forbidden tag `#{&1}'")
+        )
 
       true ->
         changeset
