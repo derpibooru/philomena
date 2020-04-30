@@ -24,5 +24,8 @@ echo
 # Try to create the database if it doesn't exist yet
 createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
 
+# Reindex
+mix reindex_all
+
 # Run the application
 mix phx.server
