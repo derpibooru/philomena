@@ -218,9 +218,9 @@ defmodule PhilomenaWeb.Router do
           resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
         end
 
-        resources "/poll/votes", Topic.Poll.VoteController,
-          as: :poll_vote,
-          only: [:index, :create, :delete]
+        resources "/poll", Topic.PollController, only: [:edit, :update], singleton: true do
+          resources "/votes", Topic.Poll.VoteController, only: [:index, :create, :delete]
+        end
       end
 
       resources "/subscription", Forum.SubscriptionController,

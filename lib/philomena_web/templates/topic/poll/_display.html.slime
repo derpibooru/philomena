@@ -3,6 +3,7 @@
 
   = if can?(@conn, :hide, @topic) do
     = link "Voters", to: "#", data: [click_tab: "voters", load_tab: Routes.forum_topic_poll_vote_path(@conn, :index, @forum, @topic)]
+    = link "Administrate", to: "#", data: [click_tab: "administration"]
 
 .block__tab data-tab="voting"
   = cond do
@@ -29,3 +30,7 @@
 = if can?(@conn, :hide, @topic) do
   .block__tab.hidden data-tab="voters"
     p Loading&hellip;
+  .block__tab.hidden data-tab="administration"
+    a.button.button--state-warning.js-staff-action> href=Routes.forum_topic_poll_path(@conn, :edit, @forum, @topic)
+      i.fa.fa-edit>
+      | Edit
