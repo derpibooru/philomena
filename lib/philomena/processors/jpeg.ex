@@ -26,7 +26,17 @@ defmodule Philomena.Processors.Jpeg do
   defp strip(file) do
     stripped = Briefly.create!(extname: ".jpg")
 
-    {_output, 0} = System.cmd("convert", [file, "-auto-orient", "-strip", stripped])
+    # ImageMagick always reencodes the image, resulting in quality loss, so
+    # be more clever
+    case System.cmd("identify", ["-format", "%[orientation]", file]) do
+      {"Undefined", 0} ->
+        # Strip EXIF without touching orientation
+        {_output, 0} = System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file])
+
+      {_output, 0} ->
+        # Strip EXIF and reorient image
+        {_output, 0} = System.cmd("convert", [file, "-auto-orient", "-strip", stripped])
+    end
 
     stripped
   end
