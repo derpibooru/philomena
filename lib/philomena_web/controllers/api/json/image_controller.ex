@@ -9,10 +9,12 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   alias Philomena.UserStatistics
   import Ecto.Query
 
-  import EctoNetwork.INET
-
   plug :set_scraper_cache
-  plug PhilomenaWeb.ScraperPlug, params_key: "image", params_name: "image"
+  plug PhilomenaWeb.ApiRequireAuthorizationPlug when action in [:create]
+  plug PhilomenaWeb.UserAttributionPlug when action in [:create]
+
+  plug PhilomenaWeb.ScraperPlug,
+       [params_name: "image", params_key: "image"] when action in [:create]
 
   def show(conn, %{"id" => id}) do
     user = conn.assigns.current_user
@@ -39,49 +41,37 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   def create(conn, %{"image" => image_params} = params) do
     user = conn.assigns.current_user
 
-    params =
-      params
+    image_params =
+      image_params
       |> Map.put("scraper_url", Map.get(params, "url"))
       |> Map.put("anonymous", Map.get(params, "anonymous", false))
       |> Map.put("source_url", Map.get(params, "source_url", ""))
       |> Map.put("description", Map.get(params, "description", ""))
-      |> Map.merge(image_params)
+      |> Map.put("tag_input", Map.get(params, "tags", ""))
 
-    case user do
-      nil ->
+    attributes =
+      conn.assigns.attributes
+      |> List.keyreplace(:fingerprint, 0, {:fingerprint, "API"})
+
+    case Images.create_image(attributes, image_params) do
+      {:ok, %{image: image}} ->
+        spawn(fn ->
+          Images.repair_image(image)
+        end)
+
+        # ImageProcessor.cast(image.id)
+        Images.reindex_image(image)
+        Tags.reindex_tags(image.added_tags)
+        UserStatistics.inc_stat(user, :uploads)
+
         conn
-        |> put_status(:unauthorized)
-        |> text("")
+        |> put_view(PhilomenaWeb.Api.Json.ImageView)
+        |> render("show.json", image: image, interactions: [])
 
-      _ ->
-        attributes = %{
-          user: user,
-          ip: decode_ip(conn.remote_ip),
-          fingerprint: "c415049"
-        }
-
-        case Images.create_image(attributes, params) do
-          {:ok, %{image: image}} ->
-            spawn(fn ->
-              Images.repair_image(image)
-            end)
-
-            # ImageProcessor.cast(image.id)
-            Images.reindex_image(image)
-            Tags.reindex_tags(image.added_tags)
-            UserStatistics.inc_stat(user, :uploads)
-
-            interactions = Interactions.user_interactions([image], user)
-
-            conn
-            |> put_view(PhilomenaWeb.Api.Json.ImageView)
-            |> render("show.json", image: image, interactions: interactions)
-
-          {:error, :image, changeset, _} ->
-            conn
-            |> put_status(:bad_request)
-            |> render("error.json", changeset: changeset)
-        end
+      {:error, :image, changeset, _} ->
+        conn
+        |> put_status(:bad_request)
+        |> render("error.json", changeset: changeset)
     end
   end
 
@@ -92,15 +82,5 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
       |> Map.put("scraper_cache", conn.params["url"])
 
     %{conn | params: params}
-  end
-
-  defp decode_ip(remote_ip) do
-    case EctoNetwork.INET.cast(remote_ip) do
-      {:ok, cast_ip} ->
-        cast_ip
-
-      _ ->
-        nil
-    end
   end
 end
