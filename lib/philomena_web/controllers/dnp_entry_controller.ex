@@ -131,7 +131,7 @@ defmodule PhilomenaWeb.DnpEntryController do
   end
 
   defp selectable_tags(conn) do
-    case not is_nil(conn.params["tag_id"]) and
+    case present?(conn.params["tag_id"]) and
            Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
       true -> [Repo.get!(Tag, conn.params["tag_id"])]
       false -> linked_tags(conn)
@@ -145,6 +145,10 @@ defmodule PhilomenaWeb.DnpEntryController do
   end
 
   defp linked_tags(_), do: []
+
+  defp present?(nil), do: false
+  defp present?(""), do: false
+  defp present?(_), do: true
 
   defp set_mod_notes(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
