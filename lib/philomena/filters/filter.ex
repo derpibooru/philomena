@@ -59,7 +59,7 @@ defmodule Philomena.Filters.Filter do
   end
 
   def update_changeset(filter, attrs) do
-    changeset(filter, attrs)
+    changeset(filter, strip_name_if_default(filter, attrs))
   end
 
   def deletion_changeset(filter) do
@@ -86,4 +86,9 @@ defmodule Philomena.Filters.Filter do
       changeset
     end
   end
+
+  defp strip_name_if_default(%{system: true, name: "Default"}, attrs),
+    do: Map.delete(attrs, "name")
+
+  defp strip_name_if_default(_filter, attrs), do: attrs
 end
