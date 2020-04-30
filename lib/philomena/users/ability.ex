@@ -100,6 +100,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Hide topics
   def can?(%User{role: "moderator"}, :show, %Topic{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Topic{}), do: true
+  def can?(%User{role: "moderator"}, :create_post, %Topic{}), do: true
 
   # Edit tags
   def can?(%User{role: "moderator"}, :edit, %Tag{}), do: true
