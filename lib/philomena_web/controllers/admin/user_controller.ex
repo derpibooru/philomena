@@ -64,7 +64,7 @@ defmodule PhilomenaWeb.Admin.UserController do
         |> put_flash(:info, "User successfully updated.")
         |> redirect(to: Routes.admin_user_path(conn, :index))
 
-      {:error, changeset} ->
+      {:error, %{user: changeset}} ->
         render(conn, "edit.html", changeset: changeset)
     end
   end

@@ -9,6 +9,8 @@ defmodule Philomena.Users do
 
   alias Philomena.Users.Uploader
   alias Philomena.Users.User
+  alias Philomena.{Forums, Forums.Forum}
+  alias Philomena.Topics
   alias Philomena.Roles.Role
 
   use Pow.Ecto.Context,
@@ -80,9 +82,16 @@ defmodule Philomena.Users do
       |> where([r], r.id in ^clean_roles(attrs["roles"]))
       |> Repo.all()
 
-    user
-    |> User.update_changeset(attrs, roles)
-    |> Repo.update()
+    changeset =
+      user
+      |> User.update_changeset(attrs, roles)
+
+    Multi.new()
+    |> Multi.update(:user, changeset)
+    |> Multi.run(:unsubscribe, fn _repo, %{user: user} ->
+      unsubscribe_restricted_actors(user)
+    end)
+    |> Repo.isolated_transaction(:serializable)
   end
 
   defp clean_roles(nil), do: []
@@ -214,5 +223,27 @@ defmodule Philomena.Users do
     role_map = Map.new(user.roles, &{&1.resource_type || &1.name, &1.name})
 
     %{user | role_map: role_map}
+  end
+
+  defp unsubscribe_restricted_actors(%User{} = user) do
+    forum_ids =
+      Forum
+      |> order_by(asc: :name)
+      |> Repo.all()
+      |> Enum.reject(&Canada.Can.can?(user, :show, &1))
+      |> Enum.map(& &1.id)
+
+    {_count, nil} =
+      Forums.Subscription
+      |> where([s], s.user_id == ^user.id and s.forum_id in ^forum_ids)
+      |> Repo.delete_all()
+
+    {_count, nil} =
+      Topics.Subscription
+      |> join(:inner, [s], _ in assoc(s, :topic))
+      |> where([s, t], s.user_id == ^user.id and t.forum_id in ^forum_ids)
+      |> Repo.delete_all()
+
+    {:ok, nil}
   end
 end
