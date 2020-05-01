@@ -10,7 +10,6 @@ defmodule PhilomenaWeb.ImageController do
     Images.Image,
     Comments.Comment,
     Galleries.Gallery,
-    Galleries.Interaction,
     Textile.Renderer
   }
 
@@ -77,14 +76,13 @@ defmodule PhilomenaWeb.ImageController do
 
     watching = Images.subscribed?(image, conn.assigns.current_user)
 
-    {user_galleries, image_galleries} = image_and_user_galleries(image, conn.assigns.current_user)
+    user_galleries = user_galleries(image, conn.assigns.current_user)
 
     assigns = [
       image: image,
       comments: comments,
       image_changeset: image_changeset,
       comment_changeset: comment_changeset,
-      image_galleries: image_galleries,
       user_galleries: user_galleries,
       description: description,
       interactions: interactions,
@@ -132,28 +130,23 @@ defmodule PhilomenaWeb.ImageController do
     end
   end
 
-  defp image_and_user_galleries(_image, nil), do: {[], []}
+  defp user_galleries(_image, nil), do: []
 
-  defp image_and_user_galleries(image, user) do
-    image_galleries =
-      Gallery
-      |> where(creator_id: ^user.id)
-      |> join(:inner, [g], gi in Interaction,
-        on: g.id == gi.gallery_id and gi.image_id == ^image.id
+  defp user_galleries(image, user) do
+    Gallery
+    |> where(creator_id: ^user.id)
+    |> join(
+      :inner_lateral,
+      [g],
+      _ in fragment(
+        "SELECT EXISTS(SELECT 1 FROM gallery_interactions gi WHERE gi.image_id = ? AND gi.gallery_id = ?)",
+        ^image.id,
+        g.id
       )
-      |> order_by(desc: :created_at)
-      |> Repo.all()
-
-    image_gallery_ids = Enum.map(image_galleries, & &1.id)
-
-    user_galleries =
-      Gallery
-      |> where(creator_id: ^user.id)
-      |> where([g], g.id not in ^image_gallery_ids)
-      |> order_by(desc: :created_at)
-      |> Repo.all()
-
-    {user_galleries, image_galleries}
+    )
+    |> select([g, e], {g, e.exists})
+    |> order_by(desc: :updated_at)
+    |> Repo.all()
   end
 
   defp load_image(conn, _opts) do
