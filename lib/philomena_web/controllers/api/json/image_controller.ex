@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
 
     attributes =
       conn.assigns.attributes
-      |> List.keyreplace(:fingerprint, 0, {:fingerprint, "API"})
+      |> Keyword.put(:fingerprint, "API")
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
