@@ -53,9 +53,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
         Tags.reindex_tags(image.added_tags)
         UserStatistics.inc_stat(user, :uploads)
 
-        conn
-        |> put_view(PhilomenaWeb.Api.Json.ImageView)
-        |> render("show.json", image: image, interactions: [])
+        render(conn, "show.json", image: image, interactions: [])
 
       {:error, :image, changeset, _} ->
         conn
