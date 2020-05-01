@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ApiRequireAuthorizationPlug do
   @moduledoc """
   This plug will force a 401 Unauthorized if no/invalid
-  API key provided.
+  API key provided and a 403 Forbidden if user is banned.
 
   ## Example
 

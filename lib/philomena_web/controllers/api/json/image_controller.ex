@@ -40,10 +40,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
 
   def create(conn, %{"image" => image_params}) do
     user = conn.assigns.current_user
-
-    attributes =
-      conn.assigns.attributes
-      |> Keyword.put(:fingerprint, "API")
+    attributes = conn.assigns.attributes
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
