@@ -38,16 +38,8 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
     end
   end
 
-  def create(conn, %{"image" => image_params} = params) do
+  def create(conn, %{"image" => image_params}) do
     user = conn.assigns.current_user
-
-    image_params =
-      image_params
-      |> Map.put("scraper_url", Map.get(params, "url"))
-      |> Map.put("anonymous", Map.get(params, "anonymous", false))
-      |> Map.put("source_url", Map.get(params, "source_url", ""))
-      |> Map.put("description", Map.get(params, "description", ""))
-      |> Map.put("tag_input", Map.get(params, "tags", ""))
 
     attributes =
       conn.assigns.attributes
@@ -78,7 +70,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   defp set_scraper_cache(conn, _opts) do
     params =
       conn.params
-      |> Map.put("image", %{})
+      |> Map.put_new("image", %{})
       |> Map.put("scraper_cache", conn.params["url"])
 
     %{conn | params: params}
