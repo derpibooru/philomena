@@ -286,8 +286,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Edit their username
   def can?(%User{id: id}, :change_username, %User{id: id} = user) do
-    # Before merge, change to -1 * 60 * 60 * 24 * 90
-    time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-2 * 60)
+    time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-1 * 60 * 60 * 24 * 90)
     NaiveDateTime.diff(user.last_renamed_at, time_ago) < 0
   end
 
