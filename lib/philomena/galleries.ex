@@ -10,6 +10,7 @@ defmodule Philomena.Galleries do
   alias Philomena.Elasticsearch
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
+  alias Philomena.Galleries.ElasticsearchIndex, as: GalleryIndex
   alias Philomena.Notifications
   alias Philomena.Images
 
@@ -120,6 +121,12 @@ defmodule Philomena.Galleries do
   """
   def change_gallery(%Gallery{} = gallery) do
     Gallery.changeset(gallery, %{})
+  end
+
+  def user_name_reindex(old_name, new_name) do
+    data = GalleryIndex.user_name_update_by_query(old_name, new_name)
+
+    Elasticsearch.update_by_query(Gallery, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_gallery(%Gallery{} = gallery) do

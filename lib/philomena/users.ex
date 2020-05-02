@@ -13,6 +13,11 @@ defmodule Philomena.Users do
   alias Philomena.Topics
   alias Philomena.Roles.Role
   alias Philomena.UserNameChanges.UserNameChange
+  alias Philomena.Images
+  alias Philomena.Comments
+  alias Philomena.Posts
+  alias Philomena.Galleries
+  alias Philomena.Reports
 
   use Pow.Ecto.Context,
     repo: Repo,
@@ -166,6 +171,8 @@ defmodule Philomena.Users do
   end
 
   def update_name(user, user_params) do
+    old_name = user.name
+
     name_change = UserNameChange.changeset(%UserNameChange{user_id: user.id}, user.name)
     account = User.name_changeset(user, user_params)
 
@@ -173,6 +180,21 @@ defmodule Philomena.Users do
     |> Multi.insert(:name_change, name_change)
     |> Multi.update(:account, account)
     |> Repo.isolated_transaction(:serializable)
+    |> case do
+      {:ok, %{account: %{name: new_name}}} = result ->
+        spawn(fn ->
+          Images.user_name_reindex(old_name, new_name)
+          Comments.user_name_reindex(old_name, new_name)
+          Posts.user_name_reindex(old_name, new_name)
+          Galleries.user_name_reindex(old_name, new_name)
+          Reports.user_name_reindex(old_name, new_name)
+        end)
+
+        result
+
+      result ->
+        result
+    end
   end
 
   def reactivate_user(%User{} = user) do

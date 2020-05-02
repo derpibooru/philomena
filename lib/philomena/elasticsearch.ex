@@ -3,6 +3,7 @@ defmodule Philomena.Elasticsearch do
   alias Philomena.Repo
   require Logger
   import Ecto.Query
+  import Elastix.HTTP
 
   alias Philomena.Comments.Comment
   alias Philomena.Galleries.Gallery
@@ -104,6 +105,71 @@ defmodule Philomena.Elasticsearch do
         httpoison_options: [timeout: 30_000]
       )
     end)
+  end
+
+  def update_by_query(module, query_body, set_replacements, replacements) do
+    index = index_for(module)
+
+    url =
+      elastic_url()
+      |> prepare_url([index.index_name(), "_update_by_query"])
+      |> append_query_string(%{conflicts: "proceed"})
+
+    # Elasticsearch "Painless" scripting language
+    script = """
+      // Replace values in "sets" (arrays in the source document)
+      for (int i = 0; i < params.set_replacements.length; ++i) {
+        def replacement = params.set_replacements[i];
+        def path        = replacement.path;
+        def old_value   = replacement.old;
+        def new_value   = replacement.new;
+        def reference   = ctx._source;
+
+        for (int j = 0; j < path.length; ++j) {
+          reference = reference[path[j]];
+        }
+
+        for (int j = 0; j < reference.length; ++j) {
+          if (reference[j].equals(old_value)) {
+            reference[j] = new_value;
+          }
+        }
+      }
+
+      // Replace values in standalone fields
+      for (int i = 0; i < params.replacements.length; ++i) {
+        def replacement = params.replacements[i];
+        def path        = replacement.path;
+        def old_value   = replacement.old;
+        def new_value   = replacement.new;
+        def reference   = ctx._source;
+
+        // A little bit more complicated: go up to the last one before it
+        // so that the value can actually be replaced
+
+        for (int j = 0; j < path.length - 1; ++j) {
+          reference = reference[path[j]];
+        }
+
+        if (reference[path[path.length - 1]] != null && reference[path[path.length - 1]].equals(old_value)) {
+          reference[path[path.length - 1]] = new_value;
+        }
+      }
+    """
+
+    body =
+      Jason.encode!(%{
+        script: %{
+          source: script,
+          params: %{
+            set_replacements: set_replacements,
+            replacements: replacements
+          }
+        },
+        query: query_body
+      })
+
+    {:ok, %{status_code: 200}} = Elastix.HTTP.post(url, body)
   end
 
   def search(module, query_body) do

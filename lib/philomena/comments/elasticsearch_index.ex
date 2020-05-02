@@ -60,4 +60,12 @@ defmodule Philomena.Comments.ElasticsearchIndex do
       body: comment.body
     }
   end
+
+  def user_name_update_by_query(old_name, new_name) do
+    %{
+      query: %{term: %{author: old_name}},
+      replacements: [%{path: ["author"], old: old_name, new: new_name}],
+      set_replacements: []
+    }
+  end
 end

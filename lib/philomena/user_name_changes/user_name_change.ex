@@ -12,9 +12,9 @@ defmodule Philomena.UserNameChanges.UserNameChange do
   end
 
   @doc false
-  def changeset(user_name_change, oldname) do
+  def changeset(user_name_change, old_name) do
     user_name_change
-    |> change(name: oldname)
+    |> change(name: old_name)
     |> validate_required([])
   end
 end

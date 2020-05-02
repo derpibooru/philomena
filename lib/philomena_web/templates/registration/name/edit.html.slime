@@ -7,9 +7,11 @@ h1 Editing Name
 
   p Enter your new name here. Usernames may only be changed once every 90 days. Please be aware that once you change your name, your previous name will be available for reuse, and someone else may claim it.
 
-  = text_input f, :name, class: "input", placeholder: "Name", required: true
-  = error_tag f, :name
-  br
-  = submit "Save", class: "button"
+  .field
+    = text_input f, :name, class: "input", placeholder: "Name", required: true
+    = error_tag f, :name
+
+  .action
+    = submit "Save", class: "button"
 
 p = link "Back", to: Routes.pow_registration_path(@conn, :edit)

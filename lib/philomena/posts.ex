@@ -11,6 +11,7 @@ defmodule Philomena.Posts do
   alias Philomena.Topics.Topic
   alias Philomena.Topics
   alias Philomena.Posts.Post
+  alias Philomena.Posts.ElasticsearchIndex, as: PostIndex
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
   alias Philomena.Versions
@@ -202,6 +203,12 @@ defmodule Philomena.Posts do
   """
   def change_post(%Post{} = post) do
     Post.changeset(post, %{})
+  end
+
+  def user_name_reindex(old_name, new_name) do
+    data = PostIndex.user_name_update_by_query(old_name, new_name)
+
+    Elasticsearch.update_by_query(Post, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_post(%Post{} = post) do
