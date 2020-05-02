@@ -1,16 +1,25 @@
 h1 Livestreams
 
 - route = fn p -> Routes.channel_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn, params: [cq: @conn.params["cq"]]
 
-/= form_tag channels_path, method: :get, class: 'hform', enforce_utf8: false do
+= form_for :channels, Routes.channel_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_field_tag :cq, params[:cq], class: 'input hform__text', placeholder: 'Search channels'
-    = submit_tag 'Search', class: 'hform__button button'
+    = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search channels", autocapitalize: "none"
+    = submit "Search", class: "hform__button button"
 
 .block
   .block__header
     = pagination
+
+    = if @conn.cookies["chan_nsfw"] == "true" do
+      a href=Routes.channel_nsfw_path(@conn, :delete) data-method="delete"
+        i.fa.fa-eye-slash>
+        ' Hide NSFW streams
+    - else
+      a href=Routes.channel_nsfw_path(@conn, :create) data-method="create"
+        i.fa.fa-eye>
+        ' Show NSFW streams
 
   .block__content
     = for channel <- @channels do
@@ -26,7 +35,7 @@ br
 h2 FAQ
 p
   strong> Q: Do you host streams?
-  | A: No, we cheat and just link to streams on Livestream/Picarto since that's where (almost) everyone is already. This is simply a nice way to track streaming artists.
+  | A: No, we cheat and just link to streams on Picarto since that's where (almost) everyone is already. This is simply a nice way to track streaming artists.
 p
   strong> Q: How do I get my stream/a friend's stream/<artist>'s stream here?
   ' A: Send a private message to a site administrator

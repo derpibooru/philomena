@@ -1,0 +1,10 @@
+h1 Editing Poll
+
+= form_for @changeset, Routes.forum_topic_poll_path(@conn, :update, @forum, @topic), fn f ->
+  = render PhilomenaWeb.Topic.PollView, "_form.html", f: f
+
+  br
+  br
+
+  .action
+    = submit "Save", class: "button", data: [disable_with: raw("Saving&hellip;")]

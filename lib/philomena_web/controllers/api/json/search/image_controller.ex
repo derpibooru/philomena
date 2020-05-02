@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
     case ImageLoader.search_string(conn, params["q"],
            sorts: sort.sorts,
            queries: sort.queries,
+           constant_score: sort.constant_score,
            queryable: queryable
          ) do
       {:ok, {images, _tags}} ->

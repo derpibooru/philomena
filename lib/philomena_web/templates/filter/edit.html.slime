@@ -1,2 +1,22 @@
 h2 Editing Filter
 = render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: Routes.filter_path(@conn, :update, @filter)
+
+= if not @filter.public and not @filter.system do
+  br
+  br
+
+  input.toggle-box id="public-tools" type="checkbox" checked=false
+  label for="public-tools" Advanced Options
+  .toggle-box-container
+    .toggle-box-container__content
+      p
+        ' This filter is currently private and only accessible to you. If you
+        ' click the button below, this will make the filter public and
+        ' accessible to other users.
+
+      p
+        ' This process is
+        strong irreversible
+        ' . Once you make a filter public, you cannot make it private again.
+
+      = button_to "Convert to Public Filter", Routes.filter_public_path(@conn, :create, @filter), class: "button", method: "create", data: [confirm: "Are you really, really sure?"]

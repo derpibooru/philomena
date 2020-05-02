@@ -33,7 +33,7 @@
           i.fa.fa-eye-slash
     .stretched-mobile-links
       = render PhilomenaWeb.Image.SubscriptionView, "_subscription.html", watching: @watching, image: @image, conn: @conn
-      = render PhilomenaWeb.ImageView, "_add_to_gallery_dropdown.html", image: @image, image_galleries: @image_galleries, user_galleries: @user_galleries, conn: @conn
+      = render PhilomenaWeb.ImageView, "_add_to_gallery_dropdown.html", image: @image, user_galleries: @user_galleries, conn: @conn
       a href=Routes.image_related_path(@conn, :index, @image) title="Related Images"
         i.fa.fa-sitemap>
         span.hide-limited-desktop.hide-mobile Related

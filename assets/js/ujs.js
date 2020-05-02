@@ -2,7 +2,8 @@ import { $$, makeEl, findFirstTextNode } from './utils/dom';
 import { fire, delegate, leftClick } from './utils/events';
 
 const headers = () => ({
-  'x-csrf-token': window.booru.csrfToken
+  'x-csrf-token': window.booru.csrfToken,
+  'x-requested-with': 'XMLHttpRequest'
 });
 
 function confirm(event, target) {
@@ -56,9 +57,13 @@ function formRemote(event, target) {
     method: (target.dataset.method || target.method || 'POST').toUpperCase(),
     headers: headers(),
     body: new FormData(target)
-  }).then(response =>
+  }).then(response => {
+    if (response && response.status == 300) {
+      window.location.reload(true);
+      return;
+    }
     fire(target, 'fetchcomplete', response)
-  );
+  });
 }
 
 function formReset(event, target) {

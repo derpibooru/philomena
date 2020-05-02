@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.Image.FileController do
   plug PhilomenaWeb.CanaryMapPlug, update: :hide
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
   plug :verify_not_deleted
+  plug PhilomenaWeb.ScraperPlug, params_name: "image", params_key: "image"
 
   def update(conn, %{"image" => image_params}) do
     case Images.update_file(conn.assigns.image, image_params) do

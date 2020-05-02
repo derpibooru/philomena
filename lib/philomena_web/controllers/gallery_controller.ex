@@ -57,22 +57,32 @@ defmodule PhilomenaWeb.GalleryController do
     {:ok, {images, _tags}} =
       ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
 
-    interactions = Interactions.user_interactions(images, user)
+    {gallery_prev, gallery_next} = prev_next_page_images(conn, query, sort)
+
+    interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
 
     watching = Galleries.subscribed?(gallery, user)
-    gallery_images = Jason.encode!(Enum.map(images, & &1.id))
+
+    prev_image = if gallery_prev, do: [gallery_prev], else: []
+    next_image = if gallery_next, do: [gallery_next], else: []
+
+    gallery_images = prev_image ++ Enum.to_list(images) ++ next_image
+    gallery_json = Jason.encode!(Enum.map(gallery_images, & &1.id))
 
     Galleries.clear_notification(gallery, user)
 
     conn
     |> NotificationCountPlug.call([])
     |> Map.put(:params, params)
-    |> assign(:clientside_data, gallery_images: gallery_images)
+    |> assign(:clientside_data, gallery_images: gallery_json)
     |> render("show.html",
       title: "Showing Gallery",
       layout_class: "layout--wide",
       watching: watching,
       gallery: gallery,
+      gallery_prev: gallery_prev,
+      gallery_next: gallery_next,
+      gallery_images: gallery_images,
       images: images,
       interactions: interactions
     )
@@ -133,6 +143,39 @@ defmodule PhilomenaWeb.GalleryController do
     conn
     |> put_flash(:info, "Gallery successfully destroyed.")
     |> redirect(to: Routes.gallery_path(conn, :index))
+  end
+
+  defp prev_next_page_images(conn, query, sort) do
+    limit = conn.assigns.image_pagination.page_size
+    offset = (conn.assigns.image_pagination.page_number - 1) * limit
+
+    # Inconsistency: Elasticsearch doesn't allow requesting offsets which are less than 0,
+    # but it does allow requesting offsets which are beyond the total number of results.
+
+    prev_image = gallery_image(offset - 1, conn, query, sort)
+    next_image = gallery_image(offset + limit, conn, query, sort)
+
+    {prev_image, next_image}
+  end
+
+  defp gallery_image(offset, _conn, _query, _sorts) when offset < 0, do: nil
+
+  defp gallery_image(offset, conn, query, sort) do
+    pagination_params = %{page_number: offset + 1, page_size: 1}
+
+    {:ok, {image, _tags}} =
+      ImageLoader.search_string(
+        conn,
+        query,
+        pagination: pagination_params,
+        queries: sort.queries,
+        sorts: sort.sorts
+      )
+
+    case Enum.to_list(image) do
+      [image] -> image
+      [] -> nil
+    end
   end
 
   defp parse_search(%{"gallery" => gallery_params}) do

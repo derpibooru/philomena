@@ -20,7 +20,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:12.1
+    image: postgres:12.2
     volumes:
       - postgres_data:/var/lib/postgresql/data
     logging:
@@ -38,7 +38,7 @@ services:
           hard: 65536
 
   redis:
-    image: redis:5.0.7
+    image: redis:5.0.9
     logging:
       driver: "none"
 

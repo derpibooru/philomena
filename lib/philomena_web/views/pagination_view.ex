@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.PaginationView do
   def last_page_path(page, route, params), do: page_path(route, params, page.total_pages)
 
   def left_gap?(page) do
-    page.page_number >= 5
+    page.page_number >= 7
   end
 
   def left_page_numbers(page) do
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.PaginationView do
   end
 
   def right_gap?(page) do
-    page.total_pages - page.page_number >= 5
+    page.total_pages - page.page_number >= 6
   end
 
   def right_page_numbers(page) do

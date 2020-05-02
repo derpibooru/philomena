@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.UserAttributionPlug do
 
     attributes = [
       ip: remote_ip,
-      fingerprint: conn.cookies["_ses"],
+      fingerprint: fingerprint(conn, conn.path_info),
       referrer: conn.assigns.referrer,
       user: user,
       user_agent: user_agent(conn)
@@ -38,5 +38,13 @@ defmodule PhilomenaWeb.UserAttributionPlug do
       [ua] -> ua
       _ -> nil
     end
+  end
+
+  defp fingerprint(conn, ["api" | _]) do
+    "a#{:erlang.crc32(user_agent(conn))}"
+  end
+
+  defp fingerprint(conn, _) do
+    conn.cookies["_ses"]
   end
 end

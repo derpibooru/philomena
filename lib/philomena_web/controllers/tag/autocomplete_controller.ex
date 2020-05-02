@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
 
   alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
+  import Ecto.Query
 
   def show(conn, params) do
     tags =
@@ -25,8 +26,10 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
               sort: %{images: :desc}
             },
             %{page_size: 5},
-            Tag
+            Tag |> preload(:aliased_tag)
           )
+          |> Enum.map(&(&1.aliased_tag || &1))
+          |> Enum.sort_by(&(-&1.images_count))
           |> Enum.map(&%{label: "#{&1.name} (#{&1.images_count})", value: &1.name})
       end
 

@@ -12,4 +12,4 @@ html lang="en"
 
   body.twofactor
     .twofactor__container
-      = render @view_module, @view_template, assigns
+      = @inner_content

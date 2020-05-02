@@ -64,6 +64,11 @@ defmodule Search.Evaluator do
     |> Enum.any?(&String.contains?(&1, query_val))
   end
 
+  def hits?(_doc, %{nested: _}) do
+    # No way to tell without a wildly expensive database query
+    false
+  end
+
   def hits?(doc, %{term: term_query}) do
     [{term, query_val}] = Enum.to_list(term_query)
 

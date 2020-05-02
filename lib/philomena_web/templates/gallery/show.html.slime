@@ -5,7 +5,7 @@ elixir:
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: scope
   info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
-#sortable
+#sortable class=sortable_classes(@conn)
   .block#imagelist-container
     section.block__header.flex
       span.block__header__title.hide-mobile
@@ -72,7 +72,7 @@ elixir:
         strong Note that you may have to wait a couple of seconds before the order is applied.
 
     .block__content.js-resizable-media-container
-      = for image <- @images do
+      = for image <- @gallery_images do
         = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: :thumb, conn: @conn
 
     .block__header.block__header--light.flex

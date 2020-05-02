@@ -88,6 +88,12 @@ defmodule Philomena.Filters do
     |> Repo.update()
   end
 
+  def make_filter_public(%Filter{} = filter) do
+    filter
+    |> Filter.public_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Deletes a Filter.
 

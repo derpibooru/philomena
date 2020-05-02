@@ -71,7 +71,16 @@
       = form_for @changeset, Routes.image_file_path(@conn, :update, @image), [method: "put", multipart: true], fn f ->
         #js-image-upload-previews
         p Upload a file from your computer
-        .field = file_input f, :image, class: "input js-scraper"
+        .field
+          = file_input f, :image, class: "input js-scraper"
+
+        .field.field--inline
+          = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+          button.button.button--separate-left#js-scraper-preview(type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch" disabled)
+            ' Fetch
+
+        .field-error-js.hidden.js-scraper
+
         = submit "Save changes", class: "button", data: [disable_with: raw("Replacing&hellip;")]
 
     .block__tab.hidden data-tab="administration"

@@ -15,7 +15,6 @@ export function setupSettings() {
 
   // Local settings
   localCheckboxes.forEach(checkbox => {
-    checkbox.checked = Boolean(store.get(checkbox.id));
     checkbox.addEventListener('change', () => {
       store.set(checkbox.id.replace('user_', ''), checkbox.checked);
     });

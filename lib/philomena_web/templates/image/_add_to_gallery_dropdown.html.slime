@@ -12,21 +12,23 @@
             i.fa.fa-table>
             span.hide-mobile Featured in
 
-        = if Enum.any?(@image_galleries) or Enum.any?(@user_galleries) do
+        = if Enum.any?(@user_galleries) do
           ul.block__list.js-gallery-list
-            = for gallery <- @user_galleries do
-              li id="gallery_#{gallery.id}"
-                a.block__list__link.js-gallery-add data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
-                  = gallery.title
-                a.block__list__link.active.js-gallery-remove.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
-                  = gallery.title
-
-            = for gallery <- @image_galleries do
-              li id="gallery_#{gallery.id}"
-                a.block__list__link.js-gallery-add.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
-                  = gallery.title
-                a.block__list__link.active.js-gallery-remove data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
-                  = gallery.title
+            = for {gallery, present} <- @user_galleries do
+              = if present do
+                / Options to remove
+                li id="gallery_#{gallery.id}"
+                  a.block__list__link.js-gallery-add.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
+                    = gallery.title
+                  a.block__list__link.active.js-gallery-remove data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
+                    = gallery.title
+              - else
+                / Options to add
+                li id="gallery_#{gallery.id}"
+                  a.block__list__link.js-gallery-add data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-add" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-remove" data-method="post" data-remote="true" href=Routes.gallery_image_path(@conn, :create, gallery, image_id: @image.id)
+                    = gallery.title
+                  a.block__list__link.active.js-gallery-remove.hidden data-fetchcomplete-hide="#gallery_#{gallery.id} .js-gallery-remove" data-fetchcomplete-show="#gallery_#{gallery.id} .js-gallery-add" data-method="delete" data-remote="true" href=Routes.gallery_image_path(@conn, :delete, gallery, image_id: @image.id)
+                    = gallery.title
 
         .block__list
           = if @conn.assigns.current_user do

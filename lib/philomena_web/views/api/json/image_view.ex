@@ -83,6 +83,12 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
     }
   end
 
+  def render("error.json", %{changeset: changeset}) do
+    %{
+      errors: Ecto.Changeset.traverse_errors(changeset, &translate_error/1)
+    }
+  end
+
   defp intensities(%{intensity: %{nw: nw, ne: ne, sw: sw, se: se}}),
     do: %{nw: nw, ne: ne, sw: sw, se: se}
 

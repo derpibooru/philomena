@@ -39,14 +39,15 @@ function getTag(tagId) {
 
 /* Fetches lots of tags in batches and stores them locally */
 function fetchAndPersistTags(tagIds) {
-  const chunk = 40;
-  for (let i = 0; i < tagIds.length; i += chunk) {
-    const ids = tagIds.slice(i, i + chunk);
+  if (!tagIds.length) return;
 
-    fetch(`/tags/fetch?ids[]=${ids.join('&ids[]=')}`)
-      .then(response => response.json())
-      .then(data => data.tags.forEach(tag => persistTag(tag)));
-  }
+  const ids = tagIds.slice(0, 40);
+  const remaining = tagIds.slice(41);
+
+  fetch(`/tags/fetch?ids[]=${ids.join('&ids[]=')}`)
+    .then(response => response.json())
+    .then(data => data.tags.forEach(tag => persistTag(tag)))
+    .then(() => fetchAndPersistTags(remaining));
 }
 
 /* Figure out which tags in the list we don't know about */

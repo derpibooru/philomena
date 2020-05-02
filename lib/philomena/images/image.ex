@@ -259,11 +259,14 @@ defmodule Philomena.Images.Image do
         nil
       end
 
-    image
-    |> cast(attrs, [:anonymous])
+    change(image)
     |> put_change(:user_id, user_id)
     |> put_change(:ip, %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32})
     |> put_change(:fingerprint, "ffff")
+  end
+
+  def anonymous_changeset(image, attrs) do
+    cast(image, attrs, [:anonymous])
   end
 
   def cache_changeset(image) do

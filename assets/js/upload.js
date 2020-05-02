@@ -67,6 +67,7 @@ function setupImageUpload() {
     // Clear any currently cached data, because the file field
     // has higher priority than the scraper:
     remoteUrl.value = '';
+    disableFetch();
     hideError();
   });
 
@@ -100,6 +101,15 @@ function setupImageUpload() {
 
       enableFetch();
     }).catch(showError);
+  });
+
+  // Enable/disable the fetch button based on content in the image scraper. Fetching with no URL makes no sense.
+  remoteUrl.addEventListener('input', () => {
+    if(remoteUrl.value.length > 0) {
+      enableFetch();
+    } else {
+      disableFetch();
+    }
   });
 }
 

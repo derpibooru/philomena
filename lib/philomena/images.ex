@@ -324,6 +324,12 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
+  def update_anonymous(%Image{} = image, attrs) do
+    image
+    |> Image.anonymous_changeset(attrs)
+    |> Repo.update()
+  end
+
   def hide_image(%Image{} = image, user, attrs) do
     DuplicateReport
     |> where(state: "open")
