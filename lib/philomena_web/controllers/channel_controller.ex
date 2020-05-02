@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.ChannelController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Channel, only: [:show, :new, :create, :edit, :update]
+  plug :load_and_authorize_resource, model: Channel, only: [:show, :new, :create, :edit, :update, :delete]
 
   def index(conn, params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
@@ -72,6 +72,14 @@ defmodule PhilomenaWeb.ChannelController do
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
     end
+  end
+
+  def delete(conn, _params) do
+    {:ok, _channel} = Channels.delete_channel(conn.assigns.channel)
+
+    conn
+    |> put_flash(:info, "Channel destroyed successfully.")
+    |> redirect(to: Routes.channel_path(conn, :index))
   end
 
   defp maybe_search(query, %{"cq" => cq}) when is_binary(cq) and cq != "" do

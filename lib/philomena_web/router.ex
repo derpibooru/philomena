@@ -393,7 +393,7 @@ defmodule PhilomenaWeb.Router do
       singleton: true
 
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
-    resources "/channels", ChannelController, only: [:new, :create, :edit, :update]
+    resources "/channels", ChannelController, only: [:new, :create, :edit, :update, :delete]
   end
 
   scope "/", PhilomenaWeb do

@@ -32,5 +32,8 @@
     a href=Routes.channel_path(@conn, :edit, @channel) class=link_class
       i.fas.fa-fw.fa-edit>
       ' Edit
+    a href=Routes.channel_path(@conn, :delete, @channel) class=link_class data-method="delete" data-confirm="Are you really, really sure?"
+      i.fas.fa-fw.fa-trash>
+      ' Delete
 
   = render PhilomenaWeb.Channel.SubscriptionView, "_subscription.html", conn: @conn, watching: @subscriptions[@channel.id], channel: @channel
