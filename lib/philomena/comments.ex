@@ -10,6 +10,7 @@ defmodule Philomena.Comments do
   alias Philomena.Elasticsearch
   alias Philomena.Reports.Report
   alias Philomena.Comments.Comment
+  alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Notifications
@@ -186,6 +187,12 @@ defmodule Philomena.Comments do
   """
   def change_comment(%Comment{} = comment) do
     Comment.changeset(comment, %{})
+  end
+
+  def user_name_reindex(old_name, new_name) do
+    data = CommentIndex.user_name_update_by_query(old_name, new_name)
+
+    Elasticsearch.update_by_query(Comment, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_comment(%Comment{} = comment) do

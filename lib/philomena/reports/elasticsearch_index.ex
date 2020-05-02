@@ -65,6 +65,27 @@ defmodule Philomena.Reports.ElasticsearchIndex do
     }
   end
 
+  def user_name_update_by_query(old_name, new_name) do
+    old_name = String.downcase(old_name)
+    new_name = String.downcase(new_name)
+
+    %{
+      query: %{
+        bool: %{
+          should: [
+            %{term: %{user: old_name}},
+            %{term: %{admin: old_name}}
+          ]
+        }
+      },
+      replacements: [
+        %{path: ["user"], old: old_name, new: new_name},
+        %{path: ["admin"], old: old_name, new: new_name}
+      ],
+      set_replacements: []
+    }
+  end
+
   defp image_id(%{reportable_type: "Image", reportable_id: image_id}), do: image_id
   defp image_id(%{reportable_type: "Comment", reportable: %{image_id: image_id}}), do: image_id
   defp image_id(_report), do: nil

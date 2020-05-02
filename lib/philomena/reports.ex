@@ -8,6 +8,7 @@ defmodule Philomena.Reports do
 
   alias Philomena.Elasticsearch
   alias Philomena.Reports.Report
+  alias Philomena.Reports.ElasticsearchIndex, as: ReportIndex
   alias Philomena.Polymorphic
 
   @doc """
@@ -120,6 +121,12 @@ defmodule Philomena.Reports do
     report
     |> Report.close_changeset(user)
     |> Repo.update()
+  end
+
+  def user_name_reindex(old_name, new_name) do
+    data = ReportIndex.user_name_update_by_query(old_name, new_name)
+
+    Elasticsearch.update_by_query(Report, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_reports(report_ids) do

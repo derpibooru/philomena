@@ -72,4 +72,15 @@ defmodule Philomena.Posts.ElasticsearchIndex do
       destroyed_content: post.destroyed_content
     }
   end
+
+  def user_name_update_by_query(old_name, new_name) do
+    old_name = String.downcase(old_name)
+    new_name = String.downcase(new_name)
+
+    %{
+      query: %{term: %{author: old_name}},
+      replacements: [%{path: ["author"], old: old_name, new: new_name}],
+      set_replacements: []
+    }
+  end
 end

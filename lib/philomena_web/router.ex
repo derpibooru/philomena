@@ -91,6 +91,7 @@ defmodule PhilomenaWeb.Router do
     # Additional routes for TOTP
     scope "/registrations", Registration, as: :registration do
       resources "/totp", TotpController, only: [:edit, :update], singleton: true
+      resources "/name", NameController, only: [:edit, :update], singleton: true
     end
 
     scope "/sessions", Session, as: :session do
