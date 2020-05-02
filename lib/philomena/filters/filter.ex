@@ -68,6 +68,10 @@ defmodule Philomena.Filters.Filter do
     |> foreign_key_constraint(:id, name: :fk_rails_d2b4c2768f)
   end
 
+  def public_changeset(filter) do
+    change(filter, public: true)
+  end
+
   def hidden_tags_changeset(filter, hidden_tag_ids) do
     change(filter, hidden_tag_ids: hidden_tag_ids)
   end

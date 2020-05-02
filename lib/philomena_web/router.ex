@@ -457,7 +457,9 @@ defmodule PhilomenaWeb.Router do
       resources "/current", CurrentController, only: [:update], singleton: true
     end
 
-    resources "/filters", FilterController
+    resources "/filters", FilterController do
+      resources "/public", Filter.PublicController, only: [:create], singleton: true
+    end
 
     resources "/profiles", ProfileController, only: [:show] do
       resources "/reports", Profile.ReportController, only: [:new, :create]
