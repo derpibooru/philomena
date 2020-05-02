@@ -15,7 +15,7 @@ p
 = if can?(@conn, :change_username, @current_user) do
   p
     ' Looking to change your username?
-    = link "Click here!", to: Routes.registration_username_path(@conn, :edit)
+    = link "Click here!", to: Routes.registration_name_path(@conn, :edit)
 
 h3 API Key
 p

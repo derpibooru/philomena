@@ -165,9 +165,9 @@ defmodule Philomena.Users do
     |> Repo.isolated_transaction(:serializable)
   end
 
-  def update_username(user,user_params) do
+  def update_name(user, user_params) do
     name_change = UserNameChange.changeset(%UserNameChange{user_id: user.id}, user.name)
-    account = User.username_changeset(user, user_params)
+    account = User.name_changeset(user, user_params)
 
     Multi.new()
     |> Multi.insert(:name_change, name_change)

@@ -6,7 +6,9 @@ defmodule PhilomenaWeb.ChannelController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource, model: Channel, only: [:show, :new, :create, :edit, :update, :delete]
+  plug :load_and_authorize_resource,
+    model: Channel,
+    only: [:show, :new, :create, :edit, :update, :delete]
 
   def index(conn, params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
