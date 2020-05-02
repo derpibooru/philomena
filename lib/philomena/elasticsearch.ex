@@ -113,7 +113,7 @@ defmodule Philomena.Elasticsearch do
     url =
       elastic_url()
       |> prepare_url([index.index_name(), "_update_by_query"])
-      |> append_query_string(%{conflicts: "proceed"})
+      |> append_query_string(%{conflicts: "proceed", wait_for_completion: "false"})
 
     # Elasticsearch "Painless" scripting language
     script = """
