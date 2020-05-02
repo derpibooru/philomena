@@ -35,7 +35,11 @@ defmodule Philomena.Processors.Gif do
   end
 
   defp preview(duration, file) do
+    h264_equiv = Briefly.create!(extname: ".mp4")
     preview = Briefly.create!(extname: ".png")
+
+    # Hack workaround for broken FFmpeg behavior which
+    # cannot correctly seek in GIF image files
 
     {_output, 0} =
       System.cmd("ffmpeg", [
@@ -44,6 +48,18 @@ defmodule Philomena.Processors.Gif do
         "-y",
         "-i",
         file,
+        "-c:v",
+        "libx264",
+        h264_equiv
+      ])
+
+    {_output, 0} =
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        h264_equiv,
         "-ss",
         to_string(duration / 2),
         "-frames:v",
