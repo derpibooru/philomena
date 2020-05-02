@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.ChannelController do
 
   plug :load_and_authorize_resource, model: Channel, only: [:show, :new, :create, :edit, :update]
 
-  def index(conn, _params) do
+  def index(conn, params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
 
     channels =
@@ -16,7 +16,9 @@ defmodule PhilomenaWeb.ChannelController do
       |> maybe_show_nsfw(show_nsfw?)
       |> where([c], not is_nil(c.last_fetched_at))
       |> order_by(desc: :is_live, asc: :title)
-      |> preload(:associated_artist_tag)
+      |> join(:left, [c], _ in assoc(c, :associated_artist_tag))
+      |> preload([_c, t], associated_artist_tag: t)
+      |> maybe_search(params)
       |> Repo.paginate(conn.assigns.scrivener)
 
     subscriptions = Channels.subscriptions(channels, conn.assigns.current_user)
@@ -71,6 +73,20 @@ defmodule PhilomenaWeb.ChannelController do
         render(conn, "edit.html", changeset: changeset)
     end
   end
+
+  defp maybe_search(query, %{"cq" => cq}) when is_binary(cq) and cq != "" do
+    title_query = "#{cq}%"
+    tag_query = "%#{cq}%"
+
+    where(
+      query,
+      [c, t],
+      ilike(c.title, ^title_query) or ilike(c.short_name, ^title_query) or
+        ilike(t.name, ^tag_query)
+    )
+  end
+
+  defp maybe_search(query, _params), do: query
 
   defp maybe_show_nsfw(query, true), do: query
   defp maybe_show_nsfw(query, _falsy), do: where(query, [c], c.nsfw == false)
