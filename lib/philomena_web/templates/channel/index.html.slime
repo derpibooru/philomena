@@ -12,6 +12,15 @@ h1 Livestreams
   .block__header
     = pagination
 
+    = if @conn.cookies["chan_nsfw"] == "true" do
+      a href=Routes.channel_nsfw_path(@conn, :delete) data-method="delete"
+        i.fa.fa-eye-slash>
+        ' Hide NSFW streams
+    - else
+      a href=Routes.channel_nsfw_path(@conn, :create) data-method="create"
+        i.fa.fa-eye>
+        ' Show NSFW streams
+
   .block__content
     = for channel <- @channels do
       = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions

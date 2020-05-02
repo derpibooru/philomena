@@ -485,6 +485,10 @@ defmodule PhilomenaWeb.Router do
       resources "/history", Page.HistoryController, only: [:index]
     end
 
+    scope "/channels", Channel, as: :channel do
+      resources "/nsfw", NsfwController, only: [:create, :delete], singleton: true
+    end
+
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
     resources "/stats", StatController, only: [:index]
