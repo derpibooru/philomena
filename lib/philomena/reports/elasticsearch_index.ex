@@ -7,11 +7,6 @@ defmodule Philomena.Reports.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "report"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{

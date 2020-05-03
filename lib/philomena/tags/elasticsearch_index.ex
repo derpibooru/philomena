@@ -7,11 +7,6 @@ defmodule Philomena.Tags.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "tag"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{

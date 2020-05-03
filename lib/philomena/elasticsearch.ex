@@ -50,14 +50,9 @@ defmodule Philomena.Elasticsearch do
     index = index_for(module)
 
     index_name = index.index_name()
-    doc_type = index.doc_type()
+    mapping = index.mapping().mappings.properties
 
-    mapping =
-      index.mapping().mappings
-      |> Map.get(String.to_atom(doc_type))
-      |> Map.get(:properties)
-
-    Elastix.Mapping.put(elastic_url(), index_name, doc_type, %{properties: mapping})
+    Elastix.Mapping.put(elastic_url(), index_name, "_doc", %{properties: mapping})
   end
 
   def index_document(doc, module) do
@@ -79,7 +74,7 @@ defmodule Philomena.Elasticsearch do
     Elastix.Document.delete(
       elastic_url(),
       index.index_name(),
-      index.doc_type(),
+      "_doc",
       id
     )
   end

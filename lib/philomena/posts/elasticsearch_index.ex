@@ -7,11 +7,6 @@ defmodule Philomena.Posts.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "post"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{

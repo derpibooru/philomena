@@ -7,11 +7,6 @@ defmodule Philomena.Galleries.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "gallery"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{
