@@ -46,8 +46,20 @@
 
   h4 About this image
   .field
-    = label f, :source_url, "The page you found this image on"
-    = url_input f, :source_url, class: "input input--wide js-image-input", placeholder: "Source URL"
+    = label f, :sources, "The page(s) this image can be found on (up to 10, leave blank if none)"
+    = inputs_for f, :sources, fn fs ->
+      .field.js-image-source.field--inline.flex--no-wrap.flex--centered
+        = text_input fs, :source, class: "input flex__grow js-option-label", placeholder: "Source"
+        = error_tag fs, :source
+
+        label.input--separate-left.flex__fixed.flex--centered
+          a.js-source-remove href="#"
+            i.fa.fa-trash>
+            ' Delete
+
+      button.button.js-image-add-source type="button"
+        i.fa.fa-plus>
+        ' Add source
   
   .field
     label for="image[tag_input]"

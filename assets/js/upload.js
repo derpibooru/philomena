@@ -3,7 +3,8 @@
  */
 
 import { fetchJson, handleError } from './utils/requests';
-import { $, $$, hideEl, showEl, makeEl, clearEl } from './utils/dom';
+import { $, $$, hideEl, showEl, makeEl, clearEl, removeEl } from './utils/dom';
+import { delegate, leftClick } from './utils/events';
 import { addTag } from './tagsinput';
 
 function scrapeUrl(url) {
@@ -12,7 +13,7 @@ function scrapeUrl(url) {
     .then(response => response.json());
 }
 
-function setupImageUpload() {
+function setupScraper() {
   const imgPreviews = $('#js-image-upload-previews');
   if (!imgPreviews) return;
 
@@ -111,6 +112,47 @@ function setupImageUpload() {
       disableFetch();
     }
   });
+}
+
+function imageSourceRemover(_event, target) {
+  removeEl(target.closest('.js-image-source'));
+}
+
+function setupSourceCreator() {
+  const addImageSourceButton = $('.js-image-add-source');
+
+  delegate(document, 'click', {
+    '.js-source-remove': leftClick(imageSourceRemover)
+  });
+
+  if (!addImageSourceButton) {
+    return;
+  }
+
+  const form = addImageSourceButton.closest('form');
+
+  addImageSourceButton.addEventListener('click', e => {
+    e.preventDefault();
+
+    let existingOptionCount = $$('.js-image-source', form).length;
+
+    if (existingOptionCount < 10) {
+      // The element right before the add button will always be the last field, make a copy
+      const prevFieldCopy = addImageSourceButton.previousElementSibling.cloneNode(true);
+      const newHtml = prevFieldCopy.outerHTML.replace(/(\d+)/g, `${existingOptionCount}`);
+
+      // Insert copy before the button
+      addImageSourceButton.insertAdjacentHTML('beforebegin', newHtml);
+    }
+    else {
+      removeEl(addImageSourceButton);
+    }
+  });
+}
+
+function setupImageUpload() {
+  setupScraper();
+  setupSourceCreator();
 }
 
 export { setupImageUpload };

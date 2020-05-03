@@ -12,7 +12,15 @@ defmodule Philomena.Images.Source do
   @doc false
   def changeset(source, attrs) do
     source
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:source])
+    |> validate_required([:source])
+    |> validate_format(:source, ~r/\Ahttps?:\/\//)
+    |> ignore_if_blank()
   end
+
+  defp ignore_if_blank(%{valid?: false, changes: changes} = changeset) when changes == %{},
+    do: %{changeset | action: :ignore}
+
+  defp ignore_if_blank(changeset),
+    do: changeset
 end

@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.ImageController do
     Textile.Renderer
   }
 
-  # alias Philomena.Servers.ImageProcessor
+  alias Philomena.Images.Source
   alias Philomena.UserStatistics
   alias Philomena.Interactions
   alias Philomena.Comments
@@ -100,7 +100,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def new(conn, _params) do
     changeset =
-      %Image{}
+      %Image{sources: [%Source{}]}
       |> Images.change_image()
 
     render(conn, "new.html", title: "New Image", changeset: changeset)

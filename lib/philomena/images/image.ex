@@ -9,6 +9,7 @@ defmodule Philomena.Images.Image do
   alias Philomena.ImageFaves.ImageFave
   alias Philomena.ImageHides.ImageHide
   alias Philomena.Images.Subscription
+  alias Philomena.Images.Source
   alias Philomena.Users.User
   alias Philomena.Tags.Tag
   alias Philomena.Galleries
@@ -39,6 +40,7 @@ defmodule Philomena.Images.Image do
     many_to_many :tags, Tag, join_through: "image_taggings", on_replace: :delete
     has_one :intensity, ImageIntensity
     has_many :galleries, through: [:gallery_interactions, :image]
+    has_many :sources, Source
 
     field :image, :string
     field :image_name, :string
@@ -113,10 +115,12 @@ defmodule Philomena.Images.Image do
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
     image
-    |> cast(attrs, [:anonymous, :source_url, :description])
+    |> cast(attrs, [:anonymous, :description])
+    |> cast_assoc(:sources, with: &Source.changeset/2)
     |> change(first_seen_at: now)
     |> change(attribution)
     |> validate_length(:description, max: 50_000, count: :bytes)
+    |> validate_length(:sources, max: 10)
   end
 
   def image_changeset(image, attrs) do
