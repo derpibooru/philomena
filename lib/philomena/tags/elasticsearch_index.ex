@@ -7,11 +7,6 @@ defmodule Philomena.Tags.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "tag"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{
@@ -29,33 +24,30 @@ defmodule Philomena.Tags.ElasticsearchIndex do
         }
       },
       mappings: %{
-        tag: %{
-          _all: %{enabled: false},
-          dynamic: false,
-          properties: %{
-            id: %{type: "integer"},
-            images: %{type: "integer"},
-            slug: %{type: "keyword"},
-            name: %{type: "keyword"},
-            name_in_namespace: %{type: "keyword"},
-            namespace: %{type: "keyword"},
-            aliased_tag: %{type: "keyword"},
-            aliases: %{type: "keyword"},
-            implied_tags: %{type: "keyword"},
-            implied_tag_ids: %{type: "keyword"},
-            implied_by_tags: %{type: "keyword"},
-            category: %{type: "keyword"},
-            aliased: %{type: "boolean"},
-            analyzed_name: %{
-              type: "text",
-              fields: %{
-                nlp: %{type: "text", analyzer: "tag_snowball"},
-                ngram: %{type: "keyword"}
-              }
-            },
-            description: %{type: "text", analyzer: "snowball"},
-            short_description: %{type: "text", analyzer: "snowball"}
-          }
+        dynamic: false,
+        properties: %{
+          id: %{type: "integer"},
+          images: %{type: "integer"},
+          slug: %{type: "keyword"},
+          name: %{type: "keyword"},
+          name_in_namespace: %{type: "keyword"},
+          namespace: %{type: "keyword"},
+          aliased_tag: %{type: "keyword"},
+          aliases: %{type: "keyword"},
+          implied_tags: %{type: "keyword"},
+          implied_tag_ids: %{type: "keyword"},
+          implied_by_tags: %{type: "keyword"},
+          category: %{type: "keyword"},
+          aliased: %{type: "boolean"},
+          analyzed_name: %{
+            type: "text",
+            fields: %{
+              nlp: %{type: "text", analyzer: "tag_snowball"},
+              ngram: %{type: "keyword"}
+            }
+          },
+          description: %{type: "text", analyzer: "snowball"},
+          short_description: %{type: "text", analyzer: "snowball"}
         }
       }
     }

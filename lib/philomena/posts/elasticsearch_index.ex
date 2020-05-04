@@ -7,11 +7,6 @@ defmodule Philomena.Posts.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "post"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{
@@ -21,29 +16,26 @@ defmodule Philomena.Posts.ElasticsearchIndex do
         }
       },
       mappings: %{
-        post: %{
-          _all: %{enabled: false},
-          dynamic: false,
-          properties: %{
-            id: %{type: "integer"},
-            body: %{type: "text", analyzer: "snowball"},
-            ip: %{type: "ip"},
-            user_agent: %{type: "keyword"},
-            referrer: %{type: "keyword"},
-            fingerprint: %{type: "keyword"},
-            subject: %{type: "text", analyzer: "snowball"},
-            author: %{type: "keyword"},
-            topic_position: %{type: "integer"},
-            forum_id: %{type: "keyword"},
-            topic_id: %{type: "keyword"},
-            user_id: %{type: "keyword"},
-            anonymous: %{type: "boolean"},
-            updated_at: %{type: "date"},
-            created_at: %{type: "date"},
-            deleted: %{type: "boolean"},
-            access_level: %{type: "keyword"},
-            destroyed_content: %{type: "boolean"}
-          }
+        dynamic: false,
+        properties: %{
+          id: %{type: "integer"},
+          body: %{type: "text", analyzer: "snowball"},
+          ip: %{type: "ip"},
+          user_agent: %{type: "keyword"},
+          referrer: %{type: "keyword"},
+          fingerprint: %{type: "keyword"},
+          subject: %{type: "text", analyzer: "snowball"},
+          author: %{type: "keyword"},
+          topic_position: %{type: "integer"},
+          forum_id: %{type: "keyword"},
+          topic_id: %{type: "keyword"},
+          user_id: %{type: "keyword"},
+          anonymous: %{type: "boolean"},
+          updated_at: %{type: "date"},
+          created_at: %{type: "date"},
+          deleted: %{type: "boolean"},
+          access_level: %{type: "keyword"},
+          destroyed_content: %{type: "boolean"}
         }
       }
     }

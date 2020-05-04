@@ -7,11 +7,6 @@ defmodule Philomena.Galleries.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "gallery"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{
@@ -21,24 +16,21 @@ defmodule Philomena.Galleries.ElasticsearchIndex do
         }
       },
       mappings: %{
-        gallery: %{
-          _all: %{enabled: false},
-          dynamic: false,
-          properties: %{
-            # keyword
-            id: %{type: "integer"},
-            image_count: %{type: "integer"},
-            watcher_count: %{type: "integer"},
-            updated_at: %{type: "date"},
-            created_at: %{type: "date"},
-            title: %{type: "keyword"},
-            # missing creator_id
-            creator: %{type: "keyword"},
-            image_ids: %{type: "keyword"},
-            # ???
-            watcher_ids: %{type: "keyword"},
-            description: %{type: "text", analyzer: "snowball"}
-          }
+        dynamic: false,
+        properties: %{
+          # keyword
+          id: %{type: "integer"},
+          image_count: %{type: "integer"},
+          watcher_count: %{type: "integer"},
+          updated_at: %{type: "date"},
+          created_at: %{type: "date"},
+          title: %{type: "keyword"},
+          # missing creator_id
+          creator: %{type: "keyword"},
+          image_ids: %{type: "keyword"},
+          # ???
+          watcher_ids: %{type: "keyword"},
+          description: %{type: "text", analyzer: "snowball"}
         }
       }
     }

@@ -7,11 +7,6 @@ defmodule Philomena.Reports.ElasticsearchIndex do
   end
 
   @impl true
-  def doc_type do
-    "report"
-  end
-
-  @impl true
   def mapping do
     %{
       settings: %{
@@ -21,25 +16,22 @@ defmodule Philomena.Reports.ElasticsearchIndex do
         }
       },
       mappings: %{
-        report: %{
-          _all: %{enabled: false},
-          dynamic: false,
-          properties: %{
-            id: %{type: "integer"},
-            image_id: %{type: "integer"},
-            created_at: %{type: "date"},
-            ip: %{type: "ip"},
-            fingerprint: %{type: "keyword"},
-            state: %{type: "keyword"},
-            user: %{type: "keyword"},
-            user_id: %{type: "keyword"},
-            admin: %{type: "keyword"},
-            admin_id: %{type: "keyword"},
-            reportable_type: %{type: "keyword"},
-            reportable_id: %{type: "keyword"},
-            open: %{type: "boolean"},
-            reason: %{type: "text", analyzer: "snowball"}
-          }
+        dynamic: false,
+        properties: %{
+          id: %{type: "integer"},
+          image_id: %{type: "integer"},
+          created_at: %{type: "date"},
+          ip: %{type: "ip"},
+          fingerprint: %{type: "keyword"},
+          state: %{type: "keyword"},
+          user: %{type: "keyword"},
+          user_id: %{type: "keyword"},
+          admin: %{type: "keyword"},
+          admin_id: %{type: "keyword"},
+          reportable_type: %{type: "keyword"},
+          reportable_id: %{type: "keyword"},
+          open: %{type: "boolean"},
+          reason: %{type: "text", analyzer: "snowball"}
         }
       }
     }

@@ -50,14 +50,9 @@ defmodule Philomena.Elasticsearch do
     index = index_for(module)
 
     index_name = index.index_name()
-    doc_type = index.doc_type()
+    mapping = index.mapping().mappings.properties
 
-    mapping =
-      index.mapping().mappings
-      |> Map.get(String.to_atom(doc_type))
-      |> Map.get(:properties)
-
-    Elastix.Mapping.put(elastic_url(), index_name, doc_type, %{properties: mapping})
+    Elastix.Mapping.put(elastic_url(), index_name, "_doc", %{properties: mapping})
   end
 
   def index_document(doc, module) do
@@ -67,7 +62,7 @@ defmodule Philomena.Elasticsearch do
     Elastix.Document.index(
       elastic_url(),
       index.index_name(),
-      [index.doc_type()],
+      "_doc",
       data.id,
       data
     )
@@ -79,7 +74,7 @@ defmodule Philomena.Elasticsearch do
     Elastix.Document.delete(
       elastic_url(),
       index.index_name(),
-      index.doc_type(),
+      "_doc",
       id
     )
   end
@@ -93,7 +88,7 @@ defmodule Philomena.Elasticsearch do
           doc = index.as_json(record)
 
           [
-            %{index: %{_index: index.index_name(), _type: index.doc_type(), _id: doc.id}},
+            %{index: %{_index: index.index_name(), _id: doc.id}},
             doc
           ]
         end)
@@ -179,7 +174,7 @@ defmodule Philomena.Elasticsearch do
       Elastix.Search.search(
         elastic_url(),
         index.index_name(),
-        [index.doc_type()],
+        [],
         query_body
       )
 
@@ -194,12 +189,13 @@ defmodule Philomena.Elasticsearch do
       Map.merge(elastic_query, %{
         from: (page_number - 1) * page_size,
         size: page_size,
-        _source: false
+        _source: false,
+        track_total_hits: true
       })
 
     results = search(module, elastic_query)
     time = results["took"]
-    count = results["hits"]["total"]
+    count = results["hits"]["total"]["value"]
     entries = Enum.map(results["hits"]["hits"], &String.to_integer(&1["_id"]))
 
     Logger.debug("[Elasticsearch] Query took #{time}ms")
