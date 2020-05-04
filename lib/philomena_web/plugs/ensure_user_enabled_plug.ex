@@ -31,6 +31,7 @@ defmodule PhilomenaWeb.EnsureUserEnabledPlug do
     conn
     |> Plug.delete()
     |> Controller.redirect(to: Routes.pow_session_path(conn, :new))
+    |> Conn.halt()
   end
 
   defp maybe_halt(_any, conn), do: conn

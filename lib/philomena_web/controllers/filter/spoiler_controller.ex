@@ -47,6 +47,7 @@ defmodule PhilomenaWeb.Filter.SpoilerController do
         conn
         |> put_status(:forbidden)
         |> text("")
+        |> halt()
     end
   end
 end

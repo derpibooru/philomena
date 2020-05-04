@@ -35,6 +35,7 @@ defmodule PhilomenaWeb.Image.FileController do
         conn
         |> put_flash(:error, "Cannot replace a hidden image.")
         |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> halt()
 
       _false ->
         conn

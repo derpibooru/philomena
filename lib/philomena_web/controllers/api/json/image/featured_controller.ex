@@ -23,6 +23,7 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
         conn
         |> put_status(:not_found)
         |> text("")
+        |> halt()
 
       _ ->
         interactions = Interactions.user_interactions([featured_image], user)

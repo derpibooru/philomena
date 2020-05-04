@@ -149,6 +149,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
         conn
         |> put_flash(:error, "You must have a verified user link to create a commission listing.")
         |> redirect(to: Routes.commission_path(conn, :index))
+        |> halt()
     end
   end
 end

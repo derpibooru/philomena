@@ -47,6 +47,7 @@ defmodule PhilomenaWeb.Filter.HideController do
         conn
         |> put_status(:forbidden)
         |> text("")
+        |> halt()
     end
   end
 end

@@ -153,6 +153,7 @@ defmodule PhilomenaWeb.TagController do
           "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\"."
         )
         |> redirect(to: Routes.tag_path(conn, :show, tag))
+        |> halt()
     end
   end
 end

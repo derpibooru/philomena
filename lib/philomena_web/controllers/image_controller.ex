@@ -188,7 +188,7 @@ defmodule PhilomenaWeb.ImageController do
           "The image you were looking for has been marked a duplicate of the image below"
         )
         |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
-        |> Plug.Conn.halt()
+        |> halt()
 
       true ->
         conn

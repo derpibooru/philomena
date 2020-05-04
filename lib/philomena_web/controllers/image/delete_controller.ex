@@ -59,6 +59,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
         conn
         |> put_flash(:error, "Cannot change hide reason on a non-hidden image!")
         |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> halt()
     end
   end
 
