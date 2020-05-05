@@ -146,6 +146,15 @@ defmodule PhilomenaWeb.Router do
   end
 
   scope "/", PhilomenaWeb do
+    pipe_through [:browser, :ensure_totp, :ensure_tor_authorized]
+
+    # A curiosity due to the fact that Phoenix routes cannot have constraints
+    scope "/channels", Channel, as: :channel do
+      resources "/nsfw", NsfwController, only: [:create, :delete], singleton: true
+    end
+  end
+
+  scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp, :protected]
 
     scope "/notifications", Notification, as: :notification do
@@ -486,10 +495,6 @@ defmodule PhilomenaWeb.Router do
 
     resources "/pages", PageController, only: [:show] do
       resources "/history", Page.HistoryController, only: [:index]
-    end
-
-    scope "/channels", Channel, as: :channel do
-      resources "/nsfw", NsfwController, only: [:create, :delete], singleton: true
     end
 
     resources "/dnp", DnpEntryController, only: [:index, :show]
