@@ -499,7 +499,6 @@ defmodule PhilomenaWeb.Router do
 
     resources "/dnp", DnpEntryController, only: [:index, :show]
     resources "/staff", StaffController, only: [:index]
-    resources "/stats", StatController, only: [:index]
     resources "/channels", ChannelController, only: [:index, :show]
     resources "/settings", SettingController, only: [:edit, :update], singleton: true
     resources "/duplicate_reports", DuplicateReportController, only: [:index, :show, :create]

@@ -1,6 +1,4 @@
-defmodule PhilomenaWeb.StatController do
-  use PhilomenaWeb, :controller
-
+defmodule PhilomenaWeb.StatsUpdater do
   alias Philomena.Elasticsearch
   alias Philomena.Servers.Config
   alias Philomena.Images.Image
@@ -14,10 +12,24 @@ defmodule PhilomenaWeb.StatController do
   alias Philomena.Commissions.Commission
   alias Philomena.Commissions.Item
   alias Philomena.Reports.Report
+  alias Philomena.StaticPages.StaticPage
   alias Philomena.Repo
   import Ecto.Query
 
-  def index(conn, _params) do
+  def child_spec([]) do
+    %{
+      id: PhilomenaWeb.StatsUpdater,
+      start: {PhilomenaWeb.StatsUpdater, :start_link, [[]]}
+    }
+  end
+
+  def start_link([]) do
+    {:ok, spawn_link(&run/0)}
+  end
+
+  defp run do
+    :timer.sleep(:timer.seconds(300))
+
     {gallery_count, gallery_size, distinct_creators, images_in_galleries} = galleries()
     {open_reports, report_count, response_time} = moderation()
     {open_commissions, commission_items} = commissions()
@@ -25,27 +37,42 @@ defmodule PhilomenaWeb.StatController do
     {forums, topics, posts} = forums()
     {users, users_24h} = users()
 
-    render(
-      conn,
-      "index.html",
-      image_aggs: image_aggs,
-      comment_aggs: comment_aggs,
-      forums_count: forums,
-      topics_count: topics,
-      posts_count: posts,
-      users_count: users,
-      users_24h: users_24h,
-      open_commissions: open_commissions,
-      commission_items: commission_items,
-      open_reports: open_reports,
-      report_stat_count: report_count,
-      response_time: response_time,
-      gallery_count: gallery_count,
-      gallery_size: gallery_size,
-      distinct_creators: distinct_creators,
-      images_in_galleries: images_in_galleries,
-      title: "Statistics"
-    )
+    result =
+      Phoenix.View.render(
+        PhilomenaWeb.StatView,
+        "index.html",
+        image_aggs: image_aggs,
+        comment_aggs: comment_aggs,
+        forums_count: forums,
+        topics_count: topics,
+        posts_count: posts,
+        users_count: users,
+        users_24h: users_24h,
+        open_commissions: open_commissions,
+        commission_items: commission_items,
+        open_reports: open_reports,
+        report_stat_count: report_count,
+        response_time: response_time,
+        gallery_count: gallery_count,
+        gallery_size: gallery_size,
+        distinct_creators: distinct_creators,
+        images_in_galleries: images_in_galleries
+      )
+
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+    static_page =
+      %{
+        title: "Statistics",
+        slug: "stats",
+        body: Phoenix.HTML.safe_to_string(result),
+        created_at: now,
+        updated_at: now
+      }
+
+    Repo.insert_all(StaticPage, [static_page], on_conflict: {:replace, [:body, :updated_at]}, conflict_target: :slug)
+
+    run()
   end
 
   defp aggregations do
