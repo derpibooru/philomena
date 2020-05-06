@@ -1,5 +1,3 @@
-h1 Site Statistics
-
 elixir:
   img_bucket = @image_aggs["aggregations"]
   cmt_bucket = @comment_aggs["aggregations"]
