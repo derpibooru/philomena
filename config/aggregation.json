@@ -34,7 +34,7 @@
           "all_time": {
             "date_histogram": {
               "field": "created_at",
-              "interval": "day"
+              "calendar_interval": "day"
             }
           },
           "avg_comments": {
