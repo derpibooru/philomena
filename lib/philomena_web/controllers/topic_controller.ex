@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.TopicController do
   plug PhilomenaWeb.UserAttributionPlug when action in [:new, :create]
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
+  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show, update: :show
 
   plug :load_and_authorize_resource,
     model: Forum,
@@ -21,7 +21,8 @@ defmodule PhilomenaWeb.TopicController do
     id_field: "short_name",
     persisted: true
 
-  plug PhilomenaWeb.LoadTopicPlug, [param: "id"] when action in [:show]
+  plug PhilomenaWeb.LoadTopicPlug, [param: "id"] when action in [:show, :update]
+  plug :verify_authorized when action in [:update]
 
   def show(conn, params) do
     forum = conn.assigns.forum
@@ -75,12 +76,15 @@ defmodule PhilomenaWeb.TopicController do
       %Post{}
       |> Posts.change_post()
 
+    topic_changeset = Topics.change_topic(conn.assigns.topic)
+
     title = "#{topic.title} - #{forum.name} - Forums"
 
     render(conn, "show.html",
       title: title,
       posts: posts,
       changeset: changeset,
+      topic_changeset: topic_changeset,
       watching: watching,
       voted: voted
     )
@@ -116,6 +120,27 @@ defmodule PhilomenaWeb.TopicController do
         conn
         |> put_flash(:error, "There was an error with your submission. Please try again.")
         |> redirect(to: Routes.forum_topic_path(conn, :new, forum))
+    end
+  end
+
+  def update(conn, %{"topic" => topic_params}) do
+    case Topics.update_topic_title(conn.assigns.topic, topic_params) do
+      {:ok, topic} ->
+        conn
+        |> put_flash(:info, "Successfully updated topic.")
+        |> redirect(to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, topic))
+
+      {:error, _changeset} ->
+        conn
+        |> put_flash(:error, "There was an error with your submission. Please try again.")
+        |> redirect(to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, conn.assigns.topic))
+    end
+  end
+
+  defp verify_authorized(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, :edit, conn.assigns.topic) do
+      true -> conn
+      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

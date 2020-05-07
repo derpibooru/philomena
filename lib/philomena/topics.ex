@@ -252,6 +252,12 @@ defmodule Philomena.Topics do
     |> Repo.update()
   end
 
+  def update_topic_title(topic, attrs) do
+    topic
+    |> Topic.title_changeset(attrs)
+    |> Repo.update()
+  end
+
   def clear_notification(_topic, nil), do: nil
 
   def clear_notification(topic, user) do

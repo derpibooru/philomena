@@ -212,7 +212,7 @@ defmodule PhilomenaWeb.Router do
     end
 
     resources "/forums", ForumController, only: [] do
-      resources "/topics", TopicController, only: [:new, :create] do
+      resources "/topics", TopicController, only: [:new, :create, :update] do
         resources "/subscription", Topic.SubscriptionController,
           only: [:create, :delete],
           singleton: true
