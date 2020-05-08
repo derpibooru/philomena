@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.ImageNavigator do
     lt: :lte
   }
 
-  def find_consecutive(image, rel, params, compiled_query, compiled_filter) do
+  def find_consecutive(conn, image, rel, params, compiled_query, compiled_filter) do
     image_index =
       Image
       |> where(id: ^image.id)
@@ -51,7 +51,8 @@ defmodule PhilomenaWeb.ImageNavigator do
             must: List.flatten([compiled_query, sort_data.queries, filters]),
             must_not: [
               compiled_filter,
-              %{term: %{hidden_from_users: true}}
+              %{term: %{hidden_from_users: true}},
+              hidden_filter(conn.assigns.current_user, conn.params["hidden"])
             ]
           }
         },
@@ -134,6 +135,9 @@ defmodule PhilomenaWeb.ImageNavigator do
       }
     }
   end
+
+  defp hidden_filter(%{id: id}, param) when param != "1", do: %{term: %{hidden_by_user_ids: id}}
+  defp hidden_filter(_user, _param), do: %{match_none: %{}}
 
   defp range_filter(sf, dir, val) do
     %{
