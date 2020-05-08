@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.TagController do
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Interactions
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
@@ -57,10 +57,10 @@ defmodule PhilomenaWeb.TagController do
 
     interactions = Interactions.user_interactions(images, user)
 
-    body = Renderer.render_one(%{body: tag.description || ""}, conn)
+    body = TextileRenderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
-      Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
+      TextileRenderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 

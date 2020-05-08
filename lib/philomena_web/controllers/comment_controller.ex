@@ -1,8 +1,9 @@
 defmodule PhilomenaWeb.CommentController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Elasticsearch
-  alias Philomena.{Comments.Query, Comments.Comment, Textile.Renderer}
+  alias Philomena.{Comments.Query, Comments.Comment}
   import Ecto.Query
 
   def index(conn, params) do
@@ -36,7 +37,7 @@ defmodule PhilomenaWeb.CommentController do
         Comment |> preload([:deleted_by, image: [:tags], user: [awards: :badge]])
       )
 
-    rendered = Renderer.render_collection(comments.entries, conn)
+    rendered = TextileRenderer.render_collection(comments.entries, conn)
 
     comments = %{comments | entries: Enum.zip(rendered, comments.entries)}
 

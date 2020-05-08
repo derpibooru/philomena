@@ -1,5 +1,4 @@
-defmodule Philomena.Textile.Renderer do
-  # todo: belongs in PhilomenaWeb
+defmodule PhilomenaWeb.TextileRenderer do
   alias Textile.Parser
   alias Philomena.Images.Image
   alias Philomena.Repo

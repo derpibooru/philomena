@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ImageLoader do
   alias Philomena.Elasticsearch
   alias Philomena.Images.{Image, Query}
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
@@ -135,11 +135,11 @@ defmodule PhilomenaWeb.ImageLoader do
 
   defp render_bodies([tag], conn) do
     dnp_bodies =
-      Renderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
+      TextileRenderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 
-    description = Renderer.render_one(%{body: tag.description || ""}, conn)
+    description = TextileRenderer.render_one(%{body: tag.description || ""}, conn)
 
     [{tag, description, dnp_entries}]
   end

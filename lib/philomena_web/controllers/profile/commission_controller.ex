@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
   alias Philomena.Commissions.Commission
   alias Philomena.Commissions
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Users.User
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
@@ -33,15 +33,15 @@ defmodule PhilomenaWeb.Profile.CommissionController do
     item_descriptions =
       items
       |> Enum.map(&%{body: &1.description})
-      |> Renderer.render_collection(conn)
+      |> TextileRenderer.render_collection(conn)
 
     item_add_ons =
       items
       |> Enum.map(&%{body: &1.add_ons})
-      |> Renderer.render_collection(conn)
+      |> TextileRenderer.render_collection(conn)
 
     [information, contact, will_create, will_not_create] =
-      Renderer.render_collection(
+      TextileRenderer.render_collection(
         [
           %{body: commission.information || ""},
           %{body: commission.contact || ""},

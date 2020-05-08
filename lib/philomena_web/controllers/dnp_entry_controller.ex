@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.DnpEntryController do
   use PhilomenaWeb, :controller
 
   alias Philomena.DnpEntries.DnpEntry
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.DnpEntries
   alias Philomena.Tags.Tag
   alias Philomena.ModNotes.ModNote
@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     bodies =
       dnp_entries
       |> Enum.map(&%{body: &1.conditions || "-"})
-      |> Renderer.render_collection(conn)
+      |> TextileRenderer.render_collection(conn)
 
     dnp_entries = %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 
@@ -60,7 +60,7 @@ defmodule PhilomenaWeb.DnpEntryController do
     dnp_entry = conn.assigns.dnp_entry
 
     [conditions, reason, instructions] =
-      Renderer.render_collection(
+      TextileRenderer.render_collection(
         [
           %{body: dnp_entry.conditions || "-"},
           %{body: dnp_entry.reason || "-"},
@@ -165,7 +165,7 @@ defmodule PhilomenaWeb.DnpEntryController do
 
         mod_notes =
           mod_notes
-          |> Renderer.render_collection(conn)
+          |> TextileRenderer.render_collection(conn)
           |> Enum.zip(mod_notes)
 
         assign(conn, :mod_notes, mod_notes)

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Post.PreviewController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Posts.Post
   alias Philomena.Repo
 
@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Post.PreviewController do
     anonymous = params["anonymous"] == true
 
     post = %Post{user: user, body: body, anonymous: anonymous}
-    rendered = Renderer.render_one(post, conn)
+    rendered = TextileRenderer.render_one(post, conn)
 
     render(conn, "create.html", layout: false, post: post, body: rendered)
   end

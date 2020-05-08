@@ -2,7 +2,8 @@ defmodule PhilomenaWeb.Image.CommentController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.CommentLoader
-  alias Philomena.{Images.Image, Comments.Comment, Textile.Renderer}
+  alias PhilomenaWeb.TextileRenderer
+  alias Philomena.{Images.Image, Comments.Comment}
   alias Philomena.UserStatistics
   alias Philomena.Comments
   alias Philomena.Images
@@ -37,7 +38,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   def index(conn, _params) do
     comments = CommentLoader.load_comments(conn, conn.assigns.image)
 
-    rendered = Renderer.render_collection(comments.entries, conn)
+    rendered = TextileRenderer.render_collection(comments.entries, conn)
 
     comments = %{comments | entries: Enum.zip(comments.entries, rendered)}
 
@@ -45,7 +46,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   end
 
   def show(conn, _params) do
-    rendered = Renderer.render_one(conn.assigns.comment, conn)
+    rendered = TextileRenderer.render_one(conn.assigns.comment, conn)
 
     render(conn, "show.html",
       layout: false,

@@ -1,8 +1,9 @@
 defmodule PhilomenaWeb.PostController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Elasticsearch
-  alias Philomena.{Posts.Query, Posts.Post, Textile.Renderer}
+  alias Philomena.{Posts.Query, Posts.Post}
   import Ecto.Query
 
   def index(conn, params) do
@@ -33,7 +34,7 @@ defmodule PhilomenaWeb.PostController do
         Post |> preload([:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 
-    rendered = Renderer.render_collection(posts.entries, conn)
+    rendered = TextileRenderer.render_collection(posts.entries, conn)
 
     posts = %{posts | entries: Enum.zip(rendered, posts.entries)}
 

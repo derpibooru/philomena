@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Elasticsearch
-  alias Philomena.Textile.Renderer
+  alias PhilomenaWeb.TextileRenderer
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
   alias Philomena.Polymorphic
@@ -73,7 +73,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
         reportable: [reportable_id: :reportable_type]
       )
 
-    body = Renderer.render_one(%{body: report.reason}, conn)
+    body = TextileRenderer.render_one(%{body: report.reason}, conn)
 
     render(conn, "show.html", title: "Showing Report", report: report, body: body)
   end
@@ -125,7 +125,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
 
         mod_notes =
           mod_notes
-          |> Renderer.render_collection(conn)
+          |> TextileRenderer.render_collection(conn)
           |> Enum.zip(mod_notes)
 
         assign(conn, :mod_notes, mod_notes)
