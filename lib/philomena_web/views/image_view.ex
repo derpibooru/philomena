@@ -259,6 +259,6 @@ defmodule PhilomenaWeb.ImageView do
       }
     }
 
-    Search.Evaluator.hits?(doc, query)
+    Philomena.Search.Evaluator.hits?(doc, query)
   end
 end

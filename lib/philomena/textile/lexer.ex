@@ -1,4 +1,4 @@
-defmodule Textile.Lexer do
+defmodule Philomena.Textile.Lexer do
   import NimbleParsec
 
   space = utf8_char('\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200A))

@@ -1,8 +1,8 @@
-defmodule Search.FloatParser do
+defmodule Philomena.Search.FloatParser do
   import NimbleParsec
 
-  defp to_number(input), do: Search.Helpers.to_number(input)
-  defp range(input), do: Search.Helpers.range(input)
+  defp to_number(input), do: Philomena.Search.Helpers.to_number(input)
+  defp range(input), do: Philomena.Search.Helpers.range(input)
 
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])

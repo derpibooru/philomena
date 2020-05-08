@@ -40,9 +40,9 @@ defmodule PhilomenaWeb.LayoutView do
     data = [
       filter_id: filter.id,
       hidden_tag_list: Jason.encode!(filter.hidden_tag_ids),
-      hidden_filter: Search.String.normalize(filter.hidden_complex_str || ""),
+      hidden_filter: Philomena.Search.String.normalize(filter.hidden_complex_str || ""),
       spoilered_tag_list: Jason.encode!(filter.spoilered_tag_ids),
-      spoilered_filter: Search.String.normalize(filter.spoilered_complex_str || ""),
+      spoilered_filter: Philomena.Search.String.normalize(filter.spoilered_complex_str || ""),
       user_id: if(user, do: user.id, else: nil),
       user_name: if(user, do: user.name, else: nil),
       user_slug: if(user, do: user.slug, else: nil),

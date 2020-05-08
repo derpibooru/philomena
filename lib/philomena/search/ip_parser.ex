@@ -1,4 +1,4 @@
-defmodule Search.IpParser do
+defmodule Philomena.Search.IpParser do
   import NimbleParsec
 
   ipv4_octet =

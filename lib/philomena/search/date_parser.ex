@@ -1,4 +1,4 @@
-defmodule Search.DateParser do
+defmodule Philomena.Search.DateParser do
   import NimbleParsec
 
   defp build_datetime(naive, tz_off, tz_hour, tz_minute) do

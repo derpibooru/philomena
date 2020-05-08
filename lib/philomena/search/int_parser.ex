@@ -1,8 +1,8 @@
-defmodule Search.IntParser do
+defmodule Philomena.Search.IntParser do
   import NimbleParsec
 
-  defp to_int(input), do: Search.Helpers.to_int(input)
-  defp range(input), do: Search.Helpers.range(input)
+  defp to_int(input), do: Philomena.Search.Helpers.to_int(input)
+  defp range(input), do: Philomena.Search.Helpers.range(input)
 
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])

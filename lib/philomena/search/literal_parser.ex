@@ -1,7 +1,7 @@
-defmodule Search.LiteralParser do
+defmodule Philomena.Search.LiteralParser do
   import NimbleParsec
 
-  defp to_number(input), do: Search.Helpers.to_number(input)
+  defp to_number(input), do: Philomena.Search.Helpers.to_number(input)
 
   float =
     ascii_string([?0..?9], min: 1)

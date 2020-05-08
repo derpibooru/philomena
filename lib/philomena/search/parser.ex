@@ -1,5 +1,5 @@
-defmodule Search.Parser do
-  alias Search.{
+defmodule Philomena.Search.Parser do
+  alias Philomena.Search.{
     BoolParser,
     DateParser,
     FloatParser,

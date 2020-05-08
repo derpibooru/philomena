@@ -1,11 +1,11 @@
 defmodule Philomena.Schema.Time do
-  alias RelativeDate.Parser
+  alias Philomena.RelativeDate
   import Ecto.Changeset
 
   def assign_time(changeset, field, target_field) do
     changeset
     |> get_field(field)
-    |> Parser.parse()
+    |> RelativeDate.parse()
     |> case do
       {:ok, time} ->
         put_change(changeset, target_field, time)

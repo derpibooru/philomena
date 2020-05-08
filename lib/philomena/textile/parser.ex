@@ -1,5 +1,5 @@
-defmodule Textile.Parser do
-  alias Textile.Lexer
+defmodule Philomena.Textile.Parser do
+  alias Philomena.Textile.Lexer
   alias Phoenix.HTML
 
   def parse(parser, input) do
