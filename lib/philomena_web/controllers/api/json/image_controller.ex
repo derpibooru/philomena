@@ -5,8 +5,6 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   alias Philomena.Images
   alias Philomena.Interactions
   alias Philomena.Repo
-  alias Philomena.Tags
-  alias Philomena.UserStatistics
   import Ecto.Query
 
   plug :set_scraper_cache
@@ -39,20 +37,10 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   end
 
   def create(conn, %{"image" => image_params}) do
-    user = conn.assigns.current_user
     attributes = conn.assigns.attributes
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
-        spawn(fn ->
-          Images.repair_image(image)
-        end)
-
-        # ImageProcessor.cast(image.id)
-        Images.reindex_image(image)
-        Tags.reindex_tags(image.added_tags)
-        UserStatistics.inc_stat(user, :uploads)
-
         render(conn, "show.json", image: image, interactions: [])
 
       {:error, :image, changeset, _} ->

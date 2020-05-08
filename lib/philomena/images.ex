@@ -19,6 +19,7 @@ defmodule Philomena.Images do
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
+  alias Philomena.UserStatistics
   alias Philomena.Tags.Tag
   alias Philomena.Notifications
   alias Philomena.Interactions
@@ -94,6 +95,21 @@ defmodule Philomena.Images do
       {:ok, nil}
     end)
     |> Repo.isolated_transaction(:serializable)
+    |> case do
+      {:ok, %{image: image}} = result ->
+        spawn(fn ->
+          repair_image(image)
+        end)
+
+        reindex_image(image)
+        Tags.reindex_tags(image.added_tags)
+        UserStatistics.inc_stat(attribution[:user], :uploads)
+
+        result
+
+      result ->
+        result
+    end
   end
 
   def feature_image(featurer, %Image{} = image) do
@@ -492,6 +508,16 @@ defmodule Philomena.Images do
       Repo.update_all(where(Tag, [t], t.id in ^added_tags), inc: [images_count: added_count])
       Repo.update_all(where(Tag, [t], t.id in ^removed_tags), inc: [images_count: -removed_count])
     end)
+    |> case do
+      {:ok, _} = result ->
+        reindex_images(image_ids)
+        Tags.reindex_tags(added_tags ++ removed_tags)
+
+        result
+
+      result ->
+        result
+    end
   end
 
   @doc """

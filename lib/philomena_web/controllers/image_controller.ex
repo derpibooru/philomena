@@ -13,11 +13,8 @@ defmodule PhilomenaWeb.ImageController do
     Galleries.Gallery
   }
 
-  # alias Philomena.Servers.ImageProcessor
-  alias Philomena.UserStatistics
   alias Philomena.Interactions
   alias Philomena.Comments
-  alias Philomena.Tags
   alias Philomena.Repo
   import Ecto.Query
 
@@ -111,15 +108,6 @@ defmodule PhilomenaWeb.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
-        spawn(fn ->
-          Images.repair_image(image)
-        end)
-
-        # ImageProcessor.cast(image.id)
-        Images.reindex_image(image)
-        Tags.reindex_tags(image.added_tags)
-        UserStatistics.inc_stat(conn.assigns.current_user, :uploads)
-
         conn
         |> put_flash(:info, "Image created successfully.")
         |> redirect(to: Routes.image_path(conn, :show, image))

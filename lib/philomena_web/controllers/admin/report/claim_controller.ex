@@ -9,9 +9,7 @@ defmodule PhilomenaWeb.Admin.Report.ClaimController do
 
   def create(conn, _params) do
     case Reports.claim_report(conn.assigns.report, conn.assigns.current_user) do
-      {:ok, report} ->
-        Reports.reindex_report(report)
-
+      {:ok, _report} ->
         conn
         |> put_flash(:info, "Successfully marked report as in progress")
         |> redirect(to: Routes.admin_report_path(conn, :index))
@@ -25,7 +23,6 @@ defmodule PhilomenaWeb.Admin.Report.ClaimController do
 
   def delete(conn, _params) do
     {:ok, report} = Reports.unclaim_report(conn.assigns.report)
-    Reports.reindex_report(report)
 
     conn
     |> put_flash(:info, "Successfully released report.")

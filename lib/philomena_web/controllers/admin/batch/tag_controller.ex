@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Tags.Tag
-  alias Philomena.Tags
   alias Philomena.Images
   alias Philomena.Repo
   import Ecto.Query
@@ -47,9 +46,6 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
 
     case Images.batch_update(image_ids, added_tags, removed_tags, attributes) do
       {:ok, _} ->
-        Images.reindex_images(image_ids)
-        Tags.reindex_tags(added_tags ++ removed_tags)
-
         json(conn, %{succeeded: image_ids, failed: []})
 
       _error ->

@@ -56,6 +56,7 @@ defmodule Philomena.Reports do
     %Report{reportable_id: reportable_id, reportable_type: reportable_type}
     |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
+    |> maybe_reindex_report()
   end
 
   @doc """
@@ -74,6 +75,7 @@ defmodule Philomena.Reports do
     report
     |> Report.changeset(attrs)
     |> Repo.update()
+    |> maybe_reindex_report()
   end
 
   @doc """
@@ -109,18 +111,21 @@ defmodule Philomena.Reports do
     report
     |> Report.claim_changeset(user)
     |> Repo.update()
+    |> maybe_reindex_report()
   end
 
   def unclaim_report(%Report{} = report) do
     report
     |> Report.unclaim_changeset()
     |> Repo.update()
+    |> maybe_reindex_report()
   end
 
   def close_report(%Report{} = report, user) do
     report
     |> Report.close_changeset(user)
     |> Repo.update()
+    |> maybe_reindex_report()
   end
 
   def user_name_reindex(old_name, new_name) do
@@ -128,6 +133,13 @@ defmodule Philomena.Reports do
 
     Elasticsearch.update_by_query(Report, data.query, data.set_replacements, data.replacements)
   end
+
+  defp maybe_reindex_report({:ok, report} = result) do
+    reindex_report(report)
+
+    result
+  end
+  defp maybe_reindex_report(result), do: result
 
   def reindex_reports(report_ids) do
     spawn(fn ->

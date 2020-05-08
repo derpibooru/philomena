@@ -8,8 +8,7 @@ defmodule PhilomenaWeb.Admin.Report.CloseController do
   plug :load_and_authorize_resource, model: Report, id_name: "report_id", persisted: true
 
   def create(conn, _params) do
-    {:ok, report} = Reports.close_report(conn.assigns.report, conn.assigns.current_user)
-    Reports.reindex_report(report)
+    {:ok, _report} = Reports.close_report(conn.assigns.report, conn.assigns.current_user)
 
     conn
     |> put_flash(:info, "Successfully closed report")
