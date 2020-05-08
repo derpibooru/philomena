@@ -1,12 +1,12 @@
-defmodule Philomena.Servers.UserIpUpdater do
+defmodule PhilomenaWeb.UserIpUpdater do
   alias Philomena.UserIps.UserIp
   alias Philomena.Repo
   import Ecto.Query
 
   def child_spec([]) do
     %{
-      id: Philomena.Servers.UserIpUpdater,
-      start: {Philomena.Servers.UserIpUpdater, :start_link, [[]]}
+      id: PhilomenaWeb.UserIpUpdater,
+      start: {PhilomenaWeb.UserIpUpdater, :start_link, [[]]}
     }
   end
 

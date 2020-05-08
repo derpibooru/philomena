@@ -3,8 +3,8 @@ defmodule PhilomenaWeb.ReloadUserPlug do
   alias Pow.Plug
   alias Philomena.Users
 
-  alias Philomena.Servers.UserIpUpdater
-  alias Philomena.Servers.UserFingerprintUpdater
+  alias PhilomenaWeb.UserIpUpdater
+  alias PhilomenaWeb.UserFingerprintUpdater
 
   def init(opts), do: opts
 
