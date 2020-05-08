@@ -157,7 +157,7 @@ defmodule PhilomenaWeb.ImageView do
   def username(%{name: name}), do: name
   def username(_user), do: nil
 
-  def scope(conn), do: Philomena.ImageScope.scope(conn)
+  def scope(conn), do: PhilomenaWeb.ImageScope.scope(conn)
 
   def anonymous_by_default?(conn) do
     conn.assigns.current_user.anonymous_by_default

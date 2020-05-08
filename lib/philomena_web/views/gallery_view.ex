@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.GalleryView do
   use PhilomenaWeb, :view
 
-  alias Philomena.ImageScope
+  alias PhilomenaWeb.ImageScope
 
   def scope(conn), do: ImageScope.scope(conn)
 

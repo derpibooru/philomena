@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.ImageSorter
+  alias PhilomenaWeb.ImageSorter
   alias Philomena.Interactions
   alias Philomena.Images.Image
   import Ecto.Query

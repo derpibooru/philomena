@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.SearchController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.ImageSorter
+  alias PhilomenaWeb.ImageSorter
   alias Philomena.Interactions
 
   def index(conn, params) do

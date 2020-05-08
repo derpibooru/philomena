@@ -1,5 +1,5 @@
-defmodule Philomena.ImageNavigator do
-  alias Philomena.ImageSorter
+defmodule PhilomenaWeb.ImageNavigator do
+  alias PhilomenaWeb.ImageSorter
   alias Philomena.Images.{Image, ElasticsearchIndex}
   alias Philomena.Elasticsearch
   alias Philomena.Repo

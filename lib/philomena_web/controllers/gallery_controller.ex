@@ -3,8 +3,8 @@ defmodule PhilomenaWeb.GalleryController do
 
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.NotificationCountPlug
+  alias PhilomenaWeb.ImageSorter
   alias Philomena.Elasticsearch
-  alias Philomena.ImageSorter
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries

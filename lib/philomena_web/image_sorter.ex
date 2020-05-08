@@ -1,4 +1,4 @@
-defmodule Philomena.ImageSorter do
+defmodule PhilomenaWeb.ImageSorter do
   @allowed_fields ~W(
     created_at
     updated_at

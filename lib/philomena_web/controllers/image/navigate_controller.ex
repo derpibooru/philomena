@@ -2,9 +2,10 @@ defmodule PhilomenaWeb.Image.NavigateController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias PhilomenaWeb.ImageNavigator
+  alias PhilomenaWeb.ImageScope
   alias Philomena.Images.Image
   alias Philomena.Images.Query
-  alias Philomena.ImageNavigator
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
@@ -15,7 +16,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
     rel = String.to_existing_atom(rel)
 
     next_image = ImageNavigator.find_consecutive(image, rel, params, compile_query(conn), filter)
-    scope = Philomena.ImageScope.scope(conn)
+    scope = ImageScope.scope(conn)
 
     conn
     |> redirect(to: Routes.image_path(conn, :show, next_image, scope))
