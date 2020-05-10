@@ -28,8 +28,10 @@ defmodule PhilomenaWeb.UserAttributionView do
     id = Attribution.object_identifier(object)
     user_id = Attribution.best_user_identifier(object)
 
+    {:ok, <<key::size(16)>>} = :pbkdf2.pbkdf2(:sha256, id <> user_id, salt, 100, 2)
+
     hash =
-      (:erlang.crc32(salt <> id <> user_id) &&& 0xFFFF)
+      key
       |> Integer.to_string(16)
       |> String.pad_leading(4, "0")
 
