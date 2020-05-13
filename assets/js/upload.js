@@ -111,6 +111,12 @@ function setupImageUpload() {
       disableFetch();
     }
   });
+
+  if(remoteUrl.value.length > 0) {
+    enableFetch();
+  } else {
+    disableFetch();
+  }
 }
 
 export { setupImageUpload };
