@@ -17,6 +17,7 @@ defmodule Philomena.Tags do
   alias Philomena.Images.Tagging
   alias Philomena.UserLinks.UserLink
   alias Philomena.DnpEntries.DnpEntry
+  alias Philomena.Channels.Channel
 
   @spec get_or_create_tags(String.t()) :: List.t()
   def get_or_create_tags(tag_list) do
@@ -213,6 +214,10 @@ defmodule Philomena.Tags do
     DnpEntry
     |> where(tag_id: ^tag.id)
     |> Repo.update_all(set: [tag_id: target_tag.id])
+
+    Channel
+    |> where(associated_artist_tag_id: ^tag.id)
+    |> Repo.update_all(set: [associated_artist_tag_id: target_tag.id])
 
     # Update counter
     Tag
