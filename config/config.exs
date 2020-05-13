@@ -65,6 +65,8 @@ config :phoenix, :template_engines,
   # If you want to use LiveView
   slimleex: PhoenixSlime.LiveViewEngine
 
+config :tesla, adapter: Tesla.Adapter.Mint
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

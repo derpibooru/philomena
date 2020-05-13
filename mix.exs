@@ -63,8 +63,11 @@ defmodule Philomena.MixProject do
       {:phoenix_mtm, "~> 1.0.0"},
       {:yaml_elixir, "~> 2.4.0"},
       {:distillery, "~> 2.1"},
+      {:ranch_connection_drainer, "~> 0.1"},
+      {:tesla, "~> 1.3"},
+      {:castore, "~> 0.1"},
+      {:mint, "~> 1.0"},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
-      {:ranch_connection_drainer, "~> 0.1"}
     ]
   end
 
