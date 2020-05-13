@@ -2,6 +2,7 @@ defmodule Philomena.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Channels.Channel
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.UserLinks.UserLink
   alias Philomena.Tags.Tag
@@ -45,6 +46,8 @@ defmodule Philomena.Tags.Tag do
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id
     has_many :aliases, Tag, foreign_key: :aliased_tag_id
+
+    has_many :channels, Channel, foreign_key: :associated_artist_tag_id
 
     many_to_many :implied_tags, Tag,
       join_through: "tags_implied_tags",

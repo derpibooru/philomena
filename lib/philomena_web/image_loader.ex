@@ -122,6 +122,7 @@ defmodule PhilomenaWeb.ImageLoader do
       :implied_tags,
       :implied_by_tags,
       :dnp_entries,
+      :channels,
       public_links: :user,
       hidden_links: :user
     ])

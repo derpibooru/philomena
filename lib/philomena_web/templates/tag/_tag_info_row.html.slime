@@ -50,7 +50,7 @@
         br
 
 
-    = if present?(@tag.public_links) or present?(@tag.implied_by_tags) or present?(@tag.description) do
+    = if present?(@tag.public_links) or present?(@tag.channels) or present?(@tag.implied_by_tags) or present?(@tag.description) do
       br
       = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]
 
@@ -73,6 +73,11 @@
             => link user.name, to: Routes.profile_path(@conn, :show, user)
 
           br
+
+        = if Enum.any?(@tag.channels) do
+          strong> Associated streams:
+          = for channel <- @tag.channels do
+            => link channel.title, to: Routes.channel_path(@conn, :show, channel)
 
         = if Enum.any?(@tag.implied_by_tags) do
           input.toggle-box id="implied_by" type="checkbox"
