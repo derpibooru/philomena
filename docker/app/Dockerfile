@@ -7,11 +7,12 @@ RUN apt-get update; \
     wget -qO - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -; \
     wget -qO - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -; \
     apt-get update; \
-    apt-get -qq -y install inotify-tools postgresql-client build-essential git ffmpeg nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin; \
+    apt-get -qq -y install inotify-tools postgresql-client build-essential git ffmpeg libavformat-dev libavcodec-dev nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin; \
     cd /tmp; \
     git clone https://github.com/derpibooru/cli_intensities; \
-    cd cli_intensities; \
-    make install; \
+    git clone https://github.com/derpibooru/mediatools; \
+    (cd cli_intensities && make install); \
+    (cd mediatools && make install); \
     mix local.hex --force; \
     mix local.rebar --force
 

@@ -1,57 +1,29 @@
 defmodule Philomena.Analyzers.Webm do
   def analyze(file) do
+    stats = stats(file)
+
     %{
       extension: "webm",
       mime_type: "video/webm",
       animated?: true,
-      duration: duration(file),
-      dimensions: dimensions(file)
+      duration: stats.duration,
+      dimensions: stats.dimensions
     }
   end
 
-  defp duration(file) do
-    with {output, 0} <-
-           System.cmd("ffprobe", [
-             "-i",
-             file,
-             "-show_entries",
-             "format=duration",
-             "-v",
-             "quiet",
-             "-of",
-             "csv=p=0"
-           ]),
-         {duration, _} <- Float.parse(output) do
-      duration
-    else
-      _ ->
-        0.0
-    end
-  end
-
-  defp dimensions(file) do
-    System.cmd("ffprobe", [
-      "-i",
-      file,
-      "-show_entries",
-      "stream=width,height",
-      "-v",
-      "quiet",
-      "-of",
-      "csv=p=0"
-    ])
-    |> case do
+  defp stats(file) do
+    case System.cmd("mediastat", [file]) do
       {output, 0} ->
-        [width, height] =
+        [_size, _frames, width, height, num, den] =
           output
           |> String.trim()
-          |> String.split(",")
+          |> String.split(" ")
           |> Enum.map(&String.to_integer/1)
 
-        {width, height}
+        %{dimensions: {width, height}, duration: num / den}
 
-      _error ->
-        {0, 0}
+      _ ->
+        %{dimensions: {0, 0}, duration: 0.0}
     end
   end
 end

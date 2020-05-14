@@ -112,6 +112,8 @@ defmodule Philomena.Processors.Webm do
         scale_filter,
         "-threads",
         "1",
+        "-max_muxing_queue_size",
+        "512",
         webm
       ])
 
@@ -138,6 +140,8 @@ defmodule Philomena.Processors.Webm do
         scale_filter,
         "-threads",
         "1",
+        "-max_muxing_queue_size",
+        "512",
         mp4
       ])
 
@@ -148,7 +152,7 @@ defmodule Philomena.Processors.Webm do
     gif = Briefly.create!(extname: ".gif")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    rate_filter = "fps=1/#{duration / 10},settb=1/2,setpts=N"
+    rate_filter = "setpts=N/TB/2"
     filter_graph = "[0:v] #{scale_filter},#{rate_filter} [x]; [x][1:v] #{palette_filter}"
 
     {_output, 0} =
