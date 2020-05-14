@@ -148,7 +148,7 @@ defmodule Philomena.Processors.Webm do
     {webm, mp4}
   end
 
-  defp scale_gif(file, palette, duration, {width, height}) do
+  defp scale_gif(file, palette, _duration, {width, height}) do
     gif = Briefly.create!(extname: ".gif")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
