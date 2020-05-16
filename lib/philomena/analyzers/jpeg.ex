@@ -1,28 +1,29 @@
 defmodule Philomena.Analyzers.Jpeg do
   def analyze(file) do
+    stats = stats(file)
+
     %{
       extension: "jpg",
       mime_type: "image/jpeg",
       animated?: false,
-      duration: 0.0,
-      dimensions: dimensions(file)
+      duration: stats.duration,
+      dimensions: stats.dimensions
     }
   end
 
-  defp dimensions(file) do
-    System.cmd("identify", ["-format", "%W %H\n", file])
-    |> case do
+  defp stats(file) do
+    case System.cmd("mediastat", [file]) do
       {output, 0} ->
-        [width, height] =
+        [_size, _frames, width, height, num, den] =
           output
           |> String.trim()
           |> String.split(" ")
           |> Enum.map(&String.to_integer/1)
 
-        {width, height}
+        %{dimensions: {width, height}, duration: num / den}
 
-      _error ->
-        {0, 0}
+      _ ->
+        %{dimensions: {0, 0}, duration: 0.0}
     end
   end
 end

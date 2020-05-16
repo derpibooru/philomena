@@ -11,8 +11,8 @@ RUN apt-get update; \
     cd /tmp; \
     git clone https://github.com/derpibooru/cli_intensities; \
     git clone https://github.com/derpibooru/mediatools; \
-    (cd cli_intensities && make install); \
-    (cd mediatools && make install); \
+    (cd cli_intensities; make install); \
+    (cd mediatools; make install); \
     mix local.hex --force; \
     mix local.rebar --force
 
