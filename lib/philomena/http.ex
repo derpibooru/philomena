@@ -6,14 +6,14 @@ defmodule Philomena.Http do
 
   def get!(url, headers \\ [], options \\ []) do
     headers = Keyword.merge(@user_agent, headers) |> add_host(url)
-    options = Keyword.merge(options, proxy: proxy_host())
+    options = Keyword.merge(options, proxy: proxy_host(), ssl: [insecure: true])
 
     HTTPoison.get!(url, headers, options)
   end
 
   def head!(url, headers \\ [], options \\ []) do
     headers = Keyword.merge(@user_agent, headers) |> add_host(url)
-    options = Keyword.merge(options, proxy: proxy_host())
+    options = Keyword.merge(options, proxy: proxy_host(), ssl: [insecure: true])
 
     HTTPoison.head!(url, headers, options)
   end
