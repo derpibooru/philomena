@@ -28,19 +28,7 @@ defmodule Philomena.Processors.Webm do
   defp preview(duration, file) do
     preview = Briefly.create!(extname: ".png")
 
-    {_output, 0} =
-      System.cmd("ffmpeg", [
-        "-loglevel",
-        "0",
-        "-y",
-        "-i",
-        file,
-        "-ss",
-        to_string(duration / 2),
-        "-frames:v",
-        "1",
-        preview
-      ])
+    {_output, 0} = System.cmd("mediathumb", [file, to_string(duration / 2), preview])
 
     preview
   end
