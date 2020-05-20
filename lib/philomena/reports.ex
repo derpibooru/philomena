@@ -139,6 +139,7 @@ defmodule Philomena.Reports do
 
     result
   end
+
   defp maybe_reindex_report(result), do: result
 
   def reindex_reports(report_ids) do

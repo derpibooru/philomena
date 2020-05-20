@@ -61,16 +61,18 @@ defmodule PhilomenaWeb.StatsUpdater do
 
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
 
-    static_page =
-      %{
-        title: "Statistics",
-        slug: "stats",
-        body: Phoenix.HTML.safe_to_string(result),
-        created_at: now,
-        updated_at: now
-      }
+    static_page = %{
+      title: "Statistics",
+      slug: "stats",
+      body: Phoenix.HTML.safe_to_string(result),
+      created_at: now,
+      updated_at: now
+    }
 
-    Repo.insert_all(StaticPage, [static_page], on_conflict: {:replace, [:body, :updated_at]}, conflict_target: :slug)
+    Repo.insert_all(StaticPage, [static_page],
+      on_conflict: {:replace, [:body, :updated_at]},
+      conflict_target: :slug
+    )
 
     run()
   end

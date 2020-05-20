@@ -15,7 +15,9 @@ defmodule PhilomenaWeb.Image.NavigateController do
     filter = conn.assigns.compiled_filter
     rel = String.to_existing_atom(rel)
 
-    next_image = ImageNavigator.find_consecutive(conn, image, rel, params, compile_query(conn), filter)
+    next_image =
+      ImageNavigator.find_consecutive(conn, image, rel, params, compile_query(conn), filter)
+
     scope = ImageScope.scope(conn)
 
     conn

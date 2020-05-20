@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
             Tag |> preload(:aliased_tag)
           )
           |> Enum.map(&(&1.aliased_tag || &1))
-          |> Enum.uniq_by(&(&1.id))
+          |> Enum.uniq_by(& &1.id)
           |> Enum.sort_by(&(-&1.images_count))
           |> Enum.map(&%{label: "#{&1.name} (#{&1.images_count})", value: &1.name})
       end

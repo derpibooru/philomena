@@ -133,7 +133,9 @@ defmodule PhilomenaWeb.TopicController do
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "There was an error with your submission. Please try again.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, conn.assigns.topic))
+        |> redirect(
+          to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, conn.assigns.topic)
+        )
     end
   end
 

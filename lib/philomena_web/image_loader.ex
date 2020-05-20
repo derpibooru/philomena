@@ -136,7 +136,10 @@ defmodule PhilomenaWeb.ImageLoader do
 
   defp render_bodies([tag], conn) do
     dnp_bodies =
-      TextileRenderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
+      TextileRenderer.render_collection(
+        Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}),
+        conn
+      )
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 

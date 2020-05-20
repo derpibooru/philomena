@@ -61,7 +61,10 @@ defmodule PhilomenaWeb.TagController do
     body = TextileRenderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
-      TextileRenderer.render_collection(Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}), conn)
+      TextileRenderer.render_collection(
+        Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}),
+        conn
+      )
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 
