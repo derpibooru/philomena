@@ -50,7 +50,7 @@ defmodule Philomena.Scrapers.Twitter do
       |> Map.get(:body)
       |> extract_guest_token_and_bearer()
 
-    Philomena.Http.get!(api_url, Authorization: "Bearer #{bearer}", "x-guest-token": gt)
+    Philomena.Http.get!(api_url, [{"Authorization", "Bearer #{bearer}"}, {"x-guest-token", gt}])
     |> Map.get(:body)
     |> Jason.decode!()
     |> Map.get("globalObjects")

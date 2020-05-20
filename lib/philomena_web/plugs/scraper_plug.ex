@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.ScraperPlug do
         conn
 
       %{"scraper_cache" => url} when not is_nil(url) ->
-        Philomena.Http.get!(url, [], max_body_length: 30_000_000)
+        Philomena.Http.get!(url)
         |> maybe_fixup_params(opts, conn)
 
       _ ->
@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.ScraperPlug do
     end
   end
 
-  defp maybe_fixup_params(%HTTPoison.Response{body: body, status_code: 200}, opts, conn) do
+  defp maybe_fixup_params(%Tesla.Env{body: body, status: 200}, opts, conn) do
     params_name = Keyword.get(opts, :params_name, "image")
     params_key = Keyword.get(opts, :params_key, "image")
     file = Briefly.create!()

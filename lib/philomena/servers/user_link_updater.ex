@@ -63,7 +63,7 @@ defmodule Philomena.Servers.UserLinkUpdater do
     |> handle_response(user_link)
   end
 
-  defp handle_response(%HTTPoison.Response{body: body, status_code: 200}, user_link) do
+  defp handle_response(%Tesla.Env{body: body, status: 200}, user_link) do
     case :binary.match(body, user_link.verification_code) do
       :nomatch ->
         nil

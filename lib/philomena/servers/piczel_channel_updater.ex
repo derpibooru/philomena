@@ -28,7 +28,7 @@ defmodule Philomena.Servers.PiczelChannelUpdater do
     run()
   end
 
-  defp handle_response(%HTTPoison.Response{body: body, status_code: 200}, now) do
+  defp handle_response(%Tesla.Env{body: body, status: 200}, now) do
     resp =
       body
       |> Jason.decode!()

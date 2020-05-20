@@ -31,7 +31,7 @@ defmodule Philomena.Scrapers.Tumblr do
     |> process_response!()
   end
 
-  defp json!(%HTTPoison.Response{body: body, status_code: 200}),
+  defp json!(%Tesla.Env{body: body, status: 200}),
     do: Jason.decode!(body)
 
   defp process_response!(%{"response" => %{"posts" => [post | _rest]}}),
@@ -70,7 +70,7 @@ defmodule Philomena.Scrapers.Tumblr do
   end
 
   defp url_ok?(url) do
-    match?(%HTTPoison.Response{status_code: 200}, Philomena.Http.head!(url))
+    match?(%Tesla.Env{status: 200}, Philomena.Http.head!(url))
   end
 
   defp add_meta(post, images) do

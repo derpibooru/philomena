@@ -3,9 +3,9 @@ defmodule Philomena.Scrapers.Raw do
 
   @spec can_handle?(URI.t(), String.t()) :: true | false
   def can_handle?(_uri, url) do
-    Philomena.Http.head!(url, [], max_body_length: 30_000_000)
+    Philomena.Http.head!(url)
     |> case do
-      %HTTPoison.Response{status_code: 200, headers: headers} ->
+      %Tesla.Env{status: 200, headers: headers} ->
         headers
         |> Enum.any?(fn {k, v} ->
           String.downcase(k) == "content-type" and String.downcase(v) in @mime_types

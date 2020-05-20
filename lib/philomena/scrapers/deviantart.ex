@@ -30,7 +30,7 @@ defmodule Philomena.Scrapers.Deviantart do
     |> try_old_hires!()
   end
 
-  defp extract_data!(%HTTPoison.Response{body: body, status_code: 200}) do
+  defp extract_data!(%Tesla.Env{body: body, status: 200}) do
     [image] = Regex.run(@image_regex, body, capture: :all_but_first)
     [source] = Regex.run(@source_regex, body, capture: :all_but_first)
     [artist] = Regex.run(@artist_regex, source, capture: :all_but_first)
@@ -48,25 +48,21 @@ defmodule Philomena.Scrapers.Deviantart do
   end
 
   defp try_intermediary_hires!(%{images: [image]} = data) do
-    [domain, object_uuid, object_name] =
-      Regex.run(@cdnint_regex, image.url, capture: :all_but_first)
-
-    built_url = "#{domain}/intermediary/f/#{object_uuid}/#{object_name}"
-
-    case Philomena.Http.head!(built_url) do
-      %HTTPoison.Response{status_code: 200} ->
-        # This is the high resolution URL.
-
-        %{
-          data
-          | images: [
-              %{
-                url: built_url,
-                camo_url: image.camo_url
-              }
-            ]
-        }
-
+    with [domain, object_uuid, object_name] <-
+           Regex.run(@cdnint_regex, image.url, capture: :all_but_first),
+         built_url <- "#{domain}/intermediary/f/#{object_uuid}/#{object_name}",
+         %Tesla.Env{status: 200} <- Philomena.Http.head!(built_url) do
+      # This is the high resolution URL.
+      %{
+        data
+        | images: [
+            %{
+              url: built_url,
+              camo_url: image.camo_url
+            }
+          ]
+      }
+    else
       _ ->
         # Nothing to be found here, move along...
         data
@@ -115,9 +111,9 @@ defmodule Philomena.Scrapers.Deviantart do
     built_url = "http://orig01.deviantart.net/x_by_x-d#{base36}.png"
 
     case Philomena.Http.get!(built_url) do
-      %HTTPoison.Response{status_code: 301, headers: headers} ->
+      %Tesla.Env{status: 301, headers: headers} ->
         # Location header provides URL of high res image.
-        {_location, link} = Enum.find(headers, fn {header, _val} -> header == "Location" end)
+        {_location, link} = Enum.find(headers, fn {header, _val} -> header == "location" end)
 
         %{
           data
@@ -140,7 +136,7 @@ defmodule Philomena.Scrapers.Deviantart do
 
   defp follow_redirect(url, max_times) do
     case Philomena.Http.get!(url) do
-      %HTTPoison.Response{headers: headers, status_code: code} when code in [301, 302] ->
+      %Tesla.Env{headers: headers, status: code} when code in [301, 302] ->
         location = Enum.find_value(headers, &location_header/1)
         follow_redirect(location, max_times - 1)
 
