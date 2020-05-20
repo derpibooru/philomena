@@ -156,3 +156,15 @@ span.help-block {
 .toggle-box:checked + label + .toggle-box-container > .toggle-box-container__content {
   margin-top: $block_spacing;
 }
+
+select.input, select.input:focus {
+  -moz-appearance: none;
+  appearance: none;
+  background: linear-gradient(45deg, transparent 50%, $foreground_color 50%) calc(100% - 15px) 12px/5px 5px no-repeat,linear-gradient(135deg, $foreground_color 50%, transparent 50%) calc(100% - 10px) 12px/5px 5px no-repeat;
+  padding-right: 25px;
+}
+
+select.input:hover, select.input:focus:hover {
+  cursor: pointer;
+  background-color: $input_color_active;
+}
