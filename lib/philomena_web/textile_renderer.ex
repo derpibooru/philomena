@@ -110,6 +110,7 @@ defmodule PhilomenaWeb.TextileRenderer do
     |> Enum.flat_map(fn t ->
       Regex.scan(~r|&gt;&gt;(\d+)|, t, capture: :all_but_first)
       |> Enum.map(fn [first] -> String.to_integer(first) end)
+      |> Enum.filter(&(&1 < 2147483647))
     end)
     |> load_images()
   end
