@@ -13,6 +13,11 @@
 
 .tagsinput .tag {
   font-family: $font_family_base;
+  padding: 5px;
+}
+
+.tagsinput .tag a {
+  margin-left: 5px;
 }
 
 .tagsinput.js-taginput {
