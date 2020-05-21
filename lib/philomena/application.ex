@@ -8,6 +8,9 @@ defmodule Philomena.Application do
   def start(_type, _args) do
     # List all child processes to be supervised
     children = [
+      # Connect to cluster nodes
+      {Cluster.Supervisor, [[philomena: [strategy: Cluster.Strategy.ErlangHosts]]]},
+
       # Start the Ecto repository
       Philomena.Repo,
 

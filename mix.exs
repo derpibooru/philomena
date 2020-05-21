@@ -67,6 +67,7 @@ defmodule Philomena.MixProject do
       {:tesla, "~> 1.3"},
       {:castore, "~> 0.1"},
       {:mint, "~> 1.1"},
+      {:libcluster, "~> 3.2"},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]
   end
