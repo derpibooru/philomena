@@ -1,19 +1,17 @@
 span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" data-tag-name="#{@tag.name}" data-tag-slug="#{@tag.slug}"
-  a.tag__name> href="/tags/#{@tag.slug}" title="#{@tag.short_description}" = @tag.name
-  span.tag__count
-    | (
-    = @tag.images_count
-    | )
   / The order of tag states and dropdown links is important for tags.js
   span
     span.tag__state.hidden title="Unwatched"
-      |  +
+      | +
     span.tag__state.hidden title="Watched"
-      |  -
+      | -
     span.tag__state.hidden title="Spoilered"
       | S
     span.tag__state.hidden title="Hidden"
       | H
+
+    a.tag__name< href="/tags/#{@tag.slug}" title="#{@tag.short_description}" = @tag.name
+
   span.dropdown__content
     a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=Routes.tag_watch_path(@conn, :delete, @tag) Unwatch
     a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href=Routes.tag_watch_path(@conn, :create, @tag) Watch
@@ -26,3 +24,6 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
 
     a.tag__dropdown__link.hidden href="/session/new" Sign in to Watch
     a.tag__dropdown__link.hidden href="/filters" Filter
+
+  span.tag__count
+    = @tag.images_count
