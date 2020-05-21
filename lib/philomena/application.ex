@@ -21,7 +21,11 @@ defmodule Philomena.Application do
       Philomena.Servers.PicartoChannelUpdater,
       Philomena.Servers.PiczelChannelUpdater,
       Philomena.Servers.Config,
+
+      # Session storage
       {Pow.Store.Backend.MnesiaCache, extra_db_nodes: Node.list()},
+      Pow.Store.Backend.MnesiaCache.Unsplit,
+
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
       {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
 
