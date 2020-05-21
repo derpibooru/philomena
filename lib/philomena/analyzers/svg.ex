@@ -12,9 +12,9 @@ defmodule Philomena.Analyzers.Svg do
   end
 
   defp stats(file) do
-    case System.cmd("mediastat", [file]) do
+    case System.cmd("identify", ["-format", "%W %H\n", file]) do
       {output, 0} ->
-        [_size, _frames, width, height, _num, _den] =
+        [width, height] =
           output
           |> String.trim()
           |> String.split(" ")
