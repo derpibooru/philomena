@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.CallbackDelayPlug do
 
   def call(conn, key_name) do
     Plug.Conn.register_before_send(conn, fn conn ->
-      IO.puts "waiting for key #{key_name}"
       wait_for_key(key_name)
 
       conn

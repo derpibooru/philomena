@@ -85,8 +85,6 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlug do
   defp maybe_put_cache(conn, _user, nil, _opts), do: conn
 
   defp maybe_put_cache(conn, user, old_token, opts) do
-    IO.puts "putting new session value in cache - #{conn.assigns.test_name}"
-
     fetch_fn = Keyword.fetch!(opts, :fetch_token)
 
     metadata =

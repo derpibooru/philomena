@@ -8,7 +8,6 @@ defmodule PhilomenaWeb.GlobalWritePlug do
   end
 
   defp put_key(key_name) do
-    IO.puts "writing #{key_name}"
     Application.put_env(:philomena, key_name, true)
   end
 end

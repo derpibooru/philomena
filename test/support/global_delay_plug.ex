@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.GlobalDelayPlug do
   def init(opts), do: opts
 
   def call(conn, key_name) do
-    IO.puts "waiting for #{key_name}"
     wait_for_key(key_name)
 
     conn

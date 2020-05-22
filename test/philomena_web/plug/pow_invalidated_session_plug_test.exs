@@ -171,7 +171,6 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   # race cases per danschultzer/pow#435
   defp init_plug1(conn, config) do
     conn
-    |> Conn.assign(:test_name, :plug1)
     |> init_session_plug()
     |> PowInvalidatedSessionPlug.call(
       PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
@@ -183,14 +182,12 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> CallbackWritePlug.call(:plug1_unlocked)
     |> Session.call(Session.init(config))
     |> Cookie.call(Cookie.init([]))
-    |> inspect_plug()
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
     |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
   end
 
   defp init_plug2(conn, config) do
     conn
-    |> Conn.assign(:test_name, :plug2)
     |> GlobalDelayPlug.call(:plug1_unlocked)
     |> init_session_plug()
     |> PowInvalidatedSessionPlug.call(
@@ -201,18 +198,8 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     )
     |> Session.call(Session.init(config))
     |> Cookie.call(Cookie.init([]))
-    |> inspect_plug()
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
     |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
-  end
-
-  defp inspect_plug(conn) do
-    user = !is_nil(Pow.Plug.current_user(conn))
-    name = conn.assigns.test_name
-
-    IO.puts "#{name} status - loaded user: #{user}"
-
-    conn
   end
 
   defp run_plug(conn, config \\ @config) do
@@ -244,7 +231,6 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     conn
     |> Test.recycle_cookies(no_session_conn)
     |> Conn.fetch_cookies()
-    |> IO.inspect
   end
 
   defp delete_session_from_conn(conn, config) do
