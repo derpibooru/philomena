@@ -11,7 +11,7 @@
   resize: both;
 }
 
-.tagsinput .tag {
+.tag-page .tag, .tagsinput .tag {
   font-family: $font_family_base;
   padding: 5px;
 }
@@ -59,7 +59,7 @@
 // Tags
 .tag {
   border: 1px solid;
-  display: inline-flex;
+  display: inline-table;
   align-items: center;
   font-size: 14px;
   font-weight: bold;
@@ -69,6 +69,7 @@
 
 .tag > span {
   padding: 5px;
+  display: table-cell;
 }
 
 .tag a {
