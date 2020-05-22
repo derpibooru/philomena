@@ -90,7 +90,7 @@ defmodule Philomena.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.migrate": ["ecto.migrate", "ecto.dump"],
       "ecto.rollback": ["ecto.rollback", "ecto.dump"],
-      test: ["ecto.create --quiet", "ecto.load", "test"]
+      test: ["ecto.drop", "ecto.create", "ecto.load", "test"]
     ]
   end
 end

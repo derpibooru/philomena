@@ -3,6 +3,10 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   doctest PhilomenaWeb.PowInvalidatedSessionPlug
 
   alias PhilomenaWeb.PowInvalidatedSessionPlug
+  alias PhilomenaWeb.GlobalDelayPlug
+  alias PhilomenaWeb.GlobalWritePlug
+  alias PhilomenaWeb.CallbackDelayPlug
+  alias PhilomenaWeb.CallbackWritePlug
   alias Philomena.{Users.User, Repo}
 
   @otp_app :philomena
@@ -123,6 +127,26 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     refute metadata[:inserted_at]
   end
 
+  test "call/2 with simultaneous requests", %{conn: init_conn, user: user} do
+    init_conn = prepare_persistent_session_conn(init_conn, user)
+
+    [conn_1, conn_2] =
+      Enum.map([
+        Task.async(fn ->
+          init_plug1(init_conn, @config)
+          |> Conn.send_resp(200, "")
+        end),
+        Task.async(fn ->
+          init_plug2(init_conn, @config)
+          |> Conn.send_resp(200, "")
+          |> GlobalWritePlug.call(:plug2_finished)
+        end)
+      ], &Task.await/1)
+
+    assert Pow.Plug.current_user(conn_1)
+    assert Pow.Plug.current_user(conn_2)
+  end
+
   defp init_session_plug(conn) do
     conn
     |> Map.put(:secret_key_base, String.duplicate("abcdefghijklmnopqrstuvxyz0123456789", 2))
@@ -142,6 +166,53 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> Cookie.call(Cookie.init([]))
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
     |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
+  end
+
+  # race cases per danschultzer/pow#435
+  defp init_plug1(conn, config) do
+    conn
+    |> Conn.assign(:test_name, :plug1)
+    |> init_session_plug()
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
+    )
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
+    )
+    |> CallbackDelayPlug.call(:plug2_finished)
+    |> CallbackWritePlug.call(:plug1_unlocked)
+    |> Session.call(Session.init(config))
+    |> Cookie.call(Cookie.init([]))
+    |> inspect_plug()
+    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
+    |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
+  end
+
+  defp init_plug2(conn, config) do
+    conn
+    |> Conn.assign(:test_name, :plug2)
+    |> GlobalDelayPlug.call(:plug1_unlocked)
+    |> init_session_plug()
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
+    )
+    |> PowInvalidatedSessionPlug.call(
+      PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
+    )
+    |> Session.call(Session.init(config))
+    |> Cookie.call(Cookie.init([]))
+    |> inspect_plug()
+    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
+    |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
+  end
+
+  defp inspect_plug(conn) do
+    user = !is_nil(Pow.Plug.current_user(conn))
+    name = conn.assigns.test_name
+
+    IO.puts "#{name} status - loaded user: #{user}"
+
+    conn
   end
 
   defp run_plug(conn, config \\ @config) do
@@ -173,6 +244,7 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     conn
     |> Test.recycle_cookies(no_session_conn)
     |> Conn.fetch_cookies()
+    |> IO.inspect
   end
 
   defp delete_session_from_conn(conn, config) do
