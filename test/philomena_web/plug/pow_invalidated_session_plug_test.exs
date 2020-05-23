@@ -3,10 +3,6 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   doctest PhilomenaWeb.PowInvalidatedSessionPlug
 
   alias PhilomenaWeb.PowInvalidatedSessionPlug
-  alias PhilomenaWeb.GlobalDelayPlug
-  alias PhilomenaWeb.GlobalWritePlug
-  alias PhilomenaWeb.CallbackDelayPlug
-  alias PhilomenaWeb.CallbackWritePlug
   alias Philomena.{Users.User, Repo}
 
   @otp_app :philomena
@@ -130,21 +126,89 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   test "call/2 with simultaneous requests", %{conn: init_conn, user: user} do
     init_conn = prepare_persistent_session_conn(init_conn, user)
 
-    [conn_1, conn_2] =
-      Enum.map([
-        Task.async(fn ->
-          init_plug1(init_conn, @config)
-          |> Conn.send_resp(200, "")
-        end),
-        Task.async(fn ->
-          init_plug2(init_conn, @config)
-          |> Conn.send_resp(200, "")
-          |> GlobalWritePlug.call(:plug2_finished)
+    t1 = Task.async(fn ->
+      init_conn
+      |> init_plug(@config, fn conn ->
+        Plug.Conn.register_before_send(conn, fn conn ->
+          send(:task_2, :continue)
+
+          receive do
+            :continue -> conn
+          end
         end)
-      ], &Task.await/1)
+      end)
+      |> Conn.send_resp(200, "")
+    end)
+
+    Process.register(t1.pid, :task_1)
+
+
+    t2 = Task.async(fn ->
+      receive do
+        :continue -> :ok
+      end
+
+      conn =
+        init_conn
+        |> init_plug(@config)
+        |> Conn.send_resp(200, "")
+
+      send(:task_1, :continue)
+
+      conn
+    end)
+
+    Process.register(t2.pid, :task_2)
+
+    conn_1 = Task.await(t1)
+    conn_2 = Task.await(t2)
 
     assert Pow.Plug.current_user(conn_1)
     assert Pow.Plug.current_user(conn_2)
+  end
+
+  test "call/2 with aborted requests", %{conn: init_conn, user: user} do
+    no_session_conn = prepare_persistent_session_conn(init_conn, user)
+
+    # This request succeeds and rolls the session, but is not received because
+    # the client aborted it
+    _t1 =
+      no_session_conn
+      |> init_plug(@config)
+      |> Conn.send_resp(200, "")
+
+    # This request succeeds and does nothing
+    t2 =
+      no_session_conn
+      |> init_plug(@config)
+      |> Conn.send_resp(200, "")
+
+    # This will work due to the invalidated session plug
+    attempt_1 =
+      init_conn
+      |> Test.recycle_cookies(t2)
+      |> init_plug(@config)
+      |> Conn.send_resp(200, "")
+
+    assert Pow.Plug.current_user(attempt_1)
+
+    # It will subsequently fail, and the user will be signed out after their
+    # session expires
+    init_conn
+    |> Test.recycle_cookies(attempt_1)
+    |> Session.do_delete(@config)
+    |> Conn.send_resp(200, "")
+
+    # Commenting this line causes the test to pass
+    :timer.sleep(@invalidated_ttl)
+
+    attempt_2 =
+      init_conn
+      |> Test.recycle_cookies(t2)
+      |> init_plug(@config)
+      |> Conn.send_resp(200, "")
+
+    assert Pow.Plug.current_user(attempt_2)
   end
 
   defp init_session_plug(conn) do
@@ -153,23 +217,9 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> PlugSession.call(PlugSession.init(store: :cookie, key: "foobar", signing_salt: "salt"))
   end
 
-  defp init_plug(conn, config) do
-    conn
-    |> init_session_plug()
-    |> PowInvalidatedSessionPlug.call(
-      PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
-    )
-    |> PowInvalidatedSessionPlug.call(
-      PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
-    )
-    |> Session.call(Session.init(config))
-    |> Cookie.call(Cookie.init([]))
-    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
-    |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
-  end
+  defp init_plug(conn, config, before_session_callback \\ nil) do
+    callback = before_session_callback || & &1
 
-  # race cases per danschultzer/pow#435
-  defp init_plug1(conn, config) do
     conn
     |> init_session_plug()
     |> PowInvalidatedSessionPlug.call(
@@ -178,24 +228,7 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
     |> PowInvalidatedSessionPlug.call(
       PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
     )
-    |> CallbackDelayPlug.call(:plug2_finished)
-    |> CallbackWritePlug.call(:plug1_unlocked)
-    |> Session.call(Session.init(config))
-    |> Cookie.call(Cookie.init([]))
-    |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
-    |> PhilomenaWeb.TotpPlug.call(PhilomenaWeb.TotpPlug.init([]))
-  end
-
-  defp init_plug2(conn, config) do
-    conn
-    |> GlobalDelayPlug.call(:plug1_unlocked)
-    |> init_session_plug()
-    |> PowInvalidatedSessionPlug.call(
-      PowInvalidatedSessionPlug.init({:pow_session, ttl: @invalidated_ttl})
-    )
-    |> PowInvalidatedSessionPlug.call(
-      PowInvalidatedSessionPlug.init({:pow_persistent_session, ttl: @invalidated_ttl})
-    )
+    |> callback.()
     |> Session.call(Session.init(config))
     |> Cookie.call(Cookie.init([]))
     |> PowInvalidatedSessionPlug.call(PowInvalidatedSessionPlug.init(:load))
