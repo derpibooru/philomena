@@ -126,37 +126,38 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   test "call/2 with simultaneous requests", %{conn: init_conn, user: user} do
     init_conn = prepare_persistent_session_conn(init_conn, user)
 
-    t1 = Task.async(fn ->
-      init_conn
-      |> init_plug(@config, fn conn ->
-        Plug.Conn.register_before_send(conn, fn conn ->
-          send(:task_2, :continue)
+    t1 =
+      Task.async(fn ->
+        init_conn
+        |> init_plug(@config, fn conn ->
+          Plug.Conn.register_before_send(conn, fn conn ->
+            send(:task_2, :continue)
 
-          receive do
-            :continue -> conn
-          end
+            receive do
+              :continue -> conn
+            end
+          end)
         end)
+        |> Conn.send_resp(200, "")
       end)
-      |> Conn.send_resp(200, "")
-    end)
 
     Process.register(t1.pid, :task_1)
 
+    t2 =
+      Task.async(fn ->
+        receive do
+          :continue -> :ok
+        end
 
-    t2 = Task.async(fn ->
-      receive do
-        :continue -> :ok
-      end
+        conn =
+          init_conn
+          |> init_plug(@config)
+          |> Conn.send_resp(200, "")
 
-      conn =
-        init_conn
-        |> init_plug(@config)
-        |> Conn.send_resp(200, "")
+        send(:task_1, :continue)
 
-      send(:task_1, :continue)
-
-      conn
-    end)
+        conn
+      end)
 
     Process.register(t2.pid, :task_2)
 
@@ -218,7 +219,7 @@ defmodule PhilomenaWeb.PowInvalidatedSessionPlugTest do
   end
 
   defp init_plug(conn, config, before_session_callback \\ nil) do
-    callback = before_session_callback || & &1
+    callback = before_session_callback || (& &1)
 
     conn
     |> init_session_plug()

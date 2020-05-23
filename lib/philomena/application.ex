@@ -24,7 +24,6 @@ defmodule Philomena.Application do
       Philomena.Servers.PicartoChannelUpdater,
       Philomena.Servers.PiczelChannelUpdater,
       Philomena.Servers.Config,
-
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
       {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
 
