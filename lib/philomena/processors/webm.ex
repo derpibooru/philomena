@@ -101,7 +101,7 @@ defmodule Philomena.Processors.Webm do
         "-threads",
         "1",
         "-max_muxing_queue_size",
-        "512",
+        "4096",
         webm
       ])
 
@@ -129,7 +129,7 @@ defmodule Philomena.Processors.Webm do
         "-threads",
         "1",
         "-max_muxing_queue_size",
-        "512",
+        "4096",
         mp4
       ])
 
