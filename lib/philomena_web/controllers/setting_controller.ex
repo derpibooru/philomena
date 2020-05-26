@@ -48,7 +48,8 @@ defmodule PhilomenaWeb.SettingController do
     # JS wants access; max-age is set to 25 years from now
     Conn.put_resp_cookie(conn, cookie_name, to_string(params[param_name] == "true"),
       max_age: 788_923_800,
-      http_only: false
+      http_only: false,
+      extra: "SameSite=Lax"
     )
   end
 

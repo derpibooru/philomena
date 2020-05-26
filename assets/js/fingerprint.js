@@ -45,7 +45,7 @@ function setFingerprintCookie() {
     fingerprint = 'c1836832948';
   }
 
-  document.cookie = `_ses=${fingerprint}; path=/`;
+  document.cookie = `_ses=${fingerprint}; path=/; SameSite=Lax`;
 }
 
 export { setFingerprintCookie };

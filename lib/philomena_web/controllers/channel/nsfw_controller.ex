@@ -20,6 +20,6 @@ defmodule PhilomenaWeb.Channel.NsfwController do
   # Duplicated from setting controller
   defp set_cookie(conn, cookie_name, value) do
     # JS wants access; max-age is set to 25 years from now
-    Conn.put_resp_cookie(conn, cookie_name, value, max_age: 788_923_800, http_only: false)
+    Conn.put_resp_cookie(conn, cookie_name, value, max_age: 788_923_800, http_only: false, extra: "SameSite=Lax")
   end
 end
