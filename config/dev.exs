@@ -13,6 +13,9 @@ config :philomena,
   elasticsearch_url: "http://elasticsearch:9200",
   redis_host: "redis"
 
+config :exq,
+  host: "redis"
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
