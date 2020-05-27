@@ -66,7 +66,6 @@ for image_def <- resources["remote_images"] do
   )
   |> case do
     {:ok, %{image: image}} ->
-      ImageProcessor.cast(image.id)
       Images.reindex_image(image)
       Tags.reindex_tags(image.added_tags)
 
