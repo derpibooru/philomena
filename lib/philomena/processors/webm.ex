@@ -136,11 +136,11 @@ defmodule Philomena.Processors.Webm do
     {webm, mp4}
   end
 
-  defp scale_gif(file, palette, _duration, {width, height}) do
+  defp scale_gif(file, palette, duration, {width, height}) do
     gif = Briefly.create!(extname: ".gif")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
     palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    rate_filter = "setpts=N/TB/2"
+    rate_filter = rate_filter(duration)
     filter_graph = "[0:v]#{scale_filter},#{rate_filter}[x];[x][1:v]#{palette_filter}"
 
     {_output, 0} =
@@ -189,4 +189,8 @@ defmodule Philomena.Processors.Webm do
 
     {new_width, new_height}
   end
+
+  # Avoid division by zero
+  def rate_filter(duration) when duration > 0.5, do: "fps=1/#{duration / 10},settb=1/2,setpts=N"
+  def rate_filter(duration), do: "setpts=N/TB/2"
 end
