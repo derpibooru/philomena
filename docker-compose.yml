@@ -10,6 +10,7 @@ services:
       dockerfile: ./docker/app/Dockerfile
     environment:
       - MIX_ENV=dev
+      - PGPASSWORD=postgres
     working_dir: /srv/philomena
     tty: true
     volumes:
