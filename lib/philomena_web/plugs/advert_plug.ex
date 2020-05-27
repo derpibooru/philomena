@@ -1,4 +1,5 @@
 defmodule PhilomenaWeb.AdvertPlug do
+  alias PhilomenaWeb.AdvertUpdater
   alias Philomena.Adverts
   alias Plug.Conn
 
@@ -9,15 +10,14 @@ defmodule PhilomenaWeb.AdvertPlug do
     image = conn.assigns[:image]
     show_ads? = show_ads?(user)
 
-    conn
-    |> maybe_assign_ad(image, show_ads?)
+    maybe_assign_ad(conn, image, show_ads?)
   end
 
   defp maybe_assign_ad(conn, nil, true),
-    do: Conn.assign(conn, :advert, Adverts.random_live())
+    do: Conn.assign(conn, :advert, record_impression(Adverts.random_live()))
 
   defp maybe_assign_ad(conn, image, true),
-    do: Conn.assign(conn, :advert, Adverts.random_live_for(image))
+    do: Conn.assign(conn, :advert, record_impression(Adverts.random_live_for(image)))
 
   defp maybe_assign_ad(conn, _image, _false),
     do: conn
@@ -27,4 +27,12 @@ defmodule PhilomenaWeb.AdvertPlug do
 
   defp show_ads?(_user),
     do: true
+
+  defp record_impression(nil), do: nil
+
+  defp record_impression(advert) do
+    AdvertUpdater.cast(:impression, advert.id)
+
+    advert
+  end
 end

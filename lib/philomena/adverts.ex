@@ -19,7 +19,6 @@ defmodule Philomena.Adverts do
     |> order_by(asc: fragment("random()"))
     |> limit(1)
     |> Repo.one()
-    |> record_impression()
   end
 
   def random_live_for(image) do
@@ -33,25 +32,6 @@ defmodule Philomena.Adverts do
     |> order_by(asc: fragment("random()"))
     |> limit(1)
     |> Repo.one()
-    |> record_impression()
-  end
-
-  def click(%Advert{} = advert) do
-    spawn(fn ->
-      query = where(Advert, id: ^advert.id)
-      Repo.update_all(query, inc: [clicks: 1])
-    end)
-  end
-
-  defp record_impression(nil), do: nil
-
-  defp record_impression(advert) do
-    spawn(fn ->
-      query = where(Advert, id: ^advert.id)
-      Repo.update_all(query, inc: [impressions: 1])
-    end)
-
-    advert
   end
 
   defp sfw?(image) do

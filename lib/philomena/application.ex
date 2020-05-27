@@ -17,6 +17,9 @@ defmodule Philomena.Application do
       # Start the Ecto repository
       Philomena.Repo,
 
+      # Background queueing system
+      Philomena.ExqSupervisor,
+
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
       Philomena.Servers.ImageProcessor,
@@ -28,6 +31,7 @@ defmodule Philomena.Application do
       {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
 
       # Start the endpoint when the application starts
+      PhilomenaWeb.AdvertUpdater,
       PhilomenaWeb.StatsUpdater,
       PhilomenaWeb.UserFingerprintUpdater,
       PhilomenaWeb.UserIpUpdater,
