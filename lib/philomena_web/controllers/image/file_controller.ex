@@ -12,10 +12,7 @@ defmodule PhilomenaWeb.Image.FileController do
   def update(conn, %{"image" => image_params}) do
     case Images.update_file(conn.assigns.image, image_params) do
       {:ok, %{image: image}} ->
-        spawn(fn ->
-          Images.repair_image(image)
-        end)
-
+        Images.repair_image(image)
         Images.reindex_image(image)
 
         conn

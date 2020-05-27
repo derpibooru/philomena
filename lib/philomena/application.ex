@@ -22,7 +22,6 @@ defmodule Philomena.Application do
 
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
-      Philomena.Servers.ImageProcessor,
       Philomena.Servers.UserLinkUpdater,
       Philomena.Servers.PicartoChannelUpdater,
       Philomena.Servers.PiczelChannelUpdater,

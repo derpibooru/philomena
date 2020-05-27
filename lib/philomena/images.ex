@@ -9,6 +9,7 @@ defmodule Philomena.Images do
   alias Philomena.Repo
 
   alias Philomena.Elasticsearch
+  alias Philomena.ThumbnailWorker
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
@@ -97,10 +98,7 @@ defmodule Philomena.Images do
     |> Repo.isolated_transaction(:serializable)
     |> case do
       {:ok, %{image: image}} = result ->
-        spawn(fn ->
-          repair_image(image)
-        end)
-
+        repair_image(image)
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
         UserStatistics.inc_stat(attribution[:user], :uploads)
@@ -181,8 +179,11 @@ defmodule Philomena.Images do
     |> where(id: ^image.id)
     |> Repo.update_all(set: [thumbnails_generated: false, processed: false])
 
-    Philomena.Images.Thumbnailer.generate_thumbnails(image.id)
+    Exq.enqueue(Exq, queue(image.image_mime_type), ThumbnailWorker, [image.id])
   end
+
+  defp queue("video/webm"), do: "videos"
+  defp queue(_mime_type), do: "images"
 
   def update_file(%Image{} = image, attrs) do
     image =

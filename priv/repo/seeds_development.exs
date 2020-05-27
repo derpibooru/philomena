@@ -11,7 +11,6 @@
 # and so on) as they will fail if something goes wrong.
 
 alias Philomena.{Repo, Forums.Forum, Users.User}
-alias Philomena.Servers.ImageProcessor
 alias Philomena.Comments
 alias Philomena.Images
 alias Philomena.Topics
@@ -138,8 +137,5 @@ for resource <- resources["forum_posts"] do
     end
   end
 end
-
-# Wait for processor to finish
-ImageProcessor.call()
 
 IO.puts "---- Done."

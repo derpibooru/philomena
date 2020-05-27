@@ -8,12 +8,10 @@ defmodule PhilomenaWeb.Image.RepairController do
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   def create(conn, _params) do
-    spawn(fn ->
-      Images.repair_image(conn.assigns.image)
-    end)
+    Images.repair_image(conn.assigns.image)
 
     conn
-    |> put_flash(:info, "Repair job started.")
+    |> put_flash(:info, "Repair job enqueued.")
     |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
   end
 end
