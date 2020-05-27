@@ -68,6 +68,7 @@ defmodule Philomena.MixProject do
       {:castore, "~> 0.1"},
       {:mint, "~> 1.1"},
       {:libcluster, "~> 3.2"},
+      {:exq, "~> 0.13"},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]
   end

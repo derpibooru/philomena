@@ -42,6 +42,12 @@ config :philomena, :pow,
   captcha_verifier: Philomena.Captcha,
   cache_store_backend: Pow.Store.Backend.MnesiaCache
 
+config :exq,
+  queues: [{"videos", 2}, {"images", 4}, {"indexing", 16}],
+  scheduler_enable: true,
+  max_retries: 1,
+  start_on_application: false
+
 config :bcrypt_elixir,
   log_rounds: 12
 
