@@ -192,5 +192,5 @@ defmodule Philomena.Processors.Webm do
 
   # Avoid division by zero
   def rate_filter(duration) when duration > 0.5, do: "fps=1/#{duration / 10},settb=1/2,setpts=N"
-  def rate_filter(duration), do: "setpts=N/TB/2"
+  def rate_filter(_duration), do: "setpts=N/TB/2"
 end
