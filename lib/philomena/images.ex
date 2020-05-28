@@ -512,7 +512,7 @@ defmodule Philomena.Images do
     |> case do
       {:ok, _} = result ->
         reindex_images(image_ids)
-        Tags.reindex_tags(added_tags ++ removed_tags)
+        Tags.reindex_tags(Enum.map(added_tags ++ removed_tags, &%{id: &1}))
 
         result
 
