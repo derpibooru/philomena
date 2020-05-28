@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.GalleryController do
 
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.NotificationCountPlug
-  alias PhilomenaWeb.ImageSorter
   alias Philomena.Elasticsearch
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
@@ -52,12 +51,11 @@ defmodule PhilomenaWeb.GalleryController do
         "sd" => position_order(gallery)
       })
 
-    sort = ImageSorter.parse_sort(params)
+    conn = %{conn | params: params}
 
-    {:ok, {images, _tags}} =
-      ImageLoader.search_string(conn, query, queries: sort.queries, sorts: sort.sorts)
+    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
 
-    {gallery_prev, gallery_next} = prev_next_page_images(conn, query, sort)
+    {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
 
     interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
 
@@ -145,32 +143,26 @@ defmodule PhilomenaWeb.GalleryController do
     |> redirect(to: Routes.gallery_path(conn, :index))
   end
 
-  defp prev_next_page_images(conn, query, sort) do
+  defp prev_next_page_images(conn, query) do
     limit = conn.assigns.image_pagination.page_size
     offset = (conn.assigns.image_pagination.page_number - 1) * limit
 
     # Inconsistency: Elasticsearch doesn't allow requesting offsets which are less than 0,
     # but it does allow requesting offsets which are beyond the total number of results.
 
-    prev_image = gallery_image(offset - 1, conn, query, sort)
-    next_image = gallery_image(offset + limit, conn, query, sort)
+    prev_image = gallery_image(offset - 1, conn, query)
+    next_image = gallery_image(offset + limit, conn, query)
 
     {prev_image, next_image}
   end
 
-  defp gallery_image(offset, _conn, _query, _sorts) when offset < 0, do: nil
+  defp gallery_image(offset, _conn, _query) when offset < 0, do: nil
 
-  defp gallery_image(offset, conn, query, sort) do
+  defp gallery_image(offset, conn, query) do
     pagination_params = %{page_number: offset + 1, page_size: 1}
 
     {:ok, {image, _tags}} =
-      ImageLoader.search_string(
-        conn,
-        query,
-        pagination: pagination_params,
-        queries: sort.queries,
-        sorts: sort.sorts
-      )
+      ImageLoader.search_string(conn, query, pagination: pagination_params)
 
     case Enum.to_list(image) do
       [image] -> image

@@ -16,42 +16,42 @@ defmodule PhilomenaWeb.ImageSorter do
     wilson_score
   )
 
-  def parse_sort(params) do
+  def parse_sort(params, query) do
     sd = parse_sd(params)
 
-    parse_sf(params, sd)
+    parse_sf(params, sd, query)
   end
 
   defp parse_sd(%{"sd" => sd}) when sd in ~W(asc desc), do: sd
   defp parse_sd(_params), do: "desc"
 
-  defp parse_sf(%{"sf" => sf}, sd) when sf in @allowed_fields do
-    %{queries: [], sorts: [%{sf => sd}], constant_score: true}
+  defp parse_sf(%{"sf" => sf}, sd, query) when sf in @allowed_fields do
+    %{query: query, sorts: [%{sf => sd}]}
   end
 
-  defp parse_sf(%{"sf" => "_score"}, sd) do
-    %{queries: [], sorts: [%{"_score" => sd}], constant_score: false}
+  defp parse_sf(%{"sf" => "_score"}, sd, query) do
+    %{query: query, sorts: [%{"_score" => sd}]}
   end
 
-  defp parse_sf(%{"sf" => "random"}, sd) do
-    random_query(:rand.uniform(4_294_967_296), sd)
+  defp parse_sf(%{"sf" => "random"}, sd, query) do
+    random_query(:rand.uniform(4_294_967_296), sd, query)
   end
 
-  defp parse_sf(%{"sf" => <<"random:", seed::binary>>}, sd) do
+  defp parse_sf(%{"sf" => <<"random:", seed::binary>>}, sd, query) do
     case Integer.parse(seed) do
       {seed, _rest} ->
-        random_query(seed, sd)
+        random_query(seed, sd, query)
 
       _ ->
-        random_query(:rand.uniform(4_294_967_296), sd)
+        random_query(:rand.uniform(4_294_967_296), sd, query)
     end
   end
 
-  defp parse_sf(%{"sf" => <<"gallery_id:", gallery::binary>>}, sd) do
+  defp parse_sf(%{"sf" => <<"gallery_id:", gallery::binary>>}, sd, query) do
     case Integer.parse(gallery) do
       {gallery, _rest} ->
         %{
-          queries: [],
+          query: query,
           sorts: [
             %{
               "galleries.position" => %{
@@ -65,31 +65,27 @@ defmodule PhilomenaWeb.ImageSorter do
               }
             }
           ],
-          constant_score: true
         }
 
       _ ->
-        %{queries: [%{match_none: %{}}], sorts: [], constant_score: true}
+        %{query: query, sorts: []}
     end
   end
 
-  defp parse_sf(_params, sd) do
-    %{queries: [], sorts: [%{"created_at" => sd}], constant_score: true}
+  defp parse_sf(_params, sd, query) do
+    %{query: query, sorts: [%{"created_at" => sd}]}
   end
 
-  defp random_query(seed, sd) do
+  defp random_query(seed, sd, query) do
     %{
-      queries: [
-        %{
-          function_score: %{
-            query: %{match_all: %{}},
-            random_score: %{seed: seed, field: :id},
-            boost_mode: :replace
-          }
+      query: %{
+        function_score: %{
+          query: query,
+          random_score: %{seed: seed, field: :id},
+          boost_mode: :replace
         }
-      ],
-      sorts: [%{"_score" => sd}],
-      constant_score: true
+      },
+      sorts: [%{"_score" => sd}]
     }
   end
 end

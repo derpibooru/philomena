@@ -2,18 +2,12 @@ defmodule PhilomenaWeb.SearchController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias PhilomenaWeb.ImageSorter
   alias Philomena.Interactions
 
   def index(conn, params) do
     user = conn.assigns.current_user
-    sort = ImageSorter.parse_sort(params)
 
-    case ImageLoader.search_string(conn, params["q"],
-           sorts: sort.sorts,
-           queries: sort.queries,
-           constant_score: sort.constant_score
-         ) do
+    case ImageLoader.search_string(conn, params["q"]) do
       {:ok, {images, tags}} ->
         interactions = Interactions.user_interactions(images, user)
 

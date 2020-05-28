@@ -33,10 +33,11 @@ defmodule PhilomenaWeb.ImageNavigator do
       |> Map.merge(empty_fields())
       |> ElasticsearchIndex.as_json()
 
-    sort_data = ImageSorter.parse_sort(params)
+    %{query: compiled_query, sorts: sort} =
+      ImageSorter.parse_sort(params, compiled_query)
 
     {sorts, filters} =
-      sort_data.sorts
+      sort
       |> Enum.map(&extract_filters(&1, image_index, rel))
       |> Enum.unzip()
 
@@ -48,7 +49,7 @@ defmodule PhilomenaWeb.ImageNavigator do
       %{
         query: %{
           bool: %{
-            must: List.flatten([compiled_query, sort_data.queries, filters]),
+            must: List.flatten([compiled_query, filters]),
             must_not: [
               compiled_filter,
               %{term: %{hidden_from_users: true}},
