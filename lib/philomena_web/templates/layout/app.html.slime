@@ -16,7 +16,6 @@ html lang="en"
     meta name="generator" content="philomena"
     meta name="theme-color" content="#618fc3"
     meta name="format-detection" content="telephone=no"
-    meta name="robots" content="noindex, nofollow"
     = csrf_meta_tag()
     script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
     = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns

@@ -1,7 +1,6 @@
 meta name="generator" content="philomena"
 meta name="theme-color" content="#618fc3"
 meta name="format-detection" content="telephone=no"
-meta name="robots" content="noindex, nofollow"
 
 = if opengraph?(@conn) do
   - image = @conn.assigns.image
