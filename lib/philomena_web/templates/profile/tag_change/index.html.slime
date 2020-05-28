@@ -4,7 +4,7 @@ h1
     = @user.name
 
 - route = fn p -> Routes.profile_tag_change_path(@conn, :index, @user, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: [added: @conn.params["added"]]
 
 .block
   .block__header
