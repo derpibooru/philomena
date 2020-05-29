@@ -2,8 +2,12 @@ defmodule Philomena.Images.Query do
   alias Philomena.Search.Parser
   alias Philomena.Repo
 
-  defp gallery_id_transform(_ctx, value),
-    do: {:ok, %{nested: %{path: :galleries, query: %{term: %{"galleries.id" => value}}}}}
+  defp gallery_id_transform(_ctx, value) do
+    case Integer.parse(value) do
+      {value, ""} when value >= 0 -> {:ok, %{nested: %{path: :galleries, query: %{term: %{"galleries.id" => value}}}}}
+      _error -> {:error, "Invalid gallery `#{value}'."}
+    end
+  end
 
   defp user_my_transform(%{user: %{id: id}}, "faves"),
     do: {:ok, %{term: %{favourited_by_user_ids: id}}}
