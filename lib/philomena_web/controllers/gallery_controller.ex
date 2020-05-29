@@ -161,8 +161,7 @@ defmodule PhilomenaWeb.GalleryController do
   defp gallery_image(offset, conn, query) do
     pagination_params = %{page_number: offset + 1, page_size: 1}
 
-    {:ok, {image, _tags}} =
-      ImageLoader.search_string(conn, query, pagination: pagination_params)
+    {:ok, {image, _tags}} = ImageLoader.search_string(conn, query, pagination: pagination_params)
 
     case Enum.to_list(image) do
       [image] -> image

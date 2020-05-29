@@ -64,6 +64,7 @@ defmodule Philomena.Images do
       %Image{}
       |> Image.creation_changeset(attrs, attribution)
       |> Image.tag_changeset(attrs, [], tags)
+      |> Image.dnp_changeset(attribution[:user])
       |> Uploader.analyze_upload(attrs)
 
     Multi.new()

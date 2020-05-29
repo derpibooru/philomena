@@ -33,7 +33,12 @@ defmodule Philomena.Processors.Svg do
     [{:symlink_original, "full.svg"}, {:copy, preview, "full.png"}]
   end
 
-  defp scale_if_smaller(_file, {width, height}, preview, {thumb_name, {target_width, target_height}}) do
+  defp scale_if_smaller(
+         _file,
+         {width, height},
+         preview,
+         {thumb_name, {target_width, target_height}}
+       ) do
     if width > target_width or height > target_height do
       scaled = scale(preview, {target_width, target_height})
 

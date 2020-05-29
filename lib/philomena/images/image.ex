@@ -18,6 +18,7 @@ defmodule Philomena.Images.Image do
 
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.TagValidator
+  alias Philomena.Images.DnpValidator
   alias Philomena.Repo
 
   schema "images" do
@@ -174,6 +175,12 @@ defmodule Philomena.Images.Image do
     |> TagDiffer.diff_input(old_tags, new_tags)
     |> TagValidator.validate_tags()
     |> cache_changeset()
+  end
+
+  def dnp_changeset(image, user) do
+    image
+    |> change()
+    |> DnpValidator.validate_dnp(user)
   end
 
   def thumbnail_changeset(image, attrs) do

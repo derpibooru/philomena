@@ -30,6 +30,7 @@
     p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
     .field
       = file_input f, :image, class: "input js-scraper"
+      = error_tag f, :image
       = error_tag f, :image_size
       = error_tag f, :image_width
       = error_tag f, :image_height

@@ -64,7 +64,7 @@ defmodule PhilomenaWeb.ImageSorter do
                 }
               }
             }
-          ],
+          ]
         }
 
       _ ->

@@ -31,8 +31,7 @@ defmodule PhilomenaWeb.Image.RandomController do
   defp query(_user, _), do: %{match_all: %{}}
 
   defp random_image_id(query, filter) do
-    %{query: query, sorts: sort} =
-      ImageSorter.parse_sort(%{"sf" => "random"}, query)
+    %{query: query, sorts: sort} = ImageSorter.parse_sort(%{"sf" => "random"}, query)
 
     Elasticsearch.search_records(
       Image,

@@ -33,8 +33,7 @@ defmodule PhilomenaWeb.ImageNavigator do
       |> Map.merge(empty_fields())
       |> ElasticsearchIndex.as_json()
 
-    %{query: compiled_query, sorts: sort} =
-      ImageSorter.parse_sort(params, compiled_query)
+    %{query: compiled_query, sorts: sort} = ImageSorter.parse_sort(params, compiled_query)
 
     {sorts, filters} =
       sort
