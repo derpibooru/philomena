@@ -4,8 +4,11 @@ defmodule Philomena.Images.Query do
 
   defp gallery_id_transform(_ctx, value) do
     case Integer.parse(value) do
-      {value, ""} when value >= 0 -> {:ok, %{nested: %{path: :galleries, query: %{term: %{"galleries.id" => value}}}}}
-      _error -> {:error, "Invalid gallery `#{value}'."}
+      {value, ""} when value >= 0 ->
+        {:ok, %{nested: %{path: :galleries, query: %{term: %{"galleries.id" => value}}}}}
+
+      _error ->
+        {:error, "Invalid gallery `#{value}'."}
     end
   end
 
