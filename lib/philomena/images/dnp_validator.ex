@@ -3,6 +3,7 @@ defmodule Philomena.Images.DnpValidator do
   import Ecto.Query
   alias Philomena.Repo
   alias Philomena.Tags.Tag
+  alias Philomena.UserLinks.UserLink
 
   def validate_dnp(changeset, uploader) do
     tags =
@@ -28,8 +29,7 @@ defmodule Philomena.Images.DnpValidator do
     Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
       case Enum.any?(
              tag.dnp_entries,
-             &(&1.dnp_type == "Artist Upload Only" and
-                 not same_user?(&1.requesting_user, uploader))
+             &(&1.dnp_type == "Artist Upload Only" and not valid_user?(&1, uploader))
            ) do
         true ->
           add_error(changeset, :image, "DNP (Artist upload only)")
@@ -46,7 +46,7 @@ defmodule Philomena.Images.DnpValidator do
     Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
       case Enum.any?(
              tag.dnp_entries,
-             &(&1.dnp_type == "No Edits" and not same_user?(&1.requesting_user, uploader))
+             &(&1.dnp_type == "No Edits" and not valid_user?(&1, uploader))
            ) do
         true ->
           add_error(changeset, :image, "DNP (No edits)")
@@ -57,8 +57,15 @@ defmodule Philomena.Images.DnpValidator do
     end)
   end
 
-  defp same_user?(%{id: id}, %{id: id}), do: true
-  defp same_user?(_user1, _user2), do: false
+  defp valid_user?(_dnp_entry, nil), do: false
+
+  defp valid_user?(dnp_entry, user) do
+    UserLink
+    |> where(tag_id: ^dnp_entry.tag_id)
+    |> where(aasm_state: "verified")
+    |> where(user_id: ^user.id)
+    |> Repo.exists?()
+  end
 
   defp extract_tags(tags) do
     tags
