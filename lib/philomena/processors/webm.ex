@@ -99,19 +99,10 @@ defmodule Philomena.Processors.Webm do
         "-vf",
         scale_filter,
         "-threads",
-        "1",
+        "4",
         "-max_muxing_queue_size",
         "4096",
-        webm
-      ])
-
-    {_output, 0} =
-      System.cmd("ffmpeg", [
-        "-loglevel",
-        "0",
-        "-y",
-        "-i",
-        file,
+        webm,
         "-c:v",
         "libx264",
         "-pix_fmt",
@@ -127,7 +118,7 @@ defmodule Philomena.Processors.Webm do
         "-vf",
         scale_filter,
         "-threads",
-        "1",
+        "4",
         "-max_muxing_queue_size",
         "4096",
         mp4
