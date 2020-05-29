@@ -54,7 +54,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
       ImageLoader.query(
         conn,
         query,
-        sorts: [%{_score: :desc}],
+        sorts: &%{query: &1, sorts: [%{_score: :desc}]},
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
