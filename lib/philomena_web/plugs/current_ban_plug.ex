@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.CurrentBanPlug do
   defp discourage?(%{note: note}) when is_binary(note), do: String.contains?(note, "discourage")
   defp discourage?(_ban), do: false
 
-  defp normal_time, do: trunc(:rand.normal(10_000, 5_000))
+  defp normal_time, do: :rand.normal(5_000, 25_000_000) |> trunc() |> max(0)
   defp error?, do: :rand.uniform() < 0.05
 
   defp pass(false, conn), do: conn
