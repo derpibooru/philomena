@@ -356,6 +356,7 @@ defmodule Philomena.Bans do
       Fingerprint
       |> select([f], %{
         reason: f.reason,
+        note: f.note,
         valid_until: f.valid_until,
         generated_ban_id: f.generated_ban_id,
         type: ^"FingerprintBan"
@@ -374,6 +375,7 @@ defmodule Philomena.Bans do
       Subnet
       |> select([s], %{
         reason: s.reason,
+        note: s.note,
         valid_until: s.valid_until,
         generated_ban_id: s.generated_ban_id,
         type: ^"SubnetBan"
@@ -390,6 +392,7 @@ defmodule Philomena.Bans do
       User
       |> select([u], %{
         reason: u.reason,
+        note: u.note,
         valid_until: u.valid_until,
         generated_ban_id: u.generated_ban_id,
         type: ^"UserBan"
