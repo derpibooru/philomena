@@ -34,6 +34,7 @@ defmodule PhilomenaWeb.CurrentBanPlug do
 
           pass(error?(), conn)
         end)
+        |> Conn.assign(:current_ban, nil)
 
       true ->
         Conn.assign(conn, :current_ban, ban)
