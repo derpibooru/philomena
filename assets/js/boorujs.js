@@ -4,7 +4,7 @@
  * Apply event-based actions through data-* attributes. The attributes are structured like so: [data-event-action]
  */
 
-import { $ } from './utils/dom';
+import { $, $$ } from './utils/dom';
 import { fetchHtml, handleError } from './utils/requests';
 import { showBlock } from './utils/image';
 import { addTag } from './tagsinput';
@@ -20,6 +20,8 @@ const types = {
 
 const actions = {
   hide(data) { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
+
+  tabHide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
 
   show(data) { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
 
@@ -57,7 +59,7 @@ const actions = {
     data.el.classList.add('selected');
 
     // Switch contents
-    this.hide({ base: block, value: '.block__tab' });
+    this.tabHide({ base: block, value: '.block__tab' });
     this.show({ base: block, value: `.block__tab[data-tab="${data.value}"]` });
 
     // If the tab has a 'data-load-tab' attribute, load and insert the content
@@ -79,6 +81,16 @@ const actions = {
 // Use this function to apply a callback to elements matching the selectors
 function selectorCb(base = document, selector, cb) {
   [].forEach.call(base.querySelectorAll(selector), cb);
+}
+
+function selectorCbChildren(base = document, selector, cb) {
+  const sel = $$(selector, base);
+
+  for (const el of base.children) {
+    if (!sel.includes(el)) continue;
+
+    cb(el);
+  }
 }
 
 function matchAttributes(event) {
