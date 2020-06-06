@@ -19,7 +19,9 @@ const types = {
 };
 
 const actions = {
-  hide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
+  hide(data) { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
+
+  tabHide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
 
   show(data) { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
 
@@ -57,7 +59,7 @@ const actions = {
     data.el.classList.add('selected');
 
     // Switch contents
-    this.hide({ base: block, value: '.block__tab' });
+    this.tabHide({ base: block, value: '.block__tab' });
     this.show({ base: block, value: `.block__tab[data-tab="${data.value}"]` });
 
     // If the tab has a 'data-load-tab' attribute, load and insert the content
