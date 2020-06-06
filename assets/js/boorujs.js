@@ -4,7 +4,7 @@
  * Apply event-based actions through data-* attributes. The attributes are structured like so: [data-event-action]
  */
 
-import { $ } from './utils/dom';
+import { $, $$ } from './utils/dom';
 import { fetchHtml, handleError } from './utils/requests';
 import { showBlock } from './utils/image';
 import { addTag } from './tagsinput';
@@ -84,11 +84,13 @@ function selectorCb(base = document, selector, cb) {
 }
 
 function selectorCbChildren(base = document, selector, cb) {
-  var sel = Array.from(base.querySelectorAll(selector));
-  sel = Array.from(base.children).filter(function (el) {
-  	return sel.includes(el);
-  });
-  [].forEach.call(sel, cb);
+  const sel = $$(selector, base);
+
+  for (const el of base.children) {
+    if (!sel.includes(el)) continue;
+
+    cb(el);
+  }
 }
 
 function matchAttributes(event) {
