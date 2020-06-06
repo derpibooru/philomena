@@ -178,9 +178,9 @@ defmodule Philomena.Tags do
 
   def alias_tag(%Tag{} = tag, attrs) do
     target_tag = Repo.get_by!(Tag, name: attrs["target_tag"])
-    
-    if(tag.id == target_tag.id) do
-    	tag
+
+    if tag.id == target_tag.id do
+      tag
     else
       filters_hidden =
         where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
