@@ -178,57 +178,61 @@ defmodule Philomena.Tags do
 
   def alias_tag(%Tag{} = tag, attrs) do
     target_tag = Repo.get_by!(Tag, name: attrs["target_tag"])
+    
+    if(tag.id == target_tag.id) do
+    	tag
+    else
+      filters_hidden =
+        where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
 
-    filters_hidden =
-      where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
+      filters_spoilered =
+        where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
 
-    filters_spoilered =
-      where(Filter, [f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
+      users_watching =
+        where(User, [u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
 
-    users_watching =
-      where(User, [u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
+      array_replace(filters_hidden, :hidden_tag_ids, tag.id, target_tag.id)
+      array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
+      array_replace(users_watching, :watched_tag_ids, tag.id, target_tag.id)
 
-    array_replace(filters_hidden, :hidden_tag_ids, tag.id, target_tag.id)
-    array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
-    array_replace(users_watching, :watched_tag_ids, tag.id, target_tag.id)
+      # Manual insert all because ecto won't do it for us
+      Repo.query!(
+        "INSERT INTO image_taggings (image_id, tag_id) " <>
+          "SELECT i.id, #{target_tag.id} FROM images i " <>
+          "INNER JOIN image_taggings it on it.image_id = i.id " <>
+          "WHERE it.tag_id = #{tag.id} " <>
+          "ON CONFLICT DO NOTHING"
+      )
 
-    # Manual insert all because ecto won't do it for us
-    Repo.query!(
-      "INSERT INTO image_taggings (image_id, tag_id) " <>
-        "SELECT i.id, #{target_tag.id} FROM images i " <>
-        "INNER JOIN image_taggings it on it.image_id = i.id " <>
-        "WHERE it.tag_id = #{tag.id} " <>
-        "ON CONFLICT DO NOTHING"
-    )
+      # Delete taggings on the source tag
+      Tagging
+      |> where(tag_id: ^tag.id)
+      |> Repo.delete_all()
 
-    # Delete taggings on the source tag
-    Tagging
-    |> where(tag_id: ^tag.id)
-    |> Repo.delete_all()
+      # Update other assocations
+      UserLink
+      |> where(tag_id: ^tag.id)
+      |> Repo.update_all(set: [tag_id: target_tag.id])
 
-    # Update other assocations
-    UserLink
-    |> where(tag_id: ^tag.id)
-    |> Repo.update_all(set: [tag_id: target_tag.id])
+      DnpEntry
+      |> where(tag_id: ^tag.id)
+      |> Repo.update_all(set: [tag_id: target_tag.id])
 
-    DnpEntry
-    |> where(tag_id: ^tag.id)
-    |> Repo.update_all(set: [tag_id: target_tag.id])
+      Channel
+      |> where(associated_artist_tag_id: ^tag.id)
+      |> Repo.update_all(set: [associated_artist_tag_id: target_tag.id])
 
-    Channel
-    |> where(associated_artist_tag_id: ^tag.id)
-    |> Repo.update_all(set: [associated_artist_tag_id: target_tag.id])
+      # Update counter
+      Tag
+      |> where(id: ^tag.id)
+      |> Repo.update_all(
+        set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()]
+      )
 
-    # Update counter
-    Tag
-    |> where(id: ^tag.id)
-    |> Repo.update_all(
-      set: [images_count: 0, aliased_tag_id: target_tag.id, updated_at: DateTime.utc_now()]
-    )
-
-    # Finally, reindex
-    reindex_tag_images(target_tag)
-    reindex_tags([tag, target_tag])
+      # Finally, reindex
+      reindex_tag_images(target_tag)
+      reindex_tags([tag, target_tag])
+    end
   end
 
   def reindex_tag_images(%Tag{} = tag) do
