@@ -19,7 +19,7 @@ const types = {
 };
 
 const actions = {
-  hide(data) { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
+  hide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
 
   show(data) { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
 
@@ -79,6 +79,14 @@ const actions = {
 // Use this function to apply a callback to elements matching the selectors
 function selectorCb(base = document, selector, cb) {
   [].forEach.call(base.querySelectorAll(selector), cb);
+}
+
+function selectorCbChildren(base = document, selector, cb) {
+  var sel = Array.from(base.querySelectorAll(selector));
+  sel = Array.from(base.children).filter(function (el) {
+  	return sel.includes(el);
+  });
+  [].forEach.call(sel, cb);
 }
 
 function matchAttributes(event) {
