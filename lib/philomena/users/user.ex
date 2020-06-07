@@ -48,6 +48,7 @@ defmodule Philomena.Users.User do
     many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
 
     belongs_to :current_filter, Filter
+    belongs_to :forced_filter, Filter
     belongs_to :deleted_by_user, User
 
     # Authentication
@@ -306,6 +307,16 @@ defmodule Philomena.Users.User do
 
   def api_key_changeset(user) do
     put_api_key(user)
+  end
+
+  def force_filter_changeset(user, params) do
+    user
+    |> cast(params, [:forced_filter_id])
+    |> foreign_key_constraint(:forced_filter_id)
+  end
+
+  def unforce_filter_changeset(user) do
+    change(user, forced_filter_id: nil)
   end
 
   def create_totp_secret_changeset(user) do

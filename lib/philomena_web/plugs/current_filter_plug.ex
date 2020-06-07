@@ -12,22 +12,25 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
     conn = conn |> fetch_session()
     user = conn |> Plug.current_user()
 
-    filter =
+    {filter, forced_filter} =
       if user do
-        user
-        |> Repo.preload(:current_filter)
-        |> maybe_set_default_filter()
-        |> Map.get(:current_filter)
+        user =
+          user
+          |> Repo.preload([:current_filter, :forced_filter])
+          |> maybe_set_default_filter()
+
+        {user.current_filter, user.forced_filter}
       else
         filter_id = conn |> get_session(:filter_id)
 
         filter = if filter_id, do: Repo.get(Filter, filter_id)
 
-        filter || Filters.default_filter()
+        {filter || Filters.default_filter(), nil}
       end
 
     conn
     |> assign(:current_filter, filter)
+    |> assign(:forced_filter, forced_filter)
   end
 
   defp maybe_set_default_filter(%{current_filter: nil} = user) do
