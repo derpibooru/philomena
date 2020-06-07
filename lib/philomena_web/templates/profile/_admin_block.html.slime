@@ -16,7 +16,7 @@
     br
     i.fa.fa-fw.fa-filter>
     strong.comment_deleted> Forced Filter:
-    = link @forced.name, to: Routes.filter_path(@conn, :show, @filter)
+    = link @forced.name, to: Routes.filter_path(@conn, :show, @forced)
 
   br
   i.far.fa-fw.fa-clock>

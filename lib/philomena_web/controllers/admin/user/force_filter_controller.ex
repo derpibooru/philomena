@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterController do
   end
 
   def delete(conn, _params) do
-    {:ok, user} = Users.unforce_filter(conn.assigns.current_user)
+    {:ok, user} = Users.unforce_filter(conn.assigns.user)
 
     conn
     |> put_flash(:info, "Forced filter was removed.")
