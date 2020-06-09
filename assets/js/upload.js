@@ -71,8 +71,25 @@ function setupImageUpload() {
     hideError();
   });
 
+  const formats = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/svg', 'video/webm'];
+  
   // Watch for files added to the form
-  fileField.addEventListener('change', () => { fileField.files.length && reader.readAsDataURL(fileField.files[0]); });
+  fileField.addEventListener('change', () => {
+    if(fileField.files.length <= 0) {
+      return; 
+    }
+    
+    var file = fileField.files[0];
+    
+    if(!formats.includes(file.type)) {
+      fileField.value = '';
+      //clearEl($('#js-image-upload-previews'));
+      clearEl(imgPreviews);
+      return;
+    }
+    
+    reader.readAsDataURL(file);
+  });
 
   // Watch for [Fetch] clicks
   fetchButton.addEventListener('click', () => {
@@ -81,7 +98,12 @@ function setupImageUpload() {
     disableFetch();
 
     scrapeUrl(remoteUrl.value).then(data => {
-      if (data.errors && data.errors.length > 0) {
+      console.log(data)
+      if (data == null) {
+        scraperError.innerText = "No image found at that address.";
+        showError();
+        return;
+      } else if (data.errors && data.errors.length > 0) {
         scraperError.innerText = data.errors.join(' ');
         showError();
         return;
