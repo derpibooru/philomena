@@ -47,6 +47,7 @@ defmodule Philomena.Slug do
     |> String.replace(":", "-colon-")
     |> String.replace(".", "-dot-")
     |> String.replace("+", "-plus-")
+    |> String.replace("%", "-percent-")
     |> URI.encode_www_form()
     |> String.replace("%20", "+")
   end
