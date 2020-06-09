@@ -81,7 +81,11 @@ function setupImageUpload() {
     disableFetch();
 
     scrapeUrl(remoteUrl.value).then(data => {
-      if (data.errors && data.errors.length > 0) {
+      if (data == null) {
+        scraperError.innerText = "No image found at that address.";
+        showError();
+        return;
+      } else if (data.errors && data.errors.length > 0) {
         scraperError.innerText = data.errors.join(' ');
         showError();
         return;
