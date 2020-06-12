@@ -366,6 +366,7 @@ defmodule PhilomenaWeb.Router do
         resources "/downvotes", User.DownvoteController, only: [:delete], singleton: true
         resources "/votes", User.VoteController, only: [:delete], singleton: true
         resources "/wipe", User.WipeController, only: [:create], singleton: true
+        resources "/force_filter", User.ForceFilterController, only: [:new, :create, :delete], singleton: true
       end
 
       resources "/batch/tags", Batch.TagController, only: [:update], singleton: true

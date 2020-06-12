@@ -8,7 +8,8 @@ defmodule PhilomenaWeb.Image.VoteController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CanaryMapPlug, create: :vote, delete: :vote
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
+  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags]
+  plug PhilomenaWeb.FilterForcedUsersPlug
 
   def create(conn, params) do
     user = conn.assigns.current_user

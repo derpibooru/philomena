@@ -12,6 +12,12 @@
     em
       ' (none)
 
+  = if @forced do
+    br
+    i.fa.fa-fw.fa-filter>
+    strong.comment_deleted> Forced Filter:
+    = link @forced.name, to: Routes.filter_path(@conn, :show, @forced)
+
   br
   i.far.fa-fw.fa-clock>
   ' Last seen
@@ -77,6 +83,17 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
         = link to: Routes.admin_user_path(@conn, :edit, @user) do
           i.fas.fa-fw.fa-edit
           span.admin__button Edit User
+
+      li
+        = link to: Routes.admin_user_force_filter_path(@conn, :new, @user) do
+          i.fas.faw-fw.fa-filter
+          span.admin__button Force Filter
+
+      = if @forced do
+        li
+          = link to: Routes.admin_user_force_filter_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+            i.fas.faw-fw.fa-filter
+            span.admin__button Remove Force Filter
 
       = if @user.deleted_at do
         li

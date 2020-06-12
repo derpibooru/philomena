@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 12.2 (Debian 12.2-2.pgdg100+1)
--- Dumped by pg_dump version 12.2 (Debian 12.2-2.pgdg90+1)
+-- Dumped by pg_dump version 12.3 (Debian 12.3-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1976,7 +1976,8 @@ CREATE TABLE public.users (
     consumed_timestep integer,
     otp_required_for_login boolean,
     otp_backup_codes character varying[],
-    last_renamed_at timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL
+    last_renamed_at timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
+    forced_filter_id bigint
 );
 
 
@@ -4710,8 +4711,16 @@ ALTER TABLE ONLY public.image_sources
 
 
 --
+-- Name: users users_forced_filter_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_forced_filter_id_fkey FOREIGN KEY (forced_filter_id) REFERENCES public.filters(id);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
+INSERT INTO public."schema_migrations" (version) VALUES (20200503002523), (20200607000511);
 

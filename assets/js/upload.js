@@ -98,12 +98,12 @@ function setupImageUpload() {
     disableFetch();
 
     scrapeUrl(remoteUrl.value).then(data => {
-      console.log(data)
-      if (data == null) {
-        scraperError.innerText = "No image found at that address.";
+      if (data === null) {
+        scraperError.innerText = 'No image found at that address.';
         showError();
         return;
-      } else if (data.errors && data.errors.length > 0) {
+      }
+      else if (data.errors && data.errors.length > 0) {
         scraperError.innerText = data.errors.join(' ');
         showError();
         return;
@@ -127,16 +127,18 @@ function setupImageUpload() {
 
   // Enable/disable the fetch button based on content in the image scraper. Fetching with no URL makes no sense.
   remoteUrl.addEventListener('input', () => {
-    if(remoteUrl.value.length > 0) {
+    if (remoteUrl.value.length > 0) {
       enableFetch();
-    } else {
+    }
+    else {
       disableFetch();
     }
   });
 
-  if(remoteUrl.value.length > 0) {
+  if (remoteUrl.value.length > 0) {
     enableFetch();
-  } else {
+  }
+  else {
     disableFetch();
   }
 }

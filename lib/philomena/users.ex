@@ -215,6 +215,18 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def force_filter(%User{} = user, user_params) do
+    user
+    |> User.force_filter_changeset(user_params)
+    |> Repo.update()
+  end
+
+  def unforce_filter(%User{} = user) do
+    user
+    |> User.unforce_filter_changeset()
+    |> Repo.update()
+  end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 

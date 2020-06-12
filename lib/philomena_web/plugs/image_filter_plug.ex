@@ -11,11 +11,19 @@ defmodule PhilomenaWeb.ImageFilterPlug do
   # Assign current filter
   def call(conn, _opts) do
     user = conn |> Plug.current_user()
-    filter = conn.assigns[:current_filter]
+    filter = defaults(conn.assigns[:current_filter])
+    forced = defaults(conn.assigns[:forced_filter])
 
-    tag_exclusion = %{terms: %{tag_ids: filter.hidden_tag_ids}}
-    query_exclusion = invalid_filter_guard(user, filter.hidden_complex_str)
+    tag_exclusion = %{terms: %{tag_ids: filter.hidden_tag_ids ++ forced.hidden_tag_ids}}
     query_spoiler = invalid_filter_guard(user, filter.spoilered_complex_str)
+    query_exclusion = %{
+      bool: %{
+        should: [
+          invalid_filter_guard(user, filter.hidden_complex_str),
+          invalid_filter_guard(user, forced.hidden_complex_str)
+        ]
+      }
+    }
 
     query = %{
       bool: %{
@@ -27,6 +35,18 @@ defmodule PhilomenaWeb.ImageFilterPlug do
     |> assign(:compiled_complex_filter, query_exclusion)
     |> assign(:compiled_complex_spoiler, query_spoiler)
     |> assign(:compiled_filter, query)
+  end
+
+  defp defaults(nil) do
+    %{
+      hidden_tag_ids: [],
+      hidden_complex_str: nil,
+      spoilered_complex_str: nil
+    }
+  end
+
+  defp defaults(filter) do
+    filter
   end
 
   defp invalid_filter_guard(user, search_string) do

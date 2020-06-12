@@ -216,7 +216,7 @@ defmodule PhilomenaWeb.ImageView do
   defp thumb_format(_, :rendered, _download), do: "png"
   defp thumb_format(format, _name, _download), do: format
 
-  defp image_filter_data(image) do
+  def image_filter_data(image) do
     %{
       id: image.id,
       "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache || "", ", "),

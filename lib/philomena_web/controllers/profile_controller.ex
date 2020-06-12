@@ -223,8 +223,9 @@ defmodule PhilomenaWeb.ProfileController do
   defp set_admin_metadata(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, User) do
       true ->
-        user = Repo.preload(conn.assigns.user, :current_filter)
+        user = Repo.preload(conn.assigns.user, [:current_filter, :forced_filter])
         filter = user.current_filter
+        forced = user.forced_filter
 
         last_ip =
           UserIp
@@ -242,6 +243,7 @@ defmodule PhilomenaWeb.ProfileController do
 
         conn
         |> assign(:filter, filter)
+        |> assign(:forced, forced)
         |> assign(:last_ip, last_ip)
         |> assign(:last_fp, last_fp)
 

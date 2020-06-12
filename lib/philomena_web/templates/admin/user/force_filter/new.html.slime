@@ -1,0 +1,9 @@
+h1
+  ' Force-assigning a filter for user
+  = @user.name
+
+= form_for @changeset, Routes.admin_user_force_filter_path(@conn, :create, @user), [method: "post"], fn f ->
+  .field
+    => text_input f, :forced_filter_id, placeholder: "Filter ID", class: "input", required: true
+  .field
+    = submit "Force", class: "button button--state-primary"
