@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.ImageFilterPlug do
 
     tag_exclusion = %{terms: %{tag_ids: filter.hidden_tag_ids ++ forced.hidden_tag_ids}}
     query_spoiler = invalid_filter_guard(user, filter.spoilered_complex_str)
+
     query_exclusion = %{
       bool: %{
         should: [

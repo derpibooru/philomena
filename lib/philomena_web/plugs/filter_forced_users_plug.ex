@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.FilterForcedUsersPlug do
   alias Philomena.Search.String, as: SearchString
   alias Philomena.Search.Evaluator
   alias Philomena.Images.Query
-  alias PhilomenaWeb.ImageView 
+  alias PhilomenaWeb.ImageView
 
   def init(_opts) do
     []
@@ -20,11 +20,13 @@ defmodule PhilomenaWeb.FilterForcedUsersPlug do
   end
 
   defp maybe_fetch_forced(conn, nil), do: conn
+
   defp maybe_fetch_forced(conn, forced) do
     maybe_halt(conn, matches_filter?(conn.assigns.current_user, conn.assigns.image, forced))
   end
 
   defp maybe_halt(conn, false), do: conn
+
   defp maybe_halt(conn, true) do
     conn
     |> put_flash(:error, "You have been blocked from performing this action on this image.")

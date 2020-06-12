@@ -16,7 +16,12 @@ defmodule PhilomenaWeb.Image.CommentController do
     edit: :create_comment,
     update: :create_comment
 
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags]
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [:tags]
+
   plug :verify_authorized when action in [:show]
   plug PhilomenaWeb.FilterForcedUsersPlug when action in [:create, :edit, :update]
 
