@@ -108,6 +108,12 @@ defmodule PhilomenaWeb.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "image:create",
+          PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
+        )
+
         conn
         |> put_flash(:info, "Image created successfully.")
         |> redirect(to: Routes.image_path(conn, :show, image))

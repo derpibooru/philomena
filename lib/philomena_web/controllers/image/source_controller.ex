@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Image.SourceController do
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CanaryMapPlug, update: :edit_metadata
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id"
+  plug :load_and_authorize_resource, model: Image, id_name: "image_id", preload: [:tags, :user]
 
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes
@@ -21,6 +21,12 @@ defmodule PhilomenaWeb.Image.SourceController do
 
     case Images.update_source(image, attributes, image_params) do
       {:ok, %{image: image}} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "image:update",
+          PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
+        )
+
         changeset = Images.change_image(image)
 
         source_change_count =

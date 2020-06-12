@@ -45,6 +45,12 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
   end
 
   def render("image.json", %{conn: conn, image: %{hidden_from_users: false} = image}) do
+    result = render_one(image, PhilomenaWeb.Api.Json.ImageView, "image.json", %{image: image})
+
+    Map.put(result, :spoilered, ImageView.filter_or_spoiler_hits?(conn, image))
+  end
+
+  def render("image.json", %{image: %{hidden_from_users: false} = image}) do
     %{
       id: image.id,
       created_at: image.created_at,
@@ -74,7 +80,6 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
       source_url: image.source_url,
       view_url: ImageView.pretty_url(image, false, false),
       representations: ImageView.thumb_urls(image, false),
-      spoilered: ImageView.filter_or_spoiler_hits?(conn, image),
       thumbnails_generated: image.thumbnails_generated,
       processed: image.processed,
       deletion_reason: nil,

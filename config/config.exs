@@ -63,7 +63,8 @@ config :canary,
 config :philomena, PhilomenaWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "xZYTon09JNRrj8snd7KL31wya4x71jmo5aaSSRmw1dGjWLRmEwWMTccwxgsGFGjM",
-  render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)]
+  render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
+  pubsub_server: Philomena.PubSub
 
 config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,

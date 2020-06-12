@@ -1,8 +1,8 @@
 defmodule PhilomenaWeb.UserSocket do
   use Phoenix.Socket
 
-  ## Channels
-  # channel "room:*", PhilomenaWeb.RoomChannel
+  # Channels
+  channel "firehose", PhilomenaWeb.FirehoseChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After

@@ -63,6 +63,12 @@ defmodule PhilomenaWeb.Image.CommentController do
 
     case Comments.create_comment(image, attributes, comment_params) do
       {:ok, %{comment: comment}} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "comment:create",
+          PhilomenaWeb.Api.Json.CommentView.render("show.json", %{comment: comment})
+        )
+
         Comments.notify_comment(comment)
         Comments.reindex_comment(comment)
         Images.reindex_image(conn.assigns.image)
