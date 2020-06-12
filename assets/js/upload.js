@@ -22,6 +22,9 @@ function setupImageUpload() {
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 
+	var validationChecks = {image: false, tags: false, captcha: true}; //TODO tags and captcha check
+	const uploadButton = $('#js-upload-submit');
+	
   function showImages(images) {
     clearEl(imgPreviews);
 
@@ -47,15 +50,24 @@ function setupImageUpload() {
       label.appendChild(imgWrap);
       imgPreviews.appendChild(label);
     });
+    
+    validationChecks['image'] = true;
+    updateValidation();
   }
   function showError() {
     clearEl(imgPreviews);
     showEl(scraperError);
     enableFetch();
+    
+    validationChecks['image'] = false;
+    updateValidation();
   }
   function hideError()    { hideEl(scraperError); }
   function disableFetch() { fetchButton.setAttribute('disabled', ''); }
   function enableFetch()  { fetchButton.removeAttribute('disabled'); }
+
+	function disableUpload() { uploadButton.setAttribute('disabled', ''); }
+	function enableUpload()  { uploadButton.removeAttribute('disabled'); }
 
   const reader = new FileReader();
 
@@ -69,22 +81,41 @@ function setupImageUpload() {
     remoteUrl.value = '';
     disableFetch();
     hideError();
+    validationChecks['image'] = true;
+    updateValidation();
   });
 
   const formats = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/svg', 'video/webm'];
   
+  function updateValidation() {
+    disableUpload();
+    //for((key,value) in validationChecks) {
+    for(const value in validationChecks) {
+    	if (value == false) {
+  			return;
+  		}
+		}
+		enableUpload();
+    return;
+  }
+  
   // Watch for files added to the form
   fileField.addEventListener('change', () => {
-    if(fileField.files.length <= 0) {
+    if (fileField.files.length <= 0) {
+    	clearEl(imgPreviews);
+    	validationChecks['image'] = false;
+    	updateValidation();
       return; 
     }
     
     var file = fileField.files[0];
     
-    if(!formats.includes(file.type)) {
+    if (!formats.includes(file.type)) {
       fileField.value = '';
       //clearEl($('#js-image-upload-previews'));
       clearEl(imgPreviews);
+      validationChecks['image'] = false;
+    	updateValidation();
       return;
     }
     
@@ -101,6 +132,11 @@ function setupImageUpload() {
       if (data === null) {
         scraperError.innerText = 'No image found at that address.';
         showError();
+        
+        clearEl(imgPreviews);
+        //fileField[0].value = '';
+        validationChecks['image'] = false;
+    		updateValidation();
         return;
       }
       else if (data.errors && data.errors.length > 0) {
@@ -141,6 +177,7 @@ function setupImageUpload() {
   else {
     disableFetch();
   }
+  disableUpload();
 }
 
 export { setupImageUpload };
