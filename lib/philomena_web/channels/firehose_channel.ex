@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.FirehoseChannel do
   end
 
   # Don't allow the connected client to send any messages to the socket
-  def handle_in(message, _params, socket) do
+  def handle_in(_message, _params, socket) do
     {:stop, :shutdown, socket}
   end
 end
