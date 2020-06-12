@@ -42,7 +42,7 @@ defmodule Philomena.MixProject do
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.17"},
       {:jason, "~> 1.1"},
-      {:plug_cowboy, "~> 2.2"},
+      {:plug_cowboy, "~> 2.3"},
       {:phoenix_slime, "~> 0.13"},
       {:ecto_network, "~> 1.3"},
       {:pow, "~> 1.0"},
