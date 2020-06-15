@@ -41,6 +41,12 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "image:create",
+          PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
+        )
+
         render(conn, "show.json", image: image, interactions: [])
 
       {:error, :image, changeset, _} ->

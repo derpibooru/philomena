@@ -103,6 +103,12 @@ defmodule PhilomenaWeb.Image.CommentController do
   def update(conn, %{"comment" => comment_params}) do
     case Comments.update_comment(conn.assigns.comment, conn.assigns.current_user, comment_params) do
       {:ok, %{comment: comment}} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "comment:update",
+          PhilomenaWeb.Api.Json.CommentView.render("show.json", %{comment: comment})
+        )
+
         Comments.reindex_comment(comment)
 
         conn

@@ -23,6 +23,11 @@ defmodule PhilomenaWeb.Image.SourceController do
       {:ok, %{image: image}} ->
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
+          "image:source_update",
+          %{image_id: image.id, added: [image.source_url], removed: [old_source]}
+        )
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
           "image:update",
           PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
         )
