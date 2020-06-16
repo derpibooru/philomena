@@ -29,10 +29,12 @@ defmodule PhilomenaWeb.Tag.AliasController do
   end
 
   def delete(conn, _params) do
-    {:ok, _tag} = Tags.unalias_tag(conn.assigns.tag)
+    spawn(fn ->
+      {:ok, _tag} = Tags.unalias_tag(conn.assigns.tag)
+    end)
 
     conn
-    |> put_flash(:info, "Tag alias removed.")
+    |> put_flash(:info, "Tag dealias queued.")
     |> redirect(to: Routes.tag_path(conn, :show, conn.assigns.tag))
   end
 end

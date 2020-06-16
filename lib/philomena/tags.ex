@@ -256,9 +256,20 @@ defmodule Philomena.Tags do
   end
 
   def unalias_tag(%Tag{} = tag) do
+    former_alias = Repo.preload(tag, :aliased_tag).aliased_tag
+
     tag
     |> Tag.unalias_changeset()
     |> Repo.update()
+    |> case do
+      {:ok, _} = result ->
+        reindex_tag_images(former_alias)
+
+        result
+
+      result ->
+        result
+    end
   end
 
   defp array_replace(queryable, column, old_value, new_value) do
