@@ -1,6 +1,6 @@
 elixir:
   route = fn p -> Routes.gallery_path(@conn, :index, p) end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route
+  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route, params: [gallery: @conn.params["gallery"]]
 
 .column-layout
   .column-layout__left
