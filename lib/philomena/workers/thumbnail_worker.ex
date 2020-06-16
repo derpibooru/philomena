@@ -6,7 +6,7 @@ defmodule Philomena.ThumbnailWorker do
 
     PhilomenaWeb.Endpoint.broadcast!(
       "firehose",
-      "image:processed",
+      "image:process",
       %{image_id: image_id}
     )
   end
