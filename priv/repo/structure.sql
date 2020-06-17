@@ -46,7 +46,6 @@ CREATE TABLE public.adverts (
 --
 
 CREATE SEQUENCE public.adverts_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -59,18 +58,6 @@ CREATE SEQUENCE public.adverts_id_seq
 --
 
 ALTER SEQUENCE public.adverts_id_seq OWNED BY public.adverts.id;
-
-
---
--- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.ar_internal_metadata (
-    key character varying NOT NULL,
-    value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
-);
 
 
 --
@@ -96,7 +83,6 @@ CREATE TABLE public.badge_awards (
 --
 
 CREATE SEQUENCE public.badge_awards_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -132,7 +118,6 @@ CREATE TABLE public.badges (
 --
 
 CREATE SEQUENCE public.badges_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -195,7 +180,6 @@ CREATE TABLE public.channels (
 --
 
 CREATE SEQUENCE public.channels_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -241,7 +225,6 @@ CREATE TABLE public.comments (
 --
 
 CREATE SEQUENCE public.comments_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -278,7 +261,6 @@ CREATE TABLE public.commission_items (
 --
 
 CREATE SEQUENCE public.commission_items_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -318,7 +300,6 @@ CREATE TABLE public.commissions (
 --
 
 CREATE SEQUENCE public.commissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -358,7 +339,6 @@ CREATE TABLE public.conversations (
 --
 
 CREATE SEQUENCE public.conversations_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -399,7 +379,6 @@ CREATE TABLE public.dnp_entries (
 --
 
 CREATE SEQUENCE public.dnp_entries_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -437,7 +416,6 @@ CREATE TABLE public.donations (
 --
 
 CREATE SEQUENCE public.donations_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -474,7 +452,6 @@ CREATE TABLE public.duplicate_reports (
 --
 
 CREATE SEQUENCE public.duplicate_reports_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -515,7 +492,6 @@ CREATE TABLE public.filters (
 --
 
 CREATE SEQUENCE public.filters_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -553,7 +529,6 @@ CREATE TABLE public.fingerprint_bans (
 --
 
 CREATE SEQUENCE public.fingerprint_bans_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -604,7 +579,6 @@ CREATE TABLE public.forums (
 --
 
 CREATE SEQUENCE public.forums_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -644,7 +618,6 @@ CREATE TABLE public.galleries (
 --
 
 CREATE SEQUENCE public.galleries_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -676,7 +649,6 @@ CREATE TABLE public.gallery_interactions (
 --
 
 CREATE SEQUENCE public.gallery_interactions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -919,7 +891,6 @@ CREATE TABLE public.images (
 --
 
 CREATE SEQUENCE public.images_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -953,7 +924,6 @@ CREATE TABLE public.messages (
 --
 
 CREATE SEQUENCE public.messages_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -989,7 +959,6 @@ CREATE TABLE public.mod_notes (
 --
 
 CREATE SEQUENCE public.mod_notes_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1026,7 +995,6 @@ CREATE TABLE public.notifications (
 --
 
 CREATE SEQUENCE public.notifications_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1058,7 +1026,6 @@ CREATE TABLE public.poll_options (
 --
 
 CREATE SEQUENCE public.poll_options_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1091,7 +1058,6 @@ CREATE TABLE public.poll_votes (
 --
 
 CREATE SEQUENCE public.poll_votes_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1130,7 +1096,6 @@ CREATE TABLE public.polls (
 --
 
 CREATE SEQUENCE public.polls_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1177,7 +1142,6 @@ CREATE TABLE public.posts (
 --
 
 CREATE SEQUENCE public.posts_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1219,7 +1183,6 @@ CREATE TABLE public.reports (
 --
 
 CREATE SEQUENCE public.reports_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1253,7 +1216,6 @@ CREATE TABLE public.roles (
 --
 
 CREATE SEQUENCE public.roles_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1302,7 +1264,6 @@ CREATE TABLE public.site_notices (
 --
 
 CREATE SEQUENCE public.site_notices_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1341,7 +1302,6 @@ CREATE TABLE public.source_changes (
 --
 
 CREATE SEQUENCE public.source_changes_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1447,7 +1407,6 @@ CREATE TABLE public.subnet_bans (
 --
 
 CREATE SEQUENCE public.subnet_bans_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1487,7 +1446,6 @@ CREATE TABLE public.tag_changes (
 --
 
 CREATE SEQUENCE public.tag_changes_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1531,7 +1489,6 @@ CREATE TABLE public.tags (
 --
 
 CREATE SEQUENCE public.tags_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1600,7 +1557,6 @@ CREATE TABLE public.topics (
 --
 
 CREATE SEQUENCE public.topics_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1631,7 +1587,6 @@ CREATE TABLE public.unread_notifications (
 --
 
 CREATE SEQUENCE public.unread_notifications_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1670,7 +1625,6 @@ CREATE TABLE public.user_bans (
 --
 
 CREATE SEQUENCE public.user_bans_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1704,7 +1658,6 @@ CREATE TABLE public.user_fingerprints (
 --
 
 CREATE SEQUENCE public.user_fingerprints_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1738,7 +1691,6 @@ CREATE TABLE public.user_ips (
 --
 
 CREATE SEQUENCE public.user_ips_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1781,7 +1733,6 @@ CREATE TABLE public.user_links (
 --
 
 CREATE SEQUENCE public.user_links_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1814,7 +1765,6 @@ CREATE TABLE public.user_name_changes (
 --
 
 CREATE SEQUENCE public.user_name_changes_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1851,7 +1801,6 @@ CREATE TABLE public.user_statistics (
 --
 
 CREATE SEQUENCE public.user_statistics_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1884,7 +1833,6 @@ CREATE TABLE public.user_whitelists (
 --
 
 CREATE SEQUENCE public.user_whitelists_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1986,7 +1934,6 @@ CREATE TABLE public.users (
 --
 
 CREATE SEQUENCE public.users_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2031,7 +1978,6 @@ CREATE TABLE public.versions (
 --
 
 CREATE SEQUENCE public.versions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -2390,14 +2336,6 @@ ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.ver
 
 ALTER TABLE ONLY public.adverts
     ADD CONSTRAINT adverts_pkey PRIMARY KEY (id);
-
-
---
--- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ar_internal_metadata
-    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -3855,6 +3793,13 @@ CREATE UNIQUE INDEX index_users_on_authentication_token ON public.users USING bt
 
 
 --
+-- Name: index_users_on_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_created_at ON public.users USING btree (created_at);
+
+
+--
 -- Name: index_users_on_current_filter_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3887,6 +3832,13 @@ CREATE UNIQUE INDEX index_users_on_name ON public.users USING btree (name);
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
+
+
+--
+-- Name: index_users_on_role; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_role ON public.users USING btree (role) WHERE ((role)::text <> 'user'::text);
 
 
 --
@@ -3936,20 +3888,6 @@ CREATE INDEX index_vpns_on_ip ON public.vpns USING gist (ip inet_ops);
 --
 
 CREATE INDEX intensities_index ON public.images USING btree (se_intensity, sw_intensity, ne_intensity, nw_intensity, average_intensity);
-
-
---
--- Name: temp_unique_index_tags_on_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX temp_unique_index_tags_on_name ON public.tags USING btree (name);
-
-
---
--- Name: temp_unique_index_tags_on_slug; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX temp_unique_index_tags_on_slug ON public.tags USING btree (slug);
 
 
 --
@@ -4767,3 +4705,4 @@ ALTER TABLE ONLY public.users
 INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
 INSERT INTO public."schema_migrations" (version) VALUES (20200607000511);
 INSERT INTO public."schema_migrations" (version) VALUES (20200617111116);
+INSERT INTO public."schema_migrations" (version) VALUES (20200617113333);
