@@ -21,7 +21,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:12.2
+    image: postgres:12.3
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:

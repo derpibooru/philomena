@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.2 (Debian 12.2-2.pgdg100+1)
+-- Dumped from database version 12.3 (Debian 12.3-1.pgdg100+1)
 -- Dumped by pg_dump version 12.3 (Debian 12.3-1.pgdg90+1)
 
 SET statement_timeout = 0;
@@ -2791,13 +2791,6 @@ CREATE UNIQUE INDEX image_sources_image_id_source_index ON public.image_sources 
 
 
 --
--- Name: index_adverts_on_live; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_adverts_on_live ON public.adverts USING btree (live);
-
-
---
 -- Name: index_adverts_on_restrictions; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2896,6 +2889,13 @@ CREATE INDEX index_comments_on_image_id ON public.comments USING btree (image_id
 
 
 --
+-- Name: index_comments_on_image_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_comments_on_image_id_and_created_at ON public.comments USING btree (image_id, created_at);
+
+
+--
 -- Name: index_comments_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2921,13 +2921,6 @@ CREATE INDEX index_commission_items_on_example_image_id ON public.commission_ite
 --
 
 CREATE INDEX index_commission_items_on_item_type ON public.commission_items USING btree (item_type);
-
-
---
--- Name: index_commissions_on_categories; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_commissions_on_categories ON public.commissions USING btree (categories);
 
 
 --
@@ -2973,10 +2966,10 @@ CREATE INDEX index_conversations_on_to_id ON public.conversations USING btree (t
 
 
 --
--- Name: index_dnp_entries_on_modifying_user_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_dnp_entries_on_aasm_state_filtered; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_dnp_entries_on_modifying_user_id ON public.dnp_entries USING btree (modifying_user_id);
+CREATE INDEX index_dnp_entries_on_aasm_state_filtered ON public.dnp_entries USING btree (aasm_state) WHERE ((aasm_state)::text = ANY (ARRAY[('requested'::character varying)::text, ('claimed'::character varying)::text, ('rescinded'::character varying)::text, ('acknowledged'::character varying)::text]));
 
 
 --
@@ -3036,10 +3029,31 @@ CREATE INDEX index_duplicate_reports_on_state ON public.duplicate_reports USING 
 
 
 --
+-- Name: index_duplicate_reports_on_state_filtered; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_duplicate_reports_on_state_filtered ON public.duplicate_reports USING btree (state) WHERE ((state)::text = ANY (ARRAY[('open'::character varying)::text, ('claimed'::character varying)::text]));
+
+
+--
 -- Name: index_duplicate_reports_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_duplicate_reports_on_user_id ON public.duplicate_reports USING btree (user_id);
+
+
+--
+-- Name: index_filters_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_filters_on_name ON public.filters USING btree (name);
+
+
+--
+-- Name: index_filters_on_system; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_filters_on_system ON public.filters USING btree (system) WHERE (system = true);
 
 
 --
@@ -3124,6 +3138,20 @@ CREATE INDEX index_galleries_on_thumbnail_id ON public.galleries USING btree (th
 --
 
 CREATE INDEX index_gallery_interactions_on_gallery_id ON public.gallery_interactions USING btree (gallery_id);
+
+
+--
+-- Name: index_gallery_interactions_on_gallery_id_and_image_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_gallery_interactions_on_gallery_id_and_image_id ON public.gallery_interactions USING btree (gallery_id, image_id);
+
+
+--
+-- Name: index_gallery_interactions_on_gallery_id_and_position; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_gallery_interactions_on_gallery_id_and_position ON public.gallery_interactions USING btree (gallery_id, "position");
 
 
 --
@@ -3281,13 +3309,6 @@ CREATE INDEX index_images_on_featured_on ON public.images USING btree (featured_
 
 
 --
--- Name: index_images_on_first_seen_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_images_on_first_seen_at ON public.images USING btree (first_seen_at);
-
-
---
 -- Name: index_images_on_image_orig_sha512_hash; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3347,7 +3368,7 @@ CREATE INDEX index_mod_notes_on_notable_type_and_notable_id ON public.mod_notes 
 -- Name: index_notifications_on_actor_id_and_actor_type; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_notifications_on_actor_id_and_actor_type ON public.notifications USING btree (actor_id, actor_type);
+CREATE UNIQUE INDEX index_notifications_on_actor_id_and_actor_type ON public.notifications USING btree (actor_id, actor_type);
 
 
 --
@@ -3526,10 +3547,31 @@ CREATE INDEX index_subnet_bans_on_created_at ON public.subnet_bans USING btree (
 
 
 --
+-- Name: index_subnet_bans_on_specification; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_subnet_bans_on_specification ON public.subnet_bans USING gist (specification inet_ops);
+
+
+--
+-- Name: index_tag_changes_on_fingerprint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tag_changes_on_fingerprint ON public.tag_changes USING btree (fingerprint);
+
+
+--
 -- Name: index_tag_changes_on_image_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_tag_changes_on_image_id ON public.tag_changes USING btree (image_id);
+
+
+--
+-- Name: index_tag_changes_on_ip; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_tag_changes_on_ip ON public.tag_changes USING gist (ip inet_ops);
 
 
 --
@@ -3571,14 +3613,14 @@ CREATE INDEX index_tags_on_aliased_tag_id ON public.tags USING btree (aliased_ta
 -- Name: index_tags_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tags_on_name ON public.tags USING btree (name);
+CREATE UNIQUE INDEX index_tags_on_name ON public.tags USING btree (name);
 
 
 --
 -- Name: index_tags_on_slug; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tags_on_slug ON public.tags USING btree (slug);
+CREATE UNIQUE INDEX index_tags_on_slug ON public.tags USING btree (slug);
 
 
 --
@@ -3652,13 +3694,6 @@ CREATE INDEX index_topics_on_slug ON public.topics USING btree (slug);
 
 
 --
--- Name: index_topics_on_sticky; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_topics_on_sticky ON public.topics USING btree (sticky);
-
-
---
 -- Name: index_topics_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3690,7 +3725,7 @@ CREATE INDEX index_user_bans_on_banning_user_id ON public.user_bans USING btree 
 -- Name: index_user_bans_on_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_user_bans_on_created_at ON public.user_bans USING btree (created_at);
+CREATE INDEX index_user_bans_on_created_at ON public.user_bans USING btree (created_at DESC);
 
 
 --
@@ -3844,7 +3879,7 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 -- Name: index_users_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_users_on_name ON public.users USING btree (name);
+CREATE UNIQUE INDEX index_users_on_name ON public.users USING btree (name);
 
 
 --
@@ -3858,7 +3893,14 @@ CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING bt
 -- Name: index_users_on_slug; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_users_on_slug ON public.users USING btree (slug);
+CREATE UNIQUE INDEX index_users_on_slug ON public.users USING btree (slug);
+
+
+--
+-- Name: index_users_on_watched_tag_ids; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_watched_tag_ids ON public.users USING gin (watched_tag_ids);
 
 
 --
@@ -4722,5 +4764,6 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO public."schema_migrations" (version) VALUES (20200503002523), (20200607000511);
-
+INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
+INSERT INTO public."schema_migrations" (version) VALUES (20200607000511);
+INSERT INTO public."schema_migrations" (version) VALUES (20200617111116);
