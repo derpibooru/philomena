@@ -36,7 +36,7 @@
 
           br
 
-          => submit "Update my avatar", class: "button"
+          => submit "Update my avatar", class: "button js-upload-submit", data: [mimes_allowed: raw('image/png, image/jpeg, image/gif')]
 
       br
       = button_to "Remove my avatar", Routes.avatar_path(@conn, :delete), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]

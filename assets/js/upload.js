@@ -22,8 +22,9 @@ function setupImageUpload() {
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 
-	var validationChecks = {image: false, tags: false, captcha: true}; //TODO tags and captcha check
-	const uploadButton = $('#js-upload-submit');
+  var validationChecks = {image: false, tags: false, captcha: true}; //TODO tags and captcha check
+  const uploadButton = $('.js-upload-submit');
+	const { mimesAllowed } = uploadButton.dataset;
 	
   function showImages(images) {
     clearEl(imgPreviews);
@@ -84,8 +85,6 @@ function setupImageUpload() {
     validationChecks['image'] = true;
     updateValidation();
   });
-
-  const formats = ['image/png', 'image/jpeg', 'image/gif', 'image/svg+xml', 'image/svg', 'video/webm'];
   
   function updateValidation() {
     disableUpload();

@@ -90,4 +90,4 @@
       = checkbox f, :anonymous, class: "checkbox", value: anonymous_by_default?(@conn)
 
   .actions
-    = submit "Upload", class: "button", id: "js-upload-submit", autocomplete: "off", data: [disable_with: "Please wait..."]
+    = submit "Upload", class: "button js-upload-submit", autocomplete: "off", data: [disable_with: "Please wait...", mimes_allowed: raw('image/png, image/jpeg, image/gif, image/svg+xml, image/svg, video/webm')]

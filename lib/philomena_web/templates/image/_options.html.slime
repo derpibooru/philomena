@@ -81,7 +81,7 @@
 
         .field-error-js.hidden.js-scraper
 
-        = submit "Save changes", class: "button", data: [disable_with: raw("Replacing&hellip;")]
+        = submit "Save changes", class: "button js-upload-submit", data: [disable_with: raw("Replacing&hellip;"), mimes_allowed: raw('image/png, image/jpeg, image/gif, image/svg+xml, image/svg, video/webm')]
 
     .block__tab.hidden data-tab="administration"
       .block.block--danger
