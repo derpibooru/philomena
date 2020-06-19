@@ -24,7 +24,8 @@ function setupImageUpload() {
 
   var validationChecks = {image: false, tags: false, captcha: true}; //TODO tags and captcha check
   const uploadButton = $('.js-upload-submit');
-	const { mimesAllowed } = uploadButton.dataset;
+  //const { mimesAllowed } = uploadButton.dataset;
+	const mimesAllowed = uploadButton.dataset.mimesAllowed;
 	
   function showImages(images) {
     clearEl(imgPreviews);
@@ -67,7 +68,7 @@ function setupImageUpload() {
   function disableFetch() { fetchButton.setAttribute('disabled', ''); }
   function enableFetch()  { fetchButton.removeAttribute('disabled'); }
 
-	function disableUpload() { uploadButton.setAttribute('disabled', ''); }
+	function disableUpload() { console.log("disabled"); uploadButton.setAttribute('disabled', ''); }
 	function enableUpload()  { uploadButton.removeAttribute('disabled'); }
 
   const reader = new FileReader();
