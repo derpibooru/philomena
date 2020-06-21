@@ -22,9 +22,10 @@ function setupImageUpload() {
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 
-  var validationChecks = {image: false, tags: false, captcha: true}; //TODO tags and captcha check
+  const validationChecks = {image: false, tags: true, captcha: true}; //TODO tags and captcha check
   const uploadButton = $('.js-upload-submit');
-  const mimesAllowed = uploadButton.dataset.mimesAllowed;
+  const mimesAllowed = uploadButton.dataset.mimesAllowed.split(',');
+  //TODO add file size and image height/width in a similar way, for avatar upload
 
   function showImages(images) {
     clearEl(imgPreviews);
@@ -51,73 +52,148 @@ function setupImageUpload() {
       label.appendChild(imgWrap);
       imgPreviews.appendChild(label);
     });
-    
-    validationChecks['image'] = true;
+
+    validationChecks.image = true;
     updateValidation();
   }
   function showError() {
     clearEl(imgPreviews);
     showEl(scraperError);
     enableFetch();
-    
-    validationChecks['image'] = false;
+
+    validationChecks.image = false;
     updateValidation();
   }
   function hideError()    { hideEl(scraperError); }
+
+  function showImageError(text) {
+    clearEl(imgPreviews);
+
+    const newSpan = document.createElement('SPAN');
+    newSpan.className = 'help-block';
+    newSpan.innerHTML = text;
+    fileField.parentElement.appendChild(newSpan);
+
+    validationChecks.image = false;
+    updateValidation();
+  }
+
+  function hideImageErrors() {
+    const parent = fileField.parentElement;
+    let toRemove = fileField.nextSibling;
+    while (toRemove !== null) {
+      parent.removeChild(toRemove);
+      toRemove = fileField.nextSibling;
+    }
+  }
+
   function disableFetch() { fetchButton.setAttribute('disabled', ''); }
   function enableFetch()  { fetchButton.removeAttribute('disabled'); }
 
-	function disableUpload() { uploadButton.setAttribute('disabled', ''); }
-	function enableUpload()  { uploadButton.removeAttribute('disabled'); }
+  function disableUpload() { uploadButton.setAttribute('disabled', ''); }
+  function enableUpload()  { uploadButton.removeAttribute('disabled'); }
 
   const reader = new FileReader();
 
   reader.addEventListener('load', event => {
+    const image = new Image();
+    image.src = event.target.result;
+
+    //TODO alter showImages() so that it can take in Image objects,
+    //     so that an image object isn't loaded twice
     showImages([{
       camo_url: event.target.result,
     }]);
 
-    // Clear any currently cached data, because the file field
-    // has higher priority than the scraper:
-    remoteUrl.value = '';
-    disableFetch();
     hideError();
-    validationChecks['image'] = true;
-    updateValidation();
+
+    function imageLoadCallback(imageValid) {
+      if (imageValid === true) {
+        // Clear any currently cached data, because the file field
+        // has higher priority than the scraper:
+        remoteUrl.value = '';
+        disableFetch();
+        hideImageErrors();
+        validationChecks.image = true;
+      }
+      else {
+        fileField.value = '';
+        clearEl(imgPreviews);
+        validationChecks.image = false;
+      }
+      updateValidation();
+    }
+
+    image.onload = function() {
+      let error = false;
+
+      if (this.height <= 0 || this.height > 32767) {
+        showImageError('Height must be between 1 and 32767');
+        error = true;
+      }
+      if (this.width <= 0 || this.width > 32767) {
+        showImageError('Width must be between 1 and 32767');
+        error = true;
+      }
+
+      imageLoadCallback(!error);
+
+      return true;
+    };
   });
-  
+
   function updateValidation() {
     disableUpload();
-    //for((key,value) in validationChecks) {
-    for(const value in validationChecks) {
-    	if (value == false) {
-  			return;
-  		}
-		}
-		enableUpload();
+
+    for (const key in validationChecks) {
+      if (validationChecks[key] === false) {
+        return;
+      }
+    }
+
+    enableUpload();
     return;
   }
-  
+
   // Watch for files added to the form
   fileField.addEventListener('change', () => {
+    let error = false;
+    let file;
+
+    hideImageErrors();
+
     if (fileField.files.length <= 0) {
-    	clearEl(imgPreviews);
-    	validationChecks['image'] = false;
-    	updateValidation();
-      return; 
+      showImageError('Image can\'t be size 0');
+      error = true;
     }
-    
-    var file = fileField.files[0];
-    
-    if (!formats.includes(file.type)) {
+
+    if (error === false) {
+      file = fileField.files[0];
+
+      if (!mimesAllowed.includes(file.type)) {
+        showImageError('Invalid mime type');
+        error = true;
+      }
+
+      if (file.size > 26214400) {
+        showImageError('File size must be less than 26.2144MB');
+        error = true;
+      }
+
+      if (file.name.length > 255) {
+        showImageError('File name must be less than 255 characters');
+        error = true;
+      }
+    }
+
+    if (error === true) {
       fileField.value = '';
-      //clearEl($('#js-image-upload-previews'));
       clearEl(imgPreviews);
-      validationChecks['image'] = false;
-    	updateValidation();
+      validationChecks.image = false;
+      updateValidation();
       return;
     }
-    
+
     reader.readAsDataURL(file);
   });
 
@@ -131,20 +207,24 @@ function setupImageUpload() {
       if (data === null) {
         scraperError.innerText = 'No image found at that address.';
         showError();
-        
         clearEl(imgPreviews);
-        //fileField[0].value = '';
-        validationChecks['image'] = false;
-    		updateValidation();
+        fileField.value = '';
+        validationChecks.image = false;
+        updateValidation();
         return;
       }
       else if (data.errors && data.errors.length > 0) {
         scraperError.innerText = data.errors.join(' ');
         showError();
+        clearEl(imgPreviews);
+        fileField.value = '';
+        validationChecks.image = false;
+        updateValidation();
         return;
       }
 
       hideError();
+      hideImageErrors();
 
       // Set source
       if (sourceEl) sourceEl.value = sourceEl.value || data.source_url || '';
