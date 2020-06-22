@@ -119,7 +119,7 @@ defmodule Philomena.Processors.Gif do
         "yuv420p",
         "-c:v",
         "libvpx",
-        "-quality",
+        "-deadline",
         "good",
         "-b:v",
         "5M",
