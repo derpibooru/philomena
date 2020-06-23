@@ -25,7 +25,7 @@ p
 
 hr
 
-= form_for @changeset, Routes.registration_deactivate_path(@conn, :delete), [as: :user, method: "delete"], fn f ->
+= form_for @changeset, Routes.registration_deactivate_path(@conn, :create), [as: :user, method: "post"], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

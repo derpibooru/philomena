@@ -19,7 +19,7 @@ p
 
 p
   ' Looking to deactivate your account?
-  = link "Click here!", to: Routes.registration_deactivate_path(@conn, :edit)
+  = link "Click here!", to: Routes.registration_deactivate_path(@conn, :new)
 
 h3 API Key
 p
