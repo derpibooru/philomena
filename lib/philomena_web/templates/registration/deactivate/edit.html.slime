@@ -1,0 +1,54 @@
+h1 Deactivate Your Account
+.dnp-warning
+  h4 WARNING - This is permanent
+  p
+    ' Deactivating an account is a non-reversable action. Once your account is deactivated, you will be unable to recover
+    ' your account or any private information associated with it, such as private messages. Our staff will be unable
+    ' to verify your former ownership of the account, and thus unable to help you regain access to it or perform any
+    ' actions to/against your account at your request.
+  strong ONLY DEACTIVATE YOUR ACCOUNT IF YOU ARE SURE YOU DO NOT WANT TO ACCESS IT EVER AGAIN
+
+
+p Deactivating your account will perform the following actions:
+ul#selector
+  li Remove your email address and replace it with a random string
+  li Remove your IP address history
+  li Immediately log you out
+  li Lock your account to block future login attempts
+
+p
+  ' Please be aware that images you've uploaded and comments you posted will not be removed. If you would
+  ' like these removed or anonymized before deactivating your account, please report your profile and request
+  ' that a staff member performs these actions. Additionally, please be aware that we consider keeping problematic
+  ' users off our site an ongoing legitimate interest under the GDPR, and as such any IP address ban history will
+  ' not be removed from our database.
+
+hr
+
+= form_for @changeset, Routes.registration_deactivate_path(@conn, :delete), [as: :user, method: "delete"], fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+  strong To continue, please check all of the following:
+  .field
+    => checkbox f, :ack_1, class: "checkbox"
+    => label f, :ack_1, "I understand that deactivating my account will immediately and permanently disable it."
+    = error_tag f, :ack_1
+  .field
+    => checkbox f, :ack_2, class: "checkbox"
+    => label f, :ack_2, "I understand that I will be unable to regain access to my account."
+    = error_tag f, :ack_2
+  .field
+    => checkbox f, :ack_3, class: "checkbox"
+    => label f, :ack_3, "I understand that site staff will be unable to help me with any matters related to my account once it is deactivated."
+    = error_tag f, :ack_3
+  .field
+    => checkbox f, :ack_4, class: "checkbox"
+    => label f, :ack_4, "I understand that this is permanent and unreversable. My account will be gone, and I will not get it back, ever."
+    = error_tag f, :ack_
+  .field
+    => checkbox f, :ack_5, class: "checkbox"
+    => label f, :ack_5, "I understand that if I change my mind in the future, I'll be out of luck and will have to create a new account."
+    = error_tag f, :ack_5
+  .action
+    = submit "Deactivate my account", class: "button"

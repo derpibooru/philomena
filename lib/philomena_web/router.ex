@@ -92,6 +92,7 @@ defmodule PhilomenaWeb.Router do
     scope "/registrations", Registration, as: :registration do
       resources "/totp", TotpController, only: [:edit, :update], singleton: true
       resources "/name", NameController, only: [:edit, :update], singleton: true
+      resources "/deactivate", DeactivateController, only: [:edit, :delete], singleton: true
     end
 
     scope "/sessions", Session, as: :session do

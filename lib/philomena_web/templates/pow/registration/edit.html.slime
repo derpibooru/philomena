@@ -17,6 +17,10 @@ p
     ' Looking to change your username?
     = link "Click here!", to: Routes.registration_name_path(@conn, :edit)
 
+p
+  ' Looking to deactivate your account?
+  = link "Click here!", to: Routes.registration_deactivate_path(@conn, :edit)
+
 h3 API Key
 p
   ' Your API key is
