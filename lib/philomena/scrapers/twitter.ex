@@ -1,5 +1,5 @@
 defmodule Philomena.Scrapers.Twitter do
-  @gt_regex ~r|document.cookie = decodeURIComponent\("gt=(\d+);|
+  @gt_regex ~r|gt=(\d+?);|
   @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
   @script_regex ~r|<script type="text/javascript" .*? src="(https://abs.twimg.com/responsive-web/web/main\.[\da-z]+\.js)">|
   @bearer_regex ~r|"(AAAAAAAAAAAAA[^"]*)"|
@@ -38,7 +38,7 @@ defmodule Philomena.Scrapers.Twitter do
   def api_response!(url) do
     [user, status_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
-    mobile_url = "https://mobile.twitter.com/#{user}/status/#{status_id}"
+    page_url = "https://twitter.com/#{user}/status/#{status_id}"
 
     api_url =
       "https://api.twitter.com/2/timeline/conversation/#{status_id}.json?tweet_mode=extended"
@@ -46,8 +46,7 @@ defmodule Philomena.Scrapers.Twitter do
     url = "https://twitter.com/#{user}/status/#{status_id}"
 
     {gt, bearer} =
-      Philomena.Http.get!(mobile_url)
-      |> Map.get(:body)
+      Philomena.Http.get!(page_url)
       |> extract_guest_token_and_bearer()
 
     Philomena.Http.get!(api_url, [{"Authorization", "Bearer #{bearer}"}, {"x-guest-token", gt}])
@@ -60,8 +59,9 @@ defmodule Philomena.Scrapers.Twitter do
     |> Map.put("url", url)
   end
 
-  defp extract_guest_token_and_bearer(page) do
-    [gt] = Regex.run(@gt_regex, page, capture: :all_but_first)
+  defp extract_guest_token_and_bearer(%Tesla.Env{body: page, headers: headers}) do
+    [{_, gt}] = Enum.filter(headers, fn {k, v} -> k == "set-cookie" and String.starts_with?(v, "gt=") end)
+    [gt] = Regex.run(@gt_regex, gt, capture: :all_but_first)
     [script] = Regex.run(@script_regex, page, capture: :all_but_first)
 
     %{body: body} = Philomena.Http.get!(script)
