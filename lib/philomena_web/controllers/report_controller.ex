@@ -80,7 +80,7 @@ defmodule PhilomenaWeb.ReportController do
       |> where([r], r.state in ["open", "in_progress"])
       |> Repo.aggregate(:count, :id)
 
-    reports_open >= 5
+    reports_open >= 3
   end
 
   defp too_many_reports_ip?(conn) do
@@ -92,7 +92,7 @@ defmodule PhilomenaWeb.ReportController do
       |> where([r], r.state in ["open", "in_progress"])
       |> Repo.aggregate(:count, :id)
 
-    reports_open >= 5
+    reports_open >= 3
   end
 
   defp redirect_path(_conn, nil), do: "/"
