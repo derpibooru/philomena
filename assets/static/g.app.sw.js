@@ -1,5 +1,5 @@
 var CACHE = 'gunny-sw-cache';
-var OFFLINE_PAGE_URL = 'gunny_resource/html/offline.html';
+var OFFLINE_PAGE_URL = '/gunny_resource/html/offline.html';
 								
 self.addEventListener('install', function (event) {
 	console.log('The GUNNY Engine (app.sw.js): The service worker is being installed.');
