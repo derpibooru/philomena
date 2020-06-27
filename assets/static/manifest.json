@@ -1,0 +1,38 @@
+{
+	"short_name": "Derpibooru",
+	"name": "Derpibooru",
+	"description": "Derpibooru is a linear imagebooru which lets you share, find and discover new art and media surrounding the show My Little Pony: Friendship is Magic.",
+	"display": "standalone",
+	"start_url": "/?g_pwa=true",
+	"scope": "/",
+	"theme_color": "#618fc3",
+	"background_color": "#618fc3",
+	"icons": [
+		{
+			"src": "user_resource/icon/48x48.png",
+			"type": "image/png",
+			"sizes": "48x48"
+		},
+		{
+			"src": "user_resource/icon/72x72.png",
+			"type": "image/png",
+			"sizes": "72x72"
+		},
+		{
+			"src": "user_resource/icon/96x96.png",
+			"type": "image/png",
+			"sizes": "96x96"
+		},
+		{
+			"src": "user_resource/icon/192x192.png",
+			"type": "image/png",
+			"sizes": "192x192"
+		},
+		{
+			"src": "user_resource/icon/512x512.png",
+			"type": "image/png",
+			"sizes": "512x512"
+		}
+	],
+	"manifest_engine": "The GUNNY Engine"
+}
