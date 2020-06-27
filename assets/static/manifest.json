@@ -9,27 +9,27 @@
 	"background_color": "#618fc3",
 	"icons": [
 		{
-			"src": "user_resource/icon/48x48.png",
+			"src": "/favicon.svg",
 			"type": "image/png",
 			"sizes": "48x48"
 		},
 		{
-			"src": "user_resource/icon/72x72.png",
+			"src": "/favicon.svg",
 			"type": "image/png",
 			"sizes": "72x72"
 		},
 		{
-			"src": "user_resource/icon/96x96.png",
+			"src": "/favicon.svg",
 			"type": "image/png",
 			"sizes": "96x96"
 		},
 		{
-			"src": "user_resource/icon/192x192.png",
+			"src": "/favicon.svg",
 			"type": "image/png",
 			"sizes": "192x192"
 		},
 		{
-			"src": "user_resource/icon/512x512.png",
+			"src": "/favicon.svg",
 			"type": "image/png",
 			"sizes": "512x512"
 		}
