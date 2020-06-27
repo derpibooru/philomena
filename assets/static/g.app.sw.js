@@ -1,3 +1,6 @@
+/*global self, console*/
+/*eslint no-undef: */
+/*eslint no-unused-vars: */
 var CACHE = 'gunny-sw-cache';
 var OFFLINE_PAGE_URL = '/gunny_resource/html/offline.html';
 								
