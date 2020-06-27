@@ -1,3 +1,4 @@
+/*global navigator afterServiceWorkerRegistration*/
 if ('serviceWorker' in navigator) {
 	navigator.serviceWorker.register('/g.app.sw.js', { scope: '/' })
 	.then(function (registration) {
