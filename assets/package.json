@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "deploy": "brunch build --production",
-    "watch": "brunch watch --stdin"
+    "deploy": "cross-env NODE_ENV=production webpack",
+    "watch": "webpack --watch"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.12.0",
@@ -11,10 +11,27 @@
   "devDependencies": {
     "acorn": "^7.1.1",
     "autoprefixer": "^9.7.4",
+    "copy-webpack-plugin": "^6.0.2",
+    "cross-env": "^7.0.2",
+    "css-loader": "^3.6.0",
+    "extract-loader": "^5.1.0",
+    "file-loader": "^6.0.0",
+    "node-sass": "^4.14.1",
     "normalize-scss": "^7.0.1",
-    "rollup-brunch": "git+https://github.com/liamwhite/rollup-brunch.git#31967fc",
-    "sass-brunch": "git+https://github.com/brunch/sass-brunch.git#e9c0bfe",
-    "spostcss-brunch": "git+https://github.com/Meow/spostcss-brunch.git#b64df45",
-    "uglify-js-brunch": "^2.10.0"
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "postcss-loader": "^3.0.0",
+    "postcss-scss": "^2.1.1",
+    "rollup": "^2.18.1",
+    "rollup-plugin-buble": "^0.19.8",
+    "rollup-plugin-includepaths": "^0.2.3",
+    "rollup-plugin-multi-entry": "^2.1.0",
+    "rollup-plugin-virtual": "^1.0.1",
+    "sass-loader": "^8.0.2",
+    "source-map-support": "^0.5.19",
+    "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^3.0.6",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-rollup-loader": "^0.8.0"
   }
 }

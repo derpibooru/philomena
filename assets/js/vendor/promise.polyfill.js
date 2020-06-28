@@ -1,4 +1,5 @@
 (function (root) {
+  if (root.Promise) return;
 
   // Store setTimeout reference so promise-polyfill will be unaffected by
   // other code modifying setTimeout (like sinon.useFakeTimers())
@@ -8,10 +9,9 @@
   }
 
   // Use polyfill for setImmediate for performance gains
-  var asap = (typeof setImmediate === 'function' && setImmediate) ||
-    function (fn) {
-      setTimeoutFunc(fn, 1);
-    };
+  function asap(fn) {
+    setTimeoutFunc(fn, 1);
+  }
 
   var onUnhandledRejection = function onUnhandledRejection(err) {
     console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
@@ -221,10 +221,5 @@
     onUnhandledRejection = fn;
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Promise;
-  } else if (!root.Promise) {
-    root.Promise = Promise;
-  }
-
+  root.Promise = Promise;
 })(window);

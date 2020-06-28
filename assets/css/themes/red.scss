@@ -189,4 +189,4 @@ $dnp_warning_hover_color: lighten($vote_down_color, 10%);
 $poll_form_label_background: lighten($border_color, 8);
 $tag_dropdown_hover_background: darken($meta_color, 4%);
 
-@import "common/base";
+@import "~common/base";
