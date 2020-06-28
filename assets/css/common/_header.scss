@@ -118,7 +118,7 @@ select.header__input, select.header__input:focus {
 .header__input--search:-webkit-autofill:hover,
 .header__input--search:-webkit-autofill:focus {
   -webkit-text-fill-color: $text_light_color;
-  box-shadow: 0 0 0px 1000px $header_field_color inset;
+  box-shadow: 0 0 0 1000px $header_field_color inset;
   border: none;
 }
 
