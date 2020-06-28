@@ -9,10 +9,9 @@
   }
 
   // Use polyfill for setImmediate for performance gains
-  var asap = (typeof root.setImmediate === 'function' && root.setImmediate) ||
-    function (fn) {
-      setTimeoutFunc(fn, 1);
-    };
+  function asap(fn) {
+    setTimeoutFunc(fn, 1);
+  }
 
   var onUnhandledRejection = function onUnhandledRejection(err) {
     console.warn('Possible Unhandled Promise Rejection:', err); // eslint-disable-line no-console
