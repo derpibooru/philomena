@@ -7,7 +7,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const includePaths = require('rollup-plugin-includepaths')();
 const multiEntry = require('rollup-plugin-multi-entry')();
-const buble = require('rollup-plugin-buble')({transforms: { dangerousForOf: true }});
+const buble = require('rollup-plugin-buble')({ transforms: { dangerousForOf: true } });
 
 let plugins = [
   new CopyPlugin({
