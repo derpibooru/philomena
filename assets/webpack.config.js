@@ -1,9 +1,12 @@
 const path = require('path');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+const includePaths = require('rollup-plugin-includepaths')();
+const multiEntry = require('rollup-plugin-multi-entry')();
 
 let plugins = [
   new CopyPlugin({
@@ -12,21 +15,23 @@ let plugins = [
     ],
   }),
 ];
-if (isProduction){
+if (!isDevelopment){
   plugins = plugins.concat([
-    new UglifyJsPlugin({
+    new TerserPlugin({
       cache: true,
       parallel: true,
+      sourceMap: isDevelopment,
     }),
     new OptimizeCSSAssetsPlugin({
       cssProcessorOptions: { discardComments: { removeAll: true } },
       canPrint: true,
+      sourceMaps: isDevelopment,
     }),
   ]);
 }
 
 module.exports = {
-  mode: isProduction ? 'production' : 'development',
+  mode: isDevelopment ? 'development' : 'production',
   entry: {
     'js/app.js': './js/app.js',
   },
@@ -35,13 +40,19 @@ module.exports = {
     path: path.resolve(__dirname, '../priv/static'),
   },
   optimization: {
-    minimize: isProduction,
+    minimize: !isDevelopment,
     providedExports: true,
     usedExports: true,
     concatenateModules: true,
   },
-  devtool: isProduction ? undefined : 'inline-source-map',
+  devtool: isDevelopment ? 'inline-source-map' : undefined,
   performance: { hints: false },
+  resolve: {
+    alias: {
+      common: path.resolve(__dirname, 'css/common/'),
+      views: path.resolve(__dirname, 'css/views/')
+    }
+  },
   module: {
     rules: [
       {
@@ -54,9 +65,17 @@ module.exports = {
         },
       },
       {
-        test: /\.js/,
+        test: /app\.js/,
         use: [
-          { loader: 'babel-loader' },
+          {
+            loader: 'webpack-rollup-loader',
+            options: {
+              plugins: [
+                includePaths,
+                multiEntry,
+              ]
+            }
+          },
         ],
       },
       {
@@ -65,38 +84,26 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
+              sourceMaps: isDevelopment,
               name: '[name].css',
               outputPath: '/css',
               publicPath: '/css',
             },
           },
-          { loader: 'extract-loader' },
-          { loader: 'css-loader' },
+          { loader: 'extract-loader', options: { sourceMaps: isDevelopment } },
+          { loader: 'css-loader', options: { sourceMap: isDevelopment } },
           {
             loader: 'postcss-loader',
             options: {
+              sourceMaps: isDevelopment,
               ident: 'postcss',
               syntax: 'postcss-scss',
               plugins: [
-                require('autoprefixer')({
-                  overrideBrowserslist: [
-                    'last 2 Android versions',
-                    'last 2 Chrome versions',
-                    'last 2 ChromeAndroid versions',
-                    'last 2 Edge versions',
-                    'last 1 Explorer version',
-                    'last 1 ExplorerMobile versions',
-                    'last 2 Firefox versions',
-                    'last 2 FirefoxAndroid versions',
-                    'last 2 iOS versions',
-                    'last 2 Opera versions',
-                  ],
-                  add: true,
-                }),
+                require('autoprefixer')(),
               ],
             },
           },
-          { loader: 'sass-loader' },
+          { loader: 'sass-loader', options: { sourceMap: isDevelopment } },
         ],
       },
     ],

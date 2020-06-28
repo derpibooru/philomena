@@ -9,9 +9,8 @@
 @import "global";
 
 // Because FA is a SPECIAL SNOWFLAKE.
-$fa-font-path: "/fonts";
-
 $fa-font-path: '~@fortawesome/fontawesome-free/webfonts';
+
 @import "~@fortawesome/fontawesome-free/scss/fontawesome.scss";
 @import "~@fortawesome/fontawesome-free/scss/solid.scss";
 @import "~@fortawesome/fontawesome-free/scss/regular.scss";
@@ -381,23 +380,23 @@ span.stat {
 @import "shame";
 @import "text";
 
-@import "../views/adverts";
-@import "../views/badges";
-@import "../views/channels";
-@import "../views/comments";
-@import "../views/commissions";
-@import "../views/communications";
-@import "../views/duplicate_reports";
-@import "../views/filters";
-@import "../views/galleries";
-@import "../views/images";
-@import "../views/pages";
-@import "../views/polls";
-@import "../views/posts";
-@import "../views/profiles";
-@import "../views/search";
-@import "../views/stats";
-@import "../views/tags";
+@import "~views/adverts";
+@import "~views/badges";
+@import "~views/channels";
+@import "~views/comments";
+@import "~views/commissions";
+@import "~views/communications";
+@import "~views/duplicate_reports";
+@import "~views/filters";
+@import "~views/galleries";
+@import "~views/images";
+@import "~views/pages";
+@import "~views/polls";
+@import "~views/posts";
+@import "~views/profiles";
+@import "~views/search";
+@import "~views/stats";
+@import "~views/tags";
 
 .no-overflow {
   overflow: hidden;

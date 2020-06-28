@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "cross-env NODE_ENV=production webpack",
+    "deploy": "cross-env NODE_ENV=production webpack",
     "watch": "webpack --watch"
   },
   "dependencies": {
@@ -13,7 +13,6 @@
     "@babel/preset-env": "^7.10.3",
     "acorn": "^7.1.1",
     "autoprefixer": "^9.7.4",
-    "babel-loader": "^8.1.0",
     "copy-webpack-plugin": "^6.0.2",
     "cross-env": "^7.0.2",
     "css-loader": "^3.6.0",
@@ -24,10 +23,16 @@
     "optimize-css-assets-webpack-plugin": "^5.0.3",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.1.1",
+    "rollup": "^2.18.1",
+    "rollup-plugin-includepaths": "^0.2.3",
+    "rollup-plugin-multi-entry": "^2.1.0",
+    "rollup-plugin-virtual": "^1.0.1",
     "sass-loader": "^8.0.2",
+    "source-map-support": "^0.5.19",
     "style-loader": "^1.2.1",
-    "uglifyjs-webpack-plugin": "^2.2.0",
+    "terser-webpack-plugin": "^3.0.6",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.12",
+    "webpack-rollup-loader": "^0.8.0"
   }
 }

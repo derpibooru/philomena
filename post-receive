@@ -31,7 +31,7 @@ fi
 if git diff --name-only $oldrev $newrev | grep "^assets/"; then
   echo "Compiling assets"
   npm install --prefix ./assets || die "assets install failed"
-  npm run build --prefix ./assets
+  npm run deploy --prefix ./assets
   mix phx.digest || die "assets compile failed"
 fi
 
