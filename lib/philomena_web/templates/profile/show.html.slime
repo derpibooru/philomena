@@ -1,6 +1,10 @@
 .profile-top
   .profile-top__avatar
-    = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @user}, class: "avatar--125px"
+    - avatar = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @user}, class: "avatar--125px"
+    = if current?(@user, @conn.assigns.current_user) do
+      = link avatar, to: Routes.avatar_path(@conn, :edit, profile: true), title: "Change avatar"
+    - else
+      = avatar
   .profile-top__name-and-links
     div
       h1.profile-top__name-header
