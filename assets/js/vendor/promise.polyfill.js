@@ -1,4 +1,5 @@
 (function (root) {
+  if (root.Promise) return;
 
   // Store setTimeout reference so promise-polyfill will be unaffected by
   // other code modifying setTimeout (like sinon.useFakeTimers())
@@ -8,7 +9,7 @@
   }
 
   // Use polyfill for setImmediate for performance gains
-  var asap = (typeof setImmediate === 'function' && setImmediate) ||
+  var asap = (typeof root.setImmediate === 'function' && root.setImmediate) ||
     function (fn) {
       setTimeoutFunc(fn, 1);
     };
@@ -221,10 +222,5 @@
     onUnhandledRejection = fn;
   };
 
-  if (typeof module !== 'undefined' && module.exports) {
-    module.exports = Promise;
-  } else if (!root.Promise) {
-    root.Promise = Promise;
-  }
-
+  root.Promise = Promise;
 })(window);
