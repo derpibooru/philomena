@@ -8,6 +8,9 @@ function setupTagsInput(tagBlock) {
   const [ textarea, container ] = $$('.js-taginput', tagBlock);
   const setup = $('.js-tag-block ~ button', tagBlock.parentNode);
   const inputField = $('input', container);
+  const uploadButton = $('.js-upload-submit');
+  const uploadButtonPresent = uploadButton !== null;
+  const tagsTextareaPlain = $('.js-taginput-plain');
 
   let tags = [];
 
@@ -39,6 +42,84 @@ function setupTagsInput(tagBlock) {
     importTags();
   }
 
+  const ratingsTags = ['safe', 'suggestive', 'questionable', 'explicit', 'semi-grimdark', 'grimdark', 'grotesque'];
+  const checks = {numTags: false, ratingIncluded: false};
+
+  //TODO handle this better?
+  const errorsDisplayed = {numTags: false, ratingIncluded: false};
+
+  //chosing to pull from the plain editor field, even if fancy editor
+  //  is being displayed currently. This ensures the most current tags
+  //  will be pulled, in either case. This isn't using the tags[]
+  //  object, because it won't be up-to-date if the plain editor is being used
+  function tagsValid() {
+    const tagsArr = tagsTextareaPlain.value.split(',');
+    const len = tagsArr.length;
+
+    if (len >= 3) {
+      checks.numTags = true;
+      //return false;
+    }
+    else {
+      checks.numTags = false;
+    }
+
+    //TODO is there a more efficient way to check this?
+    const intersection = tagsArr.filter(tag => {
+      return ratingsTags.indexOf(tag.trim()) > -1;
+    });
+    if (intersection.length > 0) {
+      checks.ratingIncluded = true;
+    }
+    else {
+      checks.ratingIncluded = false;
+    }
+
+    return checks.numTags === true && checks.ratingIncluded === true;
+  }
+
+  if (uploadButtonPresent) {
+    uploadButton.addEventListener('click', event => {
+      if (tagsValid() === false) {
+        //prevent the upload button from submitting the form
+        event.preventDefault();
+
+        //set timer to re-enable the upload submit button
+        setTimeout(() => {
+          uploadButton.textContent = 'Upload';
+          uploadButton.disabled = false;
+        }, 1000);
+
+        //"Save" button under the tagsinput textarea
+        const siblingElement = $('#tagsinput-save');
+
+        //insert error message
+        if (checks.numTags === false) {
+          if (errorsDisplayed.numTags === false) {
+            const newSpan = document.createElement('SPAN');
+            newSpan.className = 'help-block';
+            newSpan.innerHTML = 'Tag input must contain at least 3 tags';
+            siblingElement.insertAdjacentElement('beforebegin', newSpan);
+            errorsDisplayed.numTags = true;
+          }
+        }
+
+        //insert error message
+        if (checks.ratingIncluded === false) {
+          if (errorsDisplayed.ratingIncluded === false) {
+            const newSpan = document.createElement('SPAN');
+            newSpan.className = 'help-block';
+            newSpan.innerHTML = 'Tag input must contain at least one rating tag';
+            siblingElement.insertAdjacentElement('beforebegin', newSpan);
+            errorsDisplayed.ratingIncluded = true;
+          }
+        }
+
+        //TODO add some sort of scrolling or focus change, to make sure the tags errors
+        //  are in view?
+      }
+    });
+  }
 
   function handleAutocomplete(event) {
     insertTag(event.detail.value);
