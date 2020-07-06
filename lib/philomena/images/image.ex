@@ -150,7 +150,7 @@ defmodule Philomena.Images.Image do
       :uploaded_image,
       :image_is_animated
     ])
-    |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 26_214_400)
+    |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 100_000_000)
     |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_length(:image_name, max: 255, count: :bytes)

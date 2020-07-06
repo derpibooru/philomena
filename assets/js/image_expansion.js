@@ -12,7 +12,7 @@ const imageVersions = {
  * Picks the appropriate image version for a given width and height
  * of the viewport and the image dimensions.
  */
-function selectVersion(imageWidth, imageHeight) {
+function selectVersion(imageWidth, imageHeight, imageSize, imageMime) {
   let viewWidth = document.documentElement.clientWidth,
       viewHeight = document.documentElement.clientHeight;
 
@@ -39,8 +39,17 @@ function selectVersion(imageWidth, imageHeight) {
     }
   }
 
-  // If the view is larger than any available version, display the original image
-  return 'full';
+  // If the view is larger than any available version, display the original image.
+  //
+  // Sanity check to make sure we're not serving unintentionally huge assets
+  // all at once (where "huge" > 25 MiB). Videos are loaded in chunks so it
+  // doesn't matter too much there.
+  if (imageMime === 'video/webm' || imageSize <= 26214400) {
+    return 'full';
+  }
+  else {
+    return 'large';
+  }
 }
 
 /**
@@ -48,14 +57,17 @@ function selectVersion(imageWidth, imageHeight) {
  * to an appropriate dimension.
  */
 function pickAndResize(elem) {
-  const imageWidth = parseInt(elem.getAttribute('data-width'), 10),
-        imageHeight = parseInt(elem.getAttribute('data-height'), 10),
-        scaled = elem.getAttribute('data-scaled'),
-        uris = JSON.parse(elem.getAttribute('data-uris'));
+  const imageWidth = parseInt(elem.dataset.width, 10),
+        imageHeight = parseInt(elem.dataset.height, 10),
+        imageSize = parseInt(elem.dataset.imageSize, 10),
+        imageMime = elem.dataset.mimeType,
+        scaled = elem.dataset.scaled,
+        uris = JSON.parse(elem.dataset.uris);
+
   let version = 'full';
 
   if (scaled === 'true') {
-    version = selectVersion(imageWidth, imageHeight);
+    version = selectVersion(imageWidth, imageHeight, imageSize, imageMime);
   }
 
   const uri = uris[version];

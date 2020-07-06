@@ -62,10 +62,10 @@
       | x
       = @image.image_height
       =<> String.upcase(to_string(@image.image_format))
-      - size_kb = div(@image.image_size, 1024)
-      - size_mb = Float.round(size_kb / 1024.0, 2)
+      - size_kb = div(@image.image_size, 1000)
+      - size_mb = Float.round(size_kb / 1000.0, 2)
       span title="#{size_kb} kB"
-        = if size_kb <= 1024 do
+        = if size_kb <= 1000 do
           => size_kb
           | kB
         - else
