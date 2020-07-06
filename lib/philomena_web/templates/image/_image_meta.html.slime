@@ -61,6 +61,14 @@
       = @image.image_width
       | x
       = @image.image_height
+
+      = if not is_nil(@image.image_duration) and @image.image_is_animated and @image.image_duration > 0 do
+        span.image-size
+          | &nbsp;
+          - dur = ceil(@image.image_duration)
+          - {hh, mm, ss} = {div(dur, 3600), div(rem(dur, 3600), 60), rem(dur, 60)}
+          = :io_lib.format("~2..0B:~2..0B:~2..0B", [hh, mm, ss])
+
       =<> String.upcase(to_string(@image.image_format))
       - size_kb = div(@image.image_size, 1000)
       - size_mb = Float.round(size_kb / 1000.0, 2)

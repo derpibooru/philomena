@@ -882,7 +882,8 @@ CREATE TABLE public.images (
     destroyed_content boolean DEFAULT false NOT NULL,
     hidden_image_key character varying,
     scratchpad character varying,
-    hides_count integer DEFAULT 0 NOT NULL
+    hides_count integer DEFAULT 0 NOT NULL,
+    image_duration double precision
 );
 
 
@@ -4706,3 +4707,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
 INSERT INTO public."schema_migrations" (version) VALUES (20200607000511);
 INSERT INTO public."schema_migrations" (version) VALUES (20200617111116);
 INSERT INTO public."schema_migrations" (version) VALUES (20200617113333);
+INSERT INTO public."schema_migrations" (version) VALUES (20200706171350);

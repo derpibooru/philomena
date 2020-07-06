@@ -14,6 +14,9 @@ defmodule PhilomenaWeb.ImageSorter do
     comment_count
     tag_count
     wilson_score
+    pixels
+    size
+    duration
   )
 
   def parse_sort(params, query) do

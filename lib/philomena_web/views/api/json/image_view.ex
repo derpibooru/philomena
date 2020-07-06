@@ -59,6 +59,8 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
       width: image.image_width,
       height: image.image_height,
       mime_type: image.image_mime_type,
+      size: image.image_size,
+      duration: image.image_duration,
       format: image.image_format,
       aspect_ratio: image.image_aspect_ratio,
       name: image.image_name,
