@@ -60,7 +60,9 @@ defmodule Philomena.Scrapers.Twitter do
   end
 
   defp extract_guest_token_and_bearer(%Tesla.Env{body: page, headers: headers}) do
-    [{_, gt}] = Enum.filter(headers, fn {k, v} -> k == "set-cookie" and String.starts_with?(v, "gt=") end)
+    [{_, gt}] =
+      Enum.filter(headers, fn {k, v} -> k == "set-cookie" and String.starts_with?(v, "gt=") end)
+
     [gt] = Regex.run(@gt_regex, gt, capture: :all_but_first)
     [script] = Regex.run(@script_regex, page, capture: :all_but_first)
 

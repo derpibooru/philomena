@@ -26,6 +26,7 @@ defmodule PhilomenaWeb.Image.SourceController do
           "image:source_update",
           %{image_id: image.id, added: [image.source_url], removed: [old_source]}
         )
+
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:update",

@@ -40,7 +40,12 @@ defmodule Philomena.Processors.Png do
     [{:symlink_original, "full.png"}]
   end
 
-  defp scale_if_smaller(file, animated?, {width, height}, {thumb_name, {target_width, target_height}}) do
+  defp scale_if_smaller(
+         file,
+         animated?,
+         {width, height},
+         {thumb_name, {target_width, target_height}}
+       ) do
     if width > target_width or height > target_height do
       scaled = scale(file, animated?, {target_width, target_height})
 
@@ -59,7 +64,20 @@ defmodule Philomena.Processors.Png do
     {_output, 0} =
       cond do
         animated? ->
-          System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-plays", "0", "-vf", scale_filter, "-f", "apng", scaled])
+          System.cmd("ffmpeg", [
+            "-loglevel",
+            "0",
+            "-y",
+            "-i",
+            file,
+            "-plays",
+            "0",
+            "-vf",
+            scale_filter,
+            "-f",
+            "apng",
+            scaled
+          ])
 
         true ->
           System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])

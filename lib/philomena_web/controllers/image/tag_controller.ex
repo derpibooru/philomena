@@ -25,8 +25,13 @@ defmodule PhilomenaWeb.Image.TagController do
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:tag_update",
-          %{image_id: image.id, added: Enum.map(added_tags, & &1.name), removed: Enum.map(removed_tags, & &1.name)}
+          %{
+            image_id: image.id,
+            added: Enum.map(added_tags, & &1.name),
+            removed: Enum.map(removed_tags, & &1.name)
+          }
         )
+
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:update",
