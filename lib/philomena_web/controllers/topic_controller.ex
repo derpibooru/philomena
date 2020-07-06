@@ -112,7 +112,11 @@ defmodule PhilomenaWeb.TopicController do
           PhilomenaWeb.Endpoint.broadcast!(
             "firehose",
             "post:create",
-            PhilomenaWeb.Api.Json.Forum.Topic.PostView.render("firehose.json", %{post: post, topic: topic, forum: forum})
+            PhilomenaWeb.Api.Json.Forum.Topic.PostView.render("firehose.json", %{
+              post: post,
+              topic: topic,
+              forum: forum
+            })
           )
         end
 
