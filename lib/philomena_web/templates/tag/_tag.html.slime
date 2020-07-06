@@ -12,7 +12,7 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
 
     a.tag__name< href="/tags/#{@tag.slug}" title="#{@tag.short_description}" = @tag.name
 
-  span.dropdown__content
+  div.dropdown__content
     a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=Routes.tag_watch_path(@conn, :delete, @tag) Unwatch
     a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href=Routes.tag_watch_path(@conn, :create, @tag) Watch
 
