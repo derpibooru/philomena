@@ -12,12 +12,6 @@
     em
       ' (none)
 
-  = if @forced do
-    br
-    i.fa.fa-fw.fa-filter>
-    strong.comment_deleted> Forced Filter:
-    = link @forced.name, to: Routes.filter_path(@conn, :show, @forced)
-
   br
   i.far.fa-fw.fa-clock>
   ' Last seen
@@ -79,7 +73,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
 
   ul.profile-admin__options__column
     = if can?(@conn, :edit, @user) do
-      li 
+      li
         = link to: Routes.admin_user_path(@conn, :edit, @user) do
           i.fas.fa-fw.fa-edit
           span.admin__button Edit User
@@ -106,36 +100,36 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
             i.fa.fa-fw.fa-times
             span.admin__button Deactivate Account
 
-      li 
+      li
         = link to: Routes.admin_user_wipe_path(@conn, :create, @user), data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do
           i.fas.fa-fw.fa-eraser
           span.admin__button Wipe PII
-    
+
     = if can?(@conn, :index, Philomena.Users.User) do
-      li 
+      li
         = link to: Routes.admin_user_vote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.far.fa-fw.fa-file-excel
           span.admin__button Remove All Votes/Faves
 
-      li 
+      li
         = link to: Routes.admin_user_downvote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fa.fa-fw.fa-arrow-down
           span.admin__button Remove All Downvotes
 
       = if can?(@conn, :index, %Philomena.Donations.Donation{}) do
-        li 
+        li
           = link to: Routes.admin_donation_user_path(@conn, :show, @user) do
             i.fas.fa-fw.fa-dollar-sign
             span.admin__button Donations
 
     = if can?(@conn, :edit, %Philomena.UserLinks.UserLink{}) do
-      li 
+      li
         = link to: Routes.profile_user_link_path(@conn, :new, @user) do
           i.fa.fa-fw.fa-link
           span.admin__button Add User Link
 
     = if can?(@conn, :create, Philomena.Bans.User) do
-      li 
+      li
         = link to: Routes.admin_user_ban_path(@conn, :new, username: @user.name) do
           i.fa.fa-fw.fa-ban
           span.admin__button Ban this sucker

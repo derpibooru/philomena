@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.ProfileController do
   def show(conn, _params) do
     current_filter = conn.assigns.current_filter
     current_user = conn.assigns.current_user
-    user = conn.assigns.user
+    user = Repo.preload(conn.assigns.user, [:forced_filter])
 
     {:ok, {recent_uploads, _tags}} =
       ImageLoader.search_string(
@@ -140,6 +140,8 @@ defmodule PhilomenaWeb.ProfileController do
     interactions =
       Interactions.user_interactions([recent_uploads, recent_faves, recent_artwork], current_user)
 
+    forced = user.forced_filter
+
     bans =
       Bans.User
       |> where(user_id: ^user.id)
@@ -163,6 +165,7 @@ defmodule PhilomenaWeb.ProfileController do
       about_me: about_me,
       scratchpad: scratchpad,
       tags: tags,
+      forced: forced,
       bans: bans,
       layout_class: "layout--medium",
       title: "#{user.name}'s profile"
@@ -223,9 +226,8 @@ defmodule PhilomenaWeb.ProfileController do
   defp set_admin_metadata(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, User) do
       true ->
-        user = Repo.preload(conn.assigns.user, [:current_filter, :forced_filter])
+        user = Repo.preload(conn.assigns.user, [:current_filter])
         filter = user.current_filter
-        forced = user.forced_filter
 
         last_ip =
           UserIp
@@ -243,7 +245,6 @@ defmodule PhilomenaWeb.ProfileController do
 
         conn
         |> assign(:filter, filter)
-        |> assign(:forced, forced)
         |> assign(:last_ip, last_ip)
         |> assign(:last_fp, last_fp)
 

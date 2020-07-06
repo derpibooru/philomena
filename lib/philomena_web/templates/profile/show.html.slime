@@ -43,6 +43,12 @@
   .js-staff-action
     = render PhilomenaWeb.ProfileView, "_admin_block.html", assigns
 
+= if @forced && (current?(@user, @conn.assigns.current_user) or can_index_user?(@conn)) do
+  .block
+    i.fa.fa-fw.fa-filter>
+    strong.comment_deleted> Forced Filter:
+    = link @forced.name, to: Routes.filter_path(@conn, :show, @forced)
+
 = if (current?(@user, @conn.assigns.current_user) or can?(@conn, :index, Philomena.Bans.User)) and Enum.any?(@bans) do
   .block
     .block__header--single-item
