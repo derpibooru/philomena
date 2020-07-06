@@ -8,7 +8,7 @@ defmodule Philomena.Http do
   end
 
   defp adapter_opts(opts) do
-    opts = Keyword.merge(opts, max_body: 30_000_000)
+    opts = Keyword.merge(opts, max_body: 100_000_000)
 
     case Application.get_env(:philomena, :proxy_host) do
       nil ->
