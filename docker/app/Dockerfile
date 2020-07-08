@@ -11,13 +11,13 @@ RUN apt-get update \
     && mix local.hex --force \
     && mix local.rebar --force
 
-ADD https://api.github.com/repos/derpibooru/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
-RUN git clone https://github.com/derpibooru/cli_intensities /tmp/cli_intensities \
+ADD https://api.github.com/repos/booru/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
+RUN git clone https://github.com/booru/cli_intensities /tmp/cli_intensities \
     && cd /tmp/cli_intensities \
     && make install
 
-ADD https://api.github.com/repos/derpibooru/mediatools/git/refs/heads/master /tmp/mediatools_version.json
-RUN git clone https://github.com/derpibooru/mediatools /tmp/mediatools \
+ADD https://api.github.com/repos/booru/mediatools/git/refs/heads/master /tmp/mediatools_version.json
+RUN git clone https://github.com/booru/mediatools /tmp/mediatools \
     && cd /tmp/mediatools \
     && make install
 
