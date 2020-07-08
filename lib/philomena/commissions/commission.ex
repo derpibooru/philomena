@@ -60,7 +60,6 @@ defmodule Philomena.Commissions.Commission do
       NSFW: "NSFW",
       "Original Characters": "Original Characters",
       "Original Species": "Original Species",
-      Pony: "Pony",
       Requests: "Requests",
       Safe: "Safe",
       Shipping: "Shipping",

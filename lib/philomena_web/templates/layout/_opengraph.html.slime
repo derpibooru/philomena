@@ -5,7 +5,7 @@ meta name="format-detection" content="telephone=no"
 = if opengraph?(@conn) do
   - image = @conn.assigns.image
   - filtered = not image.thumbnails_generated
-  - description = "##{image.id} - #{image.tag_list_cache} - Derpibooru"
+  - description = "##{image.id} - #{image.tag_list_cache} - YourBooruName"
 
   meta name="keywords" content=image.tag_list_cache
   meta name="description" content=description
@@ -40,4 +40,4 @@ meta name="format-detection" content="telephone=no"
       meta property="og:type" content="website"
 
 - else
-  meta name="description" content="Derpibooru is a linear imagebooru which lets you share, find and discover new art and media surrounding the show My Little Pony: Friendship is Magic"
+  meta name="description" content="YourBooruDescription"

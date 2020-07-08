@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <rss version="2.0">
   <channel>
-    <title>Derpibooru Watchlist</title>
-    <description>Your watched tags feed from Derpibooru</description>
+    <title>YourBooruName Watchlist</title>
+    <description>Your watched tags feed from YourBooruName</description>
     <link><%= Routes.api_rss_watched_url(@conn, :index) %></link>
     <lastBuildDate><%= last_build_date() %></lastBuildDate>
 

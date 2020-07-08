@@ -29,7 +29,7 @@
   .block__tab.hidden data-tab="sharing"
     #embed_options
       - source_link = if @image.source_url in [nil, ""], do: " (Original source unknown at time of posting)", else: " - [url=#{@image.source_url}]Original source[/url]"
-      h5 Derpibooru
+      h5 YourBooruName
       p
         strong> Small thumbnail
         input.input#embed_small_thumbnail_tag type="text" value=">>#{@image.id}s" cols="10" readonly="readonly"
@@ -56,7 +56,7 @@
           | Copy
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_full_tag rows="2" cols="100" readonly="readonly"
-          = "[img]#{thumb_url(@image, false, :full)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+          = "[img]#{thumb_url(@image, false, :full)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on YourBooruName[/url]#{source_link}"
       p
         strong> Thumbnailed BBcode
         a href="#" data-click-copy="#bbcode_embed_thumbnail_tag"
@@ -64,7 +64,7 @@
           | Copy
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_thumbnail_tag rows="2" cols="100" readonly="readonly"
-          = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+          = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on YourBooruName[/url]#{source_link}"
 
   = if display_mod_tools? do
     .block__tab.hidden data-tab="replace"
