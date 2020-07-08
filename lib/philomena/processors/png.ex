@@ -50,7 +50,7 @@ defmodule Philomena.Processors.Png do
     end
   end
 
-  defp scale(file, {width, height}) do
+  defp scale(file, animated?, {width, height}) do
     scaled = Briefly.create!(extname: ".png")
 
     scale_filter =
