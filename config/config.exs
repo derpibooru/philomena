@@ -9,8 +9,8 @@ import Config
 
 config :philomena,
   ecto_repos: [Philomena.Repo],
-  elasticsearch_url: "http://localhost:9200",
-  redis_host: "localhost",
+  elasticsearch_url: System.get_env("ELASTICSEARCH_HOST"),
+  redis_host: System.get_env("REDIS_HOST"),
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
   tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
@@ -46,7 +46,9 @@ config :exq,
   queues: [{"videos", 2}, {"images", 4}, {"indexing", 16}],
   scheduler_enable: true,
   max_retries: 1,
-  start_on_application: false
+  start_on_application: false,
+  redis_host: "redis",
+  host: "redis"
 
 config :bcrypt_elixir,
   log_rounds: 12
