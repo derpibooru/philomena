@@ -53,16 +53,16 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
     %{
       version: "1.0",
       type: "photo",
-      title: "##{image.id} - #{image.tag_list_cache} - Derpibooru",
+      title: "##{image.id} - #{image.tag_list_cache} - YourBooruName",
       author_url: image.source_url,
       author_name: artist_tags(image.tags),
-      provider_name: "Derpibooru",
+      provider_name: "YourBooruName",
       provider_url: PhilomenaWeb.Endpoint.url(),
       cache_age: 7200,
-      derpibooru_id: image.id,
-      derpibooru_score: image.score,
-      derpibooru_comments: image.comments_count,
-      derpibooru_tags: Enum.map(image.tags, & &1.name)
+      booru_id: image.id,
+      booru_score: image.score,
+      booru_comments: image.comments_count,
+      booru_tags: Enum.map(image.tags, & &1.name)
     }
   end
 

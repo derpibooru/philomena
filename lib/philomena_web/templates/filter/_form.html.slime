@@ -73,7 +73,7 @@
 
         .fieldlabel
           strong You probably do not want to check this unless you know what you are doing - it cannot be changed later
-          | . Pulic filters can be shared with other users and used by them; if you make changes to a filter, it will update all users of that filter.
+          | . Public filters can be shared with other users and used by them; if you make changes to a filter, it will update all users of that filter.
 
       - input_value(f, :public) == true ->
         .fieldlabel

@@ -1,6 +1,6 @@
 .block#imagespns
   .spnstxt
-    ' Interested in advertising on Derpibooru?
+    ' Interested in advertising on YourBooruName?
     => link "Click here", to: "/pages/advertising"
     ' for information!
 
@@ -9,6 +9,6 @@
 
   p
     strong
-      ' Derpibooru costs over $25 a day to operate -
+      ' Hosting a imageboard servers costs money -
       = link "help support us financially", to: "/pages/donations"
       ' !

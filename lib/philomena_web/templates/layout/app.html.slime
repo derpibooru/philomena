@@ -7,9 +7,9 @@ html lang="en"
     title
       = if assigns[:title] do
         => assigns[:title]
-        ' - Derpibooru
+        ' - YourBooruName
       - else
-        ' Derpibooru
+        ' YourBooruName
     link rel="stylesheet" href=stylesheet_path(@conn, @current_user)
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"

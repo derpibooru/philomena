@@ -49,3 +49,8 @@ And if everything goes wrong:
     git push -f production master
 
 (to be repeated until it works again)
+
+## Customize
+To customize your booru, find and replace all occurences of the following words with your desired content
+- `YourBooruName`
+- `YourBooruDescription` (sample: `Samplebooru is a linear imagebooru which lets you share, find and discover new art and media surrounding samples.`
