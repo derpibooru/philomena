@@ -1,5 +1,5 @@
 defmodule Philomena.Scrapers.Twitter do
-  @gt_regex ~r|gt=(\d+?);|
+  @gt_regex ~r|document.cookie = decodeURIComponent\("gt=(\d+);|
   @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
   @script_regex ~r|<script type="text/javascript" .*? src="(https://abs.twimg.com/responsive-web/web/main\.[\da-z]+\.js)">|
   @bearer_regex ~r|"(AAAAAAAAAAAAA[^"]*)"|
@@ -59,9 +59,14 @@ defmodule Philomena.Scrapers.Twitter do
     |> Map.put("url", url)
   end
 
+<<<<<<< HEAD
   defp extract_guest_token_and_bearer(%Tesla.Env{body: page, headers: headers}) do
     [{_, gt}] = Enum.filter(headers, fn {k, v} -> k == "set-cookie" and String.starts_with?(v, "gt=") end)
     [gt] = Regex.run(@gt_regex, gt, capture: :all_but_first)
+=======
+  defp extract_guest_token_and_bearer(%Tesla.Env{body: page}) do
+    [gt] = Regex.run(@gt_regex, page, capture: :all_but_first)
+>>>>>>> 4e70124... fix twitter scraper
     [script] = Regex.run(@script_regex, page, capture: :all_but_first)
 
     %{body: body} = Philomena.Http.get!(script)
