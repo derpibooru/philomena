@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Run seeds
+# mix run priv/repo/seeds.exs
+mix phx.digest
+
+# Run the application
+mix phx.server
