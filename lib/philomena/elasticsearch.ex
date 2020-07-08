@@ -52,7 +52,7 @@ defmodule Philomena.Elasticsearch do
     index_name = index.index_name()
     mapping = index.mapping().mappings.properties
 
-    Elastix.Mapping.put(elastic_url(), index_name, "_doc", %{properties: mapping})
+    Elastix.Mapping.put(elastic_url(), index_name, "_doc", %{properties: mapping}, include_type_name: true)
   end
 
   def index_document(doc, module) do

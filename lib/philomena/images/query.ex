@@ -69,11 +69,11 @@ defmodule Philomena.Images.Query do
   defp anonymous_fields do
     [
       int_fields:
-        ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count),
+        ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count pixels size),
       float_fields: ~W(aspect_ratio wilson_score),
       date_fields: ~W(created_at updated_at first_seen_at),
       literal_fields:
-        ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format),
+        ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format mime_type),
       ngram_fields: ~W(description),
       custom_fields: ~W(gallery_id),
       default_field: {"namespaced_tags.name", :term},
