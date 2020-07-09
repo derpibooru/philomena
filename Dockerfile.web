@@ -1,7 +1,19 @@
+FROM node:lts
+
+COPY ./assets /srv/philomena/assets
+COPY ./priv /srv/philomena/priv
+WORKDIR /srv/
+RUN addgroup philomena && \
+  adduser --home /srv/ --system --shell /bin/nologin --uid 200 --ingroup philomena philomena
+RUN chown -R philomena:philomena /srv/
+USER 200
+WORKDIR /srv/philomena/assets
+RUN npm install
+RUN npm run deploy
+
 FROM nginx:1.18.0-alpine
-ENV APP_DIR /srv/philomena
-COPY docker/web/nginx.conf /tmp/docker.nginx
-RUN envsubst '$APP_DIR' < /tmp/docker.nginx > /etc/nginx/conf.d/default.conf
+COPY docker/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=0 /srv/philomena/priv/static /srv/assets/static
 EXPOSE 8080
 USER 200
 CMD ["nginx", "-g", "daemon off;"]

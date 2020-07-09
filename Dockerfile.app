@@ -29,10 +29,12 @@ ENV DATABASE_URL=pgsql://null:null@null/null
 ENV SECRET_KEY_BASE=null
 ENV REDIS_HOST=redis
 COPY . /srv/philomena
+COPY assets /srv/assets
 COPY docker/app/run-prod /bin/run-prod
 WORKDIR /srv/
 RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
 RUN chown -R philomena:philomena /srv/
+RUN ln -s /srv/assets/static /srv/philomena/priv/static
 USER 200
 RUN mix local.hex --force && \
     mix local.rebar --force
