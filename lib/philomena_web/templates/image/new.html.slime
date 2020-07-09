@@ -36,6 +36,7 @@
       = error_tag f, :image_height
       = error_tag f, :image_name
       = error_tag f, :image_mime_type
+      = error_tag f, :image_duration
       = error_tag f, :image_orig_sha512_hash
 
     .field.field--inline
