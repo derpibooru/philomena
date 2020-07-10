@@ -33,7 +33,7 @@ defmodule Philomena.Posts.Post do
     |> cast(attrs, [:body, :edit_reason])
     |> put_change(:edited_at, edited_at)
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
   end
 
@@ -42,7 +42,7 @@ defmodule Philomena.Posts.Post do
     post
     |> cast(attrs, [:body, :anonymous])
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> change(attribution)
     |> put_name_at_post_time(attribution[:user])
   end
@@ -53,7 +53,7 @@ defmodule Philomena.Posts.Post do
     |> change(anonymous: anonymous?)
     |> cast(attrs, [:body])
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> change(attribution)
     |> change(topic_position: 0)
     |> put_name_at_post_time(attribution[:user])
