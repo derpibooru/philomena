@@ -1,26 +1,5 @@
 #!/bin/bash
 
-# Always install assets
-(
-cd /srv/philomena/assets
-# workaround for #31
-npm install || (chown -R root:root node_modules && npm install)
-)
-
-# Always install mix dependencies
-(cd /srv/philomena && mix deps.get)
-
-# Sleep to allow Elasticsearch to finish initializing
-# if it's not done doing whatever it does yet
-echo -n "Waiting for Elasticsearch"
-
-until wget -qO - elasticsearch:9200; do
-  echo -n "."
-  sleep 2
-done
-
-echo
-
 # Try to create the database if it doesn't exist yet
 createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
 

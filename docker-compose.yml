@@ -2,6 +2,7 @@ version: '3'
 volumes:
   postgres_data: {}
   elastic_data: {}
+  nginx_cache: {}
 
 services:
   app:
@@ -9,7 +10,7 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
     environment:
-      - MIX_ENV=prod
+      - MIX_ENV=dev
       - PGPASSWORD=postgres
     tty: true
     depends_on:
@@ -50,5 +51,11 @@ services:
       dockerfile: ./Dockerfile.web
     depends_on:
       - app
+    extra_hosts:
+      - kube-dns.kube-system.svc.cluster.local:127.0.0.11
+    environment:
+      - APP_HOST=app
+    tmpfs:
+      - /tmp
     ports:
       - '8080:8080'
