@@ -9,13 +9,13 @@ RUN apt-get update \
     && apt-get update \
     && apt-get -qq -y install inotify-tools postgresql-client build-essential git ffmpeg libavformat-dev libavcodec-dev libswscale-dev nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin
 
-ADD https://api.github.com/repos/derpibooru/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
-RUN git clone https://github.com/derpibooru/cli_intensities /tmp/cli_intensities \
+ADD https://api.github.com/repos/booru/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
+RUN git clone https://github.com/booru/cli_intensities /tmp/cli_intensities \
     && cd /tmp/cli_intensities \
     && make install
 
-ADD https://api.github.com/repos/derpibooru/mediatools/git/refs/heads/master /tmp/mediatools_version.json
-RUN git clone https://github.com/derpibooru/mediatools /tmp/mediatools \
+ADD https://api.github.com/repos/booru/mediatools/git/refs/heads/master /tmp/mediatools_version.json
+RUN git clone https://github.com/booru/mediatools /tmp/mediatools \
     && cd /tmp/mediatools \
     && make install
 
@@ -25,8 +25,9 @@ RUN chmod +x /usr/local/bin/rebar3
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 
 ENV MIX_ENV=prod
-ENV DATABASE_URL=pgsql://null:null@null/null
-ENV SECRET_KEY_BASE=null
+# specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
+ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
+ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
 ENV REDIS_HOST=redis
 COPY . /srv/philomena
 COPY assets /srv/assets
