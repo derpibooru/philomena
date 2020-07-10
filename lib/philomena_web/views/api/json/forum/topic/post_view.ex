@@ -13,6 +13,14 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
     %{post: render_one(post, PhilomenaWeb.Api.Json.Forum.Topic.PostView, "post.json", assigns)}
   end
 
+  def render("firehose.json", %{post: post, topic: topic, forum: forum} = assigns) do
+    %{
+      post: render_one(post, PhilomenaWeb.Api.Json.Forum.Topic.PostView, "post.json", assigns),
+      topic: render_one(topic, PhilomenaWeb.Api.Json.Forum.TopicView, "topic.json", assigns),
+      forum: render_one(forum, PhilomenaWeb.Api.Json.ForumView, "forum.json", assigns)
+    }
+  end
+
   def render("post.json", %{post: %{topic: %{hidden_from_users: true}} = post}) do
     %{
       id: post.id,
