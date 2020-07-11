@@ -32,6 +32,7 @@ ENV REDIS_HOST=redis
 COPY . /srv/philomena
 COPY assets /srv/assets
 COPY docker/app/run-prod /bin/run-prod
+COPY docker/app/run-development /bin/run-development
 WORKDIR /srv/
 RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
 RUN chown -R philomena:philomena /srv/
