@@ -5,6 +5,7 @@ createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
 
 # Reindex
 mix reindex_all
+mix ecto.migrate
 
 # Run the application
 mix phx.server
