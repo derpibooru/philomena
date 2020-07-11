@@ -32,6 +32,14 @@ If you have SELinux enforcing, you should run the following in the application d
 chcon -Rt svirt_sandbox_file_t .
 ```
 
+The postgres DB can be deleted like this:
+```
+docker container ls
+docker container rm philomena_postgres_1
+docker volume ls
+docker volume rm philomena_postgres_data
+```
+
 This allows Docker or Podman to bind mount the application directory into the containers.
 
 ## Deployment
