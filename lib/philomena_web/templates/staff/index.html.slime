@@ -6,13 +6,13 @@ h1 Staff
       h4 = header
 
       = for user <- users do
-      	= if user.hide_default_role do
-      	  .profile-block
+        = if unavailable?(user) do
+          .profile-block
             = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px avatar-disabled"
             b.staff-title-muted
               => user.name
               | (Unavailable)
-      	- else
+        - else
           a.profile-block href=Routes.profile_path(@conn, :show, user)
             = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px"
             b
