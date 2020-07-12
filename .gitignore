@@ -41,3 +41,6 @@ npm-debug.log
 
 # Intellij IDEA
 .idea
+
+# Index dumps
+*.jsonl
