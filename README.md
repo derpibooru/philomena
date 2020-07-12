@@ -4,7 +4,7 @@
 ![Philomena Build](https://github.com/booru/philomena/workflows/Philomena%20Build/badge.svg)
 
 ## Demo System
-A demo install of this software can be found at <https://boorudemo.basisbit.de>. Bear in mind that any data uploaded this this demo/test system will be loast after a couple of minutes/hours.
+A demo install of this software can be found at <https://boorudemo.basisbit.de>. Bear in mind that any data uploaded to this demo/test system will be lost after a couple of hours.
 
 ## Getting started
 On systems with `docker` and `docker-compose` installed, the process should be as simple as:
