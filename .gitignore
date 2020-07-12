@@ -41,3 +41,7 @@ npm-debug.log
 
 # Intellij IDEA
 .idea
+
+/.env
+
+/local-*

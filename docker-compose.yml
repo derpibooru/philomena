@@ -2,23 +2,33 @@ version: '3'
 volumes:
   postgres_data: {}
   elastic_data: {}
+  nginx_cache: {}
+  booru_data: {}
 
 services:
+  init:
+    image: busybox
+    volumes:
+      - booru_data:/srv/assets/static/system
+    command: /bin/chown -v 200:200 /srv/assets/static/system
+    restart: "no"
+
   app:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
+      dockerfile: ./Dockerfile.app
     environment:
       - MIX_ENV=dev
       - PGPASSWORD=postgres
-    working_dir: /srv/philomena
     tty: true
-    volumes:
-      - .:/srv/philomena
     depends_on:
       - postgres
       - elasticsearch
       - redis
+    volumes:
+      - booru_data:/srv/assets/static/system
+    # for debugging into the container when container-start fails, umcomment the following line:
+    #entrypoint: ["sh", "-c", "sleep 2073600"]
 
   postgres:
     image: postgres:12.3
@@ -50,12 +60,17 @@ services:
   web:
     build:
       context: .
-      dockerfile: ./docker/web/Dockerfile
-    volumes:
-      - .:/srv/philomena
-    logging:
-      driver: "none"
+      dockerfile: ./Dockerfile.web
     depends_on:
       - app
+    extra_hosts:
+      - kube-dns.kube-system.svc.cluster.local:127.0.0.11
+    environment:
+      - APP_HOST=app
+    tmpfs:
+      - /tmp
     ports:
-      - '8080:80'
+      - '8080:8080'
+    volumes:
+      - booru_data:/system
+      - booru_data:/srv/philomena/priv/static/system

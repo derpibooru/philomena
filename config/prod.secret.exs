@@ -36,7 +36,12 @@ config :philomena,
   proxy_host: System.get_env("PROXY_HOST"),
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
-  cdn_host: System.get_env("CDN_HOST")
+  cdn_host: System.get_env("CDN_HOST"),
+  redis_host: System.get_env("REDIS_HOST"),
+  elasticsearch_url: System.get_env("ELASTICSEARCH_HOST")
+
+config :exq,
+  host: System.get_env("REDIS_HOST")
 
 config :philomena, Philomena.Repo,
   # ssl: true,
@@ -61,7 +66,7 @@ secret_key_base =
     """
 
 config :philomena, PhilomenaWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: {:system, "PORT"}],
+  http: [ip: {0, 0, 0, 0}, port: 4000],
   url: [host: System.get_env("APP_HOSTNAME"), scheme: "https", port: 443],
   secret_key_base: secret_key_base,
   server: true

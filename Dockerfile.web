@@ -1,0 +1,45 @@
+FROM elixir:1.10.3
+
+RUN apt-get update \
+    && apt-get -qq -y install apt-transport-https \
+    && echo "deb https://deb.nodesource.com/node_12.x stretch main" >> /etc/apt/sources.list \
+    && wget -qO - "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" | apt-key add - \
+    && apt-get update \
+    && apt-get -qq -y install inotify-tools build-essential git ffmpeg libavformat-dev libavcodec-dev libswscale-dev nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin
+
+ADD https://s3.amazonaws.com/rebar3/rebar3 /usr/local/bin/rebar3
+RUN chmod +x /usr/local/bin/rebar3
+
+COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
+
+ENV MIX_ENV=prod
+# specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
+ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/philomena
+ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
+ENV REDIS_HOST=redis
+WORKDIR /srv/
+#RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
+#RUN chown -R philomena:philomena /srv/
+#USER 200
+COPY . /srv/philomena
+WORKDIR /srv/philomena
+RUN mix local.hex --force && \
+    mix local.rebar --force
+RUN mix deps.get --only
+RUN mix phx.digest
+
+WORKDIR /srv/philomena/assets
+RUN npm install
+RUN npm run deploy
+
+FROM nginx:1.18.0-alpine-perl
+
+ENV APP_HOST=app.derpibooru-legacy.svc.cluster.local
+
+COPY docker/web/site.conf /etc/nginx/conf.d/default.conf
+COPY docker/web/nginx.conf /etc/nginx/nginx.conf
+COPY --from=0 /srv/philomena/priv/static /srv/assets/static
+EXPOSE 8080
+RUN chown -R 200:200 /srv/assets/static
+USER 200
+CMD nginx -g 'daemon off;'

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Sleep to allow Elasticsearch to finish initializing
+# if it's not done doing whatever it does yet
+echo -n "Waiting for Elasticsearch"
+
+until wget -qO - elasticsearch:9200; do
+  echo -n "."
+  sleep 2
+done
+
+if [[ $MIX_ENV == "dev" ]]; then
+  /bin/run-development
+  exit $?
+fi
+
+# Run the application
+mix phx.server

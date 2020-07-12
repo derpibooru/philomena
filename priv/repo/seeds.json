@@ -63,8 +63,8 @@
   "users": [{
     "name": "Administrator",
     "email": "admin@example.com",
-    "password": "trixieisbestpony",
-    "password_confirmation": "trixieisbestpony",
+    "password": "DemoBooruPassword",
+    "password_confirmation": "DemoBooruPassword",
     "role": "admin"
   }],
   "rating_tags": [
