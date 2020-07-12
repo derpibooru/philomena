@@ -31,6 +31,7 @@ If you have SELinux enforcing, you should run the following in the application d
 ```
 chcon -Rt svirt_sandbox_file_t .
 ```
+This allows Docker or Podman to bind mount the application directory into the containers.
 
 The postgres DB can be deleted like this:
 ```
@@ -40,7 +41,7 @@ docker volume ls
 docker volume rm philomena_postgres_data
 ```
 
-This allows Docker or Podman to bind mount the application directory into the containers.
+To manually start the app container and run commands from `docker/app/run-development` or `docker/app/run-prod`, uncomment the entrypoint line in `docker-compose.yml`, then run `docker-compose up`. In another shell, run `docker-compose exec app bash` and you should be good to go. As next steps, you'll usually want to manually execute the commands from the above mentioned run scripts and look at the console output to see what the problem is. From this container, you can also connect to the postgresql database using `psql -h postgres -U postgres`.
 
 ## Deployment
 You need a key installed on the server you target, and the git remote installed in your ssh configuration.
