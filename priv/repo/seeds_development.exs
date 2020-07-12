@@ -42,7 +42,7 @@ request_attributes = [
   user: pleb
 ]
 
-IO.puts "---- Generating images"
+IO.puts "---- Generating remote images"
 for image_def <- resources["remote_images"] do
   file = Briefly.create!()
   now = DateTime.utc_now() |> DateTime.to_unix(:microsecond)
@@ -74,6 +74,44 @@ for image_def <- resources["remote_images"] do
     {:error, :image, changeset, _so_far} ->
       IO.inspect changeset.errors
   end
+end
+
+IO.puts "---- Generating local images"
+for image_def <- resources["local_images"] do
+  file = Briefly.create!()
+  now = DateTime.utc_now() |> DateTime.to_unix(:microsecond)
+
+  if File.exists?(image_def["path"]) do
+
+    IO.puts "uploading #{image_def["path"]}..."
+
+    upload = %Plug.Upload{
+      path: image_def["path"],
+      content_type: "application/octet-stream",
+      filename: "fixtures-#{now}"
+    }
+
+    IO.puts "Inserting ..."
+
+    Images.create_image(
+      request_attributes,
+      Map.merge(image_def, %{"image" => upload})
+    )
+    |> case do
+         {:ok, %{image: image}} ->
+           Images.reindex_image(image)
+           Tags.reindex_tags(image.added_tags)
+
+           IO.puts "Created image ##{image.id}"
+
+         {:error, :image, changeset, _so_far} ->
+           IO.inspect changeset.errors
+       end
+
+  else
+    IO.warn "Couldn't find file #{image_def["path"]}"
+  end
+
 end
 
 IO.puts "---- Generating comments for image #1"
