@@ -3,13 +3,13 @@ volumes:
   postgres_data: {}
   elastic_data: {}
   nginx_cache: {}
-  derpi_data: {}
+  booru_data: {}
 
 services:
   init:
     image: busybox
     volumes:
-      - derpi_data:/srv/assets/static/system
+      - booru_data:/srv/assets/static/system
     command: /bin/chown -v 200:200 /srv/assets/static/system
     restart: "no"
 
@@ -26,7 +26,7 @@ services:
       - elasticsearch
       - redis
     volumes:
-      - derpi_data:/srv/assets/static/system
+      - booru_data:/srv/assets/static/system
 
   postgres:
     image: postgres:12.3
@@ -70,5 +70,5 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - derpi_data:/system
-      - derpi_data:/srv/philomena/priv/static/system
+      - booru_data:/system
+      - booru_data:/srv/philomena/priv/static/system
