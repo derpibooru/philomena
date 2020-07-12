@@ -27,8 +27,8 @@ services:
       - redis
     volumes:
       - booru_data:/srv/assets/static/system
-	# for debugging into the container when container-start fails, umcomment the following line:
-	#entrypoint: ["sh", "-c", "sleep 2073600"]
+    # for debugging into the container when container-start fails, umcomment the following line:
+    #entrypoint: ["sh", "-c", "sleep 2073600"]
 
   postgres:
     image: postgres:12.3
