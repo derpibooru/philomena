@@ -26,7 +26,7 @@ COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 
 ENV MIX_ENV=prod
 # specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
-ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
+ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/philomena
 ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
 ENV REDIS_HOST=redis
 COPY . /srv/philomena
