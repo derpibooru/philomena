@@ -9,10 +9,6 @@ until wget -qO - elasticsearch:9200; do
   sleep 2
 done
 
-# Run seeds
-# mix run priv/repo/seeds.exs
-mix phx.digest
-
 if [[ $MIX_ENV == "dev" ]]; then
   /bin/run-development
   exit $?
