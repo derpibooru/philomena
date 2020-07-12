@@ -1,6 +1,11 @@
 # Philomena
 ![Philomena](/assets/static/images/phoenix.svg)
 
+![Philomena Build](https://github.com/booru/philomena/workflows/Philomena%20Build/badge.svg)
+
+## Demo System
+A demo install of this software can be found at <https://boorudemo.basisbit.de>. Bear in mind that any data uploaded this this demo/test system will be loast after a couple of minutes/hours.
+
 ## Getting started
 On systems with `docker` and `docker-compose` installed, the process should be as simple as:
 
@@ -17,6 +22,14 @@ podman-compose up
 ```
 
 Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / DemoBooruPassword
+
+## System Requirements
+
+Minimal requirements are 2 CPU threads and 4GB of RAM. A 5€/$ per month VPS will work well as development/testing machine.
+
+Recommended for production with many active users would be 6+ dedicated CPU cores, 32+ GB of RAM, dedicated unlimited 1Gb/s network port or better and the system should use only SSD/NVMe as data storage to handle the required IOPS load.
+
+If that is not enough capacity for your use case, consider using a couple of servers as "CDN" which only host the image files. We also suggest using Cloudflare or similar in front of the image board and configuring a cloudflare page rule to enfore caching of the image files.
 
 ## Troubleshooting
 
@@ -63,3 +76,4 @@ And if everything goes wrong:
 To customize your booru, find and replace all occurences of the following words with your desired content
 - `YourBooruName`
 - `YourBooruDescription` (sample: `Samplebooru is a linear imagebooru which lets you share, find and discover new art and media surrounding samples.`
+- `SomeRandomSampleSecret1234`
