@@ -1,94 +1,90 @@
 = form_for @changeset, Routes.image_path(@conn, :create), [multipart: true], fn f ->
-  .dnp-warning
-    h4
-      ' Read the
-      a> href="/pages/rules" site rules
-      ' and check our
-      a> href="/dnp" do-not-post list
-    p
-      ' Don't post content the artist doesn't want here (or shared in general),
-      strong including commercial content.
-
   = if !@conn.assigns.current_user do
     p
-      strong<> Sorry, but due to spam, anonymous uploaders need to fill this out.
-      | If you're logged in, you can still post anonymously and won't have to deal with captchas!
+      strong<> Sorry, but anonymous uploading without login is disabled for legal reasons. Please log in to upload new content!
+      | If you're logged in, you can post anonymously.
+  - else
+    .dnp-warning
+      h4
+        ' Read the
+        a> href="/pages/rules" site rules
+        ' and check our
+        a> href="/dnp" do-not-post list
+      p
+        ' Don't post content the artist doesn't want here (or shared in general),
+        strong including commercial content.
+
+    p
+      strong
+        ' Please check it isn't already here with
+        a href="/search/reverse" reverse search.
+
+    / todo: extract this
+    h4 Select an image
+    .image-other
+      #js-image-upload-previews
+      p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
+      .field
+        = file_input f, :image, class: "input js-scraper"
+        = error_tag f, :image
+        = error_tag f, :image_size
+        = error_tag f, :image_width
+        = error_tag f, :image_height
+        = error_tag f, :image_name
+        = error_tag f, :image_mime_type
+        = error_tag f, :image_duration
+        = error_tag f, :image_orig_sha512_hash
+
+      .field.field--inline
+        = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
+        button.button.button--separate-left#js-scraper-preview(type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch" disabled)
+          ' Fetch
+
+      .field-error-js.hidden.js-scraper
+
+    h4 About this image
+    .field
+      = label f, :source_url, "The page you found this image on"
+      = url_input f, :source_url, class: "input input--wide js-image-input", placeholder: "Source URL"
+    
+    .field
+      label for="image[tag_input]"
+        ' Describe with
+        strong> 3+
+        ' tags, including ratings and applicable artist tags
+
+      = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :upload
+      = error_tag f, :tag_input
+
+      button.button.button--state-success.button--separate-left.button--bold id="tagsinput-save" type="button" title="This button saves the tags listed above to your browser, allowing you to retrieve them again by clicking the Load button" Save
+      button.button.button--state-warning.button--separate-left.button--bold id="tagsinput-load" type="button" title="This button loads any saved tags from your browser" Load
+      button.button.button--state-danger.button--separate-left.button--bold id="tagsinput-clear" type="button" title="This button will clear the list of tags above" Clear
+
+      p You can mouse over tags below to view a description, and click to add. Short tag names can be used and will expand to full.
+
+      .block.js-tagtable data-target="[name=&quot;image[tag_input]&quot;]"
+        = PhilomenaWeb.TagView.quick_tags(@conn)
+
+    br
 
     .field
-      = checkbox f, :captcha, class: "js-captcha", value: 0
-      = label f, :captcha, "I am not a robot!"
+      .block
+        .block__header.block__header--js-tabbed
+          = link "Description", to: "#", class: "selected", data: [click_tab: "write"]
+          = link "Preview", to: "#", data: [click_tab: "preview"]
 
-  p
-    strong
-      ' Please check it isn't already here with
-      a href="/search/reverse" reverse search.
+        .block__tab.selected data-tab="write"
+          = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
+          = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
 
-  / todo: extract this
-  h4 Select an image
-  .image-other
-    #js-image-upload-previews
-    p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
-    .field
-      = file_input f, :image, class: "input js-scraper"
-      = error_tag f, :image
-      = error_tag f, :image_size
-      = error_tag f, :image_width
-      = error_tag f, :image_height
-      = error_tag f, :image_name
-      = error_tag f, :image_mime_type
-      = error_tag f, :image_duration
-      = error_tag f, :image_orig_sha512_hash
+          = textarea f, :description, class: "input input--wide input--text js-preview-description js-image-input js-toolbar-input", placeholder: "Describe this image in plain words - this should generally be info about the image that doesn't belong in the tags or source."
+        .block__tab.hidden data-tab="preview"
+          | Loading preview...
 
-    .field.field--inline
-      = url_input f, :scraper_url, class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
-      button.button.button--separate-left#js-scraper-preview(type="button" title="Fetch the image at the specified URL" data-disable-with="Fetch" disabled)
-        ' Fetch
+    = if @conn.assigns.current_user do
+      .field
+        = label f, :anonymous, "Post anonymously"
+        = checkbox f, :anonymous, class: "checkbox", value: anonymous_by_default?(@conn)
 
-    .field-error-js.hidden.js-scraper
-
-  h4 About this image
-  .field
-    = label f, :source_url, "The page you found this image on"
-    = url_input f, :source_url, class: "input input--wide js-image-input", placeholder: "Source URL"
-  
-  .field
-    label for="image[tag_input]"
-      ' Describe with
-      strong> 3+
-      ' tags, including ratings and applicable artist tags
-
-    = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :upload
-    = error_tag f, :tag_input
-
-    button.button.button--state-success.button--separate-left.button--bold id="tagsinput-save" type="button" title="This button saves the tags listed above to your browser, allowing you to retrieve them again by clicking the Load button" Save
-    button.button.button--state-warning.button--separate-left.button--bold id="tagsinput-load" type="button" title="This button loads any saved tags from your browser" Load
-    button.button.button--state-danger.button--separate-left.button--bold id="tagsinput-clear" type="button" title="This button will clear the list of tags above" Clear
-
-    p You can mouse over tags below to view a description, and click to add. Short tag names can be used and will expand to full.
-
-    .block.js-tagtable data-target="[name=&quot;image[tag_input]&quot;]"
-      = PhilomenaWeb.TagView.quick_tags(@conn)
-
-  br
-
-  .field
-    .block
-      .block__header.block__header--js-tabbed
-        = link "Description", to: "#", class: "selected", data: [click_tab: "write"]
-        = link "Preview", to: "#", data: [click_tab: "preview"]
-
-      .block__tab.selected data-tab="write"
-        = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-        = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-        = textarea f, :description, class: "input input--wide input--text js-preview-description js-image-input js-toolbar-input", placeholder: "Describe this image in plain words - this should generally be info about the image that doesn't belong in the tags or source."
-      .block__tab.hidden data-tab="preview"
-        | Loading preview...
-
-  = if @conn.assigns.current_user do
-    .field
-      = label f, :anonymous, "Post anonymously"
-      = checkbox f, :anonymous, class: "checkbox", value: anonymous_by_default?(@conn)
-
-  .actions
-    = submit "Upload", class: "button", autocomplete: "off", data: [disable_with: "Please wait..."]
+    .actions
+      = submit "Upload", class: "button", autocomplete: "off", data: [disable_with: "Please wait..."]
