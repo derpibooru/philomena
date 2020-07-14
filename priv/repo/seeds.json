@@ -18,33 +18,21 @@
     }
   ],
   "forums": [{
-      "name": "General Discussion",
-      "short_name": "dis",
-      "description": "This is a discussion forum for everything unrelated to the show or other forums",
-      "access_level": "normal"
-    },
-    {
-      "name": "Episode Discussion",
-      "short_name": "pony",
-      "description": "Discuss the show, characters, and theories",
-      "access_level": "normal"
-    },
-    {
       "name": "Site and Policy",
       "short_name": "meta",
       "description": "For site discussion and policy discussion",
       "access_level": "normal"
     },
     {
-      "name": "Art Chat",
-      "short_name": "art",
-      "description": "Discuss art of any form, and share techniques and tips",
+      "name": "Tagging Discussion",
+      "short_name": "tagging",
+      "description": "For discussion regarding site tags, including requesting aliases, implications, spoiler images, and tag descriptions.",
       "access_level": "normal"
     },
     {
-      "name": "Roleplaying",
-      "short_name": "rp",
-      "description": "Roleplaying forum, in which people play roles",
+      "name": "Uploader Discussion",
+      "short_name": "tagging",
+      "description": "To share uploading resources, tips, and discuss general uploading and related topics. This is not a support forum - please ask for support in Site and Policy.",
       "access_level": "normal"
     },
     {
