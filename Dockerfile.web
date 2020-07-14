@@ -14,23 +14,33 @@ COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 
 ENV MIX_ENV=prod
 # specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
-ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/philomena
+ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
 ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
 ENV REDIS_HOST=redis
+
 WORKDIR /srv/
-#RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
-#RUN chown -R philomena:philomena /srv/
-#USER 200
-COPY . /srv/philomena
-WORKDIR /srv/philomena
+RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
+RUN chown philomena:philomena /srv/
+USER 200
+COPY --chown=200:200 ./mix.exs /srv/philomena/mix.exs
+COPY --chown=200:200 ./mix.lock /srv/philomena/mix.lock
+COPY --chown=200:200 ./assets/package.json /srv/philomena/assets/package.json
+COPY --chown=200:200 ./assets/package-lock.json /srv/philomena/assets/package-lock.json
 RUN mix local.hex --force && \
     mix local.rebar --force
-RUN mix deps.get --only
-RUN mix phx.digest
 
 WORKDIR /srv/philomena/assets
 RUN npm install
+WORKDIR /srv/philomena
+RUN mix deps.get
+RUN mix deps.compile
+
+COPY --chown=200:200 . /srv/philomena
+WORKDIR /srv/philomena/assets
 RUN npm run deploy
+WORKDIR /srv/philomena
+RUN mix compile
+RUN mix phx.digest
 
 FROM nginx:1.18.0-alpine-perl
 

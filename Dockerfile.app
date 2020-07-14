@@ -29,24 +29,31 @@ ENV MIX_ENV=prod
 ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
 ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
 ENV REDIS_HOST=redis
-COPY . /srv/philomena
-COPY assets /srv/assets
+
 WORKDIR /srv/
 RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
-RUN chown -R philomena:philomena /srv/
-RUN ln -s /srv/assets/static /srv/philomena/priv/static
+RUN chown philomena:philomena /srv/
 USER 200
+COPY --chown=200:200 ./mix.exs /srv/philomena/mix.exs
+COPY --chown=200:200 ./mix.lock /srv/philomena/mix.lock
+COPY --chown=200:200 ./assets/package.json /srv/philomena/assets/package.json
+COPY --chown=200:200 ./assets/package-lock.json /srv/philomena/assets/package-lock.json
 RUN mix local.hex --force && \
     mix local.rebar --force
-COPY docker/app/run-prod /bin/run-prod
-COPY docker/app/run-development /bin/run-development
 
 WORKDIR /srv/philomena/assets
 RUN npm install
 WORKDIR /srv/philomena
 RUN mix deps.get
-RUN mix phx.digest
 RUN mix deps.compile
+
+COPY --chown=200:200 . /srv/philomena
+WORKDIR /srv/philomena/assets
+RUN npm run deploy
+WORKDIR /srv/philomena
 RUN mix compile
+RUN mix phx.digest
+COPY --chown=200:200 docker/app/run-prod /bin/run-prod
+COPY --chown=200:200 docker/app/run-development /bin/run-development
 
 CMD /bin/run-prod
