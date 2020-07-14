@@ -1,6 +1,6 @@
 .block
   = form_for @changeset, Routes.image_source_path(@conn, :update, @image), [method: "put", class: "hidden", id: "source-form", data: [remote: true]], fn f ->
-    = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban do
+    = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban and @conn.assigns.current_user do
 
       = if @changeset.action do
         .alert.alert-danger
@@ -18,7 +18,7 @@
 
     - else
       p
-        ' You can't edit the source on this image.
+        ' You can't edit the source on this image. Either you are not logged in or source editing has been disabled for this image.
 
   .flex.flex--wrap#image-source
     p
