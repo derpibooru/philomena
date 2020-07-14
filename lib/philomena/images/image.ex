@@ -118,6 +118,7 @@ defmodule Philomena.Images.Image do
     |> change(first_seen_at: now)
     |> change(attribution)
     |> validate_length(:description, max: 50_000, count: :bytes)
+    |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
 
   def image_changeset(image, attrs) do
