@@ -13,17 +13,21 @@ defmodule PhilomenaWeb.ReportView do
 
   def report_categories do
     [
-      "Rule #0: Namecalling, trolling, discrimination": "Rule #0",
-      "Rule #1: DNP, content theft, pay content, trace/bad edit": "Rule #1",
-      "Rule #2: Bad tagging/sourcing": "Rule #2",
-      "Rule #3: Image not MLP-related/obligatory pony": "Rule #3",
-      "Rule #4: Whining about filterable content": "Rule #4",
-      "Rule #5: Underage+human/anthro-looking porn": "Rule #5",
-      "Rule #6: Spam, off-topic, or general site abuse": "Rule #6",
-      "Rule #7: Above topic rating (NOT swear words)": "Rule #7",
-      "Rule #8: Privacy violation": "Rule #8",
-      "Rule #9: Commissions": "Rule #9",
-      "Rule #n: Spirit of the rules": "Rule #n",
+      "Rule 1: Breach of conduct": "Rule 1",
+      "Rule 1a: Impersonation": "Rule 1a",
+      "Rule 1b: Breach of Privacy": "Rule 1b",
+      "Rule 1d: Off-topic, derailing, shitposting": "Rule 1d",
+      "Rule 1e: Roleplay": "Rule 1e",
+      "Rule 2a: Unrelated to MLP": "Rule 2a",
+      "Rule 2b: Hateful content": "Rule 2b",
+      "Rule 2c: Underage porn": "Rule 2c",
+      "Rule 2d: Illegal content": "Rule 2d",
+      "Rule 2e: Banned topic": "Rule 2e",
+      "Rule 3a: Forcing opinion": "Rule 3a",
+      "Rule 3b: NSFW content in non-filterable medium": "Rule 3b",
+      "Rule 3c: Mistagging": "Rule 3c",
+      "Rule 4a: Incorrect sourcing": "Rule 4a",
+      "Rule 4b: Breach of DNP": "Rule 4b",
       "Other (please explain)": "Other",
       "Takedown request": "Takedown request"
     ]
