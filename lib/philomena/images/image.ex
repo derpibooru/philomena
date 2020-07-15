@@ -49,7 +49,7 @@ defmodule Philomena.Images.Image do
     field :image_format, :string
     field :image_mime_type, :string
     field :image_aspect_ratio, :float
-	field :image_duration, :float
+    field :image_duration, :float
     field :image_is_animated, :boolean, source: :is_animated
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
@@ -119,6 +119,7 @@ defmodule Philomena.Images.Image do
     |> change(first_seen_at: now)
     |> change(attribution)
     |> validate_length(:description, max: 50_000, count: :bytes)
+    |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
 
   def image_changeset(image, attrs) do
@@ -132,7 +133,7 @@ defmodule Philomena.Images.Image do
       :image_format,
       :image_mime_type,
       :image_aspect_ratio,
-	  :image_duration,
+      :image_duration,
       :image_orig_sha512_hash,
       :image_sha512_hash,
       :uploaded_image,
@@ -147,7 +148,7 @@ defmodule Philomena.Images.Image do
       :image_format,
       :image_mime_type,
       :image_aspect_ratio,
-	  :image_duration,
+      :image_duration,
       :image_orig_sha512_hash,
       :image_sha512_hash,
       :uploaded_image,
