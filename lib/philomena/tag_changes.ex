@@ -45,7 +45,7 @@ defmodule Philomena.TagChanges do
     to_add = Enum.map(removed, &%{image_id: &1.image_id, tag_id: &1.tag_id})
 
     Repo.transaction(fn ->
-      Repo.insert_all(Tagging, to_add, on_conflict: :nothing, returning: [:image_id, :tag_id])	      {_count, inserted} =
+      {_count, inserted} =
         Repo.insert_all(Tagging, to_add, on_conflict: :nothing, returning: [:image_id, :tag_id])
 
       {_count, deleted} = Repo.delete_all(to_remove)
@@ -64,9 +64,9 @@ defmodule Philomena.TagChanges do
 
       Repo.insert_all(TagChange, added_changes ++ removed_changes)
 
-       # In order to merge into the existing tables here in one go, insert_all
-       # is used with a query that is guaranteed to conflict on every row by
-       # using the primary key.
+      # In order to merge into the existing tables here in one go, insert_all
+      # is used with a query that is guaranteed to conflict on every row by
+      # using the primary key.
 
       added_upserts =
         inserted
