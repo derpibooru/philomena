@@ -35,6 +35,18 @@ defmodule PhilomenaWeb.Topic.PostController do
         Posts.reindex_post(post)
         UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
 
+        if forum.access_level == "normal" do
+          PhilomenaWeb.Endpoint.broadcast!(
+            "firehose",
+            "post:create",
+            PhilomenaWeb.Api.Json.Forum.Topic.PostView.render("firehose.json", %{
+              post: post,
+              topic: topic,
+              forum: forum
+            })
+          )
+        end
+
         conn
         |> put_flash(:info, "Post created successfully.")
         |> redirect(

@@ -11,7 +11,7 @@
     ' .
 
   = if size == :full do
-    #image_target.hidden.image-show data-scaled=scaled_value(@conn.assigns.current_user) data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height
+    #image_target.hidden.image-show data-scaled=scaled_value(@conn.assigns.current_user) data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height data-image-size=@image.image_size data-mime-type=@image.image_mime_type
       = if @image.image_mime_type == "video/webm" do
         video controls=true
       - else

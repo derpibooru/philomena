@@ -46,7 +46,11 @@ defmodule Philomena.Repo.Migrations.ProdSchemaSync2 do
     execute("ALTER SEQUENCE users_id_seq AS BIGINT;")
     execute("ALTER SEQUENCE versions_id_seq AS BIGINT;")
     execute("CREATE INDEX index_users_on_created_at ON public.users USING btree (created_at);")
-    execute("CREATE INDEX index_users_on_role ON public.users USING btree (role) WHERE ((role)::text <> 'user'::text);")
+
+    execute(
+      "CREATE INDEX index_users_on_role ON public.users USING btree (role) WHERE ((role)::text <> 'user'::text);"
+    )
+
     execute("DROP INDEX temp_unique_index_tags_on_name;")
     execute("DROP INDEX temp_unique_index_tags_on_slug;")
   end

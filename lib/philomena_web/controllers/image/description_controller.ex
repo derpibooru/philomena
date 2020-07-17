@@ -7,7 +7,12 @@ defmodule PhilomenaWeb.Image.DescriptionController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CanaryMapPlug, update: :edit_description
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true, preload: [:tags, :user]
+
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    persisted: true,
+    preload: [:tags, :user]
 
   def update(conn, %{"image" => image_params}) do
     image = conn.assigns.image
@@ -20,6 +25,7 @@ defmodule PhilomenaWeb.Image.DescriptionController do
           "image:description_update",
           %{image_id: image.id, added: image.description, removed: old_description}
         )
+
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:update",

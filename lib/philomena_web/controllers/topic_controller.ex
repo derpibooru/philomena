@@ -108,6 +108,18 @@ defmodule PhilomenaWeb.TopicController do
         Posts.reindex_post(post)
         Topics.notify_topic(topic)
 
+        if forum.access_level == "normal" do
+          PhilomenaWeb.Endpoint.broadcast!(
+            "firehose",
+            "post:create",
+            PhilomenaWeb.Api.Json.Forum.Topic.PostView.render("firehose.json", %{
+              post: post,
+              topic: topic,
+              forum: forum
+            })
+          )
+        end
+
         conn
         |> put_flash(:info, "Successfully posted topic.")
         |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic))
