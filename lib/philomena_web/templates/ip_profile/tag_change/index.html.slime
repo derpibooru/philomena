@@ -7,7 +7,7 @@ h1
 
 .block
   .block__header
-    span.block__header_title
+    span.block__header__title
       | Display only:
 
     = link "Removed", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip), added: 0)
