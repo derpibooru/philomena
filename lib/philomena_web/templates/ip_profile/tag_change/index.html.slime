@@ -3,7 +3,8 @@ h1
   = @ip
 
 - route = fn p -> Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip), p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn
+- params = if @conn.params["added"] do [added: @conn.params["added"]] else nil end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: params
 
 .block
   .block__header
