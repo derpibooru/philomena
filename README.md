@@ -80,3 +80,19 @@ To customize your booru, find and replace all occurences of the following words 
 - Rule names that are selectable when reporting violations can be adjusted in `lib/philomena_web/views/report_view.ex`
 - In `config/config.exs` adjust your own `password_pepper`, `otp_secret_key` and `tumblr_api_key`
 - Predefined forum sections can be changed in `priv/repo/seeds.json` in the forums section
+
+## gdpr-cron container
+The docker container located in ```docker/gdpr``` contains a cronjob scheduler used to comply with the
+european _general data protection regulation_. The list of scripts can be extended as needed
+
+### Adding a script to the container
+Adding a new script to the container can be easily archived by creating the script file, adding it to the crontab.txt,
+using the known [crontab](http://manpages.ubuntu.com/manpages/cosmic/man5/crontab.5.html) syntax and making sure that
+the script is copied to the correct path in the dockerfile
+
+#### anonymize-ips.sh
+This script replaces the uploaders IP of an image with ```0.0.0.0```
+14 days after uploading. The time can be configured using the ```MAX_AGE``` environment variable. The values is an
+[postgresql intervals](https://www.postgresql.org/docs/12/datatype-datetime.html#DATATYPE-INTERVAL-INPUT)
+
+The script uses [postgres-client environment variables](https://www.postgresql.org/docs/9.3/libpq-envars.html) to configure the database connection
