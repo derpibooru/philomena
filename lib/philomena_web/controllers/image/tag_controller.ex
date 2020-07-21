@@ -10,6 +10,10 @@ defmodule PhilomenaWeb.Image.TagController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 5, error: "You may only update metadata once every 5 seconds."]
+       when action in [:update]
+
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
