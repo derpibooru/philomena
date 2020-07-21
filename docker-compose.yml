@@ -30,6 +30,18 @@ services:
     # for debugging into the container when container-start fails, umcomment the following line:
     #entrypoint: ["sh", "-c", "sleep 2073600"]
 
+  gdpr-cron:
+    build:
+      context: ./docker/gdpr
+      dockerfile: ./Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      PGHOST: postgres
+      PGDATABASE: philomena_dev
+      PGUSER: postgres
+      PGPASSWORD: postgres
+
   postgres:
     image: postgres:12.3
     environment:

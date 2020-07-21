@@ -1,0 +1,1 @@
+* * * * * /anonymize_ips.sh
