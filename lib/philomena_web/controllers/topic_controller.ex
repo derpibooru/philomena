@@ -9,6 +9,10 @@ defmodule PhilomenaWeb.TopicController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 300, error: "You may only make a new topic once every 5 minutes."]
+       when action in [:create]
+
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:new, :create]
   plug PhilomenaWeb.AdvertPlug when action in [:show]

@@ -8,6 +8,10 @@ defmodule PhilomenaWeb.Image.CommentController do
   alias Philomena.Comments
   alias Philomena.Images
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 30, error: "You may only create a comment once every 30 seconds."]
+       when action in [:create]
+
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create, :edit, :update]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 

@@ -9,6 +9,10 @@ defmodule PhilomenaWeb.ConversationController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 60, error: "You may only create a conversation once every minute."]
+       when action in [:create]
+
   plug :load_and_authorize_resource,
     model: Conversation,
     id_field: "slug",
