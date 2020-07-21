@@ -7,6 +7,7 @@ defmodule Philomena.PollVotes do
   alias Ecto.Multi
   alias Philomena.Repo
 
+  alias Philomena.Polls
   alias Philomena.Polls.Poll
   alias Philomena.PollVotes.PollVote
   alias Philomena.PollOptions.PollOption
@@ -52,6 +53,13 @@ defmodule Philomena.PollVotes do
         |> repo.one()
 
       {:ok, poll}
+    end)
+    |> Multi.run(:ended, fn _repo, _changes ->
+      # Bail if poll is no longer active
+      case Polls.active?(poll) do
+        false -> {:error, []}
+        _true -> {:ok, []}
+      end
     end)
     |> Multi.run(:existing_votes, fn _repo, _changes ->
       # Don't proceed if any votes exist

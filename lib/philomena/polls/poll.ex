@@ -5,7 +5,9 @@ defmodule Philomena.Polls.Poll do
   alias Philomena.Topics.Topic
   alias Philomena.Users.User
   alias Philomena.PollOptions.PollOption
+  alias Philomena.Polls.Poll
   alias Philomena.Schema.Time
+  import Ecto.Query
 
   schema "polls" do
     belongs_to :topic, Topic
