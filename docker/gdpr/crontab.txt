@@ -1,1 +1,1 @@
-* * * * * /anonymize_ips.sh
+0 3 * * * /anonymize_ips.sh
