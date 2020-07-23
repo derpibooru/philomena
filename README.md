@@ -81,6 +81,9 @@ To customize your booru, find and replace all occurences of the following words 
 - In `config/config.exs` adjust your own `password_pepper`, `otp_secret_key` and `tumblr_api_key`
 - Predefined forum sections can be changed in `priv/repo/seeds.json` in the forums section
 
+### image_url_root
+The baseUrl for image requests can be changed using the `image_url_root` variable in `config/config.exs`. This url is used for rendering images onto the html templates and changing it can be used to cache request with a cdn. The Proxy has to redirect to the `/img` endpoint of philomena. (see `lib/philomena_web/views/image_view.ex:85`). It is appended with either `view` or `download` depending on the context, as well as the date of upload and the image filename. Thumbnails will use the image-id as well as the thumbnail size (see `lib/philomena_web/views/image_view.ex:47`)
+
 ## gdpr-cron container
 The docker container located in ```docker/gdpr``` contains a cronjob scheduler used to comply with the
 european _general data protection regulation_. The list of scripts can be extended as needed
