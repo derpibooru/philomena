@@ -23,6 +23,9 @@ h1 Search
           a data-search-add="width:1920" data-search-select-last="4" data-search-show-help="numeric" Image width
           a data-search-add="height:1080" data-search-select-last="4" data-search-show-help="numeric" Image height
           a data-search-add="aspect_ratio:1" data-search-select-last="1" data-search-show-help="numeric" Aspect ratio
+          a data-search-add="duration:10" data-search-select-last="2" data-search-show-help="numeric" Duration (seconds)
+          a data-search-add="pixels.gte:5000000" data-search-select-last="7" data-search-show-help="numeric" Pixels
+          a data-search-add="size.lt:1048576" data-search-select-last="7" data-search-show-help="numeric" File size (bytes)
 
       = if @conn.assigns.current_user do
         .dropdown.block__header__dropdown-tab
@@ -125,6 +128,9 @@ h1 Search
         "Sort by height": :height,
         "Sort by comments": :comment_count,
         "Sort by tag count": :tag_count,
+        "Sort by pixels": :pixels,
+        "Sort by file size": :size,
+        "Sort by duration": :duration,
         "Random!": random_seed
       ]
 

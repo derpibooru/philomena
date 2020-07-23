@@ -169,7 +169,7 @@ defmodule Philomena.Tags.Tag do
     # with ascii quotes, trim space from end
     name
     |> String.downcase()
-    |> String.replace(~r/[[:space:]|\x{200c}]+/u, " ")
+    |> String.replace(~r/[[:space:]|\x{200b}|\x{200c}|\x{200d}]+/u, " ")
     |> String.replace(~r/[\x{00b4}\x{2018}\x{2019}\x{201a}\x{201b}\x{2032}]/u, "'")
     |> String.replace(~r/[\x{201c}\x{201d}\x{201e}\x{201f}\x{2033}]/u, "\"")
     |> String.trim()
