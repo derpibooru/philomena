@@ -80,10 +80,9 @@ To customize your booru, find and replace all occurences of the following words 
 - Rule names that are selectable when reporting violations can be adjusted in `lib/philomena_web/views/report_view.ex`
 - In `config/config.exs` adjust your own `password_pepper`, `otp_secret_key` and `tumblr_api_key`
 - Predefined forum sections can be changed in `priv/repo/seeds.json` in the forums section
-- The baseUrl for image requests can be changed suing the `image_url_root` variable in `config/config.exs`. This can be used to cache image requests using a CDN. The CDN will have to redirect the request to the `/img` endpoint. More Details under `image_url_root` in this document
 
 ### image_url_root
-The image_url_root is the base url used for rendering images onto the html templates. (see `lib/philomena_web/views/image_view.ex:85`). It is appended with either `view` or `download` depending on the context, as well as the date of upload and the image filename. Thumbnails will use the image-id as well as the thumbnail size (see `lib/philomena_web/views/image_view.ex:47`)
+The baseUrl for image requests can be changed using the `image_url_root` variable in `config/config.exs`. This url is used for rendering images onto the html templates and changing it can be used to cache request with a cdn. The Proxy has to redirect to the `/img` endpoint of philomena. (see `lib/philomena_web/views/image_view.ex:85`). It is appended with either `view` or `download` depending on the context, as well as the date of upload and the image filename. Thumbnails will use the image-id as well as the thumbnail size (see `lib/philomena_web/views/image_view.ex:47`)
 
 ## gdpr-cron container
 The docker container located in ```docker/gdpr``` contains a cronjob scheduler used to comply with the
