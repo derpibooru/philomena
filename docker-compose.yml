@@ -38,7 +38,7 @@ services:
       - postgres
     environment:
       PGHOST: postgres
-      PGDATABASE: philomena_dev
+      PGDATABASE: philomena_db
       PGUSER: postgres
       PGPASSWORD: postgres
 
