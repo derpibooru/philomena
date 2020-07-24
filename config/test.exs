@@ -4,7 +4,7 @@ import Config
 config :philomena, Philomena.Repo,
   username: "postgres",
   password: "postgres",
-  database: "philomena_test",
+  database: "philomena_db",
   pool: Ecto.Adapters.SQL.Sandbox
 
 config :philomena,

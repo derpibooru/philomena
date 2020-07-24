@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Try to create the database if it doesn't exist yet
-if psql -h postgres -U postgres -lqt | cut -d \| -f 1 | grep -qw philomena_dev; then
-  dropdb -h postgres -U postgres philomena_dev
-  createdb -h postgres -U postgres philomena_dev 
+if psql -h postgres -U postgres -lqt | cut -d \| -f 1 | grep -qw philomena_db; then
+  dropdb -h postgres -U postgres philomena_db
+  createdb -h postgres -U postgres philomena_db 
   mix ecto.setup_dev
 else
-  createdb -h postgres -U postgres philomena_dev 
+  createdb -h postgres -U postgres philomena_db 
   mix ecto.setup_dev
 fi
 
