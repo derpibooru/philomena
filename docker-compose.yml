@@ -1,16 +1,10 @@
 version: '3'
-volumes:
-  postgres_data: {}
-  elastic_data: {}
-  nginx_cache: {}
-  booru_data: {}
-
 services:
   init:
     image: busybox
     volumes:
-      - booru_data:/srv/assets/static/system
-    command: /bin/chown -v 200:200 /srv/assets/static/system
+      - ./local-data/philomena:/system
+    command: /bin/chown -v 200:200 /system
     restart: "no"
 
   app:
@@ -18,15 +12,17 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
     environment:
-      - MIX_ENV=dev
+      - MIX_ENV=prod
       - PGPASSWORD=postgres
+      - ELASTICSEARCH_HOST="http://elasticsearch:9200"
+      - SECRET_KEY_BASE=ZosAlRnAL0P1e7PpdLTEwLw80TQzcN4rRV5cwFuBB3Pg7AmrDKr3Pu2QWfgaZ1hK
     tty: true
     depends_on:
       - postgres
       - elasticsearch
       - redis
     volumes:
-      - booru_data:/srv/assets/static/system
+      - ./local-data/philomena:/srv/philomena/priv/static/system
     # for debugging into the container when container-start fails, umcomment the following line:
     #entrypoint: ["sh", "-c", "sleep 2073600"]
 
@@ -47,14 +43,14 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./local-data/postgres:/var/lib/postgresql/data
     logging:
       driver: "none"
 
   elasticsearch:
     image: elasticsearch:7.6.2
     volumes:
-      - elastic_data:/var/lib/elasticsearch
+      - ./local-data/elastic:/var/lib/elasticsearch
     logging:
       driver: "none"
     environment:
@@ -84,5 +80,5 @@ services:
     ports:
       - '8080:8080'
     volumes:
-      - booru_data:/system
-      - booru_data:/srv/philomena/priv/static/system
+      - ./local-data/philomena:/system
+      - ./local-data/philomena:/srv/philomena/priv/static/system
