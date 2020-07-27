@@ -6,6 +6,15 @@ import Config
 
 database_url =
   System.get_env("DATABASE_URL") ||
+      "pgsql://" 
+      <> (System.get_env("PGUSER")||"postgres")
+      <> ":"
+      <> (System.get_env("PGPASSWORD")||"postgres")
+      <> "@"
+      <> (System.get_env("PGHOST")||"postgres")
+      <> "/"
+      <> (System.get_env("PGDB")||"philomena_dev")
+      ||
     raise """
     environment variable DATABASE_URL is missing.
     For example: ecto://USER:PASS@HOST/DATABASE
@@ -37,11 +46,11 @@ config :philomena,
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
   cdn_host: System.get_env("CDN_HOST"),
-  redis_host: System.get_env("REDIS_HOST"),
-  elasticsearch_url: System.get_env("ELASTICSEARCH_HOST")
+  redis_host: System.get_env("REDIS_HOST")||"redis",
+  elasticsearch_url: System.get_env("ELASTICSEARCH_HOST")||"http://elasticsearch:9200"
 
 config :exq,
-  host: System.get_env("REDIS_HOST")
+  host: System.get_env("REDIS_HOST")||"redis"
 
 config :philomena, Philomena.Repo,
   # ssl: true,

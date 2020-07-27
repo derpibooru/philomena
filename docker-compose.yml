@@ -12,10 +12,41 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
     environment:
-      - MIX_ENV=prod
-      - PGPASSWORD=postgres
-      - ELASTICSEARCH_HOST="http://elasticsearch:9200"
-      - SECRET_KEY_BASE=ZosAlRnAL0P1e7PpdLTEwLw80TQzcN4rRV5cwFuBB3Pg7AmrDKr3Pu2QWfgaZ1hK
+      - ELASTICSEARCH_HOST
+      - REDIS_HOST
+      - APP_ENV
+      - PASSWORD_PEPPER
+      - OTP_SECRET_KEY
+      - ANONYMOUS_NAME_SALT
+      - IMAGE_URL_ROOT
+      - AVATAR_URL_ROOT
+      - ADVERT_URL_ROOT
+      - BADGE_URL_ROOT
+      - TAG_URL_ROOT
+      - CHANNEL_URL_ROOT
+      - IMAGE_FILE_ROOT
+      - ADVERT_FILE_ROOT
+      - AVATAR_FILE_ROOT
+      - BADGE_FILE_ROOT
+      - CHANNEL_IMAGE_FILE_ROOT
+      - CHANNEL_BANNER_FILE_ROOT
+      - TAG_FILE_ROOT
+      - CDN_HOST
+      - CAMO_HOST
+      - CAMO_KEY
+      - PROXY_HOST
+      - APP_DIR
+      - EXQ_REDIS_HOST
+      - EXQ_REDIS_PORT
+      - SECRET_KEY_BASE
+      - APP_HOSTNAME
+      - APP_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_DB
+      - POSTGRES_PORT
+      - SEED_ON_START=true
     tty: true
     depends_on:
       - postgres
@@ -33,19 +64,18 @@ services:
     depends_on:
       - postgres
     environment:
-      PGHOST: postgres
-      PGDATABASE: philomena_db
-      PGUSER: postgres
-      PGPASSWORD: postgres
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
 
   postgres:
     image: postgres:12.3
     environment:
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - POSTGRES_DB
     volumes:
       - ./local-data/postgres:/var/lib/postgresql/data
-    logging:
-      driver: "none"
 
   elasticsearch:
     image: elasticsearch:7.6.2
@@ -62,8 +92,6 @@ services:
 
   redis:
     image: redis:5.0.9
-    logging:
-      driver: "none"
 
   web:
     build:

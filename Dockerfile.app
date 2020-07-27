@@ -7,7 +7,7 @@ RUN apt-get update \
     && wget -qO - "https://www.postgresql.org/media/keys/ACCC4CF8.asc" | apt-key add - \
     && wget -qO - "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" | apt-key add - \
     && apt-get update \
-    && apt-get -qq -y install inotify-tools postgresql-client build-essential git ffmpeg libavformat-dev libavcodec-dev libswscale-dev nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin
+    && apt-get -qq -y install inotify-tools netcat postgresql-client build-essential git ffmpeg libavformat-dev libavcodec-dev libswscale-dev nodejs libmagic-dev libpng-dev gifsicle optipng libjpeg-progs librsvg2-bin
 
 ADD https://api.github.com/repos/booru/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
 RUN git clone https://github.com/booru/cli_intensities /tmp/cli_intensities \
@@ -25,10 +25,6 @@ RUN chmod +x /usr/local/bin/rebar3
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 
 ENV MIX_ENV=prod
-# specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
-ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
-ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
-ENV REDIS_HOST=redis
 
 WORKDIR /srv/
 RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
@@ -53,7 +49,11 @@ RUN npm run deploy
 WORKDIR /srv/philomena
 RUN mix compile
 RUN mix phx.digest
+RUN mix release
+
 COPY --chown=200:200 docker/app/run-prod /bin/run-prod
 COPY --chown=200:200 docker/app/run-development /bin/run-development
+
+RUN mkdir -p /srv/philomena/priv/static/system/images
 
 CMD /bin/run-prod

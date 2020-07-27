@@ -11,6 +11,7 @@ config :philomena,
   ecto_repos: [Philomena.Repo],
   elasticsearch_url: System.get_env("ELASTICSEARCH_HOST"),
   redis_host: System.get_env("REDIS_HOST"),
+  app_env: System.get_env("MIX_ENV"),
   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
   tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
@@ -47,8 +48,8 @@ config :exq,
   scheduler_enable: true,
   max_retries: 1,
   start_on_application: false,
-  redis_host: "redis",
-  host: "redis"
+  host: "redis",
+  port: 6379
 
 config :bcrypt_elixir,
   log_rounds: 12
@@ -88,4 +89,4 @@ config :bamboo, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+# import_config "#{Mix.env()}.exs"
