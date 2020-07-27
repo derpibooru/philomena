@@ -70,6 +70,8 @@ defmodule PhilomenaWeb.Router do
       :ensure_password_not_compromised
     ]
 
+    resources "/registration", PhilomenaWeb.Registration.NewController, only: [:create], singleton: true
+
     pow_registration_routes()
   end
 

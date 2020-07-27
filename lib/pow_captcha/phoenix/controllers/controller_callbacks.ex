@@ -8,19 +8,10 @@ defmodule PowCaptcha.Phoenix.ControllerCallbacks do
   alias Plug.Conn
   alias Phoenix.Controller
 
-  alias Pow.Phoenix.RegistrationController
   alias PowResetPassword.Phoenix.ResetPasswordController
 
   @doc false
   @impl true
-  def before_process(RegistrationController, :create, conn, config) do
-    verifier = Config.get(config, :captcha_verifier)
-    return_path = routes(conn).registration_path(conn, :new)
-
-    verifier.valid_solution?(conn.params)
-    |> maybe_halt(conn, return_path)
-  end
-
   def before_process(ResetPasswordController, :create, conn, config) do
     verifier = Config.get(config, :captcha_verifier)
     return_path = routes(conn).path_for(conn, ResetPasswordController, :new)

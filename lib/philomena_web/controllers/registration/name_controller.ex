@@ -5,6 +5,8 @@ defmodule PhilomenaWeb.Registration.NameController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug :verify_authorized
+  plug PhilomenaWeb.NameLengthLimiterPlug when action in [:update]
+  plug PhilomenaWeb.NotableNamePlug when action in [:update]
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.current_user)
