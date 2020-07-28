@@ -6,10 +6,10 @@ defmodule PhilomenaWeb.EnsureUserEnabledPlug do
 
       plug PhilomenaWeb.EnsureUserEnabledPlug
   """
-  alias PhilomenaWeb.Router.Helpers, as: Routes
+
   alias Phoenix.Controller
   alias Plug.Conn
-  alias Pow.Plug
+  alias PhilomenaWeb.UserAuth
 
   @doc false
   @spec init(any()) :: any()
@@ -18,19 +18,19 @@ defmodule PhilomenaWeb.EnsureUserEnabledPlug do
   @doc false
   @spec call(Conn.t(), any()) :: Conn.t()
   def call(conn, _opts) do
-    conn
-    |> Plug.current_user()
-    |> disabled?()
+    conn.assigns.current_user
+    |> disabled_or_unconfirmed?()
     |> maybe_halt(conn)
   end
 
-  defp disabled?(%{deleted_at: deleted_at}) when not is_nil(deleted_at), do: true
-  defp disabled?(_user), do: false
+  defp disabled_or_unconfirmed?(%{deleted_at: deleted_at}) when not is_nil(deleted_at), do: true
+  defp disabled_or_unconfirmed?(%{confirmed_at: nil}), do: true
+  defp disabled_or_unconfirmed?(_user), do: false
 
   defp maybe_halt(true, conn) do
     conn
-    |> Plug.delete()
-    |> Controller.redirect(to: Routes.pow_session_path(conn, :new))
+    |> Controller.put_flash(:error, "Your account is not currently active.")
+    |> UserAuth.log_out_user()
     |> Conn.halt()
   end
 

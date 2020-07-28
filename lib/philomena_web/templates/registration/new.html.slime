@@ -1,0 +1,50 @@
+h1 Register
+
+= form_for @changeset, Routes.registration_path(@conn, :create), fn f ->
+  = if @changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .fieldlabel
+    ' Non-anonymous posts permanently show your username as of posting time,
+    ' and may appear on search engines; choose wisely.
+  .field
+    = text_input f, :name, class: "input", placeholder: "Username", required: true
+    = error_tag f, :name
+
+  .fieldlabel
+    ' You'll use your email address to log in, and we'll use this to get in
+    ' touch if we need to. Don't worry, we won't share this or spam you.
+  .field
+    = email_input f, :email, class: "input", placeholder: "Email", required: true, pattern: ".*@.*"
+    = error_tag f, :email
+
+  .fieldlabel
+    ' Pick a good strong password - longer is better! Minimum of 12 characters.
+  .field
+    = password_input f, :password, class: "input", placeholder: "Password", required: true
+    = error_tag f, :password
+  .field
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm password", required: true
+    = error_tag f, :password_confirmation
+
+  .field
+    = checkbox f, :captcha, class: "js-captcha", value: 0
+    = label f, :captcha, "I am not a robot!"
+
+  br
+
+  .block.block--fixed.block--warning
+    p
+      ' We won't share your personal information, won't send you spam emails,
+      ' and take your security and privacy seriously.
+    p
+      strong
+        ' Don't forget to read the
+        a<> href="/pages/rules" site rules
+        ' before you dive in - they contain a quick introduction on how to
+        ' use the site.
+
+  br
+
+  = submit "Sign Up", class: "button"

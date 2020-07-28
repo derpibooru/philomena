@@ -71,7 +71,7 @@ config :logger, :console, format: "[$level] $message\n"
 config :logger, compile_time_purge_matching: [[application: :remote_ip], [application: :mint]]
 
 # Set up mailer
-config :philomena, PhilomenaWeb.Mailer, adapter: Bamboo.LocalAdapter
+config :philomena, Philomena.Mailer, adapter: Bamboo.LocalAdapter
 
 config :philomena, :mailer_address, "noreply@philomena.lc"
 

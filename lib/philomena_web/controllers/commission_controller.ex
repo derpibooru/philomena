@@ -111,8 +111,8 @@ defmodule PhilomenaWeb.CommissionController do
 
       user ->
         user = Repo.preload(user, :commission)
-        config = Pow.Plug.fetch_config(conn)
-        Pow.Plug.assign_current_user(conn, user, config)
+
+        assign(conn, :current_user, user)
     end
   end
 end

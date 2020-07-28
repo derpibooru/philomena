@@ -10,7 +10,7 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-alias Philomena.{Repo, Forums.Forum, Users.User}
+alias Philomena.{Repo, Forums.Forum, Users, Users.User}
 alias Philomena.Comments
 alias Philomena.Images
 alias Philomena.Topics
@@ -27,9 +27,13 @@ resources =
 
 IO.puts "---- Generating users"
 for user_def <- resources["users"] do
-  %User{role: user_def["role"]}
-  |> User.creation_changeset(user_def)
-  |> Repo.insert(on_conflict: :nothing)
+  {:ok, user} = Users.register_user(user_def)
+
+  user
+  |> Repo.preload([:roles])
+  |> User.confirm_changeset()
+  |> User.update_changeset(%{role: user_def["role"]}, [])
+  |> Repo.update!()
 end
 
 pleb = Repo.get_by!(User, name: "Pleb")

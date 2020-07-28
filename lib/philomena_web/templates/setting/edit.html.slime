@@ -132,7 +132,7 @@ h1 Content Settings
       .block__tab.hidden data-tab="join-the-herd"
         p
           ' Consider
-          => link "creating an account!", to: Routes.pow_registration_path(@conn, :new)
+          => link "creating an account!", to: Routes.registration_path(@conn, :new)
           br
           ' You will be able to customize the number of images and comments you get on a single page, as well as change the appearance of the site with custom themes.
 

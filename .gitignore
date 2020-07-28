@@ -42,5 +42,8 @@ npm-debug.log
 # Intellij IDEA
 .idea
 
+# ElixirLS
+.elixir_ls
+
 # Index dumps
 *.jsonl

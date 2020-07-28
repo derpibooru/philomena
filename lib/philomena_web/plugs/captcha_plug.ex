@@ -6,10 +6,10 @@ defmodule PhilomenaWeb.CaptchaPlug do
   def init([]), do: false
 
   def call(conn, _opts) do
-    user = conn |> Pow.Plug.current_user()
-
-    conn
-    |> maybe_check_captcha(user)
+    case captcha_enabled?() do
+      true -> maybe_check_captcha(conn, conn.assigns.current_user)
+      false -> conn
+    end
   end
 
   defp maybe_check_captcha(conn, nil) do
@@ -45,5 +45,9 @@ defmodule PhilomenaWeb.CaptchaPlug do
       [value] -> String.downcase(value) == "xmlhttprequest"
       _ -> false
     end
+  end
+
+  def captcha_enabled? do
+    Application.get_env(:philomena, :captcha) != false
   end
 end
