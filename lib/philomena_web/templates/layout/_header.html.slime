@@ -92,10 +92,10 @@ header.header
             a.header__link href="/conversations"
               i.fa.fa-fw.fa-envelope>
               | Messages
-            a.header__link href=Routes.pow_registration_path(@conn, :edit)
+            a.header__link href=Routes.registration_path(@conn, :edit)
               i.fa.fa-fw.fa-user>
               | Account
-            a.header__link href="/session" data-method="delete"
+            a.header__link href=Routes.session_path(@conn, :delete) data-method="delete"
               i.fa.fa-fw.fa-sign-out-alt>
               | Logout
       - else
@@ -107,9 +107,9 @@ header.header
           a.header__link href="/settings/edit"
             i.fa.fa-fw.fa-cogs.hide-desktop>
             | Settings
-        a.header__link href="/registration/new"
+        a.header__link href=Routes.registration_path(@conn, :new)
           | Register
-        a.header__link href="/session/new"
+        a.header__link href=Routes.session_path(@conn, :new)
           | Login
 
 nav.header.header--secondary

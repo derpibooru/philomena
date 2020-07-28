@@ -17,7 +17,7 @@ elixir:
       span.hide-mobile
         ' Unsubscribe
 - else
-    a href=Routes.pow_session_path(@conn, :new)
+    a href=Routes.session_path(@conn, :new)
       i.fa.fa-bell>
       span.hide-mobile
         ' Subscribe

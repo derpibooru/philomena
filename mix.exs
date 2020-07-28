@@ -45,8 +45,7 @@ defmodule Philomena.MixProject do
       {:plug_cowboy, "~> 2.3"},
       {:phoenix_slime, "~> 0.13"},
       {:ecto_network, "~> 1.3"},
-      {:pow, "~> 1.0"},
-      {:bcrypt_elixir, "~> 2.2"},
+      {:bcrypt_elixir, "~> 2.0"},
       {:pot, "~> 0.11"},
       {:secure_compare, "~> 0.1.0"},
       {:elastix, "~> 0.8.0"},
@@ -67,7 +66,6 @@ defmodule Philomena.MixProject do
       {:tesla, "~> 1.3"},
       {:castore, "~> 0.1"},
       {:mint, "~> 1.1"},
-      {:libcluster, "~> 3.2"},
       {:exq, "~> 0.13"},
       {:vapor, "~> 0.8.0"},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
@@ -91,8 +89,7 @@ defmodule Philomena.MixProject do
       ],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "ecto.migrate": ["ecto.migrate", "ecto.dump"],
-      "ecto.rollback": ["ecto.rollback", "ecto.dump"],
-      test: ["ecto.create --quiet", "ecto.load", "test"]
+      "ecto.rollback": ["ecto.rollback", "ecto.dump"]
     ]
   end
 end

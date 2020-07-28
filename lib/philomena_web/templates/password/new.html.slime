@@ -1,0 +1,14 @@
+h1 Forgot your password?
+p
+  ' Provide the email address you signed up with and we will email you
+  ' password reset instructions.
+
+= form_for :user, Routes.password_path(@conn, :create), fn f ->
+  .field
+    = email_input f, :email, class: "input", placeholder: "Email", required: true
+
+  .field
+    = checkbox f, :captcha, class: "js-captcha", value: 0
+    = label f, :captcha, "I am not a robot!"
+
+  = submit "Send instructions to reset password", class: "button"

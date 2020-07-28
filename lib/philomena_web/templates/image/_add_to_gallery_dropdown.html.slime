@@ -36,6 +36,6 @@
               i.fa.fa-plus>
               span.hide-limited-desktop.hide-mobile Create a gallery
           - else
-            a.block__list__link.primary href=Routes.pow_registration_path(@conn, :new)
+            a.block__list__link.primary href=Routes.session_path(@conn, :new)
               i.fa.fa-user-plus>
-              span.hide-limited-desktop.hide-mobile Register to create a gallery
+              span.hide-limited-desktop.hide-mobile Sign in to create a gallery

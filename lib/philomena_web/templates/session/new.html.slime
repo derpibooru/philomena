@@ -1,0 +1,28 @@
+h1 Sign in
+
+= form_for @conn, Routes.session_path(@conn, :create), [as: :user], fn f ->
+  = if @error_message do
+    .alert.alert-danger
+      p = @error_message
+
+  p = link "Forgot your password?", to: Routes.password_path(@conn, :new)
+
+  .field
+    = email_input f, :email, class: "input", required: true, placeholder: "Email", autofocus: true, pattern: ".*@.*"
+    = error_tag f, :email
+
+  .field
+    = password_input f, :password, class: "input", required: true, placeholder: "Password"
+    = error_tag f, :password
+
+  .field
+    = checkbox f, :remember_me
+    = label f, :remember_me, "Remember me"
+
+  = submit "Sign in", class: "button"
+
+p
+  strong
+    ' Haven't read the
+    a<> href="/pages/rules" site rules
+    ' lately? Make sure you read them before posting or editing metadata!

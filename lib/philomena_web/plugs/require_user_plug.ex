@@ -1,14 +1,13 @@
 defmodule PhilomenaWeb.RequireUserPlug do
   import Phoenix.Controller
   import Plug.Conn
-  import Pow.Plug
 
   # No options
   def init([]), do: false
 
   # Redirect if not logged in
   def call(conn, _opts) do
-    user = conn |> current_user()
+    user = conn.assigns.current_user
 
     if user do
       conn

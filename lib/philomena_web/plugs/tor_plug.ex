@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.TorPlug do
 
   def maybe_redirect(conn, nil, {127, 0, 0, 1}, true) do
     conn
-    |> Controller.redirect(to: Routes.pow_session_path(conn, :new))
+    |> Controller.redirect(to: Routes.session_path(conn, :new))
     |> Conn.halt()
   end
 

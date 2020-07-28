@@ -1,7 +1,9 @@
 defmodule PhilomenaWeb.Registration.TotpController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.UserAuth
   alias Philomena.Users.User
+  alias Philomena.Users
   alias Philomena.Repo
 
   def edit(conn, _params) do
@@ -13,11 +15,11 @@ defmodule PhilomenaWeb.Registration.TotpController do
         |> User.create_totp_secret_changeset()
         |> Repo.update()
 
-        # Redirect to have Pow pick up the changes
+        # Redirect to have the conn pick up the changes
         redirect(conn, to: Routes.registration_totp_path(conn, :edit))
 
       _ ->
-        changeset = Pow.Plug.change_user(conn)
+        changeset = Users.change_user(user)
         secret = User.totp_secret(user)
         qrcode = User.totp_qrcode(user)
 
@@ -32,7 +34,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
 
   def update(conn, params) do
     backup_codes = User.random_backup_codes()
-    user = Pow.Plug.current_user(conn)
+    user = conn.assigns.current_user
 
     user
     |> User.totp_changeset(params, backup_codes)
@@ -45,7 +47,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
 
       {:ok, user} ->
         conn
-        |> PhilomenaWeb.TotpPlug.update_valid_totp_at_for_session(user)
+        |> UserAuth.totp_auth_user(user, %{})
         |> put_flash(:totp_backup_codes, backup_codes)
         |> redirect(to: Routes.registration_totp_path(conn, :edit))
     end

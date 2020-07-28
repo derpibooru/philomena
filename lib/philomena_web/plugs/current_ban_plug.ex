@@ -8,7 +8,6 @@ defmodule PhilomenaWeb.CurrentBanPlug do
   """
   alias Philomena.Bans
   alias Plug.Conn
-  alias Pow.Plug
 
   @doc false
   @spec init(any()) :: any()
@@ -17,12 +16,10 @@ defmodule PhilomenaWeb.CurrentBanPlug do
   @doc false
   @spec call(Conn.t(), any()) :: Conn.t()
   def call(conn, _opts) do
-    conn =
-      conn
-      |> Conn.fetch_cookies()
+    conn = Conn.fetch_cookies(conn)
 
     fingerprint = conn.cookies["_ses"]
-    user = Plug.current_user(conn)
+    user = conn.assigns.current_user
     ip = conn.remote_ip
 
     ban = Bans.exists_for?(user, ip, fingerprint)
