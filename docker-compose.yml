@@ -81,8 +81,6 @@ services:
     image: elasticsearch:7.6.2
     volumes:
       - ./local-data/elastic:/var/lib/elasticsearch
-    logging:
-      driver: "none"
     environment:
       - discovery.type=single-node
     ulimits:
