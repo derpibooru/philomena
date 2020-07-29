@@ -23,10 +23,7 @@ if [[ $MIX_ENV == "dev" ]]; then
   exit $?
 fi
 
-#mix ecto.load -r Philomena.Repo -d priv/repo/structure.sql --skip-if-loaded
-if [[ $SEED_ON_START == "true" ]]; then
-  mix run priv/repo/seeds.exs
-fi
+mix ecto.load -r Philomena.Repo -d priv/repo/structure.sql --skip-if-loaded
 mix ecto.migrate -r Philomena.Repo
 
 # Get local IP
