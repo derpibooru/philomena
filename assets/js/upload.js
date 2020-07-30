@@ -22,8 +22,8 @@ function setupImageUpload() {
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 
-  const validationChecks = {image: true, tags: true, captcha: true}; //TODO tags and captcha check
-  //TODO remove tags field from validationChecks
+  //TODO remove tags field from validationChecks, possibly captcha field too
+  const validationChecks = {image: false, tags: true, captcha: true}; //TODO tags and captcha check
   const uploadButton = $('.js-upload-submit');
   const mimesAllowed = uploadButton.dataset.mimesAllowed.split(',');
   //TODO add file size and image height/width in a similar way, for avatar upload
