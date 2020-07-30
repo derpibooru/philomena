@@ -7,30 +7,30 @@
 # General application configuration
 import Config
 
-# config :philomena,
-#   ecto_repos: [Philomena.Repo],
-#   elasticsearch_url: System.get_env("ELASTICSEARCH_HOST"),
-#   redis_host: System.get_env("REDIS_HOST"),
-#   app_env: System.get_env("MIX_ENV"),
-#   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
-#   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
-#   tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
-#   image_url_root: "/img",
-#   avatar_url_root: "/avatars",
-#   advert_url_root: "/spns",
-#   badge_url_root: "/media",
-#   tag_url_root: "/media",
-#   channel_url_root: "/media",
-#   image_file_root: "priv/static/system/images",
-#   advert_file_root: "priv/static/system/images/adverts",
-#   avatar_file_root: "priv/static/system/images/avatars",
-#   badge_file_root: "priv/static/system/images",
-#   channel_image_file_root: "priv/static/system/images",
-#   channel_banner_file_root: "priv/static/system/images",
-#   tag_file_root: "priv/static/system/images",
-#   cdn_host: "",
-#   proxy_host: nil,
-#   app_dir: File.cwd!()
+config :philomena,
+  ecto_repos: [Philomena.Repo],
+  elasticsearch_url: System.get_env("ELASTICSEARCH_HOST"),
+  redis_host: System.get_env("REDIS_HOST"),
+  app_env: System.get_env("MIX_ENV"),
+  app_dir: File.cwd!()
+  #   password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
+  #   otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
+  #   tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
+  #   image_url_root: "/img",
+  #   avatar_url_root: "/avatars",
+  #   advert_url_root: "/spns",
+  #   badge_url_root: "/media",
+  #   tag_url_root: "/media",
+  #   channel_url_root: "/media",
+  #   image_file_root: "priv/static/system/images",
+  #   advert_file_root: "priv/static/system/images/adverts",
+  #   avatar_file_root: "priv/static/system/images/avatars",
+  #   badge_file_root: "priv/static/system/images",
+  #   channel_image_file_root: "priv/static/system/images",
+  #   channel_banner_file_root: "priv/static/system/images",
+  #   tag_file_root: "priv/static/system/images",
+  #   cdn_host: "",
+  #   proxy_host: nil,
 
 config :philomena, :pow,
   user: Philomena.Users.User,
@@ -87,7 +87,3 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 config :bamboo, :json_library, Jason
-
-# Import environment specific config. This must remain at the bottom
-# of this file so it overrides the configuration defined above.
-# import_config "#{Mix.env()}.exs"

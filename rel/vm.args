@@ -3,7 +3,7 @@
 ## http://erlang.org/doc/man/erl.html
 
 ## Name of the node
--name ${NODENAME}@${PHILO_POD_IP}
+# -name ${NODENAME}@${PHILO_POD_IP}
 
 ## Cookie for distributed erlang
 -setcookie <%= release.profile.cookie %>

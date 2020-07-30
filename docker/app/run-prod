@@ -24,7 +24,7 @@ if [[ $MIX_ENV == "dev" ]]; then
 fi
 
 #mix ecto.load -r Philomena.Repo -d priv/repo/structure.sql --skip-if-loaded
-#mix ecto.migrate -r Philomena.Repo
+mix ecto.migrate -r Philomena.Repo
 
 # Get local IP
 PHILO_POD_IP=$(ip route get 1.1.1.1 | head -1 | cut -d' ' -f7)

@@ -65,7 +65,7 @@ defmodule Philomena.Application do
     dev_mode = if dev_mode == "true", do: true, else: false
 
     bindings = [
-      { :elasticseach_url,           "ELASTICSEARCH_HOST", default: "http://elasticsearch:9200" },
+      { :elasticsearch_url,          "ELASTICSEARCH_HOST", default: "http://elasticsearch:9200" },
       { :redis_host,                 "REDIS_HOST", default: "redis" },
       { :redis_port,                 "REDIS_PORT", default: 6379, map: &String.to_integer/1 },
       { :app_env,                    "APP_ENV", default: "prod" },
