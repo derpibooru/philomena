@@ -30,7 +30,7 @@ defmodule Philomena.Application do
       Philomena.Servers.PicartoChannelUpdater,
       Philomena.Servers.PiczelChannelUpdater,
       Philomena.Servers.Config,
-      {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
+      {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host), port: Application.get_env(:philomena, :redis_port)},
       {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
 
       # Start the endpoint when the application starts
@@ -59,9 +59,15 @@ defmodule Philomena.Application do
 
   def load_system_env() do
     bindings = [
+      { :dev_mode, "DEV_MODE", default: "false" },
+    ]
+    dev_mode = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}]).dev_mode
+    dev_mode = if dev_mode == "true", do: true, else: false
+
+    bindings = [
       { :elasticseach_url,           "ELASTICSEARCH_HOST", default: "http://elasticsearch:9200" },
       { :redis_host,                 "REDIS_HOST", default: "redis" },
-      { :redis_port,                 "REDIS_PORT", default: "6379", map: &String.to_integer/1 },
+      { :redis_port,                 "REDIS_PORT", default: 6379, map: &String.to_integer/1 },
       { :app_env,                    "APP_ENV", default: "prod" },
       { :password_pepper,            "PASSWORD_PEPPER" },
       { :otp_secret_key,             "OTP_SECRET_KEY" },
@@ -91,19 +97,26 @@ defmodule Philomena.Application do
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     Application.put_env(:philomena, Philomena, config)
     config
-    #|> Enum.with_index
     |> Enum.each(fn {key, value} ->
       if value != nil && value != "" do
         Application.put_env(:philomena, key, value)
       end
     end)
+    Application.put_env(:philomena, :ecto_repos, [Philomena.Repo])
 
-    bindings = [
-      { :host,       "EXQ_REDIS_HOST", default: "redis" },
-      { :port,       "EXQ_REDIS_PORT", default: "6379", map: &String.to_integer/1 },
-    ]
-    config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
-    Application.put_env(:philomena, Philomena.ExqSupervisor, config)
+    # bindings = [
+    #   { :host,       "REDIS_HOST", default: "redis" },
+    #   { :port,       "REDIS_PORT", default: 6379, map: &String.to_integer/1 },
+    # ]
+    # config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
+    # Application.put_env(:philomena, Philomena.ExqSupervisor, [
+    #   host: config.host,
+    #   port: config.port,
+    #   queues: [{"videos", 2}, {"images", 4}, {"indexing", 16}],
+    #   scheduler_enable: true,
+    #   max_retries: 1,
+    #   start_on_application: false,
+    # ])
 
     bindings = [
       { :secret_key_base,  "SECRET_KEY_BASE" },
@@ -112,8 +125,13 @@ defmodule Philomena.Application do
     ]
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     Application.put_env(:philomena, PhilomenaWeb.Endpoint, [
-      url: [host: config.host, port: config.port],
+      url: [host: config.host, port: 443],
       secret_key_base: config.secret_key_base,
+      http: [ip: {0, 0, 0, 0}, port: config.port, scheme: "https"],
+      render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
+      pubsub_server: Philomena.PubSub,
+      server: true,
+      cache_static_manifest: "priv/static/cache_manifest.json",
     ])
 
     bindings = [
@@ -121,7 +139,8 @@ defmodule Philomena.Application do
       { :password, "POSTGRES_PASSWORD" },
       { :hostname, "POSTGRES_HOST",        default: "postgres" },
       { :db,       "POSTGRES_DB",          default: "philomena_db" },
-      { :port,     "POSTGRES_PORT",        default: "5432", map: &String.to_integer/1 },
+      { :port,     "POSTGRES_PORT",        default: 5432, map: &String.to_integer/1 },
+      { :pool,     "POSTGRES_POOL",        default: 32, map: &String.to_integer/1 },
     ]
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     Application.put_env(:philomena, Philomena.Repo, [
@@ -131,7 +150,41 @@ defmodule Philomena.Application do
       hostname: config.hostname,
       port: config.port,
       show_sensitive_data_on_connection_error: true,
+      pool_size: config.pool,
     ])
+
+    IO.puts("Dev_Mode: #{dev_mode}")
+    bindings = [
+      { :server,      "SMTP_RELAY",     default: nil,   required: !dev_mode },
+      { :hostname,    "SMTP_DOMAIN",    default: nil,   required: !dev_mode },
+      { :port,        "SMTP_PORT",      default: 587,   required: false },
+      { :username,    "SMTP_USERNAME",  default: nil,   required: !dev_mode },
+      { :password,    "SMTP_PASSWORD",  default: nil,   required: !dev_mode },
+    ]
+    config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
+    if !dev_mode do
+        Application.put_env(:philomena, PhilomenaWeb.Mailer, [
+          adapter: Bamboo.SMTPAdapter,
+          server: config.server,
+          hostname: config.hostname,
+          port: config.port,
+          username: config.username,
+          password: config.password,
+          tls: :always,
+          auth: :always
+        ])
+      else
+        IO.puts("Starting local SMTP Adapter")
+        Application.put_env(:philomena, PhilomenaWeb.Mailer, [
+          adapter: Bamboo.LocalAdapter
+        ])
+      end
+
+    bindings = [
+      { :log_rounds,    "BCRYPT_ROUDNS",  default: 12,  map: &String.to_integer/1 },
+    ]
+    config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
+    Application.put_env(:bcrypt_elixir, :log_rounds, config.log_rounds)
 
   end
 end

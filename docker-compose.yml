@@ -12,8 +12,10 @@ services:
       context: .
       dockerfile: ./Dockerfile.app
     environment:
+      - DEV_MODE
       - ELASTICSEARCH_HOST
       - REDIS_HOST
+      - REDIS_PORT
       - APP_ENV
       - PASSWORD_PEPPER
       - OTP_SECRET_KEY
@@ -36,8 +38,6 @@ services:
       - CAMO_KEY
       - PROXY_HOST
       - APP_DIR
-      - EXQ_REDIS_HOST
-      - EXQ_REDIS_PORT
       - SECRET_KEY_BASE
       - APP_HOSTNAME
       - APP_PORT
