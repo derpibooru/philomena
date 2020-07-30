@@ -121,13 +121,13 @@ defmodule Philomena.Application do
     bindings = [
       { :secret_key_base,  "SECRET_KEY_BASE" },
       { :host,             "APP_HOSTNAME" },
-      { :port,             "APP_PORT",         default: "4000", map: &String.to_integer/1 },
+      { :port,             "APP_PORT",         default: 4000 },
     ]
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     Application.put_env(:philomena, PhilomenaWeb.Endpoint, [
-      url: [host: config.host, port: 443],
+      url: [host: config.host, port: config.port, scheme: "https"],
       secret_key_base: config.secret_key_base,
-      http: [ip: {0, 0, 0, 0}, port: config.port, scheme: "https"],
+      http: [ip: {0, 0, 0, 0}, port: 4000],
       render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
       pubsub_server: Philomena.PubSub,
       server: true,
