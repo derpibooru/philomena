@@ -2,17 +2,17 @@
 
 # Sleep to allow Elasticsearch to finish initializing
 # if it's not done doing whatever it does yet
-echo -n "Waiting for Elasticsearch"
+echo "Waiting for Elasticsearch"
 
 until wget -qO - $ELASTICSEARCH_HOST; do
-  echo -n "."
+  echo "."
   sleep 2
 done
 
 echo -n "Waiting for Postgres"
 
 while ! nc -z $POSTGRES_HOST $POSTGRES_PORT; do
-  echo -n "."
+  echo "."
   sleep 2
 done
 
