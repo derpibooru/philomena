@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
     csp_value =
       "default-src 'self' #{cdn_uri}; object-src 'none'; " <>
         "frame-ancestors 'none'; frame-src 'none'; form-action 'self'; " <>
-        "manifest-src 'self'; img-src 'self' data: #{cdn_uri} #{camo_uri}; " <>
+        "manifest-src 'self'; img-src 'self'; data: self #{cdn_uri} #{camo_uri}; " <>
         "block-all-mixed-content"
 
     [csp_value: csp_value]

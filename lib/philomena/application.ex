@@ -88,9 +88,9 @@ defmodule Philomena.Application do
       { :channel_image_file_root,    "CHANNEL_IMAGE_FILE_ROOT", default: "priv/static/system/images" },
       { :channel_banner_file_root,   "CHANNEL_BANNER_FILE_ROOT", default: "priv/static/system/images" },
       { :tag_file_root,              "TAG_FILE_ROOT", default: "priv/static/system/images" },
-      { :cdn_host,                   "CDN_HOST", required: false },
-      { :camo_host,                  "CAMO_HOST", required: false },
-      { :camo_key,                   "CAMO_KEY", required: false },
+      { :cdn_host,                   "CDN_HOST", default: nil, required: false },
+      { :camo_host,                  "CAMO_HOST", default: nil, required: false },
+      { :camo_key,                   "CAMO_KEY", default: nil, required: false },
       { :proxy_host,                 "PROXY_HOST", default: nil, required: false },
       { :app_dir,                    "APP_DIR", default: "/srv/philomena" }
     ]

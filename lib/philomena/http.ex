@@ -13,8 +13,11 @@ defmodule Philomena.Http do
     case Application.get_env(:philomena, :proxy_host) do
       nil ->
         opts
+      "" ->
+        opts
 
       url ->
+        IO.puts("Setting proxy host to #{url}")
         Keyword.merge(opts, proxy: proxy_opts(URI.parse(url)))
     end
   end
