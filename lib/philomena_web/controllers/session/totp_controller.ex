@@ -26,9 +26,7 @@ defmodule PhilomenaWeb.Session.TotpController do
         |> UserAuth.log_out_user()
 
       {:ok, user} ->
-        conn
-        |> UserAuth.totp_auth_user(user, user_params)
-        |> redirect(to: "/")
+        UserAuth.totp_auth_user(conn, user, user_params)
     end
   end
 end

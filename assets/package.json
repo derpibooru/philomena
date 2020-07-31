@@ -4,7 +4,7 @@
     "watch": "webpack --watch"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.12.0",
+    "@fortawesome/fontawesome-free": "^5.14.0",
     "brunch": "^3.0.0",
     "copycat-brunch": "^1.1.1"
   },
