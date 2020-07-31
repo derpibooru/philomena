@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 12.3 (Debian 12.3-1.pgdg100+1)
--- Dumped by pg_dump version 12.3 (Debian 12.3-1.pgdg100+1)
+-- Dumped by pg_dump version 12.3 (Debian 12.3-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,13 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: temp_posts; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA temp_posts;
-
-
---
 -- Name: citext; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -35,17 +28,6 @@ CREATE EXTENSION IF NOT EXISTS citext WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION citext IS 'data type for case-insensitive character strings';
-
-
---
--- Name: jsonb_object_agg(jsonb); Type: AGGREGATE; Schema: temp_posts; Owner: -
---
-
-CREATE AGGREGATE temp_posts.jsonb_object_agg(jsonb) (
-    SFUNC = jsonb_concat,
-    STYPE = jsonb,
-    INITCOND = '{}'
-);
 
 
 SET default_tablespace = '';
@@ -860,6 +842,7 @@ CREATE TABLE public.image_votes (
 --
 
 CREATE TABLE public.images (
+    id integer NOT NULL,
     image character varying,
     image_name character varying,
     image_width integer,
@@ -889,7 +872,6 @@ CREATE TABLE public.images (
     tag_list_plus_alias_cache character varying,
     file_name_cache character varying,
     duplicate_id integer,
-    id integer NOT NULL,
     tag_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     comments_count integer DEFAULT 0 NOT NULL,
     processed boolean DEFAULT false NOT NULL,
@@ -2065,16 +2047,6 @@ ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
 
 CREATE TABLE public.vpns (
     ip inet NOT NULL
-);
-
-
---
--- Name: post_search_json; Type: TABLE; Schema: temp_posts; Owner: -
---
-
-CREATE UNLOGGED TABLE temp_posts.post_search_json (
-    post_id bigint NOT NULL,
-    object jsonb NOT NULL
 );
 
 
