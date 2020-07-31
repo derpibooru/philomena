@@ -46,6 +46,10 @@ services:
       - POSTGRES_HOST
       - POSTGRES_DB
       - POSTGRES_PORT
+      - SMTP_RELAY
+      - SMTP_PASSWORD
+      - SMTP_DOMAIN
+      - SMTP_USERNAME
       - SEED_ON_START=true
     tty: true
     depends_on:
