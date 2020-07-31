@@ -19,7 +19,7 @@ defmodule Philomena.Notable do
     if have_table() do
       name = name |> String.downcase
 		  Repo.exists?(from n in Name,
-        where: fragment("lower(?)", n.name) == ^name)
+        where: fragment("notable_name_query(?)", n.name))
     else
       false
     end
