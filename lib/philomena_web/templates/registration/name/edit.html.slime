@@ -14,4 +14,4 @@ h1 Editing Name
   .action
     = submit "Save", class: "button"
 
-p = link "Back", to: Routes.pow_registration_path(@conn, :edit)
+p = link "Back", to: Routes.registration_path(@conn, :edit)

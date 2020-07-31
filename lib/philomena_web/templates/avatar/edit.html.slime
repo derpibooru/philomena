@@ -1,5 +1,3 @@
-
-
 .profile-top
   .profile-top__avatar
     = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, conn: @conn
@@ -43,7 +41,7 @@
 
     br
     - return_to = if blank?(@conn.params["profile"]) do
-        = Routes.pow_registration_path(@conn, :edit)
+        = Routes.registration_path(@conn, :edit)
     - else
         = Routes.profile_path(@conn, :show, @current_user)
     = link "Back", to: return_to

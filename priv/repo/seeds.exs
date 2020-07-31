@@ -26,6 +26,7 @@ alias Philomena.{
 }
 
 alias Philomena.Elasticsearch
+alias Philomena.Users
 alias Philomena.Tags
 import Ecto.Query
 
@@ -76,9 +77,13 @@ end
 IO.puts("---- Generating users")
 
 for user_def <- resources["users"] do
-  %User{role: user_def["role"]}
-  |> User.creation_changeset(user_def)
-  |> Repo.insert(on_conflict: :nothing)
+  {:ok, user} = Users.register_user(user_def)
+
+  user
+  |> Repo.preload([:roles])
+  |> User.confirm_changeset()
+  |> User.update_changeset(%{role: user_def["role"]}, [])
+  |> Repo.update!()
 end
 
 IO.puts("---- Generating roles")

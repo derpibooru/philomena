@@ -28,10 +28,7 @@ defmodule PhilomenaWeb.FilterSelectPlug do
   @doc false
   @spec call(Conn.t(), any()) :: Conn.t()
   def call(conn, _opts) do
-    user = Pow.Plug.current_user(conn)
-
-    conn
-    |> maybe_assign_filters(user)
+    maybe_assign_filters(conn, conn.assigns.current_user)
   end
 
   defp maybe_assign_filters(conn, nil), do: conn

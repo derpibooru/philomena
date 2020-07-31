@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.UserAttributionPlug do
   def call(conn, _opts) do
     {:ok, remote_ip} = EctoNetwork.INET.cast(conn.remote_ip)
     conn = Conn.fetch_cookies(conn)
-    user = Pow.Plug.current_user(conn)
+    user = conn.assigns.current_user
 
     attributes = [
       ip: remote_ip,

@@ -5,7 +5,10 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    error_if_password_compromised(conn, conn.params)
+    case pwned_passwords_enabled?() do
+      true -> error_if_password_compromised(conn, conn.params)
+      false -> conn
+    end
   end
 
   defp error_if_password_compromised(conn, %{"user" => %{"password" => password}}) do
@@ -40,5 +43,9 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
 
   defp make_api_url(prefix) do
     "https://api.pwnedpasswords.com/range/#{prefix}"
+  end
+
+  defp pwned_passwords_enabled? do
+    Application.get_env(:philomena, :pwned_passwords) != false
   end
 end

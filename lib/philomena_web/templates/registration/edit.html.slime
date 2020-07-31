@@ -1,0 +1,67 @@
+h1 Account Settings
+
+p
+  ' Looking for your content settings?
+  a<> href="/settings/edit" Click here!
+
+p
+  ' Looking for two-factor authentication?
+  = link "Click here!", to: Routes.registration_totp_path(@conn, :edit)
+
+p
+  ' Looking to change your avatar?
+  = link "Click here!", to: Routes.avatar_path(@conn, :edit)
+
+= if can?(@conn, :change_username, @current_user) do
+  p
+    ' Looking to change your username?
+    = link "Click here!", to: Routes.registration_name_path(@conn, :edit)
+
+h3 API Key
+p
+  ' Your API key is
+  code>
+    = @current_user.authentication_token
+  ' - you can use this to allow API consumers to access your account.
+p
+  ' Avoid sharing this key with others, as it could be used to compromise
+  ' your account.
+
+h3 Change email
+
+= form_for @email_changeset, Routes.registration_email_path(@conn, :create), [method: :post], fn f ->
+  = if @email_changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    = email_input f, :email, class: "input", placeholder: "Email", required: true, pattern: ".*@.*"
+    = error_tag f, :email
+
+  .field
+    = password_input f, :current_password, class: "input", required: true, name: "current_password", placeholder: "Current password"
+    = error_tag f, :current_password
+
+  div
+    = submit "Change email", class: "button"
+
+h3 Change password
+
+= form_for @password_changeset, Routes.registration_password_path(@conn, :update), fn f ->
+  = if @password_changeset.action do
+    .alert.alert-danger
+      p Oops, something went wrong! Please check the errors below.
+
+  .field
+    = password_input f, :password, class: "input", placeholder: "New password"
+    = error_tag f, :password
+
+  .field
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm new password"
+    = error_tag f, :password_confirmation
+
+  .field
+    = password_input f, :current_password, name: "current_password", class: "input", placeholder: "Current password"
+    = error_tag f, :current_password
+
+  = submit "Change password", class: "button"

@@ -5,4 +5,8 @@ h1 Two Factor Authentication
     h4 Please enter your 2FA code
     = text_input f, :twofactor_token, class: "input", placeholder: "6-digit code", required: true, autofocus: true, autocomplete: "off"
 
+  .field
+    => checkbox f, :remember_me, class: "input"
+    = label f, :remember_me, "Remember this device"
+
   = submit "Sign in", class: "button"

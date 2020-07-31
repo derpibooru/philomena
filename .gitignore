@@ -36,11 +36,11 @@ npm-debug.log
 # this depending on your deployment strategy.
 /priv/static/
 
-# Mnesia
-/Mnesia*
-
 # Intellij IDEA
 .idea
+
+# ElixirLS
+.elixir_ls
 
 # Index dumps
 *.jsonl

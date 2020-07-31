@@ -1,0 +1,12 @@
+h1 Resend unlock instructions
+
+= form_for :user, Routes.unlock_path(@conn, :create), fn f ->
+  .field
+    = email_input f, :email, placeholder: "Email", class: "input", required: true
+
+  .field
+    = checkbox f, :captcha, class: "js-captcha", value: 0
+    = label f, :captcha, "I am not a robot!"
+
+  div
+    = submit "Resend unlock instructions", class: "button"
