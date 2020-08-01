@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.GalleryController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
+  plug PhilomenaWeb.MapParameterPlug, [param: "gallery"] when action in [:index]
 
   plug :load_and_authorize_resource,
     model: Gallery,
