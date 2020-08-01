@@ -86,6 +86,10 @@ a:hover {
   color: $link_hover_color;
 }
 
+p a {
+  font-weight: bold;
+}
+
 img {
   margin: 0;
   border: 0;
