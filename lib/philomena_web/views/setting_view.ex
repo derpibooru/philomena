@@ -9,7 +9,10 @@ defmodule PhilomenaWeb.SettingView do
         data: [theme_path: Routes.static_path(conn, "/css/default.css")]
       ],
       [key: "Dark", value: "dark", data: [theme_path: Routes.static_path(conn, "/css/dark.css")]],
-      [key: "Light", value: "light", data: [theme_path: Routes.static_path(conn, "/css/light.css")]]
+      [key: "Light", value: "light", data: [theme_path: Routes.static_path(conn, "/css/light.css")]],
+      [key: "Green", value: "green", data: [theme_path: Routes.static_path(conn, "/css/green.css")]],
+      [key: "Orange", value: "orange", data: [theme_path: Routes.static_path(conn, "/css/orange.css")]],
+      [key: "Fuchsia", value: "fuchsia", data: [theme_path: Routes.static_path(conn, "/css/fuchsia.css")]]
     ]
   end
 
