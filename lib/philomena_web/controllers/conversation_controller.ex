@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.ConversationController do
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
+  plug :verify_authorized when action in [:new, :create]
 
   plug :load_and_authorize_resource,
     model: Conversation,
@@ -109,6 +110,13 @@ defmodule PhilomenaWeb.ConversationController do
       {:error, changeset} ->
         conn
         |> render("new.html", changeset: changeset)
+    end
+  end
+
+  defp verify_authorized(conn, _opts) do
+    case Canada.Can.can?(conn.assigns.current_user, action_name(conn), Conversation) do
+      true -> conn
+      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

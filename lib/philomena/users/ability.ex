@@ -59,6 +59,12 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # View conversations
   def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
 
+  # Create new conversations
+  def can?(%User{role: "moderator"}, :new, %Conversation{}), do: true
+  def can?(%User{role: "moderator"}, :create, %Conversation{}), do: true
+  def can?(%User{role: "moderator"}, :new, Conversation), do: true
+  def can?(%User{role: "moderator"}, :create, Conversation), do: true
+
   # View IP addresses and fingerprints
   def can?(%User{role: "moderator"}, :show, :ip_address), do: true
 

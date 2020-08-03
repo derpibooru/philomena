@@ -28,4 +28,7 @@ defmodule PhilomenaWeb.ConversationView do
 
     Routes.conversation_path(conn, :show, conversation, page: page)
   end
+
+  def can_create_convo?(conn),
+    do: can?(conn, :new, Philomena.Conversations.Conversation)
 end
