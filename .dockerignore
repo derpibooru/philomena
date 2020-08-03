@@ -1,1 +1,6 @@
 /Dockerfile.*
+/_build
+/.elixir_ls
+/.github
+/deps
+/local-*

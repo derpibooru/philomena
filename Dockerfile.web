@@ -13,10 +13,6 @@ RUN chmod +x /usr/local/bin/rebar3
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 
 ENV MIX_ENV=prod
-# specify the DATABASE_URL similar to pgsql://USERNAME:PASSWORD@HOST:PORT/DBNAME
-ENV DATABASE_URL=pgsql://postgres:postgres@postgres:5432/postgres
-ENV SECRET_KEY_BASE=SomeRandomSampleSecret1234
-ENV REDIS_HOST=redis
 
 WORKDIR /srv/
 RUN useradd -d /srv/ -r -s /bin/nologin -u 200 -U philomena
@@ -41,6 +37,7 @@ RUN npm run deploy
 WORKDIR /srv/philomena
 RUN mix compile
 RUN mix phx.digest
+RUN mix release
 
 FROM nginx:1.18.0-alpine-perl
 
