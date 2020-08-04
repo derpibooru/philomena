@@ -9,6 +9,6 @@
 
   p
     strong
-      ' Hosting a imageboard servers costs money -
+      ' Hosting an imageboard costs money -
       = link "help support us financially", to: "/pages/donations"
       ' !
