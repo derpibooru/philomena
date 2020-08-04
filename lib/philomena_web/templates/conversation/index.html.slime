@@ -5,9 +5,10 @@ elixir:
 h1 My Conversations
 .block
   .block__header
-    a href=Routes.conversation_path(@conn, :new)
-      i.fa.fa-paper-plane>
-      ' Create New Conversation
+    = if can_create_convo?(@conn) do
+      a href=Routes.conversation_path(@conn, :new)
+        i.fa.fa-paper-plane>
+        ' Create New Conversation
 
     = pagination
 
