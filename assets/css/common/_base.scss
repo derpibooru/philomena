@@ -344,9 +344,10 @@ i.favicon-home {
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
-  min-width: 1em;
-  height: 1em;
+  min-width: 2em;
+  height: 2em;
   display: inline-block;
+  margin-bottom: -0.5em;
 }
 
 // changelog
