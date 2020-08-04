@@ -3,14 +3,13 @@ defmodule PhilomenaWeb.ImageFilterPlug do
   import Philomena.Search.String
 
   alias Philomena.Images.Query
-  alias Pow.Plug
 
   # No options
   def init([]), do: false
 
   # Assign current filter
   def call(conn, _opts) do
-    user = conn |> Plug.current_user()
+    user = conn.assigns.current_user
     filter = defaults(conn.assigns[:current_filter])
     forced = defaults(conn.assigns[:forced_filter])
 

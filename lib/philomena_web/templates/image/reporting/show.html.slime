@@ -15,7 +15,7 @@ a href=Routes.image_report_path(@conn, :new, @image)
       - else
         p
           ' You must
-          a> href=Routes.pow_session_path(@conn, :new) log in
+          a> href=Routes.session_path(@conn, :new) log in
           ' to report duplicate images.
 
       - target_reports = Enum.filter(@dupe_reports, & &1.duplicate_of_image_id == @image.id)

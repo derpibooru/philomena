@@ -3,14 +3,14 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
 
   alias Philomena.{Filters, Filters.Filter, Users.User}
   alias Philomena.Repo
-  alias Pow.Plug
+
   # No options
   def init([]), do: false
 
   # Assign current filter
   def call(conn, _opts) do
-    conn = conn |> fetch_session()
-    user = conn |> Plug.current_user()
+    conn = fetch_session(conn)
+    user = conn.assigns.current_user
 
     {filter, forced_filter} =
       if user do

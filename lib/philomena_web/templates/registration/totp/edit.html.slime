@@ -135,4 +135,4 @@ h1 Two Factor Authentication
 
     = submit "Save Account", class: "button"
 
-p = link "Back", to: Routes.pow_registration_path(@conn, :edit)
+p = link "Back", to: Routes.registration_path(@conn, :edit)

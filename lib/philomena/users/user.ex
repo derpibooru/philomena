@@ -3,14 +3,6 @@ defmodule Philomena.Users.User do
   alias Philomena.Slug
 
   use Ecto.Schema
-
-  use Pow.Ecto.Schema,
-    password_hash_methods: {&Password.hash_pwd_salt/1, &Password.verify_pass/2},
-    password_min_length: 6
-
-  use Pow.Extension.Ecto.Schema,
-    extensions: [PowResetPassword, PowLockout]
-
   import Ecto.Changeset
 
   alias Philomena.Schema.TagList
@@ -30,7 +22,7 @@ defmodule Philomena.Users.User do
   alias Philomena.Donations.Donation
 
   @derive {Phoenix.Param, key: :slug}
-
+  @derive {Inspect, except: [:password]}
   schema "users" do
     has_many :links, UserLink
     has_many :verified_links, UserLink, where: [aasm_state: "verified"]
@@ -53,27 +45,20 @@ defmodule Philomena.Users.User do
 
     # Authentication
     field :email, :string
+    field :password, :string, virtual: true
     field :encrypted_password, :string
-    field :password_hash, :string, source: :encrypted_password
-    field :reset_password_token, :string
-    field :reset_password_sent_at, :naive_datetime
-    field :remember_created_at, :naive_datetime
-    field :sign_in_count, :integer, default: 0
-    field :current_sign_in_at, :naive_datetime
-    field :last_sign_in_at, :naive_datetime
-    field :current_sign_in_ip, EctoNetwork.INET
-    field :last_sign_in_ip, EctoNetwork.INET
+    field :hashed_password, :string, source: :encrypted_password
+    field :confirmed_at, :naive_datetime
     field :otp_required_for_login, :boolean
     field :authentication_token, :string
-    # field :failed_attempts, :integer
+    field :failed_attempts, :integer
     # field :unlock_token, :string
-    # field :locked_at, :naive_datetime
+    field :locked_at, :naive_datetime
     field :encrypted_otp_secret, :string
     field :encrypted_otp_secret_iv, :string
     field :encrypted_otp_secret_salt, :string
     field :consumed_timestep, :integer
     field :otp_backup_codes, {:array, :string}
-    pow_user_fields()
 
     # General attributes
     field :name, :string
@@ -147,14 +132,138 @@ defmodule Philomena.Users.User do
     timestamps(inserted_at: :created_at)
   end
 
-  @doc false
-  def changeset(user, attrs) do
+  @doc """
+  A user changeset for registration.
+
+  It is important to validate the length of both email and password.
+  Otherwise databases may truncate the email without warnings, which
+  could lead to unpredictable or insecure behaviour. Long passwords may
+  also be very expensive to hash for certain algorithms.
+  """
+  def registration_changeset(user, attrs) do
     user
-    |> pow_changeset(attrs)
-    |> pow_extension_changeset(attrs)
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:name, :email, :password])
+    |> validate_name()
+    |> validate_email()
+    |> validate_password()
+    |> put_api_key()
+    |> put_slug()
     |> unique_constraints()
+  end
+
+  defp validate_name(changeset) do
+    changeset
+    |> validate_required([:name])
+    |> validate_length(:name, max: 50)
+  end
+
+  defp validate_email(changeset) do
+    changeset
+    |> validate_required([:email])
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+$/, message: "must have the @ sign and no spaces")
+    |> validate_length(:email, max: 160)
+    |> unsafe_validate_unique(:email, Philomena.Repo)
+  end
+
+  defp validate_password(changeset) do
+    changeset
+    |> validate_required([:password])
+    |> validate_length(:password, min: 12, max: 80)
+    |> prepare_changes(&hash_password/1)
+  end
+
+  defp hash_password(changeset) do
+    password = get_change(changeset, :password)
+
+    changeset
+    |> put_change(:hashed_password, Password.hash_pwd_salt(password))
+    |> delete_change(:password)
+  end
+
+  @doc """
+  A user changeset for changing the email.
+
+  It requires the email to change otherwise an error is added.
+  """
+  def email_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:email])
+    |> validate_email()
+    |> case do
+      %{changes: %{email: _}} = changeset -> changeset
+      %{} = changeset -> add_error(changeset, :email, "did not change")
+    end
+  end
+
+  @doc """
+  A user changeset for changing the password.
+  """
+  def password_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:password])
+    |> validate_confirmation(:password, message: "does not match password")
+    |> validate_password()
+  end
+
+  @doc """
+  Confirms the account by setting `confirmed_at`.
+  """
+  def confirm_changeset(user) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    change(user, confirmed_at: now)
+  end
+
+  @doc """
+  Verifies the password.
+
+  If there is no user or the user doesn't have a password, we call
+  `Bcrypt.no_user_verify/0` to avoid timing attacks.
+  """
+  def valid_password?(%User{hashed_password: hashed_password}, password)
+      when is_binary(hashed_password) and byte_size(password) > 0 do
+    Password.verify_pass(password, hashed_password)
+  end
+
+  def valid_password?(_, _) do
+    Bcrypt.no_user_verify()
+    false
+  end
+
+  @doc """
+  Validates the current password otherwise adds an error to the changeset.
+  """
+  def validate_current_password(changeset, password) do
+    if valid_password?(changeset.data, password) do
+      changeset
+    else
+      add_error(changeset, :current_password, "is not valid")
+    end
+  end
+
+  def successful_attempt_changeset(user) do
+    change(user, failed_attempts: 0)
+  end
+
+  def failed_attempt_changeset(user) do
+    if not is_integer(user.failed_attempts) or user.failed_attempts < 0 do
+      change(user, failed_attempts: 1)
+    else
+      change(user, failed_attempts: user.failed_attempts + 1)
+    end
+  end
+
+  def lock_changeset(user) do
+    locked_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+    change(user, locked_at: locked_at)
+  end
+
+  def unlock_changeset(user) do
+    change(user, locked_at: nil, failed_attempts: 0)
+  end
+
+  def changeset(user, attrs) do
+    cast(user, attrs, [])
   end
 
   def update_changeset(user, attrs, roles) do
@@ -163,17 +272,6 @@ defmodule Philomena.Users.User do
     |> validate_required([:name, :email, :role])
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
     |> put_assoc(:roles, roles)
-    |> put_slug()
-    |> unique_constraints()
-  end
-
-  def creation_changeset(user, attrs) do
-    user
-    |> pow_changeset(attrs)
-    |> pow_extension_changeset(attrs)
-    |> cast(attrs, [:name])
-    |> validate_required([:name])
-    |> put_api_key()
     |> put_slug()
     |> unique_constraints()
   end
@@ -352,23 +450,25 @@ defmodule Philomena.Users.User do
   end
 
   def totp_changeset(changeset, params, backup_codes) do
+    %{"user" => %{"current_password" => password}} = params
     changeset = change(changeset, %{})
     user = changeset.data
 
-    case user.otp_required_for_login do
-      true ->
+    cond do
+      !!user.otp_required_for_login and valid_password?(user, password) ->
         # User wants to disable TOTP
         changeset
-        |> pow_password_changeset(params)
         |> consume_totp_token_changeset(params)
         |> disable_totp_changeset()
 
-      _falsy ->
+      !user.otp_required_for_login and valid_password?(user, password) ->
         # User wants to enable TOTP
         changeset
-        |> pow_password_changeset(params)
         |> consume_totp_token_changeset(params)
         |> enable_totp_changeset(backup_codes)
+
+      true ->
+        add_error(changeset, :current_password, "is invalid")
     end
   end
 
@@ -409,20 +509,16 @@ defmodule Philomena.Users.User do
   end
 
   defp enable_totp_changeset(user, backup_codes) do
-    hashed_codes =
-      backup_codes
-      |> Enum.map(&Password.hash_pwd_salt/1)
+    hashed_codes = Enum.map(backup_codes, &Password.hash_pwd_salt/1)
 
-    user
-    |> change(%{
+    change(user, %{
       otp_required_for_login: true,
       otp_backup_codes: hashed_codes
     })
   end
 
   defp disable_totp_changeset(user) do
-    user
-    |> change(%{
+    change(user, %{
       otp_required_for_login: false,
       otp_backup_codes: [],
       encrypted_otp_secret: nil,
@@ -437,7 +533,6 @@ defmodule Philomena.Users.User do
     |> unique_constraint(:slug, name: :index_users_on_slug)
     |> unique_constraint(:email, name: :index_users_on_email)
     |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
-    |> unique_constraint(:name, name: :temp_unique_index_users_on_name)
   end
 
   defp extract_token(%{"user" => %{"twofactor_token" => t}}),
@@ -455,8 +550,7 @@ defmodule Philomena.Users.User do
   defp put_slug(changeset) do
     name = get_field(changeset, :name)
 
-    changeset
-    |> put_change(:slug, Slug.slug(name))
+    put_change(changeset, :slug, Slug.slug(name))
   end
 
   defp totp_valid?(user, token) do

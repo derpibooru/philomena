@@ -24,6 +24,9 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      elasticsearch:
+        image: elasticsearch:7.6.2
+        ports: ['9200:9200']
       redis:
         image: redis:5.0.9
         ports: ['6379:6379']
@@ -34,15 +37,22 @@ jobs:
             apt-get update
             apt-get -yqq install libpq-dev postgresql-client
     - name: Install Dependencies
+      env:
+        MIX_ENV: 'test'
       run: |
         mix local.rebar --force
         mix local.hex --force
         mix deps.get
     - name: Run Tests
       env: 
+        MIX_ENV: 'test'
         PGUSER: 'postgres'
         PGPASSWORD: 'postgres'
         PGDATABASE: 'philomena_test'
         PGPORT: 5432
         PGHOST: db
-      run: mix test
+      run: |
+        mix ecto.create
+        mix ecto.load
+        mix reindex_all
+        mix test

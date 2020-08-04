@@ -15,6 +15,6 @@ elixir:
       i.fa.fa-bell-slash>
       ' Unsubscribe
 - else
-    a href=Routes.pow_session_path(@conn, :new)
+    a href=Routes.session_path(@conn, :new)
       i.fa.fa-bell>
       ' Subscribe
