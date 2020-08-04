@@ -22,7 +22,7 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
     a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unhide" href=Routes.filter_hide_path(@conn, :delete, tag: @tag) Unhide
     a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="hide" href=Routes.filter_hide_path(@conn, :create, tag: @tag) Hide
 
-    a.tag__dropdown__link.hidden href="/session/new" Sign in to Watch
+    a.tag__dropdown__link.hidden href="/sessions/new" Sign in to Watch
     a.tag__dropdown__link.hidden href="/filters" Filter
 
   span.tag__count
