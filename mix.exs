@@ -45,7 +45,7 @@ defmodule Philomena.MixProject do
       {:plug_cowboy, "~> 2.3"},
       {:phoenix_slime, "~> 0.13"},
       {:ecto_network, "~> 1.3"},
-      {:bcrypt_elixir, "~> 2.0"},
+      {:bcrypt_elixir, "~> 2.2"},
       {:pot, "~> 0.11"},
       {:secure_compare, "~> 0.1.0"},
       {:elastix, "~> 0.8.0"},
