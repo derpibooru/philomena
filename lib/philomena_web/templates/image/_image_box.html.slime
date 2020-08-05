@@ -26,9 +26,7 @@ elixir:
       span.favorites title="Favorites" data-image-id=@image.id = @image.faves_count
     a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-arrow-up title="Yay!"
-    span.score title="Score" data-image-id=@image.id = @image.score
-    a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
-      i.fa.fa-arrow-down title="Neigh!"
+    span.score title="Score" data-image-id=@image.id = @image.upvotes_count
     a.interaction--comments href="/#{@image.id}#comments" title="Comments"
       i.fa.fa-comments
       span.comments_count data-image-id=@image.id = @image.comments_count
