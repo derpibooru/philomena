@@ -53,6 +53,16 @@ defmodule PhilomenaWeb.Router do
     plug PhilomenaWeb.FilterBannedUsersPlug
   end
 
+  pipeline :dev_only do
+    plug PhilomenaWeb.DevOnlyPlug
+  end
+
+  scope "/", Bamboo do
+    pipe_through [:dev_only]
+
+    forward "/sent_emails", SentEmailViewerPlug
+  end
+
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :redirect_if_user_is_authenticated]
 

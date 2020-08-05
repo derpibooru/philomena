@@ -157,7 +157,7 @@ defmodule Philomena.Application do
     ]
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     if !dev_mode do
-        Application.put_env(:philomena, PhilomenaWeb.Mailer, [
+        Application.put_env(:philomena, Philomena.Mailer, [
           adapter: Bamboo.SMTPAdapter,
           server: config.server,
           hostname: config.hostname,
@@ -169,7 +169,7 @@ defmodule Philomena.Application do
         ])
       else
         IO.puts("Starting local SMTP Adapter")
-        Application.put_env(:philomena, PhilomenaWeb.Mailer, [
+        Application.put_env(:philomena, Philomena.Mailer, [
           adapter: Bamboo.LocalAdapter
         ])
       end
@@ -179,6 +179,12 @@ defmodule Philomena.Application do
     ]
     config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
     Application.put_env(:bcrypt_elixir, :log_rounds, config.log_rounds)
+
+    bindings = [
+      { :mailer_address, "MAILER_ADDRESS", default: "test@philomena.lc", required: !dev_mode }
+    ]
+    config = Vapor.load!([%Vapor.Provider.Env{bindings: bindings}])
+    Application.put_env(:philomena, :mailer_address, config.mailer_address)
 
   end
 end
