@@ -51,6 +51,7 @@ services:
       - SMTP_DOMAIN
       - SMTP_USERNAME
       - SEED_ON_START=true
+      - MAILER_ADDRESS
     tty: true
     depends_on:
       - postgres
