@@ -5,6 +5,8 @@ defmodule PhilomenaWeb.RegistrationController do
   alias Philomena.Users.User
 
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
+  plug PhilomenaWeb.NameLengthLimiterPlug when action in [:create]
+  plug PhilomenaWeb.NotableNamePlug when action in [:create]
   plug PhilomenaWeb.CompromisedPasswordCheckPlug when action in [:create]
   plug :assign_email_and_password_changesets when action in [:edit]
 
