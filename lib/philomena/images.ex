@@ -138,6 +138,20 @@ defmodule Philomena.Images do
     |> Repo.isolated_transaction(:serializable)
   end
 
+  def destroy_image(%Image{} = image) do
+    changeset = Image.remove_image_changeset(image)
+
+    Multi.new()
+    |> Multi.update(:image, changeset)
+    |> Multi.run(:remove_file, fn _repo, %{image: image} ->
+      Uploader.unpersist_old_upload(image)
+      Hider.destroy_thumbnails(image)
+
+      {:ok, nil}
+    end)
+    |> Repo.isolated_transaction(:serializable)
+  end
+
   def lock_comments(%Image{} = image, locked) do
     image
     |> Image.lock_comments_changeset(locked)

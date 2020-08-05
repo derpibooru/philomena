@@ -141,3 +141,8 @@
           = button_to "Lock tag editing", Routes.image_tag_lock_path(@conn, :create, @image), method: "post", class: "button"
         - else
           = button_to "Unlock tag editing", Routes.image_tag_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+
+      = if @image.hidden_from_users and can?(@conn, :destroy, @image) do
+        br
+        .flex.flex--spaced-out
+          = button_to "Destroy image", Routes.image_destroy_path(@conn, :create, @image), method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]
