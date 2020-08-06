@@ -29,10 +29,11 @@ defmodule PhilomenaWeb.NotableNamePlug do
   defp allow_mods(conn) do
     unless mod?(conn.assigns.current_user) do
       import Phoenix.HTML.Link, only: [link: 2]
+      import Phoenix.HTML.Tag
 
       conn
         |> Controller.fetch_flash()
-        |> Controller.put_flash(:error, ["That username is reserved for a notable fandom artist. Please choose another, and if you are the artist in question, ", link("contact the moderators", to: "/forums/meta"), " for verification."])
+        |> Controller.put_flash(:error, ["We've reserved that username in order to prevent impersonation.", tag(:br), "If you are the person in question, please see ", link("the forum", to: "/forums/meta/topics/name-verification"), " for more information."])
         |> Controller.redirect(external: conn.assigns.referrer)
         |> Conn.halt()
     else
