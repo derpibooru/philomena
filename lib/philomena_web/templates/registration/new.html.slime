@@ -9,7 +9,7 @@ h1 Register
     ' Non-anonymous posts permanently show your username as of posting time,
     ' and may appear on search engines; choose wisely.
   .field
-    = text_input f, :name, class: "input", placeholder: "Username", required: true
+    = text_input f, :name, class: "input", placeholder: "Username", required: true, minlength: 2, maxlength: 80
     = error_tag f, :name
 
   .fieldlabel
