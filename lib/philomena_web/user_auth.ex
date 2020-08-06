@@ -51,12 +51,20 @@ defmodule PhilomenaWeb.UserAuth do
   """
   def totp_auth_user(conn, user, params \\ %{}) do
     token = Users.generate_user_totp_token(user)
-    user_return_to = get_session(conn, :user_return_to)
 
     conn
     |> put_session(:totp_token, token)
     |> maybe_write_totp_auth_cookie(token, params)
-    |> redirect(to: user_return_to || signed_in_path(conn))
+    |> maybe_redirect(params)
+  end
+
+  defp maybe_redirect(conn, %{:allow_redirect => false}) do
+    conn
+  end
+  defp maybe_redirect(conn, _params) do
+    user_return_to = get_session(conn, :user_return_to)
+    conn
+      |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
   defp maybe_write_totp_auth_cookie(conn, token, %{"remember_me" => "true"}) do
