@@ -35,14 +35,14 @@ if git diff --name-only $oldrev $newrev | grep "^assets/"; then
   mix phx.digest || die "assets compile failed"
 fi
 
-# TODO: fix this when I can figure out how to avoid recompiling
-# the entire project when the version changes
-#
-# # Generate release name to always be the current timestamp so that
-# # it will be considered an upgrade
-# export PHILOMENA_VERSION="0.1.$(date +%s)"
-
 echo "Building release"
-mix distillery.release --quiet || die "failed to generate release"
+mix release --overwrite || die "failed to generate release"
 
-_build/prod/rel/philomena/bin/philomena reboot || die "failed to upgrade app; log in to the server and restart the app manually"
+# Include a task to restart your running appserver instances here.
+#
+# In general, you should have many app instances configured on different
+# ports using the PORT environment variable, so as to allow you to roll
+# releases and deploy new code with no visible downtime.
+#
+# You can use a reverse proxy like haproxy or nginx to load balance between
+# different server instances automatically.

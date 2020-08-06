@@ -166,6 +166,12 @@ defmodule Philomena.Images.Image do
     |> unsafe_validate_unique([:image_orig_sha512_hash], Repo)
   end
 
+  def remove_image_changeset(image) do
+    image
+    |> change(removed_image: image.image)
+    |> change(image: nil)
+  end
+
   def source_changeset(image, attrs) do
     image
     |> cast(attrs, [:source_url])

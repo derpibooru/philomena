@@ -5,16 +5,13 @@ defmodule PhilomenaWeb.CommissionController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.MapParameterPlug, [param: "commission"] when action in [:index]
   plug :preload_commission
 
   def index(conn, params) do
     commissions =
       commission_search(params["commission"])
       |> Repo.paginate(conn.assigns.scrivener)
-
-    # Scrub parameters to avoid form error...
-    params = Map.put(conn.params, "commission", permit_map(conn.params["commission"]))
-    conn = Map.put(conn, :params, params)
 
     render(conn, "index.html",
       title: "Commissions",
@@ -87,9 +84,6 @@ defmodule PhilomenaWeb.CommissionController do
 
   defp presence(object),
     do: object
-
-  defp permit_map(x) when is_map(x), do: x
-  defp permit_map(_), do: nil
 
   defp to_f(input) do
     case Float.parse(to_string(input)) do

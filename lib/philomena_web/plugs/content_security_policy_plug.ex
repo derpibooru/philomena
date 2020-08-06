@@ -1,7 +1,11 @@
 defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   alias Plug.Conn
 
-  def init([]) do
+  def init(opts) do
+    opts
+  end
+
+  def call(conn, _opts) do
     cdn_uri = cdn_uri()
     camo_uri = camo_uri()
 
@@ -11,10 +15,6 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         "manifest-src 'self'; img-src 'self' data: #{cdn_uri} #{camo_uri}; " <>
         "block-all-mixed-content"
 
-    [csp_value: csp_value]
-  end
-
-  def call(conn, csp_value: csp_value) do
     Conn.put_resp_header(conn, "content-security-policy", csp_value)
   end
 
