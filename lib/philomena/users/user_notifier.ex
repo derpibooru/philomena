@@ -10,13 +10,11 @@ defmodule Philomena.Users.UserNotifier do
         subject: subject,
         text_body: body
       )
+      |> Email.put_header("Message-ID", gen_message_id())
+      |> Email.put_header("Date", gen_timestamp())
       |> Mailer.deliver_later()
 
     {:ok, email}
-  end
-
-  defp mailer_address do
-    Application.get_env(:philomena, :mailer_address)
   end
 
   @doc """
@@ -97,5 +95,27 @@ defmodule Philomena.Users.UserNotifier do
 
     ==============================
     """)
+  end
+
+  defp gen_message_id() do
+    hostname = Application.get_env(:philomena, Philomena.Mailer)[:hostname]
+
+    [ "<", time32(), ".", rand8(), "@", hostname, ">" ] |> Enum.join("")
+  end
+
+  defp time32() do
+    System.os_time(:second) |> Integer.to_string() |> Base.encode32()
+  end
+
+  defp rand8() do
+    :crypto.strong_rand_bytes(64) |> Base.url_encode64() |> binary_part(0, 8)
+  end
+
+  defp gen_timestamp() do
+    DateTime.utc_now() |> DateTime.to_string()
+  end
+
+  defp mailer_address do
+    Application.get_env(:philomena, :mailer_address)
   end
 end
