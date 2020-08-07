@@ -4,6 +4,8 @@ defmodule PhilomenaWeb.UserAuth do
 
   alias Philomena.Users
   alias PhilomenaWeb.Router.Helpers, as: Routes
+  alias PhilomenaWeb.UserIpUpdater
+  alias PhilomenaWeb.UserFingerprintUpdater
 
   # Make the remember me cookie valid for 365 days.
   # If you want bump or reduce this value, also change
@@ -130,6 +132,8 @@ defmodule PhilomenaWeb.UserAuth do
     user = user_token && Users.get_user_by_session_token(user_token)
     totp = totp_token && Users.user_totp_token_valid?(user, totp_token)
 
+    if user, do: update_usages(conn, user)
+
     conn
     |> assign(:current_user, user)
     |> assign(:totp_valid?, totp)
@@ -201,4 +205,12 @@ defmodule PhilomenaWeb.UserAuth do
   defp maybe_store_return_to(conn), do: conn
 
   defp signed_in_path(_conn), do: "/"
+  
+  defp update_usages(conn, user) do
+    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    conn = fetch_cookies(conn)
+
+    UserIpUpdater.cast(user.id, conn.remote_ip, now)
+    UserFingerprintUpdater.cast(user.id, conn.cookies["_ses"], now)
+  end
 end
