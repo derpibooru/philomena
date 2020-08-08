@@ -394,10 +394,6 @@ defmodule Philomena.Textile.Parser do
                {:text, escape(open)},
                tree2
              ], r3_tokens}
-
-          _ ->
-            {:ok, [{:text, escape(start)}, {:text, escape(flatten(tree))}, {:text, escape(open)}],
-             r_tokens}
         end
 
       _ ->

@@ -436,16 +436,13 @@ defmodule Philomena.Users.User do
 
     cond do
       totp_valid?(user, token) ->
-        changeset
-        |> change(%{consumed_timestep: String.to_integer(token)})
+        change(changeset, consumed_timestep: String.to_integer(token))
 
       backup_code_valid?(user, token) ->
-        changeset
-        |> change(%{otp_backup_codes: remove_backup_code(user, token)})
+        change(changeset, otp_backup_codes: remove_backup_code(user, token))
 
       true ->
-        changeset
-        |> add_error(:twofactor_token, "Invalid token")
+        add_error(changeset, :twofactor_token, "Invalid token")
     end
   end
 
@@ -500,6 +497,7 @@ defmodule Philomena.Users.User do
     "data:image/png;base64," <> png
   end
 
+  @spec totp_secret(%Philomena.Users.User{}) :: binary()
   def totp_secret(user) do
     Philomena.Users.Encryptor.decrypt_model(
       user.encrypted_otp_secret,

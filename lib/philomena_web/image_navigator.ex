@@ -92,11 +92,11 @@ defmodule PhilomenaWeb.ImageNavigator do
     field = String.to_existing_atom(sf)
     filter = range_filter(sf, @range_comparison_for_order[order], image[field])
 
-    cond do
-      sf in [:_random, :_score] ->
+    case sf do
+      "_score" ->
         {[sort], []}
 
-      true ->
+      _ ->
         {[sort], [filter]}
     end
   end

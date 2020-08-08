@@ -1,5 +1,6 @@
 defmodule Philomena.Search.LiteralParser do
   import NimbleParsec
+  @dialyzer [:no_match, :no_unused]
 
   defp to_number(input), do: Philomena.Search.Helpers.to_number(input)
 

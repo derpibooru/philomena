@@ -13,6 +13,8 @@ defmodule PhilomenaWeb.AdvertPlug do
     maybe_assign_ad(conn, image, show_ads?)
   end
 
+  defp maybe_assign_ad(conn, image, show_ads?)
+
   defp maybe_assign_ad(conn, nil, true),
     do: Conn.assign(conn, :advert, record_impression(Adverts.random_live()))
 
@@ -22,8 +24,8 @@ defmodule PhilomenaWeb.AdvertPlug do
   defp maybe_assign_ad(conn, _image, _false),
     do: conn
 
-  defp show_ads?(%{hide_advertisements: false}),
-    do: true
+  defp show_ads?(%{hide_advertisements: hide}),
+    do: !hide
 
   defp show_ads?(_user),
     do: true
