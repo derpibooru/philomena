@@ -21,7 +21,8 @@ h1 Users
     thead
       tr
         th Name
-        th Email
+        = if can_view_emails?(@conn) do
+          th Email
         th Activated
         th Role
         th Created
@@ -45,8 +46,9 @@ h1 Users
 
               - true ->
 
-          td
-            = user.email
+          = if can_view_emails?(@conn) do
+            td
+              = user.email
 
           td
             = if user.deleted_at do
@@ -62,6 +64,7 @@ h1 Users
             = pretty_time user.created_at
 
           td
+
             => link "Edit", to: Routes.admin_user_path(@conn, :edit, user)
             ' &bull;
 

@@ -78,4 +78,7 @@ defmodule PhilomenaWeb.Admin.UserView do
       ["admin", "StaticPage"]
     ]
   end
+
+  def can_view_emails?(conn),
+    do: can?(conn, :index, :email_address)
 end
