@@ -34,3 +34,7 @@
 
 = if can?(@conn, :hide, @image) do
   = render PhilomenaWeb.ImageView, "show.html", assigns
+- else
+  p
+    strong Tags:
+  = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags), conn: @conn
