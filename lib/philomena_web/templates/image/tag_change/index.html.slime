@@ -5,7 +5,7 @@ h1
     = @image.id
 
 - route = fn p -> Routes.image_tag_change_path(@conn, :index, @image, p) end
-- params = if @conn.params["added"] do [added: @conn.params["added"]] else nil end
+- params = if @conn.params["added"], do: [added: @conn.params["added"]]
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: params
 
 .block
