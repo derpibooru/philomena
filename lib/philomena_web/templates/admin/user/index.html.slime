@@ -64,7 +64,6 @@ h1 Users
             = pretty_time user.created_at
 
           td
-
             => link "Edit", to: Routes.admin_user_path(@conn, :edit, user)
             ' &bull;
 
