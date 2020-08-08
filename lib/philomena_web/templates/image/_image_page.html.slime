@@ -8,7 +8,8 @@
         p WEBM uploads may take longer to process, it should appear in up to an hour (depending on file size and video length).
       - else
         p The image should appear in a few minutes; report it otherwise.
-      p Implications might have added tags, so check them in the meanwhile.
+      p Implications might have added some tags, so check everything applies.
+      p If you are using a default filter, new images might be filtered out for some time to allow for correction of mistagging. Do not worry, your upload will be seen.
   = if !@image.processed and @image.thumbnails_generated do
     br
     #image-being-optimized.block.block--fixed.block--warning.layout--narrow
