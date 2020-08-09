@@ -2,9 +2,10 @@ div
   ' Posted
   => pretty_time(@comment.created_at)
 
-  a.communication__interaction href=Routes.image_comment_report_path(@conn, :new, @comment.image, @comment)
-    i.fa.fa-flag>
-    ' Report
+  = if can_report?(@conn) do
+    a.communication__interaction href=Routes.image_comment_report_path(@conn, :new, @comment.image, @comment)
+      i.fa.fa-flag>
+      ' Report
 
   = if not is_nil(@comment.edited_at) and can?(@conn, :show, @comment) do
     br

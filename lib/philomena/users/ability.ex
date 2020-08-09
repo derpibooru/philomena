@@ -336,7 +336,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Tag{}), do: true
 
   # Comment on images where that is allowed
-  def can?(%User{id: id}, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}),
+  def can?(%User{id: _id}, :create_comment, %Image{hidden_from_users: false, commenting_allowed: true}),
     do: true
 
   # Edit comments on images
@@ -372,7 +372,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(_user, :show, %Post{hidden_from_users: false}), do: true
 
   # Create and edit posts
-  def can?(%User{id: id}, :create_post, %Topic{locked_at: nil, hidden_from_users: false}), do: true
+  def can?(%User{id: _id}, :create_post, %Topic{locked_at: nil, hidden_from_users: false}), do: true
 
   def can?(%User{id: id}, action, %Post{hidden_from_users: false, user_id: id})
       when action in [:edit, :update],
@@ -389,6 +389,10 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   def can?(_user, :show, %DnpEntry{aasm_state: "listed"}), do: true
   def can?(_user, :show_reason, %DnpEntry{aasm_state: "listed", hide_reason: false}), do: true
+
+  # Create reports
+  def can?(%User{id: _id}, action, Philomena.Reports.Report) when action in [:new, :create], do: true
+  def can?(%User{id: _id}, action, Philomena.DuplicateReports.DuplicateReport) when action in [:new, :create], do: true
 
   # Create and edit galleries
   def can?(_user, :show, %Gallery{}), do: true

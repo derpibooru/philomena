@@ -2,9 +2,10 @@ div
   ' Posted
   => pretty_time(@post.created_at)
 
-  a.communication__interaction href=Routes.forum_topic_post_report_path(@conn, :new, @post.topic.forum, @post.topic, @post)
-    i.fa.fa-flag>
-    ' Report
+  = if can_report?(@conn) do
+    a.communication__interaction href=Routes.forum_topic_post_report_path(@conn, :new, @post.topic.forum, @post.topic, @post)
+      i.fa.fa-flag>
+      ' Report
 
   = if not is_nil(@post.edited_at) and can?(@conn, :show, @post) do
     br

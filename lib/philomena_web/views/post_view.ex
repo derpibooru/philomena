@@ -33,4 +33,8 @@ defmodule PhilomenaWeb.PostView do
         object.user.name
     end
   end
+
+  @spec can_report?(Plug.Conn.t()) :: boolean()
+  def can_report?(conn),
+    do: can?(conn, :new, Philomena.Reports.Report)
 end

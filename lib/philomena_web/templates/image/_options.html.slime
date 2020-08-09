@@ -2,9 +2,10 @@
 
 #image_options_area
   .block__header.block__header--js-tabbed
-    a href="#" data-click-tab="reporting" data-load-tab=Routes.image_reporting_path(@conn, :show, @image)
-      i.fa.fa-exclamation-triangle>
-      | Report
+    = if can_report?(@conn) do
+      a href="#" data-click-tab="reporting" data-load-tab=Routes.image_reporting_path(@conn, :show, @image)
+        i.fa.fa-exclamation-triangle>
+        | Report
     a href="#" data-click-tab="sharing"
       i.fa.fa-share>
       | Share
