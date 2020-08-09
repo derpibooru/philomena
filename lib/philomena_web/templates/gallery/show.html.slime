@@ -18,9 +18,10 @@ elixir:
       .flex__right
         = render PhilomenaWeb.ImageView, "_random_button.html", conn: @conn, params: scope
 
-        a href=Routes.gallery_report_path(@conn, :new, @gallery)
-          i.fa.fa-exclamation-triangle>
-          span.hide-mobile Report
+        = if can_report?(@conn) do
+          a href=Routes.gallery_report_path(@conn, :new, @gallery)
+            i.fa.fa-exclamation-triangle>
+            span.hide-mobile Report
 
         = if can?(@conn, :edit, @gallery) do
           a href=Routes.gallery_path(@conn, :edit, @gallery)

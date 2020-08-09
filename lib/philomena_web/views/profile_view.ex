@@ -70,8 +70,13 @@ defmodule PhilomenaWeb.ProfileView do
   def can_read_mod_notes?(conn),
     do: can?(conn, :index, Philomena.ModNotes.ModNote)
 
+  @spec can_create_convo?(PLug.Conn.t()) :: boolean()
   def can_create_convo?(conn),
     do: can?(conn, :new, Philomena.Conversations.Conversation)
+
+  @spec can_report?(Plug.Conn.t()) :: boolean()
+  def can_report?(conn),
+    do: can?(conn, :new, Philomena.Reports.Report)
 
   def enabled_text(true), do: "Enabled"
   def enabled_text(_else), do: "Disabled"

@@ -20,4 +20,8 @@ defmodule PhilomenaWeb.GalleryView do
 
   def show_subscription_link?(%{id: id}, %{id: id}), do: false
   def show_subscription_link?(_user1, _user2), do: true
+
+  @spec can_report?(Plug.Conn.t()) :: boolean()
+  def can_report?(conn),
+    do: can?(conn, :new, Philomena.Reports.Report)
 end

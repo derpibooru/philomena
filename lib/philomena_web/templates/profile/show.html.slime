@@ -26,7 +26,8 @@
         = if can_create_convo?(@conn) do
           li = link("Send message", to: Routes.conversation_path(@conn, :new, recipient: @user.name))
         li = link("Our conversations", to: Routes.conversation_path(@conn, :index, with: @user.id))
-        li = link("Report this user", to: Routes.profile_report_path(@conn, :new, @user))
+        = if can_report?(@conn) do
+          li = link("Report this user", to: Routes.profile_report_path(@conn, :new, @user))
 
       ul.profile-top__options__column
         li = link("Uploads", to: Routes.search_path(@conn, :index, q: "uploader_id:#{@user.id}"))

@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
   alias Philomena.Reports
 
   plug PhilomenaWeb.FilterBannedUsersPlug
+  plug PhilomenaWeb.AuthorizedReporterPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug when action in [:create]
 

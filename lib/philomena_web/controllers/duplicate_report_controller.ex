@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
   @valid_states ~W(open rejected accepted claimed)
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
+  plug PhilomenaWeb.AuthorizedReporterPlug when action in [:new, :create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 
   plug :load_resource,
