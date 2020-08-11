@@ -29,12 +29,15 @@ defmodule PhilomenaWeb.ConfirmationController do
 
   # Do not log in the user after confirmation to avoid a
   # leaked token giving the user access to the account.
+  #
+  # If confirmation was successful redirect the user to the
+  # login page.
   def show(conn, %{"id" => token}) do
     case Users.confirm_user(token) do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Account confirmed successfully.")
-        |> redirect(to: "/")
+        |> redirect(to: "/sessions/new")
 
       :error ->
         conn
