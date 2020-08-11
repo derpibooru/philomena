@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Try to create the database if it doesn't exist yet
-if psql -h postgres -U postgres -lqt | cut -d \| -f 1 | grep -qw philomena_db; then
-  dropdb -h postgres -U postgres philomena_db
-  createdb -h postgres -U postgres philomena_db 
+if PGPASSWORD=$POSTGRES_PASSWORD psql -h $POSTGRES_HOST -U $POSTGRES_USER -lqt | cut -d \| -f 1 | grep -qw $POSTGRES_DB; then
+  PGPASSWORD=$POSTGRES_PASSWORD dropdb -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
+  PGPASSWORD=$POSTGRES_PASSWORD createdb -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
   mix ecto.setup_dev
 else
-  createdb -h postgres -U postgres philomena_db 
+  PGPASSWORD=$POSTGRES_PASSWORD createdb -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
   mix ecto.setup_dev
 fi
 

@@ -52,6 +52,7 @@ services:
       - SMTP_USERNAME
       - SEED_ON_START=true
       - MAILER_ADDRESS
+      - MIX_ENV
     tty: true
     depends_on:
       - postgres

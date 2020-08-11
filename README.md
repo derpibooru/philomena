@@ -10,6 +10,7 @@ A demo install of this software can be found at <https://boorudemo.basisbit.de>.
 On systems with `docker` and `docker-compose` installed, the process should be as simple as:
 
 ```
+cp .env.example .env
 docker-compose build
 docker-compose up
 ```
@@ -17,6 +18,7 @@ docker-compose up
 If you use `podman` and `podman-compose` instead, the process for constructing a rootless container is nearly identical:
 
 ```
+cp .env.example .env
 podman-compose build
 podman-compose up
 ```
@@ -57,20 +59,35 @@ docker volume rm philomena_postgres_data
 To manually start the app container and run commands from `docker/app/run-development` or `docker/app/run-prod`, uncomment the entrypoint line in `docker-compose.yml`, then run `docker-compose up`. In another shell, run `docker-compose exec app bash` and you should be good to go. As next steps, you'll usually want to manually execute the commands from the above mentioned run scripts and look at the console output to see what the problem is. From this container, you can also connect to the postgresql database using `psql -h postgres -U postgres`.
 
 ## Deployment
-You need a key installed on the server you target, and the git remote installed in your ssh configuration.
+```
+cd ~
+mkdir booru
+cd booru
+git clone https://github.com/booru/philomena
+cd philomena
+sed -i 's/DemoBooruPassword/YourNewDesiredSecretPassword/g' ~/booru/philomena/priv/repo/seeds.json
+sed -i 's/admin@example.com/yourAdmin@email.tld/g' ~/booru/philomena/priv/repo/seeds.json
+sed -i 's/Administrator/YourAdminAccountName/g' ~/booru/philomena/priv/repo/seeds.json
+sed -i 's/MIX_ENV=dev/MIX_ENV=prod/g' ~/booru/philomena/docker-compose.yml
+cp .env.example .env
+docker-compose build
+```
+For production, set DEV_MODE=false, APP_ENV=prod und MIX_ENV=prod in the file `.env`. For development, set DEV_MODE=fatruelse, APP_ENV=dev und MIX_ENV=dev in the file `.env`. If you don't want a new db at ever start in dev mode, set MIX_ENV=prod.
+If this is your first start on this machine or you reset the docker virtual disks, follow these steps to create a new database. Otherwise, just execute `docker-compose up` to start the application.
+To start the containers as daemon, run `docker-compose up -d`. To run it as process with log output to console, run `docker-compose up`.
 
-    git remote add production philomena@<serverip>:philomena/
+Uncomment the entrypoint line in `docker-compose.yml`. Run `docker-compose up`. In another shell, run `docker-compose exec app bash`. Then:
+```
+# PGPASSWORD=$POSTGRES_PASSWORD dropdb -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
+PGPASSWORD=$POSTGRES_PASSWORD createdb -h $POSTGRES_HOST -U $POSTGRES_USER $POSTGRES_DB
+mix ecto.setup
+mix reindex_all
+mix ecto.migrate
+exit
+docker-compose down
+```
+Comment the entrypoint line in `docker-compose.yml` (add the # again). Then start the app by running `docker-compose up`.
 
-The general syntax is:
-
-    git push production master
-
-And if everything goes wrong:
-
-    git reset HEAD^ --hard
-    git push -f production master
-
-(to be repeated until it works again)
 
 ## Customize
 To customize your booru, find and replace all occurences of the following words with your desired content
@@ -78,8 +95,9 @@ To customize your booru, find and replace all occurences of the following words 
 - `YourBooruDescription` (sample: `Samplebooru is a linear imagebooru which lets you share, find and discover new art and media surrounding samples.`
 - `SomeRandomSampleSecret1234`
 - Rule names that are selectable when reporting violations can be adjusted in `lib/philomena_web/views/report_view.ex`
-- In `config/config.exs` adjust your own `password_pepper`, `otp_secret_key` and `tumblr_api_key`
+- In `config/config.exs` `tumblr_api_key`
 - Predefined forum sections can be changed in `priv/repo/seeds.json` in the forums section
+- Set a custom secret_key_base as `SECRET_KEY_BASE` system environment for the app container in the `.env` file. To create one such secret, run `mix phx.gen.secret` within the app container.
 
 ### image_url_root
 The baseUrl for image requests can be changed using the `image_url_root` variable in `config/config.exs`. This url is used for rendering images onto the html templates and changing it can be used to cache request with a cdn. The Proxy has to redirect to the `/img` endpoint of philomena. (see `lib/philomena_web/views/image_view.ex:85`). It is appended with either `view` or `download` depending on the context, as well as the date of upload and the image filename. Thumbnails will use the image-id as well as the thumbnail size (see `lib/philomena_web/views/image_view.ex:47`)
