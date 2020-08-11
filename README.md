@@ -72,7 +72,7 @@ sed -i 's/MIX_ENV=dev/MIX_ENV=prod/g' ~/booru/philomena/docker-compose.yml
 cp .env.example .env
 docker-compose build
 ```
-For production, set DEV_MODE=false, APP_ENV=prod und MIX_ENV=prod in the file `.env`. For development, set DEV_MODE=fatruelse, APP_ENV=dev und MIX_ENV=dev in the file `.env`. If you don't want a new db at ever start in dev mode, set MIX_ENV=prod.
+For production set DEV_MODE=false, APP_ENV=prod und MIX_ENV=prod in the file `.env`. For development, set DEV_MODE=true, APP_ENV=dev, and MIX_ENV=dev in the file `.env`. If you don't want a new db at every start in dev mode, set MIX_ENV=prod.
 If this is your first start on this machine or you reset the docker virtual disks, follow these steps to create a new database. Otherwise, just execute `docker-compose up` to start the application.
 To start the containers as daemon, run `docker-compose up -d`. To run it as process with log output to console, run `docker-compose up`.
 
