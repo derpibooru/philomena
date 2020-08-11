@@ -377,10 +377,30 @@ defmodule Philomena.Users.User do
       :avatar_size,
       :uploaded_avatar
     ])
-    |> validate_number(:avatar_size, greater_than: 0, less_than_or_equal_to: 300_000)
-    |> validate_number(:avatar_width, greater_than: 0, less_than_or_equal_to: 1000)
-    |> validate_number(:avatar_height, greater_than: 0, less_than_or_equal_to: 1000)
+    |> validate_avatar_size(:avatar_size)
+    |> validate_avatar_dimension(:avatar_width)
+    |> validate_avatar_dimension(:avatar_height)
     |> validate_inclusion(:avatar_mime_type, ~W(image/gif image/jpeg image/png))
+  end
+
+  def validate_avatar_size(changeset, field) when is_atom(field) do
+    validate_change(changeset, field, fn (current_field, value) ->
+      if 0 < value and value >= 300_000 do
+        [{current_field, "must be less than or equal to 300kb"}]
+      else 
+        []
+      end
+    end)
+  end
+  
+  def validate_avatar_dimension(changeset, field) when is_atom(field) do
+    validate_change(changeset, field, fn (current_field, value) ->
+      if 0 < value and value <= 1_000 do
+        [{current_field, "must be less than or equal to 1000px"}]
+      else
+        []
+      end
+    end)
   end
 
   def remove_avatar_changeset(user) do
