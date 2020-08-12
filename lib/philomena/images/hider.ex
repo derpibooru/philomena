@@ -21,6 +21,14 @@ defmodule Philomena.Images.Hider do
     File.rename(source, target)
   end
 
+  def destroy_thumbnails(image) do
+    hidden = image_thumb_dir(image, image.hidden_image_key)
+    normal = image_thumb_dir(image)
+
+    File.rm_rf(hidden)
+    File.rm_rf(normal)
+  end
+
   # fixme: these are copied from the thumbnailer
   defp image_thumb_dir(%Image{created_at: created_at, id: id}),
     do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])

@@ -211,6 +211,7 @@ defmodule PhilomenaWeb.Router do
       resources "/scratchpad", Image.ScratchpadController, only: [:edit, :update], singleton: true
       resources "/uploader", Image.UploaderController, only: [:update], singleton: true
       resources "/anonymous", Image.AnonymousController, only: [:create, :delete], singleton: true
+      resources "/destroy", Image.DestroyController, only: [:create], singleton: true
 
       resources "/comment_lock", Image.CommentLockController,
         only: [:create, :delete],
