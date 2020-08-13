@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.Api.Json.Forum.TopicView do
       sticky: topic.sticky,
       last_replied_to_at: topic.last_replied_to_at,
       locked: not is_nil(topic.locked_at),
-      user_id: if(not topic.anonymous, do: topic.user.id),
+      user_id: if(not topic.anonymous, do: topic.user_id),
       author:
         if(topic.anonymous or is_nil(topic.user),
           do: UserAttributionView.anonymous_name(topic),

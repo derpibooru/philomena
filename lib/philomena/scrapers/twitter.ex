@@ -1,7 +1,7 @@
 defmodule Philomena.Scrapers.Twitter do
   @gt_regex ~r|document.cookie = decodeURIComponent\("gt=(\d+);|
   @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
-  @script_regex ~r|<script type="text/javascript" .*? src="(https://abs.twimg.com/responsive-web/web/main\.[\da-z]+\.js)">|
+  @script_regex ~r|<script type="text/javascript" .*? src="(https://abs.twimg.com/responsive-web/client-web/main\.[\da-z]+\.js)">|
   @bearer_regex ~r|"(AAAAAAAAAAAAA[^"]*)"|
 
   @spec can_handle?(URI.t(), String.t()) :: true | false
