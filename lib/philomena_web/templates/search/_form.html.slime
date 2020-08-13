@@ -14,11 +14,14 @@ h1 Search
         .dropdown__content
           a data-search-add="score.gte:100" data-search-select-last="3" data-search-show-help="numeric" Score
           a data-search-add="created_at.lte:3 years ago" data-search-select-last="11" data-search-show-help="date" Created at
+          a data-search-add="id.lte:10" data-search-select-last="2" data-search-show-help="numeric" Numeric ID
           a data-search-add="faves.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of faves
           a data-search-add="upvotes.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of upvotes
           a data-search-add="downvotes.gte:100" data-search-select-last="3" data-search-show-help="numeric" Number of downvotes
           a data-search-add="comment_count.gt:20" data-search-select-last="2" data-search-show-help="numeric" Number of comments
           a data-search-add="uploader:k_a" data-search-select-last="3" data-search-show-help="literal" Uploader
+          a data-search-add="original_format:gif" data-search-select-last="3" data-search-show-help="literal" File extension
+          a data-search-add="mime_type:image/jpeg" data-search-select-last="10" data-search-show-help="literal" MIME type
           a data-search-add="source_url:*deviantart.com*" data-search-select-last="16" data-search-show-help="literal" Image source URL
           a data-search-add="width:1920" data-search-select-last="4" data-search-show-help="numeric" Image width
           a data-search-add="height:1080" data-search-select-last="4" data-search-show-help="numeric" Image height
@@ -106,6 +109,7 @@ h1 Search
 
     elixir:
       random_is_selected = to_string(@conn.params["sf"]) =~ ~r/\Arandom(:\d+)?\z/
+
       random_seed =
         if random_is_selected do
           @conn.params["sf"]
@@ -114,7 +118,7 @@ h1 Search
         end
 
       sort_fields = [
-        "Sort by upload date": :created_at,
+        "Sort by upload date": :id,
         "Sort by last modification date": :updated_at,
         "Sort by initial post date": :first_seen_at,
         "Sort by aspect ratio": :aspect_ratio,

@@ -198,7 +198,7 @@ defmodule Philomena.Elasticsearch do
     results = search(module, elastic_query)
     time = results["took"]
     count = results["hits"]["total"]["value"]
-    entries = Enum.map(results["hits"]["hits"], &String.to_integer(&1["_id"]))
+    entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
 
     Logger.debug("[Elasticsearch] Query took #{time}ms")
     Logger.debug("[Elasticsearch] #{Jason.encode!(elastic_query)}")
@@ -212,15 +212,22 @@ defmodule Philomena.Elasticsearch do
     }
   end
 
-  def search_records(module, elastic_query, pagination_params, ecto_query) do
+  def search_records_with_hits(module, elastic_query, pagination_params, ecto_query) do
     page = search_results(module, elastic_query, pagination_params)
-    ids = page.entries
+    {ids, hits} = Enum.unzip(page.entries)
 
     records =
       ecto_query
       |> where([m], m.id in ^ids)
       |> Repo.all()
       |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
+
+    %{page | entries: Enum.zip(records, hits)}
+  end
+
+  def search_records(module, elastic_query, pagination_params, ecto_query) do
+    page = search_records_with_hits(module, elastic_query, pagination_params, ecto_query)
+    {records, _hits} = Enum.unzip(page.entries)
 
     %{page | entries: records}
   end

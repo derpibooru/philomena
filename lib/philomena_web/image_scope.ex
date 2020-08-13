@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.ImageScope do
     |> scope(conn, "sf", :sf)
     |> scope(conn, "sd", :sd)
     |> scope(conn, "del", :del)
+    |> scope(conn, "sort", :sort)
     |> scope(conn, "hidden", :hidden)
   end
 
