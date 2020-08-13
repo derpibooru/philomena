@@ -54,7 +54,7 @@ defmodule PhilomenaWeb.GalleryController do
 
     conn = %{conn | params: params}
 
-    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
+    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query, include_hits: true)
 
     {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
 
@@ -66,7 +66,7 @@ defmodule PhilomenaWeb.GalleryController do
     next_image = if gallery_next, do: [gallery_next], else: []
 
     gallery_images = prev_image ++ Enum.to_list(images) ++ next_image
-    gallery_json = Jason.encode!(Enum.map(gallery_images, & &1.id))
+    gallery_json = Jason.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
 
     Galleries.clear_notification(gallery, user)
 
@@ -162,7 +162,8 @@ defmodule PhilomenaWeb.GalleryController do
   defp gallery_image(offset, conn, query) do
     pagination_params = %{page_number: offset + 1, page_size: 1}
 
-    {:ok, {image, _tags}} = ImageLoader.search_string(conn, query, pagination: pagination_params)
+    {:ok, {image, _tags}} =
+      ImageLoader.search_string(conn, query, pagination: pagination_params, include_hits: true)
 
     case Enum.to_list(image) do
       [image] -> image

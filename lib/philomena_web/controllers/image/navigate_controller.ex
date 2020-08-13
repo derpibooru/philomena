@@ -10,18 +10,22 @@ defmodule PhilomenaWeb.Image.NavigateController do
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
-  def index(conn, %{"rel" => rel} = params) when rel in ~W(prev next) do
+  def index(conn, %{"rel" => rel}) when rel in ~W(prev next) do
     image = conn.assigns.image
     filter = conn.assigns.compiled_filter
-    rel = String.to_existing_atom(rel)
-
-    next_image =
-      ImageNavigator.find_consecutive(conn, image, rel, params, compile_query(conn), filter)
-
     scope = ImageScope.scope(conn)
 
     conn
-    |> redirect(to: Routes.image_path(conn, :show, next_image, scope))
+    |> ImageNavigator.find_consecutive(image, compile_query(conn), filter)
+    |> case do
+      {next_image, hit} ->
+        redirect(conn,
+          to: Routes.image_path(conn, :show, next_image, Keyword.put(scope, :sort, hit["sort"]))
+        )
+
+      nil ->
+        redirect(conn, to: Routes.image_path(conn, :show, image, scope))
+    end
   end
 
   def index(conn, %{"rel" => "find"}) do

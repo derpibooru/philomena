@@ -19,7 +19,7 @@ defmodule Philomena.Tags do
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Channels.Channel
 
-  @spec get_or_create_tags(String.t()) :: List.t()
+  @spec get_or_create_tags(String.t()) :: list()
   def get_or_create_tags(tag_list) do
     tag_names = Tag.parse_tag_list(tag_list)
 

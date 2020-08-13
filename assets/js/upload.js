@@ -124,6 +124,26 @@ function setupImageUpload() {
   else {
     disableFetch();
   }
+
+  // Catch unintentional navigation away from the page
+
+  function beforeUnload(event) {
+    // Chrome requires returnValue to be set
+    event.preventDefault();
+    event.returnValue = '';
+  }
+
+  function registerBeforeUnload() {
+    window.addEventListener('beforeunload', beforeUnload);
+  }
+
+  function unregisterBeforeUnload() {
+    window.removeEventListener('beforeunload', beforeUnload);
+  }
+
+  fileField.addEventListener('change', registerBeforeUnload);
+  fetchButton.addEventListener('click', registerBeforeUnload);
+  form.addEventListener('submit', unregisterBeforeUnload);
 }
 
 export { setupImageUpload };

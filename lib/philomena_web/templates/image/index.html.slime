@@ -5,6 +5,7 @@ elixir:
   tags = assigns[:tags] || []
   route = assigns[:route] || fn p -> Routes.image_path(@conn, :index, p) end
   image_url = fn image -> Routes.image_path(@conn, :show, image, scope) end
+  sorted_url = fn image, hit -> Routes.image_path(@conn, :show, image, Keyword.put(scope, :sort, hit["sort"])) end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: params
   info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
@@ -24,8 +25,13 @@ elixir:
   = info_row @conn, tags
 
   .block__content.js-resizable-media-container
-    = for image <- @images do
-      = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: assigns[:size] || :thumb, conn: @conn
+    = for record <- @images do
+      = case record do
+        - {image, hit} ->
+          = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: sorted_url.(image, hit), size: assigns[:size] || :thumb, conn: @conn
+
+        - image ->
+          = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: assigns[:size] || :thumb, conn: @conn
 
   .block__header.block__header--light.flex
     = pagination

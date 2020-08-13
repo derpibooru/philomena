@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.SearchController do
   def index(conn, params) do
     user = conn.assigns.current_user
 
-    case ImageLoader.search_string(conn, params["q"]) do
+    case ImageLoader.search_string(conn, params["q"], include_hits: custom_ordering?(conn)) do
       {:ok, {images, tags}} ->
         interactions = Interactions.user_interactions(images, user)
 
@@ -30,4 +30,7 @@ defmodule PhilomenaWeb.SearchController do
         )
     end
   end
+
+  defp custom_ordering?(%{params: %{"sf" => sf}}) when sf != "id", do: true
+  defp custom_ordering?(_conn), do: false
 end

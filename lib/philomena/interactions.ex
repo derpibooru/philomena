@@ -14,11 +14,7 @@ defmodule Philomena.Interactions do
   def user_interactions(images, user) do
     ids =
       images
-      |> Enum.flat_map(fn
-        nil -> []
-        %{id: id} -> [id]
-        enum -> Enum.map(enum, & &1.id)
-      end)
+      |> flatten_images()
       |> Enum.uniq()
 
     hide_interactions =
@@ -140,4 +136,13 @@ defmodule Philomena.Interactions do
 
   defp union_all_queries([query | rest]),
     do: query |> union_all(^union_all_queries(rest))
+
+  defp flatten_images(images) do
+    Enum.flat_map(images, fn
+      nil -> []
+      %{id: id} -> [id]
+      {%{id: id}, _hit} -> [id]
+      enum -> flatten_images(enum)
+    end)
+  end
 end
