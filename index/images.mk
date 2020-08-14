@@ -63,7 +63,9 @@ deleters: image_search_json
 
 galleries: image_search_json
 	psql $(DATABASE) -v ON_ERROR_STOP=1 <<-SQL
-		insert into temp_images.image_search_json (image_id, object) select gi.image_id, jsonb_build_object('gallery_interactions', jsonb_agg(jsonb_build_object('gallery_id', gi.gallery_id, 'position', gi.position))) from gallery_interactions gi group by image_id;
+		insert into temp_images.image_search_json (image_id, object) select gi.image_id, jsonb_build_object('gallery_interactions', jsonb_agg(jsonb_build_object('id', gi.gallery_id, 'position', gi.position))) from gallery_interactions gi group by image_id;
+		insert into temp_images.image_search_json (image_id, object) select gi.image_id, jsonb_build_object('gallery_id', jsonb_agg(gi.gallery_id)) from gallery_interactions gi group by image_id;
+		insert into temp_images.image_search_json (image_id, object) select gi.image_id, jsonb_build_object('gallery_position', jsonb_object_agg(gi.gallery_id, gi.position)) from gallery_interactions gi group by image_id;
 	SQL
 
 tags: image_search_json
