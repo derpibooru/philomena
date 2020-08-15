@@ -30,7 +30,7 @@ services:
       driver: "none"
 
   elasticsearch:
-    image: elasticsearch:7.6.2
+    image: elasticsearch:7.8.1
     volumes:
       - elastic_data:/var/lib/elasticsearch
     logging:
