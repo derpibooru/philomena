@@ -385,7 +385,7 @@ defmodule Philomena.Users.User do
 
   def validate_avatar_size(changeset, field) when is_atom(field) do
     validate_change(changeset, field, fn (current_field, value) ->
-      if 0 < value and value >= 300_000 do
+      if 1 > value or value > 307_200 do
         [{current_field, "must be less than or equal to 300kb"}]
       else 
         []
@@ -395,7 +395,7 @@ defmodule Philomena.Users.User do
   
   def validate_avatar_dimension(changeset, field) when is_atom(field) do
     validate_change(changeset, field, fn (current_field, value) ->
-      if 0 < value and value <= 1_000 do
+      if 1 > value or value > 1_000 do
         [{current_field, "must be less than or equal to 1000px"}]
       else
         []
