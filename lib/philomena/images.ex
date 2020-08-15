@@ -496,15 +496,16 @@ defmodule Philomena.Images do
 
     now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
     tag_change_attributes = Map.merge(tag_change_attributes, %{created_at: now, updated_at: now})
+    tag_attributes = %{name: "", slug: "", created_at: now, updated_at: now}
 
     Repo.transaction(fn ->
-      {added_count, inserted} =
+      {_count, inserted} =
         Repo.insert_all(Tagging, insertions,
           on_conflict: :nothing,
           returning: [:image_id, :tag_id]
         )
 
-      {removed_count, deleted} = Repo.delete_all(deletions)
+      {_count, deleted} = Repo.delete_all(deletions)
 
       inserted = Enum.map(inserted, &[&1.image_id, &1.tag_id])
 
@@ -521,8 +522,30 @@ defmodule Philomena.Images do
       changes = added_changes ++ removed_changes
 
       Repo.insert_all(TagChange, changes)
-      Repo.update_all(where(Tag, [t], t.id in ^added_tags), inc: [images_count: added_count])
-      Repo.update_all(where(Tag, [t], t.id in ^removed_tags), inc: [images_count: -removed_count])
+
+      # In order to merge into the existing tables here in one go, insert_all
+      # is used with a query that is guaranteed to conflict on every row by
+      # using the primary key.
+
+      added_upserts =
+        inserted
+        |> Enum.group_by(fn [_image_id, tag_id] -> tag_id end)
+        |> Enum.map(fn {tag_id, instances} ->
+          Map.merge(tag_attributes, %{id: tag_id, images_count: length(instances)})
+        end)
+
+      removed_upserts =
+        deleted
+        |> Enum.group_by(fn [_image_id, tag_id] -> tag_id end)
+        |> Enum.map(fn {tag_id, instances} ->
+          Map.merge(tag_attributes, %{id: tag_id, images_count: -length(instances)})
+        end)
+
+      update_query = update(Tag, inc: [images_count: fragment("EXCLUDED.images_count")])
+
+      upserts = added_upserts ++ removed_upserts
+
+      Repo.insert_all(Tag, upserts, on_conflict: update_query, conflict_target: [:id])
     end)
     |> case do
       {:ok, _} = result ->
