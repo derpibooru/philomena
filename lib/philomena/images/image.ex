@@ -125,10 +125,8 @@ defmodule Philomena.Images.Image do
 
   defp maybe_cast_id(image, %{"id" => _id} = image_params) do
     image
-      |> IO.inspect()
       |> cast(image_params, [:id])
       |> validate_number(:id, greater_than: 0)
-      |> IO.inspect()
   end
   defp maybe_cast_id(image, _attrs), do: image
 
