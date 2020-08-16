@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.LimitPlug do
 
   alias Plug.Conn
   alias Phoenix.Controller
+  alias Philomena.Users.User
 
   @doc false
   @spec init(any()) :: any()
@@ -39,6 +40,9 @@ defmodule PhilomenaWeb.LimitPlug do
       amt <= limit ->
         conn
 
+      is_staff(conn.assigns.current_user) ->
+        conn
+
       true ->
         conn
         |> Controller.put_flash(:error, error)
@@ -46,6 +50,11 @@ defmodule PhilomenaWeb.LimitPlug do
         |> Conn.halt()
     end
   end
+
+  defp is_staff(%User{role: "admin"}), do: true
+  defp is_staff(%User{role: "moderator"}), do: true
+  defp is_staff(%User{role: "assistant"}), do: true
+  defp is_staff(_), do: false
 
   defp current_user_id(%{id: id}), do: id
   defp current_user_id(_), do: nil
