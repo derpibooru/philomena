@@ -119,6 +119,7 @@ defmodule Philomena.Tags.Tag do
     tag
     |> cast(attrs, [:name])
     |> validate_required([:name])
+    |> validate_length(:name, max: 100)
     |> put_slug()
     |> put_name_and_namespace()
     |> put_namespace_category()
@@ -130,6 +131,7 @@ defmodule Philomena.Tags.Tag do
     |> String.split(",")
     |> Enum.map(&clean_tag_name/1)
     |> Enum.reject(&("" == &1))
+    |> Enum.map(&truncate_tag_name/1)
   end
 
   def display_order(tags) do
@@ -178,6 +180,11 @@ defmodule Philomena.Tags.Tag do
     |> String.trim()
     |> clean_tag_namespace()
     |> ununderscore()
+  end
+
+  def truncate_tag_name(name) do
+    name
+    |> String.slice(0..99)
   end
 
   defp clean_tag_namespace(name) do

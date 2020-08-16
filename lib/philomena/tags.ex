@@ -46,10 +46,7 @@ defmodule Philomena.Tags do
     new_tags =
       nonexistent_tag_names
       |> Enum.map(fn name ->
-        {:ok, tag} =
-          %Tag{}
-          |> Tag.creation_changeset(%{name: name})
-          |> Repo.insert()
+        {:ok, tag} = create_tag(%{name: name})
 
         %{tag | implied_tags: []}
       end)
