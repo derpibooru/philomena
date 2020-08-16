@@ -118,9 +118,19 @@ defmodule Philomena.Images.Image do
     |> cast(attrs, [:anonymous, :source_url, :description])
     |> change(first_seen_at: now)
     |> change(attribution)
+    |> maybe_cast_id(attrs)
     |> validate_length(:description, max: 50_000, count: :bytes)
     |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
+
+  defp maybe_cast_id(image, %{"id" => _id} = image_params) do
+    image
+      |> IO.inspect()
+      |> cast(image_params, [:id])
+      |> validate_number(:id, greater_than: 0)
+      |> IO.inspect()
+  end
+  defp maybe_cast_id(image, _attrs), do: image
 
   def image_changeset(image, attrs) do
     image
