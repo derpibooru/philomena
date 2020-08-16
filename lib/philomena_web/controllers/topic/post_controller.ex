@@ -5,6 +5,10 @@ defmodule PhilomenaWeb.Topic.PostController do
   alias Philomena.Posts
   alias Philomena.UserStatistics
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 30, error: "You may only make a post once every 30 seconds."]
+       when action in [:create]
+
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.UserAttributionPlug
 

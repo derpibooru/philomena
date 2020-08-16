@@ -18,6 +18,11 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.LimitPlug,
+       [time: 10, error: "You may only upload images once every 10 seconds."]
+       when action in [:create]
+
+
   plug :load_image when action in [:show]
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
