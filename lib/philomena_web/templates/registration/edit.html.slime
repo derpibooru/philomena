@@ -5,7 +5,7 @@ p
   a<> href="/settings/edit" Click here!
 
 p
-  ' Looking for two-factor authentication?
+  ' Looking for two factor authentication?
   = link "Click here!", to: Routes.registration_totp_path(@conn, :edit)
 
 p

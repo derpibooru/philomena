@@ -21,7 +21,7 @@ h1 Two Factor Authentication
       .block.block--fixed.block--success.layout--narrow
         h2 Two Factor Authentication Enabled
         p
-          ' You've successfully enabled two-factor authentication on your
+          ' You've successfully enabled two factor authentication on your
           ' account. From now on you'll be asked for the 6 digit code each
           ' time you log in.
         p
