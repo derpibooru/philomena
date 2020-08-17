@@ -1,6 +1,11 @@
 User-agent: *
-Crawl-delay: 0.5
+Crawl-delay: 2
 
+Allow: /images/*
+
+Disallow: /images
+Disallow: /tags
+Disallow: /search
 Disallow: /profiles
 Disallow: /api
 

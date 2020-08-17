@@ -21,12 +21,6 @@ if git diff --name-only $oldrev $newrev | grep -Ee "^mix.(exs|lock)"; then
   mix deps.get || die "mix failed to update"
 fi
 
-# Run migrations
-if git diff --name-only $oldrev $newrev | grep "^priv/repo/migrations"; then
-  echo "Running database migrations"
-  mix ecto.migrate || die "ecto.migrate failed"
-fi
-
 # Compile assets
 if git diff --name-only $oldrev $newrev | grep "^assets/"; then
   echo "Compiling assets"
@@ -37,6 +31,12 @@ fi
 
 echo "Building release"
 mix release --overwrite || die "failed to generate release"
+
+# Run migrations
+if git diff --name-only $oldrev $newrev | grep "^priv/repo/migrations"; then
+  echo "Running database migrations"
+  _build/prod/rel/philomena/bin/philomena eval "Philomena.Release.migrate()" || die "ecto.migrate failed"
+fi
 
 # Include a task to restart your running appserver instances here.
 #
