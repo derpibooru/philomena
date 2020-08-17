@@ -27,6 +27,7 @@
       ' (never)
 
   br
+  i.fas.fa-fw.fa-key>
   ' Two factor auth:
   strong = enabled_text(@user.otp_required_for_login)
 
