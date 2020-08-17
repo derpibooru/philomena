@@ -21,6 +21,9 @@
     label.table-list__label
       .table-list__label__text Hide staff banner:
       .table-list__label__input = checkbox f, :hide_default_role, class: "checkbox"
+    label.table-list__label
+      .table-list__label__text Senior staff:
+      .table-list__label__input = checkbox f, :senior_staff, class: "checkbox"
     .table-list__label
       .table-list__label__text Avatar
       .table-list__label__input
@@ -29,6 +32,10 @@
   .block
     .block__header
       span.block__header__title General user flags
+    ul
+      p
+        strong> Be careful when issuing these permissions to staff members!
+        | Staff members with relevant roles may have these permissions anyway. Issuing them may break things, such as tag aliasing.
     ul = collection_checkboxes f, :roles, filtered_roles(general_permissions(), @roles), mapper: &checkbox_mapper/6
 
   .block
