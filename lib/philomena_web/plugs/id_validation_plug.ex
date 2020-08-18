@@ -14,25 +14,30 @@ defmodule PhilomenaWeb.IDValidationPlug do
 
   @spec call(Conn.t(), map()) :: Conn.t()
   def call(conn, _opts) do
-    image_params = conn.params["image"]
+    case skip_verify?(conn) do
+      true ->
+        conn
+      _ ->
+        params = conn.params
 
-    conn
-      |> maybe_validate_id(image_params)
+        conn
+          |> maybe_validate_id(params)
+    end
   end
 
   @spec maybe_validate_id(Conn.t(), %{}) :: Conn.t()
   # ID as string, try to convert to integer
-  defp maybe_validate_id(conn, %{"id" => id_str, "source_url" => url})
+  defp maybe_validate_id(conn, %{"image" => %{"id" => id_str}, "url" => url})
   when is_binary(id_str) and is_binary(url) do
     case Integer.parse(id_str) do
       {id, ""} when is_integer(id) -> # reject all but pure ints
-        maybe_validate_id(conn, %{"id" => id, "source_url" => url})
+        maybe_validate_id(conn, %{"image" => %{"id" => id}, "url" => url})
       _ ->
         conn |> go_away(:bad_request)
     end
   end
   # ID as integer, validate against source_url
-  defp maybe_validate_id(conn, %{"id" => id, "source_url" => url})
+  defp maybe_validate_id(conn, %{"image" => %{"id" => id}, "url" => url})
   when is_integer(id) and is_binary(url) do
     case IDValidator.validate_id(id, url) do
       {:ok, _site} ->
@@ -57,4 +62,7 @@ defmodule PhilomenaWeb.IDValidationPlug do
       |> Conn.send_resp(sc, reason_phrase(sc))
       |> Conn.halt()
   end
+
+  defp skip_verify?(conn),
+    do: Canada.Can.can?(conn.assigns.current_user, :create, IDValidator)
 end

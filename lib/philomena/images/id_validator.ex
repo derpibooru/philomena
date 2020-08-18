@@ -1,16 +1,38 @@
 defmodule Philomena.Images.IDValidator do
-  @id_set [%{:id_range => 1..4000000,
-             :site => "Derpibooru",
-             :url_bases => ["//derpibooru.org/~B",
-                            "//derpibooru.org/images/~B",
-                            "//trixiebooru.org/~B",
-                            "//trixiebooru.org/images/~B"]}]
+  @moduledoc """
+  Validates import IDs against source sites.
+  """
 
+  @id_set [%{
+    :id_range => 1..4000000,
+    :site => "Derpibooru",
+    :url_regexes => [
+      "^https?://derpicdn.net/img/(view|download)/\\d{4}/\\d{1,2}/\\d{1,2}/~B.*..+"
+    ]}]
+
+  @doc """
+  Takes import ID and source URL.
+
+  Returns {:ok, site} if valid pair, {:nok, site} if site found for ID but URL
+  is invalid, and {:nok, nil} if no site found.
+
+  ## Examples
+
+    iex> validate_id(4096, "https://derpicdn.net/img/view/2012/5/27/4096.jpg")
+    {:ok, "Derpibooru"}
+
+    iex> validate_id(8192, "https://derpicdn.net/img/view/2012/5/27/4096.jpg")
+    {:nok, "Derpibooru"}
+
+    iex> validate_id(-1, "https://derpicdn.net/img/view/2012/5/27/4096.jpg")
+    {:nok, nil}
+
+  """
   @spec validate_id(integer(), String.t()) :: {atom(), String.t()}
   def validate_id(id, url) do
     case get_site(id) do
-      {site, url_bases} ->
-        case compare_urls(id, url_bases, url) do
+      {site, url_regexes} ->
+        case compare_urls(id, url_regexes, url) do
           :ok -> {:ok, site}
           _ -> {:nok, site}
         end
@@ -19,13 +41,14 @@ defmodule Philomena.Images.IDValidator do
     end
   end
 
+  @doc false
   @spec compare_urls(integer(), [String.t()], String.t()) :: atom()
-  defp compare_urls(id, url_bases, test_url) do
-    test_url = URI.parse(test_url)
-    test_url = URI.to_string(%{test_url | scheme: nil, port: nil})
-
-    case Enum.any?(url_bases, fn(url_base) ->
-           url_base |> id_inject(id) == test_url
+  def compare_urls(id, url_regexes, test_url) do
+    case Enum.any?(url_regexes, fn(url_regex) ->
+           url_regex
+             |> id_inject(id)
+             |> Regex.compile!("iU")
+             |> Regex.match?(test_url)
          end) do
       true ->
         :ok
@@ -34,20 +57,22 @@ defmodule Philomena.Images.IDValidator do
     end
   end
 
+  @doc false
   @spec id_inject(String.t(), integer()) :: String.t()
-  defp id_inject(url_base, id) do
+  def id_inject(url_base, id) do
     url_base
       |> :io_lib.format([id])
       |> List.to_string()
   end
 
+  @doc false
   @spec get_site(integer()) :: {String.t(), [String.t()]} | atom()
-  defp get_site(id) do
+  def get_site(id) do
     case Enum.find(@id_set, fn(sitemap) ->
            Enum.member?(sitemap.id_range, id)
          end) do
-      %{:site => site, :url_bases => url_bases} ->
-        {site, url_bases}
+      %{:site => site, :url_regexes => url_regexes} ->
+        {site, url_regexes}
       _ ->
         :no_match
     end
