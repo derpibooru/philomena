@@ -76,6 +76,7 @@ defmodule Philomena.Images.Query do
         ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format mime_type),
       ngram_fields: ~W(description),
       custom_fields: ~W(gallery_id),
+      bool_fields: ~W(processed),
       default_field: {"namespaced_tags.name", :term},
       transforms: %{"gallery_id" => &gallery_id_transform/2},
       aliases: %{
