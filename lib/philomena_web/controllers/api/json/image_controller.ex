@@ -7,6 +7,10 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
   alias Philomena.Repo
   import Ecto.Query
 
+  plug PhilomenaWeb.LimitPlug,
+        [time: 30, error: ""]
+        when action in [:create]
+
   plug :set_scraper_cache
   plug PhilomenaWeb.ApiRequireAuthorizationPlug when action in [:create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
