@@ -49,6 +49,12 @@ defmodule PhilomenaWeb.LimitPlug do
         |> Conn.send_resp(:multiple_choices, "")
         |> Conn.halt()
 
+      api?(conn) ->
+        conn
+        |> Conn.put_status(:too_many_requests)
+        |> Controller.text("")
+        |> Conn.halt()
+
       true ->
         conn
         |> Controller.put_flash(:error, error)
@@ -64,6 +70,13 @@ defmodule PhilomenaWeb.LimitPlug do
 
   defp current_user_id(%{id: id}), do: id
   defp current_user_id(_), do: nil
+
+  defp api?(conn) do
+    case conn.path_info do
+      ["api" | _] -> true
+      _ -> false
+    end
+  end
 
   defp ajax?(conn) do
     case Conn.get_req_header(conn, "x-requested-with") do
