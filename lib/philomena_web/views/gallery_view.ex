@@ -12,10 +12,10 @@ defmodule PhilomenaWeb.GalleryView do
     |> Enum.join(" ")
   end
 
-  def sortable_prev(list, nil), do: list
+  def sortable_prev(list, false), do: list
   def sortable_prev(list, _), do: ["js-sortable-has-prev" | list]
 
-  def sortable_next(list, nil), do: list
+  def sortable_next(list, false), do: list
   def sortable_next(list, _), do: ["js-sortable-has-next" | list]
 
   def show_subscription_link?(%{id: id}, %{id: id}), do: false

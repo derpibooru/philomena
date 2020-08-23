@@ -183,6 +183,26 @@ defmodule Philomena.Elasticsearch do
     results
   end
 
+  def msearch(definitions) do
+    msearch_body =
+      Enum.flat_map(definitions, fn def ->
+        [
+          %{index: index_for(def.module).index_name()},
+          def.body
+        ]
+      end)
+
+    {:ok, %{body: results, status_code: 200}} =
+      Elastix.Search.search(
+        elastic_url(),
+        "_all",
+        [],
+        msearch_body
+      )
+
+    results["responses"]
+  end
+
   def search_definition(module, elastic_query, pagination_params \\ %{}) do
     page_number = pagination_params[:page_number] || 1
     page_size = pagination_params[:page_size] || 25
@@ -203,8 +223,7 @@ defmodule Philomena.Elasticsearch do
     }
   end
 
-  def search_results(definition) do
-    results = search(definition.module, definition.body)
+  defp process_results(results, definition) do
     time = results["took"]
     count = results["hits"]["total"]["value"]
     entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
@@ -219,6 +238,16 @@ defmodule Philomena.Elasticsearch do
       total_entries: count,
       total_pages: div(count + definition.page_size - 1, definition.page_size)
     }
+  end
+
+  def search_results(definition) do
+    process_results(search(definition.module, definition.body), definition)
+  end
+
+  def msearch_results(definitions) do
+    Enum.map(Enum.zip(msearch(definitions), definitions), fn {result, definition} ->
+      process_results(result, definition)
+    end)
   end
 
   defp load_records_from_results(results, ecto_queries) do
@@ -241,10 +270,22 @@ defmodule Philomena.Elasticsearch do
     page
   end
 
+  def msearch_records_with_hits(definitions, ecto_queries) do
+    load_records_from_results(msearch_results(definitions), ecto_queries)
+  end
+
   def search_records(definition, ecto_query) do
     page = search_records_with_hits(definition, ecto_query)
     {records, _hits} = Enum.unzip(page.entries)
 
     %{page | entries: records}
+  end
+
+  def msearch_records(definitions, ecto_queries) do
+    Enum.map(load_records_from_results(msearch_results(definitions), ecto_queries), fn page ->
+      {records, _hits} = Enum.unzip(page.entries)
+
+      %{page | entries: records}
+    end)
   end
 end

@@ -53,9 +53,6 @@ defmodule PhilomenaWeb.ProfileController do
         pagination: %{page_number: 1, page_size: 4}
       )
 
-    recent_uploads = Elasticsearch.search_records(recent_uploads, preload(Image, :tags))
-    recent_faves = Elasticsearch.search_records(recent_faves, preload(Image, :tags))
-
     tags = tags(conn.assigns.user.public_links)
 
     all_tag_ids =
@@ -78,8 +75,8 @@ defmodule PhilomenaWeb.ProfileController do
     recent_artwork = recent_artwork(conn, tags)
 
     recent_comments =
-      Comment
-      |> Elasticsearch.search_definition(
+      Elasticsearch.search_definition(
+        Comment,
         %{
           query: %{
             bool: %{
@@ -97,17 +94,10 @@ defmodule PhilomenaWeb.ProfileController do
         },
         %{page_size: 3}
       )
-      |> Elasticsearch.search_records(preload(Comment, user: [awards: :badge], image: :tags))
-      |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.image))
-
-    recent_comments =
-      recent_comments
-      |> TextileRenderer.render_collection(conn)
-      |> Enum.zip(recent_comments)
 
     recent_posts =
-      Post
-      |> Elasticsearch.search_definition(
+      Elasticsearch.search_definition(
+        Post,
         %{
           query: %{
             bool: %{
@@ -123,8 +113,26 @@ defmodule PhilomenaWeb.ProfileController do
         },
         %{page_size: 6}
       )
-      |> Elasticsearch.search_records(preload(Post, user: [awards: :badge], topic: :forum))
-      |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.topic))
+
+    [recent_uploads, recent_faves, recent_artwork, recent_comments, recent_posts] =
+      Elasticsearch.msearch_records(
+        [recent_uploads, recent_faves, recent_artwork, recent_comments, recent_posts],
+        [
+          preload(Image, :tags),
+          preload(Image, :tags),
+          preload(Image, :tags),
+          preload(Comment, user: [awards: :badge], image: :tags),
+          preload(Post, user: [awards: :badge], topic: :forum)
+        ]
+      )
+
+    recent_posts = Enum.filter(recent_posts, &Canada.Can.can?(current_user, :show, &1.topic))
+
+    recent_comments =
+      recent_comments
+      |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.image))
+      |> TextileRenderer.render_collection(conn)
+      |> Enum.zip(recent_comments)
 
     about_me = TextileRenderer.render_one(%{body: user.description || ""}, conn)
 
@@ -214,7 +222,9 @@ defmodule PhilomenaWeb.ProfileController do
   defp tags([]), do: []
   defp tags(links), do: Enum.map(links, & &1.tag) |> Enum.reject(&is_nil/1)
 
-  defp recent_artwork(_conn, []), do: []
+  defp recent_artwork(_conn, []) do
+    Elasticsearch.search_definition(Image, %{query: %{match_none: %{}}})
+  end
 
   defp recent_artwork(conn, tags) do
     {images, _tags} =
@@ -224,7 +234,7 @@ defmodule PhilomenaWeb.ProfileController do
         pagination: %{page_number: 1, page_size: 4}
       )
 
-    Elasticsearch.search_records(images, preload(Image, :tags))
+    images
   end
 
   defp set_admin_metadata(conn, _opts) do

@@ -35,12 +35,9 @@ defmodule PhilomenaWeb.ActivityController do
         pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )
 
-    images = Elasticsearch.search_records(images, preload(Image, :tags))
-    top_scoring = Elasticsearch.search_records(top_scoring, preload(Image, :tags))
-
     comments =
-      Comment
-      |> Elasticsearch.search_definition(
+      Elasticsearch.search_definition(
+        Comment,
         %{
           query: %{
             bool: %{
@@ -57,7 +54,6 @@ defmodule PhilomenaWeb.ActivityController do
         },
         %{page_number: 1, page_size: 6}
       )
-      |> Elasticsearch.search_records(preload(Comment, [:user, image: [:tags]]))
 
     watched =
       if !!user do
@@ -68,10 +64,11 @@ defmodule PhilomenaWeb.ActivityController do
             pagination: %{conn.assigns.image_pagination | page_number: 1}
           )
 
-        watched_images = Elasticsearch.search_records(watched_images, preload(Image, :tags))
-
-        if Enum.any?(watched_images), do: watched_images
+        watched_images
       end
+
+    [images, top_scoring, comments, watched] =
+      multi_search(images, top_scoring, comments, watched)
 
     featured_image =
       Image
@@ -140,6 +137,28 @@ defmodule PhilomenaWeb.ActivityController do
         i.id,
         ^user.id
       )
+    )
+  end
+
+  defp multi_search(images, top_scoring, comments, nil) do
+    responses =
+      Elasticsearch.msearch_records(
+        [images, top_scoring, comments],
+        [preload(Image, :tags), preload(Image, :tags), preload(Comment, [:user, image: :tags])]
+      )
+
+    responses ++ [nil]
+  end
+
+  defp multi_search(images, top_scoring, comments, watched) do
+    Elasticsearch.msearch_records(
+      [images, top_scoring, comments, watched],
+      [
+        preload(Image, :tags),
+        preload(Image, :tags),
+        preload(Comment, [:user, image: :tags]),
+        preload(Image, :tags)
+      ]
     )
   end
 end

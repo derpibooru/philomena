@@ -53,21 +53,22 @@ defmodule PhilomenaWeb.GalleryController do
         "sd" => position_order(gallery)
       })
 
-    conn = %{conn | params: params}
-
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
-    images = Elasticsearch.search_records_with_hits(images, preload(Image, :tags))
-
     {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
+
+    [images, gallery_prev, gallery_next] =
+      Elasticsearch.msearch_records_with_hits(
+        [images, gallery_prev, gallery_next],
+        [preload(Image, :tags), preload(Image, :tags), preload(Image, :tags)]
+      )
 
     interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
 
     watching = Galleries.subscribed?(gallery, user)
 
-    prev_image = if gallery_prev, do: [gallery_prev], else: []
-    next_image = if gallery_next, do: [gallery_next], else: []
+    gallery_images =
+      Enum.to_list(gallery_prev) ++ Enum.to_list(images) ++ Enum.to_list(gallery_next)
 
-    gallery_images = prev_image ++ Enum.to_list(images) ++ next_image
     gallery_json = Jason.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
 
     Galleries.clear_notification(gallery, user)
@@ -81,8 +82,8 @@ defmodule PhilomenaWeb.GalleryController do
       layout_class: "layout--wide",
       watching: watching,
       gallery: gallery,
-      gallery_prev: gallery_prev,
-      gallery_next: gallery_next,
+      gallery_prev: Enum.any?(gallery_prev),
+      gallery_next: Enum.any?(gallery_next),
       gallery_images: gallery_images,
       images: images,
       interactions: interactions
@@ -159,20 +160,16 @@ defmodule PhilomenaWeb.GalleryController do
     {prev_image, next_image}
   end
 
-  defp gallery_image(offset, _conn, _query) when offset < 0, do: nil
+  defp gallery_image(offset, _conn, _query) when offset < 0 do
+    Elasticsearch.search_definition(Image, %{query: %{match_none: %{}}})
+  end
 
   defp gallery_image(offset, conn, query) do
     pagination_params = %{page_number: offset + 1, page_size: 1}
 
-    {:ok, {image, _tags}} =
-      ImageLoader.search_string(conn, query, pagination: pagination_params)
+    {:ok, {image, _tags}} = ImageLoader.search_string(conn, query, pagination: pagination_params)
 
-    image = Elasticsearch.search_records_with_hits(image, preload(Image, :tags))
-
-    case Enum.to_list(image) do
-      [image] -> image
-      [] -> nil
-    end
+    image
   end
 
   defp parse_search(%{"gallery" => gallery_params}) do
