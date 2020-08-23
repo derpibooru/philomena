@@ -74,7 +74,7 @@ defmodule Philomena.Images.TagValidator do
 
   defp validate_safe(changeset, %{safe: s, sexual: x, horror: h, gross: g}) do
     cond do
-      MapSet.size(s) > 1 and (MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0) ->
+      MapSet.size(s) > 0 and (MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0) ->
         add_error(changeset, :tag_input, "may not contain any other rating if safe")
 
       true ->
