@@ -1,5 +1,6 @@
 defmodule Philomena.ThumbnailWorker do
   alias Philomena.Images.Thumbnailer
+  alias Philomena.Images
 
   def perform(image_id) do
     Thumbnailer.generate_thumbnails(image_id)
@@ -9,5 +10,8 @@ defmodule Philomena.ThumbnailWorker do
       "image:process",
       %{image_id: image_id}
     )
+    image_id
+    |> Images.get_image!()
+    |> Images.reindex_image()
   end
 end
