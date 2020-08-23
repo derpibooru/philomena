@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.ImageController do
     Galleries.Gallery
   }
 
+  alias Philomena.Elasticsearch
   alias Philomena.Interactions
   alias Philomena.Comments
   alias Philomena.Repo
@@ -35,6 +36,8 @@ defmodule PhilomenaWeb.ImageController do
 
   def index(conn, _params) do
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, "created_at.lte:3 minutes ago")
+
+    images = Elasticsearch.search_records(images, preload(Image, :tags))
 
     interactions = Interactions.user_interactions(images, conn.assigns.current_user)
 

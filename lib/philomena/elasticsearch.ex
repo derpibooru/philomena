@@ -183,7 +183,7 @@ defmodule Philomena.Elasticsearch do
     results
   end
 
-  def search_results(module, elastic_query, pagination_params \\ %{}) do
+  def search_definition(module, elastic_query, pagination_params \\ %{}) do
     page_number = pagination_params[:page_number] || 1
     page_size = pagination_params[:page_size] || 25
 
@@ -195,38 +195,54 @@ defmodule Philomena.Elasticsearch do
         track_total_hits: true
       })
 
-    results = search(module, elastic_query)
+    %{
+      module: module,
+      body: elastic_query,
+      page_number: page_number,
+      page_size: page_size
+    }
+  end
+
+  def search_results(definition) do
+    results = search(definition.module, definition.body)
     time = results["took"]
     count = results["hits"]["total"]["value"]
     entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
 
     Logger.debug("[Elasticsearch] Query took #{time}ms")
-    Logger.debug("[Elasticsearch] #{Jason.encode!(elastic_query)}")
+    Logger.debug("[Elasticsearch] #{Jason.encode!(definition.body)}")
 
     %Scrivener.Page{
       entries: entries,
-      page_number: page_number,
-      page_size: page_size,
+      page_number: definition.page_number,
+      page_size: definition.page_size,
       total_entries: count,
-      total_pages: div(count + page_size - 1, page_size)
+      total_pages: div(count + definition.page_size - 1, definition.page_size)
     }
   end
 
-  def search_records_with_hits(module, elastic_query, pagination_params, ecto_query) do
-    page = search_results(module, elastic_query, pagination_params)
-    {ids, hits} = Enum.unzip(page.entries)
+  defp load_records_from_results(results, ecto_queries) do
+    Enum.map(Enum.zip(results, ecto_queries), fn {page, ecto_query} ->
+      {ids, hits} = Enum.unzip(page.entries)
 
-    records =
-      ecto_query
-      |> where([m], m.id in ^ids)
-      |> Repo.all()
-      |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
+      records =
+        ecto_query
+        |> where([m], m.id in ^ids)
+        |> Repo.all()
+        |> Enum.sort_by(&Enum.find_index(ids, fn el -> el == &1.id end))
 
-    %{page | entries: Enum.zip(records, hits)}
+      %{page | entries: Enum.zip(records, hits)}
+    end)
   end
 
-  def search_records(module, elastic_query, pagination_params, ecto_query) do
-    page = search_records_with_hits(module, elastic_query, pagination_params, ecto_query)
+  def search_records_with_hits(definition, ecto_query) do
+    [page] = load_records_from_results([search_results(definition)], [ecto_query])
+
+    page
+  end
+
+  def search_records(definition, ecto_query) do
+    page = search_records_with_hits(definition, ecto_query)
     {records, _hits} = Enum.unzip(page.entries)
 
     %{page | entries: records}

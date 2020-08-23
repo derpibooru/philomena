@@ -33,8 +33,8 @@ defmodule PhilomenaWeb.Image.RandomController do
   defp random_image_id(query, filter) do
     %{query: query, sorts: sort} = ImageSorter.parse_sort(%{"sf" => "random"}, query)
 
-    Elasticsearch.search_records(
-      Image,
+    Image
+    |> Elasticsearch.search_definition(
       %{
         query: %{
           bool: %{
@@ -47,9 +47,9 @@ defmodule PhilomenaWeb.Image.RandomController do
         },
         sort: sort
       },
-      %{page_size: 1},
-      Image
+      %{page_size: 1}
     )
+    |> Elasticsearch.search_records(Image)
     |> Enum.to_list()
     |> unwrap()
   end

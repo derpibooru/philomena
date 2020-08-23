@@ -20,7 +20,6 @@ defmodule PhilomenaWeb.ImageLoader do
 
   def query(conn, body, options \\ []) do
     pagination = Keyword.get(options, :pagination, conn.assigns.image_pagination)
-    queryable = Keyword.get(options, :queryable, Image |> preload(:tags))
     sorts = Keyword.get(options, :sorts, &ImageSorter.parse_sort(conn.params, &1))
 
     tags =
@@ -35,8 +34,8 @@ defmodule PhilomenaWeb.ImageLoader do
 
     %{query: query, sorts: sort} = sorts.(body)
 
-    records =
-      search_function(options).(
+    definition =
+      Elasticsearch.search_definition(
         Image,
         %{
           query: %{
@@ -47,11 +46,10 @@ defmodule PhilomenaWeb.ImageLoader do
           },
           sort: sort
         },
-        pagination,
-        queryable
+        pagination
       )
 
-    {records, tags}
+    {definition, tags}
   end
 
   defp create_filters(conn, user, filter) do
@@ -94,17 +92,6 @@ defmodule PhilomenaWeb.ImageLoader do
 
   defp maybe_custom_hide(filters, _user, _param),
     do: filters
-
-  # Allow callers to choose if they want inner hit objects returned;
-  # primarily useful for allowing client navigation through images
-
-  @spec search_function(Keyword.t()) :: function()
-  defp search_function(options) do
-    case Keyword.get(options, :include_hits) do
-      true -> &Elasticsearch.search_records_with_hits/4
-      _false -> &Elasticsearch.search_records/4
-    end
-  end
 
   # TODO: the search parser should try to optimize queries
   defp search_tag_name(%{term: %{"namespaced_tags.name" => tag_name}}), do: [tag_name]

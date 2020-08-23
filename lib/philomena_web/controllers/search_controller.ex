@@ -2,13 +2,17 @@ defmodule PhilomenaWeb.SearchController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
+  alias Philomena.Images.Image
+  alias Philomena.Elasticsearch
   alias Philomena.Interactions
+  import Ecto.Query
 
   def index(conn, params) do
     user = conn.assigns.current_user
 
-    case ImageLoader.search_string(conn, params["q"], include_hits: custom_ordering?(conn)) do
+    case ImageLoader.search_string(conn, params["q"]) do
       {:ok, {images, tags}} ->
+        images = search_function(custom_ordering?(conn)).(images, preload(Image, :tags))
         interactions = Interactions.user_interactions(images, user)
 
         conn
@@ -30,6 +34,9 @@ defmodule PhilomenaWeb.SearchController do
         )
     end
   end
+
+  defp search_function(true), do: &Elasticsearch.search_records_with_hits/2
+  defp search_function(_custom), do: &Elasticsearch.search_records/2
 
   defp custom_ordering?(%{params: %{"sf" => sf}}) when sf != "id", do: true
   defp custom_ordering?(_conn), do: false

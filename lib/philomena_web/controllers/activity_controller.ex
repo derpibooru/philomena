@@ -35,9 +35,12 @@ defmodule PhilomenaWeb.ActivityController do
         pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )
 
+    images = Elasticsearch.search_records(images, preload(Image, :tags))
+    top_scoring = Elasticsearch.search_records(top_scoring, preload(Image, :tags))
+
     comments =
-      Elasticsearch.search_records(
-        Comment,
+      Comment
+      |> Elasticsearch.search_definition(
         %{
           query: %{
             bool: %{
@@ -52,9 +55,9 @@ defmodule PhilomenaWeb.ActivityController do
           },
           sort: %{posted_at: :desc}
         },
-        %{page_number: 1, page_size: 6},
-        Comment |> preload([:user, image: [:tags]])
+        %{page_number: 1, page_size: 6}
       )
+      |> Elasticsearch.search_records(preload(Comment, [:user, image: [:tags]]))
 
     watched =
       if !!user do
@@ -64,6 +67,8 @@ defmodule PhilomenaWeb.ActivityController do
             "my:watched",
             pagination: %{conn.assigns.image_pagination | page_number: 1}
           )
+
+        watched_images = Elasticsearch.search_records(watched_images, preload(Image, :tags))
 
         if Enum.any?(watched_images), do: watched_images
       end

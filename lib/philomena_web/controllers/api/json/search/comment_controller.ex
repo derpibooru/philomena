@@ -13,8 +13,8 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
     case Query.compile(user, params["q"] || "") do
       {:ok, query} ->
         comments =
-          Elasticsearch.search_records(
-            Comment,
+          Comment
+          |> Elasticsearch.search_definition(
             %{
               query: %{
                 bool: %{
@@ -29,9 +29,9 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
               },
               sort: %{posted_at: :desc}
             },
-            conn.assigns.pagination,
-            preload(Comment, [:image, :user])
+            conn.assigns.pagination
           )
+          |> Elasticsearch.search_records(preload(Comment, [:image, :user]))
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.CommentView)

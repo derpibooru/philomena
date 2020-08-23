@@ -12,8 +12,8 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
     case Query.compile(user, params["q"] || "") do
       {:ok, query} ->
         posts =
-          Elasticsearch.search_records(
-            Post,
+          Post
+          |> Elasticsearch.search_definition(
             %{
               query: %{
                 bool: %{
@@ -26,9 +26,9 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
               },
               sort: %{created_at: :desc}
             },
-            conn.assigns.pagination,
-            preload(Post, [:user, :topic])
+            conn.assigns.pagination
           )
+          |> Elasticsearch.search_records(preload(Post, [:user, :topic]))
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)

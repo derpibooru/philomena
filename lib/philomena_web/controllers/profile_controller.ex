@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.UserFingerprints.UserFingerprint
   alias Philomena.ModNotes.ModNote
   alias Philomena.Polymorphic
+  alias Philomena.Images.Image
   alias Philomena.Repo
   import Ecto.Query
 
@@ -52,6 +53,9 @@ defmodule PhilomenaWeb.ProfileController do
         pagination: %{page_number: 1, page_size: 4}
       )
 
+    recent_uploads = Elasticsearch.search_records(recent_uploads, preload(Image, :tags))
+    recent_faves = Elasticsearch.search_records(recent_faves, preload(Image, :tags))
+
     tags = tags(conn.assigns.user.public_links)
 
     all_tag_ids =
@@ -74,8 +78,8 @@ defmodule PhilomenaWeb.ProfileController do
     recent_artwork = recent_artwork(conn, tags)
 
     recent_comments =
-      Elasticsearch.search_records(
-        Comment,
+      Comment
+      |> Elasticsearch.search_definition(
         %{
           query: %{
             bool: %{
@@ -91,9 +95,9 @@ defmodule PhilomenaWeb.ProfileController do
           },
           sort: %{posted_at: :desc}
         },
-        %{page_size: 3},
-        Comment |> preload(user: [awards: :badge], image: :tags)
+        %{page_size: 3}
       )
+      |> Elasticsearch.search_records(preload(Comment, user: [awards: :badge], image: :tags))
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.image))
 
     recent_comments =
@@ -102,8 +106,8 @@ defmodule PhilomenaWeb.ProfileController do
       |> Enum.zip(recent_comments)
 
     recent_posts =
-      Elasticsearch.search_records(
-        Post,
+      Post
+      |> Elasticsearch.search_definition(
         %{
           query: %{
             bool: %{
@@ -117,9 +121,9 @@ defmodule PhilomenaWeb.ProfileController do
           },
           sort: %{created_at: :desc}
         },
-        %{page_size: 6},
-        Post |> preload(user: [awards: :badge], topic: :forum)
+        %{page_size: 6}
       )
+      |> Elasticsearch.search_records(preload(Post, user: [awards: :badge], topic: :forum))
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.topic))
 
     about_me = TextileRenderer.render_one(%{body: user.description || ""}, conn)
@@ -220,7 +224,7 @@ defmodule PhilomenaWeb.ProfileController do
         pagination: %{page_number: 1, page_size: 4}
       )
 
-    images
+    Elasticsearch.search_records(images, preload(Image, :tags))
   end
 
   defp set_admin_metadata(conn, _opts) do

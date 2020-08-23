@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.GalleryController do
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries
+  alias Philomena.Images.Image
   import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
@@ -19,8 +20,8 @@ defmodule PhilomenaWeb.GalleryController do
 
   def index(conn, params) do
     galleries =
-      Elasticsearch.search_records(
-        Gallery,
+      Gallery
+      |> Elasticsearch.search_definition(
         %{
           query: %{
             bool: %{
@@ -29,9 +30,9 @@ defmodule PhilomenaWeb.GalleryController do
           },
           sort: parse_sort(params)
         },
-        conn.assigns.pagination,
-        Gallery |> preload([:creator, thumbnail: :tags])
+        conn.assigns.pagination
       )
+      |> Elasticsearch.search_records(preload(Gallery, [:creator, thumbnail: :tags]))
 
     render(conn, "index.html",
       title: "Galleries",
@@ -54,7 +55,8 @@ defmodule PhilomenaWeb.GalleryController do
 
     conn = %{conn | params: params}
 
-    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query, include_hits: true)
+    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
+    images = Elasticsearch.search_records_with_hits(images, preload(Image, :tags))
 
     {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
 
@@ -163,7 +165,9 @@ defmodule PhilomenaWeb.GalleryController do
     pagination_params = %{page_number: offset + 1, page_size: 1}
 
     {:ok, {image, _tags}} =
-      ImageLoader.search_string(conn, query, pagination: pagination_params, include_hits: true)
+      ImageLoader.search_string(conn, query, pagination: pagination_params)
+
+    image = Elasticsearch.search_records_with_hits(image, preload(Image, :tags))
 
     case Enum.to_list(image) do
       [image] -> image
