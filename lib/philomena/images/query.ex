@@ -107,7 +107,7 @@ defmodule Philomena.Images.Query do
           ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
       ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
       ip_fields: ~W(ip),
-      bool_fields: ~W(deleted),
+      bool_fields: ~W(deleted processed),
       aliases:
         Map.merge(fields[:aliases], %{
           "upvoted_by" => "upvoters",
