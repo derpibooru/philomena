@@ -20,8 +20,8 @@ defmodule PhilomenaWeb.PostController do
 
   defp render_index({:ok, query}, conn, user) do
     posts =
-      Elasticsearch.search_records(
-        Post,
+      Post
+      |> Elasticsearch.search_definition(
         %{
           query: %{
             bool: %{
@@ -30,8 +30,10 @@ defmodule PhilomenaWeb.PostController do
           },
           sort: %{created_at: :desc}
         },
-        conn.assigns.pagination,
-        Post |> preload([:deleted_by, topic: :forum, user: [awards: :badge]])
+        conn.assigns.pagination
+      )
+      |> Elasticsearch.search_records(
+        preload(Post, [:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 
     rendered = TextileRenderer.render_collection(posts.entries, conn)

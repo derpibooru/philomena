@@ -12,8 +12,8 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
           []
 
         term ->
-          Elasticsearch.search_records(
-            Tag,
+          Tag
+          |> Elasticsearch.search_definition(
             %{
               query: %{
                 bool: %{
@@ -25,9 +25,9 @@ defmodule PhilomenaWeb.Tag.AutocompleteController do
               },
               sort: %{images: :desc}
             },
-            %{page_size: 5},
-            Tag |> preload(:aliased_tag)
+            %{page_size: 5}
           )
+          |> Elasticsearch.search_records(preload(Tag, :aliased_tag))
           |> Enum.map(&(&1.aliased_tag || &1))
           |> Enum.uniq_by(& &1.id)
           |> Enum.sort_by(&(-&1.images_count))

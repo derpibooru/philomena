@@ -132,8 +132,8 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp implied_by_multitag(tag_names, ignore_tag_names) do
-    Elasticsearch.search_records(
-      Tag,
+    Tag
+    |> Elasticsearch.search_definition(
       %{
         query: %{
           bool: %{
@@ -143,9 +143,9 @@ defmodule PhilomenaWeb.TagView do
         },
         sort: %{images: :desc}
       },
-      %{page_size: 40},
-      Tag |> preload(:implied_tags)
+      %{page_size: 40}
     )
+    |> Elasticsearch.search_records(preload(Tag, :implied_tags))
   end
 
   defp manages_links?(conn),

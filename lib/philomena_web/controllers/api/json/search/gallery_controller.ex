@@ -10,15 +10,15 @@ defmodule PhilomenaWeb.Api.Json.Search.GalleryController do
     case Query.compile(params["q"] || "") do
       {:ok, query} ->
         galleries =
-          Elasticsearch.search_records(
-            Gallery,
+          Gallery
+          |> Elasticsearch.search_definition(
             %{
               query: query,
               sort: %{created_at: :desc}
             },
-            conn.assigns.pagination,
-            preload(Gallery, [:creator])
+            conn.assigns.pagination
           )
+          |> Elasticsearch.search_records(preload(Gallery, [:creator]))
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.GalleryView)

@@ -10,10 +10,12 @@ defmodule PhilomenaWeb.Api.Json.Search.TagController do
     case Query.compile(params["q"] || "") do
       {:ok, query} ->
         tags =
-          Elasticsearch.search_records(
-            Tag,
+          Tag
+          |> Elasticsearch.search_definition(
             %{query: query, sort: %{images: :desc}},
-            conn.assigns.pagination,
+            conn.assigns.pagination
+          )
+          |> Elasticsearch.search_records(
             preload(Tag, [:aliased_tag, :aliases, :implied_tags, :implied_by_tags, :dnp_entries])
           )
 

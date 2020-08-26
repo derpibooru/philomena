@@ -4,8 +4,10 @@ defmodule PhilomenaWeb.TagController do
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
+  alias Philomena.Images.Image
   alias PhilomenaWeb.TextileRenderer
   alias Philomena.Interactions
+  import Ecto.Query
 
   plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
@@ -32,16 +34,16 @@ defmodule PhilomenaWeb.TagController do
 
     with {:ok, query} <- Tags.Query.compile(query_string) do
       tags =
-        Elasticsearch.search_records(
-          Tag,
+        Tag
+        |> Elasticsearch.search_definition(
           %{
             query: query,
             size: 250,
             sort: [%{images: :desc}, %{name: :asc}]
           },
-          %{conn.assigns.pagination | page_size: 250},
-          Tag
+          %{conn.assigns.pagination | page_size: 250}
         )
+        |> Elasticsearch.search_records(Tag)
 
       render(conn, "index.html", title: "Tags", tags: tags)
     else
@@ -55,6 +57,8 @@ defmodule PhilomenaWeb.TagController do
     tag = conn.assigns.tag
 
     {images, _tags} = ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
+
+    images = Elasticsearch.search_records(images, preload(Image, :tags))
 
     interactions = Interactions.user_interactions(images, user)
 
