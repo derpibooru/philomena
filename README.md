@@ -107,13 +107,19 @@ The docker container located in ```docker/gdpr``` contains a cronjob scheduler u
 european _general data protection regulation_. The list of scripts can be extended as needed
 
 ### Adding a script to the container
-Adding a new script to the container can be easily archived by creating the script file, adding it to the crontab.txt,
-using the known [crontab](http://manpages.ubuntu.com/manpages/cosmic/man5/crontab.5.html) syntax and making sure that
-the script is copied to the correct path in the dockerfile
+Adding a new script to the container can be easily archived by creating the script file in the scripts folder and
+adding it to the crontab.txt, using the known [crontab](http://manpages.ubuntu.com/manpages/cosmic/man5/crontab.5.html) syntax
 
-#### anonymize-ips.sh
-This script replaces the uploaders IP of an image with ```0.0.0.0```
-14 days after uploading. The time can be configured using the ```MAX_AGE``` environment variable. The values is an
-[postgresql intervals](https://www.postgresql.org/docs/12/datatype-datetime.html#DATATYPE-INTERVAL-INPUT)
+#### anonymize_*.sh
+These scripts anonymize a range of different entities by replacing the given ip and setting referer, user-agent and user-fingerprints to an empty string
+14 days after creation. The time can be configured using the ```MAX_{NAME}_AGE``` environment variable, where name is the name of the script in singular (anonymize_reports uses MAX_REPORT_AGE).
+The values is an [postgresql intervals](https://www.postgresql.org/docs/12/datatype-datetime.html#DATATYPE-INTERVAL-INPUT)
 
 The script uses [postgres-client environment variables](https://www.postgresql.org/docs/9.3/libpq-envars.html) to configure the database connection
+
+Except for the following variables which are overridden for compatibility with the variables for the postgres server:
+- PGHOST = POSTGRES_HOST
+- PGPORT = POSTGRES_PORT
+- PGDATABASE = POSTGRES_DATABASE
+- PGUSER = POSTGRES_USER
+- PGPASSWORD = POSTGRES_PASSWORD

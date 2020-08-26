@@ -1,1 +1,6 @@
-0 3 * * * /anonymize_ips.sh
+0 3 * * * /scripts/anonymize_comments.sh
+1 3 * * * /scripts/anonymize_images.sh
+2 3 * * * /scripts/anonymize_posts.sh
+3 3 * * * /scripts/anonymize_reports.sh
+4 3 * * * /scripts/anonymize_source_changes.sh
+5 3 * * * /scripts/anonymize_tag_changes.sh
