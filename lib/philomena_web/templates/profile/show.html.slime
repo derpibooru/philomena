@@ -69,16 +69,16 @@
       - else
         .block__header
           span.block__header__title User Links
-      = for link <- @user.verified_links, link.public or can?(@conn, :edit, link) do
+      = for link <- @user.verified_links, should_see_link?(@conn, @user, link) do
         - watchers = if link.tag, do: @watcher_counts[link.tag.id] || 0, else: 0
 
-        .block__content.alternating-color.break-word
+        .block__content.alternating-color.break-word class=link_block_class(link)
           .center
             = if link.tag do
               .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
             = link(link.uri, to: link.uri)
 
-            = if current?(@user, @conn.assigns.current_user) do
+            = if current?(@user, @conn.assigns.current_user) or manages_links?(@conn, @user) do
               br
               ' Watched by
               => watchers
@@ -93,6 +93,10 @@
               ' &bull;
               a href=Routes.profile_user_link_path(@conn, :edit, @user, link)
                 ' Edit
+            - else
+              => unless link.public do
+                br
+                ' Hidden
 
     .block
       = if manages_awards?(@conn) and not hide_staff_tools?(@conn) do

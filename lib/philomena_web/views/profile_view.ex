@@ -18,6 +18,12 @@ defmodule PhilomenaWeb.ProfileView do
   def manages_links?(conn, user),
     do: can?(conn, :edit_links, user)
 
+  def should_see_link?(conn, user, link),
+    do: link.public or can?(conn, :edit, link) or current?(user, conn.assigns.current_user)
+
+  def link_block_class(%{public: false}), do: "block__content--destroyed"
+  def link_block_class(_link), do: nil
+
   def award_title(%{badge_name: nil} = award),
     do: award.badge.title
 
