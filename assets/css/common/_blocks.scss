@@ -32,6 +32,10 @@
   border-bottom: 1px solid $border_color;
 }
 
+.block__content--destroyed {
+  background-color: $destroyed_content_color;
+}
+
 .block__header {
   font-size: 14px;
   line-height: $block_header_height;
