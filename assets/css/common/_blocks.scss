@@ -33,7 +33,7 @@
 }
 
 .block__content--destroyed {
-  background-color: $destroyed_content_color;
+  background-color: $destroyed_content_color !important;
 }
 
 .block__header {
