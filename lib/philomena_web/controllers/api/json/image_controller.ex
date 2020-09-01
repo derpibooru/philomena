@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
 
   plug :set_scraper_cache
   plug PhilomenaWeb.ApiRequireAuthorizationPlug when action in [:create]
+  plug PhilomenaWeb.IDValidationPlug when action in [:create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
 
   plug PhilomenaWeb.ScraperPlug,

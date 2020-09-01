@@ -10,6 +10,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Images.Image
+  alias Philomena.Images.IDValidator
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.ModNotes.ModNote
@@ -124,6 +125,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :revert, TagChange), do: true
 
   # And some privileged moderators can...
+
+  # Upload w/ specific ID, without URL validation
+  def can?(%User{role: "moderator", role_map: %{"FreeIDUpload" => "admin"}}, :create, IDValidator), do: true
 
   # Manage site notices
   def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, SiteNotice),
