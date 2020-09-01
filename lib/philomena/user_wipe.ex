@@ -33,13 +33,7 @@ defmodule Philomena.UserWipe do
 
     User
     |> where(id: ^user.id)
-    |> Repo.update_all(
-      set: [
-        email: "deactivated#{random_hex}@example.com",
-        current_sign_in_ip: @wipe_ip,
-        last_sign_in_ip: @wipe_ip
-      ]
-    )
+    |> Repo.update_all(set: [email: "deactivated#{random_hex}@example.com"])
   end
 
   defp in_batches(queryable, mapper) do
