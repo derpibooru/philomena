@@ -51,11 +51,16 @@ h1 Users
               = user.email
 
           td
-            = if user.deleted_at do
-              strong> Deactivated
-              = pretty_time user.deleted_at
-            - else
-              ' Active
+            = cond do
+              - user.deleted_at ->
+                strong> Deactivated
+                = pretty_time user.deleted_at
+
+              - user.confirmed_at ->
+                ' Active
+
+              - true ->
+                strong> Unconfirmed
 
           td
             = String.capitalize(user.role)
