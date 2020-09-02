@@ -8,6 +8,9 @@ h1 Register
   .fieldlabel
     ' Non-anonymous posts permanently show your username as of posting time,
     ' and may appear on search engines; choose wisely.
+    ' If you have any issues registering your account (esp. "name reserved"),
+    ' please check 
+    a<> href="/forums/meta/topics/name-verification" this forum post.
   .field
     = text_input f, :name, class: "input", placeholder: "Username", required: true, minlength: 2, maxlength: 80
     = error_tag f, :name
@@ -30,14 +33,15 @@ h1 Register
 
   .field
     = checkbox f, :captcha, class: "js-captcha", value: 0
-    = label f, :captcha, "I am not a robot!"
+    = label f, :captcha, "I am not a robot! I also agree to the Site Rules and Privacy Policy."
 
   br
 
   .block.block--fixed.block--warning
     p
       ' We won't share your personal information, won't send you spam emails,
-      ' and take your security and privacy seriously.
+      ' and take your security and privacy seriously. See
+      a<> href="/pages/privacy" Privacy Policy.
     p
       strong
         ' Don't forget to read the
