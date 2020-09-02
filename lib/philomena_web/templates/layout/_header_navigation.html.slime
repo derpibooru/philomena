@@ -6,7 +6,9 @@
         i.fa.fa-caret-down<
     .dropdown__content
       a.header__link href="/images/random"
-        | Random
+        | I'm Feeling Lucky
+      a.header__link href="/search?q=*&sf=random"
+        | Random Images
   .dropdown.header__dropdown
     a.header__link href="/activity"
       | Activity
