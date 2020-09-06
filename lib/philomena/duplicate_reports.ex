@@ -74,45 +74,32 @@ defmodule Philomena.DuplicateReports do
     |> Repo.insert()
   end
 
-  # TODO: can we get this in a single transaction?
-  def accept_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
-    changeset =
-      duplicate_report
-      |> DuplicateReport.accept_changeset(user)
+  def accept_duplicate_report(multi \\ nil, %DuplicateReport{} = duplicate_report, user) do
+    duplicate_report = Repo.preload(duplicate_report, [:image, :duplicate_of_image])
 
-    Multi.new()
+    other_duplicate_reports =
+      DuplicateReport
+      |> where(
+        [dr],
+        (dr.image_id == ^duplicate_report.image_id and
+           dr.duplicate_of_image_id == ^duplicate_report.duplicate_of_image_id) or
+          (dr.image_id == ^duplicate_report.duplicate_of_image_id and
+             dr.duplicate_of_image_id == ^duplicate_report.image_id)
+      )
+      |> where([dr], dr.id != ^duplicate_report.id)
+      |> update(set: [state: "rejected"])
+
+    changeset = DuplicateReport.accept_changeset(duplicate_report, user)
+
+    multi = multi || Multi.new()
+
+    multi
     |> Multi.update(:duplicate_report, changeset)
-    |> Multi.run(:other_reports, fn repo, %{duplicate_report: duplicate_report} ->
-      {count, nil} =
-        DuplicateReport
-        |> where(
-          [dr],
-          (dr.image_id == ^duplicate_report.image_id and
-             dr.duplicate_of_image_id == ^duplicate_report.duplicate_of_image_id) or
-            (dr.image_id == ^duplicate_report.duplicate_of_image_id and
-               dr.duplicate_of_image_id == ^duplicate_report.image_id)
-        )
-        |> where([dr], dr.id != ^duplicate_report.id)
-        |> repo.update_all(set: [state: "rejected"])
-
-      {:ok, count}
-    end)
-    |> Repo.isolated_transaction(:serializable)
-    |> case do
-      {:ok, %{duplicate_report: duplicate_report}} ->
-        duplicate_report = Repo.preload(duplicate_report, [:image, :duplicate_of_image])
-
-        Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image)
-
-      error ->
-        error
-    end
+    |> Multi.update_all(:other_reports, other_duplicate_reports, [])
+    |> Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image)
   end
 
   def accept_reverse_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
-    {:ok, duplicate_report} = reject_duplicate_report(duplicate_report, user)
-
-    # Need a constraint for upsert, so have to do it the hard way
     new_report =
       DuplicateReport
       |> where(duplicate_of_image_id: ^duplicate_report.image_id)
@@ -123,20 +110,21 @@ defmodule Philomena.DuplicateReports do
       if new_report do
         new_report
       else
-        {:ok, duplicate_report} =
-          %DuplicateReport{
-            image_id: duplicate_report.duplicate_of_image_id,
-            duplicate_of_image_id: duplicate_report.image_id,
-            reason: Enum.join([duplicate_report.reason, "(Reverse accepted)"], "\n"),
-            user_id: user.id
-          }
-          |> DuplicateReport.changeset(%{})
-          |> Repo.insert()
-
-        duplicate_report
+        %DuplicateReport{
+          image_id: duplicate_report.duplicate_of_image_id,
+          duplicate_of_image_id: duplicate_report.image_id,
+          reason: Enum.join([duplicate_report.reason, "(Reverse accepted)"], "\n"),
+          user_id: user.id
+        }
+        |> DuplicateReport.changeset(%{})
+        |> Repo.insert!()
       end
 
-    accept_duplicate_report(new_report, user)
+    Multi.new()
+    |> Multi.run(:reject_duplicate_report, fn _, %{} ->
+      reject_duplicate_report(duplicate_report, user)
+    end)
+    |> accept_duplicate_report(new_report, user)
   end
 
   def claim_duplicate_report(%DuplicateReport{} = duplicate_report, user) do

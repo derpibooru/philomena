@@ -6,8 +6,6 @@ defmodule PhilomenaWeb.Image.DeleteController do
 
   alias Philomena.Images.Image
   alias Philomena.Images
-  alias Philomena.Tags
-  alias Philomena.Reports
 
   plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
@@ -18,11 +16,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
     user = conn.assigns.current_user
 
     case Images.hide_image(image, user, image_params) do
-      {:ok, %{image: image, tags: tags, reports: {_count, reports}}} ->
-        Images.reindex_image(image)
-        Reports.reindex_reports(reports)
-        Tags.reindex_tags(tags)
-
+      {:ok, _image} ->
         conn
         |> put_flash(:info, "Image successfully hidden.")
         |> redirect(to: Routes.image_path(conn, :show, image))
@@ -37,8 +31,6 @@ defmodule PhilomenaWeb.Image.DeleteController do
 
     case Images.update_hide_reason(image, image_params) do
       {:ok, image} ->
-        Images.reindex_image(image)
-
         conn
         |> put_flash(:info, "Hide reason updated.")
         |> redirect(to: Routes.image_path(conn, :show, image))
@@ -66,9 +58,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
   def delete(conn, _params) do
     image = conn.assigns.image
 
-    {:ok, %{image: image, tags: tags}} = Images.unhide_image(image)
-    Images.reindex_image(image)
-    Tags.reindex_tags(tags)
+    {:ok, _image} = Images.unhide_image(image)
 
     conn
     |> put_flash(:info, "Image successfully unhidden.")
