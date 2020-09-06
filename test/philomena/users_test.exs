@@ -501,7 +501,7 @@ defmodule Philomena.UsersTest do
     end
   end
 
-  describe "unlock_user/2" do
+  describe "unlock_user_by_token/1" do
     setup do
       user = locked_user_fixture()
 
@@ -514,23 +514,44 @@ defmodule Philomena.UsersTest do
     end
 
     test "unlocks the user with a valid token", %{user: user, token: token} do
-      assert {:ok, unlocked_user} = Users.unlock_user(token)
+      assert {:ok, unlocked_user} = Users.unlock_user_by_token(token)
       refute unlocked_user.locked_at
       refute Repo.get!(User, user.id).locked_at
       refute Repo.get_by(UserToken, user_id: user.id)
     end
 
     test "does not confirm with invalid token", %{user: user} do
-      assert Users.unlock_user("oops") == :error
+      assert Users.unlock_user_by_token("oops") == :error
       assert Repo.get!(User, user.id).locked_at
       assert Repo.get_by(UserToken, user_id: user.id)
     end
 
     test "does not unlocked if token expired", %{user: user, token: token} do
       {1, nil} = Repo.update_all(UserToken, set: [created_at: ~N[2020-01-01 00:00:00]])
-      assert Users.unlock_user(token) == :error
+      assert Users.unlock_user_by_token(token) == :error
       assert Repo.get!(User, user.id).locked_at
       assert Repo.get_by(UserToken, user_id: user.id)
+    end
+  end
+
+  describe "unlock_user/1" do
+    setup do
+      user = user_fixture()
+      locked_user = locked_user_fixture()
+
+      %{user: user, locked_user: locked_user}
+    end
+
+    test "unlocks the user when locked", %{locked_user: locked_user} do
+      assert {:ok, unlocked_user} = Users.unlock_user(locked_user)
+      refute unlocked_user.locked_at
+      refute Repo.get!(User, unlocked_user.id).locked_at
+    end
+
+    test "does nothing when not locked", %{user: user} do
+      assert {:ok, unlocked_user} = Users.unlock_user(user)
+      refute unlocked_user.locked_at
+      refute Repo.get!(User, unlocked_user.id).locked_at
     end
   end
 

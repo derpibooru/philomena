@@ -234,7 +234,7 @@ defmodule Philomena.Users do
   If the token matches, the user is marked as unlocked
   and the token is deleted.
   """
-  def unlock_user(token) do
+  def unlock_user_by_token(token) do
     with {:ok, query} <- UserToken.verify_email_token_query(token, "unlock"),
          %User{} = user <- Repo.one(query),
          {:ok, %{user: user}} <- Repo.transaction(unlock_user_multi(user)) do
@@ -250,6 +250,15 @@ defmodule Philomena.Users do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset)
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, ["unlock"]))
+  end
+
+  @doc """
+  Unconditionally unlocks the given user.
+  """
+  def unlock_user(user) do
+    user
+    |> User.unlock_changeset()
+    |> Repo.update()
   end
 
   @doc """
