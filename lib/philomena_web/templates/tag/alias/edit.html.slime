@@ -10,6 +10,8 @@ h1
   .field
     => label f, "Alias target:"
     = text_input f, :target_tag, value: alias_target(@tag), class: "input"
+    = error_tag f, :tag
+    = error_tag f, :aliased_tag
 
   .field
     => submit "Alias tag", class: "button"
