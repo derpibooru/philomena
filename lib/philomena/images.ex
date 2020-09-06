@@ -90,15 +90,12 @@ defmodule Philomena.Images do
     |> Multi.run(:subscribe, fn _repo, %{image: image} ->
       create_subscription(image, attribution[:user])
     end)
-    |> Multi.run(:after, fn _repo, %{image: image} ->
-      Uploader.persist_upload(image)
-      Uploader.unpersist_old_upload(image)
-
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
+        Uploader.persist_upload(image)
+        Uploader.unpersist_old_upload(image)
+
         repair_image(image)
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
@@ -135,21 +132,23 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def destroy_image(%Image{} = image) do
-    changeset = Image.remove_image_changeset(image)
+    image
+    |> Image.remove_image_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, image} ->
+        Uploader.unpersist_old_upload(image)
+        Hider.destroy_thumbnails(image)
 
-    Multi.new()
-    |> Multi.update(:image, changeset)
-    |> Multi.run(:remove_file, fn _repo, %{image: image} ->
-      Uploader.unpersist_old_upload(image)
-      Hider.destroy_thumbnails(image)
+        {:ok, image}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def lock_comments(%Image{} = image, locked) do
@@ -201,20 +200,23 @@ defmodule Philomena.Images do
   defp queue(_mime_type), do: "images"
 
   def update_file(%Image{} = image, attrs) do
-    image =
-      image
-      |> Image.changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    image
+    |> Image.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, image} ->
+        Uploader.persist_upload(image)
+        Uploader.unpersist_old_upload(image)
 
-    Multi.new()
-    |> Multi.update(:image, image)
-    |> Multi.run(:after, fn _repo, %{image: image} ->
-      Uploader.persist_upload(image)
-      Uploader.unpersist_old_upload(image)
+        repair_image(image)
+        reindex_image(image)
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+        {:ok, image}
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -261,7 +263,7 @@ defmodule Philomena.Images do
           {:ok, nil}
       end
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def update_tags(%Image{} = image, attribution, attrs) do
@@ -324,7 +326,7 @@ defmodule Philomena.Images do
 
         {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp tag_change_attributes(attribution, image, tag, added, user) do

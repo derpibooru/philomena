@@ -106,7 +106,7 @@ defmodule Philomena.UserLinks do
           {:ok, nil}
       end
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def reject_user_link(%UserLink{} = user_link) do

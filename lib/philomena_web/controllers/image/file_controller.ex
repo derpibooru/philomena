@@ -11,10 +11,7 @@ defmodule PhilomenaWeb.Image.FileController do
 
   def update(conn, %{"image" => image_params}) do
     case Images.update_file(conn.assigns.image, image_params) do
-      {:ok, %{image: image}} ->
-        Images.repair_image(image)
-        Images.reindex_image(image)
-
+      {:ok, image} ->
         conn
         |> put_flash(:info, "Successfully updated file.")
         |> redirect(to: Routes.image_path(conn, :show, image))

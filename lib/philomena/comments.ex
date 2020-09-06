@@ -59,7 +59,7 @@ defmodule Philomena.Comments do
     |> Multi.run(:subscribe, fn _repo, _changes ->
       Images.create_subscription(image, attribution[:user])
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def notify_comment(comment) do
@@ -117,7 +117,7 @@ defmodule Philomena.Comments do
         "edit_reason" => current_reason
       })
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """

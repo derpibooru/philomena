@@ -515,7 +515,7 @@ defmodule Philomena.Users do
     |> Multi.run(:unsubscribe, fn _repo, %{user: user} ->
       unsubscribe_restricted_actors(user)
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp clean_roles(nil), do: []
@@ -562,30 +562,34 @@ defmodule Philomena.Users do
   end
 
   def update_avatar(%User{} = user, attrs) do
-    changeset = Uploader.analyze_upload(user, attrs)
+    user
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, user} ->
+        Uploader.persist_upload(user)
+        Uploader.unpersist_old_upload(user)
 
-    Multi.new()
-    |> Multi.update(:user, changeset)
-    |> Multi.run(:update_file, fn _repo, %{user: user} ->
-      Uploader.persist_upload(user)
-      Uploader.unpersist_old_upload(user)
+        {:ok, user}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def remove_avatar(%User{} = user) do
-    changeset = User.remove_avatar_changeset(user)
+    user
+    |> User.remove_avatar_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, user} ->
+        Uploader.unpersist_old_upload(user)
 
-    Multi.new()
-    |> Multi.update(:user, changeset)
-    |> Multi.run(:remove_file, fn _repo, %{user: user} ->
-      Uploader.unpersist_old_upload(user)
+        {:ok, user}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def update_name(user, user_params) do
@@ -597,7 +601,7 @@ defmodule Philomena.Users do
     Multi.new()
     |> Multi.insert(:name_change, name_change)
     |> Multi.update(:account, account)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
     |> case do
       {:ok, %{account: %{name: new_name}}} = result ->
         spawn(fn ->

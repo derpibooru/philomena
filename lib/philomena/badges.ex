@@ -4,7 +4,6 @@ defmodule Philomena.Badges do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Badges.Badge
@@ -52,20 +51,20 @@ defmodule Philomena.Badges do
 
   """
   def create_badge(attrs \\ %{}) do
-    badge =
-      %Badge{}
-      |> Badge.changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    %Badge{}
+    |> Badge.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, badge} ->
+        Uploader.persist_upload(badge)
+        Uploader.unpersist_old_upload(badge)
 
-    Multi.new()
-    |> Multi.insert(:badge, badge)
-    |> Multi.run(:after, fn _repo, %{badge: badge} ->
-      Uploader.persist_upload(badge)
-      Uploader.unpersist_old_upload(badge)
+        {:ok, badge}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -87,20 +86,20 @@ defmodule Philomena.Badges do
   end
 
   def update_badge_image(%Badge{} = badge, attrs) do
-    badge =
-      badge
-      |> Badge.changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    badge
+    |> Badge.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, badge} ->
+        Uploader.persist_upload(badge)
+        Uploader.unpersist_old_upload(badge)
 
-    Multi.new()
-    |> Multi.update(:badge, badge)
-    |> Multi.run(:after, fn _repo, %{badge: badge} ->
-      Uploader.persist_upload(badge)
-      Uploader.unpersist_old_upload(badge)
+        {:ok, badge}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   @doc """

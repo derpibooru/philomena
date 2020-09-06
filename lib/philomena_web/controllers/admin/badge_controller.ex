@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Admin.BadgeController do
 
   def create(conn, %{"badge" => badge_params}) do
     case Badges.create_badge(badge_params) do
-      {:ok, %{badge: _badge}} ->
+      {:ok, _badge} ->
         conn
         |> put_flash(:info, "Badge created successfully.")
         |> redirect(to: Routes.admin_badge_path(conn, :index))

@@ -4,7 +4,6 @@ defmodule Philomena.Tags do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Elasticsearch
@@ -120,30 +119,34 @@ defmodule Philomena.Tags do
   end
 
   def update_tag_image(%Tag{} = tag, attrs) do
-    changeset = Uploader.analyze_upload(tag, attrs)
+    tag
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, tag} ->
+        Uploader.persist_upload(tag)
+        Uploader.unpersist_old_upload(tag)
 
-    Multi.new()
-    |> Multi.update(:tag, changeset)
-    |> Multi.run(:update_file, fn _repo, %{tag: tag} ->
-      Uploader.persist_upload(tag)
-      Uploader.unpersist_old_upload(tag)
+        {:ok, tag}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def remove_tag_image(%Tag{} = tag) do
-    changeset = Tag.remove_image_changeset(tag)
+    tag
+    |> Tag.remove_image_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, tag} ->
+        Uploader.unpersist_old_upload(tag)
 
-    Multi.new()
-    |> Multi.update(:tag, changeset)
-    |> Multi.run(:remove_file, fn _repo, %{tag: tag} ->
-      Uploader.unpersist_old_upload(tag)
+        {:ok, tag}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   @doc """

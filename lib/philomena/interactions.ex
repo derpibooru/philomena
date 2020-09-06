@@ -128,7 +128,7 @@ defmodule Philomena.Interactions do
 
       {:ok, nil}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp union_all_queries([query]),

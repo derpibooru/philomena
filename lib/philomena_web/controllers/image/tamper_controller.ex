@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.TamperController do
 
     {:ok, _result} =
       ImageVotes.delete_vote_transaction(image, user)
-      |> Repo.isolated_transaction(:serializable)
+      |> Repo.transaction()
 
     Images.reindex_image(image)
 

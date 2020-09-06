@@ -88,7 +88,7 @@ defmodule Philomena.Posts do
     |> Multi.run(:subscribe, fn _repo, _changes ->
       Topics.create_subscription(topic, attributes[:user])
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def notify_post(post) do
@@ -146,7 +146,7 @@ defmodule Philomena.Posts do
         "edit_reason" => current_reason
       })
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """
