@@ -18,12 +18,6 @@ defmodule PhilomenaWeb.LayoutView do
     |> Float.to_string()
   end
 
-  def hostname() do
-    {:ok, host} = :inet.gethostname()
-
-    host |> to_string
-  end
-
   defp ignored_tag_list(nil), do: []
   defp ignored_tag_list([]), do: []
   defp ignored_tag_list([{tag, _body, _dnp_entries}]), do: [tag.id]
