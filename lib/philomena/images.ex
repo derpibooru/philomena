@@ -415,6 +415,9 @@ defmodule Philomena.Images do
     |> Multi.run(:migrate_comments, fn _, %{} ->
       {:ok, Comments.migrate_comments(image, duplicate_of_image)}
     end)
+    |> Multi.run(:migrate_subscriptions, fn _, %{} ->
+      {:ok, migrate_subscriptions(image, duplicate_of_image)}
+    end)
     |> Multi.run(:migrate_interactions, fn _, %{} ->
       {:ok, Interactions.migrate_interactions(image, duplicate_of_image)}
     end)
@@ -706,7 +709,7 @@ defmodule Philomena.Images do
   end
 
   @doc """
-  Deletes a Subscription.
+  Deletes a subscription.
 
   ## Examples
 
@@ -722,6 +725,12 @@ defmodule Philomena.Images do
 
     %Subscription{image_id: image.id, user_id: user.id}
     |> Repo.delete()
+  end
+
+  def migrate_subscriptions(source, target) do
+    Subscription
+    |> where(image_id: ^source.id)
+    |> Repo.update_all(set: [image_id: target.id])
   end
 
   def clear_notification(_image, nil), do: nil
