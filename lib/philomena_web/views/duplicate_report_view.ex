@@ -103,7 +103,8 @@ defmodule PhilomenaWeb.DuplicateReportView do
     do: alternate_version?(image) and alternate_version?(duplicate_of_image)
 
   def mergeable?(%{image: image, duplicate_of_image: duplicate_of_image} = report) do
-    same_rating_tags?(report) and not image.hidden_from_users and not duplicate_of_image.hidden_from_users
+    same_rating_tags?(report) and not image.hidden_from_users and
+      not duplicate_of_image.hidden_from_users
   end
 
   defp artist_tags(%{tags: tags}) do
