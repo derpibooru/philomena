@@ -426,6 +426,7 @@ defmodule Philomena.Images do
     |> case do
       {:ok, result} ->
         reindex_image(duplicate_of_image)
+        Comments.reindex_comments(duplicate_of_image)
 
         {:ok, result}
 
@@ -464,6 +465,7 @@ defmodule Philomena.Images do
       {:ok, %{image: image, tags: tags, reports: {_count, reports}} = result} ->
         Hider.hide_thumbnails(image, image.hidden_image_key)
 
+        Comments.reindex_comments(image)
         Reports.reindex_reports(reports)
         Tags.reindex_tags(tags)
         reindex_image(image)
@@ -514,6 +516,7 @@ defmodule Philomena.Images do
         Hider.unhide_thumbnails(image, key)
 
         reindex_image(image)
+        Comments.reindex_comments(image)
         Tags.reindex_tags(tags)
 
         {:ok, image}
