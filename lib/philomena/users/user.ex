@@ -90,7 +90,7 @@ defmodule Philomena.Users.User do
     field :no_spoilered_in_watched, :boolean, default: false
     field :watched_images_query_str, :string, default: ""
     field :watched_images_exclude_str, :string, default: ""
-    field :use_centered_layout, :boolean, default: false
+    field :use_centered_layout, :boolean, default: true
     field :personal_title, :string
     field :show_hidden_items, :boolean, default: false
     field :hide_vote_counts, :boolean, default: false
