@@ -16,7 +16,7 @@
   p
     = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, conn: @conn
 
-  = if can?(@conn, :edit, @report) and same_rating_tags?(@report) do
+  = if can?(@conn, :edit, @report) and mergeable?(@report) do
     = if @source do
       a href=Routes.duplicate_report_accept_reverse_path(@conn, :create, @report) data-method="post"
         button.button
