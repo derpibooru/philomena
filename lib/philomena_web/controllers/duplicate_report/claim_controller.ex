@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
 
     conn
     |> put_flash(:info, "Successfully claimed report.")
-    |> redirect(external: conn.assigns.referrer)
+    |> redirect(to: Routes.duplicate_report_path(conn, :index))
   end
 
   def delete(conn, _params) do
@@ -28,6 +28,6 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
 
     conn
     |> put_flash(:info, "Successfully released report.")
-    |> redirect(external: conn.assigns.referrer)
+    |> redirect(to: Routes.duplicate_report_path(conn, :index))
   end
 end

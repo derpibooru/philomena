@@ -21,6 +21,6 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
 
     conn
     |> put_flash(:info, "Successfully rejected report.")
-    |> redirect(external: conn.assigns.referrer)
+    |> redirect(to: Routes.duplicate_report_path(conn, :index))
   end
 end

@@ -56,7 +56,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Failed to submit duplicate report")
-        |> redirect(external: conn.assigns.referrer)
+        |> redirect(to: Routes.image_path(conn, :show, source))
     end
   end
 

@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.RandomController do
     if random_id do
       redirect(conn, to: Routes.image_path(conn, :show, random_id, scope))
     else
-      redirect(conn, external: conn.assigns.referrer)
+      redirect(conn, to: Routes.image_path(conn, :index))
     end
   end
 

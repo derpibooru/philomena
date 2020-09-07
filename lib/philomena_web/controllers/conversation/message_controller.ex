@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Conversation.MessageController do
       _error ->
         conn
         |> put_flash(:error, "There was an error posting your message")
-        |> redirect(external: conn.assigns.referrer)
+        |> redirect(to: Routes.conversation_path(conn, :show, conversation))
     end
   end
 end
