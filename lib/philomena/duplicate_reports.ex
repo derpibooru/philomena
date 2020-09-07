@@ -96,7 +96,7 @@ defmodule Philomena.DuplicateReports do
     multi
     |> Multi.update(:duplicate_report, changeset)
     |> Multi.update_all(:other_reports, other_duplicate_reports, [])
-    |> Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image)
+    |> Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image, user)
   end
 
   def accept_reverse_duplicate_report(%DuplicateReport{} = duplicate_report, user) do

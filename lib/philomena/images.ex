@@ -390,18 +390,18 @@ defmodule Philomena.Images do
 
     image
     |> Image.hide_changeset(attrs, user)
-    |> hide_image_multi(image, Ecto.Multi.new())
+    |> hide_image_multi(image, user, Multi.new())
     |> Multi.update_all(:duplicate_reports, duplicate_reports, [])
     |> Repo.transaction()
     |> process_after_hide()
   end
 
-  def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image) do
+  def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image, user) do
     multi = multi || Multi.new()
 
     image
     |> Image.merge_changeset(duplicate_of_image)
-    |> hide_image_multi(image, multi)
+    |> hide_image_multi(image, user, multi)
     |> Multi.run(:first_seen_at, fn _, %{} ->
       update_first_seen_at(
         duplicate_of_image,
@@ -435,12 +435,12 @@ defmodule Philomena.Images do
     end
   end
 
-  defp hide_image_multi(changeset, image, multi) do
+  defp hide_image_multi(changeset, image, user, multi) do
     reports =
       Report
       |> where(reportable_type: "Image", reportable_id: ^image.id)
       |> select([r], r.id)
-      |> update(set: [open: false, state: "closed"])
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
     multi
     |> Multi.update(:image, changeset)
