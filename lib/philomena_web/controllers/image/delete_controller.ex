@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
   alias Philomena.Images.Image
   alias Philomena.Images
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
+  plug PhilomenaWeb.CanaryMapPlug, create: :hide, update: :hide, delete: :hide
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
   plug :verify_deleted when action in [:update]
 
