@@ -731,9 +731,15 @@ defmodule Philomena.Images do
   end
 
   def migrate_subscriptions(source, target) do
-    Subscription
-    |> where(image_id: ^source.id)
-    |> Repo.update_all(set: [image_id: target.id])
+    subscriptions =
+      Subscription
+      |> where(image_id: ^source.id)
+      |> select([s], %{image_id: type(^target.id, :integer), user_id: s.user_id})
+      |> Repo.all()
+
+    {count, nil} = Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
+
+    {:ok, count}
   end
 
   def clear_notification(_image, nil), do: nil
