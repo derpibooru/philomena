@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.ReportController do
         conn
         |> put_flash(
           :error,
-          "You may not have more than 5 open reports at a time. Did you read the reporting tips?"
+          "You may not have more than 3 open reports at a time. Did you read the reporting tips?"
         )
         |> redirect(to: "/")
 
