@@ -15,6 +15,7 @@ defmodule Philomena.Comments do
   alias Philomena.Images
   alias Philomena.Notifications
   alias Philomena.Versions
+  alias Philomena.Reports
 
   @doc """
   Gets a single comment.
@@ -59,7 +60,7 @@ defmodule Philomena.Comments do
     |> Multi.run(:subscribe, fn _repo, _changes ->
       Images.create_subscription(image, attribution[:user])
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def notify_comment(comment) do
@@ -117,7 +118,7 @@ defmodule Philomena.Comments do
         "edit_reason" => current_reason
       })
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """
@@ -141,7 +142,7 @@ defmodule Philomena.Comments do
       Report
       |> where(reportable_type: "Comment", reportable_id: ^comment.id)
       |> select([r], r.id)
-      |> update(set: [open: false, state: "closed"])
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
     comment = Comment.hide_changeset(comment, attrs, user)
 
@@ -149,12 +150,31 @@ defmodule Philomena.Comments do
     |> Multi.update(:comment, comment)
     |> Multi.update_all(:reports, reports, [])
     |> Repo.transaction()
+    |> case do
+      {:ok, %{comment: comment, reports: {_count, reports}}} ->
+        Reports.reindex_reports(reports)
+        reindex_comment(comment)
+
+        {:ok, comment}
+
+      error ->
+        error
+    end
   end
 
   def unhide_comment(%Comment{} = comment) do
     comment
     |> Comment.unhide_changeset()
     |> Repo.update()
+    |> case do
+      {:ok, comment} ->
+        reindex_comment(comment)
+
+        {:ok, comment}
+
+      error ->
+        error
+    end
   end
 
   def destroy_comment(%Comment{} = comment) do

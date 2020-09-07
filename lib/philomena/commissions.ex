@@ -10,19 +10,6 @@ defmodule Philomena.Commissions do
   alias Philomena.Commissions.Commission
 
   @doc """
-  Returns the list of commissions.
-
-  ## Examples
-
-      iex> list_commissions()
-      [%Commission{}, ...]
-
-  """
-  def list_commissions do
-    Repo.all(Commission)
-  end
-
-  @doc """
   Gets a single commission.
 
   Raises `Ecto.NoResultsError` if the Commission does not exist.
@@ -106,19 +93,6 @@ defmodule Philomena.Commissions do
   alias Philomena.Commissions.Item
 
   @doc """
-  Returns the list of commission_items.
-
-  ## Examples
-
-      iex> list_commission_items()
-      [%Item{}, ...]
-
-  """
-  def list_commission_items do
-    Repo.all(Item)
-  end
-
-  @doc """
   Gets a single item.
 
   Raises `Ecto.NoResultsError` if the Item does not exist.
@@ -159,7 +133,7 @@ defmodule Philomena.Commissions do
     Multi.new()
     |> Multi.insert(:item, changeset)
     |> Multi.update_all(:commission, update, [])
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """
@@ -201,7 +175,7 @@ defmodule Philomena.Commissions do
     Multi.new()
     |> Multi.delete(:item, item)
     |> Multi.update_all(:commission, update, [])
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """

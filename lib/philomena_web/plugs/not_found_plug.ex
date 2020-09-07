@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.NotFoundPlug do
     conn
     |> Controller.fetch_flash()
     |> Controller.put_flash(:error, "Couldn't find what you were looking for!")
-    |> Controller.redirect(external: conn.assigns.referrer)
+    |> Controller.redirect(to: "/")
     |> Conn.halt()
   end
 end

@@ -52,6 +52,7 @@ defmodule Philomena.UserLinks.UserLink do
     |> put_assoc(:tag, tag)
     |> put_assoc(:user, user)
     |> validate_required([:user, :uri, :public])
+    |> validate_required([:tag], message: "must exist")
     |> validate_format(:uri, ~r|\Ahttps?://|)
     |> parse_uri()
     |> put_verification_code()

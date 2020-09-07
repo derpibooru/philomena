@@ -198,7 +198,7 @@ defmodule Philomena.Conversations do
     |> Multi.update_all(:conversation, conversation_query,
       set: [from_read: false, to_read: false, last_message_at: now]
     )
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """

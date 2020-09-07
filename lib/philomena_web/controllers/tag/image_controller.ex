@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
 
   def update(conn, %{"tag" => tag_params}) do
     case Tags.update_tag_image(conn.assigns.tag, tag_params) do
-      {:ok, %{tag: tag}} ->
+      {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag image successfully updated.")
         |> redirect(to: Routes.tag_path(conn, :show, tag))

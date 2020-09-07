@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.Topic.PostController do
       _error ->
         conn
         |> put_flash(:error, "There was an error creating the post")
-        |> redirect(external: conn.assigns.referrer)
+        |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic))
     end
   end
 

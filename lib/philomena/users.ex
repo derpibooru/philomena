@@ -234,7 +234,7 @@ defmodule Philomena.Users do
   If the token matches, the user is marked as unlocked
   and the token is deleted.
   """
-  def unlock_user(token) do
+  def unlock_user_by_token(token) do
     with {:ok, query} <- UserToken.verify_email_token_query(token, "unlock"),
          %User{} = user <- Repo.one(query),
          {:ok, %{user: user}} <- Repo.transaction(unlock_user_multi(user)) do
@@ -250,6 +250,15 @@ defmodule Philomena.Users do
     Ecto.Multi.new()
     |> Ecto.Multi.update(:user, changeset)
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, ["unlock"]))
+  end
+
+  @doc """
+  Unconditionally unlocks the given user.
+  """
+  def unlock_user(user) do
+    user
+    |> User.unlock_changeset()
+    |> Repo.update()
   end
 
   @doc """
@@ -506,7 +515,7 @@ defmodule Philomena.Users do
     |> Multi.run(:unsubscribe, fn _repo, %{user: user} ->
       unsubscribe_restricted_actors(user)
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp clean_roles(nil), do: []
@@ -553,30 +562,34 @@ defmodule Philomena.Users do
   end
 
   def update_avatar(%User{} = user, attrs) do
-    changeset = Uploader.analyze_upload(user, attrs)
+    user
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, user} ->
+        Uploader.persist_upload(user)
+        Uploader.unpersist_old_upload(user)
 
-    Multi.new()
-    |> Multi.update(:user, changeset)
-    |> Multi.run(:update_file, fn _repo, %{user: user} ->
-      Uploader.persist_upload(user)
-      Uploader.unpersist_old_upload(user)
+        {:ok, user}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def remove_avatar(%User{} = user) do
-    changeset = User.remove_avatar_changeset(user)
+    user
+    |> User.remove_avatar_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, user} ->
+        Uploader.unpersist_old_upload(user)
 
-    Multi.new()
-    |> Multi.update(:user, changeset)
-    |> Multi.run(:remove_file, fn _repo, %{user: user} ->
-      Uploader.unpersist_old_upload(user)
+        {:ok, user}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def update_name(user, user_params) do
@@ -588,7 +601,7 @@ defmodule Philomena.Users do
     Multi.new()
     |> Multi.insert(:name_change, name_change)
     |> Multi.update(:account, account)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
     |> case do
       {:ok, %{account: %{name: new_name}}} = result ->
         spawn(fn ->

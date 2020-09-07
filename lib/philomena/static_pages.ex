@@ -61,7 +61,7 @@ defmodule Philomena.StaticPages do
       |> Version.changeset(attrs)
       |> repo.insert()
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """
@@ -88,7 +88,7 @@ defmodule Philomena.StaticPages do
     Multi.new()
     |> Multi.update(:static_page, static_page)
     |> Multi.insert(:version, version)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """

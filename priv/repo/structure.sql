@@ -3,7 +3,7 @@
 --
 
 -- Dumped from database version 12.3 (Debian 12.3-1.pgdg100+1)
--- Dumped by pg_dump version 12.3 (Debian 12.3-1.pgdg90+1)
+-- Dumped by pg_dump version 12.4 (Debian 12.4-1.pgdg90+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1959,7 +1959,7 @@ CREATE TABLE public.users (
     images_favourited_count integer DEFAULT 0 NOT NULL,
     last_donation_at timestamp without time zone,
     scratchpad text,
-    use_centered_layout boolean DEFAULT false NOT NULL,
+    use_centered_layout boolean DEFAULT true NOT NULL,
     secondary_role character varying,
     hide_default_role boolean DEFAULT false NOT NULL,
     personal_title character varying,
@@ -4796,3 +4796,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200617113333);
 INSERT INTO public."schema_migrations" (version) VALUES (20200706171350);
 INSERT INTO public."schema_migrations" (version) VALUES (20200725234412);
 INSERT INTO public."schema_migrations" (version) VALUES (20200817213256);
+INSERT INTO public."schema_migrations" (version) VALUES (20200905214139);

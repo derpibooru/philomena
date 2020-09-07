@@ -15,11 +15,8 @@ footer#footer
           br
 
   #serving_info
-    ' Powered by the 
-    a href="https://github.com/derpibooru/philomena" philomena project
-    br
-    ' Served by
-    => hostname()
+    ' Powered by
+    a> href="https://github.com/philomena-dev/philomena" philomena
     | (
     = render_time(@conn)
     | ms)

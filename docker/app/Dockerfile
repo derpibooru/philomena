@@ -1,4 +1,4 @@
-FROM elixir:1.10.3
+FROM elixir:1.10.4
 
 RUN apt-get update \
     && apt-get -qq -y install apt-transport-https \

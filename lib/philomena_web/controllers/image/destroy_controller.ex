@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
     image = conn.assigns.image
 
     case Images.destroy_image(image) do
-      {:ok, %{image: image}} ->
+      {:ok, image} ->
         conn
         |> put_flash(:info, "Image contents destroyed.")
         |> redirect(to: Routes.image_path(conn, :show, image))

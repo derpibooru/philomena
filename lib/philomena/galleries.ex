@@ -15,19 +15,6 @@ defmodule Philomena.Galleries do
   alias Philomena.Images
 
   @doc """
-  Returns the list of galleries.
-
-  ## Examples
-
-      iex> list_galleries()
-      [%Gallery{}, ...]
-
-  """
-  def list_galleries do
-    Repo.all(Gallery)
-  end
-
-  @doc """
   Gets a single gallery.
 
   Raises `Ecto.NoResultsError` if the Gallery does not exist.
@@ -155,6 +142,15 @@ defmodule Philomena.Galleries do
 
   def add_image_to_gallery(gallery, image) do
     Multi.new()
+    |> Multi.run(:lock, fn repo, %{} ->
+      gallery =
+        Gallery
+        |> where(id: ^gallery.id)
+        |> lock("FOR UPDATE")
+        |> repo.one()
+
+      {:ok, gallery}
+    end)
     |> Multi.run(:interaction, fn repo, %{} ->
       position = (last_position(gallery.id) || -1) + 1
 
@@ -172,11 +168,20 @@ defmodule Philomena.Galleries do
 
       {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def remove_image_from_gallery(gallery, image) do
     Multi.new()
+    |> Multi.run(:lock, fn repo, %{} ->
+      gallery =
+        Gallery
+        |> where(id: ^gallery.id)
+        |> lock("FOR UPDATE")
+        |> repo.one()
+
+      {:ok, gallery}
+    end)
     |> Multi.run(:interaction, fn repo, %{} ->
       {count, nil} =
         Interaction
@@ -195,7 +200,7 @@ defmodule Philomena.Galleries do
 
       {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp last_position(gallery_id) do

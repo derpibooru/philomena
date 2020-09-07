@@ -4,10 +4,9 @@ defmodule Philomena.Bans do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.UserIps.UserIp
+  alias Philomena.UserIps
   alias Philomena.Bans.Fingerprint
 
   @doc """
@@ -244,39 +243,28 @@ defmodule Philomena.Bans do
 
   """
   def create_user(creator, attrs \\ %{}) do
-    user_ban =
-      %User{banning_user_id: creator.id}
-      |> User.save_changeset(attrs)
+    %User{banning_user_id: creator.id}
+    |> User.save_changeset(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, user_ban} ->
+        ip = UserIps.get_ip_for_user(user_ban.user_id)
 
-    Multi.new()
-    |> Multi.insert(:user_ban, user_ban)
-    |> Multi.run(:auto_ip_ban, fn repo, %{user_ban: user_ban} ->
-      UserIp
-      |> where(user_id: ^user_ban.user_id)
-      |> order_by(desc: :updated_at)
-      |> limit(1)
-      |> select([u], u.ip)
-      |> Repo.one()
-      |> case do
-        nil ->
-          {:ok, nil}
-
-        ip ->
-          ip = masked_ip(ip)
+        if ip do
+          # Automatically create associated IP ban.
+          ip = UserIps.masked_ip(ip)
 
           %Subnet{banning_user_id: creator.id, specification: ip}
           |> Subnet.save_changeset(attrs)
-          |> repo.insert()
-      end
-    end)
-    |> Repo.isolated_transaction(:serializable)
+          |> Repo.insert()
+        end
+
+        {:ok, user_ban}
+
+      error ->
+        error
+    end
   end
-
-  defp masked_ip(%Postgrex.INET{address: {_1, _2, _3, _4}} = ip),
-    do: ip
-
-  defp masked_ip(%Postgrex.INET{address: {h1, h2, h3, h4, _5, _6, _7, _8}} = ip),
-    do: %{ip | address: {h1, h2, h3, h4, 0, 0, 0, 0}, netmask: 64}
 
   @doc """
   Updates a user.

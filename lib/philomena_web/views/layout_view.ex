@@ -9,19 +9,13 @@ defmodule PhilomenaWeb.LayoutView do
     conn.assigns[:layout_class] || "layout--narrow"
   end
 
-  def container_class(%{use_centered_layout: true}), do: "layout--center-aligned"
-  def container_class(_user), do: nil
+  def container_class(%{use_centered_layout: false}), do: nil
+  def container_class(_user), do: "layout--center-aligned"
 
   def render_time(conn) do
     (Time.diff(Time.utc_now(), conn.assigns[:start_time], :microsecond) / 1000.0)
     |> Float.round(3)
     |> Float.to_string()
-  end
-
-  def hostname() do
-    {:ok, host} = :inet.gethostname()
-
-    host |> to_string
   end
 
   defp ignored_tag_list(nil), do: []

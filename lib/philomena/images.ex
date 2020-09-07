@@ -24,6 +24,7 @@ defmodule Philomena.Images do
   alias Philomena.Tags.Tag
   alias Philomena.Notifications
   alias Philomena.Interactions
+  alias Philomena.Reports
   alias Philomena.Reports.Report
   alias Philomena.Comments
 
@@ -90,15 +91,12 @@ defmodule Philomena.Images do
     |> Multi.run(:subscribe, fn _repo, %{image: image} ->
       create_subscription(image, attribution[:user])
     end)
-    |> Multi.run(:after, fn _repo, %{image: image} ->
-      Uploader.persist_upload(image)
-      Uploader.unpersist_old_upload(image)
-
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
+        Uploader.persist_upload(image)
+        Uploader.unpersist_old_upload(image)
+
         repair_image(image)
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
@@ -135,21 +133,23 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def destroy_image(%Image{} = image) do
-    changeset = Image.remove_image_changeset(image)
+    image
+    |> Image.remove_image_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, image} ->
+        Uploader.unpersist_old_upload(image)
+        Hider.destroy_thumbnails(image)
 
-    Multi.new()
-    |> Multi.update(:image, changeset)
-    |> Multi.run(:remove_file, fn _repo, %{image: image} ->
-      Uploader.unpersist_old_upload(image)
-      Hider.destroy_thumbnails(image)
+        {:ok, image}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   def lock_comments(%Image{} = image, locked) do
@@ -201,20 +201,23 @@ defmodule Philomena.Images do
   defp queue(_mime_type), do: "images"
 
   def update_file(%Image{} = image, attrs) do
-    image =
-      image
-      |> Image.changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    image
+    |> Image.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, image} ->
+        Uploader.persist_upload(image)
+        Uploader.unpersist_old_upload(image)
 
-    Multi.new()
-    |> Multi.update(:image, image)
-    |> Multi.run(:after, fn _repo, %{image: image} ->
-      Uploader.persist_upload(image)
-      Uploader.unpersist_old_upload(image)
+        repair_image(image)
+        reindex_image(image)
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+        {:ok, image}
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -261,7 +264,7 @@ defmodule Philomena.Images do
           {:ok, nil}
       end
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def update_tags(%Image{} = image, attribution, attrs) do
@@ -324,7 +327,7 @@ defmodule Philomena.Images do
 
         {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   defp tag_change_attributes(attribution, image, tag, added, user) do
@@ -363,66 +366,83 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
-  def hide_image(%Image{} = image, user, attrs) do
-    DuplicateReport
-    |> where(state: "open")
-    |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
-    |> Repo.update_all(set: [state: "rejected"])
-
-    Image.hide_changeset(image, attrs, user)
-    |> internal_hide_image(image)
-  end
-
   def update_hide_reason(%Image{} = image, attrs) do
     image
     |> Image.hide_reason_changeset(attrs)
     |> Repo.update()
-  end
+    |> case do
+      {:ok, image} ->
+        reindex_image(image)
 
-  def merge_image(%Image{} = image, duplicate_of_image) do
-    result =
-      Image.merge_changeset(image, duplicate_of_image)
-      |> internal_hide_image(image)
+        {:ok, image}
 
-    case result do
-      {:ok, changes} ->
-        update_first_seen_at(
-          duplicate_of_image,
-          image.first_seen_at,
-          duplicate_of_image.first_seen_at
-        )
-
-        tags = Tags.copy_tags(image, duplicate_of_image)
-        Comments.migrate_comments(image, duplicate_of_image)
-        Interactions.migrate_interactions(image, duplicate_of_image)
-
-        {:ok, %{changes | tags: changes.tags ++ tags}}
-
-      _error ->
-        result
+      error ->
+        error
     end
   end
 
-  defp update_first_seen_at(image, time_1, time_2) do
-    min_time =
-      case NaiveDateTime.compare(time_1, time_2) do
-        :gt -> time_2
-        _ -> time_1
-      end
+  def hide_image(%Image{} = image, user, attrs) do
+    duplicate_reports =
+      DuplicateReport
+      |> where(state: "open")
+      |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
+      |> update(set: [state: "rejected"])
 
-    Image
-    |> where(id: ^image.id)
-    |> Repo.update_all(set: [first_seen_at: min_time])
+    image
+    |> Image.hide_changeset(attrs, user)
+    |> hide_image_multi(image, user, Multi.new())
+    |> Multi.update_all(:duplicate_reports, duplicate_reports, [])
+    |> Repo.transaction()
+    |> process_after_hide()
   end
 
-  defp internal_hide_image(changeset, image) do
+  def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image, user) do
+    multi = multi || Multi.new()
+
+    image
+    |> Image.merge_changeset(duplicate_of_image)
+    |> hide_image_multi(image, user, multi)
+    |> Multi.run(:first_seen_at, fn _, %{} ->
+      update_first_seen_at(
+        duplicate_of_image,
+        image.first_seen_at,
+        duplicate_of_image.first_seen_at
+      )
+    end)
+    |> Multi.run(:copy_tags, fn _, %{} ->
+      {:ok, Tags.copy_tags(image, duplicate_of_image)}
+    end)
+    |> Multi.run(:migrate_comments, fn _, %{} ->
+      {:ok, Comments.migrate_comments(image, duplicate_of_image)}
+    end)
+    |> Multi.run(:migrate_subscriptions, fn _, %{} ->
+      {:ok, migrate_subscriptions(image, duplicate_of_image)}
+    end)
+    |> Multi.run(:migrate_interactions, fn _, %{} ->
+      {:ok, Interactions.migrate_interactions(image, duplicate_of_image)}
+    end)
+    |> Repo.transaction()
+    |> process_after_hide()
+    |> case do
+      {:ok, result} ->
+        reindex_image(duplicate_of_image)
+        Comments.reindex_comments(duplicate_of_image)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
+  end
+
+  defp hide_image_multi(changeset, image, user, multi) do
     reports =
       Report
       |> where(reportable_type: "Image", reportable_id: ^image.id)
       |> select([r], r.id)
-      |> update(set: [open: false, state: "closed"])
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
-    Multi.new()
+    multi
     |> Multi.update(:image, changeset)
     |> Multi.update_all(:reports, reports, [])
     |> Multi.run(:tags, fn repo, %{image: image} ->
@@ -438,12 +458,41 @@ defmodule Philomena.Images do
 
       {:ok, image.tags}
     end)
-    |> Multi.run(:file, fn _repo, %{image: image} ->
-      Hider.hide_thumbnails(image, image.hidden_image_key)
+  end
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+  defp process_after_hide(result) do
+    case result do
+      {:ok, %{image: image, tags: tags, reports: {_count, reports}} = result} ->
+        Hider.hide_thumbnails(image, image.hidden_image_key)
+
+        Comments.reindex_comments(image)
+        Reports.reindex_reports(reports)
+        Tags.reindex_tags(tags)
+        reindex_image(image)
+        reindex_copied_tags(result)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
+  end
+
+  defp reindex_copied_tags(%{copy_tags: tags}), do: Tags.reindex_tags(tags)
+  defp reindex_copied_tags(_result), do: nil
+
+  defp update_first_seen_at(image, time_1, time_2) do
+    min_time =
+      case NaiveDateTime.compare(time_1, time_2) do
+        :gt -> time_2
+        _ -> time_1
+      end
+
+    Image
+    |> where(id: ^image.id)
+    |> Repo.update_all(set: [first_seen_at: min_time])
+
+    {:ok, image}
   end
 
   def unhide_image(%Image{hidden_from_users: true} = image) do
@@ -461,12 +510,20 @@ defmodule Philomena.Images do
 
       {:ok, image.tags}
     end)
-    |> Multi.run(:file, fn _repo, %{image: image} ->
-      Hider.unhide_thumbnails(image, key)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{image: image, tags: tags}} ->
+        Hider.unhide_thumbnails(image, key)
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+        reindex_image(image)
+        Comments.reindex_comments(image)
+        Tags.reindex_tags(tags)
+
+        {:ok, image}
+
+      error ->
+        error
+    end
   end
 
   def unhide_image(image), do: {:ok, image}
@@ -655,7 +712,7 @@ defmodule Philomena.Images do
   end
 
   @doc """
-  Deletes a Subscription.
+  Deletes a subscription.
 
   ## Examples
 
@@ -671,6 +728,12 @@ defmodule Philomena.Images do
 
     %Subscription{image_id: image.id, user_id: user.id}
     |> Repo.delete()
+  end
+
+  def migrate_subscriptions(source, target) do
+    Subscription
+    |> where(image_id: ^source.id)
+    |> Repo.update_all(set: [image_id: target.id])
   end
 
   def clear_notification(_image, nil), do: nil

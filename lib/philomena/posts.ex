@@ -15,6 +15,7 @@ defmodule Philomena.Posts do
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
   alias Philomena.Versions
+  alias Philomena.Reports
   alias Philomena.Reports.Report
 
   @doc """
@@ -88,7 +89,7 @@ defmodule Philomena.Posts do
     |> Multi.run(:subscribe, fn _repo, _changes ->
       Topics.create_subscription(topic, attributes[:user])
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def notify_post(post) do
@@ -146,7 +147,7 @@ defmodule Philomena.Posts do
         "edit_reason" => current_reason
       })
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   @doc """
@@ -170,7 +171,7 @@ defmodule Philomena.Posts do
       Report
       |> where(reportable_type: "Post", reportable_id: ^post.id)
       |> select([r], r.id)
-      |> update(set: [open: false, state: "closed"])
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
     post = Post.hide_changeset(post, attrs, user)
 
@@ -178,12 +179,29 @@ defmodule Philomena.Posts do
     |> Multi.update(:post, post)
     |> Multi.update_all(:reports, reports, [])
     |> Repo.transaction()
+    |> case do
+      {:ok, %{post: post, reports: {_count, reports}}} ->
+        Reports.reindex_reports(reports)
+        reindex_post(post)
+
+        {:ok, post}
+
+      error ->
+        error
+    end
   end
 
   def unhide_post(%Post{} = post) do
     post
     |> Post.unhide_changeset()
     |> Repo.update()
+    |> case do
+      {:ok, post} ->
+        reindex_post(post)
+
+      error ->
+        error
+    end
   end
 
   def destroy_post(%Post{} = post) do

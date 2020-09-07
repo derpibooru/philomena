@@ -19,13 +19,15 @@ defmodule PhilomenaWeb.Tag.AliasController do
   end
 
   def update(conn, %{"tag" => tag_params}) do
-    spawn(fn ->
-      Tags.alias_tag(conn.assigns.tag, tag_params)
-    end)
+    case Tags.alias_tag(conn.assigns.tag, tag_params) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag alias queued.")
+        |> redirect(to: Routes.tag_alias_path(conn, :edit, tag))
 
-    conn
-    |> put_flash(:info, "Tag alias queued.")
-    |> redirect(to: Routes.tag_alias_path(conn, :edit, conn.assigns.tag))
+      {:error, changeset} ->
+        render(conn, "edit.html", changeset: changeset)
+    end
   end
 
   def delete(conn, _params) do

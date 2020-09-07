@@ -70,7 +70,7 @@ defmodule Philomena.Topics do
     |> Multi.run(:subscribe, fn _repo, %{topic: topic} ->
       create_subscription(topic, attribution[:user])
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def notify_topic(topic) do
@@ -239,7 +239,7 @@ defmodule Philomena.Topics do
 
       {:ok, count}
     end)
-    |> Repo.isolated_transaction(:serializable)
+    |> Repo.transaction()
   end
 
   def hide_topic(topic, deletion_reason, user) do

@@ -56,4 +56,18 @@ h3 Associated tag
 - else
   p There is no tag associated with this link.
 
+= if can?(@conn, :index, Philomena.UserLinks.UserLink) do
+  p
+    => link "Edit", to: Routes.profile_user_link_path(@conn, :edit, @user, @user_link)
+    ' &bull;
+    => link "Verify", to: Routes.admin_user_link_verification_path(@conn, :create, @user_link), method: :post
+    ' &bull;
+    => link "Reject", to: Routes.admin_user_link_reject_path(@conn, :create, @user_link), method: :post
+    = if not verified?(@user_link) do
+      ' &bull;
+      = if contacted?(@user_link) do
+        ' Artist contacted
+      - else
+        = link "Artist contacted", to: Routes.admin_user_link_contact_path(@conn, :create, @user_link), method: :post
+
 = link "Back", to: Routes.profile_user_link_path(@conn, :index, @user)

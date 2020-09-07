@@ -14,8 +14,8 @@
             | artist:
             em artist name here
           ' or a series name
-      p Should be blank only if your content isn't on the site, generally
       = text_input f, :tag_name, value: assigns[:tag_name], class: "input", autocomplete: "off", placeholder: "artist:name", data: [ac: "true", ac_min_length: "3", ac_source: "/tags/autocomplete?term="]
+      = error_tag f, :tag
 
   .field
     label for="uri"

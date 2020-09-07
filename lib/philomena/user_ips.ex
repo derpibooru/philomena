@@ -9,19 +9,6 @@ defmodule Philomena.UserIps do
   alias Philomena.UserIps.UserIp
 
   @doc """
-  Returns the list of user_ips.
-
-  ## Examples
-
-      iex> list_user_ips()
-      [%UserIp{}, ...]
-
-  """
-  def list_user_ips do
-    Repo.all(UserIp)
-  end
-
-  @doc """
   Gets a single user_ip.
 
   Raises `Ecto.NoResultsError` if the User ip does not exist.
@@ -36,6 +23,31 @@ defmodule Philomena.UserIps do
 
   """
   def get_user_ip!(id), do: Repo.get!(UserIp, id)
+
+  @doc """
+  Gets this user's most recent IP address, if the user has one
+  recorded.
+  """
+  def get_ip_for_user(user_id) do
+    UserIp
+    |> where(user_id: ^user_id)
+    |> order_by(desc: :updated_at)
+    |> limit(1)
+    |> select([u], u.ip)
+    |> Repo.one()
+  end
+
+  @doc """
+  Sets the appropriate netmask for correctly banning an IPv6-enabled
+  client per RFC4941. IPv4 addresses are not changed.
+  """
+  def masked_ip(%Postgrex.INET{address: {_1, _2, _3, _4}} = ip) do
+    ip
+  end
+
+  def masked_ip(%Postgrex.INET{address: {h1, h2, h3, h4, _5, _6, _7, _8}} = ip) do
+    %{ip | address: {h1, h2, h3, h4, 0, 0, 0, 0}, netmask: 64}
+  end
 
   @doc """
   Creates a user_ip.

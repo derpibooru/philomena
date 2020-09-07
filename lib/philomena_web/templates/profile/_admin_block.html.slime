@@ -31,6 +31,18 @@
   ' Two factor auth:
   strong = enabled_text(@user.otp_required_for_login)
 
+  br
+
+  = if @user.locked_at do
+    i.fas.fa-fw.fa-lock>
+    strong.comment_deleted>
+      ' Account locked,
+      => @user.failed_attempts
+      ' failed login attempts
+  - else
+    i.fas.fa-fw.fa-unlock>
+    ' Not currently locked
+
 br
 
 a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__options__toggle" title="Toggle Controls"
@@ -87,7 +99,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
       = if @forced do
         li
           = link to: Routes.admin_user_force_filter_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
-            i.fas.faw-fw.fa-filter
+            i.fas.fa-fw.fa-filter
             span.admin__button Remove Force Filter
 
       = if @user.deleted_at do
@@ -100,6 +112,12 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
           = link to: Routes.admin_user_activation_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fa.fa-fw.fa-times
             span.admin__button Deactivate Account
+
+      = if @user.locked_at do
+        li
+          = link to: Routes.admin_user_unlock_path(@conn, :create, @user), data: [method: "post"] do
+            i.fas.fa-fw.fa-unlock
+            span.admin__button Unlock Account
 
       li
         = link to: Routes.admin_user_wipe_path(@conn, :create, @user), data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do

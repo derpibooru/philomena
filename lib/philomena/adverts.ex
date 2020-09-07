@@ -4,7 +4,6 @@ defmodule Philomena.Adverts do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   alias Philomena.Repo
 
   alias Philomena.Adverts.Advert
@@ -74,7 +73,7 @@ defmodule Philomena.Adverts do
   def get_advert!(id), do: Repo.get!(Advert, id)
 
   @doc """
-  Creates a advert.
+  Creates an advert.
 
   ## Examples
 
@@ -86,24 +85,24 @@ defmodule Philomena.Adverts do
 
   """
   def create_advert(attrs \\ %{}) do
-    advert =
-      %Advert{}
-      |> Advert.save_changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    %Advert{}
+    |> Advert.save_changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, advert} ->
+        Uploader.persist_upload(advert)
+        Uploader.unpersist_old_upload(advert)
 
-    Multi.new()
-    |> Multi.insert(:advert, advert)
-    |> Multi.run(:after, fn _repo, %{advert: advert} ->
-      Uploader.persist_upload(advert)
-      Uploader.unpersist_old_upload(advert)
+        {:ok, advert}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   @doc """
-  Updates a advert.
+  Updates an advert.
 
   ## Examples
 
@@ -121,24 +120,24 @@ defmodule Philomena.Adverts do
   end
 
   def update_advert_image(%Advert{} = advert, attrs) do
-    advert =
-      advert
-      |> Advert.changeset(attrs)
-      |> Uploader.analyze_upload(attrs)
+    advert
+    |> Advert.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Repo.update()
+    |> case do
+      {:ok, advert} ->
+        Uploader.persist_upload(advert)
+        Uploader.unpersist_old_upload(advert)
 
-    Multi.new()
-    |> Multi.update(:advert, advert)
-    |> Multi.run(:after, fn _repo, %{advert: advert} ->
-      Uploader.persist_upload(advert)
-      Uploader.unpersist_old_upload(advert)
+        {:ok, advert}
 
-      {:ok, nil}
-    end)
-    |> Repo.isolated_transaction(:serializable)
+      error ->
+        error
+    end
   end
 
   @doc """
-  Deletes a Advert.
+  Deletes an Advert.
 
   ## Examples
 

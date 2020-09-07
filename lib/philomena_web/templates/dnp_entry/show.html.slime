@@ -50,6 +50,28 @@ h2
             td
               = String.capitalize(@dnp_entry.aasm_state)
 
+= if can?(@conn, :index, Philomena.DnpEntries.DnpEntry) do
+  = case @dnp_entry.aasm_state do
+      - s when s in ["requested", "claimed"] ->
+      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      ' &bull;
+      => link "Approve", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "listed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      ' &bull;
+      => link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+      - "listed" ->
+      => link "Rescind", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "rescinded"), data: [method: "post", confirm: "Are you really, really sure?"]
+      ' &bull;
+      = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+      - s when s in ["rescinded", "acknowledged"] ->
+      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "acknowledged"), data: [method: "post", confirm: "Are you really, really sure?"]
+      ' &bull;
+      = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
+      - _state ->
+      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]
+
 = if assigns[:mod_notes] do
   h4 Mod Notes
   = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn

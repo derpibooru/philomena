@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Failed to update DNP entry!")
-        |> redirect(external: conn.assigns.referrer)
+        |> redirect(to: Routes.dnp_entry_path(conn, :show, conn.assigns.dnp_entry))
     end
   end
 
