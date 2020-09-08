@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Image.FavoriteController do
   end
 
   defp load_votes_if_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :hide, conn.assigns.image) do
+    case Canada.Can.can?(conn.assigns.current_user, :tamper, conn.assigns.image) do
       true ->
         image = Repo.preload(conn.assigns.image, upvotes: :user, downvotes: :user, hides: :user)
 
