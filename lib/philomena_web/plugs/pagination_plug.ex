@@ -23,7 +23,10 @@ defmodule PhilomenaWeb.PaginationPlug do
   end
 
   defp get_page_number(%{"page" => page}) do
-    to_integer(page) || 1
+    page
+    |> to_integer()
+    |> Kernel.||(1)
+    |> max(1)
   end
 
   defp get_page_number(_params), do: 1
