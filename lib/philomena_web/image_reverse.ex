@@ -26,8 +26,10 @@ defmodule PhilomenaWeb.ImageReverse do
   end
 
   defp analyze(%Plug.Upload{path: path}) do
-    {:ok, analysis} = Analyzers.analyze(path)
-    {analysis, path}
+    case Analyzers.analyze(path) do
+      {:ok, analysis} -> {analysis, path}
+      _ -> :error
+    end
   end
 
   defp analyze(_upload), do: :error
