@@ -169,6 +169,17 @@ defmodule Philomena.Galleries do
       {:ok, count}
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, result} ->
+        Images.reindex_image(image)
+        notify_gallery(gallery)
+        reindex_gallery(gallery)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   def remove_image_from_gallery(gallery, image) do
@@ -201,6 +212,16 @@ defmodule Philomena.Galleries do
       {:ok, count}
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, result} ->
+        Images.reindex_image(image)
+        reindex_gallery(gallery)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   defp last_position(gallery_id) do

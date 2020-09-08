@@ -1,10 +1,9 @@
 defmodule PhilomenaWeb.Gallery.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images.Image
   alias Philomena.Galleries.Gallery
-  alias Philomena.Images
   alias Philomena.Galleries
+  alias Philomena.Images.Image
 
   plug PhilomenaWeb.FilterBannedUsersPlug
 
@@ -15,25 +14,26 @@ defmodule PhilomenaWeb.Gallery.ImageController do
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   def create(conn, _params) do
-    gallery = conn.assigns.gallery
-    image = conn.assigns.image
+    case Galleries.add_image_to_gallery(conn.assigns.gallery, conn.assigns.image) do
+      {:ok, _gallery} ->
+        json(conn, %{})
 
-    {:ok, _gallery} = Galleries.add_image_to_gallery(gallery, image)
-    Galleries.notify_gallery(gallery)
-    Galleries.reindex_gallery(gallery)
-    Images.reindex_image(image)
-
-    json(conn, %{})
+      _error ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{})
+    end
   end
 
   def delete(conn, _params) do
-    gallery = conn.assigns.gallery
-    image = conn.assigns.image
+    case Galleries.remove_image_from_gallery(conn.assigns.gallery, conn.assigns.image) do
+      {:ok, _gallery} ->
+        json(conn, %{})
 
-    {:ok, _gallery} = Galleries.remove_image_from_gallery(gallery, image)
-    Galleries.reindex_gallery(gallery)
-    Images.reindex_image(image)
-
-    json(conn, %{})
+      _error ->
+        conn
+        |> put_status(:bad_request)
+        |> json(%{})
+    end
   end
 end

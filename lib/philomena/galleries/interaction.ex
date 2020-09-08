@@ -19,6 +19,7 @@ defmodule Philomena.Galleries.Interaction do
     |> cast(attrs, [:image_id, :position])
     |> validate_required([:image_id, :position])
     |> foreign_key_constraint(:image_id, name: :fk_rails_bb5ebe2a77)
+    |> unique_constraint(:image_id, name: :index_gallery_interactions_on_gallery_id_and_image_id)
     |> case do
       %{valid?: false, changes: changes} = changeset when changes == %{} ->
         %{changeset | action: :ignore}
