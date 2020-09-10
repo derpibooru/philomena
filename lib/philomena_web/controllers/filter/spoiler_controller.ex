@@ -7,7 +7,6 @@ defmodule PhilomenaWeb.Filter.SpoilerController do
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug :authorize_filter
 
-  plug PhilomenaWeb.RecodeParameterPlug, name: "tag"
   plug :load_resource, model: Tag, id_field: "slug", id_name: "tag", persisted: true
 
   def create(conn, _params) do

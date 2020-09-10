@@ -10,7 +10,7 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
     span.tag__state.hidden title="Hidden"
       | H
 
-    a.tag__name< href="/tags/#{@tag.slug}" title="#{@tag.short_description}" = @tag.name
+    a.tag__name< href=Routes.tag_path(@conn, :show, @tag) title="#{@tag.short_description}" = @tag.name
 
   div.dropdown__content
     a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=Routes.tag_watch_path(@conn, :delete, @tag) Unwatch

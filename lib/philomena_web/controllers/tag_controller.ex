@@ -9,7 +9,6 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.Interactions
   import Ecto.Query
 
-  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
 
   plug :load_and_authorize_resource,
