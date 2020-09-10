@@ -84,7 +84,10 @@ defmodule Philomena.Processors.Gif do
     scaled = Briefly.create!(extname: ".gif")
 
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
-    palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle:alpha_threshold=255"
+
+    palette_filter =
+      "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle:alpha_threshold=255"
+
     filter_graph = "[0:v]#{scale_filter}[x];[x][1:v]#{palette_filter}"
 
     {_output, 0} =
