@@ -427,6 +427,7 @@ defmodule Philomena.Images do
       {:ok, result} ->
         reindex_image(duplicate_of_image)
         Comments.reindex_comments(duplicate_of_image)
+        notify_merge(image, duplicate_of_image)
 
         {:ok, result}
 
@@ -740,6 +741,27 @@ defmodule Philomena.Images do
     {count, nil} = Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
 
     {:ok, count}
+  end
+
+  def notify_merge(source, target) do
+    spawn(fn ->
+      subscriptions =
+        target
+        |> Repo.preload(:subscriptions)
+        |> Map.fetch!(:subscriptions)
+
+      Notifications.notify(
+        nil,
+        subscriptions,
+        %{
+          actor_id: target.id,
+          actor_type: "Image",
+          actor_child_id: nil,
+          actor_child_type: nil,
+          action: "merged ##{source.id} into"
+        }
+      )
+    end)
   end
 
   def clear_notification(_image, nil), do: nil
