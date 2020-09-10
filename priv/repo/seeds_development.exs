@@ -52,7 +52,7 @@ for image_def <- resources["remote_images"] do
   now = DateTime.utc_now() |> DateTime.to_unix(:microsecond)
 
   IO.puts "Fetching #{image_def["url"]} ..."
-  %{body: body} = Philomena.Http.get!(image_def["url"])
+  {:ok, %{body: body}} = Philomena.Http.get(image_def["url"])
 
   File.write!(file, body)
 
