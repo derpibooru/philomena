@@ -22,13 +22,13 @@ defmodule Philomena.Servers.PicartoChannelUpdater do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     @api_online
-    |> Philomena.Http.get!()
+    |> Philomena.Http.get()
     |> handle_response(now)
 
     run()
   end
 
-  defp handle_response(%Tesla.Env{body: body, status: 200}, now) do
+  defp handle_response({:ok, %Tesla.Env{body: body, status: 200}}, now) do
     resp =
       body
       |> Jason.decode!()

@@ -4,7 +4,6 @@ defmodule PhilomenaWeb.Tag.WatchController do
   alias Philomena.Tags.Tag
   alias Philomena.Users
 
-  plug PhilomenaWeb.RecodeParameterPlug, name: "tag_id"
   plug :load_resource, model: Tag, id_field: "slug", id_name: "tag_id", persisted: true
 
   def create(conn, _params) do

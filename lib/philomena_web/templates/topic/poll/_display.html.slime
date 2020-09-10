@@ -16,7 +16,7 @@
           strong
             = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
 
-    - not @voted and not is_nil(@conn.assigns.current_user) ->
+    - @poll_active and not @voted and not is_nil(@conn.assigns.current_user) ->
       .poll
         .poll-area
           = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns

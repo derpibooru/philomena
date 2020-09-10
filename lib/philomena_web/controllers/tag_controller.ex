@@ -4,12 +4,11 @@ defmodule PhilomenaWeb.TagController do
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
-  alias Philomena.Images.Image
+  alias Philomena.{Images, Images.Image}
   alias PhilomenaWeb.TextileRenderer
   alias Philomena.Interactions
   import Ecto.Query
 
-  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
   plug PhilomenaWeb.CanaryMapPlug, update: :edit
 
   plug :load_and_authorize_resource,
@@ -72,7 +71,7 @@ defmodule PhilomenaWeb.TagController do
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 
-    search_query = escape_name(tag)
+    search_query = maybe_escape_name(tag)
     params = Map.put(conn.params, "q", search_query)
     conn = Map.put(conn, :params, params)
 
@@ -117,13 +116,23 @@ defmodule PhilomenaWeb.TagController do
     |> redirect(to: "/")
   end
 
-  def escape_name(%{name: name}) do
+  def maybe_escape_name(%{name: name}) do
     name =
       name
       |> String.replace(~r/\s+/, " ")
       |> String.trim()
       |> String.downcase()
 
+    case Images.Query.compile(nil, name) do
+      {:ok, %{term: %{"namespaced_tags.name" => ^name}}} ->
+        name
+
+      _error ->
+        escape_name(name)
+    end
+  end
+
+  defp escape_name(name) do
     cond do
       String.contains?(name, "(") or String.contains?(name, ")") ->
         # \ * ? " should be escaped, wrap in quotes so parser doesn't

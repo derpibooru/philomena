@@ -54,15 +54,14 @@ function createItem(list, suggestion) {
   item.addEventListener('mouseover', () => {
     removeSelected();
     item.classList.add('autocomplete__item--selected');
-    inputField.value = item.dataset.value;
   });
 
   item.addEventListener('mouseout', () => {
-    inputField.value = originalTerm;
     removeSelected();
   });
 
   item.addEventListener('click', () => {
+    inputField.value = item.dataset.value;
     inputField.dispatchEvent(
       new CustomEvent('autocomplete', {
         detail: {

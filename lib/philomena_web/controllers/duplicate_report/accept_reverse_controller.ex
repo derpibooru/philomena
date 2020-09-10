@@ -13,14 +13,19 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptReverseController do
     preload: [:image, :duplicate_of_image]
 
   def create(conn, _params) do
-    {:ok, _report} =
-      DuplicateReports.accept_reverse_duplicate_report(
-        conn.assigns.duplicate_report,
-        conn.assigns.current_user
-      )
+    report = conn.assigns.duplicate_report
+    user = conn.assigns.current_user
 
-    conn
-    |> put_flash(:info, "Successfully accepted report in reverse.")
-    |> redirect(to: Routes.duplicate_report_path(conn, :index))
+    case DuplicateReports.accept_reverse_duplicate_report(report, user) do
+      {:ok, _report} ->
+        conn
+        |> put_flash(:info, "Successfully accepted report in reverse.")
+        |> redirect(to: Routes.duplicate_report_path(conn, :index))
+
+      _error ->
+        conn
+        |> put_flash(:error, "Failed to accept report! Maybe someone else already accepted it.")
+        |> redirect(to: Routes.duplicate_report_path(conn, :index))
+    end
   end
 end

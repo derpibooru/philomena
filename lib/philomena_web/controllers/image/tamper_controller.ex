@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.Image.TamperController do
   alias Philomena.ImageVotes
   alias Philomena.Repo
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide
+  plug PhilomenaWeb.CanaryMapPlug, create: :tamper
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
   plug :load_resource, model: User, id_name: "user_id", persisted: true
 

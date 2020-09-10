@@ -101,4 +101,12 @@ defmodule Philomena.Polls do
   def change_poll(%Poll{} = poll) do
     Poll.changeset(poll, %{})
   end
+
+  def active?(%{id: poll_id}) do
+    now = DateTime.utc_now()
+
+    Poll
+    |> where([p], p.id == ^poll_id and p.active_until > ^now)
+    |> Repo.exists?()
+  end
 end

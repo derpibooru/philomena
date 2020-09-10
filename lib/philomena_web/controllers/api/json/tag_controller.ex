@@ -5,8 +5,6 @@ defmodule PhilomenaWeb.Api.Json.TagController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug PhilomenaWeb.RecodeParameterPlug, [name: "id"] when action in [:show]
-
   def show(conn, %{"id" => slug}) do
     tag =
       Tag

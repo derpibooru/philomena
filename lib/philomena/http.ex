@@ -1,10 +1,10 @@
 defmodule Philomena.Http do
-  def get!(url, headers \\ [], options \\ []) do
-    Tesla.get!(client(headers), url, opts: [adapter: adapter_opts(options)])
+  def get(url, headers \\ [], options \\ []) do
+    Tesla.get(client(headers), url, opts: [adapter: adapter_opts(options)])
   end
 
-  def head!(url, headers \\ [], options \\ []) do
-    Tesla.head!(client(headers), url, opts: [adapter: adapter_opts(options)])
+  def head(url, headers \\ [], options \\ []) do
+    Tesla.head(client(headers), url, opts: [adapter: adapter_opts(options)])
   end
 
   defp adapter_opts(opts) do

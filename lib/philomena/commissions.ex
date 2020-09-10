@@ -134,6 +134,13 @@ defmodule Philomena.Commissions do
     |> Multi.insert(:item, changeset)
     |> Multi.update_all(:commission, update, [])
     |> Repo.transaction()
+    |> case do
+      {:error, :item, changeset, _} ->
+        {:error, changeset}
+
+      result ->
+        result
+    end
   end
 
   @doc """

@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.TopicController do
 
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
-  alias Philomena.{Forums, Topics, Posts}
+  alias Philomena.{Forums, Topics, Polls, Posts}
   alias Philomena.PollVotes
   alias PhilomenaWeb.TextileRenderer
   alias Philomena.Repo
@@ -76,6 +76,8 @@ defmodule PhilomenaWeb.TopicController do
 
     voted = PollVotes.voted?(topic.poll, conn.assigns.current_user)
 
+    poll_active = Polls.active?(topic.poll)
+
     changeset =
       %Post{}
       |> Posts.change_post()
@@ -90,7 +92,8 @@ defmodule PhilomenaWeb.TopicController do
       changeset: changeset,
       topic_changeset: topic_changeset,
       watching: watching,
-      voted: voted
+      voted: voted,
+      poll_active: poll_active
     )
   end
 
