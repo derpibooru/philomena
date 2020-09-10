@@ -1,4 +1,6 @@
 - form_class = if @changeset.action, do: "", else: "hidden"
+- tags = display_order(@image.tags)
+- tag_input = Enum.map_join(tags, ", ", & &1.name)
 
 .js-tagsauce#image_tags_and_source
   .js-imageform class=form_class
@@ -9,7 +11,7 @@
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
             
-        = hidden_input f, :old_tag_input, value: @image.tag_list_cache
+        = hidden_input f, :old_tag_input, value: tag_input
 
         .field
           = label f, :tag_input do
@@ -19,7 +21,7 @@
             a href="/pages/spoilers" spoiler guidelines
             ' .
 
-          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: Enum.map_join(display_order(@image.tags), ", ", & &1.name)]
+          = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: tag_input]
           = error_tag f, :tag_input
 
         = if !@conn.assigns.current_user do
@@ -63,4 +65,4 @@
           = @tag_change_count
           | )
 
-    = render PhilomenaWeb.TagView, "_tag_list.html", tags: display_order(@image.tags), conn: @conn
+    = render PhilomenaWeb.TagView, "_tag_list.html", tags: tags, conn: @conn
