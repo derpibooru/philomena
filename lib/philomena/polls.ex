@@ -109,4 +109,6 @@ defmodule Philomena.Polls do
     |> where([p], p.id == ^poll_id and p.active_until > ^now)
     |> Repo.exists?()
   end
+
+  def active?(_poll), do: false
 end
