@@ -21,8 +21,10 @@ defmodule PhilomenaWeb.Image.DeleteController do
         |> put_flash(:info, "Image successfully hidden.")
         |> redirect(to: Routes.image_path(conn, :show, image))
 
-      {:error, :image, changeset, _changes} ->
-        render(conn, "new.html", image: image, changeset: changeset)
+      _error ->
+        conn
+        |> put_flash(:error, "Failed to hide image.")
+        |> redirect(to: Routes.image_path(conn, :show, image))
     end
   end
 

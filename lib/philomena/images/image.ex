@@ -214,6 +214,7 @@ defmodule Philomena.Images.Image do
   def hide_changeset(image, attrs, user) do
     image
     |> cast(attrs, [:deletion_reason])
+    |> validate_not_hidden()
     |> put_change(:deleter_id, user.id)
     |> put_change(:hidden_image_key, create_key())
     |> put_change(:hidden_from_users, true)
@@ -228,6 +229,7 @@ defmodule Philomena.Images.Image do
 
   def merge_changeset(image, duplicate_of_image) do
     change(image)
+    |> validate_not_hidden()
     |> put_change(:duplicate_id, duplicate_of_image.id)
     |> put_change(:hidden_image_key, create_key())
     |> put_change(:hidden_from_users, true)
@@ -235,6 +237,7 @@ defmodule Philomena.Images.Image do
 
   def unhide_changeset(image) do
     change(image)
+    |> validate_hidden()
     |> put_change(:deleter_id, nil)
     |> put_change(:hidden_image_key, nil)
     |> put_change(:hidden_from_users, false)
@@ -334,5 +337,19 @@ defmodule Philomena.Images.Image do
 
   defp create_key do
     Base.encode16(:crypto.strong_rand_bytes(6), case: :lower)
+  end
+
+  defp validate_hidden(changeset) do
+    case get_field(changeset, :hidden_from_users) do
+      true -> changeset
+      false -> add_error(changeset, :hidden_from_users, "must be true")
+    end
+  end
+
+  defp validate_not_hidden(changeset) do
+    case get_field(changeset, :hidden_from_users) do
+      true -> add_error(changeset, :hidden_from_users, "must be false")
+      false -> changeset
+    end
   end
 end
