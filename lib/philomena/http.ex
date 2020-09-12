@@ -7,6 +7,10 @@ defmodule Philomena.Http do
     Tesla.head(client(headers), url, opts: [adapter: adapter_opts(options)])
   end
 
+  def post(url, body, headers \\ [], options \\ []) do
+    Tesla.post(client(headers), url, body, opts: [adapter: adapter_opts(options)])
+  end
+
   defp adapter_opts(opts) do
     opts = Keyword.merge(opts, max_body: 100_000_000)
 

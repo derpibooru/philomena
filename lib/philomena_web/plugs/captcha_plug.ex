@@ -1,53 +1,29 @@
 defmodule PhilomenaWeb.CaptchaPlug do
-  alias Philomena.Captcha
-  import Plug.Conn
-  import Phoenix.Controller
+  alias PhilomenaWeb.ContentSecurityPolicyPlug
 
-  def init([]), do: false
+  @hcaptcha_url ["https://hcaptcha.com", "https://*.hcaptcha.com"]
 
+  def init(_opts) do
+    []
+  end
+
+  # Set CSP headers for serving captchas.
+  # Only holepunch CSP if the user is not signed in.
+  @spec call(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def call(conn, _opts) do
-    case captcha_enabled?() do
-      true -> maybe_check_captcha(conn, conn.assigns.current_user)
-      false -> conn
-    end
+    user = conn.assigns.current_user
+
+    maybe_assign_csp_headers(conn, user)
   end
 
-  defp maybe_check_captcha(conn, nil) do
-    case Captcha.valid_solution?(conn.params) do
-      true ->
-        conn
-
-      false ->
-        conn
-        |> put_flash(
-          :error,
-          "There was an error verifying you're not a robot. Please try again."
-        )
-        |> do_failure_response(ajax?(conn))
-        |> halt()
-    end
-  end
-
-  defp maybe_check_captcha(conn, _user), do: conn
-
-  defp do_failure_response(conn, true) do
+  defp maybe_assign_csp_headers(conn, nil) do
     conn
-    |> put_status(:multiple_choices)
-    |> text("")
+    |> ContentSecurityPolicyPlug.permit_source(:script_src, @hcaptcha_url)
+    |> ContentSecurityPolicyPlug.permit_source(:frame_src, @hcaptcha_url)
+    |> ContentSecurityPolicyPlug.permit_source(:style_src, @hcaptcha_url)
   end
 
-  defp do_failure_response(conn, _false) do
-    redirect(conn, external: conn.assigns.referrer)
-  end
-
-  def ajax?(conn) do
-    case get_req_header(conn, "x-requested-with") do
-      [value] -> String.downcase(value) == "xmlhttprequest"
-      _ -> false
-    end
-  end
-
-  def captcha_enabled? do
-    Application.get_env(:philomena, :captcha) != false
+  defp maybe_assign_csp_headers(conn, _user) do
+    conn
   end
 end

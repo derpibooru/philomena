@@ -12,9 +12,7 @@
         button.button.button--separate-left type="reset" data-click-hide="#source-form" data-click-show="#image-source"
           ' Cancel
 
-        = if !@conn.assigns.current_user do
-          = checkbox f, :captcha, class: "js-captcha", value: 0
-          = label f, :captcha, "I am not a robot!"
+      = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "source", conn: @conn
 
     - else
       p

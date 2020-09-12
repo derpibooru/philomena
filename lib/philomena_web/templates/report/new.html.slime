@@ -60,11 +60,6 @@ p
       .block__tab.communication-edit__tab.hidden data-tab="preview"
         ' [Loading preview...]
 
-    = if !@conn.assigns.current_user do
-      .field
-        = checkbox f, :captcha, class: "js-captcha", value: 0
-        = label f, :captcha, "I am not a robot!"
-      p
-        ' This helps stop bot spam; log in if you don't want to deal with captchas.
+    = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "report", conn: @conn
 
     = submit "Send Report", class: "button"

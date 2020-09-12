@@ -1,0 +1,8 @@
+= if is_nil(@conn.assigns.current_user) do
+  - challenge = challenge_name(@name)
+
+  .field.js-captcha-box
+    br
+    => checkbox :captcha, challenge, class: "js-captcha", value: 0, autocomplete: "off", data: [sitekey: hcaptcha_site_key()]
+    = label :captcha, challenge, "I am not a robot!"
+    br

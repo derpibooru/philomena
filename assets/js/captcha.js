@@ -1,33 +1,20 @@
-/**
- * Fetch captchas.
- */
-import { $$, hideEl } from './utils/dom';
-import { fetchJson, handleError } from './utils/requests';
+import { delegate, leftClick } from './utils/events';
+import { clearEl, makeEl } from './utils/dom';
 
-function insertCaptcha(checkbox) {
-  // Also hide any associated labels
-  checkbox.checked = false;
-  hideEl(checkbox);
-  hideEl($$(`label[for="${checkbox.id}"]`));
+function insertCaptcha(_event, target) {
+  const { parentNode, dataset: { sitekey } } = target;
 
-  fetchJson('POST', '/captchas')
-    .then(handleError)
-    .then(r => r.text())
-    .then(r => {
-      checkbox.insertAdjacentHTML('afterend', r);
-      checkbox.parentElement.removeChild(checkbox);
-    }).catch(() => {
-      checkbox.insertAdjacentHTML('afterend', '<p class="block block--danger">Failed to fetch challenge from server!</p>');
-      checkbox.parentElement.removeChild(checkbox);
-    });
+  const script = makeEl('script', {src: 'https://hcaptcha.com/1/api.js', async: true, defer: true});
+  const frame = makeEl('div', {className: 'h-captcha'});
+
+  frame.dataset.sitekey = sitekey;
+
+  clearEl(parentNode);
+
+  parentNode.insertAdjacentElement('beforeend', frame);
+  parentNode.insertAdjacentElement('beforeend', script);
 }
 
-function bindCaptchaLinks() {
-  document.addEventListener('click', event => {
-    if (event.target && event.target.closest('.js-captcha')) {
-      insertCaptcha(event.target.closest('.js-captcha'));
-    }
-  });
+export function bindCaptchaLinks() {
+  delegate(document, 'click', {'.js-captcha': leftClick(insertCaptcha)});
 }
-
-export { bindCaptchaLinks };

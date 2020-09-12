@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   def permit_source(conn, key, value) when key in @allowed_sources do
     conn
     |> get_config()
-    |> Keyword.update(key, [], &[value | &1])
+    |> Keyword.update(key, value, &(value ++ &1))
     |> set_config(conn)
   end
 

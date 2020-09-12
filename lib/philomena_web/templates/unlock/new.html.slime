@@ -4,9 +4,7 @@ h1 Resend unlock instructions
   .field
     = email_input f, :email, placeholder: "Email", class: "input", required: true
 
-  .field
-    = checkbox f, :captcha, class: "js-captcha", value: 0
-    = label f, :captcha, "I am not a robot!"
+  = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "unlock", conn: @conn
 
   div
     = submit "Resend unlock instructions", class: "button"
