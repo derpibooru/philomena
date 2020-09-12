@@ -29,7 +29,8 @@ defmodule PhilomenaWeb.ReportController do
   #
   # plug PhilomenaWeb.FilterBannedUsersPlug
   # plug PhilomenaWeb.UserAttributionPlug
-  # plug PhilomenaWeb.CaptchaPlug when action in [:create]
+  # plug PhilomenaWeb.CaptchaPlug
+  # plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
   # plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
 
   def create(conn, action, reportable, reportable_type, %{"report" => report_params}) do

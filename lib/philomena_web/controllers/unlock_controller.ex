@@ -3,7 +3,8 @@ defmodule PhilomenaWeb.UnlockController do
 
   alias Philomena.Users
 
-  plug PhilomenaWeb.CaptchaPlug when action in [:create]
+  plug PhilomenaWeb.CaptchaPlug
+  plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
 
   def new(conn, _params) do
     render(conn, "new.html")

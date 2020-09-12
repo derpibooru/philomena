@@ -28,9 +28,7 @@ h1 Register
     = password_input f, :password_confirmation, class: "input", placeholder: "Confirm password", required: true
     = error_tag f, :password_confirmation
 
-  .field
-    = checkbox f, :captcha, class: "js-captcha", value: 0
-    = label f, :captcha, "I am not a robot!"
+  = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "registration", conn: @conn
 
   br
 

@@ -486,8 +486,6 @@ defmodule PhilomenaWeb.Router do
       resources "/source_changes", Profile.SourceChangeController, only: [:index]
     end
 
-    resources "/captchas", CaptchaController, only: [:create]
-
     scope "/posts", Post, as: :post do
       resources "/preview", PreviewController, only: [:create]
     end

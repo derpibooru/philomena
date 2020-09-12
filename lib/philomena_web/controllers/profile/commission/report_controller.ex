@@ -9,7 +9,8 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.UserAttributionPlug
-  plug PhilomenaWeb.CaptchaPlug when action in [:create]
+  plug PhilomenaWeb.CaptchaPlug
+  plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
   plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
   plug :load_resource,

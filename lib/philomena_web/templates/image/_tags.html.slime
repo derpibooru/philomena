@@ -33,10 +33,8 @@
             a> href="/pages/tags" tagging guidelines
             ' before editing tags.
 
-          .field
-            = checkbox f, :captcha, class: "js-captcha", value: 0
-            = label f, :captcha, "I am not a robot!"
-        
+          = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "tags", conn: @conn
+
         ul.horizontal-list
           li
             .actions

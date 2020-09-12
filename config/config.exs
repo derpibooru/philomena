@@ -27,6 +27,8 @@ config :philomena,
   channel_image_file_root: "priv/static/system/images",
   channel_banner_file_root: "priv/static/system/images",
   tag_file_root: "priv/static/system/images",
+  hcaptcha_site_key: "10000000-ffff-ffff-ffff-000000000001",
+  hcaptcha_secret_key: "0x0000000000000000000000000000000000000000",
   cdn_host: "",
   proxy_host: nil,
   app_dir: File.cwd!()
