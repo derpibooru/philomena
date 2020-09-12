@@ -153,6 +153,7 @@ defmodule Philomena.Tags.Tag do
         &1.category != "character",
         &1.category != "oc",
         &1.category != "species",
+        &1.category != "body-type",
         &1.category != "content-fanmade",
         &1.category != "content-official",
         &1.category != "spoiler",
@@ -169,6 +170,7 @@ defmodule Philomena.Tags.Tag do
       "character",
       "oc",
       "species",
+      "body-type",
       "content-fanmade",
       "content-official",
       "spoiler"

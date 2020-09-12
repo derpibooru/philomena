@@ -39,6 +39,7 @@ $tag_category_character_color: #2d8677;
 $tag_category_content_official_color: #998e1a;
 $tag_category_content_fanmade_color: #bb5496;
 $tag_category_species_color: #8b552f;
+$tag_category_body_type_color: #4e4e4e; 
 
 $commission_category_color: #986f3d;
 
@@ -138,6 +139,8 @@ $tag_category_content_fanmade_background: lighten($tag_category_content_fanmade_
 $tag_category_content_fanmade_border: lighten($tag_category_content_fanmade_color, 18%);
 $tag_category_species_background: lighten($tag_category_species_color, 44%);
 $tag_category_species_border: lighten($tag_category_species_color, 25%);
+$tag_category_body_type_background: lighten($tag_category_body_type_color, 45%);
+$tag_category_body_type_border: lighten($tag_category_body_type_color, 35%);
 
 $commission_category_background: saturate(lighten($commission_category_color, 40%), 12%);
 $commission_category_border: lighten($commission_category_color, 20%);

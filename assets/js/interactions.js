@@ -100,7 +100,7 @@ function loadInteractions() {
 
   /* Next part is only for image index pages
    * TODO: find a better way to do this */
-  if (!document.getElementById('imagelist_container')) return;
+  if (!document.getElementById('imagelist-container')) return;
 
   /* Users will blind downvote without this */
   window.booru.imagesWithDownvotingDisabled.forEach(i => {
