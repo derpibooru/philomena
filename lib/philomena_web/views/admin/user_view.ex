@@ -1,6 +1,21 @@
 defmodule PhilomenaWeb.Admin.UserView do
   use PhilomenaWeb, :view
 
+  def page_params(params) do
+    []
+    |> page_param(params, "q", :q)
+    |> page_param(params, "staff", :staff)
+    |> page_param(params, "twofactor", :twofactor)
+  end
+
+  defp page_param(list, params, key, key_atom) do
+    case params[key] do
+      nil -> list
+      "" -> list
+      val -> [{key_atom, val} | list]
+    end
+  end
+
   def checkbox_mapper(form, field, input_opts, role, _label_opts, _opts) do
     input_id = "user_roles_#{role.id}"
     label_opts = [for: input_id]
