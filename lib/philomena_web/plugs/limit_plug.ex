@@ -31,12 +31,9 @@ defmodule PhilomenaWeb.LimitPlug do
     ]
 
     key = "rl-#{Enum.join(data, "")}"
+    amt = Redix.command!(:redix, ["GET", key]) || 0
 
-    [amt, _] =
-      Redix.pipeline!(:redix, [
-        ["INCR", key],
-        ["EXPIRE", key, time]
-      ])
+    conn = increment_after_post(conn, key, time)
 
     cond do
       amt <= limit ->
@@ -85,5 +82,19 @@ defmodule PhilomenaWeb.LimitPlug do
       [value] -> String.downcase(value) == "xmlhttprequest"
       _ -> false
     end
+  end
+
+  defp increment_after_post(conn, key, time) do
+    Conn.register_before_send(conn, fn conn ->
+      # Phoenix status returns 200 for form validation errors
+      if conn.status != 200 do
+        Redix.pipeline!(:redix, [
+          ["INCR", key],
+          ["EXPIRE", key, time]
+        ])
+      end
+
+      conn
+    end)
   end
 end
