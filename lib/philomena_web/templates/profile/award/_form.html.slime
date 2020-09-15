@@ -1,16 +1,18 @@
 = form_for @changeset, @action, fn f ->
+  - badge_options = badge_options(@badges)
+
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
 
   .field
     => label f, :badge_id, "Badge type"
-    = select f, :badge_id, badge_options(@badges), class: "input", data: [change_selectvalue: "#award_label"]
+    = select f, :badge_id, badge_options, class: "input", data: [change_selectvalue: "#award_label"]
     = error_tag f, :badge_id
 
   .field
     => label f, :label, "Label (Public)"
-    = text_input f, :label, class: "input input--wide"
+    = text_input f, :label, class: "input input--wide", value: first_badge_label(badge_options)
     = error_tag f, :label
 
   .field
