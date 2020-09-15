@@ -104,3 +104,7 @@ delegate(document, 'submit', {
 delegate(document, 'reset', {
   form: formReset
 });
+
+window.addEventListener('pageshow', () => {
+  [].forEach.call(document.forms, form => formReset(null, form));
+});
