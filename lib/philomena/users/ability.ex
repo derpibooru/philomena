@@ -121,6 +121,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Revert tag changes
   def can?(%User{role: "moderator"}, :revert, TagChange), do: true
 
+  # Manage commissions
+  def can?(%User{role: "moderator"}, _action, %Commission{}), do: true
+
   # And some privileged moderators can...
 
   # Manage site notices
