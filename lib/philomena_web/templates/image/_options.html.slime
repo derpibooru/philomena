@@ -110,7 +110,7 @@
         = if not @image.hidden_from_users do
           = form_for @changeset, Routes.image_feature_path(@conn, :create, @image), [method: "post"], fn _f ->
             .field
-              p Automatically tags 'featured image'
+              p Marks the image as featured
               = submit "Feature", data: [confirm: "Are you really, really sure?"], class: "button button--state-success"
         - else
           = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"
