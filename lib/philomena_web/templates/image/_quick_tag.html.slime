@@ -5,7 +5,7 @@ a.js-quick-tag--abort.hidden href="#"
   i.fa.fa-exclamation-triangle
   span.hide-mobile.hide-limited-desktop<> Abort Tagging
 a.js-quick-tag--all.hidden href="#"
-  i.fa.fa-arrows-alt-h
+  i.fa.fa-exchange-alt
   span.hide-mobile.hide-limited-desktop<> Toggle All
 a.js-quick-tag--submit.hidden href="#"
   i.fa.fa-tags
