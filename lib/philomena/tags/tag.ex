@@ -43,6 +43,14 @@ defmodule Philomena.Tags.Tag do
     "video" => "content-fanmade"
   }
 
+  @underscore_safe_namespaces [
+    "artist:",
+    "colorist:",
+    "editor:",
+    "oc:",
+    "photographer:"
+  ]
+
   @derive {Phoenix.Param, key: :slug}
 
   schema "tags" do
@@ -211,11 +219,12 @@ defmodule Philomena.Tags.Tag do
   defp join_namespace_parts([_namespace, _name], original_name),
     do: original_name
 
-  defp ununderscore(<<"artist:", _rest::binary>> = name),
-    do: name
-
-  defp ununderscore(name),
-    do: String.replace(name, "_", " ")
+  defp ununderscore(name) do
+    case String.starts_with?(name, @underscore_safe_namespaces) do
+      true -> name
+      false -> String.replace(name, "_", " ")
+    end
+  end
 
   defp put_slug(changeset) do
     slug =
