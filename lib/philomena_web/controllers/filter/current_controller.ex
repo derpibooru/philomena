@@ -1,6 +1,8 @@
 defmodule PhilomenaWeb.Filter.CurrentController do
   use PhilomenaWeb, :controller
 
+  @cookie_opts [max_age: 788_923_800, same_site: "Lax"]
+
   alias Philomena.{Filters, Filters.Filter, Users.User}
   alias Philomena.Repo
 
@@ -24,8 +26,7 @@ defmodule PhilomenaWeb.Filter.CurrentController do
   end
 
   defp update_filter(conn, nil, filter) do
-    conn
-    |> put_session(:filter_id, filter.id)
+    put_resp_cookie(conn, "filter_id", Integer.to_string(filter.id), @cookie_opts)
   end
 
   defp update_filter(conn, user, filter) do
