@@ -10,7 +10,7 @@ h1 Users
 => link "2FA users", to: Routes.admin_user_path(@conn, :index, twofactor: 1)
 
 - route = fn p -> Routes.admin_user_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: [q: @conn.params["q"]]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: page_params(@conn.params)
 
 .block
   .block__header

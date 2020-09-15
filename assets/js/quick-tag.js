@@ -21,6 +21,7 @@ function toggleActiveState() {
 
   toggleEl($('.js-quick-tag'),
     $('.js-quick-tag--abort'),
+    $('.js-quick-tag--all'),
     $('.js-quick-tag--submit'));
 
   setTagButton(`Submit (${currentTags()})`);
@@ -85,12 +86,17 @@ function modifyImageQueue(mediaBox) {
 
 }
 
+function toggleAllImages() {
+  $$('#imagelist-container .media-box').forEach(modifyImageQueue);
+}
+
 function clickHandler(event) {
 
   const targets = {
     '.js-quick-tag': activate,
     '.js-quick-tag--abort': reset,
     '.js-quick-tag--submit': submit,
+    '.js-quick-tag--all': toggleAllImages,
     '.media-box': modifyImageQueue,
   };
 

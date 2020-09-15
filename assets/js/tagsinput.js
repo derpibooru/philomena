@@ -2,7 +2,7 @@
  * Fancy tag editor.
  */
 
-import { $, $$, clearEl, removeEl, showEl, hideEl, escapeHtml } from './utils/dom';
+import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
 
 function setupTagsInput(tagBlock) {
   const [ textarea, container ] = $$('.js-taginput', tagBlock);
@@ -28,6 +28,9 @@ function setupTagsInput(tagBlock) {
 
   // Respond to autocomplete form clicks
   inputField.addEventListener('autocomplete', handleAutocomplete);
+
+  // Respond to Ctrl+Enter shortcut
+  tagBlock.addEventListener('keydown', handleCtrlEnter);
 
   // TODO: Cleanup this bug fix
   // Switch to fancy tagging if user settings want it
@@ -85,11 +88,27 @@ function setupTagsInput(tagBlock) {
 
   }
 
+  function handleCtrlEnter(event) {
+    const { keyCode, ctrlKey } = event;
+    if (keyCode !== 13 || !ctrlKey) return;
+
+    $('[type="submit"]', tagBlock.closest('form')).click();
+  }
+
   function insertTag(name) {
     name = name.trim(); // eslint-disable-line no-param-reassign
 
     // Add if not degenerate or already present
     if (name.length === 0 || tags.indexOf(name) !== -1) return;
+
+    // Remove instead if the tag name starts with a minus
+    if (name[0] === "-") {
+      name = name.slice(1); // eslint-disable-line no-param-reassign
+      tagLink = $(`[data-tag-name="${escapeCss(name)}"]`, container);
+
+      return removeTag(name, tagLink.parentNode);
+    }
+
     tags.push(name);
     textarea.value = tags.join(', ');
 

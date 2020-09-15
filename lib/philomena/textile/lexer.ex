@@ -32,6 +32,7 @@ defmodule Philomena.Textile.Lexer do
   end_of_link =
     choice([
       concat(link_ending_characters, extended_space),
+      string("[/"),
       extended_space
     ])
 

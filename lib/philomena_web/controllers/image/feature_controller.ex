@@ -3,15 +3,16 @@ defmodule PhilomenaWeb.Image.FeatureController do
 
   alias Philomena.Images.Image
   alias Philomena.Images
-  alias Philomena.Tags
 
   plug PhilomenaWeb.CanaryMapPlug, create: :hide
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
   plug :verify_not_deleted
 
   def create(conn, _params) do
-    {:ok, %{image: image}} = Images.feature_image(conn.assigns.current_user, conn.assigns.image)
-    Tags.reindex_tags(image.added_tags)
+    user = conn.assigns.current_user
+    image = conn.assigns.image
+
+    {:ok, _feature} = Images.feature_image(user, image)
 
     conn
     |> put_flash(:info, "Image marked as featured image.")

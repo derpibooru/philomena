@@ -1,7 +1,8 @@
 elixir:
   textarea_options = [
     class: "input input--wide tagsinput js-image-input js-taginput js-taginput-plain js-taginput-#{@name}",
-    placeholder: "Add tags separated with commas"
+    placeholder: "Add tags separated with commas",
+    autocomplete: "off"
   ]
   html_options = Keyword.merge(textarea_options, assigns[:extra] || [])
 

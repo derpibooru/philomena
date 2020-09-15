@@ -67,7 +67,7 @@ function formRemote(event, target) {
 }
 
 function formReset(event, target) {
-  $$('[disabled][data-disable-with]', target).forEach(input => {
+  $$('[disabled][data-disable-with][data-enable-with]', target).forEach(input => {
     const label = findFirstTextNode(input);
     if (label) {
       label.nodeValue = ` ${input.dataset.enableWith}`;
@@ -103,4 +103,8 @@ delegate(document, 'submit', {
 
 delegate(document, 'reset', {
   form: formReset
+});
+
+window.addEventListener('pageshow', () => {
+  [].forEach.call(document.forms, form => formReset(null, form));
 });

@@ -10,4 +10,12 @@ defmodule PhilomenaWeb.Profile.AwardView do
       ]
     end
   end
+
+  def first_badge_label([]) do
+    nil
+  end
+
+  def first_badge_label([badge | _rest]) do
+    badge[:data][:set_value]
+  end
 end

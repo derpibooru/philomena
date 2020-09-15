@@ -46,12 +46,15 @@ defmodule PhilomenaWeb.GalleryController do
     user = conn.assigns.current_user
     query = "gallery_id:#{gallery.id}"
 
-    params =
-      Map.merge(conn.params, %{
-        "q" => query,
-        "sf" => "gallery_id:#{gallery.id}",
-        "sd" => position_order(gallery)
-      })
+    conn =
+      update_in(
+        conn.params,
+        &Map.merge(&1, %{
+          "q" => query,
+          "sf" => "gallery_id:#{gallery.id}",
+          "sd" => position_order(gallery)
+        })
+      )
 
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
     {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
@@ -75,7 +78,6 @@ defmodule PhilomenaWeb.GalleryController do
 
     conn
     |> NotificationCountPlug.call([])
-    |> Map.put(:params, params)
     |> assign(:clientside_data, gallery_images: gallery_json)
     |> render("show.html",
       title: "Showing Gallery",

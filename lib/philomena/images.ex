@@ -110,30 +110,9 @@ defmodule Philomena.Images do
   end
 
   def feature_image(featurer, %Image{} = image) do
-    image = Repo.preload(image, :tags)
-    [featured] = Tags.get_or_create_tags("featured image")
-
-    feature =
-      %ImageFeature{user_id: featurer.id, image_id: image.id}
-      |> ImageFeature.changeset(%{})
-
-    image =
-      image
-      |> Image.tag_changeset(%{}, image.tags, [featured | image.tags])
-      |> Image.cache_changeset()
-
-    Multi.new()
-    |> Multi.insert(:feature, feature)
-    |> Multi.update(:image, image)
-    |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
-      tag_ids = image.added_tags |> Enum.map(& &1.id)
-      tags = Tag |> where([t], t.id in ^tag_ids)
-
-      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
-
-      {:ok, count}
-    end)
-    |> Repo.transaction()
+    %ImageFeature{user_id: featurer.id, image_id: image.id}
+    |> ImageFeature.changeset(%{})
+    |> Repo.insert()
   end
 
   def destroy_image(%Image{} = image) do

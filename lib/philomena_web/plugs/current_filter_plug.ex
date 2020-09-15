@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
 
   # Assign current filter
   def call(conn, _opts) do
-    conn = fetch_session(conn)
+    conn = fetch_cookies(conn)
     user = conn.assigns.current_user
 
     {filter, forced_filter} =
@@ -21,9 +21,7 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
 
         {user.current_filter, user.forced_filter}
       else
-        filter_id = conn |> get_session(:filter_id)
-
-        filter = if filter_id, do: Repo.get(Filter, filter_id)
+        filter = load_and_authorize_filter(conn.cookies, user)
 
         {filter || Filters.default_filter(), nil}
       end
@@ -45,4 +43,23 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
   end
 
   defp maybe_set_default_filter(user), do: user
+
+  defp load_and_authorize_filter(%{"filter_id" => filter_id}, user) do
+    Filter
+    |> Repo.get(filter_id)
+    |> case do
+      nil ->
+        nil
+
+      filter ->
+        case Canada.Can.can?(user, :show, filter) do
+          true -> filter
+          false -> nil
+        end
+    end
+  end
+
+  defp load_and_authorize_filter(_cookies, _user) do
+    nil
+  end
 end
