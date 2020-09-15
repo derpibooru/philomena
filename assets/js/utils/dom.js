@@ -62,8 +62,13 @@ function escapeHtml(html) {
     .replace(/"/g, '&quot;');
 }
 
+function escapeCss(css) {
+  return css.replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"');
+}
+
 function findFirstTextNode(of) {
   return Array.prototype.filter.call(of.childNodes, el => el.nodeType === Node.TEXT_NODE)[0];
 }
 
-export { $, $$, showEl, hideEl, toggleEl, clearEl, removeEl, makeEl, insertBefore, onLeftClick, whenReady, escapeHtml, findFirstTextNode };
+export { $, $$, showEl, hideEl, toggleEl, clearEl, removeEl, makeEl, insertBefore, onLeftClick, whenReady, escapeHtml, escapeCss, findFirstTextNode };
