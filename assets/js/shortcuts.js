@@ -2,13 +2,22 @@
  * Keyboard shortcuts
  */
 
+import { $ } from './utils/dom';
+
 function getHover() {
-  const thumbBoxHover = document.querySelector('.media-box:hover');
+  const thumbBoxHover = $('.media-box:hover');
   if (thumbBoxHover) return thumbBoxHover.dataset.imageId;
 }
 
+function openFullView() {
+  const imageHover = $('[data-uris]:hover');
+  if (!imageHover) return;
+
+  window.location = JSON.parse(imageHover.dataset.uris).full;
+}
+
 function click(selector) {
-  const el = document.querySelector(selector);
+  const el = $(selector);
   if (el) el.click();
 }
 
@@ -25,6 +34,7 @@ const keyCodes = {
   82() { click('.js-rand'); },             // R - go to random image
   83() { click('.js-source-link'); },      // S - go to image source
   76() { click('.js-tag-sauce-toggle'); }, // L - edit tags
+  79() { openFullView() },                 // O - open original
   70() {                                   // F - favourite image
     getHover() ? click(`a.interaction--fave[data-image-id="${getHover()}"]`)
       : click('.block__header a.interaction--fave');
