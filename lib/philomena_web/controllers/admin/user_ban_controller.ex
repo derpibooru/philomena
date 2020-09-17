@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   plug :verify_authorized
   plug :load_resource, model: UserBan, only: [:edit, :update, :delete]
+  plug :check_can_delete when action in [:delete]
 
   def index(conn, %{"q" => q}) when is_binary(q) do
     like_q = "%#{q}%"
@@ -97,6 +98,13 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   defp verify_authorized(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, UserBan) do
+      true -> conn
+      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    end
+  end
+
+  defp check_can_delete(conn, _opts) do
+    case conn.assigns.current_user.role == "admin" do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end

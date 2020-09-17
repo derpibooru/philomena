@@ -54,8 +54,9 @@ h1 User Bans
 
             td
                 => link "Edit", to: Routes.admin_user_ban_path(@conn, :edit, ban)
-                ' &bull;
-                => link "Destroy", to: Routes.admin_user_ban_path(@conn, :delete, ban), data: [confirm: "Are you really, really sure?", method: "delete"]
+                = if @current_user.role == "admin" do
+                  ' &bull;
+                  => link "Destroy", to: Routes.admin_user_ban_path(@conn, :delete, ban), data: [confirm: "Are you really, really sure?", method: "delete"]
 
   .block__header.block__header--light
     = pagination
