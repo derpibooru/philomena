@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.IpProfile.SourceChangeController do
     source_changes =
       SourceChange
       |> where(ip: ^ip)
-      |> order_by(desc: :created_at)
+      |> order_by(desc: :id)
       |> preload([:user, image: [:user, :tags]])
       |> Repo.paginate(conn.assigns.scrivener)
 

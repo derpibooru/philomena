@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Tag.TagChangeController do
       |> where(tag_id: ^tag.id)
       |> added_filter(params)
       |> preload([:tag, :user, image: [:user, :tags]])
-      |> order_by(desc: :created_at)
+      |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html",

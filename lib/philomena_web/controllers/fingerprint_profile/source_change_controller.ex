@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.FingerprintProfile.SourceChangeController do
     source_changes =
       SourceChange
       |> where(fingerprint: ^fingerprint)
-      |> order_by(desc: :created_at)
+      |> order_by(desc: :id)
       |> preload([:user, image: [:user, :tags]])
       |> Repo.paginate(conn.assigns.scrivener)
 
