@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.TagView do
   end
 
   def pretty_tag_path(%{slug: slug}) do
-    "/tags/" <> URI.encode(slug, &(&1 == ?+ or URI.char_unescaped?(&1)))
+    "/tags/" <> URI.encode(slug, &(&1 == ?+ or URI.char_unreserved?(&1)))
   end
 
   def tag_image(%{image: image}) do
