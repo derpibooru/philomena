@@ -20,6 +20,10 @@ defmodule PhilomenaWeb.TagView do
     can?(conn, :alias, %Tag{})
   end
 
+  def pretty_tag_path(%{slug: slug}) do
+    "/tags/" <> URI.encode(slug, &(&1 == ?+ or URI.char_unescaped?(&1)))
+  end
+
   def tag_image(%{image: image}) do
     tag_url_root() <> "/" <> image
   end

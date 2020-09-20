@@ -47,8 +47,7 @@ defmodule Philomena.Slug do
     |> String.replace(":", "-colon-")
     |> String.replace(".", "-dot-")
     |> String.replace("+", "-plus-")
-    |> URI.encode_www_form()
-    |> String.replace("%20", "+")
+    |> String.replace(" ", "+")
   end
 
   def slug(_string), do: ""
