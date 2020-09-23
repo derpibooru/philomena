@@ -43,7 +43,7 @@ config :philomena,
 
 config :philomena, Philomena.Repo,
   url: System.fetch_env!("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "32")
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "16")
 
 config :philomena, Philomena.Mailer,
   adapter: Bamboo.SMTPAdapter,
