@@ -51,8 +51,7 @@ defmodule PhilomenaWeb.PostController do
 
   defp filters(%{role: "assistant"}) do
     [
-      %{terms: %{access_level: ["normal", "assistant"]}},
-      %{term: %{deleted: false}}
+      %{terms: %{access_level: ["normal", "assistant"]}}
     ]
   end
 
