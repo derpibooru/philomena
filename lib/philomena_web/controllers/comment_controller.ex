@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.CommentController do
     render(conn, "index.html", title: "Comments", error: msg, comments: [])
   end
 
-  defp filters(%{role: role}) when role in ["moderator", "admin"], do: []
+  defp filters(%{role: role}) when role in ["assistant", "moderator", "admin"], do: []
 
   defp filters(_user),
     do: [%{term: %{hidden_from_users: false}}]
