@@ -195,13 +195,13 @@ defmodule Philomena.Images.Image do
 
   def thumbnail_changeset(image, attrs) do
     image
-    |> cast(attrs, [:image_sha512_hash, :image_size])
+    |> cast(attrs, [:image_sha512_hash, :image_size, :image_width, :image_height])
     |> change(thumbnails_generated: true, duplication_checked: true)
   end
 
   def process_changeset(image, attrs) do
     image
-    |> cast(attrs, [:image_sha512_hash, :image_size])
+    |> cast(attrs, [:image_sha512_hash, :image_size, :image_width, :image_height])
     |> change(processed: true)
   end
 

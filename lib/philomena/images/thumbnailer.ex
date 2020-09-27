@@ -57,10 +57,14 @@ defmodule Philomena.Images.Thumbnailer do
     do: DuplicateReports.generate_reports(image)
 
   defp recompute_meta(image, file, changeset_fn) do
+    {:ok, %{dimensions: {width, height}}} = Analyzers.analyze(file)
+
     image
     |> changeset_fn.(%{
       "image_sha512_hash" => Sha512.file(file),
-      "image_size" => File.stat!(file).size
+      "image_size" => File.stat!(file).size,
+      "image_width" => width,
+      "image_height" => height
     })
     |> Repo.update!()
   end
