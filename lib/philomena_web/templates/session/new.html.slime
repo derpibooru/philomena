@@ -4,6 +4,8 @@ h1 Sign in
   = if @error_message do
     .alert.alert-danger
       p = @error_message
+    p = link "Resend unlock instructions", to: Routes.unlock_path(@conn, :new)
+    p = link "Resend confirmation email", to: Routes.confirmation_path(@conn, :new)
 
   p = link "Forgot your password?", to: Routes.password_path(@conn, :new)
 
@@ -16,10 +18,11 @@ h1 Sign in
     = error_tag f, :password
 
   .field
-    = checkbox f, :remember_me
+    => checkbox f, :remember_me
     = label f, :remember_me, "Remember me"
 
-  = submit "Sign in", class: "button"
+  .actions
+    = submit "Sign in", class: "button"
 
 p
   strong
