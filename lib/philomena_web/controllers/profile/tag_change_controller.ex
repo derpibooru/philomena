@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       )
       |> added_filter(params)
       |> preload([:tag, :user, image: [:user, :tags]])
-      |> order_by(desc: :created_at)
+      |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html",

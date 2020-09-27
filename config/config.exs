@@ -68,6 +68,8 @@ config :tesla, adapter: Tesla.Adapter.Mint
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
+  handle_otp_reports: true,
+  handle_sasl_reports: true,
   metadata: [:request_id],
   truncate: :infinity
 

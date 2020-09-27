@@ -22,6 +22,7 @@ defmodule PhilomenaWeb.LimitPlug do
     limit = Keyword.get(opts, :limit, 1)
     time = Keyword.get(opts, :time, 5)
     error = Keyword.get(opts, :error)
+    skip_staff = Keyword.get(opts, :skip_staff, true)
 
     data = [
       current_user_id(conn.assigns.current_user),
@@ -39,7 +40,7 @@ defmodule PhilomenaWeb.LimitPlug do
       amt <= limit ->
         conn
 
-      is_staff(conn.assigns.current_user) ->
+      is_staff(conn.assigns.current_user) and skip_staff ->
         conn
 
       ajax?(conn) ->

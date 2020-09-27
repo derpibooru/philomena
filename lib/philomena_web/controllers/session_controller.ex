@@ -20,9 +20,11 @@ defmodule PhilomenaWeb.SessionController do
 
     cond do
       not is_nil(user) and is_nil(user.confirmed_at) ->
-        conn
-        |> put_flash(:error, "You must confirm your account before logging in.")
-        |> redirect(to: "/")
+        render(
+          conn,
+          "new.html",
+          error_message: "You must confirm your account before logging in."
+        )
 
       not is_nil(user) ->
         conn
@@ -30,7 +32,12 @@ defmodule PhilomenaWeb.SessionController do
         |> UserAuth.log_in_user(user, user_params)
 
       true ->
-        render(conn, "new.html", error_message: "Invalid email or password")
+        render(
+          conn,
+          "new.html",
+          error_message:
+            "Invalid email or password. If you're seeing this more than usual, your account may be locked."
+        )
     end
   end
 
