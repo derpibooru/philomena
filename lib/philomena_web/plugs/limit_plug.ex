@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.LimitPlug do
       is_staff(conn.assigns.current_user) and skip_staff ->
         conn
 
-      ajax?(conn) ->
+      conn.assigns.ajax? ->
         conn
         |> Controller.put_flash(:error, error)
         |> Conn.send_resp(:multiple_choices, "")
@@ -74,13 +74,6 @@ defmodule PhilomenaWeb.LimitPlug do
   defp api?(conn) do
     case conn.path_info do
       ["api" | _] -> true
-      _ -> false
-    end
-  end
-
-  defp ajax?(conn) do
-    case Conn.get_req_header(conn, "x-requested-with") do
-      [value] -> String.downcase(value) == "xmlhttprequest"
       _ -> false
     end
   end

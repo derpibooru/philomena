@@ -17,14 +17,22 @@ defmodule PhilomenaWeb.ReferrerPlug do
   @doc false
   @spec call(Conn.t(), any()) :: Conn.t()
   def call(conn, _opts) do
-    case Conn.get_req_header(conn, "referer") do
-      [] ->
-        conn
-        |> Conn.assign(:referrer, "/")
+    conn
+    |> Conn.assign(:referrer, referer(conn))
+    |> Conn.assign(:ajax?, ajax?(conn))
+  end
 
-      [referrer] ->
-        conn
-        |> Conn.assign(:referrer, referrer)
+  defp referer(conn) do
+    case Conn.get_req_header(conn, "referer") do
+      [] -> "/"
+      [referrer] -> referrer
+    end
+  end
+
+  defp ajax?(conn) do
+    case Conn.get_req_header(conn, "x-requested-with") do
+      [value] -> String.downcase(value) == "xmlhttprequest"
+      _ -> false
     end
   end
 end
