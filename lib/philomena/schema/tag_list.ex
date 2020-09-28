@@ -32,12 +32,13 @@ defmodule Philomena.Schema.TagList do
       Tag
       |> where([t], t.name in ^tag_list)
       |> Repo.all()
-      |> Map.new(fn t -> {t.name, t.id} end)
+      |> Map.new(fn t -> {t.name, t.aliased_tag_id || t.id} end)
 
     tag_ids =
       tag_list
       |> Enum.map(&lookup[&1])
       |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
 
     changeset
     |> put_change(target_field, tag_ids)
