@@ -8,7 +8,8 @@ function fetchJson(verb, endpoint, body) {
     credentials: 'same-origin',
     headers: {
       'Content-Type': 'application/json',
-      'x-csrf-token': window.booru.csrfToken
+      'x-csrf-token': window.booru.csrfToken,
+      'x-requested-with': 'xmlhttprequest'
     },
   };
 
@@ -24,7 +25,8 @@ function fetchHtml(endpoint) {
   return fetch(endpoint, {
     credentials: 'same-origin',
     headers: {
-      'x-csrf-token': window.booru.csrfToken
+      'x-csrf-token': window.booru.csrfToken,
+      'x-requested-with': 'xmlhttprequest'
     },
   });
 }
