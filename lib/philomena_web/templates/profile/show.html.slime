@@ -93,6 +93,9 @@
               ' &bull;
               a href=Routes.profile_user_link_path(@conn, :edit, @user, link)
                 ' Edit
+              ' &bull;
+              a href=Routes.admin_user_link_reject_path(@conn, :create, link) data-method="post"
+                ' Reject
             - else
               => unless link.public do
                 br

@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
           :error,
           "There was an error verifying you're not a robot. Please try again."
         )
-        |> do_failure_response(ajax?(conn))
+        |> do_failure_response(conn.assigns.ajax?)
         |> halt()
     end
   end
@@ -52,13 +52,6 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
 
   defp do_failure_response(conn, _false) do
     redirect(conn, external: conn.assigns.referrer)
-  end
-
-  def ajax?(conn) do
-    case get_req_header(conn, "x-requested-with") do
-      [value] -> String.downcase(value) == "xmlhttprequest"
-      _ -> false
-    end
   end
 
   def captcha_enabled? do

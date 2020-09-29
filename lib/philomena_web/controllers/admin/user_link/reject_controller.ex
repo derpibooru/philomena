@@ -13,12 +13,10 @@ defmodule PhilomenaWeb.Admin.UserLink.RejectController do
     preload: [:user]
 
   def create(conn, _params) do
-    {:ok, user_link} = UserLinks.reject_user_link(conn.assigns.user_link)
+    {:ok, _} = UserLinks.reject_user_link(conn.assigns.user_link)
 
     conn
     |> put_flash(:info, "User link successfully marked as rejected.")
-    |> redirect(
-      to: Routes.profile_user_link_path(conn, :show, conn.assigns.user_link.user, user_link)
-    )
+    |> redirect(to: Routes.admin_user_link_path(conn, :index))
   end
 end

@@ -116,8 +116,6 @@ defmodule Philomena.Topics.Topic do
     |> cast(attrs, [:title])
     |> validate_required([:title])
     |> validate_length(:title, min: 4, max: 96, count: :bytes)
-    |> put_slug()
-    |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
   end
 
   def put_slug(changeset) do
