@@ -6,7 +6,7 @@
 const tokenList = [
         ['fuzz', /^~(?:\d+(\.\d+)?|\.\d+)/],
         ['boost', /^\^[\-\+]?\d+(\.\d+)?/],
-        ['quoted_lit', /^\s*"(?:(?:[^"]|\\")+)"/],
+        ['quoted_lit', /^\s*"((?:(?:[^"]|\\")+))"/],
         ['lparen', /^\s*\(\s*/],
         ['rparen', /^\s*\)\s*/],
         ['and_op', /^\s*(?:\&\&|AND)\s+/],
@@ -487,7 +487,7 @@ function generateLexArray(searchStr, options) {
       fuzz = null,
       lparenCtr = 0,
       negate = false,
-      groupNegate = false,
+      groupNegate = [],
       tokenStack = [],
       boostFuzzStr = '';
 
@@ -496,6 +496,7 @@ function generateLexArray(searchStr, options) {
       let tokenName = tokenArr[0],
           tokenRE = tokenArr[1],
           match = tokenRE.exec(searchStr),
+          initialMatch = match,
           balanced, op;
 
       if (match) {
@@ -553,7 +554,7 @@ function generateLexArray(searchStr, options) {
             }
             else {
               opQueue.unshift('lparen');
-              groupNegate = negate;
+              groupNegate.push(negate);
               negate = false;
             }
             break;
@@ -573,9 +574,8 @@ function generateLexArray(searchStr, options) {
                 tokenStack.push(op);
               }
             }
-            if (groupNegate) {
+            if (groupNegate.length > 0 && groupNegate.pop()) {
               tokenStack.push('not_op');
-              groupNegate = false;
             }
             break;
           case 'fuzz':
@@ -604,7 +604,7 @@ function generateLexArray(searchStr, options) {
               searchTerm.append(match);
             }
             else {
-              searchTerm = new SearchTerm(match, options);
+              searchTerm = new SearchTerm(initialMatch[1], options);
             }
             break;
           case 'word':
