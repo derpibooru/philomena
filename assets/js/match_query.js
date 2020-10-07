@@ -487,7 +487,7 @@ function generateLexArray(searchStr, options) {
       fuzz = null,
       lparenCtr = 0,
       negate = false,
-      groupNegate = false,
+      groupNegate = [],
       tokenStack = [],
       boostFuzzStr = '';
 
@@ -553,7 +553,7 @@ function generateLexArray(searchStr, options) {
             }
             else {
               opQueue.unshift('lparen');
-              groupNegate = negate;
+              groupNegate.push(negate);
               negate = false;
             }
             break;
@@ -572,10 +572,9 @@ function generateLexArray(searchStr, options) {
                 }
                 tokenStack.push(op);
               }
-            }
-            if (groupNegate) {
-              tokenStack.push('not_op');
-              groupNegate = false;
+              if (groupNegate.length > 0 && groupNegate.pop()) {
+                tokenStack.push('not_op');
+              }
             }
             break;
           case 'fuzz':
