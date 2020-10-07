@@ -573,9 +573,9 @@ function generateLexArray(searchStr, options) {
                 }
                 tokenStack.push(op);
               }
-            }
-            if (groupNegate.length > 0 && groupNegate.pop()) {
-              tokenStack.push('not_op');
+              if (groupNegate.length > 0 && groupNegate.pop()) {
+                tokenStack.push('not_op');
+              }
             }
             break;
           case 'fuzz':
