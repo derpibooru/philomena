@@ -6,7 +6,7 @@
 const tokenList = [
         ['fuzz', /^~(?:\d+(\.\d+)?|\.\d+)/],
         ['boost', /^\^[\-\+]?\d+(\.\d+)?/],
-        ['quoted_lit', /^\s*"((?:(?:[^"]|\\")+))"/],
+        ['quoted_lit', /^\s*"(?:(?:[^"]|\\")+)"/],
         ['lparen', /^\s*\(\s*/],
         ['rparen', /^\s*\)\s*/],
         ['and_op', /^\s*(?:\&\&|AND)\s+/],
@@ -496,7 +496,6 @@ function generateLexArray(searchStr, options) {
       let tokenName = tokenArr[0],
           tokenRE = tokenArr[1],
           match = tokenRE.exec(searchStr),
-          initialMatch = match,
           balanced, op;
 
       if (match) {
@@ -604,7 +603,7 @@ function generateLexArray(searchStr, options) {
               searchTerm.append(match);
             }
             else {
-              searchTerm = new SearchTerm(initialMatch[1], options);
+              searchTerm = new SearchTerm(match, options);
             }
             break;
           case 'word':
