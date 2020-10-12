@@ -47,5 +47,6 @@ defmodule PhilomenaWeb.Endpoint do
 
   plug PhilomenaWeb.RenderTimePlug
   plug PhilomenaWeb.ReferrerPlug
+  plug PhilomenaWeb.LastIpPlug
   plug PhilomenaWeb.Router
 end
