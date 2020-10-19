@@ -118,7 +118,7 @@ h1 Search
         end
 
       sort_fields = [
-        "Sort by upload date": :id,
+        "Sort by image ID": :id,
         "Sort by last modification date": :updated_at,
         "Sort by initial post date": :first_seen_at,
         "Sort by aspect ratio": :aspect_ratio,
