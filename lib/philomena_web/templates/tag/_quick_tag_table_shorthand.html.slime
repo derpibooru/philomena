@@ -1,9 +1,9 @@
-= for {heading, maps} <- @data do
+= for [heading, maps] <- @data do
   div
     strong = heading
     br
 
-    = for {name, alias_name} <- maps do
+    = for [name, alias_name] <- maps do
       => name
       ' -
       = tag_link @tags[alias_name], alias_name

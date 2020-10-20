@@ -115,14 +115,13 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp names_in_tab("season", data) do
-    data
-    |> Enum.flat_map(&Map.values/1)
+    Enum.map(data, fn [_number, name] -> name end)
   end
 
   defp names_in_tab("shorthand", data) do
     data
-    |> Map.values()
-    |> Enum.flat_map(&Map.values/1)
+    |> Enum.map(fn [_title, tags] -> tags end)
+    |> Enum.flat_map(&Enum.map(&1, fn [_shorthand, tag] -> tag end))
   end
 
   defp names_in_tab(_mode, _data), do: []
