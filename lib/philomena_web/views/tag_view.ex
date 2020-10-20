@@ -121,9 +121,7 @@ defmodule PhilomenaWeb.TagView do
   defp names_in_tab("shorthand", data) do
     data
     |> Enum.map(fn [_title, tags] -> tags end)
-    |> IO.inspect(label: "after map")
     |> Enum.flat_map(&Enum.map(&1, fn [_shorthand, tag] -> tag end))
-    |> IO.inspect(label: "after flatmap")
   end
 
   defp names_in_tab(_mode, _data), do: []
