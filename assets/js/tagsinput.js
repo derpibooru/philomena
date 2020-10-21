@@ -64,7 +64,7 @@ function setupTagsInput(tagBlock) {
   }
 
   function handleKeyEvent(event) {
-    const { keyCode, ctrlKey } = event;
+    const { keyCode, ctrlKey, shiftKey } = event;
 
     // allow form submission with ctrl+enter if no text was typed
     if (keyCode === 13 && ctrlKey && inputField.value === '') {
@@ -80,7 +80,7 @@ function setupTagsInput(tagBlock) {
     }
 
     // enter or comma
-    if (keyCode === 13 || keyCode === 188) {
+    if (keyCode === 13 || (keyCode === 188 && !shiftKey)) {
       event.preventDefault();
       inputField.value.split(',').forEach(t => insertTag(t));
       inputField.value = '';
