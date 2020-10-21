@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Registration.NameController do
         |> put_flash(:info, "Name successfully updated.")
         |> redirect(to: Routes.profile_path(conn, :show, user))
 
-      {:error, %{account: changeset}} ->
+      {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
     end
   end
