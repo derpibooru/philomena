@@ -603,7 +603,7 @@ defmodule Philomena.Users do
     |> Multi.update(:account, account)
     |> Repo.transaction()
     |> case do
-      {:ok, %{account: %{name: new_name}}} ->
+      {:ok, %{account: %{name: new_name} = account}} ->
         spawn(fn ->
           Images.user_name_reindex(old_name, new_name)
           Comments.user_name_reindex(old_name, new_name)
