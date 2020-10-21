@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Registration.NameController do
 
   def update(conn, %{"user" => user_params}) do
     case Users.update_name(conn.assigns.current_user, user_params) do
-      {:ok, %{account: user}} ->
+      {:ok, user} ->
         conn
         |> put_flash(:info, "Name successfully updated.")
         |> redirect(to: Routes.profile_path(conn, :show, user))
