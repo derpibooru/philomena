@@ -6,7 +6,10 @@ defmodule PhilomenaWeb.TagView do
   alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
   alias Philomena.Repo
+  alias PhilomenaWeb.ImageScope
   import Ecto.Query
+
+  def scope(conn), do: ImageScope.scope(conn)
 
   def tag_categories do
     [[key: "-", value: ""] | Tag.categories()]

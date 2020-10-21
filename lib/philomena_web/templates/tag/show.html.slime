@@ -1,3 +1,3 @@
-= render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Images tagged #{@tag.name}", scope: [q: @search_query], route: fn p -> Routes.tag_path(@conn, :show, @tag, p) end
+= render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Images tagged #{@tag.name}", scope: scope(@conn), route: fn p -> Routes.tag_path(@conn, :show, @tag, p) end
 
 = render PhilomenaWeb.SearchView, "_form.html", conn: @conn
