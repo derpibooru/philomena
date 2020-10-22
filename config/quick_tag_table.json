@@ -53,21 +53,10 @@
       "grimdark",
       "grotesque"
     ],
-    "Episode Spoilers": [
-      "spoiler:s09e20",
-      "spoiler:s09e21",
-      "spoiler:s09e22",
-      "spoiler:s09e23",
-      "spoiler:s09e24",
-      "spoiler:s09e25",
-      "spoiler:s09e26"
-    ],
     "General Spoilers": [
-      "spoiler:eqg specials",
       "spoiler:comic",
-      "spoiler:eqg series (season 2)",
-      "spoiler:s09",
-      "spoiler:rainbow roadtrip",
+      "spoiler:g5",
+      "spoiler:pony life",
       "spoilers for another series"
     ],
     "Species": [
@@ -186,6 +175,15 @@
       ["dj", "vinyl scratch"],
       ["bp", "berry punch"],
       ["pbb", "prince blueblood"]
+    ]],
+    ["Student Six", [
+      ["s6", "student six"],
+      ["ga", "gallus"],
+      ["ols", "ocellus"],
+      ["snb", "sandbar"],
+      ["svs", "silverstream"],
+      ["sm", "smolder"],
+      ["yn", "yona"]
     ]],
     ["Uncategorized", [
       ["maud", "maud pie"],
@@ -426,7 +424,7 @@
     ["21", "testing testing 1-2-3"],
     ["22", "trade ya"],
     ["23", "inspiration manifestation"],
-    ["24", "equestria games"],
+    ["24", "equestria games (episode)"],
     ["25-26", "twilight's kingdom"]
   ],
   "3": [
