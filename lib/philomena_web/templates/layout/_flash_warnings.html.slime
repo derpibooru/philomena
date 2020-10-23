@@ -10,7 +10,7 @@
 noscript.flash.flash--warning
   strong You don't appear to have Javascript enabled
   ' If you're using an add-on like NoScript, please allow
-  ' :cdn_host
+  => cdn_host()
   ' for the site to work properly.
 = if get_flash(@conn, :info) do
   .flash.flash--success = get_flash(@conn, :info)
