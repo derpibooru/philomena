@@ -70,10 +70,11 @@ h1 Users
             = pretty_time user.created_at
 
           td
-            = if can?(@conn, :edit, Philomena.Users.User) do
+            = if can?(@conn, :edit, user) do
               => link to: Routes.admin_user_path(@conn, :edit, user) do
                 i.fa.fa-fw.fa-user-edit
                 ' Edit
+              ' &bull;
 
             /= if user.deleted_at do
             /  => link_to 'Reactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :create
