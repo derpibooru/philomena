@@ -54,7 +54,7 @@ defmodule Philomena.UserLinks do
 
   """
   def create_user_link(user, attrs \\ %{}) do
-    tag = Repo.get_by(Tag, name: attrs["tag_name"])
+    tag = fetch_tag(attrs["tag_name"])
 
     %UserLink{}
     |> UserLink.creation_changeset(attrs, user, tag)
@@ -74,7 +74,7 @@ defmodule Philomena.UserLinks do
 
   """
   def update_user_link(%UserLink{} = user_link, attrs) do
-    tag = Repo.get_by(Tag, name: attrs["tag_name"])
+    tag = fetch_tag(attrs["tag_name"])
 
     user_link
     |> UserLink.edit_changeset(attrs, tag)
@@ -157,6 +157,17 @@ defmodule Philomena.UserLinks do
       |> Repo.aggregate(:count, :id)
     else
       nil
+    end
+  end
+
+  defp fetch_tag(name) do
+    Tag
+    |> preload(:aliased_tag)
+    |> where(name: ^name)
+    |> Repo.one()
+    |> case do
+      nil -> nil
+      tag -> tag.aliased_tag || tag
     end
   end
 end
