@@ -177,8 +177,12 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit, %Image{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit_metadata, %Image{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Image" => "moderator"}},
+        :edit_metadata,
+        %Image{}
+      ),
+      do: true
 
   def can?(
         %User{role: "assistant", role_map: %{"Image" => "moderator"}},
