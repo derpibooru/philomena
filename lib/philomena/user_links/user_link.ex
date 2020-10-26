@@ -63,6 +63,10 @@ defmodule Philomena.UserLinks.UserLink do
     change(user_link, aasm_state: "rejected")
   end
 
+  def automatic_verify_changeset(user_link, attrs) do
+    cast(user_link, attrs, [:next_check_at, :aasm_state])
+  end
+
   def verify_changeset(user_link, user) do
     change(user_link)
     |> put_change(:verified_by_user_id, user.id)

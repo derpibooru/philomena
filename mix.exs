@@ -45,6 +45,7 @@ defmodule Philomena.MixProject do
       {:jason, "~> 1.1"},
       {:plug_cowboy, "~> 2.3"},
       {:phoenix_slime, "~> 0.13"},
+      {:phoenix_pubsub_redis, "~> 3.0"},
       {:ecto_network, "~> 1.3"},
       {:bcrypt_elixir, "~> 2.0"},
       {:pot, "~> 0.11"},

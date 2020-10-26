@@ -1,5 +1,15 @@
 #!/bin/bash
 
+background() {
+  while :; do
+    mix run -e 'Philomena.Release.update_channels()'
+    mix run -e 'Philomena.Release.verify_user_links()'
+    mix run -e 'Philomena.Release.update_stats()'
+
+    sleep 300
+  done
+}
+
 # Always install assets
 (
 cd /srv/philomena/assets
@@ -27,5 +37,8 @@ createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
 # Reindex
 mix reindex_all
 
+# Run background jobs
+background &
+
 # Run the application
-mix phx.server
+START_WORKER=true mix phx.server

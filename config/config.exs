@@ -7,43 +7,22 @@
 # General application configuration
 import Config
 
+config :logger,
+  compile_time_purge_matching: [
+    [application: :remote_ip],
+    [application: :mint]
+  ]
+
 config :philomena,
-  ecto_repos: [Philomena.Repo],
-  elasticsearch_url: "http://localhost:9200",
-  redis_host: "localhost",
-  password_pepper: "dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP",
-  otp_secret_key: "Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C",
-  tumblr_api_key: "fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4",
-  image_url_root: "/img",
-  avatar_url_root: "/avatars",
-  advert_url_root: "/spns",
-  badge_url_root: "/media",
-  tag_url_root: "/media",
-  channel_url_root: "/media",
-  image_file_root: "priv/static/system/images",
-  advert_file_root: "priv/static/system/images/adverts",
-  avatar_file_root: "priv/static/system/images/avatars",
-  badge_file_root: "priv/static/system/images",
-  channel_image_file_root: "priv/static/system/images",
-  channel_banner_file_root: "priv/static/system/images",
-  tag_file_root: "priv/static/system/images",
-  hcaptcha_site_key: "10000000-ffff-ffff-ffff-000000000001",
-  hcaptcha_secret_key: "0x0000000000000000000000000000000000000000",
-  cdn_host: "",
-  proxy_host: nil,
-  app_dir: File.cwd!()
-
-config :exq,
-  queues: [{"videos", 2}, {"images", 4}, {"indexing", 16}],
-  scheduler_enable: true,
-  max_retries: 1,
-  start_on_application: false
-
-config :bcrypt_elixir,
-  log_rounds: 12
+  ecto_repos: [Philomena.Repo]
 
 config :elastix,
   json_codec: Jason
+
+config :exq,
+  max_retries: 2,
+  scheduler_enable: true,
+  start_on_application: false
 
 config :canary,
   repo: Philomena.Repo,
@@ -60,7 +39,6 @@ config :philomena, PhilomenaWeb.Endpoint,
 config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,
   slime: PhoenixSlime.Engine,
-  # If you want to use LiveView
   slimleex: PhoenixSlime.LiveViewEngine
 
 config :tesla, adapter: Tesla.Adapter.Mint
@@ -79,4 +57,4 @@ config :bamboo, :json_library, Jason
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env()}.exs"
+import_config "#{config_env()}.exs"

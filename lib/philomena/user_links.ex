@@ -8,21 +8,33 @@ defmodule Philomena.UserLinks do
   alias Philomena.Repo
 
   alias Philomena.UserLinks.UserLink
+  alias Philomena.UserLinks.AutomaticVerifier
   alias Philomena.Badges.Badge
   alias Philomena.Badges.Award
   alias Philomena.Tags.Tag
 
   @doc """
-  Returns the list of user_links.
-
-  ## Examples
-
-      iex> list_user_links()
-      [%UserLink{}, ...]
-
+  Check links pending verification to see if the user placed
+  the appropriate code on the page.
   """
-  def list_user_links do
-    Repo.all(UserLink)
+  def automatic_verify! do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    # Automatically retry in an hour if we don't manage to
+    # successfully verify any given link
+    recheck_time = DateTime.add(now, 3600, :second)
+
+    recheck_query =
+      from ul in UserLink,
+        where: ul.aasm_state == "unverified",
+        where: ul.next_check_at < ^now
+
+    recheck_query
+    |> Repo.all()
+    |> Enum.map(fn link ->
+      UserLink.automatic_verify_changeset(link, AutomaticVerifier.check_link(link, recheck_time))
+    end)
+    |> Enum.map(&Repo.update!/1)
   end
 
   @doc """

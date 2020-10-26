@@ -16,20 +16,7 @@ defmodule PhilomenaWeb.StatsUpdater do
   alias Philomena.Repo
   import Ecto.Query
 
-  def child_spec([]) do
-    %{
-      id: PhilomenaWeb.StatsUpdater,
-      start: {PhilomenaWeb.StatsUpdater, :start_link, [[]]}
-    }
-  end
-
-  def start_link([]) do
-    {:ok, spawn_link(&run/0)}
-  end
-
-  defp run do
-    :timer.sleep(:timer.seconds(300))
-
+  def update_stats! do
     {gallery_count, gallery_size, distinct_creators, images_in_galleries} = galleries()
     {open_reports, report_count, response_time} = moderation()
     {open_commissions, commission_items} = commissions()
@@ -73,8 +60,6 @@ defmodule PhilomenaWeb.StatsUpdater do
       on_conflict: {:replace, [:body, :updated_at]},
       conflict_target: :slug
     )
-
-    run()
   end
 
   defp aggregations do
