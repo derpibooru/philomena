@@ -29,6 +29,7 @@ defmodule Philomena.Http do
   defp client(headers) do
     Tesla.client(
       [
+        {Tesla.Middleware.FollowRedirects, max_redirects: 1},
         {Tesla.Middleware.Headers,
          [
            {"User-Agent",
