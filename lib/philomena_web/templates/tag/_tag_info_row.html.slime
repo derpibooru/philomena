@@ -79,6 +79,11 @@
           = for channel <- @tag.channels do
             => link channel.title, to: Routes.channel_path(@conn, :show, channel)
 
+            = if can?(@conn, :edit, channel) do
+              | (
+              = link "Edit", to: Routes.channel_path(@conn, :edit, channel)
+              ' )
+
         = if Enum.any?(@tag.implied_by_tags) do
           input.toggle-box id="implied_by" type="checkbox"
           label for="implied_by"
