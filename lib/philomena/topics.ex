@@ -73,7 +73,7 @@ defmodule Philomena.Topics do
     |> Repo.transaction()
   end
 
-  def notify_topic(topic) do
+  def notify_topic(topic, post) do
     spawn(fn ->
       forum =
         topic
@@ -86,14 +86,14 @@ defmodule Philomena.Topics do
         |> Map.fetch!(:subscriptions)
 
       Notifications.notify(
-        topic,
+        post,
         subscriptions,
         %{
-          actor_id: forum.id,
-          actor_type: "Forum",
-          actor_child_id: topic.id,
-          actor_child_type: "Topic",
-          action: "posted a new topic"
+          actor_id: topic.id,
+          actor_type: "Topic",
+          actor_child_id: post.id,
+          actor_child_type: "Post",
+          action: "posted a new topic in #{forum.name}"
         }
       )
     end)

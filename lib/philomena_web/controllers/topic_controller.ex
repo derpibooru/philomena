@@ -113,7 +113,7 @@ defmodule PhilomenaWeb.TopicController do
       {:ok, %{topic: topic}} ->
         post = hd(topic.posts)
         Posts.reindex_post(post)
-        Topics.notify_topic(topic)
+        Topics.notify_topic(topic, post)
 
         if forum.access_level == "normal" do
           PhilomenaWeb.Endpoint.broadcast!(
