@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Admin.Badge.ImageController do
 
   def update(conn, %{"badge" => badge_params}) do
     case Badges.update_badge_image(conn.assigns.badge, badge_params) do
-      {:ok, %{badge: _badge}} ->
+      {:ok, _badge} ->
         conn
         |> put_flash(:info, "Badge updated successfully.")
         |> redirect(to: Routes.admin_badge_path(conn, :index))
