@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
   alias PhilomenaWeb.ImageView
-  alias Philomena.Servers.Config
+  alias Philomena.Config
   alias Plug.Conn
 
   def layout_class(conn) do

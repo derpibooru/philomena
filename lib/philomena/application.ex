@@ -16,7 +16,6 @@ defmodule Philomena.Application do
 
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
-      Philomena.Servers.Config,
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
       {Phoenix.PubSub,
        [

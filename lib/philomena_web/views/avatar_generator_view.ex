@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
   use PhilomenaWeb, :view
   use Bitwise
 
-  alias Philomena.Servers.Config
+  alias Philomena.Config
 
   def generated_avatar(displayed_name) do
     config = config()

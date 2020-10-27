@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.TagView do
   use PhilomenaWeb, :view
 
   # this is bad practice, don't copy this.
-  alias Philomena.Servers.Config
+  alias Philomena.Config
   alias Philomena.Elasticsearch
   alias Philomena.Tags.Tag
   alias Philomena.Repo

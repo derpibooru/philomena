@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.StatsUpdater do
+  alias Philomena.Config
   alias Philomena.Elasticsearch
-  alias Philomena.Servers.Config
   alias Philomena.Images.Image
   alias Philomena.Comments.Comment
   alias Philomena.Topics.Topic
