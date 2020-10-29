@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
   alias PhilomenaWeb.ImageView
-  alias Philomena.Servers.Config
+  alias Philomena.Config
   alias Plug.Conn
 
   def layout_class(conn) do
@@ -16,6 +16,10 @@ defmodule PhilomenaWeb.LayoutView do
     (Time.diff(Time.utc_now(), conn.assigns[:start_time], :microsecond) / 1000.0)
     |> Float.round(3)
     |> Float.to_string()
+  end
+
+  def cdn_host do
+    Application.get_env(:philomena, :cdn_host)
   end
 
   defp ignored_tag_list(nil), do: []

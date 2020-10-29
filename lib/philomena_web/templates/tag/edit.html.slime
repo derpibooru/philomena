@@ -1,7 +1,8 @@
 h1 Editing Tag
 
 p = link "Edit image", to: Routes.tag_image_path(@conn, :edit, @tag)
-p = link "Edit aliases", to: Routes.tag_alias_path(@conn, :edit, @tag)
+= if can?(@conn, :alias, @tag) do
+  p = link "Edit aliases", to: Routes.tag_alias_path(@conn, :edit, @tag)
 
 = form_for @changeset, Routes.tag_path(@conn, :update, @tag), [class: "form"], fn f ->
   = if @changeset.action do
@@ -38,17 +39,18 @@ p = link "Edit aliases", to: Routes.tag_alias_path(@conn, :edit, @tag)
 
 br
 br
-input.toggle-box#tag-management checked="false" type="checkbox"
-label for="tag-management" Tag Processing
-.toggle-box-container
-  .toggle-box-container__content
-    = button_to "Rebuild index", Routes.tag_reindex_path(@conn, :create, @tag), method: "post", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Reindexing&hellip;")]
-    p Use this if the tag displays the wrong number of images or returns the wrong search results.
+= if can?(@conn, :alias, @tag) do
+  input.toggle-box#tag-management checked="false" type="checkbox"
+  label for="tag-management" Tag Processing
+  .toggle-box-container
+    .toggle-box-container__content
+      = button_to "Rebuild index", Routes.tag_reindex_path(@conn, :create, @tag), method: "post", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Reindexing&hellip;")]
+      p Use this if the tag displays the wrong number of images or returns the wrong search results.
 
-    = button_to "Destroy tag", Routes.tag_path(@conn, :delete, @tag), method: "delete", class: "button button--state-danger", data: [confirm: "Are you really, really sure?", disable_with: raw("Deleting&hellip;")]
-    p
-      strong Irreversible. Use with extreme caution!
-    ul
-      li Intended use is removing garbage tags.
-      li Will remove tag changes on the tag, but not on images or profiles.
-      li Will unset the alias if this tag is an alias target, and will automatically remove any implications that exist to it.
+      = button_to "Destroy tag", Routes.tag_path(@conn, :delete, @tag), method: "delete", class: "button button--state-danger", data: [confirm: "Are you really, really sure?", disable_with: raw("Deleting&hellip;")]
+      p
+        strong Irreversible. Use with extreme caution!
+      ul
+        li Intended use is removing garbage tags.
+        li Will remove tag changes on the tag, but not on images or profiles.
+        li Will unset the alias if this tag is an alias target, and will automatically remove any implications that exist to it.

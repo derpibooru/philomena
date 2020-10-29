@@ -199,6 +199,8 @@ defmodule Philomena.Posts do
       {:ok, post} ->
         reindex_post(post)
 
+        {:ok, post}
+
       error ->
         error
     end

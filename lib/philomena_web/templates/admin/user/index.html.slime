@@ -70,7 +70,7 @@ h1 Users
             = pretty_time user.created_at
 
           td
-            = if can?(@conn, :edit, Philomena.Users.User) do
+            = if can?(@conn, :edit, user) do
               => link to: Routes.admin_user_path(@conn, :edit, user) do
                 i.fa.fa-fw.fa-user-edit
                 ' Edit

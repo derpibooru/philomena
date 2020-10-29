@@ -49,4 +49,16 @@ defmodule Philomena.Channels.Channel do
     |> validate_inclusion(:type, ["PicartoChannel", "PiczelChannel"])
     |> put_change(:associated_artist_tag_id, tag_id)
   end
+
+  def update_changeset(channel, attrs) do
+    cast(channel, attrs, [
+      :title,
+      :is_live,
+      :nsfw,
+      :viewers,
+      :thumbnail_url,
+      :last_fetched_at,
+      :last_live_at
+    ])
+  end
 end

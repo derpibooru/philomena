@@ -28,8 +28,8 @@ defmodule Philomena.Images.Thumbnailer do
     {:ok, analysis} = Analyzers.analyze(file)
 
     apply_edit_script(image, Processors.process(analysis, file, @versions))
-    recompute_meta(image, file, &Image.thumbnail_changeset/2)
     generate_dupe_reports(image)
+    recompute_meta(image, file, &Image.thumbnail_changeset/2)
 
     apply_edit_script(image, Processors.post_process(analysis, file))
     recompute_meta(image, file, &Image.process_changeset/2)
@@ -53,8 +53,11 @@ defmodule Philomena.Images.Thumbnailer do
   defp apply_thumbnail(image, thumb_dir, {:symlink_original, destination}),
     do: symlink(image_file(image), Path.join(thumb_dir, destination))
 
-  defp generate_dupe_reports(image),
-    do: DuplicateReports.generate_reports(image)
+  defp generate_dupe_reports(image) do
+    if not image.duplication_checked do
+      DuplicateReports.generate_reports(image)
+    end
+  end
 
   defp recompute_meta(image, file, changeset_fn) do
     {:ok, %{dimensions: {width, height}}} = Analyzers.analyze(file)

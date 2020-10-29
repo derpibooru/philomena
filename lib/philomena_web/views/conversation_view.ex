@@ -16,6 +16,15 @@ defmodule PhilomenaWeb.ConversationView do
   def read_by?(_user, _conversation),
     do: false
 
+  def hidden_by?(%{id: user_id}, %{to_id: user_id} = conversation),
+    do: conversation.to_hidden
+
+  def hidden_by?(%{id: user_id}, %{from_id: user_id} = conversation),
+    do: conversation.from_hidden
+
+  def hidden_by?(_user, _conversation),
+    do: false
+
   def conversation_class(user, conversation) do
     case read_by?(user, conversation) do
       false -> "warning"

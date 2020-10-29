@@ -16,7 +16,10 @@ h1 = @conversation.title
       => @messages.total_entries
       = pluralize("message", "messages", @messages.total_entries)
     = pagination
-    = link "Remove conversation", to: Routes.conversation_hide_path(@conn, :create, @conversation), data: [method: "post", confirm: "Are you really, really sure?"]
+    = if hidden_by?(@current_user, @conversation) do
+      = link "Restore conversation", to: Routes.conversation_hide_path(@conn, :delete, @conversation), data: [method: "delete"]
+    - else
+      = link "Remove conversation", to: Routes.conversation_hide_path(@conn, :create, @conversation), data: [method: "post", confirm: "Are you really, really sure?"]
     = link "Report conversation", to: Routes.conversation_report_path(@conn, :new, @conversation)
     = link "Mark as unread", to: Routes.conversation_read_path(@conn, :delete, @conversation), data: [method: "delete"]
 

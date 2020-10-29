@@ -1,0 +1,24 @@
+#!/bin/bash
+
+export MIX_ENV=test
+
+# Always install mix dependencies
+(cd /srv/philomena && mix deps.get)
+
+# Sleep to allow Elasticsearch to finish initializing
+# if it's not done doing whatever it does yet
+echo -n "Waiting for Elasticsearch"
+
+until wget -qO - elasticsearch:9200; do
+  echo -n "."
+  sleep 2
+done
+
+echo
+
+# Create the database
+mix ecto.create
+mix ecto.load
+
+# Test the application
+mix test

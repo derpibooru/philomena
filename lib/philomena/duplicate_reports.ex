@@ -15,9 +15,8 @@ defmodule Philomena.DuplicateReports do
   def generate_reports(source) do
     source = Repo.preload(source, :intensity)
 
-    duplicates_of(source.intensity, source.image_aspect_ratio, 0.2, 0.05)
+    duplicates_of(source.intensity, source.image_aspect_ratio, 0.5, 0.1)
     |> where([i, _it], i.id != ^source.id)
-    |> where([i, _it], i.duplication_checked != true)
     |> Repo.all()
     |> Enum.map(fn target ->
       create_duplicate_report(source, target, %{}, %{
@@ -37,7 +36,7 @@ defmodule Philomena.DuplicateReports do
       where:
         i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and
           i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
-      limit: 20
+      limit: 10
   end
 
   @doc """

@@ -16,16 +16,17 @@ defmodule Philomena.Application do
 
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
-      Philomena.Servers.UserLinkUpdater,
-      Philomena.Servers.PicartoChannelUpdater,
-      Philomena.Servers.PiczelChannelUpdater,
-      Philomena.Servers.Config,
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},
-      {Phoenix.PubSub, [name: Philomena.PubSub, adapter: Phoenix.PubSub.PG2]},
+      {Phoenix.PubSub,
+       [
+         name: Philomena.PubSub,
+         adapter: Phoenix.PubSub.Redis,
+         host: Application.get_env(:philomena, :redis_host),
+         node_name: valid_node_name(node())
+       ]},
 
       # Start the endpoint when the application starts
       PhilomenaWeb.AdvertUpdater,
-      PhilomenaWeb.StatsUpdater,
       PhilomenaWeb.UserFingerprintUpdater,
       PhilomenaWeb.UserIpUpdater,
       PhilomenaWeb.Endpoint,
@@ -46,4 +47,11 @@ defmodule Philomena.Application do
     PhilomenaWeb.Endpoint.config_change(changed, removed)
     :ok
   end
+
+  # Redis adapter really really wants you to have a unique node name,
+  # so just fake one if iex is being started
+  defp valid_node_name(node) when node in [nil, :nonode@nohost],
+    do: Base.encode16(:crypto.strong_rand_bytes(6))
+
+  defp valid_node_name(node), do: node
 end

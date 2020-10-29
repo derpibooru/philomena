@@ -1,20 +1,7 @@
 import Config
 
 # Configure your database
-config :philomena, Philomena.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "philomena_dev",
-  hostname: "postgres",
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
-config :philomena,
-  elasticsearch_url: "http://elasticsearch:9200",
-  redis_host: "redis"
-
-config :exq,
-  host: "redis"
+config :philomena, Philomena.Repo, show_sensitive_data_on_connection_error: true
 
 # For development, we disable any cache and enable
 # debugging and code reloading.
@@ -68,15 +55,6 @@ config :philomena, PhilomenaWeb.Endpoint,
 
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
-config :logger, compile_time_purge_matching: [[application: :remote_ip], [application: :mint]]
-
-# Set up mailer
-config :philomena, Philomena.Mailer, adapter: Bamboo.LocalAdapter
-
-config :philomena, :mailer_address, "noreply@philomena.lc"
-
-# Use this to debug slime templates
-# config :slime, :keep_lines, true
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

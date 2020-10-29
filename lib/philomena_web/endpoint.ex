@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
-    parsers: [:urlencoded, {:multipart, length: 100_000_000}, :json],
+    parsers: [:urlencoded, {:multipart, length: 125_000_000}, :json],
     pass: ["*/*"],
     json_decoder: Phoenix.json_library()
 
