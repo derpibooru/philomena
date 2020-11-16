@@ -157,6 +157,7 @@ defmodule PhilomenaWeb.ProfileController do
     bans =
       Bans.User
       |> where(user_id: ^user.id)
+      |> order_by(desc: :created_at)
       |> Repo.all()
 
     render(

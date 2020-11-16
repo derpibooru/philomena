@@ -24,6 +24,6 @@ defmodule PhilomenaWeb.CurrentBanPlug do
 
     ban = Bans.exists_for?(user, ip, fingerprint)
 
-    Conn.assign(conn, :current_ban, ban) 
+    Conn.assign(conn, :current_ban, ban)
   end
 end

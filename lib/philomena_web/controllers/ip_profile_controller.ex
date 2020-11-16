@@ -21,6 +21,7 @@ defmodule PhilomenaWeb.IpProfileController do
     subnet_bans =
       Subnet
       |> where([s], fragment("? >>= ?", s.specification, ^ip))
+      |> order_by(desc: :created_at)
       |> Repo.all()
 
     render(conn, "show.html",

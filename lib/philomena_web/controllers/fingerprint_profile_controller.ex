@@ -19,6 +19,7 @@ defmodule PhilomenaWeb.FingerprintProfileController do
     fp_bans =
       Fingerprint
       |> where(fingerprint: ^fingerprint)
+      |> order_by(desc: :created_at)
       |> Repo.all()
 
     render(conn, "show.html",
