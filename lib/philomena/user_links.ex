@@ -40,7 +40,7 @@ defmodule Philomena.UserLinks do
   @doc """
   Gets a single user_link.
 
-  Raises `Ecto.NoResultsError` if the User link does not exist.
+  Raises `Ecto.NoResultsError` if the Artist link does not exist.
 
   ## Examples
 

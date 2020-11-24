@@ -23,7 +23,7 @@ p
         strong> Only an owner of an image's rights (normally the artist) can request a takedown.
         ' If you're the artist, you'll
         strong> need
-        ' a verified user link.
+        ' a verified artist link.
       p
         ' For more information, please read the
         = link "takedown policy", to: "/pages/takedowns"

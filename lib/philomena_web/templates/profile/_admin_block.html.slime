@@ -145,7 +145,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
       li
         = link to: Routes.profile_user_link_path(@conn, :new, @user) do
           i.fa.fa-fw.fa-link
-          span.admin__button Add User Link
+          span.admin__button Add Artist Link
 
     = if can?(@conn, :create, Philomena.Bans.User) do
       li

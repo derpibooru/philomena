@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.Admin.UserLinkController do
       ])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Admin - User Links", user_links: links)
+    render(conn, "index.html", title: "Admin - Artist Links", user_links: links)
   end
 
   defp verify_authorized(conn, _opts) do

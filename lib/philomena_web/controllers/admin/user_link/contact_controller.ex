@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Admin.UserLink.ContactController do
     {:ok, _} = UserLinks.contact_user_link(conn.assigns.user_link, conn.assigns.current_user)
 
     conn
-    |> put_flash(:info, "User link successfully marked as contacted.")
+    |> put_flash(:info, "Artist successfully marked as contacted.")
     |> redirect(to: Routes.admin_user_link_path(conn, :index))
   end
 end

@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Admin.UserLink.RejectController do
     {:ok, _} = UserLinks.reject_user_link(conn.assigns.user_link)
 
     conn
-    |> put_flash(:info, "User link successfully marked as rejected.")
+    |> put_flash(:info, "Artist link successfully marked as rejected.")
     |> redirect(to: Routes.admin_user_link_path(conn, :index))
   end
 end

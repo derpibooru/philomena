@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Admin.UserView do
   def description("moderator", "Image"), do: "Manage images"
   def description("moderator", "DuplicateReport"), do: "Manage duplicates"
   def description("moderator", "Comment"), do: "Manage comments"
-  def description("moderator", "UserLink"), do: "Manage user links"
+  def description("moderator", "UserLink"), do: "Manage artist links"
   def description("moderator", "Topic"), do: "Moderate forums"
 
   def description("moderator", "Tag"), do: "Manage tag details"

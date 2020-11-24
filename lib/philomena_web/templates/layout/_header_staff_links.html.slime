@@ -54,7 +54,7 @@
         = @report_count
 
   = if @user_link_count do
-    = link to: Routes.admin_user_link_path(@conn, :index), class: "header__link", title: "User Links" do
+    = link to: Routes.admin_user_link_path(@conn, :index), class: "header__link", title: "Artist Links" do
       ' L
       span.header__counter__admin
         = @user_link_count
