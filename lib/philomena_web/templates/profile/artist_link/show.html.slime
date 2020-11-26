@@ -1,73 +1,73 @@
 h1
   ' Link to
-  = link @user_link.uri, to: @user_link.uri
+  = link @artist_link.uri, to: @artist_link.uri
 
 h3 Status
 = cond do
-  - verified?(@user_link) ->
+  - verified?(@artist_link) ->
     p This link has been verified by a member of the administration team.
     p You can now remove the verification text from your website if you have not done so already.
 
-  - contacted?(@user_link) ->
+  - contacted?(@artist_link) ->
     p
       strong This link is awaiting your reply on the linked website in order to be verified.
     p
       ' An administrator
-      => "(#{@user_link.contacted_by_user.name})"
+      => "(#{@artist_link.contacted_by_user.name})"
       ' has manually contacted you at the address above, as your verification code was not found on the website. Please respond to the message from the administrator to confirm your link.
     p The verification code is:
     p
       code
-        h1 = @user_link.verification_code
+        h1 = @artist_link.verification_code
 
-  - link_verified?(@user_link) ->
+  - link_verified?(@artist_link) ->
     p
       strong This link is pending verification by a member of the administration team.
     p We've now found the verification code on your website. An administrator still needs to check the tag list before verifying the link. Please leave the code on your website until verification is complete.
     p If you need it again, your verification code is:
     p
       code
-        h1 = @user_link.verification_code
+        h1 = @artist_link.verification_code
 
-  - unverified?(@user_link) ->
+  - unverified?(@artist_link) ->
     p
       strong This link is pending verification by a member of the administration team.
     p
       h3 To have your link verified as fast as possible, please place this text somewhere on the page you are linking.
     p
       code
-        h1 = @user_link.verification_code
+        h1 = @artist_link.verification_code
     p Otherwise, an administrator will have to contact you to verify your identity.
     p Once the link has been verified you can remove the text; the text simply allows the team to directly check with your website rather than messaging you and waiting for a reply.
 
-  - rejected?(@user_link) ->
+  - rejected?(@artist_link) ->
     p This link has been rejected by a member of the administration team; this is probably because you were not reachable in a timely manner (~1 week) to verify the link.
 
 h3 Visibility
-= if public?(@user_link) do
+= if public?(@artist_link) do
   p This link is public, and will be shown around the site.
 - else
   p This link is not public, and will only be shown to administrators.
 
 h3 Associated tag
-= if @user_link.tag do
+= if @artist_link.tag do
   .tag-list
-    = render PhilomenaWeb.TagView, "_tag.html", tag: @user_link.tag, conn: @conn
+    = render PhilomenaWeb.TagView, "_tag.html", tag: @artist_link.tag, conn: @conn
 - else
   p There is no tag associated with this link.
 
-= if can?(@conn, :index, Philomena.UserLinks.UserLink) do
+= if can?(@conn, :index, Philomena.ArtistLinks.ArtistLink) do
   p
-    => link "Edit", to: Routes.profile_user_link_path(@conn, :edit, @user, @user_link)
+    => link "Edit", to: Routes.profile_artist_link_path(@conn, :edit, @user, @artist_link)
     ' &bull;
-    => link "Verify", to: Routes.admin_user_link_verification_path(@conn, :create, @user_link), method: :post
+    => link "Verify", to: Routes.admin_artist_link_verification_path(@conn, :create, @artist_link), method: :post
     ' &bull;
-    => link "Reject", to: Routes.admin_user_link_reject_path(@conn, :create, @user_link), method: :post
-    = if not verified?(@user_link) do
+    => link "Reject", to: Routes.admin_artist_link_reject_path(@conn, :create, @artist_link), method: :post
+    = if not verified?(@artist_link) do
       ' &bull;
-      = if contacted?(@user_link) do
+      = if contacted?(@artist_link) do
         ' Artist contacted
       - else
-        = link "Artist contacted", to: Routes.admin_user_link_contact_path(@conn, :create, @user_link), method: :post
+        = link "Artist contacted", to: Routes.admin_artist_link_contact_path(@conn, :create, @artist_link), method: :post
 
-= link "Back", to: Routes.profile_user_link_path(@conn, :index, @user)
+= link "Back", to: Routes.profile_artist_link_path(@conn, :index, @user)

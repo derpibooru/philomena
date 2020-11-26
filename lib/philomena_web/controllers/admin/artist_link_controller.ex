@@ -1,27 +1,27 @@
-defmodule PhilomenaWeb.Admin.UserLinkController do
+defmodule PhilomenaWeb.Admin.ArtistLinkController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.UserLinks.UserLink
+  alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.Repo
   import Ecto.Query
 
   plug :verify_authorized
 
   def index(conn, %{"all" => _value}) do
-    load_links(UserLink, conn)
+    load_links(ArtistLink, conn)
   end
 
   def index(conn, %{"q" => query}) do
     query = "%#{query}%"
 
-    UserLink
+    ArtistLink
     |> join(:inner, [ul], _ in assoc(ul, :user))
     |> where([ul, u], ilike(u.name, ^query) or ilike(ul.uri, ^query))
     |> load_links(conn)
   end
 
   def index(conn, _params) do
-    UserLink
+    ArtistLink
     |> where([u], u.aasm_state in ^["unverified", "link_verified", "contacted"])
     |> load_links(conn)
   end
@@ -38,11 +38,11 @@ defmodule PhilomenaWeb.Admin.UserLinkController do
       ])
       |> Repo.paginate(conn.assigns.scrivener)
 
-    render(conn, "index.html", title: "Admin - Artist Links", user_links: links)
+    render(conn, "index.html", title: "Admin - Artist Links", artist_links: links)
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, %UserLink{}) do
+    case Canada.Can.can?(conn.assigns.current_user, :index, %ArtistLink{}) do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end

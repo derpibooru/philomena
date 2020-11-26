@@ -63,7 +63,7 @@
   .block__header: span.block__header__title Artist Links
   - is_current = (current_user && current_user.id == @user.id)
   - if @links.present? || is_current
-    = render partial: 'profiles/user_link_area'
+    = render partial: 'profiles/artist_link_area'
 
 / Options block
 .block

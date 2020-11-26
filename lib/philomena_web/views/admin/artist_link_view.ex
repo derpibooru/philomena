@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Admin.UserLinkView do
+defmodule PhilomenaWeb.Admin.ArtistLinkView do
   use PhilomenaWeb, :view
 
   alias Philomena.Tags.Tag
@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.Admin.UserLinkView do
   def rejected?(%{aasm_state: state}), do: state == "rejected"
 
   def public_text(%{public: true}), do: "Yes"
-  def public_text(_user_link), do: "No"
+  def public_text(_artist_link), do: "No"
 
   def public?(%{public: public}), do: !!public
 end

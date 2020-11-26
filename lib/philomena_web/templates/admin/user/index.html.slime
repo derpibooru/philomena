@@ -85,8 +85,8 @@ h1 Users
               => link to: Routes.admin_user_ban_path(@conn, :new, username: user.name) do
                 i.fa.fa-fw.fa-ban
                 ' Ban
-            = if can?(@conn, :edit, Philomena.UserLinks.UserLink) do
-              => link to: Routes.profile_user_link_path(@conn, :new, user) do
+            = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do
+              => link to: Routes.profile_artist_link_path(@conn, :new, user) do
                 i.fa.fa-fw.fa-link
                 ' Add link
 

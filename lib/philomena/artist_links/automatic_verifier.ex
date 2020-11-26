@@ -1,8 +1,8 @@
-defmodule Philomena.UserLinks.AutomaticVerifier do
-  def check_link(user_link, recheck_time) do
-    user_link.uri
+defmodule Philomena.ArtistLinks.AutomaticVerifier do
+  def check_link(artist_link, recheck_time) do
+    artist_link.uri
     |> Philomena.Http.get()
-    |> contains_verification_code?(user_link.verification_code)
+    |> contains_verification_code?(artist_link.verification_code)
     |> case do
       true ->
         %{next_check_at: nil, aasm_state: "link_verified"}

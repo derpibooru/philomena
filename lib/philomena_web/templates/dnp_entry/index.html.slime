@@ -22,7 +22,7 @@ br
 
       - not is_nil(@current_user) ->
         ' You must have a verified artist link to create and manage DNP entries.
-        = link "Request an artist link", to: Routes.profile_user_link_path(@conn, :new, @current_user)
+        = link "Request an artist link", to: Routes.profile_artist_link_path(@conn, :new, @current_user)
         | .
 
       - true ->

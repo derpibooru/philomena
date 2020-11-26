@@ -1,4 +1,4 @@
-defmodule Philomena.UserLinks.UserLink do
+defmodule Philomena.ArtistLinks.ArtistLink do
   use Ecto.Schema
   import Ecto.Changeset
 
@@ -24,30 +24,30 @@ defmodule Philomena.UserLinks.UserLink do
   end
 
   @doc false
-  def changeset(user_link, attrs) do
-    user_link
+  def changeset(artist_link, attrs) do
+    artist_link
     |> cast(attrs, [])
     |> validate_required([])
   end
 
-  def edit_changeset(user_link, attrs, nil) do
-    user_link
+  def edit_changeset(artist_link, attrs, nil) do
+    artist_link
     |> cast(attrs, [:uri, :public])
     |> put_change(:tag_id, nil)
     |> validate_required([:user, :uri, :public])
     |> parse_uri()
   end
 
-  def edit_changeset(user_link, attrs, tag) do
-    user_link
+  def edit_changeset(artist_link, attrs, tag) do
+    artist_link
     |> cast(attrs, [:uri, :public])
     |> put_change(:tag_id, tag.id)
     |> validate_required([:user, :uri, :public])
     |> parse_uri()
   end
 
-  def creation_changeset(user_link, attrs, user, tag) do
-    user_link
+  def creation_changeset(artist_link, attrs, user, tag) do
+    artist_link
     |> cast(attrs, [:uri, :public])
     |> put_assoc(:tag, tag)
     |> put_assoc(:user, user)
@@ -59,24 +59,24 @@ defmodule Philomena.UserLinks.UserLink do
     |> put_next_check_at()
   end
 
-  def reject_changeset(user_link) do
-    change(user_link, aasm_state: "rejected")
+  def reject_changeset(artist_link) do
+    change(artist_link, aasm_state: "rejected")
   end
 
-  def automatic_verify_changeset(user_link, attrs) do
-    cast(user_link, attrs, [:next_check_at, :aasm_state])
+  def automatic_verify_changeset(artist_link, attrs) do
+    cast(artist_link, attrs, [:next_check_at, :aasm_state])
   end
 
-  def verify_changeset(user_link, user) do
-    change(user_link)
+  def verify_changeset(artist_link, user) do
+    change(artist_link)
     |> put_change(:verified_by_user_id, user.id)
     |> put_change(:aasm_state, "verified")
   end
 
-  def contact_changeset(user_link, user) do
+  def contact_changeset(artist_link, user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
-    change(user_link)
+    change(artist_link)
     |> put_change(:contacted_by_user_id, user.id)
     |> put_change(:contacted_at, now)
     |> put_change(:aasm_state, "contacted")

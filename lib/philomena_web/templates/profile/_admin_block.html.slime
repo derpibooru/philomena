@@ -141,9 +141,9 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
             i.fas.fa-fw.fa-dollar-sign
             span.admin__button Donations
 
-    = if can?(@conn, :edit, %Philomena.UserLinks.UserLink{}) do
+    = if can?(@conn, :edit, %Philomena.ArtistLinks.ArtistLink{}) do
       li
-        = link to: Routes.profile_user_link_path(@conn, :new, @user) do
+        = link to: Routes.profile_artist_link_path(@conn, :new, @user) do
           i.fa.fa-fw.fa-link
           span.admin__button Add Artist Link
 

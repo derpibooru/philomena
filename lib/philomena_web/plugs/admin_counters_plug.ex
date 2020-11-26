@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.AdminCountersPlug do
 
   alias Philomena.DuplicateReports
   alias Philomena.Reports
-  alias Philomena.UserLinks
+  alias Philomena.ArtistLinks
   alias Philomena.DnpEntries
 
   import Plug.Conn, only: [assign: 3]
@@ -33,13 +33,13 @@ defmodule PhilomenaWeb.AdminCountersPlug do
   defp maybe_assign_admin_metrics(conn, user, true) do
     duplicate_reports = DuplicateReports.count_duplicate_reports(user)
     reports = Reports.count_reports(user)
-    user_links = UserLinks.count_user_links(user)
+    artist_links = ArtistLinks.count_artist_links(user)
     dnps = DnpEntries.count_dnp_entries(user)
 
     conn
     |> assign(:duplicate_report_count, duplicate_reports)
     |> assign(:report_count, reports)
-    |> assign(:user_link_count, user_links)
+    |> assign(:artist_link_count, artist_links)
     |> assign(:dnp_entry_count, dnps)
   end
 

@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Profile.UserLinkView do
+defmodule PhilomenaWeb.Profile.ArtistLinkView do
   use PhilomenaWeb, :view
 
   def verified?(%{aasm_state: state}), do: state == "verified"
@@ -10,10 +10,10 @@ defmodule PhilomenaWeb.Profile.UserLinkView do
   def public?(%{public: public}), do: !!public
 
   def verified_as_string(%{aasm_state: "verified"}), do: "Yes"
-  def verified_as_string(_user_link), do: "No"
+  def verified_as_string(_artist_link), do: "No"
 
   def public_as_string(%{public: true}), do: "Yes"
-  def public_as_string(_user_link), do: "No"
+  def public_as_string(_artist_link), do: "No"
 
   def tag_name(%{tag: nil}), do: nil
   def tag_name(%{tag: tag}), do: tag.name

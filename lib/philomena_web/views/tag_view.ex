@@ -155,7 +155,7 @@ defmodule PhilomenaWeb.TagView do
   end
 
   defp manages_links?(conn),
-    do: can?(conn, :index, Philomena.UserLinks.UserLink)
+    do: can?(conn, :index, Philomena.ArtistLinks.ArtistLink)
 
   defp manages_dnp?(conn),
     do: can?(conn, :index, Philomena.DnpEntries.DnpEntry)
