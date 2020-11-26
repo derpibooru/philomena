@@ -7,19 +7,15 @@
     .field
       p
         label for="tag_name"
-          ' The tag,
-          em> specific
-          ' to you, usually
-          code>
-            | artist:
-            em artist name here
-          ' or a series name
-      = text_input f, :tag_name, value: assigns[:tag_name], class: "input", autocomplete: "off", placeholder: "artist:name", data: [ac: "true", ac_min_length: "3", ac_source: "/tags/autocomplete?term="]
+          ' Artist Link validation is intended for artists. Validating your link will give you control over how your art is shared on the site and will allow you to create a 
+          a> href="/commissions" commissions
+          ' listing. Do not request a link if the source has no artwork that you yourself did not create.
+      = text_input f, :tag_name, value: assigns[:tag_name], class: "input", autocomplete: "off", placeholder: "artist:your-name", data: [ac: "true", ac_min_length: "3", ac_source: "/tags/autocomplete?term="]
       = error_tag f, :tag
 
   .field
     label for="uri"
-      ' URL of your art webpage
+      ' URL of your art webpage (may be your Derpibooru profile page if you have no other sources)
     = url_input f, :uri, class: "input input--wide", placeholder: "https://www.deviantart.com/your-name", required: true
     = error_tag f, :uri
 

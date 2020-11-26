@@ -32,11 +32,12 @@ h3 Status
   - unverified?(@artist_link) ->
     p
       strong This link is pending verification by a member of the administration team.
-    p
-      h3 To have your link verified as fast as possible, please place this text somewhere on the page you are linking.
-    p
-      code
-        h1 = @artist_link.verification_code
+      .dnp-warning
+        p
+          h3 To have your link verified as fast as possible, please place this text somewhere on the page you are linking.
+        p
+          code
+          h1 = @artist_link.verification_code
     p Otherwise, an administrator will have to contact you to verify your identity.
     p Once the link has been verified you can remove the text; the text simply allows the team to directly check with your website rather than messaging you and waiting for a reply.
 
