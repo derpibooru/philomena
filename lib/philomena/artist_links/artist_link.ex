@@ -54,9 +54,19 @@ defmodule Philomena.ArtistLinks.ArtistLink do
     |> validate_required([:user, :uri, :public])
     |> validate_required([:tag], message: "must exist")
     |> validate_format(:uri, ~r|\Ahttps?://|)
+    |> validate_category()
     |> parse_uri()
     |> put_verification_code()
     |> put_next_check_at()
+  end
+
+  def validate_category(changeset) do
+    tag = get_field(changeset, :tag)
+
+    case tag.category in ["origin", "content-fanmade"] do
+      false -> add_error(changeset, :tag, "must be a creator tag")
+      true -> changeset
+    end
   end
 
   def reject_changeset(artist_link) do
