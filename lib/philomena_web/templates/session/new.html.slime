@@ -10,7 +10,7 @@ h1 Sign in
   p = link "Forgot your password?", to: Routes.password_path(@conn, :new)
 
   .field
-    = email_input f, :email, class: "input", required: true, placeholder: "Email", autofocus: true, pattern: ".*@.*"
+    = email_input f, :email, class: "input", required: true, placeholder: "Email", autofocus: true, pattern: ~S/[^\s]+@[^\s]+\.[^\s]+/
     = error_tag f, :email
 
   .field

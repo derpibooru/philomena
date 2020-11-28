@@ -41,7 +41,7 @@ defmodule PhilomenaWeb.RegistrationControllerTest do
         })
 
       response = html_response(conn, 200)
-      assert response =~ "must have the @ sign and no spaces"
+      assert response =~ "must be valid (e.g., user@example.com)"
       assert response =~ "should be at least 12 character"
     end
   end
