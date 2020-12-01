@@ -8,7 +8,7 @@ defmodule Philomena.Tags.Query do
         ~W(slug name name_in_namespace namespace implies alias_of implied_by aliases category analyzed_name),
       bool_fields: ~W(aliased),
       ngram_fields: ~W(description short_description),
-      default_field: {"analyzed_name", :ngram},
+      default_field: {"name", :term},
       aliases: %{
         "implies" => "implied_tags",
         "implied_by" => "implied_by_tags",

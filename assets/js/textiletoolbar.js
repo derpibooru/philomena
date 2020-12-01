@@ -8,15 +8,15 @@ import { $, $$ } from './utils/dom';
 const textileSyntax = {
   bold: {
     action: wrapSelection,
-    options: { prefix: '*', suffix: '*', shortcutKey: 'b' }
+    options: { prefix: '*', suffix: '*', shortcutKey: 'b', type: 'inline' }
   },
   italics: {
     action: wrapSelection,
-    options: { prefix: '_', suffix: '_', shortcutKey: 'i' }
+    options: { prefix: '_', suffix: '_', shortcutKey: 'i', type: 'inline' }
   },
   under: {
     action: wrapSelection,
-    options: { prefix: '+', suffix: '+', shortcutKey: 'u' }
+    options: { prefix: '+', suffix: '+', shortcutKey: 'u', type: 'inline' }
   },
   spoiler: {
     action: wrapSelection,
@@ -24,19 +24,19 @@ const textileSyntax = {
   },
   code: {
     action: wrapSelection,
-    options: { prefix: '@', suffix: '@', shortcutKey: 'e' }
+    options: { prefix: '@', suffix: '@', shortcutKey: 'e', type: 'inline' }
   },
   strike: {
     action: wrapSelection,
-    options: { prefix: '-', suffix: '-' }
+    options: { prefix: '-', suffix: '-', type: 'inline' }
   },
   superscript: {
     action: wrapSelection,
-    options: { prefix: '^', suffix: '^' }
+    options: { prefix: '^', suffix: '^', type: 'inline' }
   },
   subscript: {
     action: wrapSelection,
-    options: { prefix: '~', suffix: '~' }
+    options: { prefix: '~', suffix: '~', type: 'inline' }
   },
   quote: {
     action: wrapSelection,
@@ -85,7 +85,7 @@ function getSelections(textarea) {
 
 function wrapSelection(textarea, options) {
   const { selectedText, beforeSelection, afterSelection } = getSelections(textarea),
-        { text = selectedText, prefix = '', suffix = '' } = options,
+        { text = selectedText, prefix = '', suffix = '', type } = options,
         // For long comments, record scrollbar position to restore it later
         scrollTop = textarea.scrollTop,
         emptyText = text === '';
@@ -97,7 +97,12 @@ function wrapSelection(textarea, options) {
     });
   }
 
-  textarea.value = beforeSelection + prefix + newText + suffix + afterSelection;
+  if (type === 'inline' && newText.includes('\n')) {
+    textarea.value = `${beforeSelection}[${prefix}${newText}${suffix}]${afterSelection}`;
+  }
+  else {
+    textarea.value = `${beforeSelection}${prefix}${newText}${suffix}${afterSelection}`;
+  }
 
   // If no text were highlighted, place the caret inside
   // the formatted section, otherwise place it at the end

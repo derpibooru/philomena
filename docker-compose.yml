@@ -31,7 +31,7 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - REDIS_HOST=redis
       - DATABASE_URL=ecto://postgres:postgres@postgres/philomena_dev
-      - CDN_HOST=
+      - CDN_HOST=localhost
       - MAILER_ADDRESS=noreply@philomena.local
       - START_ENDPOINT=true
     working_dir: /srv/philomena

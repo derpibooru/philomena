@@ -47,9 +47,9 @@ defmodule PhilomenaWeb.Registration.TotpController do
 
       {:ok, user} ->
         conn
-        |> UserAuth.totp_auth_user(user, %{})
         |> put_flash(:totp_backup_codes, backup_codes)
-        |> redirect(to: Routes.registration_totp_path(conn, :edit))
+        |> put_session(:user_return_to, Routes.registration_totp_path(conn, :edit))
+        |> UserAuth.totp_auth_user(user, %{})
     end
   end
 end

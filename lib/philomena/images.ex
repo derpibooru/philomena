@@ -18,6 +18,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
+  alias Philomena.Notifications.Notification
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.UserStatistics
@@ -728,7 +729,12 @@ defmodule Philomena.Images do
       |> select([s], %{image_id: type(^target.id, :integer), user_id: s.user_id})
       |> Repo.all()
 
-    {count, nil} = Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
+    Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
+
+    {count, nil} =
+      Notification
+      |> where(actor_type: "Image", actor_id: ^source.id)
+      |> Repo.update_all(set: [actor_id: target.id])
 
     {:ok, count}
   end

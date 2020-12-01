@@ -157,8 +157,8 @@ defmodule PhilomenaWeb.ProfileController do
     bans =
       Bans.User
       |> where(user_id: ^user.id)
+      |> order_by(desc: :created_at)
       |> Repo.all()
-      |> Enum.reject(&String.contains?(&1.note || "", "discourage"))
 
     render(
       conn,

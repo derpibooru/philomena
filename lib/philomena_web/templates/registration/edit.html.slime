@@ -35,7 +35,7 @@ h3 Change email
       p Oops, something went wrong! Please check the errors below.
 
   .field
-    = email_input f, :email, class: "input", placeholder: "Email", required: true, pattern: ".*@.*"
+    = email_input f, :email, class: "input", placeholder: "Email", required: true, pattern: ~S/[^\s]+@[^\s]+\.[^\s]+/
     = error_tag f, :email
 
   .field

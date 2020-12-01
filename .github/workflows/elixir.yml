@@ -1,11 +1,29 @@
 name: Philomena Build
 
-on: push
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            _build
+            deps
+          key: ${{ runner.os }}-build-deps-${{ hashFiles('mix.lock') }}
+
+      - run: docker-compose pull
+
+      - uses: satackey/action-docker-layer-caching@v0.0.8
+        continue-on-error: true
+
       - name: Build and test
         run: docker-compose run app run-test
+
+      - name: Fix permissions
+        run: |
+          sudo chown -R $(whoami):$(id -ng) deps
+          sudo chown -R $(whoami):$(id -ng) _build
