@@ -1,11 +1,11 @@
-FROM hexpm/elixir:1.11.1-erlang-23.1.1-ubuntu-focal-20200703
+FROM elixir:1.11.2
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
     && apt-get -qq -y install apt-transport-https wget gnupg \
-    && echo "deb https://deb.nodesource.com/node_12.x focal main" >> /etc/apt/sources.list \
-    && echo "deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main" >> /etc/apt/sources.list \
+    && echo "deb https://deb.nodesource.com/node_12.x buster main" >> /etc/apt/sources.list \
+    && echo "deb http://apt.postgresql.org/pub/repos/apt/ buster-pgdg main" >> /etc/apt/sources.list \
     && wget -qO - "https://www.postgresql.org/media/keys/ACCC4CF8.asc" | apt-key add - \
     && wget -qO - "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" | apt-key add - \
     && apt-get update \
