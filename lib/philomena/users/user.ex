@@ -161,7 +161,9 @@ defmodule Philomena.Users.User do
   defp validate_email(changeset) do
     changeset
     |> validate_required([:email])
-    |> validate_format(:email, ~r/^[^\s]+@[^\s]+\.[^\s]+$/, message: "must be valid (e.g., user@example.com)")
+    |> validate_format(:email, ~r/^[^\s]+@[^\s]+\.[^\s]+$/,
+      message: "must be valid (e.g., user@example.com)"
+    )
     |> validate_length(:email, max: 160)
     |> unsafe_validate_unique(:email, Philomena.Repo)
   end
