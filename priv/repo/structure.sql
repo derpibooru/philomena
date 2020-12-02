@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.3 (Debian 12.3-1.pgdg100+1)
--- Dumped by pg_dump version 12.4 (Debian 12.4-1.pgdg90+1)
+-- Dumped from database version 13.0 (Debian 13.0-1.pgdg100+1)
+-- Dumped by pg_dump version 13.1 (Debian 13.1-1.pgdg100+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -72,6 +72,48 @@ CREATE SEQUENCE public.adverts_id_seq
 --
 
 ALTER SEQUENCE public.adverts_id_seq OWNED BY public.adverts.id;
+
+
+--
+-- Name: artist_links; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.artist_links (
+    id integer NOT NULL,
+    aasm_state character varying NOT NULL,
+    uri character varying NOT NULL,
+    hostname character varying,
+    path character varying,
+    verification_code character varying NOT NULL,
+    public boolean DEFAULT true NOT NULL,
+    next_check_at timestamp without time zone,
+    contacted_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    user_id integer NOT NULL,
+    verified_by_user_id integer,
+    contacted_by_user_id integer,
+    tag_id integer
+);
+
+
+--
+-- Name: artist_links_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.artist_links_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: artist_links_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.artist_links_id_seq OWNED BY public.artist_links.id;
 
 
 --
@@ -1721,48 +1763,6 @@ ALTER SEQUENCE public.user_ips_id_seq OWNED BY public.user_ips.id;
 
 
 --
--- Name: user_links; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.user_links (
-    id integer NOT NULL,
-    aasm_state character varying NOT NULL,
-    uri character varying NOT NULL,
-    hostname character varying,
-    path character varying,
-    verification_code character varying NOT NULL,
-    public boolean DEFAULT true NOT NULL,
-    next_check_at timestamp without time zone,
-    contacted_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    user_id integer NOT NULL,
-    verified_by_user_id integer,
-    contacted_by_user_id integer,
-    tag_id integer
-);
-
-
---
--- Name: user_links_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.user_links_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: user_links_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.user_links_id_seq OWNED BY public.user_links.id;
-
-
---
 -- Name: user_name_changes; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2059,6 +2059,13 @@ ALTER TABLE ONLY public.adverts ALTER COLUMN id SET DEFAULT nextval('public.adve
 
 
 --
+-- Name: artist_links id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artist_links ALTER COLUMN id SET DEFAULT nextval('public.artist_links_id_seq'::regclass);
+
+
+--
 -- Name: badge_awards id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2339,13 +2346,6 @@ ALTER TABLE ONLY public.user_ips ALTER COLUMN id SET DEFAULT nextval('public.use
 
 
 --
--- Name: user_links id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_links ALTER COLUMN id SET DEFAULT nextval('public.user_links_id_seq'::regclass);
-
-
---
 -- Name: user_name_changes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2393,6 +2393,14 @@ ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.ver
 
 ALTER TABLE ONLY public.adverts
     ADD CONSTRAINT adverts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: artist_links artist_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.artist_links
+    ADD CONSTRAINT artist_links_pkey PRIMARY KEY (id);
 
 
 --
@@ -2724,14 +2732,6 @@ ALTER TABLE ONLY public.user_ips
 
 
 --
--- Name: user_links user_links_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_links
-    ADD CONSTRAINT user_links_pkey PRIMARY KEY (id);
-
-
---
 -- Name: user_name_changes user_name_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2805,6 +2805,55 @@ CREATE INDEX index_adverts_on_restrictions ON public.adverts USING btree (restri
 --
 
 CREATE INDEX index_adverts_on_start_date_and_finish_date ON public.adverts USING btree (start_date, finish_date);
+
+
+--
+-- Name: index_artist_links_on_aasm_state; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_aasm_state ON public.artist_links USING btree (aasm_state);
+
+
+--
+-- Name: index_artist_links_on_contacted_by_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_contacted_by_user_id ON public.artist_links USING btree (contacted_by_user_id);
+
+
+--
+-- Name: index_artist_links_on_next_check_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_next_check_at ON public.artist_links USING btree (next_check_at);
+
+
+--
+-- Name: index_artist_links_on_tag_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_tag_id ON public.artist_links USING btree (tag_id);
+
+
+--
+-- Name: index_artist_links_on_uri_tag_id_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_artist_links_on_uri_tag_id_user_id ON public.artist_links USING btree (uri, tag_id, user_id) WHERE ((aasm_state)::text <> 'rejected'::text);
+
+
+--
+-- Name: index_artist_links_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_user_id ON public.artist_links USING btree (user_id);
+
+
+--
+-- Name: index_artist_links_on_verified_by_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_artist_links_on_verified_by_user_id ON public.artist_links USING btree (verified_by_user_id);
 
 
 --
@@ -3774,55 +3823,6 @@ CREATE INDEX index_user_ips_on_user_id_and_updated_at ON public.user_ips USING b
 
 
 --
--- Name: index_user_links_on_aasm_state; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_aasm_state ON public.user_links USING btree (aasm_state);
-
-
---
--- Name: index_user_links_on_contacted_by_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_contacted_by_user_id ON public.user_links USING btree (contacted_by_user_id);
-
-
---
--- Name: index_user_links_on_next_check_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_next_check_at ON public.user_links USING btree (next_check_at);
-
-
---
--- Name: index_user_links_on_tag_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_tag_id ON public.user_links USING btree (tag_id);
-
-
---
--- Name: index_user_links_on_uri_tag_id_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_user_links_on_uri_tag_id_user_id ON public.user_links USING btree (uri, tag_id, user_id) WHERE ((aasm_state)::text <> 'rejected'::text);
-
-
---
--- Name: index_user_links_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_user_id ON public.user_links USING btree (user_id);
-
-
---
--- Name: index_user_links_on_verified_by_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_links_on_verified_by_user_id ON public.user_links USING btree (verified_by_user_id);
-
-
---
 -- Name: index_user_name_changes_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4450,10 +4450,10 @@ ALTER TABLE ONLY public.unread_notifications
 
 
 --
--- Name: user_links fk_rails_9939489c5c; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: artist_links fk_rails_9939489c5c; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_links
+ALTER TABLE ONLY public.artist_links
     ADD CONSTRAINT fk_rails_9939489c5c FOREIGN KEY (verified_by_user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
@@ -4506,10 +4506,10 @@ ALTER TABLE ONLY public.poll_options
 
 
 --
--- Name: user_links fk_rails_ab45cd8fd7; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: artist_links fk_rails_ab45cd8fd7; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_links
+ALTER TABLE ONLY public.artist_links
     ADD CONSTRAINT fk_rails_ab45cd8fd7 FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -4690,10 +4690,10 @@ ALTER TABLE ONLY public.tags_implied_tags
 
 
 --
--- Name: user_links fk_rails_e6cf0175d0; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: artist_links fk_rails_e6cf0175d0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_links
+ALTER TABLE ONLY public.artist_links
     ADD CONSTRAINT fk_rails_e6cf0175d0 FOREIGN KEY (contacted_by_user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
@@ -4746,10 +4746,10 @@ ALTER TABLE ONLY public.filters
 
 
 --
--- Name: user_links fk_rails_f64b4291c0; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: artist_links fk_rails_f64b4291c0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.user_links
+ALTER TABLE ONLY public.artist_links
     ADD CONSTRAINT fk_rails_f64b4291c0 FOREIGN KEY (tag_id) REFERENCES public.tags(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -4797,3 +4797,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200706171350);
 INSERT INTO public."schema_migrations" (version) VALUES (20200725234412);
 INSERT INTO public."schema_migrations" (version) VALUES (20200817213256);
 INSERT INTO public."schema_migrations" (version) VALUES (20200905214139);
+INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
