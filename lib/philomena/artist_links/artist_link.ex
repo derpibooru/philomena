@@ -63,9 +63,10 @@ defmodule Philomena.ArtistLinks.ArtistLink do
   def validate_category(changeset) do
     tag = get_field(changeset, :tag)
 
-    case tag.category in ["origin", "content-fanmade"] do
-      false -> add_error(changeset, :tag, "must be a creator tag")
-      true -> changeset
+    if not is_nil(tag) and tag.category not in ["origin", "content-fanmade"] do
+      add_error(changeset, :tag, "must be a creator tag")
+    else
+      changeset
     end
   end
 
