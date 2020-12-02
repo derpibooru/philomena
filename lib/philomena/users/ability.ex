@@ -17,7 +17,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Filters.Filter
   alias Philomena.Galleries.Gallery
   alias Philomena.DnpEntries.DnpEntry
-  alias Philomena.UserLinks.UserLink
+  alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.Tags.Tag
   alias Philomena.TagChanges.TagChange
   alias Philomena.Reports.Report
@@ -76,11 +76,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Report{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Report{}), do: true
 
-  # Manage user links
+  # Manage artist links
   def can?(%User{role: "moderator"}, :create_links, %User{}), do: true
   def can?(%User{role: "moderator"}, :edit_links, %User{}), do: true
-  def can?(%User{role: "moderator"}, _action, UserLink), do: true
-  def can?(%User{role: "moderator"}, _action, %UserLink{}), do: true
+  def can?(%User{role: "moderator"}, _action, ArtistLink), do: true
+  def can?(%User{role: "moderator"}, _action, %ArtistLink{}), do: true
 
   # Reveal anon users
   def can?(%User{role: "moderator"}, :reveal_anon, _object), do: true
@@ -262,24 +262,24 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :batch_update, Tag),
     do: true
 
-  # User link assistant actions
-  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, _action, %UserLink{}),
+  # Artist link assistant actions
+  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, _action, %ArtistLink{}),
     do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"UserLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
         :create_links,
         %User{}
       ),
       do: true
 
-  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit, %UserLink{}),
+  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :edit, %ArtistLink{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :edit_links, %User{}),
+  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :edit_links, %User{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"UserLink" => "moderator"}}, :index, %UserLink{}),
+  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :index, %ArtistLink{}),
     do: true
 
   # View forums
@@ -322,9 +322,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{id: id}, action, %Filter{user_id: id}) when action in [:edit, :update, :delete],
     do: true
 
-  # View user links they've created
+  # View artist links they've created
   def can?(%User{id: id}, :create_links, %User{id: id}), do: true
-  def can?(%User{id: id}, :show, %UserLink{user_id: id}), do: true
+  def can?(%User{id: id}, :show, %ArtistLink{user_id: id}), do: true
 
   # Edit their commissions
   def can?(%User{id: id}, action, %Commission{user_id: id})

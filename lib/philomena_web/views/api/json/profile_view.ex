@@ -21,8 +21,8 @@ defmodule PhilomenaWeb.Api.Json.ProfileView do
       links:
         render_many(
           user.public_links,
-          PhilomenaWeb.Api.Json.UserLinkView,
-          "user_link.json",
+          PhilomenaWeb.Api.Json.ArtistLinkView,
+          "artist_link.json",
           assigns
         ),
       awards: render_many(user.awards, PhilomenaWeb.Api.Json.AwardView, "award.json", assigns)

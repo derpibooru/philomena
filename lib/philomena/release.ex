@@ -19,9 +19,9 @@ defmodule Philomena.Release do
     Philomena.Channels.update_tracked_channels!()
   end
 
-  def verify_user_links do
+  def verify_artist_links do
     start_app()
-    Philomena.UserLinks.automatic_verify!()
+    Philomena.ArtistLinks.automatic_verify!()
   end
 
   def update_stats do

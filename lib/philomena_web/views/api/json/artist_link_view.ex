@@ -1,11 +1,11 @@
-defmodule PhilomenaWeb.Api.Json.UserLinkView do
+defmodule PhilomenaWeb.Api.Json.ArtistLinkView do
   use PhilomenaWeb, :view
 
-  def render("user_link.json", %{user_link: %{public: false}}) do
+  def render("artist_link.json", %{artist_link: %{public: false}}) do
     nil
   end
 
-  def render("user_link.json", %{user_link: link}) do
+  def render("artist_link.json", %{artist_link: link}) do
     %{
       user_id: link.user_id,
       created_at: link.created_at,

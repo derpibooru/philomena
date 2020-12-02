@@ -53,11 +53,11 @@
       span.header__counter__admin
         = @report_count
 
-  = if @user_link_count do
-    = link to: Routes.admin_user_link_path(@conn, :index), class: "header__link", title: "User Links" do
+  = if @artist_link_count do
+    = link to: Routes.admin_artist_link_path(@conn, :index), class: "header__link", title: "Artist Links" do
       ' L
       span.header__counter__admin
-        = @user_link_count
+        = @artist_link_count
 
   = if @dnp_entry_count do
     = link to: Routes.admin_dnp_entry_path(@conn, :index), class: "header__link", title: "DNP Requests" do

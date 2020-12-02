@@ -1,2 +1,0 @@
-h1 Edit Link
-= render PhilomenaWeb.Profile.UserLinkView, "_form.html", conn: @conn, changeset: @changeset, tag_name: tag_name(@user_link), action: Routes.profile_user_link_path(@conn, :update, @user_link.user, @user_link)

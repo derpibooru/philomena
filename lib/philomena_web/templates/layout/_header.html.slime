@@ -83,7 +83,7 @@ header.header
             a.header__link href="/posts?pq=my:posts"
               i.fas.fa-fw.fa-pen-square>
               | Posts
-            a.header__link href=Routes.profile_user_link_path(@conn, :index, @current_user)
+            a.header__link href=Routes.profile_artist_link_path(@conn, :index, @current_user)
               i.fa.fa-fw.fa-link>
               | Links
             a.header__link href="/settings/edit"

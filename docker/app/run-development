@@ -3,7 +3,7 @@
 background() {
   while :; do
     mix run -e 'Philomena.Release.update_channels()'
-    mix run -e 'Philomena.Release.verify_user_links()'
+    mix run -e 'Philomena.Release.verify_artist_links()'
     mix run -e 'Philomena.Release.update_stats()'
 
     sleep 300

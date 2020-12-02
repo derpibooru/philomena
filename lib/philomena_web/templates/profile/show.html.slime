@@ -65,10 +65,10 @@
 
     .block
       = if current?(@user, @conn.assigns.current_user) or manages_links?(@conn, @user) do
-        a.block__header--single-item href=Routes.profile_user_link_path(@conn, :new, @user) User Links
+        a.block__header--single-item href=Routes.profile_artist_link_path(@conn, :new, @user) Artist Links
       - else
         .block__header
-          span.block__header__title User Links
+          span.block__header__title Artist Links
       = for link <- @user.verified_links, should_see_link?(@conn, @user, link) do
         - watchers = if link.tag, do: @watcher_counts[link.tag.id] || 0, else: 0
 
@@ -91,10 +91,10 @@
               - else
                 ' Hidden
               ' &bull;
-              a href=Routes.profile_user_link_path(@conn, :edit, @user, link)
+              a href=Routes.profile_artist_link_path(@conn, :edit, @user, link)
                 ' Edit
               ' &bull;
-              a href=Routes.admin_user_link_reject_path(@conn, :create, link) data-method="post"
+              a href=Routes.admin_artist_link_reject_path(@conn, :create, link) data-method="post"
                 ' Reject
             - else
               => unless link.public do

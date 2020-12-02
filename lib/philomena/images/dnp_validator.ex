@@ -3,7 +3,7 @@ defmodule Philomena.Images.DnpValidator do
   import Ecto.Query
   alias Philomena.Repo
   alias Philomena.Tags.Tag
-  alias Philomena.UserLinks.UserLink
+  alias Philomena.ArtistLinks.ArtistLink
 
   def validate_dnp(changeset, uploader) do
     tags =
@@ -60,7 +60,7 @@ defmodule Philomena.Images.DnpValidator do
   defp valid_user?(_dnp_entry, nil), do: false
 
   defp valid_user?(dnp_entry, user) do
-    UserLink
+    ArtistLink
     |> where(tag_id: ^dnp_entry.tag_id)
     |> where(aasm_state: "verified")
     |> where(user_id: ^user.id)
