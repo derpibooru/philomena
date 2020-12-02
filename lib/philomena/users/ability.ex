@@ -263,8 +263,12 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
     do: true
 
   # Artist link assistant actions
-  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, _action, %ArtistLink{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        _action,
+        %ArtistLink{}
+      ),
+      do: true
 
   def can?(
         %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
@@ -273,14 +277,26 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
       ),
       do: true
 
-  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :edit, %ArtistLink{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        :edit,
+        %ArtistLink{}
+      ),
+      do: true
 
-  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :edit_links, %User{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        :edit_links,
+        %User{}
+      ),
+      do: true
 
-  def can?(%User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}}, :index, %ArtistLink{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        :index,
+        %ArtistLink{}
+      ),
+      do: true
 
   # View forums
   def can?(%User{role: "assistant"}, :show, %Forum{access_level: level})

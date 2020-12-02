@@ -52,7 +52,9 @@ defmodule PhilomenaWeb.Profile.ArtistLinkController do
           :info,
           "Link submitted! Please put '#{artist_link.verification_code}' on your linked webpage now."
         )
-        |> redirect(to: Routes.profile_artist_link_path(conn, :show, conn.assigns.user, artist_link))
+        |> redirect(
+          to: Routes.profile_artist_link_path(conn, :show, conn.assigns.user, artist_link)
+        )
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -75,7 +77,9 @@ defmodule PhilomenaWeb.Profile.ArtistLinkController do
       {:ok, artist_link} ->
         conn
         |> put_flash(:info, "Link successfully updated.")
-        |> redirect(to: Routes.profile_artist_link_path(conn, :show, conn.assigns.user, artist_link))
+        |> redirect(
+          to: Routes.profile_artist_link_path(conn, :show, conn.assigns.user, artist_link)
+        )
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

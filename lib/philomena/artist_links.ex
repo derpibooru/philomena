@@ -32,7 +32,10 @@ defmodule Philomena.ArtistLinks do
     recheck_query
     |> Repo.all()
     |> Enum.map(fn link ->
-      ArtistLink.automatic_verify_changeset(link, AutomaticVerifier.check_link(link, recheck_time))
+      ArtistLink.automatic_verify_changeset(
+        link,
+        AutomaticVerifier.check_link(link, recheck_time)
+      )
     end)
     |> Enum.map(&Repo.update!/1)
   end
