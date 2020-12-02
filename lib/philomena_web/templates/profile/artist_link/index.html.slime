@@ -1,0 +1,23 @@
+h1 Artist Links
+p
+  a.button href=Routes.profile_artist_link_path(@conn, :new, @user)
+    ' Request a link
+p
+  ' Artist links associate your account on Derpibooru with tags about content you create and with accounts on sites elsewhere. This allows users to easily identify artists and staff to act more rapidly on takedown requests.
+
+table.table
+  thead
+    tr
+      th URI
+      th Options
+      th Verification Code
+      th Verified?
+      th Public
+  tbody
+    = for link <- @artist_links do
+      tr
+        td = link link.uri, to: link.uri
+        td = link "View Details", to: Routes.profile_artist_link_path(@conn, :show, @user, link)
+        td = link.verification_code
+        th = verified_as_string(link)
+        th = public_as_string(link)

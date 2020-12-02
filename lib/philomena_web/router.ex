@@ -261,7 +261,7 @@ defmodule PhilomenaWeb.Router do
         only: [:edit, :update],
         singleton: true
 
-      resources "/user_links", Profile.UserLinkController
+      resources "/artist_links", Profile.ArtistLinkController
       resources "/awards", Profile.AwardController, except: [:index, :show]
 
       resources "/details", Profile.DetailController, only: [:index]
@@ -321,13 +321,13 @@ defmodule PhilomenaWeb.Router do
         resources "/close", Report.CloseController, only: [:create], singleton: true
       end
 
-      resources "/user_links", UserLinkController, only: [:index] do
-        resources "/verification", UserLink.VerificationController,
+      resources "/artist_links", ArtistLinkController, only: [:index] do
+        resources "/verification", ArtistLink.VerificationController,
           only: [:create],
           singleton: true
 
-        resources "/contact", UserLink.ContactController, only: [:create], singleton: true
-        resources "/reject", UserLink.RejectController, only: [:create], singleton: true
+        resources "/contact", ArtistLink.ContactController, only: [:create], singleton: true
+        resources "/reject", ArtistLink.RejectController, only: [:create], singleton: true
       end
 
       resources "/dnp_entries", DnpEntryController, only: [:index] do

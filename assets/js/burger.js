@@ -26,7 +26,7 @@ function close(burger, content, body, root) {
   }, 300);
 }
 
-function copyUserLinksTo(burger) {
+function copyArtistLinksTo(burger) {
   const copy = links => {
     burger.appendChild(document.createElement('hr'));
 
@@ -50,7 +50,7 @@ function setupBurgerMenu() {
   const body = document.body;
   const root = document.documentElement;
 
-  copyUserLinksTo(burger);
+  copyArtistLinksTo(burger);
 
   toggle.addEventListener('click', event => {
     event.stopPropagation();

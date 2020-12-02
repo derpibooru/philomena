@@ -58,12 +58,12 @@
     .block__content.commission__block_body
       == @rendered.will_not_create
 
-/ User link block
+/ Artist link block
 /.block
-  .block__header: span.block__header__title User Links
+  .block__header: span.block__header__title Artist Links
   - is_current = (current_user && current_user.id == @user.id)
   - if @links.present? || is_current
-    = render partial: 'profiles/user_link_area'
+    = render partial: 'profiles/artist_link_area'
 
 / Options block
 .block

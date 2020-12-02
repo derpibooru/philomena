@@ -43,10 +43,10 @@
       strong.comment_deleted> Hidden links:
       br
 
-      = for user_link <- @tag.hidden_links do
-        => link user_link.user.name, to: Routes.profile_path(@conn, :show, user_link.user)
+      = for artist_link <- @tag.hidden_links do
+        => link artist_link.user.name, to: Routes.profile_path(@conn, :show, artist_link.user)
         ' &rarr;
-        => link user_link.uri, to: user_link.uri
+        => link artist_link.uri, to: artist_link.uri
         br
 
 

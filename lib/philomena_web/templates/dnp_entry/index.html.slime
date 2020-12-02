@@ -21,12 +21,12 @@ br
         = link "My Listings", to: Routes.dnp_entry_path(@conn, :index, mine: "1")
 
       - not is_nil(@current_user) ->
-        ' You must have a verified user link to create and manage DNP entries.
-        = link "Request a user link", to: Routes.profile_user_link_path(@conn, :new, @current_user)
+        ' You must have a verified artist link to create and manage DNP entries.
+        = link "Request an artist link", to: Routes.profile_artist_link_path(@conn, :new, @current_user)
         | .
 
       - true ->
-        ' You must be logged in and have a verified user link to create and manage DNP entries.
+        ' You must be logged in and have a verified artist link to create and manage DNP entries.
 
 
 h3 The List

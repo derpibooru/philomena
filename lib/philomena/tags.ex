@@ -14,7 +14,7 @@ defmodule Philomena.Tags do
   alias Philomena.Users.User
   alias Philomena.Filters.Filter
   alias Philomena.Images.Tagging
-  alias Philomena.UserLinks.UserLink
+  alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Channels.Channel
 
@@ -228,7 +228,7 @@ defmodule Philomena.Tags do
     |> Repo.delete_all()
 
     # Update other assocations
-    UserLink
+    ArtistLink
     |> where(tag_id: ^tag.id)
     |> Repo.update_all(set: [tag_id: target_tag.id])
 

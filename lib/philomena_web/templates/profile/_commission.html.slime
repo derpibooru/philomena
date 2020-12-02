@@ -24,9 +24,15 @@
       = link "More information", to: Routes.profile_commission_path(@conn, :show, @user)
 
     - current?(@user, @conn.assigns.current_user) ->
-      em
-        ' You don't have any commission information listed yet.
-        => link "Click here", to: Routes.profile_commission_path(@conn, :new, @user)
-        ' to set it up.
+      = if Enum.any?(@conn.assigns.user.verified_links) do
+        em
+          ' You don't have any commission information listed yet.
+          => link "Click here", to: Routes.profile_commission_path(@conn, :new, @user)
+          ' to set it up.
+      - else
+        em
+          ' You must have a verified Artist Link to create a commission page.
+          => link "Click here", to: Routes.profile_artist_link_path(@conn, :new, @user)
+          ' to set one up.
 
     - true ->

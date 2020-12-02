@@ -1,0 +1,2 @@
+h1 Request Artist Link
+= render PhilomenaWeb.Profile.ArtistLinkView, "_form.html", changeset: @changeset, action: Routes.profile_artist_link_path(@conn, :create, @user), conn: @conn

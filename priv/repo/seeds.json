@@ -80,7 +80,7 @@
     {"name": "moderator", "resource_type": "DuplicateReport"},
     {"name": "moderator", "resource_type": "Comment"},
     {"name": "moderator", "resource_type": "Tag"},
-    {"name": "moderator", "resource_type": "UserLink"},
+    {"name": "moderator", "resource_type": "ArtistLink"},
     {"name": "admin", "resource_type": "Tag"},
     {"name": "moderator", "resource_type": "User"},
     {"name": "admin", "resource_type": "SiteNotice"},
