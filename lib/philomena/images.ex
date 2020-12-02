@@ -734,7 +734,7 @@ defmodule Philomena.Images do
     {count, nil} =
       Notification
       |> where(actor_type: "Image", actor_id: ^source.id)
-      |> Repo.update_all(set: [actor_id: target.id])
+      |> Repo.delete_all()
 
     {:ok, count}
   end
