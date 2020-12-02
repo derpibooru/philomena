@@ -13,7 +13,8 @@ defmodule PhilomenaWeb.Admin.ArtistLink.ContactController do
     preload: [:user]
 
   def create(conn, _params) do
-    {:ok, _} = ArtistLinks.contact_artist_link(conn.assigns.artist_link, conn.assigns.current_user)
+    {:ok, _} =
+      ArtistLinks.contact_artist_link(conn.assigns.artist_link, conn.assigns.current_user)
 
     conn
     |> put_flash(:info, "Artist successfully marked as contacted.")
