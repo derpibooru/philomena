@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   import Ecto.Query
 
   def index(conn, params) do
-    queryable = Image |> preload([:tags, :user, :intensity])
+    queryable = Image |> preload([:user, :intensity, tags: :aliases])
     user = conn.assigns.current_user
 
     case ImageLoader.search_string(conn, params["q"]) do

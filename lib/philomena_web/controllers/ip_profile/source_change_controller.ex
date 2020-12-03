@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.IpProfile.SourceChangeController do
       SourceChange
       |> where(ip: ^ip)
       |> order_by(desc: :id)
-      |> preload([:user, image: [:user, :tags]])
+      |> preload([:user, image: [:user, tags: :aliases]])
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html",

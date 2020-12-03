@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
     id_field: "slug",
     preload: [
       :verified_links,
-      commission: [sheet_image: :tags, user: [awards: :badge], items: [example_image: :tags]]
+      commission: [sheet_image: [tags: :aliases], user: [awards: :badge], items: [example_image: [tags: :aliases]]]
     ],
     persisted: true
 

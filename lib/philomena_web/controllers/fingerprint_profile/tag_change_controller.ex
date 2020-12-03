@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.FingerprintProfile.TagChangeController do
       TagChange
       |> where(fingerprint: ^fingerprint)
       |> added_filter(params)
-      |> preload([:tag, :user, image: [:user, :tags]])
+      |> preload([:tag, :user, image: [:user, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 

@@ -70,7 +70,7 @@ defmodule PhilomenaWeb.CommissionController do
       on: ci.commission_id == c.id,
       group_by: c.id,
       order_by: [asc: fragment("random()")],
-      preload: [user: [awards: :badge], items: [example_image: :tags]]
+      preload: [user: [awards: :badge], items: [example_image: [tags: :aliases]]]
   end
 
   defp presence(nil),

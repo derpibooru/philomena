@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.GalleryController do
   plug :load_and_authorize_resource,
     model: Gallery,
     except: [:index],
-    preload: [:creator, thumbnail: :tags]
+    preload: [:creator, thumbnail: [tags: :aliases]]
 
   def index(conn, params) do
     galleries =
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.GalleryController do
         },
         conn.assigns.pagination
       )
-      |> Elasticsearch.search_records(preload(Gallery, [:creator, thumbnail: :tags]))
+      |> Elasticsearch.search_records(preload(Gallery, [:creator, thumbnail: [tags: :aliases]]))
 
     render(conn, "index.html",
       title: "Galleries",
@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.GalleryController do
     [images, gallery_prev, gallery_next] =
       Elasticsearch.msearch_records_with_hits(
         [images, gallery_prev, gallery_next],
-        [preload(Image, :tags), preload(Image, :tags), preload(Image, :tags)]
+        [preload(Image, tags: :aliases), preload(Image, tags: :aliases), preload(Image, tags: :aliases)]
       )
 
     interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
