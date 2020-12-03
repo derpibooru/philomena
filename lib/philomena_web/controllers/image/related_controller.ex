@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [:tags, :faves]
+    preload: [:faves, tags: :aliases]
 
   def index(conn, _params) do
     image = conn.assigns.image
@@ -60,7 +60,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
-    images = Elasticsearch.search_records(images, preload(Image, :tags))
+    images = Elasticsearch.search_records(images, preload(Image, tags: :aliases))
 
     interactions = Interactions.user_interactions(images, user)
 

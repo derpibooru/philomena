@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Image.CommentController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [:tags]
+    preload: [tags: :aliases]
 
   plug :verify_authorized when action in [:show]
   plug PhilomenaWeb.FilterForcedUsersPlug when action in [:create, :edit, :update]

@@ -76,7 +76,7 @@ defmodule PhilomenaWeb.ActivityController do
       |> filter_hidden(user, conn.params["hidden"])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)
-      |> preload([:tags])
+      |> preload([tags: :aliases])
       |> Repo.one()
 
     streams =
@@ -144,7 +144,7 @@ defmodule PhilomenaWeb.ActivityController do
     responses =
       Elasticsearch.msearch_records(
         [images, top_scoring, comments],
-        [preload(Image, :tags), preload(Image, :tags), preload(Comment, [:user, image: :tags])]
+        [preload(Image, tags: :aliases), preload(Image, tags: :aliases), preload(Comment, [:user, image: [tags: :aliases]])]
       )
 
     responses ++ [nil]
@@ -154,10 +154,10 @@ defmodule PhilomenaWeb.ActivityController do
     Elasticsearch.msearch_records(
       [images, top_scoring, comments, watched],
       [
-        preload(Image, :tags),
-        preload(Image, :tags),
-        preload(Comment, [:user, image: :tags]),
-        preload(Image, :tags)
+        preload(Image, tags: :aliases),
+        preload(Image, tags: :aliases),
+        preload(Comment, [:user, image: [tags: :aliases]]),
+        preload(Image, tags: :aliases)
       ]
     )
   end

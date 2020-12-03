@@ -57,7 +57,7 @@ defmodule PhilomenaWeb.TagController do
 
     {images, _tags} = ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
 
-    images = Elasticsearch.search_records(images, preload(Image, :tags))
+    images = Elasticsearch.search_records(images, preload(Image, tags: :aliases))
 
     interactions = Interactions.user_interactions(images, user)
 

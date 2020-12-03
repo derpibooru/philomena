@@ -121,7 +121,7 @@ defmodule PhilomenaWeb.TextileRenderer do
     Image
     |> where([i], i.id in ^ids)
     |> where([i], i.hidden_from_users == false)
-    |> preload(:tags)
+    |> preload(tags: :aliases)
     |> Repo.all()
     |> Map.new(&{&1.id, &1})
   end

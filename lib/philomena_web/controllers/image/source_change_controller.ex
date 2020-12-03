@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Image.SourceChangeController do
     source_changes =
       SourceChange
       |> where(image_id: ^image.id)
-      |> preload([:user, image: [:user, :tags]])
+      |> preload([:user, image: [:user, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 

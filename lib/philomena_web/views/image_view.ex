@@ -129,7 +129,7 @@ defmodule PhilomenaWeb.ImageView do
     [
       image_id: image.id,
       image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
-      image_tag_aliases: image.tag_list_plus_alias_cache,
+      image_tag_aliases: image.tags |> Enum.flat_map(&([&1] ++ &1.aliases)) |> Enum.map_join(", ", &(&1.name)),
       tag_count: length(image.tags),
       score: image.score,
       faves: image.faves_count,
@@ -222,7 +222,7 @@ defmodule PhilomenaWeb.ImageView do
   def image_filter_data(image) do
     %{
       id: image.id,
-      "namespaced_tags.name": String.split(image.tag_list_plus_alias_cache || "", ", "),
+      "namespaced_tags.name": image.tags |> Enum.flat_map(&([&1] ++ &1.aliases)) |> Enum.map_join(", ", &(&1.name)),
       tag_count: length(image.tags),
       score: image.score,
       faves: image.faves_count,

@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Image.TagController do
   plug PhilomenaWeb.CheckCaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CanaryMapPlug, update: :edit_metadata
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", preload: [:tags, :user]
+  plug :load_and_authorize_resource, model: Image, id_name: "image_id", preload: [:user, tags: :aliases]
 
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes
@@ -58,7 +58,7 @@ defmodule PhilomenaWeb.Image.TagController do
 
         image =
           image
-          |> Repo.preload(:tags, force: true)
+          |> Repo.preload([tags: :aliases], [force: true])
 
         changeset = Images.change_image(image)
 
@@ -74,7 +74,7 @@ defmodule PhilomenaWeb.Image.TagController do
       {:error, :image, changeset, _} ->
         image =
           image
-          |> Repo.preload(:tags, force: true)
+          |> Repo.preload([tags: :aliases], [force: true])
 
         conn
         |> put_view(PhilomenaWeb.ImageView)

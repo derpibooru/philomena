@@ -11,14 +11,14 @@ defmodule PhilomenaWeb.Image.ReportingController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [:tags]
+    preload: [tags: :aliases]
 
   def show(conn, _params) do
     image = conn.assigns.image
 
     dupe_reports =
       DuplicateReport
-      |> preload([:user, :modifier, image: [:user, :tags], duplicate_of_image: [:user, :tags]])
+      |> preload([:user, :modifier, image: [:user, tags: :aliases], duplicate_of_image: [:user, tags: :aliases]])
       |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
       |> Repo.all()
 

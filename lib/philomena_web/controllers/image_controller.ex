@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.ImageController do
   def index(conn, _params) do
     {:ok, {images, _tags}} = ImageLoader.search_string(conn, "created_at.lte:3 minutes ago")
 
-    images = Elasticsearch.search_records(images, preload(Image, :tags))
+    images = Elasticsearch.search_records(images, preload(Image, tags: :aliases))
 
     interactions = Interactions.user_interactions(images, conn.assigns.current_user)
 
@@ -167,7 +167,7 @@ defmodule PhilomenaWeb.ImageController do
         [i, _],
         _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id)
       )
-      |> preload([:tags, :deleter, user: [awards: :badge]])
+      |> preload([:deleter, user: [awards: :badge], tags: :aliases])
       |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
       |> case do

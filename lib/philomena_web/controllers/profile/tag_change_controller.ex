@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
         tc.user_id == ^user.id and not (i.user_id == ^user.id and i.anonymous == true)
       )
       |> added_filter(params)
-      |> preload([:tag, :user, image: [:user, :tags]])
+      |> preload([:tag, :user, image: [:user, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 

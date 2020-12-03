@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Image.FaveController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [:tags]
+    preload: [tags: :aliases]
 
   plug PhilomenaWeb.FilterForcedUsersPlug
 

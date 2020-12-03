@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Profile.SourceChangeController do
         [sc, i],
         sc.user_id == ^user.id and not (i.user_id == ^user.id and i.anonymous == true)
       )
-      |> preload([:user, image: [:user, :tags]])
+      |> preload([:user, image: [:user, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
