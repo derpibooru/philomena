@@ -10,11 +10,14 @@ defmodule Philomena.UserWipe do
   alias Philomena.TagChanges.TagChange
   alias Philomena.UserIps.UserIp
   alias Philomena.UserFingerprints.UserFingerprint
+  alias Philomena.Users
   alias Philomena.Users.User
   alias Philomena.Repo
   import Ecto.Query
 
-  def perform(user) do
+  def perform(user_id) do
+    user = Users.get_user!(user_id)
+
     random_hex = :crypto.strong_rand_bytes(16) |> Base.encode16(case: :lower)
 
     for schema <- [Comment, Image, Post, Report, SourceChange, TagChange] do
