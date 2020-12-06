@@ -17,7 +17,11 @@ defmodule PhilomenaWeb.Image.SourceController do
   plug PhilomenaWeb.CheckCaptchaPlug
   plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CanaryMapPlug, update: :edit_metadata
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", preload: [:user, tags: :aliases]
+
+  plug :load_and_authorize_resource,
+    model: Image,
+    id_name: "image_id",
+    preload: [:user, tags: :aliases]
 
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes

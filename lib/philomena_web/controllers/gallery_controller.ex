@@ -62,7 +62,11 @@ defmodule PhilomenaWeb.GalleryController do
     [images, gallery_prev, gallery_next] =
       Elasticsearch.msearch_records_with_hits(
         [images, gallery_prev, gallery_next],
-        [preload(Image, tags: :aliases), preload(Image, tags: :aliases), preload(Image, tags: :aliases)]
+        [
+          preload(Image, tags: :aliases),
+          preload(Image, tags: :aliases),
+          preload(Image, tags: :aliases)
+        ]
       )
 
     interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
