@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.ScraperPlug do
       %{^params_name => %{^params_key => %Plug.Upload{}}} ->
         conn
 
-      %{"scraper_cache" => url} when not is_nil(url) ->
+      %{"scraper_cache" => url} when not is_nil(url) and url != "" ->
         url
         |> Philomena.Http.get()
         |> maybe_fixup_params(url, opts, conn)
