@@ -11,7 +11,10 @@ defmodule Philomena.Galleries do
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
   alias Philomena.Galleries.ElasticsearchIndex, as: GalleryIndex
+  alias Philomena.IndexWorker
+  alias Philomena.GalleryReorderWorker
   alias Philomena.Notifications
+  alias Philomena.NotificationWorker
   alias Philomena.Images
 
   @doc """
@@ -117,27 +120,26 @@ defmodule Philomena.Galleries do
   end
 
   def reindex_gallery(%Gallery{} = gallery) do
-    spawn(fn ->
-      Gallery
-      |> preload(^indexing_preloads())
-      |> where(id: ^gallery.id)
-      |> Repo.one()
-      |> Elasticsearch.index_document(Gallery)
-    end)
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Galleries", "id", [gallery.id]])
 
     gallery
   end
 
   def unindex_gallery(%Gallery{} = gallery) do
-    spawn(fn ->
-      Elasticsearch.delete_document(gallery.id, Gallery)
-    end)
+    Elasticsearch.delete_document(gallery.id, Gallery)
 
     gallery
   end
 
   def indexing_preloads do
     [:subscribers, :creator, :interactions]
+  end
+
+  def perform_reindex(column, condition) do
+    Gallery
+    |> preload(^indexing_preloads())
+    |> where([g], field(g, ^column) in ^condition)
+    |> Elasticsearch.reindex(Gallery)
   end
 
   def add_image_to_gallery(gallery, image) do
@@ -231,92 +233,96 @@ defmodule Philomena.Galleries do
   end
 
   def notify_gallery(gallery) do
-    spawn(fn ->
-      subscriptions =
-        gallery
-        |> Repo.preload(:subscriptions)
-        |> Map.fetch!(:subscriptions)
+    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Galleries", gallery.id])
+  end
 
-      Notifications.notify(
-        gallery,
-        subscriptions,
-        %{
-          actor_id: gallery.id,
-          actor_type: "Gallery",
-          actor_child_id: nil,
-          actor_child_type: nil,
-          action: "added images to"
-        }
-      )
-    end)
+  def perform_notify(gallery_id) do
+    gallery = get_gallery!(gallery_id)
 
-    gallery
+    subscriptions =
+      gallery
+      |> Repo.preload(:subscriptions)
+      |> Map.fetch!(:subscriptions)
+
+    Notifications.notify(
+      gallery,
+      subscriptions,
+      %{
+        actor_id: gallery.id,
+        actor_type: "Gallery",
+        actor_child_id: nil,
+        actor_child_type: nil,
+        action: "added images to"
+      }
+    )
   end
 
   def reorder_gallery(gallery, image_ids) do
-    spawn(fn ->
-      interactions =
-        Interaction
-        |> where([gi], gi.image_id in ^image_ids and gi.gallery_id == ^gallery.id)
-        |> order_by(^position_order(gallery))
-        |> Repo.all()
+    Exq.enqueue(Exq, "indexing", GalleryReorderWorker, [gallery.id, image_ids])
+  end
 
-      interaction_positions =
-        interactions
-        |> Enum.with_index()
-        |> Map.new(fn {interaction, index} -> {index, interaction.position} end)
+  def perform_reorder(gallery_id, image_ids) do
+    gallery = get_gallery!(gallery_id)
 
-      images_present = Map.new(interactions, &{&1.image_id, true})
+    interactions =
+      Interaction
+      |> where([gi], gi.image_id in ^image_ids and gi.gallery_id == ^gallery.id)
+      |> order_by(^position_order(gallery))
+      |> Repo.all()
 
-      requested =
-        image_ids
-        |> Enum.filter(&images_present[&1])
-        |> Enum.with_index()
-        |> Map.new()
+    interaction_positions =
+      interactions
+      |> Enum.with_index()
+      |> Map.new(fn {interaction, index} -> {index, interaction.position} end)
 
-      changes =
-        interactions
-        |> Enum.with_index()
-        |> Enum.flat_map(fn {interaction, current_index} ->
-          new_index = requested[interaction.image_id]
+    images_present = Map.new(interactions, &{&1.image_id, true})
 
-          case new_index == current_index do
-            true ->
-              []
+    requested =
+      image_ids
+      |> Enum.filter(&images_present[&1])
+      |> Enum.with_index()
+      |> Map.new()
 
-            false ->
+    changes =
+      interactions
+      |> Enum.with_index()
+      |> Enum.flat_map(fn {interaction, current_index} ->
+        new_index = requested[interaction.image_id]
+
+        case new_index == current_index do
+          true ->
+            []
+
+          false ->
+            [
               [
-                [
-                  id: interaction.id,
-                  position: interaction_positions[new_index]
-                ]
+                id: interaction.id,
+                position: interaction_positions[new_index]
               ]
-          end
-        end)
-
-      changes
-      |> Enum.map(fn change ->
-        id = Keyword.fetch!(change, :id)
-        change = Keyword.delete(change, :id)
-
-        Interaction
-        |> where([i], i.id == ^id)
-        |> Repo.update_all(set: change)
+            ]
+        end
       end)
 
-      # Do the update in a single statement
-      # Repo.insert_all(
-      #   Interaction,
-      #   changes,
-      #   on_conflict: {:replace, [:position]},
-      #   conflict_target: [:id]
-      # )
+    changes
+    |> Enum.map(fn change ->
+      id = Keyword.fetch!(change, :id)
+      change = Keyword.delete(change, :id)
 
-      # Now update all the associated images
-      Images.reindex_images(Map.keys(requested))
+      Interaction
+      |> where([i], i.id == ^id)
+      |> Repo.update_all(set: change)
     end)
 
-    gallery
+    # Do the update in a single statement
+    # Repo.insert_all(
+    #   Interaction,
+    #   changes,
+    #   on_conflict: {:replace, [:position]},
+    #   conflict_target: [:id]
+    # )
+
+    # Now update all the associated images
+    Images.reindex_images(Map.keys(requested))
   end
 
   defp position_order(%{order_position_asc: true}), do: [asc: :position]

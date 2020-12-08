@@ -11,9 +11,11 @@ defmodule Philomena.Comments do
   alias Philomena.Reports.Report
   alias Philomena.Comments.Comment
   alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
+  alias Philomena.IndexWorker
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Notifications
+  alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
 
@@ -64,31 +66,33 @@ defmodule Philomena.Comments do
   end
 
   def notify_comment(comment) do
-    spawn(fn ->
-      image =
-        comment
-        |> Repo.preload(:image)
-        |> Map.fetch!(:image)
+    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Comments", comment.id])
+  end
 
-      subscriptions =
-        image
-        |> Repo.preload(:subscriptions)
-        |> Map.fetch!(:subscriptions)
+  def perform_notify(comment_id) do
+    comment = get_comment!(comment_id)
 
-      Notifications.notify(
-        comment,
-        subscriptions,
-        %{
-          actor_id: image.id,
-          actor_type: "Image",
-          actor_child_id: comment.id,
-          actor_child_type: "Comment",
-          action: "commented on"
-        }
-      )
-    end)
+    image =
+      comment
+      |> Repo.preload(:image)
+      |> Map.fetch!(:image)
 
-    comment
+    subscriptions =
+      image
+      |> Repo.preload(:subscriptions)
+      |> Map.fetch!(:subscriptions)
+
+    Notifications.notify(
+      comment,
+      subscriptions,
+      %{
+        actor_id: image.id,
+        actor_type: "Image",
+        actor_child_id: comment.id,
+        actor_child_type: "Comment",
+        action: "commented on"
+      }
+    )
   end
 
   @doc """
@@ -216,29 +220,25 @@ defmodule Philomena.Comments do
   end
 
   def reindex_comment(%Comment{} = comment) do
-    spawn(fn ->
-      Comment
-      |> preload(^indexing_preloads())
-      |> where(id: ^comment.id)
-      |> Repo.one()
-      |> Elasticsearch.index_document(Comment)
-    end)
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "id", [comment.id]])
 
     comment
   end
 
   def reindex_comments(image) do
-    spawn(fn ->
-      Comment
-      |> preload(^indexing_preloads())
-      |> where(image_id: ^image.id)
-      |> Elasticsearch.reindex(Comment)
-    end)
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "image_id", [image.id]])
 
     image
   end
 
   def indexing_preloads do
     [:user, image: :tags]
+  end
+
+  def perform_reindex(column, condition) do
+    Comment
+    |> preload(^indexing_preloads())
+    |> where([c], field(c, ^column) in ^condition)
+    |> Elasticsearch.reindex(Comment)
   end
 end

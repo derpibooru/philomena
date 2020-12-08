@@ -14,12 +14,10 @@ defmodule PhilomenaWeb.Tag.ReindexController do
     persisted: true
 
   def create(conn, _params) do
-    spawn(fn ->
-      Tags.reindex_tag_images(conn.assigns.tag)
-    end)
+    {:ok, tag} = Tags.reindex_tag_images(conn.assigns.tag)
 
     conn
     |> put_flash(:info, "Tag reindex started.")
-    |> redirect(to: Routes.tag_path(conn, :edit, conn.assigns.tag))
+    |> redirect(to: Routes.tag_path(conn, :edit, tag))
   end
 end

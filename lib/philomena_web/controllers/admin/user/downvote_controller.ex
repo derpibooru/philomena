@@ -1,16 +1,14 @@
 defmodule PhilomenaWeb.Admin.User.DownvoteController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.UserDownvoteWipe
+  alias Philomena.UserUnvoteWorker
   alias Philomena.Users.User
 
   plug :verify_authorized
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def delete(conn, _params) do
-    spawn(fn ->
-      UserDownvoteWipe.perform(conn.assigns.user)
-    end)
+    Exq.enqueue(Exq, "indexing", UserUnvoteWorker, [conn.assigns.user.id, false])
 
     conn
     |> put_flash(:info, "Downvote wipe started.")

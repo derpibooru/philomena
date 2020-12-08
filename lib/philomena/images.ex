@@ -16,9 +16,11 @@ defmodule Philomena.Images do
   alias Philomena.Images.Uploader
   alias Philomena.Images.Tagging
   alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
+  alias Philomena.IndexWorker
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.Notifications.Notification
+  alias Philomena.NotificationWorker
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.UserStatistics
@@ -644,18 +646,13 @@ defmodule Philomena.Images do
   end
 
   def reindex_image(%Image{} = image) do
-    reindex_images([image.id])
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Images", "id", [image.id]])
 
     image
   end
 
   def reindex_images(image_ids) do
-    spawn(fn ->
-      Image
-      |> preload(^indexing_preloads())
-      |> where([i], i.id in ^image_ids)
-      |> Elasticsearch.reindex(Image)
-    end)
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Images", "id", image_ids])
 
     image_ids
   end
@@ -671,6 +668,13 @@ defmodule Philomena.Images do
       :gallery_interactions,
       tags: [:aliases, :aliased_tag]
     ]
+  end
+
+  def perform_reindex(column, condition) do
+    Image
+    |> preload(^indexing_preloads())
+    |> where([i], field(i, ^column) in ^condition)
+    |> Elasticsearch.reindex(Image)
   end
 
   alias Philomena.Images.Subscription
@@ -740,24 +744,28 @@ defmodule Philomena.Images do
   end
 
   def notify_merge(source, target) do
-    spawn(fn ->
-      subscriptions =
-        target
-        |> Repo.preload(:subscriptions)
-        |> Map.fetch!(:subscriptions)
+    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Images", [source.id, target.id]])
+  end
 
-      Notifications.notify(
-        nil,
-        subscriptions,
-        %{
-          actor_id: target.id,
-          actor_type: "Image",
-          actor_child_id: nil,
-          actor_child_type: nil,
-          action: "merged ##{source.id} into"
-        }
-      )
-    end)
+  def perform_notify([source_id, target_id]) do
+    target = get_image!(target_id)
+
+    subscriptions =
+      target
+      |> Repo.preload(:subscriptions)
+      |> Map.fetch!(:subscriptions)
+
+    Notifications.notify(
+      nil,
+      subscriptions,
+      %{
+        actor_id: target.id,
+        actor_type: "Image",
+        actor_child_id: nil,
+        actor_child_type: nil,
+        action: "merged ##{source_id} into"
+      }
+    )
   end
 
   def clear_notification(_image, nil), do: nil

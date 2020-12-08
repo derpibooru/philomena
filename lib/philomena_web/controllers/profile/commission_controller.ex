@@ -14,7 +14,11 @@ defmodule PhilomenaWeb.Profile.CommissionController do
     id_field: "slug",
     preload: [
       :verified_links,
-      commission: [sheet_image: [tags: :aliases], user: [awards: :badge], items: [example_image: [tags: :aliases]]]
+      commission: [
+        sheet_image: [tags: :aliases],
+        user: [awards: :badge],
+        items: [example_image: [tags: :aliases]]
+      ]
     ],
     persisted: true
 

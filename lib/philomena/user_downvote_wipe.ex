@@ -1,6 +1,7 @@
 defmodule Philomena.UserDownvoteWipe do
   alias Philomena.Batch
   alias Philomena.Elasticsearch
+  alias Philomena.Users
   alias Philomena.Users.User
   alias Philomena.Images.Image
   alias Philomena.Images
@@ -9,7 +10,9 @@ defmodule Philomena.UserDownvoteWipe do
   alias Philomena.Repo
   import Ecto.Query
 
-  def perform(user, upvotes_and_faves_too \\ false) do
+  def perform(user_id, upvotes_and_faves_too \\ false) do
+    user = Users.get_user!(user_id)
+
     ImageVote
     |> where(user_id: ^user.id, up: false)
     |> Batch.query_batches([id_field: :image_id], fn queryable ->

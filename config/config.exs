@@ -20,7 +20,7 @@ config :elastix,
   json_codec: Jason
 
 config :exq,
-  max_retries: 2,
+  max_retries: 5,
   scheduler_enable: true,
   start_on_application: false
 

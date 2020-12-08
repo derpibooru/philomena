@@ -107,12 +107,10 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def delete(conn, _params) do
-    spawn(fn ->
-      Tags.delete_tag(conn.assigns.tag)
-    end)
+    {:ok, _tag} = Tags.delete_tag(conn.assigns.tag)
 
     conn
-    |> put_flash(:info, "Tag scheduled for deletion.")
+    |> put_flash(:info, "Tag queued for deletion.")
     |> redirect(to: "/")
   end
 
