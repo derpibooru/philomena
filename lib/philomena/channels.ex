@@ -189,7 +189,7 @@ defmodule Philomena.Channels do
     Subscription
     |> where([s], s.channel_id in ^channel_ids and s.user_id == ^user.id)
     |> Repo.all()
-    |> Map.new(&{&1.id, true})
+    |> Map.new(&{&1.channel_id, true})
   end
 
   def clear_notification(channel, user) do
