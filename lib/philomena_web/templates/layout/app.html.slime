@@ -29,4 +29,5 @@ html lang="en"
       main#content class=layout_class(@conn)
         = @inner_content
       = render PhilomenaWeb.LayoutView, "_footer.html", assigns
+      form.hidden: input.js-interaction-cache type="hidden" value="{}"
       = clientside_data(@conn)

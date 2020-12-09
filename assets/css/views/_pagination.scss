@@ -1,0 +1,32 @@
+.imagelist__header {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.imagelist__title, .imagelist__pagination {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: $min_px_width_for_desktop_layout) {
+  .imagelist__title, .imagelist__options {
+    display: none;
+  }
+
+  .imagelist__header, .imagelist__pagination, .imagelist__info {
+    display: block;
+    text-align: center;
+  }
+
+  .imagelist__pagination nav {
+    display: flex;
+    width: 100%;
+
+    a, span {
+        text-align: center;
+        flex: 1 1 auto;
+        padding: 0 1vw;
+      }
+  }
+}

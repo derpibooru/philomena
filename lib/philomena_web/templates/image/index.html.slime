@@ -10,13 +10,13 @@ elixir:
   info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
 .block#imagelist-container
-  section.block__header.flex
-    span.block__header__title.hide-mobile
+  section.block__header.imagelist__header.flex
+    span.block__header__title.imagelist__title.hide-mobile
       => header
 
-    = pagination
+    .imagelist__pagination = pagination
 
-    .flex__right
+    .flex__right.imagelist__options
       = random_button @conn, params
       = hidden_toggle @conn, route, params
       = deleted_toggle @conn, route, params
@@ -33,12 +33,13 @@ elixir:
         - image ->
           = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image), size: assigns[:size] || :thumb, conn: @conn
 
-  .block__header.block__header--light.flex
-    = pagination
+  .block__header.block__header--light.imagelist__header.flex
+    .imagelist__pagination = pagination
 
-    span.block__header__title
+    span.block__header__title.imagelist__info
       = info
-    .flex__right
+
+    .flex__right.imagelist__options
       a href="/settings/edit" title="Display Settings"
         i.fa.fa-cog
         span.hide-mobile.hide-limited-desktop<>
