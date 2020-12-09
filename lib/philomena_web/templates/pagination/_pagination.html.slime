@@ -6,21 +6,23 @@
       = link("« First", to: first_page_path(@page, @route, params))
       = link("‹ Prev", to: prev_page_path(@page, @route, params), class: "js-prev")
 
-    = if left_gap?(@page) do
-      span.page.gap
-        ' …
+    span.hide-mobile
+      = if left_gap?(@page) do
+        span.page.gap
+          ' …
 
-    = for number <- left_page_numbers(@page) do
-      = link(number, to: page_path(@route, params, number))
+      = for number <- left_page_numbers(@page) do
+        = link(number, to: page_path(@route, params, number))
 
     span.page-current = @page.page_number
 
-    = for number <- right_page_numbers(@page) do
-      = link(number, to: page_path(@route, params, number))
+    span.hide-mobile
+      = for number <- right_page_numbers(@page) do
+        = link(number, to: page_path(@route, params, number))
 
-    = if right_gap?(@page) do
-      span.page.gap
-        ' …
+      = if right_gap?(@page) do
+        span.page.gap
+          ' …
 
     = if not last_page?(@page) do
       = link("Next ›", to: next_page_path(@page, @route, params), class: "js-next")
