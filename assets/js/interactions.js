@@ -3,6 +3,7 @@
  */
 
 import { fetchJson } from './utils/requests';
+import { $ } from './utils/dom';
 
 const endpoints = {
   vote(imageId) { return `/images/${imageId}/vote` },
@@ -17,6 +18,34 @@ const spoilerDownvoteMsg =
 function onImage(id, selector, cb) {
   [].forEach.call(
     document.querySelectorAll(`${selector}[data-image-id="${id}"]`), cb);
+}
+
+/* Since JS modifications to webpages, except form inputs, are not stored
+ * in the browser navigation history, we store a cache of the changes in a
+ * form to allow interactions to persist on navigation. */
+
+function getCache() {
+  const cacheEl = $('.js-interaction-cache');
+  return Object.values(JSON.parse(cacheEl.value));
+}
+
+function modifyCache(callback) {
+  const cacheEl = $('.js-interaction-cache');
+  cacheEl.value = JSON.stringify(callback(JSON.parse(cacheEl.value)));
+}
+
+function cacheStatus(image_id, interaction_type, value) {
+  modifyCache(cache => {
+    cache[`${image_id}${interaction_type}`] = { image_id, interaction_type, value };
+    return cache;
+  });
+}
+
+function uncacheStatus(image_id, interaction_type) {
+  modifyCache(cache => {
+    delete cache[`${image_id}${interaction_type}`];
+    return cache;
+  });
 }
 
 function setScore(imageId, data) {
@@ -34,26 +63,32 @@ function setScore(imageId, data) {
  * Their classes also effect their behavior due to event delegation. */
 
 function showUpvoted(imageId) {
+  cacheStatus(imageId, 'voted', 'up');
   onImage(imageId, '.interaction--upvote',
     el => el.classList.add('active'));
 }
 
 function showDownvoted(imageId) {
+  cacheStatus(imageId, 'voted', 'down');
   onImage(imageId, '.interaction--downvote',
     el => el.classList.add('active'));
 }
 
 function showFaved(imageId) {
+  cacheStatus(imageId, 'faved', '');
   onImage(imageId, '.interaction--fave',
     el => el.classList.add('active'));
 }
 
 function showHidden(imageId) {
+  cacheStatus(imageId, 'hidden', '');
   onImage(imageId, '.interaction--hide',
     el => el.classList.add('active'));
 }
 
 function resetVoted(imageId) {
+  uncacheStatus(imageId, 'voted');
+
   onImage(imageId, '.interaction--upvote',
     el => el.classList.remove('active'));
 
@@ -62,11 +97,13 @@ function resetVoted(imageId) {
 }
 
 function resetFaved(imageId) {
+  uncacheStatus(imageId, 'faved');
   onImage(imageId, '.interaction--fave',
     el => el.classList.remove('active'));
 }
 
 function resetHidden(imageId) {
+  uncacheStatus(imageId, 'hidden');
   onImage(imageId, '.interaction--hide',
     el => el.classList.remove('active'));
 }
@@ -97,6 +134,7 @@ function loadInteractions() {
 
   /* Set up the actual interactions */
   displayInteractionSet(window.booru.interactions);
+  displayInteractionSet(getCache());
 
   /* Next part is only for image index pages
    * TODO: find a better way to do this */
