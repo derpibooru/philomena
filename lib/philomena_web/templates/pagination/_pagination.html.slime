@@ -41,19 +41,19 @@
 
       .dropdown__content
         = if left_gap?(@page) do
-          span.page.gap
+          span.page.gap.header__span
             ' …
 
         = for number <- left_page_numbers(@page) do
           = link(number, to: page_path(@route, params, number))
 
-        span.page-current = @page.page_number
+        span.page-current.header__span = @page.page_number
 
         = for number <- right_page_numbers(@page) do
           = link(number, to: page_path(@route, params, number))
 
         = if right_gap?(@page) do
-          span.page.gap
+          span.page.gap.header__span
             ' …
 
     = if last_page?(@page) do

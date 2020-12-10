@@ -84,7 +84,7 @@ a.block__header--single-item, .block__header a {
   }
 }
 
-.block__header a, .block__header > span {
+.block__header a, .block__header > span, .header__span {
   background: $block_header_color;
 }
 
@@ -96,7 +96,7 @@ a.block__header--single-item, .block__header a {
 
 .block__header--light {
   background: $block_header_light_color;
-  a, > span {
+  a, > span, .header__span {
     background: $block_header_light_color;
   }
 
