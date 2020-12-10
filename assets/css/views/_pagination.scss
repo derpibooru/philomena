@@ -9,7 +9,11 @@
   flex-shrink: 0;
 }
 
-@media (max-width: $min_px_width_for_desktop_layout) {
+.pagination__dropdown {
+  min-width: 4em;
+}
+
+@media (max-width: $min_px_width_for_desktop_thumb) {
   .imagelist__title, .imagelist__options {
     display: none;
   }

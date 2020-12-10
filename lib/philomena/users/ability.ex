@@ -124,6 +124,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # Manage commissions
   def can?(%User{role: "moderator"}, _action, %Commission{}), do: true
 
+  # Manage galleries
+  def can?(%User{role: "moderator"}, _action, %Gallery{}), do: true
+
   # And some privileged moderators can...
 
   # Manage site notices

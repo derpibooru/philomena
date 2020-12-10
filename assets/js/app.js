@@ -11,6 +11,7 @@ import './vendor/fetch.polyfill';
 import './vendor/closest.polyfill';
 import './vendor/customevent.polyfill';
 import './vendor/es6.polyfill';
+import './vendor/values-entries.polyfill';
 
 // Our code
 import './ujs';

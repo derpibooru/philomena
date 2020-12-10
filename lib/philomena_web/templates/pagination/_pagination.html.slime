@@ -1,29 +1,64 @@
 - params = assigns[:params] || []
 
 = if @page.total_pages > 1 do
-  nav.pagination
+  nav.pagination.hide-mobile-t
     = if not first_page?(@page) do
       = link("« First", to: first_page_path(@page, @route, params))
       = link("‹ Prev", to: prev_page_path(@page, @route, params), class: "js-prev")
 
-    span.hide-mobile
-      = if left_gap?(@page) do
-        span.page.gap
-          ' …
+    = if left_gap?(@page) do
+      span.page.gap
+        ' …
 
-      = for number <- left_page_numbers(@page) do
-        = link(number, to: page_path(@route, params, number))
+    = for number <- left_page_numbers(@page) do
+      = link(number, to: page_path(@route, params, number))
 
     span.page-current = @page.page_number
 
-    span.hide-mobile
-      = for number <- right_page_numbers(@page) do
-        = link(number, to: page_path(@route, params, number))
+    = for number <- right_page_numbers(@page) do
+      = link(number, to: page_path(@route, params, number))
 
-      = if right_gap?(@page) do
-        span.page.gap
-          ' …
+    = if right_gap?(@page) do
+      span.page.gap
+        ' …
 
     = if not last_page?(@page) do
+      = link("Next ›", to: next_page_path(@page, @route, params), class: "js-next")
+      = link("Last »", to: last_page_path(@page, @route, params))
+
+  nav.pagination.hide-desktop-t
+    = if first_page?(@page) do
+      span « First
+      span ‹ Prev
+    - else
+      = link("« First", to: first_page_path(@page, @route, params))
+      = link("‹ Prev", to: prev_page_path(@page, @route, params), class: "js-prev")
+
+    .dropdown
+      a.page-current.pagination__dropdown
+        => @page.page_number
+        i.fa.fa-caret-down
+
+      .dropdown__content
+        = if left_gap?(@page) do
+          span.page.gap
+            ' …
+
+        = for number <- left_page_numbers(@page) do
+          = link(number, to: page_path(@route, params, number))
+
+        span.page-current = @page.page_number
+
+        = for number <- right_page_numbers(@page) do
+          = link(number, to: page_path(@route, params, number))
+
+        = if right_gap?(@page) do
+          span.page.gap
+            ' …
+
+    = if last_page?(@page) do
+      span Next ›
+      span Last »
+    - else
       = link("Next ›", to: next_page_path(@page, @route, params), class: "js-next")
       = link("Last »", to: last_page_path(@page, @route, params))
