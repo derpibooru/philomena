@@ -4,21 +4,21 @@ h1 Duplicate Reports
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn, params: [states: @conn.params["states"] || ["open", "claimed"]]
 
 .block
-  .block__header
-    = pagination
-
-    span.block__header__title Display only:
-    => link "Open (All)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open claimed))
-    => link "Open (Unclaimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open))
-    => link "Open (Claimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(claimed))
-    => link "Open + Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected))
-    => link "Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected))
-    => link "Rejected + Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected accepted))
-    => link "Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(accepted))
-    = link "All", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected accepted claimed))
+  .block__header.page__header
+    .page__pagination = pagination
+    .page__info
+      span.block__header__title Display only:
+      => link "Open (All)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open claimed))
+      => link "Open (Unclaimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open))
+      => link "Open (Claimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(claimed))
+      => link "Open + Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected))
+      => link "Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected))
+      => link "Rejected + Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected accepted))
+      => link "Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(accepted))
+      = link "All", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected accepted claimed))
 
   = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: @duplicate_reports, conn: @conn
 
   .block
-    .block__header.block__header--light
-      = pagination
+    .block__header.block__header--light.page__header
+      .page__pagination = pagination

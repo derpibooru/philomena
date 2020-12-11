@@ -3,18 +3,18 @@ elixir:
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn, params: [commission: @conn.params["commission"]]
 
 .block
-  .block__header
-    span.block__header__title Open Commissions
-    = pagination
+  .block__header.page__header
+    span.block__header__title.page__title Open Commissions
+    .page__pagination = pagination
+    .page__options
+      = cond do
+        - not is_nil(@conn.assigns.current_user) and not is_nil(@conn.assigns.current_user.commission) ->
+          = link "View my listing", to: Routes.profile_commission_path(@conn, :show, @conn.assigns.current_user)
 
-    = cond do
-      - not is_nil(@conn.assigns.current_user) and not is_nil(@conn.assigns.current_user.commission) ->
-        = link "View my listing", to: Routes.profile_commission_path(@conn, :show, @conn.assigns.current_user)
+        - not is_nil(@conn.assigns.current_user) ->
+          = link "Create my listing", to: Routes.profile_commission_path(@conn, :new, @conn.assigns.current_user)
 
-      - not is_nil(@conn.assigns.current_user) ->
-        = link "Create my listing", to: Routes.profile_commission_path(@conn, :new, @conn.assigns.current_user)
-
-      - true ->
+        - true ->
 
   .block__content
     = cond do

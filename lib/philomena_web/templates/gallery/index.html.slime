@@ -31,8 +31,8 @@ elixir:
 
   .column-layout__main
     .block
-      .block__header
-        = pagination
+      .block__header.page__header
+        .page__pagination = pagination
 
       .block__content.js-resizable-media-container
         = if Enum.any?(@galleries) do
@@ -43,5 +43,5 @@ elixir:
           .block.block--fixed.block--no-margin.block--warning
             ' No galleries found!
 
-      .block__header.block__header--light
-        = pagination
+      .block__header.block__header--light.page__header
+        .page__pagination = pagination

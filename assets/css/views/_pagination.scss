@@ -1,9 +1,9 @@
-.imagelist__header {
+.page__header {
   display: flex;
   flex-wrap: wrap;
 }
 
-.imagelist__title, .imagelist__pagination {
+.page__title, .page__pagination {
   display: inline-flex;
   flex-wrap: nowrap;
   flex-shrink: 0;
@@ -14,16 +14,16 @@
 }
 
 @media (max-width: $min_px_width_for_desktop_thumb) {
-  .imagelist__title, .imagelist__options {
+  .page__title, .page__options {
     display: none;
   }
 
-  .imagelist__header, .imagelist__pagination, .imagelist__info {
+  .page__header, .page__pagination, .page__info {
     display: block;
     text-align: center;
   }
 
-  .imagelist__pagination nav {
+  .page__pagination nav {
     display: flex;
     width: 100%;
 

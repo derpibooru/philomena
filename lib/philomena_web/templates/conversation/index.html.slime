@@ -4,12 +4,13 @@ elixir:
 
 h1 My Conversations
 .block
-  .block__header
-    a href=Routes.conversation_path(@conn, :new)
-      i.fa.fa-paper-plane>
-      ' Create New Conversation
+  .block__header.page__header
+    .page__pagination = pagination
 
-    = pagination
+    .page__info
+      a href=Routes.conversation_path(@conn, :new)
+        i.fa.fa-paper-plane>
+        ' Create New Conversation
 
   .block__content
     table.table.table--communication-list
@@ -39,5 +40,5 @@ h1 My Conversations
               ' &bull;
               => link "Hide", to: Routes.conversation_hide_path(@conn, :create, c), data: [method: "post"], data: [confirm: "Are you really, really sure?"]
 
-  .block__header.block__header--light
-    = pagination
+  .block__header.block__header--light.page__header
+    .page__pagination = pagination

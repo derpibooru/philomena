@@ -21,10 +21,11 @@ h2 Search Results
     = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags, conn: @conn
 
     .block
-      .block__header.block__header--light.flex
-        = pagination
-        span.block__header__title
-          = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @tags
+      .block__header.block__header--light.page__header
+        .page__pagination = pagination
+        .page__info
+          span.block__header__title
+            = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @tags
 
   - assigns[:error] ->
     p
