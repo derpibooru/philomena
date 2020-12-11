@@ -26,8 +26,6 @@ h1 = @topic.title
 / Header section
 .block
   .block__header
-    => link("Forums", to: Routes.forum_path(@conn, :index))
-    ' &raquo;
     => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
     ' &raquo;
     => link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, @topic))
@@ -36,20 +34,22 @@ h1 = @topic.title
       a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
         i.fa.fa-fw.fa-search>
         ' Search Posts
-      .flex.flex--wrap.block__header.block__header--light
-        .flex--fixed
+      .flex.flex--wrap.block__header.block__header--light.page__header
+        .flex--fixed.page__pagination
           = pagination
-        .flex--fixed.block__header__item
+        .flex--fixed.block__header__item.page__options
           ' Started by
           => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic, conn: @conn
-        .flex--fixed.block__header__item
-          ' Posted
-          =< pretty_time(@topic.created_at)
-        .flex--fixed.block__header__item
-          => @topic.post_count - 1
-          ' replies
-        = if not @topic.hidden_from_users do
-          = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
+        .page__info
+          .flex.flex--center-distributed
+            .flex--fixed.block__header__item
+              ' Posted
+              =< pretty_time(@topic.created_at)
+            .flex--fixed.block__header__item
+              => @topic.post_count - 1
+              ' replies
+            = if not @topic.hidden_from_users do
+              = render PhilomenaWeb.Topic.SubscriptionView, "_subscription.html", forum: @forum, topic: @topic, watching: @watching, conn: @conn
 
 = if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
   / Display the poll, if any
@@ -67,8 +67,8 @@ h1 = @topic.title
 
       / Footer section
       .block
-        .block__header.block__header--light
-          = pagination
+        .block__header.block__header--light.page__header
+          .page__pagination = pagination
 
       = if @topic.locked_at do
         .block.block--fixed.block--warning

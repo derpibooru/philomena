@@ -9,8 +9,8 @@ h1 Livestreams
     = submit "Search", class: "hform__button button"
 
 .block
-  .block__header
-    = pagination
+  .block__header.page__header
+    .page__pagination = pagination
 
     = if @conn.cookies["chan_nsfw"] == "true" do
       a href=Routes.channel_nsfw_path(@conn, :delete) data-method="delete"
@@ -25,8 +25,8 @@ h1 Livestreams
     = for channel <- @channels do
       = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions
 
-  .block__header
-    = pagination
+  .block__header.page__header
+    .page__pagination = pagination
 
 br
 = if can?(@conn, :create, Philomena.Channels.Channel) do

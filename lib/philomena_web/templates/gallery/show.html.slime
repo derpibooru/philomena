@@ -7,15 +7,16 @@ elixir:
 
 #sortable class=sortable_classes(@conn)
   .block#imagelist-container
-    section.block__header.flex
-      span.block__header__title.hide-mobile
-        ' Viewing gallery
-        strong>
-          = @gallery.title
+    section.block__header.flex.page__header
+      span.block__header__title.page__title
+        span
+          ' Viewing gallery
+          strong>
+            = @gallery.title
 
-      = pagination
+      .page__pagination = pagination
 
-      .flex__right
+      .flex__right.page__options
         = render PhilomenaWeb.ImageView, "_random_button.html", conn: @conn, params: scope
 
         a href=Routes.gallery_report_path(@conn, :new, @gallery)
@@ -50,8 +51,9 @@ elixir:
       ' with
       => @gallery.image_count
       = pluralize("image", "images", @gallery.image_count)
-      ' , last updated
-      = pretty_time(@gallery.updated_at)
+      span.hide-mobile-t
+        ' , last updated
+        = pretty_time(@gallery.updated_at)
 
     .block__content.flex.js-imagelist-info
       .flex__fixed.thumb-tiny-container.spacing-right
@@ -75,8 +77,8 @@ elixir:
       = for {image, hit} <- @gallery_images do
         = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image, hit), size: :thumb, conn: @conn
 
-    .block__header.block__header--light.flex
-      = pagination
+    .block__header.block__header--light.flex.page__header
+      .page__pagination = pagination
 
-      span.block__header__title
+      span.block__header__title.page__info
         = info

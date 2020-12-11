@@ -3,19 +3,20 @@ elixir:
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
 
 .block
-  .block__header
-    =<> pagination
-    span.block__header__title
-      =<> @image.comments_count
-      => pluralize("comment", "comments", @image.comments_count)
-      ' posted
-    button.button#js-refresh-comments title="Refresh" data-disable-with="..."
-      i.fa.fa-sync
-      span.hide-mobile<> Refresh
+  .block__header.page__header
+    .page__pagination = pagination
+    .page__info
+      span.block__header__title
+        =<> @image.comments_count
+        => pluralize("comment", "comments", @image.comments_count)
+        ' posted
+      button.button#js-refresh-comments title="Refresh" data-disable-with="..."
+        i.fa.fa-sync
+        span.hide-mobile<> Refresh
 
 = for {comment, body} <- @comments, not comment.destroyed_content or (can?(@conn, :show, comment) and not hide_staff_tools?(@conn)) do
   = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
 
 .block
-  .block__header.block__header--light
-    = pagination
+  .block__header.block__header--light.page__header
+    .page__pagination = pagination

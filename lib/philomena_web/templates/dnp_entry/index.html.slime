@@ -34,9 +34,9 @@ h3 The List
   - route = fn p -> Routes.dnp_entry_path(@conn, :index, p) end
   - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, conn: @conn
 
-  .block__header
-    span.block__header__title The DNP List
-    = pagination
+  .block__header.page__header
+    span.block__header__title.page__title The DNP List
+    .page__pagination = pagination
 
   .block__content
     table.table
@@ -71,5 +71,5 @@ h3 The List
             td
               = link "More Info", to: Routes.dnp_entry_path(@conn, :show, entry)
 
-  .block__header
-    = pagination
+  .block__header.page__header
+    .page__pagination = pagination

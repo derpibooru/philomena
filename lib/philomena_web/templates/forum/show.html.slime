@@ -14,10 +14,11 @@ h1 = @forum.name
     span.spacing-left
       => @forum.topic_count
       ' topics
-  .block__header--sub.block__header--light
-    = pagination
-    span.block__header__title = @forum.description
-    = render PhilomenaWeb.Forum.SubscriptionView, "_subscription.html", forum: @forum, watching: @watching, conn: @conn
+  .block__header--sub.block__header--light.page__header
+    .page__pagination = pagination
+    .page__info
+      span.block__header__title = @forum.description
+      = render PhilomenaWeb.Forum.SubscriptionView, "_subscription.html", forum: @forum, watching: @watching, conn: @conn
   .block__content
     table.table.table--communication-list
       thead
@@ -49,8 +50,8 @@ h1 = @forum.name
                 = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post, conn: @conn
                 br
                 => pretty_time(topic.last_post.created_at)
-  .block__header.block__header--light
-   = pagination
+  .block__header.block__header--light.page__header
+    .page__pagination = pagination
 
 /- if current_user
 /  = render partial: 'topics/form'
