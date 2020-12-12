@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.CommissionController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Commissions.{Item, Commission}
+  alias Philomena.UserIps.UserIp
   alias Philomena.Repo
   import Ecto.Query
 
@@ -68,6 +69,9 @@ defmodule PhilomenaWeb.CommissionController do
       where: c.commission_items_count > 0,
       inner_join: ci in Item,
       on: ci.commission_id == c.id,
+      inner_join: ui in UserIp,
+      on: ui.user_id == c.user_id,
+      where: ui.updated_at >= ago(2, "week"),
       group_by: c.id,
       order_by: [asc: fragment("random()")],
       preload: [user: [awards: :badge], items: [example_image: [tags: :aliases]]]
