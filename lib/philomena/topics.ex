@@ -73,6 +73,15 @@ defmodule Philomena.Topics do
       create_subscription(topic, attribution[:user])
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{topic: topic}} = result ->
+        Posts.reindex_post(hd(topic.posts))
+
+        result
+
+      error ->
+        error
+    end
   end
 
   def notify_topic(topic, post) do

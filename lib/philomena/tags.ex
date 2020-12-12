@@ -121,6 +121,15 @@ defmodule Philomena.Tags do
     tag
     |> Tag.changeset(attrs, implied_tags)
     |> Repo.update()
+    |> case do
+      {:ok, tag} ->
+        reindex_tag(tag)
+
+        {:ok, tag}
+
+      error ->
+        error
+    end
   end
 
   def update_tag_image(%Tag{} = tag, attrs) do

@@ -17,8 +17,6 @@ defmodule PhilomenaWeb.Topic.Post.DeleteController do
 
     case Posts.destroy_post(post) do
       {:ok, post} ->
-        Posts.reindex_post(post)
-
         conn
         |> put_flash(:info, "Post successfully destroyed!")
         |> redirect(

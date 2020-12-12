@@ -36,7 +36,6 @@ defmodule PhilomenaWeb.Topic.PostController do
     case Posts.create_post(topic, attributes, post_params) do
       {:ok, %{post: post}} ->
         Posts.notify_post(post)
-        Posts.reindex_post(post)
         UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
 
         if forum.access_level == "normal" do
@@ -77,8 +76,6 @@ defmodule PhilomenaWeb.Topic.PostController do
 
     case Posts.update_post(post, user, post_params) do
       {:ok, _post} ->
-        Posts.reindex_post(post)
-
         conn
         |> put_flash(:info, "Post successfully edited.")
         |> redirect(

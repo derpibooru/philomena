@@ -48,8 +48,6 @@ defmodule PhilomenaWeb.ReportController do
       _falsy ->
         case Reports.create_report(reportable.id, reportable_type, attribution, report_params) do
           {:ok, report} ->
-            Reports.reindex_report(report)
-
             conn
             |> put_flash(
               :info,

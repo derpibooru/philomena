@@ -95,8 +95,6 @@ defmodule PhilomenaWeb.TagController do
   def update(conn, %{"tag" => tag_params}) do
     case Tags.update_tag(conn.assigns.tag, tag_params) do
       {:ok, tag} ->
-        Tags.reindex_tag(tag)
-
         conn
         |> put_flash(:info, "Tag successfully updated.")
         |> redirect(to: Routes.tag_path(conn, :show, tag))
