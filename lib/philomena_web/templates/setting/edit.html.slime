@@ -65,7 +65,7 @@ h1 Content Settings
             .fieldlabel: i Display the newest comments at the top of the page.
           .field
             => label f, :images_per_page
-            => number_input f, :images_per_page, min: 15, max: 50, step: 1, class: "input"
+            => number_input f, :images_per_page, min: 1, max: 50, step: 1, class: "input"
             = error_tag f, :images_per_page
             .fieldlabel
               i
@@ -73,7 +73,7 @@ h1 Content Settings
                 ' For 1080p monitors, try 24.
           .field
             => label f, :comments_per_page
-            => number_input f, :comments_per_page, min: 15, max: 100, step: 1, class: "input"
+            => number_input f, :comments_per_page, min: 1, max: 100, step: 1, class: "input"
             = error_tag f, :comments_per_page
             .fieldlabel: i This is the number of comments per page that are displayed on image pages.
           .field
