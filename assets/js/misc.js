@@ -3,7 +3,7 @@
  */
 
 import store from './utils/store';
-import { $ } from './utils/dom';
+import { $, $$ } from './utils/dom';
 
 let touchMoved = false;
 
@@ -74,6 +74,9 @@ function setupEvents() {
   const extrameta = $('#extrameta');
 
   if (store.get('hide_uploader') && extrameta) extrameta.classList.add('hidden');
+  if (store.get('hide_score')) {
+    $$('.upvotes,.score,.downvotes').forEach(s => s.classList.add('hidden'));
+  }
 
   document.addEventListener('fetchcomplete', formResult);
   document.addEventListener('click', revealSpoiler);
