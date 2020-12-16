@@ -10,11 +10,13 @@ defmodule Philomena.Images do
 
   alias Philomena.Elasticsearch
   alias Philomena.ThumbnailWorker
+  alias Philomena.ImagePurgeWorker
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
   alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
   alias Philomena.Images.Tagging
+  alias Philomena.Images.Thumbnailer
   alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
   alias Philomena.IndexWorker
   alias Philomena.ImageFeatures.ImageFeature
@@ -127,6 +129,7 @@ defmodule Philomena.Images do
     |> case do
       {:ok, image} ->
         Uploader.unpersist_old_upload(image)
+        purge_files(image, image.hidden_image_key)
         Hider.destroy_thumbnails(image)
 
         {:ok, image}
@@ -195,6 +198,7 @@ defmodule Philomena.Images do
         Uploader.unpersist_old_upload(image)
 
         repair_image(image)
+        purge_files(image, image.hidden_image_key)
         reindex_image(image)
 
         {:ok, image}
@@ -464,6 +468,7 @@ defmodule Philomena.Images do
         Tags.reindex_tags(tags)
         reindex_image(image)
         reindex_copied_tags(result)
+        purge_files(image, image.hidden_image_key)
 
         {:ok, result}
 
@@ -510,6 +515,7 @@ defmodule Philomena.Images do
         Hider.unhide_thumbnails(image, key)
 
         reindex_image(image)
+        purge_files(image, image.hidden_image_key)
         Comments.reindex_comments(image)
         Tags.reindex_tags(tags)
 
@@ -675,6 +681,22 @@ defmodule Philomena.Images do
     |> preload(^indexing_preloads())
     |> where([i], field(i, ^column) in ^condition)
     |> Elasticsearch.reindex(Image)
+  end
+
+  def purge_files(image, hidden_key) do
+    files =
+      if is_nil(hidden_key) do
+        Thumbnailer.thumbnail_urls(image, nil)
+      else
+        Thumbnailer.thumbnail_urls(image, hidden_key) ++
+          Thumbnailer.thumbnail_urls(image, nil)
+      end
+
+    Exq.enqueue(Exq, "indexing", ImagePurgeWorker, [files])
+  end
+
+  def perform_purge(files) do
+    Hider.purge_cache(files)
   end
 
   alias Philomena.Images.Subscription

@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.Image.RepairController do
 
   def create(conn, _params) do
     Images.repair_image(conn.assigns.image)
+    Images.purge_files(conn.assigns.image, conn.assigns.image.hidden_image_key)
 
     conn
     |> put_flash(:info, "Repair job enqueued.")

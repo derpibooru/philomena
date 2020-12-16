@@ -27,4 +27,5 @@ RUN git clone https://github.com/philomena-dev/mediatools /tmp/mediatools \
 COPY docker/app/run-development /usr/local/bin/run-development
 COPY docker/app/run-test /usr/local/bin/run-test
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
+COPY docker/app/purge-cache /usr/local/bin/purge-cache
 CMD run-development

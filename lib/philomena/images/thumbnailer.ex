@@ -22,6 +22,14 @@ defmodule Philomena.Images.Thumbnailer do
     full: nil
   ]
 
+  def thumbnail_urls(image, hidden_key) do
+    Path.join([image_thumb_dir(image), "*"])
+    |> Path.wildcard()
+    |> Enum.map(fn version_name ->
+      Path.join([image_url_base(image, hidden_key), Path.basename(version_name)])
+    end)
+  end
+
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
     file = image_file(image)
@@ -124,6 +132,12 @@ defmodule Philomena.Images.Thumbnailer do
   defp image_thumb_dir(%Image{created_at: created_at, id: id}),
     do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])
 
+  defp image_url_base(%Image{created_at: created_at, id: id}, nil),
+    do: Path.join([image_url_root(), time_identifier(created_at), to_string(id)])
+
+  defp image_url_base(%Image{created_at: created_at, id: id}, key),
+    do: Path.join([image_url_root(), time_identifier(created_at), "#{id}-#{key}"])
+
   defp time_identifier(time),
     do: Enum.join([time.year, time.month, time.day], "/")
 
@@ -132,4 +146,7 @@ defmodule Philomena.Images.Thumbnailer do
 
   defp image_thumbnail_root,
     do: Application.get_env(:philomena, :image_file_root) <> "/thumbs"
+
+  defp image_url_root,
+    do: Application.get_env(:philomena, :image_url_root)
 end
