@@ -3,10 +3,18 @@
   flex-wrap: wrap;
 }
 
+.page__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .page__title, .page__pagination {
-  display: inline-flex;
-  flex-wrap: nowrap;
   flex-shrink: 0;
+
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .pagination__dropdown {
