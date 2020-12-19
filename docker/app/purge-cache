@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Run your custom purge command here.
+#
+# The script receives the list of URLs to be purged
+# as JSON on the first argument.
+#
+# {"files":[]}
+
+body="$1"
+api_token=
+zone_id=
+
+# curl -XPOST \
+#      -H "Content-Type: application/json" \
+#      -H "Authorization: Bearer ${api_token}" \
+#      "https://api.cloudflare.com/client/v4/zones/${zone_id}/purge_cache" \
+#      -d "${body}"

@@ -6,7 +6,7 @@ h1 Two Factor Authentication
     = text_input f, :twofactor_token, class: "input", placeholder: "6-digit code", required: true, autofocus: true, autocomplete: "off"
 
   .field
-    => checkbox f, :remember_me, class: "input"
+    => checkbox f, :remember_me, class: "input", checked: true
     = label f, :remember_me, "Remember this device"
 
   = submit "Sign in", class: "button"

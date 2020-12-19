@@ -106,8 +106,6 @@ defmodule PhilomenaWeb.GalleryController do
 
     case Galleries.create_gallery(user, gallery_params) do
       {:ok, gallery} ->
-        Galleries.reindex_gallery(gallery)
-
         conn
         |> put_flash(:info, "Gallery successfully created.")
         |> redirect(to: Routes.gallery_path(conn, :show, gallery))
@@ -130,8 +128,6 @@ defmodule PhilomenaWeb.GalleryController do
 
     case Galleries.update_gallery(gallery, gallery_params) do
       {:ok, gallery} ->
-        Galleries.reindex_gallery(gallery)
-
         conn
         |> put_flash(:info, "Gallery successfully updated.")
         |> redirect(to: Routes.gallery_path(conn, :show, gallery))
@@ -146,7 +142,6 @@ defmodule PhilomenaWeb.GalleryController do
     gallery = conn.assigns.gallery
 
     {:ok, _gallery} = Galleries.delete_gallery(gallery)
-    Galleries.unindex_gallery(gallery)
 
     conn
     |> put_flash(:info, "Gallery successfully destroyed.")

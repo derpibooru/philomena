@@ -49,6 +49,7 @@ defmodule Philomena.Galleries do
     %Gallery{}
     |> Gallery.creation_changeset(attrs, user)
     |> Repo.insert()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -67,6 +68,7 @@ defmodule Philomena.Galleries do
     gallery
     |> Gallery.changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -91,6 +93,7 @@ defmodule Philomena.Galleries do
     Repo.delete(gallery)
     |> case do
       {:ok, gallery} ->
+        unindex_gallery(gallery)
         Images.reindex_images(images)
 
         {:ok, gallery}
@@ -117,6 +120,16 @@ defmodule Philomena.Galleries do
     data = GalleryIndex.user_name_update_by_query(old_name, new_name)
 
     Elasticsearch.update_by_query(Gallery, data.query, data.set_replacements, data.replacements)
+  end
+
+  defp reindex_after_update({:ok, gallery}) do
+    reindex_gallery(gallery)
+
+    {:ok, gallery}
+  end
+
+  defp reindex_after_update(error) do
+    error
   end
 
   def reindex_gallery(%Gallery{} = gallery) do

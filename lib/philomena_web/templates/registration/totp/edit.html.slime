@@ -101,9 +101,7 @@ h1 Two Factor Authentication
           a href="https://www.microsoft.com/en-us/store/p/microsoft-authenticator/9nblgggzmcj6" target="_blank" rel="noreferrer"
             | Windows Mobile
           | )
-      ' Google Authenticator is
-      em> not
-      ' recommended.
+
     h4 Pair application
     p
       ' Using the application of your choice, scan the QR code below or enter the following secret key:

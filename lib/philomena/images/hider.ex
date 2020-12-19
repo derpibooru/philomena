@@ -29,6 +29,12 @@ defmodule Philomena.Images.Hider do
     File.rm_rf(normal)
   end
 
+  def purge_cache(files) do
+    {_out, 0} = System.cmd("purge-cache", [Jason.encode!(%{files: files})])
+
+    :ok
+  end
+
   # fixme: these are copied from the thumbnailer
   defp image_thumb_dir(%Image{created_at: created_at, id: id}),
     do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])

@@ -92,6 +92,15 @@ defmodule Philomena.Posts do
       Topics.create_subscription(topic, attributes[:user])
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{post: post}} = result ->
+        reindex_post(post)
+
+        result
+
+      error ->
+        error
+    end
   end
 
   def notify_post(post) do
@@ -152,6 +161,15 @@ defmodule Philomena.Posts do
       })
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{post: post}} = result ->
+        reindex_post(post)
+
+        result
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -199,21 +217,14 @@ defmodule Philomena.Posts do
     post
     |> Post.unhide_changeset()
     |> Repo.update()
-    |> case do
-      {:ok, post} ->
-        reindex_post(post)
-
-        {:ok, post}
-
-      error ->
-        error
-    end
+    |> reindex_after_update()
   end
 
   def destroy_post(%Post{} = post) do
     post
     |> Post.destroy_changeset()
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -233,6 +244,16 @@ defmodule Philomena.Posts do
     data = PostIndex.user_name_update_by_query(old_name, new_name)
 
     Elasticsearch.update_by_query(Post, data.query, data.set_replacements, data.replacements)
+  end
+
+  defp reindex_after_update({:ok, post}) do
+    reindex_post(post)
+
+    {:ok, post}
+  end
+
+  defp reindex_after_update(result) do
+    result
   end
 
   def reindex_post(%Post{} = post) do

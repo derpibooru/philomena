@@ -57,7 +57,7 @@ defmodule Philomena.Reports do
     %Report{reportable_id: reportable_id, reportable_type: reportable_type}
     |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
-    |> maybe_reindex_report()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -76,7 +76,7 @@ defmodule Philomena.Reports do
     report
     |> Report.changeset(attrs)
     |> Repo.update()
-    |> maybe_reindex_report()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -112,21 +112,21 @@ defmodule Philomena.Reports do
     report
     |> Report.claim_changeset(user)
     |> Repo.update()
-    |> maybe_reindex_report()
+    |> reindex_after_update()
   end
 
   def unclaim_report(%Report{} = report) do
     report
     |> Report.unclaim_changeset()
     |> Repo.update()
-    |> maybe_reindex_report()
+    |> reindex_after_update()
   end
 
   def close_report(%Report{} = report, user) do
     report
     |> Report.close_changeset(user)
     |> Repo.update()
-    |> maybe_reindex_report()
+    |> reindex_after_update()
   end
 
   def user_name_reindex(old_name, new_name) do
@@ -135,13 +135,15 @@ defmodule Philomena.Reports do
     Elasticsearch.update_by_query(Report, data.query, data.set_replacements, data.replacements)
   end
 
-  defp maybe_reindex_report({:ok, report} = result) do
+  defp reindex_after_update({:ok, report}) do
     reindex_report(report)
 
-    result
+    {:ok, report}
   end
 
-  defp maybe_reindex_report(result), do: result
+  defp reindex_after_update(result) do
+    result
+  end
 
   def reindex_reports(report_ids) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Reports", "id", report_ids])
