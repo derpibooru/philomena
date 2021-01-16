@@ -39,7 +39,9 @@ function showThumb(img) {
 
   if (store.get('serve_hidpi') && !thumbUri.endsWith('.gif')) {
     // Check whether the HiDPI option is enabled, and make an exception for GIFs due to their size
-    imgEl.srcset = `${thumbUri} 1x, ${uris.medium} 2x`;
+    const x2Size = size === 'medium' ? uris.large : uris.medium;
+    // use even larger thumb if normal size is medium already
+    imgEl.srcset = `${thumbUri} 1x, ${x2Size} 2x`;
   }
 
   imgEl.src = thumbUri;
