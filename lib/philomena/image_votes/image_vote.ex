@@ -11,7 +11,7 @@ defmodule Philomena.ImageVotes.ImageVote do
     belongs_to :user, User, primary_key: true
     belongs_to :image, Image, primary_key: true
     field :up, :boolean
-    timestamps(inserted_at: :created_at, updated_at: false)
+    timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime)
   end
 
   @doc false
