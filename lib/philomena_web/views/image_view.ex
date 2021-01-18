@@ -124,8 +124,6 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def image_container_data(conn, image, size) do
-    time = DateTime.from_naive!(image.created_at, "Etc/UTC")
-
     [
       image_id: image.id,
       image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
@@ -137,7 +135,7 @@ defmodule PhilomenaWeb.ImageView do
       upvotes: image.upvotes_count,
       downvotes: image.downvotes_count,
       comment_count: image.comments_count,
-      created_at: DateTime.to_iso8601(time),
+      created_at: DateTime.to_iso8601(image.created_at),
       source_url: image.source_url,
       uris: Jason.encode!(thumb_urls(image, can?(conn, :show, image))),
       width: image.image_width,

@@ -17,6 +17,7 @@ defmodule Philomena.Users do
   alias Philomena.Posts
   alias Philomena.Galleries
   alias Philomena.Reports
+  alias Philomena.Filters
   alias Philomena.UserRenameWorker
 
   ## Database getters
@@ -620,6 +621,7 @@ defmodule Philomena.Users do
     Posts.user_name_reindex(old_name, new_name)
     Galleries.user_name_reindex(old_name, new_name)
     Reports.user_name_reindex(old_name, new_name)
+    Filters.user_name_reindex(old_name, new_name)
   end
 
   def reactivate_user(%User{} = user) do

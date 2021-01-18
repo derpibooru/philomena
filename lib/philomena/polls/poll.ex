@@ -20,7 +20,7 @@ defmodule Philomena.Polls.Poll do
     field :deletion_reason, :string, default: ""
     field :until, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

@@ -20,7 +20,7 @@ defmodule Philomena.Galleries.Gallery do
     field :image_count, :integer
     field :order_position_asc, :boolean
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

@@ -15,7 +15,7 @@ defmodule Philomena.Badges.Award do
     field :reason, :string
     field :badge_name, :string
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

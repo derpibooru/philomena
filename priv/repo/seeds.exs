@@ -19,6 +19,7 @@ alias Philomena.{
   Posts.Post,
   Images.Image,
   Reports.Report,
+  Filters.Filter,
   Roles.Role,
   Tags.Tag,
   Users.User,
@@ -28,11 +29,12 @@ alias Philomena.{
 alias Philomena.Elasticsearch
 alias Philomena.Users
 alias Philomena.Tags
+alias Philomena.Filters
 import Ecto.Query
 
 IO.puts("---- Creating Elasticsearch indices")
 
-for model <- [Image, Comment, Gallery, Tag, Post, Report] do
+for model <- [Image, Comment, Gallery, Tag, Post, Report, Filter] do
   Elasticsearch.delete_index!(model)
   Elasticsearch.create_index!(model)
 end
@@ -64,6 +66,13 @@ for filter_def <- resources["system_filters"] do
     hidden_tag_list: hidden_tag_list
   })
   |> Repo.insert(on_conflict: :nothing)
+  |> case do
+    {:ok, filter} ->
+      Filters.reindex_filter(filter)
+
+    {:error, changeset} ->
+      IO.inspect(changeset.errors)
+  end
 end
 
 IO.puts("---- Generating forums")

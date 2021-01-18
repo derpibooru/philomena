@@ -20,7 +20,7 @@ defmodule Philomena.ArtistLinks.ArtistLink do
     field :next_check_at, :utc_datetime
     field :contacted_at, :utc_datetime
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

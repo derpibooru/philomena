@@ -32,7 +32,7 @@ defmodule Philomena.Topics.Topic do
     field :anonymous, :boolean, default: false
     field :hidden_from_users, :boolean, default: false
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

@@ -1,4 +1,4 @@
-all: comments galleries images posts reports tags
+all: comments galleries images posts reports tags filters
 
 comments:
 	$(MAKE) -f comments.mk
@@ -17,6 +17,9 @@ reports:
 
 tags:
 	$(MAKE) -f tags.mk
+
+filters:
+	$(MAKE) -f filters.mk
 
 clean:
 	rm -f ./*.jsonl

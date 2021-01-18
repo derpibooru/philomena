@@ -8,7 +8,7 @@ defmodule Philomena.UserWhitelists.UserWhitelist do
     belongs_to :user, User
 
     field :reason, :string
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

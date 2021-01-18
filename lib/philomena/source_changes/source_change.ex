@@ -15,7 +15,7 @@ defmodule Philomena.SourceChanges.SourceChange do
 
     field :source_url, :string, source: :new_value
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

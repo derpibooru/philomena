@@ -11,7 +11,7 @@ defmodule Philomena.ImageFeatures.ImageFeature do
     belongs_to :image, Image
     belongs_to :user, User
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

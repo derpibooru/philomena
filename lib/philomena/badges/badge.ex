@@ -13,7 +13,7 @@ defmodule Philomena.Badges.Badge do
     field :removed_image, :string, virtual: true
     field :image_mime_type, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

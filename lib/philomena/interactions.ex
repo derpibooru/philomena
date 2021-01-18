@@ -72,7 +72,7 @@ defmodule Philomena.Interactions do
   end
 
   def migrate_interactions(source, target) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     source = Repo.preload(source, [:hiders, :favers, :upvoters, :downvoters])
 
     new_hides = Enum.map(source.hiders, &%{image_id: target.id, user_id: &1.id, created_at: now})

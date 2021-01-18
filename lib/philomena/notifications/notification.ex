@@ -14,7 +14,7 @@ defmodule Philomena.Notifications.Notification do
     field :actor, :any, virtual: true
     field :actor_child, :any, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

@@ -18,7 +18,7 @@ defmodule Philomena.DnpEntries.DnpEntry do
     field :instructions, :string, default: ""
     field :feedback, :string, default: ""
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

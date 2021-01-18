@@ -90,7 +90,7 @@ defmodule Philomena.Tags.Tag do
 
     field :implied_tag_list, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

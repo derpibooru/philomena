@@ -23,7 +23,7 @@ defmodule Philomena.Comments.Comment do
     field :destroyed_content, :boolean, default: false
     field :name_at_post_time, :string
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

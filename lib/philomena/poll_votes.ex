@@ -41,7 +41,7 @@ defmodule Philomena.PollVotes do
 
   """
   def create_poll_votes(user, poll, attrs) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     poll_votes = filter_options(user, poll, now, attrs)
 
     Multi.new()

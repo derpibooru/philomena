@@ -122,6 +122,7 @@ defmodule PhilomenaWeb.Router do
       resources "/posts", PostController, only: [:index]
       resources "/comments", CommentController, only: [:index]
       resources "/galleries", GalleryController, only: [:index]
+      resources "/filters", FilterController, only: [:index]
     end
 
     # Convenience alias

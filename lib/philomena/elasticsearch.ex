@@ -11,6 +11,7 @@ defmodule Philomena.Elasticsearch do
   alias Philomena.Posts.Post
   alias Philomena.Reports.Report
   alias Philomena.Tags.Tag
+  alias Philomena.Filters.Filter
 
   alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
   alias Philomena.Galleries.ElasticsearchIndex, as: GalleryIndex
@@ -18,6 +19,7 @@ defmodule Philomena.Elasticsearch do
   alias Philomena.Posts.ElasticsearchIndex, as: PostIndex
   alias Philomena.Reports.ElasticsearchIndex, as: ReportIndex
   alias Philomena.Tags.ElasticsearchIndex, as: TagIndex
+  alias Philomena.Filters.ElasticsearchIndex, as: FilterIndex
 
   defp index_for(Comment), do: CommentIndex
   defp index_for(Gallery), do: GalleryIndex
@@ -25,6 +27,7 @@ defmodule Philomena.Elasticsearch do
   defp index_for(Post), do: PostIndex
   defp index_for(Report), do: ReportIndex
   defp index_for(Tag), do: TagIndex
+  defp index_for(Filter), do: FilterIndex
 
   defp elastic_url do
     Application.get_env(:philomena, :elasticsearch_url)
