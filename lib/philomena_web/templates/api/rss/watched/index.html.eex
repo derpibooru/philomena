@@ -17,7 +17,7 @@
               </a>
             ]]>
           </description>
-          <pubDate><%= NaiveDateTime.to_iso8601(image.created_at) %></pubDate>
+          <pubDate><%= DateTime.to_iso8601(image.created_at) %></pubDate>
           <link><%= Routes.image_url(@conn, :show, image) %></link>
           <guid><%= Routes.image_url(@conn, :show, image) %></guid>
         </item>

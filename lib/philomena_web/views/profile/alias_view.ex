@@ -17,8 +17,8 @@ defmodule PhilomenaWeb.Profile.AliasView do
   def previously_banned?(_user), do: true
 
   defp younger_than_time_offset?(%{created_at: created_at}, time_offset) do
-    time_ago = NaiveDateTime.utc_now() |> NaiveDateTime.add(-time_offset, :second)
+    time_ago = DateTime.utc_now() |> DateTime.add(-time_offset, :second)
 
-    NaiveDateTime.diff(created_at, time_ago) >= 0
+    DateTime.diff(created_at, time_ago) >= 0
   end
 end

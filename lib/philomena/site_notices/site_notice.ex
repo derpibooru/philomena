@@ -19,7 +19,7 @@ defmodule Philomena.SiteNotices.SiteNotice do
     field :start_time, :string, virtual: true
     field :finish_time, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

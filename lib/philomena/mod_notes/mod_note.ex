@@ -15,7 +15,7 @@ defmodule Philomena.ModNotes.ModNote do
 
     field :notable, :any, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

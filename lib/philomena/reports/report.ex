@@ -23,7 +23,7 @@ defmodule Philomena.Reports.Report do
     field :reportable, :any, virtual: true
     field :category, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

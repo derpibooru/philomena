@@ -9,7 +9,7 @@ defmodule Philomena.StaticPages.StaticPage do
     field :slug, :string
     field :body, :string
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

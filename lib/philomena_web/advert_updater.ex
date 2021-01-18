@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.AdvertUpdater do
     # Read impression counts from mailbox
     {impressions, clicks} = receive_all()
 
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     # Create insert statements for Ecto
     impressions = Enum.map(impressions, &impressions_insert_all(&1, now))

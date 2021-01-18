@@ -10,7 +10,7 @@ defmodule Philomena.UserIps.UserIp do
     field :ip, EctoNetwork.INET
     field :uses, :integer, default: 0
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

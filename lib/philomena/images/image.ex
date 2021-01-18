@@ -75,7 +75,7 @@ defmodule Philomena.Images.Image do
     field :tag_editing_allowed, :boolean, default: true
     field :description_editing_allowed, :boolean, default: true
     field :commenting_allowed, :boolean, default: true
-    field :first_seen_at, :naive_datetime
+    field :first_seen_at, :utc_datetime
     field :destroyed_content, :boolean
     field :hidden_image_key, :string
     field :scratchpad, :string
@@ -92,7 +92,7 @@ defmodule Philomena.Images.Image do
     field :uploaded_image, :string, virtual: true
     field :removed_image, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   def interaction_data(image) do
@@ -112,7 +112,7 @@ defmodule Philomena.Images.Image do
   end
 
   def creation_changeset(image, attrs, attribution) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     image
     |> cast(attrs, [:anonymous, :source_url, :description])

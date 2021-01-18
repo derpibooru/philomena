@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.StatsUpdater do
         images_in_galleries: images_in_galleries
       )
 
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     static_page = %{
       title: "Statistics",
@@ -139,7 +139,7 @@ defmodule PhilomenaWeb.StatsUpdater do
 
     response_time =
       closed_reports
-      |> Enum.reduce(0, &(&2 + NaiveDateTime.diff(&1.updated_at, &1.created_at, :second)))
+      |> Enum.reduce(0, &(&2 + DateTime.diff(&1.updated_at, &1.created_at, :second)))
       |> Kernel./(safe_length(closed_reports) * 3600)
       |> trunc()
 

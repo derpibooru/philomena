@@ -19,7 +19,7 @@ defmodule Philomena.Forums.Forum do
     field :topic_count, :integer, default: 0
     field :post_count, :integer, default: 0
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

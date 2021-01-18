@@ -319,7 +319,7 @@ defmodule Philomena.Images do
   end
 
   defp tag_change_attributes(attribution, image, tag, added, user) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     user_id =
       case user do
@@ -482,7 +482,7 @@ defmodule Philomena.Images do
 
   defp update_first_seen_at(image, time_1, time_2) do
     min_time =
-      case NaiveDateTime.compare(time_1, time_2) do
+      case DateTime.compare(time_1, time_2) do
         :gt -> time_2
         _ -> time_1
       end
@@ -551,7 +551,7 @@ defmodule Philomena.Images do
       |> where([t], t.image_id in ^image_ids and t.tag_id in ^removed_tags)
       |> select([t], [t.image_id, t.tag_id])
 
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     tag_change_attributes = Map.merge(tag_change_attributes, %{created_at: now, updated_at: now})
     tag_attributes = %{name: "", slug: "", created_at: now, updated_at: now}
 

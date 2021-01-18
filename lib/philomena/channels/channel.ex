@@ -32,7 +32,7 @@ defmodule Philomena.Channels.Channel do
     field :remote_stream_id, :integer
     field :thumbnail_url, :string, default: ""
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

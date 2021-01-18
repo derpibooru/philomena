@@ -31,10 +31,9 @@ defmodule PhilomenaWeb.AppView do
   }
 
   def pretty_time(time) do
-    now = NaiveDateTime.utc_now()
-    seconds = NaiveDateTime.diff(now, time, :second)
+    now = DateTime.utc_now()
+    seconds = DateTime.diff(now, time, :second)
     relation = if seconds < 0, do: "from now", else: "ago"
-    time = time |> DateTime.from_naive!("Etc/UTC")
 
     words = distance_of_time_in_words(now, time)
 
@@ -45,7 +44,7 @@ defmodule PhilomenaWeb.AppView do
   end
 
   def distance_of_time_in_words(time_2, time_1) do
-    seconds = abs(NaiveDateTime.diff(time_2, time_1, :second))
+    seconds = abs(DateTime.diff(time_2, time_1, :second))
     minutes = div(seconds, 60)
     hours = div(minutes, 60)
     days = div(hours, 24)

@@ -22,7 +22,7 @@ defmodule Philomena.Conversations.Conversation do
     field :last_message_at, :utc_datetime
     field :recipient, :string, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

@@ -9,7 +9,7 @@ defmodule Philomena.Roles.Role do
     field :resource_id, :integer
     field :resource_type, :string
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false

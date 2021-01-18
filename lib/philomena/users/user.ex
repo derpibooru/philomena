@@ -48,12 +48,12 @@ defmodule Philomena.Users.User do
     field :password, :string, virtual: true
     field :encrypted_password, :string
     field :hashed_password, :string, source: :encrypted_password
-    field :confirmed_at, :naive_datetime
+    field :confirmed_at, :utc_datetime
     field :otp_required_for_login, :boolean
     field :authentication_token, :string
     field :failed_attempts, :integer
     # field :unlock_token, :string
-    field :locked_at, :naive_datetime
+    field :locked_at, :utc_datetime
     field :encrypted_otp_secret, :string
     field :encrypted_otp_secret_iv, :string
     field :encrypted_otp_secret_salt, :string
@@ -111,9 +111,9 @@ defmodule Philomena.Users.User do
     field :watched_tag_list, :string, virtual: true
 
     # Other stuff
-    field :last_donation_at, :naive_datetime
-    field :last_renamed_at, :naive_datetime
-    field :deleted_at, :naive_datetime
+    field :last_donation_at, :utc_datetime
+    field :last_renamed_at, :utc_datetime
+    field :deleted_at, :utc_datetime
     field :scratchpad, :string
     field :secondary_role, :string
     field :hide_default_role, :boolean, default: false
@@ -130,7 +130,7 @@ defmodule Philomena.Users.User do
     # For mod stuff
     field :role_map, :any, virtual: true
 
-    timestamps(inserted_at: :created_at)
+    timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc """
@@ -212,7 +212,7 @@ defmodule Philomena.Users.User do
   Confirms the account by setting `confirmed_at`.
   """
   def confirm_changeset(user) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
     change(user, confirmed_at: now)
   end
 
@@ -256,7 +256,7 @@ defmodule Philomena.Users.User do
   end
 
   def lock_changeset(user) do
-    locked_at = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    locked_at = DateTime.utc_now() |> DateTime.truncate(:second)
 
     change(user, locked_at: locked_at)
   end
@@ -353,7 +353,7 @@ defmodule Philomena.Users.User do
   end
 
   def name_changeset(user, attrs) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     user
     |> cast(attrs, [:name])
@@ -403,7 +403,7 @@ defmodule Philomena.Users.User do
   end
 
   def deactivate_changeset(user, moderator) do
-    now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     change(user, deleted_at: now, deleted_by_user_id: moderator.id)
   end
