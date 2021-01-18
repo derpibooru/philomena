@@ -22,7 +22,7 @@ metadata: filter_search_json
 			'id', f.id,
 			'created_at', f.created_at,
 			'user_id', f.user_id,
-			'public', f.public,
+			'public', f.public or f.system,
 			'system', f.system,
 			'name', lower(f.name),
 			'description', f.description,
