@@ -5,7 +5,8 @@ defmodule Philomena.IndexWorker do
     "Images" => Philomena.Images,
     "Posts" => Philomena.Posts,
     "Reports" => Philomena.Reports,
-    "Tags" => Philomena.Tags
+    "Tags" => Philomena.Tags,
+    "Filters" => Philomena.Filters
   }
 
   # Perform the queued index. Context function looks like the following:

@@ -9,10 +9,11 @@ defmodule Mix.Tasks.ReindexAll do
     Posts.Post,
     Images.Image,
     Reports.Report,
-    Tags.Tag
+    Tags.Tag,
+    Filters.Filter
   }
 
-  alias Philomena.{Comments, Galleries, Posts, Images, Tags}
+  alias Philomena.{Comments, Galleries, Posts, Images, Tags, Filters}
   alias Philomena.Polymorphic
   alias Philomena.Repo
   import Ecto.Query
@@ -30,7 +31,8 @@ defmodule Mix.Tasks.ReindexAll do
           {Comments, Comment},
           {Galleries, Gallery},
           {Tags, Tag},
-          {Posts, Post}
+          {Posts, Post},
+          {Filters, Filter}
         ] do
       Elasticsearch.delete_index!(schema)
       Elasticsearch.create_index!(schema)

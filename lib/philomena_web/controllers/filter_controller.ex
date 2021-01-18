@@ -1,13 +1,22 @@
 defmodule PhilomenaWeb.FilterController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Filters, Filters.Filter, Tags.Tag}
+  alias Philomena.{Filters, Filters.Filter, Filters.Query, Tags.Tag}
+  alias Philomena.Elasticsearch
   alias Philomena.Schema.TagList
   alias Philomena.Repo
   import Ecto.Query
 
   plug :load_and_authorize_resource, model: Filter, except: [:index], preload: :user
   plug PhilomenaWeb.RequireUserPlug when action not in [:index, :show]
+
+  def index(conn, %{"fq" => fq}) do
+    user = conn.assigns.current_user
+
+    user
+    |> Query.compile(fq)
+    |> render_index(conn, user)
+  end
 
   def index(conn, _params) do
     user = conn.assigns.current_user
@@ -34,6 +43,51 @@ defmodule PhilomenaWeb.FilterController do
       system_filters: system_filters
     )
   end
+
+  defp render_index({:ok, query}, conn, user) do
+    filters =
+      Filter
+      |> Elasticsearch.search_definition(
+        %{
+          query: %{
+            bool: %{
+              must: [query | filters(user)]
+            }
+          },
+          sort: [
+            %{name: :asc},
+            %{id: :desc}
+          ]
+        },
+        conn.assigns.pagination
+      )
+      |> Elasticsearch.search_records(preload(Filter, [:user]))
+
+    render(conn, "index.html", title: "Filters", filters: filters)
+  end
+
+  defp render_index({:error, msg}, conn, _user) do
+    render(conn, "index.html", title: "Filters", error: msg, filters: [])
+  end
+
+  defp filters(user),
+    do: [%{bool: %{should: shoulds(user)}}]
+
+  defp shoulds(user) do
+    case user do
+      nil ->
+        anonymous_should()
+
+      user ->
+        user_should(user)
+    end
+  end
+
+  defp user_should(user),
+    do: anonymous_should() ++ [%{term: %{user_id: user.id}}]
+
+  defp anonymous_should(),
+    do: [%{term: %{public: true}}, %{term: %{system: true}}]
 
   def show(conn, _params) do
     filter = conn.assigns.filter

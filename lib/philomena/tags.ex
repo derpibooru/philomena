@@ -17,6 +17,7 @@ defmodule Philomena.Tags do
   alias Philomena.Images
   alias Philomena.Images.Image
   alias Philomena.Users.User
+  alias Philomena.Filters
   alias Philomena.Filters.Filter
   alias Philomena.Images.Tagging
   alias Philomena.ArtistLinks.ArtistLink
@@ -301,6 +302,12 @@ defmodule Philomena.Tags do
     |> where([_i, t], t.id == ^tag.id)
     |> preload(^Images.indexing_preloads())
     |> Elasticsearch.reindex(Image)
+
+    Filter
+    |> where([f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
+    |> or_where([f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
+    |> preload(^Filters.indexing_preloads())
+    |> Elasticsearch.reindex(Filter)
   end
 
   def unalias_tag(%Tag{} = tag) do

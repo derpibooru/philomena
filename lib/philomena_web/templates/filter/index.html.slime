@@ -24,16 +24,151 @@
   p
     ' By default all the filters you create are private and only visible by you. You can have as many as you like and switch between them instantly with no limits. You can also create a public filter, which can be seen and used by any user on the site, allowing you to share useful filters with others.
 
-  h2 My Filters
-  = if @current_user do
-    p
-      = link("Click here to make a new filter from scratch", to: Routes.filter_path(@conn, :new))
-    = for filter <- @my_filters do
-      = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
-  - else
-    p
-      ' If you're logged in, you can create and maintain custom filters here.
+  = if !@conn.params["fq"] do
+    h2 My Filters
+    = if @current_user do
+      p
+        = link("Click here to make a new filter from scratch", to: Routes.filter_path(@conn, :new))
+      = for filter <- @my_filters do
+        = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+    - else
+      p
+        ' If you're logged in, you can create and maintain custom filters here.
 
-  h2 Global Filters
-  = for filter <- @system_filters do
-    = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+    h2 Global Filters
+    = for filter <- @system_filters do
+      = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+
+  h2 Search Filters
+  p
+    ' Some users maintain custom filters which are publicly shared; you can search these filters with the box below.
+  = form_for :filters, Routes.filter_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+    .field
+      = text_input f, :fq, name: :fq, value: @conn.params["fq"], class: "input hform__text", placeholder: "Search filters", autocapitalize: "none"
+      = submit "Search", class: "hform__button button"
+
+  .fieldlabel
+    ' For more information, see the
+    a href="/pages/search_syntax" search syntax documentation
+    ' . Search results are sorted by creation date.
+
+  = if @conn.params["fq"] do
+    h2 Search Results
+    = cond do
+      - Enum.any?(@filters) ->
+        - route = fn p -> Routes.filter_path(@conn, :index, p) end
+        - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @filters, route: route, params: [fq: @conn.params["fq"]], conn: @conn
+
+        = for filter <- @filters do
+          = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+
+        .block
+          .block__header.block__header--light.page__header
+            .page__pagination = pagination
+            .page__info
+              span.block__header__title
+                = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @filters, conn: @conn
+
+      - assigns[:error] ->
+        p
+          ' Oops, there was an error evaluating your query:
+        pre = assigns[:error]
+
+      - true ->
+        p
+          ' No filters found!
+
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code creator
+      td Literal
+      td Matches the creator of this filter.
+      td
+        code = link "creator:AppleDash", to: Routes.filter_path(@conn, :index, fq: "creator:AppleDash")
+    tr
+      td
+        code name
+      td Literal
+      td Matches the name of this filter. This is the default field.
+      td
+        code = link "name:default", to: Routes.filter_path(@conn, :index, fq: "name:default")
+    tr
+      td
+        code description
+      td Full Text
+      td Matches the description of this filter.
+      td
+        code = link "description:show's rating", to: Routes.filter_path(@conn, :index, fq: "description:the show's rating")
+    tr
+      td
+        code created_at
+      td Date/Time Range
+      td Matches the creation time of this filter.
+      td
+        code = link "created_at:2015", to: Routes.filter_path(@conn, :index, fq: "created_at:2015")
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this filter.
+      td
+        code = link "id:1", to: Routes.filter_path(@conn, :index, fq: "id:1")
+    tr
+      td
+        code spoilered_count
+      td Numeric Range
+      td Matches the number of spoilered tags in this filter.
+      td
+        code = link "spoilered_count:1", to: Routes.filter_path(@conn, :index, fq: "spoilered_count:1")
+    tr
+      td
+        code hidden_count
+      td Numeric Range
+      td Matches the number of hidden tags in this filter.
+      td
+        code = link "hidden_count:1", to: Routes.filter_path(@conn, :index, fq: "hidden_count:1")
+    tr
+      td
+        code my
+      td Meta
+      td
+        code> my:filters
+        ' matches filters you have published if you are signed in.
+      td
+        code = link "my:filters", to: Routes.filter_path(@conn, :index, fq: "my:filters")
+    tr
+      td
+        code system
+      td Boolean
+      td Matches system filters
+      td
+        code = link "system:true", to: Routes.filter_path(@conn, :index, fq: "system:true")
+    tr
+      td
+        code public
+      td Boolean
+      td
+        ' Matches public filters. Note that
+        code> public:false
+        ' matches only your own private filters.
+      td
+        code = link "public:false", to: Routes.filter_path(@conn, :index, fq: "public:false")
+    tr
+      td
+        code user_id
+      td Literal
+      td Matches filters with the specified user_id.
+      td
+        code = link "user_id:307505", to: Routes.filter_path(@conn, :index, fq: "user_id:307505")
+
+= if @conn.params["fq"] do
+  p = link("Back to filters", to: Routes.filter_path(@conn, :index))
