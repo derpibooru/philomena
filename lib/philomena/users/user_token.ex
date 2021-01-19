@@ -19,7 +19,7 @@ defmodule Philomena.Users.UserToken do
     field :sent_to, :string
     belongs_to :user, Philomena.Users.User
 
-    timestamps(inserted_at: :created_at, updated_at: false)
+    timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime)
   end
 
   @doc """

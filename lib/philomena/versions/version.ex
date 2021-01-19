@@ -17,7 +17,7 @@ defmodule Philomena.Versions.Version do
     field :edit_reason, :string, virtual: true
     field :difference, :any, virtual: true
 
-    timestamps(inserted_at: :created_at, updated_at: false)
+    timestamps(inserted_at: :created_at, updated_at: false, type: :utc_datetime)
   end
 
   @doc false
