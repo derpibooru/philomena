@@ -17,7 +17,7 @@
       .table-list__label__input = select f, :role, ["user", "assistant", "moderator", "admin"], class: "input"
     label.table-list__label
       .table-list__label__text Secondary banner:
-      .table-list__label__input = select f, :secondary_role, [[key: "-", value: ""], "Site Developer", "System Administrator", "Philomena Contributor", "Public Relations"], class: "input"
+      .table-list__label__input = select f, :secondary_role, [[key: "-", value: ""], "Site Developer", "Devops", "Philomena Contributor", "Public Relations"], class: "input"
     label.table-list__label
       .table-list__label__text Hide staff banner:
       .table-list__label__input = checkbox f, :hide_default_role, class: "checkbox"
