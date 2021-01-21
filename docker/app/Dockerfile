@@ -1,4 +1,4 @@
-FROM elixir:1.11.2
+FROM elixir:1.11.3
 
 ARG DEBIAN_FRONTEND=noninteractive
 
