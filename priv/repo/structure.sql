@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.0 (Debian 13.0-1.pgdg100+1)
+-- Dumped from database version 13.1 (Debian 13.1-1.pgdg100+1)
 -- Dumped by pg_dump version 13.1 (Debian 13.1-1.pgdg100+1)
 
 SET statement_timeout = 0;
@@ -576,7 +576,8 @@ CREATE TABLE public.fingerprint_bans (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     banning_user_id integer NOT NULL,
-    generated_ban_id character varying NOT NULL
+    generated_ban_id character varying NOT NULL,
+    CONSTRAINT fingerprint_ban_duration_must_be_valid CHECK ((valid_until < '4000-01-01 00:00:00'::timestamp without time zone))
 );
 
 
@@ -1455,7 +1456,8 @@ CREATE TABLE public.subnet_bans (
     updated_at timestamp without time zone NOT NULL,
     banning_user_id integer NOT NULL,
     specification inet,
-    generated_ban_id character varying NOT NULL
+    generated_ban_id character varying NOT NULL,
+    CONSTRAINT subnet_ban_duration_must_be_valid CHECK ((valid_until < '4000-01-01 00:00:00'::timestamp without time zone))
 );
 
 
@@ -1673,7 +1675,8 @@ CREATE TABLE public.user_bans (
     user_id integer NOT NULL,
     banning_user_id integer NOT NULL,
     generated_ban_id character varying NOT NULL,
-    override_ip_ban boolean DEFAULT false NOT NULL
+    override_ip_ban boolean DEFAULT false NOT NULL,
+    CONSTRAINT user_ban_duration_must_be_valid CHECK ((valid_until < '4000-01-01 00:00:00'::timestamp without time zone))
 );
 
 
@@ -4798,3 +4801,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200725234412);
 INSERT INTO public."schema_migrations" (version) VALUES (20200817213256);
 INSERT INTO public."schema_migrations" (version) VALUES (20200905214139);
 INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
+INSERT INTO public."schema_migrations" (version) VALUES (20210121200815);

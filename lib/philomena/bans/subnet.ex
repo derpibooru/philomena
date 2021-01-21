@@ -34,6 +34,7 @@ defmodule Philomena.Bans.Subnet do
     |> Time.assign_time(:until, :valid_until)
     |> BanId.put_ban_id("S")
     |> validate_required([:reason, :enabled, :specification, :valid_until])
+    |> check_constraint(:valid_until, name: :subnet_ban_duration_must_be_valid)
     |> mask_specification()
   end
 

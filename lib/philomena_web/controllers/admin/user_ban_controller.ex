@@ -54,6 +54,9 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
       {:error, :user_ban, changeset, _changes} ->
         render(conn, "new.html", changeset: changeset)
+
+      {:error, changeset} ->
+        render(conn, "new.html", changeset: changeset)
     end
   end
 
