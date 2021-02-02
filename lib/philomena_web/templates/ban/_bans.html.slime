@@ -3,7 +3,7 @@ table.table
     tr
       th Ban Enacted
       th Ban Expires
-      th Duration
+      th.hide-mobile Duration
       th Active?
       th Reason
       th Ban ID
@@ -12,7 +12,7 @@ table.table
       tr
         td = pretty_time b.created_at
         td = pretty_time b.valid_until
-        td = distance_of_time_in_words b.created_at, b.valid_until
+        td.hide-mobile = distance_of_time_in_words b.created_at, b.valid_until
         = if active?(b) do
           td.success Yes
         - else
