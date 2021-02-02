@@ -148,9 +148,11 @@ nav {
     display: flex;
     flex-direction: row;
   }
+
   .footercol {
     flex: 1 0 auto;
     width: auto;
+
     h5 {
       margin: 3px 0;
     }
@@ -191,6 +193,18 @@ nav {
 @media (max-width: $min_px_width_for_desktop_layout) {
   .flex--maybe-wrap {
     flex-wrap: wrap !important;
+  }
+
+  #footer {
+    align-items: normal !important;
+  }
+
+  #footer_content {
+    flex-direction: column !important;
+  }
+
+  .footercol {
+    margin-left: 15px;
   }
 }
 
