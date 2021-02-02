@@ -219,7 +219,13 @@ span.spoiler div.image-container {
 }
 
 .js-source-link {
-  word-wrap: anywhere;
+  word-wrap: break-word;
+}
+
+#image-source > p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .interaction-user-list-item {
