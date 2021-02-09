@@ -418,7 +418,7 @@ defmodule PhilomenaWeb.Router do
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp, :ensure_tor_authorized]
 
-    get "/", ActivityController, :index, assigns: %{index: true}
+    get "/", ActivityController, :index
 
     resources "/activity", ActivityController, only: [:index]
 
