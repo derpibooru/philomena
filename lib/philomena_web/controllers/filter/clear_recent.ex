@@ -6,10 +6,10 @@ defmodule PhilomenaWeb.Filter.ClearRecentController do
   plug PhilomenaWeb.RequireUserPlug
 
   def delete(conn, _params) do
-    {:ok, user} = Users.clear_recent_filters(conn.assigns.current_user)
+    {:ok, _user} = Users.clear_recent_filters(conn.assigns.current_user)
 
     conn
-    |> put_flash(:info, "Cleared recent filters")
-    |> redirect(external: conn.assigns.referrer)
+    |> put_flash(:info, "Cleared recent filters.")
+    |> redirect(to: Routes.filter_path(conn, :index))
   end
 end
