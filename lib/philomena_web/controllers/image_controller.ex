@@ -134,10 +134,14 @@ defmodule PhilomenaWeb.ImageController do
     end
   end
 
-  defp maybe_skip_to_last_comment_page(conn, image, %{comments_newest_first: false, comments_always_jump_to_last: true}) do
+  defp maybe_skip_to_last_comment_page(conn, image, %{
+         comments_newest_first: false,
+         comments_always_jump_to_last: true
+       }) do
     page = CommentLoader.last_page(conn, image)
+
     conn
-    |> assign(:comment_scrivener, Keyword.merge(conn.assigns.comment_scrivener, [page: page]))
+    |> assign(:comment_scrivener, Keyword.merge(conn.assigns.comment_scrivener, page: page))
   end
 
   defp maybe_skip_to_last_comment_page(conn, _image, _user), do: conn
