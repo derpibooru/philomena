@@ -108,7 +108,7 @@ defmodule PhilomenaWeb.ImageView do
     root = image_url_root()
 
     view = if download, do: "download", else: "view"
-    filename = if short, do: image.id, else: image.file_name_cache
+    filename = if short, do: image.id, else: escaped_file_name(image)
 
     format =
       image.image_format
@@ -117,6 +117,10 @@ defmodule PhilomenaWeb.ImageView do
       |> thumb_format(nil, download)
 
     "#{root}/#{view}/#{year}/#{month}/#{day}/#{filename}.#{format}"
+  end
+
+  defp escaped_file_name(image) do
+    URI.encode(image.file_name_cache, &(&1 == ?+ or URI.char_unreserved?(&1)))
   end
 
   def image_url_root do
