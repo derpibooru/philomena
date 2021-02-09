@@ -418,7 +418,7 @@ defmodule PhilomenaWeb.Router do
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp, :ensure_tor_authorized]
 
-    get "/", ActivityController, :index
+    get "/", ActivityController, :index, [assigns: %{index: true}]
 
     resources "/activity", ActivityController, only: [:index]
 
@@ -474,6 +474,7 @@ defmodule PhilomenaWeb.Router do
 
     scope "/filters", Filter, as: :filter do
       resources "/current", CurrentController, only: [:update], singleton: true
+      resources "/clear_recent", ClearRecentController, only: [:delete], singleton: true
     end
 
     resources "/filters", FilterController do

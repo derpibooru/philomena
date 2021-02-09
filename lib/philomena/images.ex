@@ -34,6 +34,7 @@ defmodule Philomena.Images do
   alias Philomena.Comments
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
+  alias Philomena.Users.User
 
   @doc """
   Gets a single image.
@@ -95,9 +96,7 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> Multi.run(:subscribe, fn _repo, %{image: image} ->
-      create_subscription(image, attribution[:user])
-    end)
+    |> maybe_create_subscription_on_upload(attribution[:user])
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
@@ -114,6 +113,17 @@ defmodule Philomena.Images do
       result ->
         result
     end
+  end
+
+  defp maybe_create_subscription_on_upload(multi, %User{watch_on_upload: true} = user) do
+    multi
+    |> Multi.run(:subscribe, fn _repo, %{image: image} ->
+      create_subscription(image, user)
+    end)
+  end
+
+  defp maybe_create_subscription_on_upload(multi, _user) do
+    multi
   end
 
   def feature_image(featurer, %Image{} = image) do

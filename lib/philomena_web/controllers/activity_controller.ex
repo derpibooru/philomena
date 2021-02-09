@@ -116,7 +116,8 @@ defmodule PhilomenaWeb.ActivityController do
       streams: streams,
       topics: topics,
       interactions: interactions,
-      layout_class: "layout--wide"
+      layout_class: "layout--wide",
+      show_sidebar: show_sidebar?(user) || !index_page?(conn)
     )
   end
 
@@ -165,4 +166,12 @@ defmodule PhilomenaWeb.ActivityController do
       ]
     )
   end
+
+  defp index_page?(%{assigns: %{index: true}}), do: true
+
+  defp index_page?(_conn), do: false
+
+  defp show_sidebar?(%{show_sidebar_and_watched_images: false}), do: false
+
+  defp show_sidebar?(_user), do: true
 end
