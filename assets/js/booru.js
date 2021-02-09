@@ -44,7 +44,7 @@ function fetchAndPersistTags(tagIds) {
   const ids = tagIds.slice(0, 40);
   const remaining = tagIds.slice(41);
 
-  fetch(`/tags/fetch?ids[]=${ids.join('&ids[]=')}`)
+  fetch(`/fetch/tags?ids[]=${ids.join('&ids[]=')}`)
     .then(response => response.json())
     .then(data => data.tags.forEach(tag => persistTag(tag)))
     .then(() => fetchAndPersistTags(remaining));

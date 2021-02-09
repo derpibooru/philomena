@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Tag.AutocompleteController do
+defmodule PhilomenaWeb.Autocomplete.TagController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Elasticsearch
