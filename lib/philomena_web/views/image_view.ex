@@ -124,6 +124,7 @@ defmodule PhilomenaWeb.ImageView do
     # https://stackoverflow.com/questions/265769/maximum-filename-length-in-ntfs-windows-xp-and-windows-vista
     file_name_slug_fragment =
       image.tags
+      |> display_order()
       |> Enum.map_join("_", & &1.slug)
       |> String.to_charlist()
       |> Enum.filter(&(&1 in ?a..?z or &1 in '0123456789_-+'))
