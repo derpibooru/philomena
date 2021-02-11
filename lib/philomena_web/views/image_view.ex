@@ -108,7 +108,7 @@ defmodule PhilomenaWeb.ImageView do
     root = image_url_root()
 
     view = if download, do: "download", else: "view"
-    filename = if short, do: image.id, else: escaped_file_name(image)
+    filename = if short, do: image.id, else: verbose_file_name(image)
 
     format =
       image.image_format
@@ -119,8 +119,18 @@ defmodule PhilomenaWeb.ImageView do
     "#{root}/#{view}/#{year}/#{month}/#{day}/#{filename}.#{format}"
   end
 
-  defp escaped_file_name(image) do
-    URI.encode(image.file_name_cache, &(&1 == ?+ or URI.char_unreserved?(&1)))
+  defp verbose_file_name(image) do
+    # Truncate filename to 150 characters, making room for the path + filename on Windows
+    # https://stackoverflow.com/questions/265769/maximum-filename-length-in-ntfs-windows-xp-and-windows-vista
+    file_name_slug_fragment =
+      image.tags
+      |> Enum.map_join("_", & &1.slug)
+      |> String.to_charlist()
+      |> Enum.filter(&(&1 in ?a..?z or &1 in '0123456789_-+'))
+      |> List.to_string()
+      |> String.slice(0..150)
+
+    "#{image.id}__#{file_name_slug_fragment}"
   end
 
   def image_url_root do

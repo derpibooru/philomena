@@ -449,6 +449,7 @@ defmodule PhilomenaWeb.Router do
     scope "/autocomplete", Autocomplete, as: :autocomplete do
       resources "/tags", TagController, only: [:show], singleton: true
     end
+
     scope "/fetch", Fetch, as: :fetch do
       resources "/tags", TagController, only: [:index]
     end
