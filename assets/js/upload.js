@@ -108,6 +108,13 @@ function setupImageUpload() {
     }).catch(showError);
   });
 
+  // Fetch on "enter" in url field
+  remoteUrl.addEventListener("keydown", function(event) {
+    if (event.keyCode === 13) { // Hit enter
+      fetchButton.click();
+    }
+  });
+
   // Enable/disable the fetch button based on content in the image scraper. Fetching with no URL makes no sense.
   remoteUrl.addEventListener('input', () => {
     if (remoteUrl.value.length > 0) {
