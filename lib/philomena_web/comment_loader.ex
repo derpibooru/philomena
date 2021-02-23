@@ -34,6 +34,18 @@ defmodule PhilomenaWeb.CommentLoader do
     div(offset, page_size) + 1
   end
 
+  def last_page(conn, image) do
+    offset =
+      Comment
+      |> where(image_id: ^image.id)
+      |> Repo.aggregate(:count, :id)
+
+    page_size = conn.assigns.comment_scrivener[:page_size]
+
+    # Pagination starts at page 1
+    div(offset, page_size) + 1
+  end
+
   defp load_direction(%{comments_newest_first: false}), do: :asc
   defp load_direction(_user), do: :desc
 

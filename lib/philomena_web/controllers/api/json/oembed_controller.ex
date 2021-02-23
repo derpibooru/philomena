@@ -27,7 +27,8 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
         true -> nil
       end
 
-    load_image(image_id)
+    image_id
+    |> load_image()
     |> oembed_image(conn)
   end
 
@@ -41,34 +42,11 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
   end
 
   defp oembed_image(nil, conn), do: oembed_error(conn)
-  defp oembed_image(image, conn), do: json(conn, oembed_json(image))
+  defp oembed_image(image, conn), do: render(conn, "show.json", image: image)
 
   defp oembed_error(conn) do
     conn
     |> Plug.Conn.put_status(:not_found)
-    |> json(%{error: "couldn't find an image"})
-  end
-
-  defp oembed_json(image) do
-    %{
-      version: "1.0",
-      type: "photo",
-      title: "##{image.id} - #{image.tag_list_cache} - Derpibooru",
-      author_url: image.source_url || "",
-      author_name: artist_tags(image.tags),
-      provider_name: "Derpibooru",
-      provider_url: PhilomenaWeb.Endpoint.url(),
-      cache_age: 7200,
-      derpibooru_id: image.id,
-      derpibooru_score: image.score,
-      derpibooru_comments: image.comments_count,
-      derpibooru_tags: Enum.map(image.tags, & &1.name)
-    }
-  end
-
-  defp artist_tags(tags) do
-    tags
-    |> Enum.filter(&(&1.namespace == "artist"))
-    |> Enum.map_join(", ", & &1.name_in_namespace)
+    |> render("error.json")
   end
 end

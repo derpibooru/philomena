@@ -12,6 +12,7 @@ defmodule Philomena.Topics do
   alias Philomena.Posts
   alias Philomena.Notifications
   alias Philomena.NotificationWorker
+  alias Philomena.Users.User
 
   @doc """
   Gets a single topic.
@@ -69,9 +70,7 @@ defmodule Philomena.Topics do
 
       {:ok, count}
     end)
-    |> Multi.run(:subscribe, fn _repo, %{topic: topic} ->
-      create_subscription(topic, attribution[:user])
-    end)
+    |> maybe_create_subscription_on_new_topic(attribution[:user])
     |> Repo.transaction()
     |> case do
       {:ok, %{topic: topic}} = result ->
@@ -82,6 +81,17 @@ defmodule Philomena.Topics do
       error ->
         error
     end
+  end
+
+  defp maybe_create_subscription_on_new_topic(multi, %User{watch_on_new_topic: true} = user) do
+    multi
+    |> Multi.run(:subscribe, fn _repo, %{topic: topic} ->
+      create_subscription(topic, user)
+    end)
+  end
+
+  defp maybe_create_subscription_on_new_topic(multi, _user) do
+    multi
   end
 
   def notify_topic(topic, post) do

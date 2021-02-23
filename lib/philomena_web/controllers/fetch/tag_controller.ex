@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Tag.FetchController do
+defmodule PhilomenaWeb.Fetch.TagController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Tags.Tag

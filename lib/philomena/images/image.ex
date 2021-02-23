@@ -326,8 +326,9 @@ defmodule Philomena.Images.Image do
     file_name_slug_fragment =
       tags
       |> Enum.map_join("_", & &1.slug)
-      |> String.replace("%", "")
-      |> String.replace("/", "")
+      |> String.to_charlist()
+      |> Enum.filter(&(&1 in ?a..?z or &1 in '0123456789_-'))
+      |> List.to_string()
       |> String.slice(0..150)
 
     file_name_cache = "#{image_id}__#{file_name_slug_fragment}"

@@ -59,6 +59,8 @@ defmodule PhilomenaWeb.ImageController do
     # Update the notification ticker in the header
     conn = NotificationCountPlug.call(conn)
 
+    conn = maybe_skip_to_last_comment_page(conn, image, user)
+
     comments = CommentLoader.load_comments(conn, image)
 
     rendered = TextileRenderer.render_collection(comments.entries, conn)
@@ -131,6 +133,18 @@ defmodule PhilomenaWeb.ImageController do
         |> render("new.html", changeset: changeset)
     end
   end
+
+  defp maybe_skip_to_last_comment_page(conn, image, %{
+         comments_newest_first: false,
+         comments_always_jump_to_last: true
+       }) do
+    page = CommentLoader.last_page(conn, image)
+
+    conn
+    |> assign(:comment_scrivener, Keyword.merge(conn.assigns.comment_scrivener, page: page))
+  end
+
+  defp maybe_skip_to_last_comment_page(conn, _image, _user), do: conn
 
   defp user_galleries(_image, nil), do: []
 

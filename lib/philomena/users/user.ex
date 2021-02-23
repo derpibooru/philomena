@@ -314,7 +314,13 @@ defmodule Philomena.Users.User do
       :watched_images_exclude_str,
       :use_centered_layout,
       :hide_vote_counts,
-      :comments_newest_first
+      :comments_newest_first,
+      :watch_on_reply,
+      :watch_on_upload,
+      :watch_on_new_topic,
+      :comments_always_jump_to_last,
+      :messages_newest_first,
+      :show_sidebar_and_watched_images
     ])
     |> validate_required([
       :images_per_page,
@@ -326,7 +332,13 @@ defmodule Philomena.Users.User do
       :theme,
       :no_spoilered_in_watched,
       :use_centered_layout,
-      :hide_vote_counts
+      :hide_vote_counts,
+      :watch_on_reply,
+      :watch_on_upload,
+      :watch_on_new_topic,
+      :comments_always_jump_to_last,
+      :messages_newest_first,
+      :show_sidebar_and_watched_images
     ])
     |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
     |> validate_inclusion(:theme, ~W(default dark red))
@@ -509,6 +521,13 @@ defmodule Philomena.Users.User do
       user.encrypted_otp_secret_iv,
       user.encrypted_otp_secret_salt
     )
+  end
+
+  def clear_recent_filters_changeset(user) do
+    user
+    |> change(%{
+      recent_filter_ids: [user.current_filter_id]
+    })
   end
 
   defp enable_totp_changeset(user, backup_codes) do

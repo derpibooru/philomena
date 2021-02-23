@@ -39,6 +39,12 @@
     = for filter <- @system_filters do
       = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
 
+    = if @current_user do
+      h2 Recent Filters
+      p
+        ' Clicking this button will clear the recent filters list in the header dropdown.
+        = button_to "Clear recent filter list", Routes.filter_clear_recent_path(@conn, :delete), method: "delete", class: "button"
+
   h2 Search Filters
   p
     ' Some users maintain custom filters which are publicly shared; you can search these filters with the box below.
@@ -50,7 +56,7 @@
   .fieldlabel
     ' For more information, see the
     a href="/pages/search_syntax" search syntax documentation
-    ' . Search results are sorted by creation date.
+    ' . Search results are sorted alphabetically.
 
   = if @conn.params["fq"] do
     h2 Search Results
@@ -107,7 +113,7 @@ table.table
       td Full Text
       td Matches the description of this filter.
       td
-        code = link "description:show's rating", to: Routes.filter_path(@conn, :index, fq: "description:the show's rating")
+        code = link "description:the show's rating", to: Routes.filter_path(@conn, :index, fq: "description:the show's rating")
     tr
       td
         code created_at

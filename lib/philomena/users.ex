@@ -654,6 +654,12 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  def clear_recent_filters(%User{} = user) do
+    user
+    |> User.clear_recent_filters_changeset()
+    |> Repo.update()
+  end
+
   defp load_with_roles(query) do
     query
     |> Repo.one()
