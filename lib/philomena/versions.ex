@@ -24,22 +24,25 @@ defmodule Philomena.Versions do
 
     {versions, _last_body} =
       versions
-      |> Enum.map_reduce(parent.body, fn version, previous_body ->
-        yaml = YamlElixir.read_from_string!(version.object || "")
-        body = yaml["body"] || ""
-        edit_reason = yaml["edit_reason"]
+      |> Enum.map_reduce(
+        {parent.body, parent.edit_reason},
+        fn version, {previous_body, previous_reason} ->
+          yaml = YamlElixir.read_from_string!(version.object || "")
+          body = yaml["body"] || ""
+          edit_reason = yaml["edit_reason"]
 
-        v = %{
-          version
-          | parent: parent,
-            user: users[version.whodunnit],
-            body: body,
-            edit_reason: edit_reason,
-            difference: difference(body, previous_body)
-        }
+          v = %{
+            version
+            | parent: parent,
+              user: users[version.whodunnit],
+              body: body,
+              edit_reason: previous_reason,
+              difference: difference(body, previous_body)
+          }
 
-        {v, body}
-      end)
+          {v, {body, edit_reason}}
+        end
+      )
 
     versions
   end
