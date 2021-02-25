@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Api.Json.OembedView do
 
   defp artist_tags(tags) do
     tags
-    |> Enum.filter(& &1.namespace == "artist")
+    |> Enum.filter(&(&1.namespace == "artist"))
     |> Enum.map_join(", ", & &1.name_in_namespace)
   end
 end
