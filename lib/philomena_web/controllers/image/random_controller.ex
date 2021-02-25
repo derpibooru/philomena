@@ -3,56 +3,41 @@ defmodule PhilomenaWeb.Image.RandomController do
 
   alias PhilomenaWeb.ImageSorter
   alias PhilomenaWeb.ImageScope
+  alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
-  alias Philomena.Images.Query
   alias Philomena.Images.Image
 
   def index(conn, params) do
-    user = conn.assigns.current_user
-    filter = conn.assigns.compiled_filter
-
     scope = ImageScope.scope(conn)
-    query = query(user, params)
-    random_id = random_image_id(query, filter)
 
-    if random_id do
-      redirect(conn, to: Routes.image_path(conn, :show, random_id, scope))
-    else
-      redirect(conn, to: Routes.image_path(conn, :index))
+    search_definition =
+      ImageLoader.search_string(
+        conn,
+        query_string(params),
+        pagination: %{page_size: 1},
+        sorts: &ImageSorter.parse_sort(%{"sf" => "random"}, &1)
+      )
+
+    case unwrap_random_result(search_definition) do
+      nil ->
+        redirect(conn, to: Routes.image_path(conn, :index))
+
+      random_id ->
+        redirect(conn, to: Routes.image_path(conn, :show, random_id, scope))
     end
   end
 
-  defp query(user, %{"q" => q}) do
-    {:ok, query} = Query.compile(user, q)
+  defp query_string(%{"q" => query}), do: query
+  defp query_string(_params), do: "*"
 
-    query
-  end
-
-  defp query(_user, _), do: %{match_all: %{}}
-
-  defp random_image_id(query, filter) do
-    %{query: query, sorts: sort} = ImageSorter.parse_sort(%{"sf" => "random"}, query)
-
-    Image
-    |> Elasticsearch.search_definition(
-      %{
-        query: %{
-          bool: %{
-            must: query,
-            must_not: [
-              filter,
-              %{term: %{hidden_from_users: true}}
-            ]
-          }
-        },
-        sort: sort
-      },
-      %{page_size: 1}
-    )
+  defp unwrap_random_result({:ok, {definition, _tags}}) do
+    definition
     |> Elasticsearch.search_records(Image)
     |> Enum.to_list()
     |> unwrap()
   end
+
+  defp unwrap_random_result(_definition), do: nil
 
   defp unwrap([image]), do: image.id
   defp unwrap([]), do: nil

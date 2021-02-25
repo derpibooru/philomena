@@ -90,12 +90,7 @@ function wrapSelection(textarea, options) {
         scrollTop = textarea.scrollTop,
         emptyText = text === '';
 
-  let newText = text;
-  if (!emptyText && prefix[0] !== '[') {
-    newText = text.replace(/(\n{2,})/g, match => {
-      return suffix + match + prefix;
-    });
-  }
+  const newText = text;
 
   if (type === 'inline' && newText.includes('\n')) {
     textarea.value = `${beforeSelection}[${prefix}${newText}${suffix}]${afterSelection}`;
