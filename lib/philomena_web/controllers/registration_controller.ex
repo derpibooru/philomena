@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.RegistrationController do
   end
 
   def edit(conn, _params) do
-    render(conn, "edit.html")
+    render(conn, "edit.html", title: "Account Settings")
   end
 
   defp assign_email_and_password_changesets(conn, _opts) do

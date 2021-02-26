@@ -6,11 +6,11 @@ h1 Reset password
       p Oops, something went wrong! Please check the errors below.
 
   .field
-    = password_input f, :password, class: "input", placeholder: "New password"
+    = password_input f, :password, class: "input", placeholder: "New password", minlength: 12
     = error_tag f, :password
 
   .field
-    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm new password"
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm new password", minlength: 12
     = error_tag f, :password_confirmation
 
   div

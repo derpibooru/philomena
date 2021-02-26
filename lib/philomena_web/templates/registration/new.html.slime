@@ -22,10 +22,10 @@ h1 Register
   .fieldlabel
     ' Pick a good strong password - longer is better! Minimum of 12 characters.
   .field
-    = password_input f, :password, class: "input", placeholder: "Password", required: true
+    = password_input f, :password, class: "input", placeholder: "Password", required: true, minlength: 12
     = error_tag f, :password
   .field
-    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm password", required: true
+    = password_input f, :password_confirmation, class: "input", placeholder: "Confirm password", required: true, minlength: 12
     = error_tag f, :password_confirmation
 
   = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "registration", conn: @conn
