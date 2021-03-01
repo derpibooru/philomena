@@ -212,7 +212,9 @@ defmodule PhilomenaWeb.Router do
         only: [:create, :delete],
         singleton: true
 
-      resources "/tag_lock", Image.TagLockController, only: [:create, :delete], singleton: true
+      resources "/tag_lock", Image.TagLockController,
+        only: [:show, :update, :create, :delete],
+        singleton: true
     end
 
     resources "/forums", ForumController, only: [] do

@@ -38,6 +38,7 @@ defmodule Philomena.Images.Image do
     has_many :favers, through: [:faves, :user]
     has_many :hiders, through: [:hides, :user]
     many_to_many :tags, Tag, join_through: "image_taggings", on_replace: :delete
+    many_to_many :locked_tags, Tag, join_through: "image_tag_locks", on_replace: :delete
     has_one :intensity, ImageIntensity
     has_many :galleries, through: [:gallery_interactions, :image]
 
@@ -179,12 +180,18 @@ defmodule Philomena.Images.Image do
     |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
 
-  def tag_changeset(image, attrs, old_tags, new_tags) do
+  def tag_changeset(image, attrs, old_tags, new_tags, excluded_tags \\ []) do
     image
     |> cast(attrs, [])
-    |> TagDiffer.diff_input(old_tags, new_tags)
+    |> TagDiffer.diff_input(old_tags, new_tags, excluded_tags)
     |> TagValidator.validate_tags()
     |> cache_changeset()
+  end
+
+  def locked_tags_changeset(image, attrs, locked_tags) do
+    image
+    |> cast(attrs, [])
+    |> put_assoc(:locked_tags, locked_tags)
   end
 
   def dnp_changeset(image, user) do
