@@ -38,6 +38,8 @@ const actions = {
 
   selectvalue(data) { document.querySelector(data.value).value = data.el.querySelector(':checked').dataset.setValue; },
 
+  checkall(data) { $$(`${data.value} input[type=checkbox]`).forEach(c => { c.checked = !c.checked; }) },
+
   focus(data) { document.querySelector(data.value).focus(); },
 
   preventdefault() { /* The existence of this entry is enough */ },
