@@ -1,0 +1,13 @@
+- tag_input = Enum.map_join(@image.locked_tags, ", ", & &1.name)
+
+h1
+  | Editing locked tags on image #
+  = @image.id
+
+= form_for @changeset, Routes.image_tag_lock_path(@conn, :update, @image), fn f ->
+  .field
+    = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: tag_input]
+    = error_tag f, :tag_input
+
+  .actions
+    = submit "Update", class: "button", autocomplete: "off", data: [disable_with: "Please wait..."]

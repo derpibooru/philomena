@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.Image.TagController do
   plug :load_and_authorize_resource,
     model: Image,
     id_name: "image_id",
-    preload: [:user, tags: :aliases]
+    preload: [:user, :locked_tags, tags: :aliases]
 
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes

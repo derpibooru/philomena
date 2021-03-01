@@ -181,7 +181,7 @@ defmodule PhilomenaWeb.ImageController do
         [i, _],
         _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id)
       )
-      |> preload([:deleter, user: [awards: :badge], tags: :aliases])
+      |> preload([:deleter, :locked_tags, user: [awards: :badge], tags: :aliases])
       |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
       |> case do

@@ -5,13 +5,15 @@ defmodule Philomena.Images.TagDiffer do
   alias Philomena.Tags.Tag
   alias Philomena.Repo
 
-  def diff_input(changeset, old_tags, new_tags) do
+  def diff_input(changeset, old_tags, new_tags, excluded_tags) do
+    excluded_ids = Enum.map(excluded_tags, & &1.id)
+
     old_set = to_set(old_tags)
     new_set = to_set(new_tags)
 
     tags = changeset |> get_field(:tags)
-    added_tags = added_set(old_set, new_set)
-    removed_tags = removed_set(old_set, new_set)
+    added_tags = added_set(old_set, new_set, excluded_ids)
+    removed_tags = removed_set(old_set, new_set, excluded_ids)
 
     {tags, actually_added, actually_removed} = apply_changes(tags, added_tags, removed_tags)
 
@@ -21,7 +23,7 @@ defmodule Philomena.Images.TagDiffer do
     |> put_assoc(:tags, tags)
   end
 
-  defp added_set(old_set, new_set) do
+  defp added_set(old_set, new_set, excluded_ids) do
     # new_tags - old_tags
     added_set =
       new_set
@@ -40,12 +42,16 @@ defmodule Philomena.Images.TagDiffer do
       |> Enum.filter(fn {_k, v} -> v.namespace == "oc" end)
       |> get_oc_tag()
 
-    Map.merge(added_and_implied_set, oc_set)
+    added_and_implied_set
+    |> Map.merge(oc_set)
+    |> Map.drop(excluded_ids)
   end
 
-  defp removed_set(old_set, new_set) do
+  defp removed_set(old_set, new_set, excluded_ids) do
     # old_tags - new_tags
-    old_set |> Map.drop(Map.keys(new_set))
+    old_set
+    |> Map.drop(Map.keys(new_set))
+    |> Map.drop(excluded_ids)
   end
 
   defp get_oc_tag([]), do: Map.new()

@@ -859,6 +859,16 @@ CREATE TABLE public.image_subscriptions (
 
 
 --
+-- Name: image_tag_locks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_tag_locks (
+    image_id bigint NOT NULL,
+    tag_id bigint NOT NULL
+);
+
+
+--
 -- Name: image_taggings; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2794,6 +2804,20 @@ CREATE INDEX image_intensities_index ON public.image_intensities USING btree (nw
 --
 
 CREATE UNIQUE INDEX image_sources_image_id_source_index ON public.image_sources USING btree (image_id, source);
+
+
+--
+-- Name: image_tag_locks_image_id_tag_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX image_tag_locks_image_id_tag_id_index ON public.image_tag_locks USING btree (image_id, tag_id);
+
+
+--
+-- Name: image_tag_locks_tag_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_tag_locks_tag_id_index ON public.image_tag_locks USING btree (tag_id);
 
 
 --
@@ -4773,6 +4797,22 @@ ALTER TABLE ONLY public.image_sources
 
 
 --
+-- Name: image_tag_locks image_tag_locks_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_tag_locks
+    ADD CONSTRAINT image_tag_locks_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_tag_locks image_tag_locks_tag_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_tag_locks
+    ADD CONSTRAINT image_tag_locks_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES public.tags(id) ON DELETE CASCADE;
+
+
+--
 -- Name: user_tokens user_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -4802,3 +4842,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200817213256);
 INSERT INTO public."schema_migrations" (version) VALUES (20200905214139);
 INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
 INSERT INTO public."schema_migrations" (version) VALUES (20210121200815);
+INSERT INTO public."schema_migrations" (version) VALUES (20210301012137);

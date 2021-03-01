@@ -1,7 +1,13 @@
 .block__header
   = @pagination
 
-= form_for :tag_changes, Routes.tag_change_revert_path(@conn, :create), fn _f ->
+= if reverts_tag_changes?(@conn) do
+  .block__header.block__header--light.block__header--sub
+    a data-click-checkall=".tag-changes-form"
+      i.fa.fa-check>
+      ' Toggle all
+
+= form_for :tag_changes, Routes.tag_change_revert_path(@conn, :create), [class: "tag-changes-form"], fn _f ->
   .block__content
     table.table
       thead
