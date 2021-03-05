@@ -141,6 +141,10 @@ defmodule Philomena.Filters do
   end
 
   def recent_and_user_filters(user) do
+    recent_filter_ids =
+      [user.current_filter_id | user.recent_filter_ids]
+      |> Enum.take(10)
+
     user_filters =
       Filter
       |> select([f], %{id: f.id, name: f.name, recent: ^"f"})
@@ -150,10 +154,9 @@ defmodule Philomena.Filters do
     recent_filters =
       Filter
       |> select([f], %{id: f.id, name: f.name, recent: ^"t"})
-      |> where([f], f.id in ^user.recent_filter_ids)
-      |> limit(10)
+      |> where([f], f.id in ^recent_filter_ids)
 
-    union(recent_filters, ^user_filters)
+    union_all(recent_filters, ^user_filters)
     |> Repo.all()
     |> Enum.sort_by(fn f ->
       Enum.find_index(user.recent_filter_ids, fn id -> f.id == id end)
