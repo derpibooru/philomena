@@ -5,16 +5,18 @@ defmodule Philomena.Processors.Webm do
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     duration = analysis.duration
-    preview = preview(duration, file)
-    palette = gif_palette(file, duration)
-    mp4 = scale_mp4_only(file, dimensions, dimensions)
+    stripped = strip(file)
+    preview = preview(duration, stripped)
+    palette = gif_palette(stripped, duration)
+    mp4 = scale_mp4_only(stripped, dimensions, dimensions)
 
     {:ok, intensities} = Intensities.file(preview)
 
     scaled =
-      Enum.flat_map(versions, &scale_if_smaller(file, mp4, palette, duration, dimensions, &1))
+      Enum.flat_map(versions, &scale_if_smaller(stripped, mp4, palette, duration, dimensions, &1))
 
     %{
+      replace_original: stripped,
       intensities: intensities,
       thumbnails: scaled ++ [{:copy, preview, "rendered.png"}]
     }
@@ -33,6 +35,28 @@ defmodule Philomena.Processors.Webm do
     {_output, 0} = System.cmd("mediathumb", [file, to_string(duration / 2), preview])
 
     preview
+  end
+
+  defp strip(file) do
+    stripped = Briefly.create!(extname: ".webm")
+
+    {_output, 0} =
+      System.cmd("ffmpeg", [
+        "-loglevel",
+        "0",
+        "-y",
+        "-i",
+        file,
+        "-map_metadata",
+        "-1",
+        "-c",
+        "copy",
+        "-map",
+        "0",
+        stripped
+      ])
+
+    stripped
   end
 
   defp scale_if_smaller(_file, mp4, _palette, _duration, _dimensions, {:full, _target_dim}) do
