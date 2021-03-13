@@ -21,7 +21,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.4",
     "postcss-loader": "^3.0.0",
     "postcss-scss": "^2.1.1",
-    "rollup": "^2.38.4",
+    "rollup": "^2.41.0",
     "rollup-plugin-buble": "^0.19.8",
     "rollup-plugin-includepaths": "^0.2.4",
     "rollup-plugin-multi-entry": "^2.1.0",

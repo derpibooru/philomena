@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.TextileRenderer do
     |> String.replace("--", "&mdash;")
     |> String.replace("...", "&hellip;")
     |> String.replace(~r|(\s)-(\s)|, "\\1&mdash;\\2")
-    |> String.replace("(tm)", "&tm;")
+    |> String.replace("(tm)", "&trade;")
     |> String.replace("(c)", "&copy;")
     |> String.replace("(r)", "&reg;")
     |> String.replace("&apos;", "&rsquo;")

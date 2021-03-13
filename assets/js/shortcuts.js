@@ -13,6 +13,13 @@ function openFullView() {
   const imageHover = $('[data-uris]:hover');
   if (!imageHover) return;
 
+  window.location = JSON.parse(imageHover.dataset.uris).full;
+}
+
+function openFullViewNewTab() {
+  const imageHover = $('[data-uris]:hover');
+  if (!imageHover) return;
+
   window.open(JSON.parse(imageHover.dataset.uris).full);
 }
 
@@ -35,7 +42,7 @@ const keyCodes = {
   83() { click('.js-source-link'); },      // S - go to image source
   76() { click('.js-tag-sauce-toggle'); }, // L - edit tags
   79() { openFullView() },                 // O - open original
-  86() { openFullView() },                 // V - open original
+  86() { openFullViewNewTab() },           // V - open original in a new tab
   70() {                                   // F - favourite image
     getHover() ? click(`a.interaction--fave[data-image-id="${getHover()}"]`)
       : click('.block__header a.interaction--fave');
