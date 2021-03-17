@@ -23,8 +23,11 @@ defmodule Philomena.Http do
     end
   end
 
-  defp proxy_opts(%{host: host, port: port, scheme: "https"}), do: {:https, host, port, []}
-  defp proxy_opts(%{host: host, port: port, scheme: "http"}), do: {:http, host, port, []}
+  defp proxy_opts(%{host: host, port: port, scheme: "https"}),
+    do: {:https, host, port, [transport_opts: [inet6: true]]}
+
+  defp proxy_opts(%{host: host, port: port, scheme: "http"}),
+    do: {:http, host, port, [transport_opts: [inet6: true]]}
 
   defp client(headers) do
     Tesla.client(
