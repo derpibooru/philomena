@@ -16,7 +16,7 @@ h1 = @conversation.title
       => @messages.total_entries
       = pluralize("message", "messages", @messages.total_entries)
     .page__pagination = pagination
-    .page__options
+    .page__info
       = if hidden_by?(@current_user, @conversation) do
         = link "Restore conversation", to: Routes.conversation_hide_path(@conn, :delete, @conversation), data: [method: "delete"]
       - else
