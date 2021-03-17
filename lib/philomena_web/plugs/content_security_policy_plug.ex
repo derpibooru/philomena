@@ -23,9 +23,9 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
       frame_src = Keyword.get(config, :frame_src, nil)
 
       csp_config = [
-        {:default_src, ["'self'", cdn_uri]},
-        {:script_src, ["'self'", cdn_uri | script_src]},
-        {:style_src, ["'self'", cdn_uri | style_src]},
+        {:default_src, ["'self'"]},
+        {:script_src, ["'self'" | script_src]},
+        {:style_src, ["'self'" | style_src]},
         {:object_src, ["'none'"]},
         {:frame_ancestors, ["'none'"]},
         {:frame_src, frame_src || ["'none'"]},
