@@ -32,6 +32,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         {:form_action, ["'self'"]},
         {:manifest_src, ["'self'"]},
         {:img_src, ["'self'", "data:", cdn_uri, camo_uri]},
+        {:media_src, ["'self'", "data:", cdn_uri, camo_uri]},
         {:block_all_mixed_content, []}
       ]
 
