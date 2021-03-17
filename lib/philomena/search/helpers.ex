@@ -17,7 +17,10 @@ defmodule Philomena.Search.Helpers do
   def to_int(term) do
     {int, _} = :string.to_integer(term)
 
-    int
+    case int in -2_147_483_648..2_147_483_647 do
+      true -> int
+      _false -> 0
+    end
   end
 
   def range([center, deviation]) do
