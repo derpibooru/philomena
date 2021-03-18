@@ -107,8 +107,11 @@ defmodule Philomena.Search.Parser do
 
   defp search_boost(parser, tokens) do
     case search_not(parser, tokens) do
-      {:ok, {child, [{:boost, value} | r_tokens]}} ->
+      {:ok, {child, [{:boost, value} | r_tokens]}} when value >= 0 ->
         {:ok, {%{function_score: %{query: child, boost: value}}, r_tokens}}
+
+      {:ok, {_child, [{:boost, _value} | _r_tokens]}} ->
+        {:error, "Boost value must be non-negative."}
 
       value ->
         value
