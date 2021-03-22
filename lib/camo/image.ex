@@ -10,7 +10,7 @@ defmodule Camo.Image do
         input
 
       uri.host in [cdn_host(), camo_host()] ->
-        URI.to_string(update_in(uri.scheme, fn _ -> "https" end))
+        URI.to_string(%{uri | scheme: "https", port: 443})
 
       true ->
         camo_digest = :crypto.hmac(:sha, camo_key(), input) |> Base.encode16(case: :lower)
