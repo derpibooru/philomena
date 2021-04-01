@@ -46,5 +46,5 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     |> String.trim()
   end
 
-  defp query(_params), do: nil
+  defp extract_term(_params), do: nil
 end

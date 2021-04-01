@@ -63,7 +63,6 @@ defmodule Philomena.MixProject do
       {:remote_ip, "~> 0.2"},
       {:briefly, "~> 0.3"},
       {:phoenix_mtm, "~> 1.0"},
-      {:ranch_connection_drainer, "~> 0.1"},
       {:tesla, "~> 1.4"},
       {:castore, "~> 0.1"},
       {:mint, "~> 1.2"},
