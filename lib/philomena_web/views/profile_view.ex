@@ -117,7 +117,9 @@ defmodule PhilomenaWeb.ProfileView do
         nil
 
       list ->
-        Enum.join(list)
+        list
+        |> Enum.take(4)
+        |> Enum.join()
     end
   end
 
