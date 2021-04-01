@@ -58,6 +58,8 @@ defmodule Philomena.Uploader do
   in the transaction.
   """
   @spec persist_upload(any(), String.t(), String.t()) :: any()
+
+  # sobelow_skip ["Traversal"]
   def persist_upload(model, file_root, field_name) do
     source = Map.get(model, field(upload_key(field_name)))
     dest = Map.get(model, field(field_name))
@@ -104,6 +106,8 @@ defmodule Philomena.Uploader do
 
   defp try_remove("", _file_root), do: nil
   defp try_remove(nil, _file_root), do: nil
+
+  # sobelow_skip ["Traversal.FileModule"]
   defp try_remove(file, file_root), do: File.rm(Path.join(file_root, file))
 
   defp prefix_attributes(map, prefix),

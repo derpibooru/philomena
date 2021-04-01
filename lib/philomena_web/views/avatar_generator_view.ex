@@ -36,6 +36,9 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
   end
 
   # Build the final SVG for the character.
+  #
+  # Inputs to raw/1 are not user-generated.
+  # sobelow_skip ["XSS.Raw"]
   defp avatar_svg(config, color_bd, color_hr, species, style_hr) do
     [
       header(config),

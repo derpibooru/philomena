@@ -40,7 +40,7 @@ defmodule Philomena.UserStatistics do
       |> div(86400)
 
     user = User |> where(id: ^user_id)
-    action_count = :"#{action}_count"
+    action_count = String.to_existing_atom("#{action}_count")
 
     run = fn ->
       Repo.update_all(user, inc: [{action_count, amount}])

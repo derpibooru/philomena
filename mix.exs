@@ -63,12 +63,22 @@ defmodule Philomena.MixProject do
       {:remote_ip, "~> 0.2"},
       {:briefly, "~> 0.3"},
       {:phoenix_mtm, "~> 1.0"},
-      {:yaml_elixir, "~> 2.5"},
       {:ranch_connection_drainer, "~> 0.1"},
       {:tesla, "~> 1.4"},
       {:castore, "~> 0.1"},
       {:mint, "~> 1.2"},
       {:exq, "~> 0.14"},
+
+      # Linting
+      {:credo, "~> 1.5", only: [:dev, :test], override: true},
+      {:credo_envvar, "~> 0.1", only: [:dev, :test], runtime: false},
+      {:credo_naming, "~> 1.0", only: [:dev, :test], runtime: false},
+
+      # Security checks
+      {:sobelow, "~> 0.11", only: [:dev, :test], runtime: true},
+      {:mix_audit, "~> 0.1", only: [:dev, :test], runtime: false},
+
+      # Static analysis
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]
   end

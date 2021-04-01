@@ -44,3 +44,6 @@ npm-debug.log
 
 # Index dumps
 *.jsonl
+
+# Sobelow
+.sobelow

@@ -24,6 +24,8 @@ defmodule Philomena.Processors.Png do
     intensities
   end
 
+  # Sobelow misidentifies removing the .bak file
+  # sobelow_skip ["Traversal.FileModule"]
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".png")
 
