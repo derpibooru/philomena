@@ -193,7 +193,7 @@ defmodule PhilomenaWeb.ProfileController do
     last_90 =
       UserStatistic
       |> where(user_id: ^user.id)
-      |> where([us], us.day > ^(now - 89))
+      |> where([us], us.day >= ^(now - 89))
       |> Repo.all()
       |> Map.new(&{now - &1.day, &1})
 
