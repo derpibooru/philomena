@@ -23,6 +23,11 @@ jobs:
       - name: Build and test
         run: docker-compose run app run-test
 
+      - name: Security lint
+        run: |
+          docker-compose run app mix sobelow --config
+          docker-compose run app mix deps.audit
+
       - name: Fix permissions
         run: |
           sudo chown -R $(whoami):$(id -ng) deps

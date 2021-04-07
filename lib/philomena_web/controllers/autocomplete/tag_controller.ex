@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
 
   def show(conn, params) do
     tags =
-      case query(params) do
+      case extract_term(params) do
         nil ->
           []
 
@@ -40,11 +40,11 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     |> json(tags)
   end
 
-  defp query(%{"term" => term}) when is_binary(term) and byte_size(term) > 2 do
+  defp extract_term(%{"term" => term}) when is_binary(term) and byte_size(term) > 2 do
     term
     |> String.downcase()
     |> String.trim()
   end
 
-  defp query(_params), do: nil
+  defp extract_term(_params), do: nil
 end

@@ -5,6 +5,7 @@ defmodule Philomena.Images.Hider do
 
   alias Philomena.Images.Image
 
+  # sobelow_skip ["Traversal.FileModule"]
   def hide_thumbnails(image, key) do
     source = image_thumb_dir(image)
     target = image_thumb_dir(image, key)
@@ -13,6 +14,7 @@ defmodule Philomena.Images.Hider do
     File.rename(source, target)
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   def unhide_thumbnails(image, key) do
     source = image_thumb_dir(image, key)
     target = image_thumb_dir(image)
@@ -21,6 +23,7 @@ defmodule Philomena.Images.Hider do
     File.rename(source, target)
   end
 
+  # sobelow_skip ["Traversal.FileModule"]
   def destroy_thumbnails(image) do
     hidden = image_thumb_dir(image, image.hidden_image_key)
     normal = image_thumb_dir(image)

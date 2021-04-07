@@ -7,6 +7,7 @@ defmodule PhilomenaWeb.ImageLoader do
   alias Philomena.Repo
   import Ecto.Query
 
+  # sobelow_skip ["SQL.Query"]
   def search_string(conn, search_string, options \\ []) do
     user = conn.assigns.current_user
 

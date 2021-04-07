@@ -108,6 +108,8 @@ defmodule PhilomenaWeb.AppView do
 
   def escape_nl2br(nil), do: nil
 
+  # Everything is escaped before being sent to raw/1
+  # sobelow_skip ["XSS.Raw"]
   def escape_nl2br(text) do
     text
     |> String.split("\n")

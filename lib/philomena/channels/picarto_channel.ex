@@ -1,5 +1,5 @@
 defmodule Philomena.Channels.PicartoChannel do
-  @api_online "https://api.picarto.tv/v1/online?adult=true&gaming=true"
+  @api_online "https://api.picarto.tv/api/v1/online?adult=true&gaming=true"
 
   @spec live_channels(DateTime.t()) :: map()
   def live_channels(now) do

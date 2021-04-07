@@ -27,9 +27,9 @@ defmodule Philomena.Versions do
       |> Enum.map_reduce(
         {parent.body, parent.edit_reason},
         fn version, {previous_body, previous_reason} ->
-          yaml = YamlElixir.read_from_string!(version.object || "")
-          body = yaml["body"] || ""
-          edit_reason = yaml["edit_reason"]
+          json = Jason.decode!(version.object || "{}")
+          body = json["body"] || ""
+          edit_reason = json["edit_reason"]
 
           v = %{
             version

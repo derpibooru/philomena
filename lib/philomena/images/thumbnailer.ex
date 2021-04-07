@@ -82,6 +82,8 @@ defmodule Philomena.Images.Thumbnailer do
 
   # Copy from source to destination, creating parent directories along
   # the way and setting the appropriate permission bits when necessary.
+  #
+  # sobelow_skip ["Traversal.FileModule"]
   defp copy(source, destination) do
     prepare_dir(destination)
 
@@ -93,6 +95,8 @@ defmodule Philomena.Images.Thumbnailer do
 
   # Try to handle filesystems that don't support symlinks
   # by falling back to a copy.
+  #
+  # sobelow_skip ["Traversal.FileModule"]
   defp symlink(source, destination) do
     source = Path.absname(source)
 
@@ -108,10 +112,14 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   # 0o644 = (S_IRUSR | S_IWUSR) | S_IRGRP | S_IROTH
+  #
+  # sobelow_skip ["Traversal.FileModule"]
   defp set_perms(destination),
     do: File.chmod(destination, 0o644)
 
   # Prepare the directory by creating it if it does not yet exist.
+  #
+  # sobelow_skip ["Traversal.FileModule"]
   defp prepare_dir(destination) do
     destination
     |> Path.dirname()
