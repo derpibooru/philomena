@@ -15,8 +15,13 @@ defmodule Philomena.Processors.Png do
     }
   end
 
-  def post_process(_analysis, file) do
-    %{replace_original: optimize(file)}
+  def post_process(analysis, file) do
+    if analysis.animated? do
+      # libpng has trouble with animations, so skip optimization
+      %{}
+    else
+      %{replace_original: optimize(file)}
+    end
   end
 
   def intensities(_analysis, file) do
