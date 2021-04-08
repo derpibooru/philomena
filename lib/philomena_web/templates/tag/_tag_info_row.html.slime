@@ -84,6 +84,8 @@
               = link "Edit", to: Routes.channel_path(@conn, :edit, channel)
               ' )
 
+          br
+
         = if Enum.any?(@tag.implied_by_tags) do
           input.toggle-box id="implied_by" type="checkbox"
           label for="implied_by"
