@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 export MIX_ENV=test
 

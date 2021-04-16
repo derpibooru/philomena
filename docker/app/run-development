@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 background() {
   while :; do
@@ -32,10 +32,7 @@ done
 echo
 
 # Try to create the database if it doesn't exist yet
-createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev
-
-# Reindex
-mix reindex_all
+createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev && mix reindex_all
 
 # Run background jobs
 background &
