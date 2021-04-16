@@ -32,7 +32,7 @@ defmodule Philomena.Application do
       PhilomenaWeb.Endpoint,
 
       # Connection drainer for SIGTERM
-      {Plug.Cowboy.Drainer, refs: [PhilomenaWeb.Endpoint.HTTP], shutdown: 5_000}
+      {Plug.Cowboy.Drainer, refs: [PhilomenaWeb.Endpoint.HTTP]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

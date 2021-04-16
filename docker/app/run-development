@@ -38,4 +38,4 @@ createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev && mix rein
 background &
 
 # Run the application
-START_WORKER=true mix phx.server
+START_WORKER=true exec mix phx.server
