@@ -22,6 +22,12 @@ defmodule Philomena.Images.Thumbnailer do
     full: nil
   ]
 
+  def thumbnail_versions do
+    Enum.filter(@versions, fn {_name, dimensions} ->
+      not is_nil(dimensions)
+    end)
+  end
+
   def thumbnail_urls(image, hidden_key) do
     Path.join([image_thumb_dir(image), "*"])
     |> Path.wildcard()
