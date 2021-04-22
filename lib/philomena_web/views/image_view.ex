@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
   alias Philomena.Tags.Tag
+  alias Philomena.Images.Thumbnailer
 
   def show_vote_counts?(%{hide_vote_counts: true}), do: false
   def show_vote_counts?(_user), do: true
@@ -45,16 +46,14 @@ defmodule PhilomenaWeb.ImageView do
   end
 
   def thumb_urls(image, show_hidden) do
-    %{
-      thumb_tiny: thumb_url(image, show_hidden, :thumb_tiny),
-      thumb_small: thumb_url(image, show_hidden, :thumb_small),
-      thumb: thumb_url(image, show_hidden, :thumb),
-      small: thumb_url(image, show_hidden, :small),
-      medium: thumb_url(image, show_hidden, :medium),
-      large: thumb_url(image, show_hidden, :large),
-      tall: thumb_url(image, show_hidden, :tall),
-      full: pretty_url(image, true, false)
-    }
+    Thumbnailer.thumbnail_versions()
+    |> Map.new(fn {name, {width, height}} ->
+      if image.image_width > width or image.image_height > height do
+        {name, thumb_url(image, show_hidden, name)}
+      else
+        {name, thumb_url(image, show_hidden, :full)}
+      end
+    end)
     |> append_full_url(image, show_hidden)
     |> append_gif_urls(image, show_hidden)
   end
