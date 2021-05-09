@@ -38,9 +38,7 @@ defmodule PhilomenaWeb.ProfileView do
 
   def sparkline_data(data) do
     # Normalize range
-    {min, max} = Enum.min_max(data)
-    max = max(max, 0)
-    min = max(min, 0)
+    max = max(Enum.max(data), 0)
 
     content_tag :svg, width: "100%", preserveAspectRatio: "none", viewBox: "0 0 90 20" do
       for {val, i} <- Enum.with_index(data) do
@@ -48,7 +46,7 @@ defmodule PhilomenaWeb.ProfileView do
         calc = max(val, 0)
 
         # Lerp or 0 if not present
-        height = zero_div((calc - min) * 20, max - min)
+        height = zero_div(calc * 20, max)
 
         # In SVG coords, y grows down
         y = 20 - height
