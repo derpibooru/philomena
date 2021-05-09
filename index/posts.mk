@@ -24,6 +24,7 @@ metadata: post_search_json
 			'referrer', p.referrer,
 			'fingerprint', p.fingerprint,
 			'topic_position', p.topic_position,
+			'forum', f.short_name,
 			'forum_id', t.forum_id,
 			'user_id', p.user_id,
 			'anonymous', p.anonymous,

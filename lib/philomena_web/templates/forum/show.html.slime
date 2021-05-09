@@ -10,7 +10,9 @@ h1 = @forum.name
       i.fa.fa-fw.fa-edit>
       ' New Topic
 
-    /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path(forum_id: @forum.id)
+    a href=Routes.post_path(@conn, :index, pq: "forum:#{@forum.short_name}")
+      i.fa.fa-fw.fa-search>
+      ' Search Posts
     span.spacing-left
       => @forum.topic_count
       ' topics

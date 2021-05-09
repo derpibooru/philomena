@@ -81,6 +81,13 @@ h1 = @topic.title
             ' Lock reason:
             em = @topic.lock_reason
 
+          = if can?(@conn, :hide, @topic) and not is_nil(@topic.locked_by) do
+            p
+              ' Locked by:
+              em
+                strong
+                  = link(@topic.locked_by.name, to: Routes.profile_path(@conn, :show, @topic.locked_by))
+
   / Post form
   = cond do
     - @conn.assigns.current_ban ->
