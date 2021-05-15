@@ -1,7 +1,7 @@
 h1 Fingerprint Bans
 
 - route = fn p -> Routes.admin_fingerprint_ban_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @fingerprint_bans, route: route, params: [q: @conn.params["q"]]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @fingerprint_bans, route: route, params: page_params(@conn.params)
 
 = form_for :fingerprint_ban, Routes.admin_fingerprint_ban_path(@conn, :index), [method: "get", class: "hform"], fn f ->
   .field
