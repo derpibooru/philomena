@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.1 (Debian 13.1-1.pgdg100+1)
--- Dumped by pg_dump version 13.1 (Debian 13.1-1.pgdg100+1)
+-- Dumped from database version 13.2
+-- Dumped by pg_dump version 13.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -3503,7 +3503,7 @@ CREATE INDEX index_posts_on_topic_id_and_created_at ON public.posts USING btree 
 -- Name: index_posts_on_topic_id_and_topic_position; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_posts_on_topic_id_and_topic_position ON public.posts USING btree (topic_id, topic_position);
+CREATE UNIQUE INDEX index_posts_on_topic_id_and_topic_position ON public.posts USING btree (topic_id, topic_position);
 
 
 --
@@ -4843,3 +4843,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20200905214139);
 INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
 INSERT INTO public."schema_migrations" (version) VALUES (20210121200815);
 INSERT INTO public."schema_migrations" (version) VALUES (20210301012137);
+INSERT INTO public."schema_migrations" (version) VALUES (20210427022351);

@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.LoadTopicPlug do
 
     Topic
     |> where(forum_id: ^forum.id, slug: ^to_string(conn.params[param]))
-    |> preload([:user, :forum, :deleted_by, poll: :options])
+    |> preload([:user, :forum, :deleted_by, :locked_by, poll: :options])
     |> Repo.one()
     |> maybe_hide_topic(conn, show_hidden)
   end

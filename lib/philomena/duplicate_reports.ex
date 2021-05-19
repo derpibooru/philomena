@@ -102,6 +102,7 @@ defmodule Philomena.DuplicateReports do
     new_report =
       DuplicateReport
       |> where(duplicate_of_image_id: ^duplicate_report.image_id)
+      |> where(image_id: ^duplicate_report.duplicate_of_image_id)
       |> limit(1)
       |> Repo.one()
 

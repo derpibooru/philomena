@@ -18,7 +18,18 @@ h2 Search Results
     - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, params: [pq: @conn.params["pq"]], conn: @conn
 
     = for {body, post} <- @posts, post.topic.hidden_from_users == false do
-      = render PhilomenaWeb.PostView, "_post.html", body: body, post: post, conn: @conn
+      div
+        h3
+          =<> link post.topic.forum.name, to: Routes.forum_path(@conn, :show, post.topic.forum)
+          | &raquo;
+          =<> link post.topic.title, to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic)
+          | &raquo;
+          - post_link = Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic, post_id: post.id) <> "#post_#{post.id}"
+          = if post.topic_position == 0 do
+            =<> link "Topic Opener", to: post_link
+          - else
+            =<> link "Post #{post.topic_position}", to: post_link
+        = render PhilomenaWeb.PostView, "_post.html", body: body, post: post, conn: @conn
 
     .block
       .block__header.block__header--light.page__header
@@ -134,3 +145,10 @@ table.table
       td Matches posts with the specified user_id. Anonymous users will never match this term.
       td
         code = link "user_id:211190", to: Routes.post_path(@conn, :index, pq: "user_id:211190")
+    tr
+      td
+        code forum
+      td Literal
+      td Matches the short name for the forum this post belongs to.
+      td
+        code = link "forum:meta", to: Routes.post_path(@conn, :index, pq: "forum:meta")

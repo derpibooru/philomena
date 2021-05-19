@@ -1,7 +1,9 @@
 h1 Discussion Forums
 .block
   .block__header
-    /= icon_link 'Search Posts', 'fa fa-fw fa-search', posts_path
+    a href=Routes.post_path(@conn, :index)
+      i.fa.fa-fw.fa-search>
+      ' Search Posts
     span.block__header__item
       => @topic_count
       ' topics

@@ -39,19 +39,7 @@ h2 Search Results
 h3 Default search
 p
   ' If you do not specify a field to search over, the search engine will
-  ' search for tags with a name that is similar to the query's
-  em word stems
-  ' . For example,
-  code winged humanization
-  ' ,
-  code wings
-  ' , and
-  code> spread wings
-  ' would all be matched by a search for
-  code wing
-  ' , but
-  code> sewing
-  ' would not be.
+  ' search for tags with a name that is equal to the query string.
 
 h3 Allowed fields
 table.table

@@ -1,7 +1,7 @@
 h1 Subnet Bans
 
 - route = fn p -> Routes.admin_subnet_ban_path(@conn, :index, p) end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @subnet_bans, route: route, params: [q: @conn.params["q"]]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @subnet_bans, route: route, params: page_params(@conn.params)
 
 = form_for :subnet_ban, Routes.admin_subnet_ban_path(@conn, :index), [method: "get", class: "hform"], fn f ->
   .field
