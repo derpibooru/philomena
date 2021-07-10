@@ -66,7 +66,7 @@ services:
         hard: 65536
 
   redis:
-    image: redis:6.2.3-alpine
+    image: redis:6.2.4-alpine
     logging:
       driver: "none"
 
