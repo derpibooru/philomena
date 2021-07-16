@@ -58,10 +58,10 @@ defmodule PhilomenaWeb.AvatarGeneratorView do
   # 32-bit xorshift deterministic PRNG
   defp xorshift32(state) do
     state = state &&& 0xFFFF_FFFF
-    state = bxor(state, (state <<< 13))
-    state = bxor(state, (state >>> 17))
+    state = bxor(state, state <<< 13)
+    state = bxor(state, state >>> 17)
 
-    bxor(state, (state <<< 5))
+    bxor(state, state <<< 5)
   end
 
   # Generate pseudorandom, clamped RGB values with a specified

@@ -43,6 +43,10 @@ defmodule PhilomenaWeb.AppView do
     )
   end
 
+  def tag_list(image) do
+    Philomena.Images.tag_list(image)
+  end
+
   def distance_of_time_in_words(time_2, time_1) do
     seconds = abs(DateTime.diff(time_2, time_1, :second))
     minutes = div(seconds, 60)

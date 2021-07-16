@@ -8,10 +8,10 @@
 
     <%= for image <- @images do %>
         <item>
-          <title>#<%= image.id %> - <%= image.tag_list_cache %></title>
+          <title>#<%= image.id %> - <%= tag_list(image) %></title>
           <description>
             <![CDATA[
-              <% mouseovertext = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{image.tag_list_cache}" %>
+              <% mouseovertext = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tag_list(image)}" %>
               <a href="<%= Routes.image_url(@conn, :show, image) %>">
                 <img src="<%= medium_url(image) %>" alt="<%= mouseovertext %>" title="<%= mouseovertext %>"/>
               </a>
