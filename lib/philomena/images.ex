@@ -55,6 +55,15 @@ defmodule Philomena.Images do
   end
 
   @doc """
+  Gets the tag list for a single image.
+  """
+  def tag_list(%Image{tags: tags}) do
+    tags
+    |> Tag.display_order()
+    |> Enum.map_join(", ", & &1.name)
+  end
+
+  @doc """
   Creates a image.
 
   ## Examples

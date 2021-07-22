@@ -40,8 +40,7 @@
       = button_to "Remove my avatar", Routes.avatar_path(@conn, :delete), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
 
     br
-    - return_to = if blank?(@conn.params["profile"]) do
-        = Routes.registration_path(@conn, :edit)
+    = if blank?(@conn.params["profile"]) do
+        = link "Back", to: Routes.registration_path(@conn, :edit)
     - else
-        = Routes.profile_path(@conn, :show, @current_user)
-    = link "Back", to: return_to
+        = link "Back", to: Routes.profile_path(@conn, :show, @current_user)

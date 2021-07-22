@@ -74,7 +74,7 @@ defmodule PhilomenaWeb.TextileRenderer do
         [nil] ->
           match
 
-        [image, "p"] ->
+        [image, "p"] when not image.hidden_from_users ->
           Phoenix.View.render(@image_view, "_image_target.html",
             image: image,
             size: :medium,
@@ -82,7 +82,7 @@ defmodule PhilomenaWeb.TextileRenderer do
           )
           |> safe_to_string()
 
-        [image, "t"] ->
+        [image, "t"] when not image.hidden_from_users ->
           Phoenix.View.render(@image_view, "_image_target.html",
             image: image,
             size: :small,
@@ -90,7 +90,7 @@ defmodule PhilomenaWeb.TextileRenderer do
           )
           |> safe_to_string()
 
-        [image, "s"] ->
+        [image, "s"] when not image.hidden_from_users ->
           Phoenix.View.render(@image_view, "_image_target.html",
             image: image,
             size: :thumb_small,
@@ -98,8 +98,12 @@ defmodule PhilomenaWeb.TextileRenderer do
           )
           |> safe_to_string()
 
+        [image, suffix] when suffix in ["p", "t", "s"] ->
+          link(">>#{image.id}#{suffix}#{link_postfix(image)}", to: "/#{image.id}")
+          |> safe_to_string()
+
         [image] ->
-          link(">>#{image.id}", to: "/#{image.id}")
+          link(">>#{image.id}#{link_postfix(image)}", to: "/#{image.id}")
           |> safe_to_string()
       end
     end)
@@ -120,9 +124,21 @@ defmodule PhilomenaWeb.TextileRenderer do
   defp load_images(ids) do
     Image
     |> where([i], i.id in ^ids)
-    |> where([i], i.hidden_from_users == false)
     |> preload(tags: :aliases)
     |> Repo.all()
     |> Map.new(&{&1.id, &1})
+  end
+
+  defp link_postfix(image) do
+    cond do
+      not is_nil(image.duplicate_id) ->
+        " (merged)"
+
+      not is_nil(image.hidden_from_users) ->
+        " (deleted)"
+
+      true ->
+        ""
+    end
   end
 end

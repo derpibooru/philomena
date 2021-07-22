@@ -73,6 +73,7 @@ defmodule PhilomenaWeb.ActivityController do
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
+      |> where([i], i.hidden_from_users == false)
       |> filter_hidden(user, conn.params["hidden"])
       |> order_by([i, f], desc: f.created_at)
       |> limit(1)

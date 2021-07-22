@@ -89,16 +89,24 @@ module.exports = {
             },
           },
           { loader: 'extract-loader', options: { sourceMaps: isDevelopment } },
-          { loader: 'css-loader', options: { sourceMap: isDevelopment } },
+          {
+            loader: 'css-loader',
+            options: {
+              sourceMap: isDevelopment,
+              url: (url) => !url.startsWith('/'),
+            },
+          },
           {
             loader: 'postcss-loader',
             options: {
-              sourceMaps: isDevelopment,
-              ident: 'postcss',
-              syntax: 'postcss-scss',
-              plugins: [
-                require('autoprefixer')(),
-              ],
+              postcssOptions: {
+                sourceMaps: isDevelopment,
+                ident: 'postcss',
+                syntax: 'postcss-scss',
+                plugins: [
+                  require('autoprefixer')(),
+                ],
+              },
             },
           },
           { loader: 'sass-loader', options: { sourceMap: isDevelopment } },

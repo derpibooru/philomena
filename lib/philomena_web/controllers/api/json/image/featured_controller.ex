@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
     featured_image =
       Image
       |> join(:inner, [i], f in ImageFeature, on: [image_id: i.id])
+      |> where([i], i.hidden_from_users == false)
       |> order_by([_i, f], desc: f.created_at)
       |> limit(1)
       |> preload([:user, :intensity, tags: :aliases])
