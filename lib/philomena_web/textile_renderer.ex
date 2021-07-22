@@ -134,7 +134,7 @@ defmodule PhilomenaWeb.TextileRenderer do
       not is_nil(image.duplicate_id) ->
         " (merged)"
 
-      not is_nil(image.hidden_from_users) ->
+      image.hidden_from_users ->
         " (deleted)"
 
       true ->
