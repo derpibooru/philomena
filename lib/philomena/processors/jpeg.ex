@@ -23,19 +23,38 @@ defmodule Philomena.Processors.Jpeg do
     intensities
   end
 
+  defp requires_lossy_transformation?(file) do
+    with {output, 0} <-
+           System.cmd("identify", ["-format", "%[orientation]\t%[profile:icc]", file]),
+         [orientation, profile] <- String.split(output, "\t") do
+      orientation != "Undefined" or profile != ""
+    else
+      _ ->
+        true
+    end
+  end
+
   defp strip(file) do
     stripped = Briefly.create!(extname: ".jpg")
 
     # ImageMagick always reencodes the image, resulting in quality loss, so
     # be more clever
-    case System.cmd("identify", ["-format", "%[orientation]", file]) do
-      {"Undefined", 0} ->
-        # Strip EXIF without touching orientation
-        {_output, 0} = System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file])
+    case requires_lossy_transformation?(file) do
+      true ->
+        # Transcode: strip EXIF, embedded profile and reorient image
+        {_output, 0} =
+          System.cmd("convert", [
+            file,
+            "-profile",
+            srgb_profile(),
+            "-auto-orient",
+            "-strip",
+            stripped
+          ])
 
-      {_output, 0} ->
-        # Strip EXIF and reorient image
-        {_output, 0} = System.cmd("convert", [file, "-auto-orient", "-strip", stripped])
+      _ ->
+        # Transmux only: Strip EXIF without touching orientation
+        {_output, 0} = System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file])
     end
 
     stripped
@@ -84,5 +103,9 @@ defmodule Philomena.Processors.Jpeg do
     {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
 
     scaled
+  end
+
+  defp srgb_profile do
+    Path.join(File.cwd!(), "priv/icc/sRGB.icc")
   end
 end
