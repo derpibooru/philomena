@@ -19,7 +19,7 @@ defmodule Philomena.Scrapers.Twitter do
       tweet["entities"]["media"]
       |> Enum.map(
         &%{
-          url: &1["media_url_https"] <> ":orig",
+          url: &1["media_url_https"] <> "?format=jpg&name=4096x4096",
           camo_url: Camo.Image.image_url(&1["media_url_https"])
         }
       )
