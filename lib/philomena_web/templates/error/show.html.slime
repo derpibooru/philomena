@@ -5,12 +5,19 @@ html lang="en"
     meta http-equiv="X-UA-Compatible" content="IE=edge"
     = viewport_meta_tag(@conn)
 
-    title Two Factor Authentication - Derpibooru
+    title
+      => @status
+      | - Philomena
     link rel="stylesheet" href=stylesheet_path(@conn, nil)
     link rel="stylesheet" href=dark_stylesheet_path(@conn) media="(prefers-color-scheme: dark)"
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"
 
   body.minimal
-    .minimal__container
-      = @inner_content
+    .minimal__message
+      h1.minimal__message__header
+        i.fa.fw.favicon-home>
+        ' Philomena
+
+      h3 = @short_msg
+      p = @long_msg
