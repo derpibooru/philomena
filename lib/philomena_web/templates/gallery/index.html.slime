@@ -28,6 +28,10 @@ elixir:
 
           .field
           = submit "Search", class: "button button--state-primary"
+    .block
+      .block__header
+        a href="/galleries/new" title="Create Gallery"
+          ' Create Gallery
 
   .column-layout__main
     .block
