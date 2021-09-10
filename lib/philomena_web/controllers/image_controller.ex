@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.ImageController do
   import Ecto.Query
 
   plug PhilomenaWeb.LimitPlug,
-       [time: 10, error: "You may only upload images once every 10 seconds."]
+       [time: 5, error: "You may only upload images once every 5 seconds."]
        when action in [:create]
 
   plug :load_image when action in [:show]
