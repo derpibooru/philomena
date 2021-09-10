@@ -183,7 +183,7 @@ defmodule Philomena.Textile.Lexer do
   em_delim = string("_") |> unwrap_and_tag(:em_delim)
   code_delim = string("@") |> unwrap_and_tag(:code_delim)
   ins_delim = string("+") |> unwrap_and_tag(:ins_delim)
-  sup_delim = string("^") |> unwrap_and_tag(:sup_delim)
+  sup_delim = lookahead_not(string("^"), string("^")) |> unwrap_and_tag(:sup_delim)
   sub_delim = string("~") |> unwrap_and_tag(:sub_delim)
 
   del_delim =
