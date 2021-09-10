@@ -104,7 +104,7 @@ function setupTagsInput(tagBlock) {
     // Remove instead if the tag name starts with a minus
     if (name[0] === "-") {
       name = name.slice(1); // eslint-disable-line no-param-reassign
-      tagLink = $(`[data-tag-name="${escapeCss(name)}"]`, container);
+      const tagLink = $(`[data-tag-name="${escapeCss(name)}"]`, container);
 
       return removeTag(name, tagLink.parentNode);
     }
