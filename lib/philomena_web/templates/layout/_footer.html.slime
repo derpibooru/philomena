@@ -5,13 +5,13 @@ footer#footer
     = for column <- footer_data["cols"] do
       .footercol
         h5 = column
-        
+
         = for row <- footer_data[column] do
           = if row["bold"] do
             strong
-              a href=row["url"] = row["title"]
+              a href=row["url"] target=row["target"]||"_self" = row["title"]
           - else
-            a href=row["url"] = row["title"]
+            a href=row["url"] target=row["target"]||"_self" = row["title"]
           br
 
   #serving_info
