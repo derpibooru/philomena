@@ -1,7 +1,13 @@
 defmodule Philomena.Textile.Lexer do
   import NimbleParsec
 
-  space = utf8_char('\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200A))
+  token_list =
+    Enum.to_list(0x01..0x29)
+    ++ Enum.to_list(0x2b..0x2f)
+    ++ ':;<=>?[]\\^`~|'
+
+  space_list = '\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200A)
+  space = utf8_char(space_list)
 
   extended_space =
     choice([
@@ -184,7 +190,7 @@ defmodule Philomena.Textile.Lexer do
     lookahead_not(string("-"), choice([string("-"), string(">")])) |> unwrap_and_tag(:del_delim)
 
   quicktxt =
-    utf8_char('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz*@_{}')
+    utf8_char(Enum.map(space_list ++ token_list ++ '\n', fn c -> {:not, c} end))
     |> unwrap_and_tag(:quicktxt)
 
   char =
