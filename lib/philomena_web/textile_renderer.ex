@@ -14,37 +14,39 @@ defmodule PhilomenaWeb.TextileRenderer do
   end
 
   def render_collection(posts, conn) do
-    opts = %{image_transform: &Camo.Image.image_url/1}
-    parsed = Enum.map(posts, &Parser.parse(opts, &1.body))
+    # opts = %{image_transform: &Camo.Image.image_url/1}
+    # parsed = Enum.map(posts, &Parser.parse(opts, &1.body))
 
-    images =
-      parsed
-      |> Enum.flat_map(fn tree ->
-        tree
-        |> Enum.flat_map(fn
-          {:text, text} ->
-            [text]
+    Enum.map(posts, &Philomena.Markdown.to_html(&1.body))
 
-          _ ->
-            []
-        end)
-      end)
-      |> find_images
+    # images =
+    #   parsed
+    #   |> Enum.flat_map(fn tree ->
+    #     tree
+    #     |> Enum.flat_map(fn
+    #       {:text, text} ->
+    #         [text]
 
-    parsed
-    |> Enum.map(fn tree ->
-      tree
-      |> Enum.map(fn
-        {:text, text} ->
-          text
-          |> replacement_entities()
-          |> replacement_images(conn, images)
+    #       _ ->
+    #         []
+    #     end)
+    #   end)
+    #   |> find_images
 
-        {_k, markup} ->
-          markup
-      end)
-      |> Enum.join()
-    end)
+    # parsed
+    # |> Enum.map(fn tree ->
+    #   tree
+    #   |> Enum.map(fn
+    #     {:text, text} ->
+    #       text
+    #       |> replacement_entities()
+    #       |> replacement_images(conn, images)
+
+    #     {_k, markup} ->
+    #       markup
+    #   end)
+    #   |> Enum.join()
+    # end)
   end
 
   defp replacement_entities(t) do

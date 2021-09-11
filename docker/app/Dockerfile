@@ -1,7 +1,7 @@
 FROM elixir:1.12.0-alpine
 
 RUN apk update \
-    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg imagemagick postgresql-client wget \
+    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg imagemagick postgresql-client wget rust cargo \
     && mix local.hex --force \
     && mix local.rebar --force
 
@@ -19,4 +19,5 @@ COPY docker/app/run-development /usr/local/bin/run-development
 COPY docker/app/run-test /usr/local/bin/run-test
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 COPY docker/app/purge-cache /usr/local/bin/purge-cache
+ENV PATH=$PATH:/root/.cargo/bin
 CMD run-development

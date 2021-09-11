@@ -1,0 +1,22 @@
+[package]
+name = "furbooru_markdown"
+version = "0.1.1"
+authors = []
+edition = "2018"
+
+[lib]
+name = "furbooru_markdown"
+path = "src/lib.rs"
+crate-type = ["dylib"]
+
+[dependencies]
+comrak = { git = "https://github.com/furbooru/comrak" }
+lazy_static = "1.0"
+regex = "1"
+log = "0"
+pretty_env_logger = "0"
+rustler = "0.22.0"
+
+[profile.release]
+opt-level = 3
+lto = true
