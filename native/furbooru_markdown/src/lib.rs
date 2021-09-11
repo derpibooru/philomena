@@ -1,6 +1,7 @@
 use comrak::{markdown_to_html, ComrakOptions};
 use lazy_static::lazy_static;
 use regex::{Captures, Regex};
+use rustler::Term;
 
 mod atoms {
     rustler::atoms! {
@@ -40,6 +41,7 @@ fn to_html(input: String) -> String {
     options.parse.smart = true;
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
+    options.render.escape = true;
     let mut result = markdown_to_html(&text, &options);
 
     result = match IMAGE_MENTION_REPLACE.captures(&result) {
@@ -51,7 +53,7 @@ fn to_html(input: String) -> String {
                 "p" => result, // TODO(Xe): large preview rendering
                 "" => String::from(
                     IMAGE_MENTION_REPLACE.replace_all(&result, |caps: &Captures| {
-                        format!(r#"<a href="/{0}">&gt;&gt;{0}</a>"#, &caps[1])
+                        format!(r#"<a href="/images/{0}">&gt;&gt;{0}</a>"#, &caps[1])
                     }),
                 ),
                 _ => result,
@@ -78,6 +80,7 @@ fn to_html_unsafe(input: String) -> String {
     options.extension.subscript = true;
     options.extension.spoiler = true;
     options.extension.strikethrough = true;
+    options.extension.front_matter_delimiter = Some("---".to_owned());
     // options.extension.furbooru = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
