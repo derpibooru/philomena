@@ -31,4 +31,4 @@
     i.fa.fa-image
   button.communication__toolbar__button tabindex="-1" type="button" title="Text you want the parser to ignore" data-syntax-id="noParse"
     span
-      | no parse
+      | escape

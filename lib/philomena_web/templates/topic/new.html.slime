@@ -3,43 +3,26 @@
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
 
+  h1 Create a Topic
+
+  .field
+    = text_input f, :title, class: "input input--wide", placeholder: "Title"
+    = error_tag f, :title
+    = error_tag f, :slug
+
   .block
-    .block__header.block__header--js-tabbed
-      a.selected href="#" data-click-tab="write"
-        i.fas.fa-pencil-alt>
-        ' Create a Topic
+    = inputs_for f, :posts, fn fp ->
+        = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: fp, action_icon: "pencil-alt", action_text: "First Post", placeholder: "Please read the site rules before posting and use ||spoilers|| for NSFW stuff in SFW forums."
 
-      a href="#" data-click-tab="preview"
-        i.fa.fa-eye>
-        ' Preview
-
-    .block__tab.communication-edit__tab.selected data-tab="write"
-      .field
-        = text_input f, :title, class: "input input--wide", placeholder: "Title"
-        = error_tag f, :title
-        = error_tag f, :slug
-
-      = inputs_for f, :posts, fn fp ->
-        .field
-          = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-          = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-          = textarea fp, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for NSFW stuff in SFW forums.", required: true
-          = error_tag fp, :body
-
-      = if @conn.assigns.current_user do
-        .field
-          => checkbox f, :anonymous, value: anonymous_by_default?(@conn)
-          = label f, :anonymous, "Post anonymously"
+    .block__content.communication-edit__wrap
+      = render PhilomenaWeb.MarkdownView, "_anon_checkbox.html", conn: @conn, f: f, label: "Post anonymously"
 
       = inputs_for f, :poll, fn fp ->
-        #add-poll
+        #add-poll.field
           input.toggle-box id="add_poll" name="add_poll" type="checkbox"
           label for="add_poll" Add a poll
           .toggle-box-container
             = render PhilomenaWeb.Topic.PollView, "_form.html", Map.put(assigns, :f, fp)
-
-    .block__tab.communication-edit__tab.hidden data-tab="preview"
-      ' [Loading preview...]
 
     .block__content.communication-edit__actions
       = submit "Post", class: "button", data: [disable_with: raw("Posting&hellip;")]

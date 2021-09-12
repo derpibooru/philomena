@@ -2,7 +2,7 @@
  * Request Utils
  */
 
-function fetchJson(verb, endpoint, body) {
+function fetchJson(verb, endpoint, body, signal) {
   const data = {
     method: verb,
     credentials: 'same-origin',
@@ -11,6 +11,7 @@ function fetchJson(verb, endpoint, body) {
       'x-csrf-token': window.booru.csrfToken,
       'x-requested-with': 'xmlhttprequest'
     },
+    signal,
   };
 
   if (body) {

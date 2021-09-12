@@ -1,0 +1,27 @@
+- form = assigns[:f]
+- action_text = assigns[:action_text] || 'Edit'
+- action_icon = assigns[:action_icon] || 'edit'
+- field_name = assigns[:name] || :body
+- field_placeholder = assigns[:placeholder] || "Your message"
+.block__content.block--split
+  .block__column--full.js-preview-input-wrapper
+    .block__column__header
+      i.fa> class="fa-#{action_icon}"
+      = action_text
+
+    = render PhilomenaWeb.MarkdownView, "_help.html", conn: @conn
+    = render PhilomenaWeb.MarkdownView, "_toolbar.html", conn: @conn
+
+    .field
+      = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: true
+      = error_tag form, field_name
+
+  .block__column--half.hidden.communication-preview.js-preview-output-wrapper
+    .block__column__header.flex.flex--spaced-out
+      span
+        i.fa.fa-eye>
+        ' Preview
+      span.communication-preview__loading.hidden
+        i.fa.fa-spin.fa-fw.fa-cog> title=raw('Loading preview&hellip;')
+
+    .communication-preview__content

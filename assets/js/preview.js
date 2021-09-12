@@ -1,14 +1,16 @@
 /**
- * Textile previews (posts, comments, messages)
+ * Markdown previews (posts, comments, messages)
  */
 
 import { fetchJson } from './utils/requests';
 import { filterNode } from './imagesclientside';
+import { debounce } from './utils/events.js';
+import { hideEl, showEl } from './utils/dom.js';
 
 function handleError(response) {
   const errorMessage = '<div>Preview failed to load!</div>';
 
-  if (!response.ok) {
+  if (!response.ok){
     return errorMessage;
   }
 
@@ -22,7 +24,7 @@ function commentReply(user, url, textarea, quote) {
   if (newval && /\n$/.test(newval)) newval += '\n';
   newval += `${text}\n`;
 
-  if (quote) {
+  if (quote){
     newval += `[bq="${user.replace('"', '\'')}"] ${quote} [/bq]\n`;
   }
 
@@ -35,47 +37,99 @@ function commentReply(user, url, textarea, quote) {
   textarea.focus();
 }
 
-function getPreview(body, anonymous, previewTab, isImage = false) {
+/**
+ * Stores the abort controller for the current preview request
+ * @type {null|AbortController}
+ */
+let previewAbortController = null;
+
+function getPreview(body, anonymous, previewLoading, previewContent) {
   let path = '/posts/preview';
 
-  fetchJson('POST', path, { body, anonymous })
+  if (typeof body !== 'string') return;
+
+  const trimmedBody = body.trim();
+  if (trimmedBody.length < 1){
+    previewContent.innerHTML = '';
+    return;
+  }
+
+  showEl(previewLoading);
+
+  // Abort previous requests if it exists
+  if (previewAbortController) previewAbortController.abort();
+  previewAbortController = new AbortController();
+
+  fetchJson('POST', path, { body, anonymous }, previewAbortController.signal)
     .then(handleError)
     .then(data => {
-      previewTab.innerHTML = data;
-      filterNode(previewTab);
+      previewContent.innerHTML = data;
+      filterNode(previewContent);
+      showEl(previewContent);
+      hideEl(previewLoading);
+    })
+    .finally(() => {
+      previewAbortController = null;
     });
+}
+
+/**
+ * Resizes the event target <textarea> to match the size of its contained text, between set
+ * minimum and maximum height values. Former comes from CSS, latter is hard coded below.
+ * @template {{ target: HTMLTextAreaElement }} E
+ * @param {E} e
+ */
+function resizeTextarea(e) {
+  // Reset inline height for fresh calculations
+  e.target.style.height = '';
+  const { borderTopWidth, borderBottomWidth, height } = window.getComputedStyle(e.target);
+  // Add scrollHeight and borders (because border-box) to get the target size that avoids scrollbars
+  const contentHeight = e.target.scrollHeight + parseFloat(borderTopWidth) + parseFloat(borderBottomWidth);
+  // Get the original default height provided by page styles
+  const regularHeight = parseFloat(height);
+  // Limit textarea's size to between the original height and 1000px
+  const newHeight = Math.max(regularHeight, Math.min(1000, contentHeight));
+  e.target.style.height = `${newHeight}px`;
 }
 
 function setupPreviews() {
   let textarea = document.querySelector('.js-preview-input');
-  let imageDesc = false;
 
-  if (!textarea) {
+  if (!textarea){
     textarea = document.querySelector('.js-preview-description');
-    imageDesc = true;
   }
 
-  const previewButton = document.querySelector('a[data-click-tab="preview"]');
-  const previewTab = document.querySelector('.block__tab[data-tab="preview"]');
-  const previewAnon = document.querySelector('.preview-anonymous') || false;
+  const previewLoading = document.querySelector('.communication-preview__loading');
+  const previewContent = document.querySelector('.communication-preview__content');
+  const previewAnon = document.querySelector('.js-preview-anonymous') || false;
 
-  if (!textarea || !previewButton) {
+  if (!textarea || !previewContent){
     return;
   }
 
-  previewButton.addEventListener('click', () => {
-    if (previewTab.previewedText === textarea.value) return;
-    previewTab.previewedText = textarea.value;
+  const updatePreview = () => {
+    getPreview(textarea.value, previewAnon && previewAnon.checked, previewLoading, previewContent);
+  };
 
-    getPreview(textarea.value, Boolean(previewAnon.checked), previewTab, imageDesc);
+  const debouncedUpdater = debounce(500, () => {
+    if (previewContent.previewedText === textarea.value) return;
+    previewContent.previewedText = textarea.value;
+
+    updatePreview();
   });
 
-  previewAnon && previewAnon.addEventListener('click', () => {
-    getPreview(textarea.value, Boolean(previewAnon.checked), previewTab, imageDesc);
-  });
+  textarea.addEventListener('keydown', debouncedUpdater);
+  textarea.addEventListener('focus', debouncedUpdater);
+  textarea.addEventListener('change', resizeTextarea);
+  textarea.addEventListener('keyup', resizeTextarea);
+
+  // Fire handler if textarea contains text on page load (e.g. editing)
+  if (textarea.value) textarea.dispatchEvent(new Event('keydown'));
+
+  previewAnon && previewAnon.addEventListener('click', updatePreview);
 
   document.addEventListener('click', event => {
-    if (event.target && event.target.closest('.post-reply')) {
+    if (event.target && event.target.closest('.post-reply')){
       const link = event.target.closest('.post-reply');
       commentReply(link.dataset.author, link.getAttribute('href'), textarea, link.dataset.post);
       event.preventDefault();

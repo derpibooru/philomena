@@ -22,3 +22,22 @@ export function delegate(node, event, selectors) {
     }
   });
 }
+
+/**
+ * Runs the provided `func` if it hasn't been called for at least `time` ms
+ * @template {(...any[]) => any} T
+ * @param {number} time
+ * @param {T} func
+ * @return {T}
+ */
+export function debounce(time, func) {
+  let timerId = null;
+
+  return function(...args) {
+    // Cancels the setTimeout method execution
+    timerId && clearTimeout(timerId);
+
+    // Executes the func after delay time.
+    timerId = setTimeout(() => func(...args), time);
+  };
+}
