@@ -17,6 +17,7 @@ defmodule Philomena.Galleries.Gallery do
     field :title, :string
     field :spoiler_warning, :string, default: ""
     field :description, :string, default: ""
+    field :description_md, :string, default: ""
     field :image_count, :integer
     field :order_position_asc, :boolean
 

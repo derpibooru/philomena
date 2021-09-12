@@ -12,6 +12,7 @@ defmodule Philomena.Filters.Filter do
 
     field :name, :string
     field :description, :string, default: ""
+    field :description_md, :string, default: ""
     field :system, :boolean
     field :public, :boolean
     field :hidden_complex_str, :string

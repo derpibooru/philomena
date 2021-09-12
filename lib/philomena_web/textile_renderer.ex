@@ -9,44 +9,32 @@ defmodule PhilomenaWeb.TextileRenderer do
   # Kill bogus compile time dependency on ImageView
   @image_view Module.concat(["PhilomenaWeb.ImageView"])
 
-  def render_one(post, conn) do
-    hd(render_collection([post], conn))
-  end
+  def render(text, conn) do
+    opts = %{image_transform: &Camo.Image.image_url/1}
+    parsed = Parser.parse(opts, text)
+  
+    images =
+      parsed
+      |> Enum.flat_map(fn
+        {:text, text} ->
+          [text]
 
-  def render_collection(posts, conn) do
-    # opts = %{image_transform: &Camo.Image.image_url/1}
-    # parsed = Enum.map(posts, &Parser.parse(opts, &1.body))
+        _ ->
+          []
+      end)
+      |> find_images
 
-    Enum.map(posts, &Philomena.Markdown.to_html(&1.body))
+    parsed
+    |> Enum.map(fn
+      {:text, text} ->
+        text
+        |> replacement_entities()
+        |> replacement_images(conn, images)
 
-    # images =
-    #   parsed
-    #   |> Enum.flat_map(fn tree ->
-    #     tree
-    #     |> Enum.flat_map(fn
-    #       {:text, text} ->
-    #         [text]
-
-    #       _ ->
-    #         []
-    #     end)
-    #   end)
-    #   |> find_images
-
-    # parsed
-    # |> Enum.map(fn tree ->
-    #   tree
-    #   |> Enum.map(fn
-    #     {:text, text} ->
-    #       text
-    #       |> replacement_entities()
-    #       |> replacement_images(conn, images)
-
-    #     {_k, markup} ->
-    #       markup
-    #   end)
-    #   |> Enum.join()
-    # end)
+      {_k, markup} ->
+        markup
+    end)
+    |> Enum.join()
   end
 
   defp replacement_entities(t) do

@@ -65,6 +65,7 @@ defmodule Philomena.Users.User do
     field :slug, :string
     field :role, :string, default: "user"
     field :description, :string
+    field :description_md, :string
     field :avatar, :string
 
     # Settings
@@ -115,6 +116,7 @@ defmodule Philomena.Users.User do
     field :last_renamed_at, :utc_datetime
     field :deleted_at, :utc_datetime
     field :scratchpad, :string
+    field :scratchpad_md, :string
     field :secondary_role, :string
     field :hide_default_role, :boolean, default: false
     field :senior_staff, :boolean, default: false

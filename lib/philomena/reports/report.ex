@@ -13,6 +13,7 @@ defmodule Philomena.Reports.Report do
     field :user_agent, :string, default: ""
     field :referrer, :string, default: ""
     field :reason, :string
+    field :reason_md, :string
     field :state, :string, default: "open"
     field :open, :boolean, default: true
 

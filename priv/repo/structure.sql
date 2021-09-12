@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.2
--- Dumped by pg_dump version 13.2
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 13.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -165,7 +165,8 @@ CREATE TABLE public.badges (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     disable_award boolean DEFAULT false NOT NULL,
-    priority boolean DEFAULT false
+    priority boolean DEFAULT false,
+    description_md character varying
 );
 
 
@@ -227,7 +228,8 @@ CREATE TABLE public.channels (
     total_viewer_minutes integer DEFAULT 0 NOT NULL,
     banner_image character varying,
     remote_stream_id integer,
-    thumbnail_url character varying DEFAULT ''::character varying
+    thumbnail_url character varying DEFAULT ''::character varying,
+    description_md character varying
 );
 
 
@@ -272,7 +274,8 @@ CREATE TABLE public.comments (
     edited_at timestamp without time zone,
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     destroyed_content boolean DEFAULT false,
-    name_at_post_time character varying
+    name_at_post_time character varying,
+    body_md character varying
 );
 
 
@@ -308,7 +311,9 @@ CREATE TABLE public.commission_items (
     add_ons character varying,
     example_image_id integer,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    description_md character varying,
+    add_ons_md character varying
 );
 
 
@@ -347,7 +352,11 @@ CREATE TABLE public.commissions (
     will_not_create character varying,
     commission_items_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    information_md character varying,
+    contact_md character varying,
+    will_create_md character varying,
+    will_not_create_md character varying
 );
 
 
@@ -426,7 +435,10 @@ CREATE TABLE public.dnp_entries (
     instructions character varying NOT NULL,
     feedback character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    conditions_md character varying,
+    reason_md character varying,
+    instructions_md character varying
 );
 
 
@@ -539,7 +551,8 @@ CREATE TABLE public.filters (
     user_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    user_id integer
+    user_id integer,
+    description_md character varying
 );
 
 
@@ -666,7 +679,8 @@ CREATE TABLE public.galleries (
     watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     watcher_count integer DEFAULT 0 NOT NULL,
     image_count integer DEFAULT 0 NOT NULL,
-    order_position_asc boolean DEFAULT false NOT NULL
+    order_position_asc boolean DEFAULT false NOT NULL,
+    description_md character varying
 );
 
 
@@ -950,7 +964,9 @@ CREATE TABLE public.images (
     hidden_image_key character varying,
     scratchpad character varying,
     hides_count integer DEFAULT 0 NOT NULL,
-    image_duration double precision
+    image_duration double precision,
+    description_md character varying,
+    scratchpad_md character varying
 );
 
 
@@ -983,7 +999,8 @@ CREATE TABLE public.messages (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     from_id integer NOT NULL,
-    conversation_id integer NOT NULL
+    conversation_id integer NOT NULL,
+    body_md character varying
 );
 
 
@@ -1018,7 +1035,8 @@ CREATE TABLE public.mod_notes (
     body text NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    body_md character varying
 );
 
 
@@ -1201,7 +1219,8 @@ CREATE TABLE public.posts (
     edited_at timestamp without time zone,
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     destroyed_content boolean DEFAULT false NOT NULL,
-    name_at_post_time character varying
+    name_at_post_time character varying,
+    body_md character varying
 );
 
 
@@ -1242,7 +1261,8 @@ CREATE TABLE public.reports (
     user_id integer,
     admin_id integer,
     reportable_id integer NOT NULL,
-    reportable_type character varying NOT NULL
+    reportable_type character varying NOT NULL,
+    reason_md character varying
 );
 
 
@@ -1549,7 +1569,8 @@ CREATE TABLE public.tags (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     category character varying,
-    mod_notes character varying
+    mod_notes character varying,
+    description_md character varying
 );
 
 
@@ -1988,7 +2009,9 @@ CREATE TABLE public.users (
     last_renamed_at timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
     forced_filter_id bigint,
     confirmed_at timestamp(0) without time zone,
-    senior_staff boolean DEFAULT false
+    senior_staff boolean DEFAULT false,
+    description_md character varying,
+    scratchpad_md character varying
 );
 
 
@@ -4844,3 +4867,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
 INSERT INTO public."schema_migrations" (version) VALUES (20210121200815);
 INSERT INTO public."schema_migrations" (version) VALUES (20210301012137);
 INSERT INTO public."schema_migrations" (version) VALUES (20210427022351);
+INSERT INTO public."schema_migrations" (version) VALUES (20210912171343);

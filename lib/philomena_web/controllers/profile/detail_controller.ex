@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.Profile.DetailController do
 
   alias Philomena.UserNameChanges.UserNameChange
   alias Philomena.ModNotes.ModNote
-  alias PhilomenaWeb.TextileRenderer
+  alias PhilomenaWeb.TextRenderer
   alias Philomena.Polymorphic
   alias Philomena.Users.User
   alias Philomena.Repo
@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Profile.DetailController do
 
     mod_notes =
       mod_notes
-      |> TextileRenderer.render_collection(conn)
+      |> TextRenderer.render_collection(conn)
       |> Enum.zip(mod_notes)
 
     name_changes =

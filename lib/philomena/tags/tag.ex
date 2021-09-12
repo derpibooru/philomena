@@ -77,6 +77,7 @@ defmodule Philomena.Tags.Tag do
     field :category, :string
     field :images_count, :integer, default: 0
     field :description, :string
+    field :description_md, :string
     field :short_description, :string
     field :namespace, :string
     field :name_in_namespace, :string

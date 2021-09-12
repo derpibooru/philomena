@@ -17,6 +17,9 @@ defmodule Philomena.DnpEntries.DnpEntry do
     field :hide_reason, :boolean, default: false
     field :instructions, :string, default: ""
     field :feedback, :string, default: ""
+    field :conditions_md, :string, default: ""
+    field :reason_md, :string, default: ""
+    field :instructions_md, :string, default: ""
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end

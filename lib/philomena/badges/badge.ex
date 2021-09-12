@@ -5,6 +5,7 @@ defmodule Philomena.Badges.Badge do
   schema "badges" do
     field :title, :string
     field :description, :string, default: ""
+    field :description_md, :string, default: ""
     field :image, :string
     field :disable_award, :boolean, default: false
     field :priority, :boolean, default: false
