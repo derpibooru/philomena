@@ -267,6 +267,26 @@ blockquote {
   margin-bottom: 6px;
 }
 
+img[alt=tiny] {
+  max-height: $image_tiny_size;
+  max-width: $image_tiny_size;
+}
+
+img[alt=small] {
+  max-height: $image_small_size;
+  max-width: $image_small_size;
+}
+
+img[alt=medium] {
+  max-height: $image_medium_size;
+  max-width: $image_medium_size;
+}
+
+img[alt=large] {
+  max-height: $image_large_size;
+  max-width: $image_large_size;
+}
+
 //donations
 .donate-button {
   background: 0;

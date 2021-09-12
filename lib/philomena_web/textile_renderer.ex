@@ -101,11 +101,11 @@ defmodule PhilomenaWeb.TextileRenderer do
           |> safe_to_string()
 
         [image, suffix] when suffix in ["p", "t", "s"] ->
-          link(">>#{image.id}#{suffix}#{link_postfix(image)}", to: "/#{image.id}")
+          link(">>#{image.id}#{suffix}#{link_postfix(image)}", to: "/images/#{image.id}")
           |> safe_to_string()
 
         [image] ->
-          link(">>#{image.id}#{link_postfix(image)}", to: "/#{image.id}")
+          link(">>#{image.id}#{link_postfix(image)}", to: "/images/#{image.id}")
           |> safe_to_string()
       end
     end)

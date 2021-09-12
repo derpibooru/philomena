@@ -84,7 +84,6 @@ fn to_html_unsafe(input: String) -> String {
     options.extension.subscript = true;
     options.extension.spoiler = true;
     options.extension.strikethrough = true;
-    options.extension.front_matter_delimiter = Some("---".to_owned());
     // options.extension.furbooru = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
