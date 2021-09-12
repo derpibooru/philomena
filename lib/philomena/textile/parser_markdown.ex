@@ -1,3 +1,16 @@
+# LUNA PRESENTS THEE
+#
+# DA ULTIMATE, BESTEST, MOST SECURE AND DEFINITELY NOT BUGGY
+# TEXTILE TO MARKDOWN CONVERTER PARSER LIBRARY THING!!!!!
+#
+# IT'S SO AWESOME I HAVE TO DESCRIBE IT IN ALL CAPS
+#
+# BY LOOKING AT THIS SOURCE CODE YOU AGREE THAT I MAY NOT BE HELD
+# RESPONSIBLE FOR YOU DEVELOPING EYE CANCER
+#
+# YOU'VE BEEN WARNED
+#
+# COPYRIGHT (C) (R) (TM) LUNA (C) (R) (TM) 2021-206969696969
 defmodule Philomena.Textile.ParserMarkdown do
   alias Philomena.Textile.Lexer
   alias Philomena.Markdown
@@ -55,6 +68,17 @@ defmodule Philomena.Textile.ParserMarkdown do
 
   # Helper corresponding to Kleene star (*) operator
   # Match a specificed rule zero or more times
+  defp repeat(rule, parser, tokens, bq) when bq == true do
+    case rule.(parser, tokens, true) do
+      {:ok, tree, r_tokens} ->
+        {:ok, tree2, r2_tokens} = repeat(rule, parser, r_tokens, true)
+        {:ok, [tree, tree2], r2_tokens}
+
+      _ ->
+        {:ok, [], tokens}
+    end
+  end
+
   defp repeat(rule, parser, tokens) do
     case rule.(parser, tokens) do
       {:ok, tree, r_tokens} ->
@@ -70,6 +94,18 @@ defmodule Philomena.Textile.ParserMarkdown do
   #
   #   open_token callback* close_token
   #
+  defp simple_recursive(:bq_open, :bq_close, open_tag, close_tag, callback, parser, [
+        {:bq_open, open} | r_tokens
+      ]) do
+    case repeat(callback, parser, r_tokens, true) do
+      {:ok, tree, [{:bq_close, _} | r2_tokens]} ->
+        {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
+
+      {:ok, tree, r2_tokens} ->
+        {:ok, [{:text, escape(open)}, tree], r2_tokens}
+    end
+  end
+
   defp simple_recursive(open_token, close_token, open_tag, close_tag, callback, parser, [
          {open_token, open} | r_tokens
        ]) do
@@ -350,7 +386,13 @@ defmodule Philomena.Textile.ParserMarkdown do
   defp inline_textile_element_not_opening_markup(_parser, [{:char, lit} | r_tokens]) do
     {binary, r2_tokens} = assemble_binary(:char, <<lit::utf8>>, r_tokens)
 
-    {:ok, [{:text, escape(binary)}], r2_tokens}
+    # A bit of an ugly hack to force the parser to output >> instead of &gt;&gt;
+    case binary do
+      ">>" ->
+        {:ok, [{:text, binary}], r2_tokens}
+      _ ->
+        {:ok, [{:text, escape(binary)}], r2_tokens}
+    end
   end
 
   defp inline_textile_element_not_opening_markup(_parser, [
@@ -379,17 +421,15 @@ defmodule Philomena.Textile.ParserMarkdown do
   defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens]) do
     case repeat(&bq_cite_text/2, parser, r_tokens) do
       {:ok, tree, [{:bq_cite_open, open} | r2_tokens]} ->
-        case repeat(&block_textile_element/2, parser, r2_tokens) do
+        case repeat(&block_textile_element/3, parser, r2_tokens, true) do
           {:ok, tree2, [{:bq_close, _} | r3_tokens]} ->
             cite = escape(flatten(tree))
 
             {:ok,
              [
-               {:markup, "<blockquote author=\""},
-               {:markup, cite},
-               {:markup, "\">"},
+               {:markup, "\n> "},
                tree2,
-               {:markup, "</blockquote>"}
+               {:markup, "\n"}
              ], r3_tokens}
 
           {:ok, tree2, r3_tokens} ->
@@ -413,7 +453,7 @@ defmodule Philomena.Textile.ParserMarkdown do
 
   defp inline_textile_element_not_opening_markup(parser, tokens) do
     [
-      {:bq_open, :bq_close, "<blockquote>", "</blockquote>"},
+      {:bq_open, :bq_close, "\n> ", "\n"},
       {:spoiler_open, :spoiler_close, "||", "||"},
       {:bracketed_b_open, :bracketed_b_close, "**", "**"},
       {:bracketed_i_open, :bracketed_i_close, "_", "_"},
@@ -426,15 +466,27 @@ defmodule Philomena.Textile.ParserMarkdown do
       {:bracketed_sub_open, :bracketed_sub_close, "%", "%"}
     ]
     |> Enum.find_value(fn {open_token, close_token, open_tag, close_tag} ->
-      simple_recursive(
-        open_token,
-        close_token,
-        open_tag,
-        close_tag,
-        &block_textile_element/2,
-        parser,
-        tokens
-      )
+      if open_token == :bq_open do
+        simple_recursive(
+          open_token,
+          close_token,
+          open_tag,
+          close_tag,
+          &block_textile_element/3,
+          parser,
+          tokens
+        )
+      else
+        simple_recursive(
+          open_token,
+          close_token,
+          open_tag,
+          close_tag,
+          &block_textile_element/2,
+          parser,
+          tokens
+        )
+      end
       |> case do
         {:ok, tree, r_tokens} ->
           {:ok, tree, r_tokens}
@@ -451,12 +503,24 @@ defmodule Philomena.Textile.ParserMarkdown do
   #    double_newline | newline | inline_textile_element;
   #
 
+  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens], bq) when bq == true do
+    {:ok, [{:markup, "\n> \n> "}], r_tokens}
+  end
+
+  defp block_textile_element(_parser, [{:newline, _} | r_tokens], bq) when bq == true do
+    {:ok, [{:markup, "\n> "}], r_tokens}
+  end
+
+  defp block_textile_element(parser, tokens, _bq) do
+    inline_textile_element(parser, tokens)
+  end
+
   defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
-    {:ok, [{:markup, "\n"}], r_tokens}
+    {:ok, [{:markup, "\n\n"}], r_tokens}
   end
 
   defp block_textile_element(_parser, [{:newline, _} | r_tokens]) do
-    {:ok, [{:markup, "\n\n"}], r_tokens}
+    {:ok, [{:markup, "\n"}], r_tokens}
   end
 
   defp block_textile_element(parser, tokens) do
