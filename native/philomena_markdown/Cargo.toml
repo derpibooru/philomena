@@ -1,6 +1,6 @@
 [package]
 name = "philomena_markdown"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["Xe <https://github.com/Xe>", "Luna <https://github.com/Meow>", "Liam White <https://github.com/liamwhite>"]
 edition = "2018"
 
@@ -11,12 +11,9 @@ crate-type = ["dylib"]
 
 [dependencies]
 comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main" }
-lazy_static = "1.4"
-regex = "1.5"
-log = "0"
-pretty_env_logger = "0"
 rustler = "0.22"
 jemallocator = "0.3.2"
+rust-crypto = "0.2"
 
 [profile.release]
 opt-level = 3
