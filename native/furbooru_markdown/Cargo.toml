@@ -16,6 +16,7 @@ regex = "1"
 log = "0"
 pretty_env_logger = "0"
 rustler = "0.22.0"
+jemallocator = "0.3.2"
 
 [profile.release]
 opt-level = 3
