@@ -12,7 +12,7 @@ defmodule Philomena.MixProject do
       aliases: aliases(),
       deps: deps(),
       dialyzer: [plt_add_apps: [:mix]],
-      rustler_crates: [furbooru_markdown: []]
+      rustler_crates: [philomena_markdown: []]
     ]
   end
 

@@ -38,7 +38,7 @@ config :philomena, PhilomenaWeb.Endpoint,
 
 # Markdown
 config :philomena, Philomena.Markdown,
-  crate: "furbooru_markdown",
+  crate: "philomena_markdown",
   mode: :release
 
 config :phoenix, :template_engines,

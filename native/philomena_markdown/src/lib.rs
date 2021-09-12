@@ -38,11 +38,8 @@ fn to_html(input: String) -> String {
     options.extension.table = true;
     options.extension.description_lists = true;
     options.extension.superscript = true;
-    options.extension.subscript = true;
-    options.extension.spoiler = true;
     options.extension.strikethrough = true;
-    options.extension.underline = true;
-    // options.extension.furbooru = true;
+    options.extension.philomena = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
@@ -82,11 +79,8 @@ fn to_html_unsafe(input: String) -> String {
     options.extension.table = true;
     options.extension.description_lists = true;
     options.extension.superscript = true;
-    options.extension.subscript = true;
-    options.extension.spoiler = true;
     options.extension.strikethrough = true;
-    options.extension.underline = true;
-    // options.extension.furbooru = true;
+    options.extension.philomena = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;

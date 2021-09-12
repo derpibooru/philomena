@@ -1,16 +1,16 @@
 [package]
-name = "furbooru_markdown"
+name = "philomena_markdown"
 version = "0.2.0"
 authors = ["Xe <https://github.com/Xe>", "Luna <https://github.com/Meow>", "Liam White <https://github.com/liamwhite>"]
 edition = "2018"
 
 [lib]
-name = "furbooru_markdown"
+name = "philomena_markdown"
 path = "src/lib.rs"
 crate-type = ["dylib"]
 
 [dependencies]
-comrak = { git = "https://github.com/furbooru/comrak" }
+comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main" }
 lazy_static = "1.4"
 regex = "1.5"
 log = "0"
