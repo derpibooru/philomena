@@ -429,7 +429,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "philomena_markdown"
+name = "philomena"
 version = "0.3.0"
 dependencies = [
  "comrak",

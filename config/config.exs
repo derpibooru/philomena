@@ -37,8 +37,8 @@ config :philomena, PhilomenaWeb.Endpoint,
   pubsub_server: Philomena.PubSub
 
 # Markdown
-config :philomena, Philomena.Markdown,
-  crate: "philomena_markdown",
+config :philomena, Philomena.Native,
+  crate: "philomena",
   mode: :release
 
 config :phoenix, :template_engines,

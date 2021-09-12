@@ -1,11 +1,11 @@
 [package]
-name = "philomena_markdown"
+name = "philomena"
 version = "0.3.0"
 authors = ["Xe <https://github.com/Xe>", "Luna <https://github.com/Meow>", "Liam White <https://github.com/liamwhite>"]
 edition = "2018"
 
 [lib]
-name = "philomena_markdown"
+name = "philomena"
 path = "src/lib.rs"
 crate-type = ["dylib"]
 
