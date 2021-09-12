@@ -41,6 +41,7 @@ fn to_html(input: String) -> String {
     options.extension.subscript = true;
     options.extension.spoiler = true;
     options.extension.strikethrough = true;
+    options.extension.underline = true;
     // options.extension.furbooru = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
@@ -84,6 +85,7 @@ fn to_html_unsafe(input: String) -> String {
     options.extension.subscript = true;
     options.extension.spoiler = true;
     options.extension.strikethrough = true;
+    options.extension.underline = true;
     // options.extension.furbooru = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
