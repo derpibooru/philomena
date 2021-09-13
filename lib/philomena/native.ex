@@ -1,7 +1,10 @@
 defmodule Philomena.Native do
   use Rustler, otp_app: :philomena
 
-  # When your NIF is loaded, it will override this function.
+  # Markdown
   def markdown_to_html(_text), do: :erlang.nif_error(:nif_not_loaded)
   def markdown_to_html_unsafe(_text), do: :erlang.nif_error(:nif_not_loaded)
+
+  # Camo
+  def camo_image_url(_uri), do: :erlang.nif_error(:nif_not_loaded)
 end

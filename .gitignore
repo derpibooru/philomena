@@ -50,3 +50,6 @@ npm-debug.log
 
 # Unportable compiled binaries
 /priv/native/
+
+# Rust binaries
+/native/**/target

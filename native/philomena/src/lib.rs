@@ -1,40 +1,31 @@
-use comrak::ComrakOptions;
 use jemallocator::Jemalloc;
+
+mod camo;
+mod markdown;
 
 #[global_allocator]
 static GLOBAL: Jemalloc = Jemalloc;
 
 rustler::init! {
     "Elixir.Philomena.Native",
-    [markdown_to_html, markdown_to_html_unsafe]
+    [markdown_to_html, markdown_to_html_unsafe, camo_image_url]
 }
 
-fn common_options() -> ComrakOptions {
-    let mut options = ComrakOptions::default();
-    options.extension.autolink = true;
-    options.extension.table = true;
-    options.extension.description_lists = true;
-    options.extension.superscript = true;
-    options.extension.strikethrough = true;
-    options.extension.philomena = true;
-    options.parse.smart = true;
-    options.render.hardbreaks = true;
-    options.render.github_pre_lang = true;
-    options
-}
+// Markdown NIF wrappers.
 
 #[rustler::nif(schedule = "DirtyCpu")]
 fn markdown_to_html(input: String) -> String {
-    let mut options = common_options();
-    options.render.escape = true;
-
-    comrak::markdown_to_html(&input, &options)
+    markdown::to_html(input)
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
 fn markdown_to_html_unsafe(input: String) -> String {
-    let mut options = common_options();
-    options.render.unsafe_ = true;
+    markdown::to_html_unsafe(input)
+}
 
-    comrak::markdown_to_html(&input, &options)
+// Camo NIF wrappers.
+
+#[rustler::nif]
+fn camo_image_url(input: String) -> String {
+    camo::image_url(input).unwrap_or_else(|| String::from(""))
 }

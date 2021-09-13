@@ -13,7 +13,9 @@ crate-type = ["dylib"]
 comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main" }
 rustler = "0.22"
 jemallocator = "0.3.2"
-rust-crypto = "0.2"
+ring = "0.16"
+base16 = "0.2"
+url = "2.2"
 
 [profile.release]
 opt-level = 3
