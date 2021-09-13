@@ -1,4 +1,5 @@
 use comrak::ComrakOptions;
+use crate::camo;
 
 fn common_options() -> ComrakOptions {
     let mut options = ComrakOptions::default();
@@ -11,6 +12,9 @@ fn common_options() -> ComrakOptions {
     options.parse.smart = true;
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
+
+    options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
+
     options
 }
 
