@@ -52,25 +52,26 @@ const markdownSyntax = {
   noParse: {
     action: escapeSelection,
     options: { escapeChar: '\\' }
-  },
+  }
 };
 
 function getSelections(textarea, linesOnly = false) {
   let { selectionStart, selectionEnd } = textarea,
       selection = textarea.value.substring(selectionStart, selectionEnd),
       leadingSpace = '',
-      trailingSpace = '',
+      trailingSpace =  '',
       caret;
 
   if (linesOnly) {
     let startNewlineIndex = 0,
-        endNewlineIndex = textarea.value.length,
-        explorer = /\n/g;
+        endNewlineIndex = textarea.value.length;
+    const explorer = /\n/g;
     while (explorer.exec(textarea.value)) {
       const { lastIndex } = explorer;
       if (lastIndex < selectionStart) {
         startNewlineIndex = lastIndex + 1;
-      } else if (lastIndex > selectionEnd) {
+      }
+      else if (lastIndex > selectionEnd) {
         endNewlineIndex = lastIndex;
         break;
       }
@@ -79,7 +80,8 @@ function getSelections(textarea, linesOnly = false) {
     selectionStart = startNewlineIndex;
     selectionEnd = endNewlineIndex;
     selection = textarea.value.substring(selectionStart, selectionEnd);
-  } else {
+  }
+  else {
     // Deselect trailing space and line break
     for (caret = selection.length - 1; caret > 0; caret--) {
       if (selection[caret] !== ' ' && selection[caret] !== '\n') break;
@@ -98,7 +100,7 @@ function getSelections(textarea, linesOnly = false) {
   return {
     selectedText: selection,
     beforeSelection: textarea.value.substring(0, selectionStart) + leadingSpace,
-    afterSelection: trailingSpace + textarea.value.substring(selectionEnd),
+    afterSelection: trailingSpace + textarea.value.substring(selectionEnd)
   };
 }
 
@@ -107,8 +109,8 @@ function getSurroundingTwoLines(beforeText, afterText) {
   // therefore you need to include two lines before and after
   return {
     twoLinesBefore: beforeText.split('\n').slice(-2).join('\n'),
-    twoLinesAfter: afterText.split('\n').slice(0, 2).join('\n'),
-  }
+    twoLinesAfter: afterText.split('\n').slice(0, 2).join('\n')
+  };
 }
 
 function transformSelection(textarea, transformer, eachLine) {
@@ -140,7 +142,7 @@ function insertLink(textarea, options) {
   }
 
   const prefix = options.image ? '![' : '[',
-        suffix = '](' + escapeHyperlink(hyperlink) + ')';
+        suffix = `](${escapeHyperlink(hyperlink)})`;
 
   wrapSelection(textarea, { prefix, suffix });
 }
@@ -159,9 +161,9 @@ function wrapSelection(textarea, options) {
 
     return {
       newText: prefix + newText + suffix,
-      caretOffset: emptyText ? prefix.length : -suffix.length,
+      caretOffset: emptyText ? prefix.length : -suffix.length
     };
-  })
+  });
 }
 
 function wrapLines(textarea, options) {
@@ -172,17 +174,18 @@ function wrapLines(textarea, options) {
     let newText = prefix;
 
     if (!emptyText) {
-      newText = text.split(/\n/g).map(line => prefix + (line.trim()) + suffix).join('\n');
-    } else {
+      newText = text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
+    }
+    else {
       newText += suffix;
     }
 
     // Add blank lines before/after if surrounding line are not empty
-    if (isNotBlank(twoLinesBefore)) newText = '\n' + newText;
+    if (isNotBlank(twoLinesBefore)) newText = `\n${newText}`;
     if (isNotBlank(twoLinesAfter)) newText += '\n';
 
     return { newText, caretOffset: newText.length - suffix.length };
-  })
+  });
 }
 
 function escapeSelection(textarea, options) {
@@ -192,13 +195,13 @@ function escapeSelection(textarea, options) {
 
     if (emptyText) return;
 
-    let newText = text.replace(/([\[\]()*_`\\~<>^])/g, '\\$1').replace(/\|\|/g, '\\|\\|');
+    const newText = text.replace(/([[\]()*_`\\~<>^])/g, '\\$1').replace(/\|\|/g, '\\|\\|');
 
     return {
-      newText: newText,
-      caretOffset: newText.length,
+      newText,
+      caretOffset: newText.length
     };
-  })
+  });
 }
 
 function escapeHyperlink(url) {
@@ -212,12 +215,12 @@ function isNotBlank(string) {
 function clickHandler(event) {
   const button = event.target.closest('.communication__toolbar__button');
   if (!button) return;
-  const toolbar  = button.closest('.communication__toolbar'),
+  const toolbar = button.closest('.communication__toolbar'),
         // There may be multiple toolbars present on the page,
         // in the case of image pages with description edit active
         // we target the textarea that shares the same parent as the toolabr
         textarea = $('.js-toolbar-input', toolbar.parentNode),
-        id       = button.dataset.syntaxId;
+        id = button.dataset.syntaxId;
 
   markdownSyntax[id].action(textarea, markdownSyntax[id].options);
   textarea.focus();
@@ -226,7 +229,7 @@ function clickHandler(event) {
 function shortcutHandler(event) {
   if (!event.ctrlKey || (window.navigator.platform === 'MacIntel' && !event.metaKey) || event.shiftKey || event.altKey) return;
   const textarea = event.target,
-        key      = event.key.toLowerCase();
+        key = event.key.toLowerCase();
 
   for (const id in markdownSyntax) {
     if (key === markdownSyntax[id].options.shortcutKey) {
@@ -250,7 +253,7 @@ function setupToolbar() {
     wrapper.classList.add('block__column--half');
   });
   $$('.js-preview-output-wrapper').forEach(wrapper => {
-    showEl(wrapper)
+    showEl(wrapper);
   });
 }
 

@@ -10,7 +10,7 @@ import { hideEl, showEl } from './utils/dom.js';
 function handleError(response) {
   const errorMessage = '<div>Preview failed to load!</div>';
 
-  if (!response.ok){
+  if (!response.ok) {
     return errorMessage;
   }
 
@@ -24,7 +24,7 @@ function commentReply(user, url, textarea, quote) {
   if (newval && /\n$/.test(newval)) newval += '\n';
   newval += `${text}\n`;
 
-  if (quote){
+  if (quote) {
     newval += `[bq="${user.replace('"', '\'')}"] ${quote} [/bq]\n`;
   }
 
@@ -44,12 +44,12 @@ function commentReply(user, url, textarea, quote) {
 let previewAbortController = null;
 
 function getPreview(body, anonymous, previewLoading, previewContent) {
-  let path = '/posts/preview';
+  const path = '/posts/preview';
 
   if (typeof body !== 'string') return;
 
   const trimmedBody = body.trim();
-  if (trimmedBody.length < 1){
+  if (trimmedBody.length < 1) {
     previewContent.innerHTML = '';
     return;
   }
@@ -95,7 +95,7 @@ function resizeTextarea(e) {
 function setupPreviews() {
   let textarea = document.querySelector('.js-preview-input');
 
-  if (!textarea){
+  if (!textarea) {
     textarea = document.querySelector('.js-preview-description');
   }
 
@@ -103,7 +103,7 @@ function setupPreviews() {
   const previewContent = document.querySelector('.communication-preview__content');
   const previewAnon = document.querySelector('.js-preview-anonymous') || false;
 
-  if (!textarea || !previewContent){
+  if (!textarea || !previewContent) {
     return;
   }
 
@@ -129,7 +129,7 @@ function setupPreviews() {
   previewAnon && previewAnon.addEventListener('click', updatePreview);
 
   document.addEventListener('click', event => {
-    if (event.target && event.target.closest('.post-reply')){
+    if (event.target && event.target.closest('.post-reply')) {
       const link = event.target.closest('.post-reply');
       commentReply(link.dataset.author, link.getAttribute('href'), textarea, link.dataset.post);
       event.preventDefault();
