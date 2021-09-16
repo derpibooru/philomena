@@ -13,12 +13,11 @@ defmodule Camo.Image do
         URI.to_string(%{uri | scheme: "https", port: 443})
 
       true ->
-        camo_digest = :crypto.mac(:hmac, :sha, camo_key(), input) |> Base.encode16(case: :lower)
+        camo_digest = :crypto.mac(:hmac, :sha, camo_key(), input) |> Base.url_encode64(padding: false)
 
         camo_uri = %URI{
           host: camo_host(),
-          path: "/" <> camo_digest,
-          query: URI.encode_query(url: input),
+          path: "/" <> camo_digest <> "/" <> Base.url_encode64(input, padding: false),
           scheme: "https"
         }
 
