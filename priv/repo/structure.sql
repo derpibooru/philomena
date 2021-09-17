@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.2
--- Dumped by pg_dump version 13.2
+-- Dumped from database version 13.4
+-- Dumped by pg_dump version 13.4
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1988,7 +1988,8 @@ CREATE TABLE public.users (
     last_renamed_at timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
     forced_filter_id bigint,
     confirmed_at timestamp(0) without time zone,
-    senior_staff boolean DEFAULT false
+    senior_staff boolean DEFAULT false,
+    bypass_rate_limits boolean DEFAULT false
 );
 
 
@@ -4844,3 +4845,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20201124224116);
 INSERT INTO public."schema_migrations" (version) VALUES (20210121200815);
 INSERT INTO public."schema_migrations" (version) VALUES (20210301012137);
 INSERT INTO public."schema_migrations" (version) VALUES (20210427022351);
+INSERT INTO public."schema_migrations" (version) VALUES (20210917190346);

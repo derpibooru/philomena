@@ -118,6 +118,7 @@ defmodule Philomena.Users.User do
     field :secondary_role, :string
     field :hide_default_role, :boolean, default: false
     field :senior_staff, :boolean, default: false
+    field :bypass_rate_limits, :boolean, default: false
 
     # For avatar validation/persistence
     field :avatar_width, :integer, virtual: true
@@ -271,7 +272,7 @@ defmodule Philomena.Users.User do
 
   def update_changeset(user, attrs, roles) do
     user
-    |> cast(attrs, [:name, :email, :role, :secondary_role, :hide_default_role, :senior_staff])
+    |> cast(attrs, [:name, :email, :role, :secondary_role, :hide_default_role, :senior_staff, :bypass_rate_limits])
     |> validate_required([:name, :email, :role])
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
     |> put_assoc(:roles, roles)
