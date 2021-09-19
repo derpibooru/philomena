@@ -1,4 +1,5 @@
 use jemallocator::Jemalloc;
+use rustler::Term;
 
 mod camo;
 mod markdown;
@@ -14,13 +15,13 @@ rustler::init! {
 // Markdown NIF wrappers.
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html(input: String) -> String {
-    markdown::to_html(input)
+fn markdown_to_html<'a>(input: String, reps: Term<'a>) -> String {
+    markdown::to_html(input, reps)
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html_unsafe(input: String) -> String {
-    markdown::to_html_unsafe(input)
+fn markdown_to_html_unsafe<'a>(input: String, reps: Term<'a>) -> String {
+    markdown::to_html_unsafe(input, reps)
 }
 
 // Camo NIF wrappers.

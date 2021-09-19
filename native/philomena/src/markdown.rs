@@ -1,5 +1,7 @@
 use comrak::ComrakOptions;
 use crate::camo;
+use rustler::{MapIterator, Term};
+use std::collections::HashMap;
 
 fn common_options() -> ComrakOptions {
     let mut options = ComrakOptions::default();
@@ -13,21 +15,34 @@ fn common_options() -> ComrakOptions {
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
 
-    options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
+    options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or(String::from("")));
 
     options
 }
 
-pub fn to_html(input: String) -> String {
+fn map_to_hashmap<'a>(map: Term<'a>) -> Option<HashMap<String, String>> {
+    Some(MapIterator::new(map)?.map(|(key, value)| {
+        let key: String = key.decode().unwrap_or_else(|_| String::from(""));
+        let value: String = value.decode().unwrap_or_else(|_| String::from(""));
+
+        (key, value)
+    }).collect())
+}
+
+pub fn to_html<'a>(input: String, reps: Term<'a>) -> String {
     let mut options = common_options();
     options.render.escape = true;
+
+    options.extension.philomena_replacements = map_to_hashmap(reps);
 
     comrak::markdown_to_html(&input, &options)
 }
 
-pub fn to_html_unsafe(input: String) -> String {
+pub fn to_html_unsafe<'a>(input: String, reps: Term<'a>) -> String {
     let mut options = common_options();
     options.render.unsafe_ = true;
+
+    options.extension.philomena_replacements = map_to_hashmap(reps);
 
     comrak::markdown_to_html(&input, &options)
 }
