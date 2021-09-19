@@ -87,21 +87,44 @@ defmodule Philomena.Textile.ParserMarkdown do
   #
   #   open_token callback* close_token
   #
-  defp simple_recursive(:bq_open, :bq_close, open_tag, close_tag, callback, parser, [
-        {:bq_open, open} | r_tokens
-      ], level) do
+  defp simple_recursive(
+         :bq_open,
+         :bq_close,
+         open_tag,
+         close_tag,
+         callback,
+         parser,
+         [
+           {:bq_open, open} | r_tokens
+         ],
+         level
+       ) do
     case repeat(callback, parser, r_tokens, true, level) do
       {:ok, tree, [{:bq_close, _} | r2_tokens], level} ->
-        {:ok, [{:markup, "\n" <> String.duplicate(open_tag, level)}, tree, {:markup, "\n" <> String.duplicate(close_tag, level - 1)}], r2_tokens}
+        {:ok,
+         [
+           {:markup, "\n" <> String.duplicate(open_tag, level)},
+           tree,
+           {:markup, "\n" <> String.duplicate(close_tag, level - 1)}
+         ], r2_tokens}
 
       {:ok, tree, r2_tokens, level} ->
         {:ok, [{:text, open}, tree], r2_tokens}
     end
   end
 
-  defp simple_recursive(open_token, close_token, open_tag, close_tag, callback, parser, [
-         {open_token, open} | r_tokens
-       ], level) do
+  defp simple_recursive(
+         open_token,
+         close_token,
+         open_tag,
+         close_tag,
+         callback,
+         parser,
+         [
+           {open_token, open} | r_tokens
+         ],
+         level
+       ) do
     case repeat(callback, parser, r_tokens, false, level) do
       {:ok, tree, [{^close_token, _} | r2_tokens]} ->
         {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
@@ -152,8 +175,7 @@ defmodule Philomena.Textile.ParserMarkdown do
           _ ->
             case repeat(callback, put_state(parser, state), r_tokens, false, level) do
               {:ok, tree, [{^close_token, close}, {^lookahead_not, ln} | r2_tokens]} ->
-                {:ok, [{:text, open}, tree, {:text, close}],
-                 [{lookahead_not, ln} | r2_tokens]}
+                {:ok, [{:text, open}, tree, {:text, close}], [{lookahead_not, ln} | r2_tokens]}
 
               {:ok, tree, [{^close_token, _} | r2_tokens]} ->
                 {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
@@ -261,9 +283,7 @@ defmodule Philomena.Textile.ParserMarkdown do
       {:ok, tree, [{:unbracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
         href = url
 
-        {:ok,
-         [{:markup, "["}, tree, {:markup, "]("}, {:markup, href}, {:markup, ")"}],
-         r2_tokens}
+        {:ok, [{:markup, "["}, tree, {:markup, "]("}, {:markup, href}, {:markup, ")"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
         {:ok, [{:text, open}, tree], r2_tokens}
@@ -275,19 +295,21 @@ defmodule Philomena.Textile.ParserMarkdown do
       {:ok, tree, [{:bracketed_link_url, <<"\":", url::binary>>} | r2_tokens]} ->
         href = url
 
-        {:ok,
-         [{:markup, "["}, tree, {:markup, "]("}, {:markup, href}, {:markup, ")"}],
-         r2_tokens}
+        {:ok, [{:markup, "["}, tree, {:markup, "]("}, {:markup, href}, {:markup, ")"}], r2_tokens}
 
       {:ok, tree, r2_tokens} ->
         {:ok, [{:text, open}, tree], r2_tokens}
     end
   end
 
-  defp inner_inline_textile_element(parser, [
-         {token, img},
-         {:unbracketed_image_url, <<":", url::binary>>} | r_tokens
-       ], level)
+  defp inner_inline_textile_element(
+         parser,
+         [
+           {token, img},
+           {:unbracketed_image_url, <<":", url::binary>>} | r_tokens
+         ],
+         level
+       )
        when token in [:unbracketed_image, :bracketed_image] do
     img = parser.image_transform.(img)
 
@@ -372,8 +394,7 @@ defmodule Philomena.Textile.ParserMarkdown do
   #
 
   defp inline_textile_element_not_opening_markup(_parser, [{:literal, lit} | r_tokens], level) do
-    {:ok, [{:markup, Markdown.escape_markdown(lit)},],
-     r_tokens}
+    {:ok, [{:markup, Markdown.escape_markdown(lit)}], r_tokens}
   end
 
   defp inline_textile_element_not_opening_markup(_parser, [{:space, _} | r_tokens], level) do
@@ -385,11 +406,15 @@ defmodule Philomena.Textile.ParserMarkdown do
     {:ok, [{:text, binary}], r2_tokens}
   end
 
-  defp inline_textile_element_not_opening_markup(_parser, [
-         {:quicktxt, q1},
-         {token, t},
-         {:quicktxt, q2} | r_tokens
-       ], level)
+  defp inline_textile_element_not_opening_markup(
+         _parser,
+         [
+           {:quicktxt, q1},
+           {token, t},
+           {:quicktxt, q2} | r_tokens
+         ],
+         level
+       )
        when token in [
               :b_delim,
               :i_delim,
@@ -400,15 +425,18 @@ defmodule Philomena.Textile.ParserMarkdown do
               :del_delim,
               :sub_delim
             ] do
-    {:ok, [{:text, <<q1::utf8>>}, {:text, t}, {:text, <<q2::utf8>>}],
-     r_tokens}
+    {:ok, [{:text, <<q1::utf8>>}, {:text, t}, {:text, <<q2::utf8>>}], r_tokens}
   end
 
   defp inline_textile_element_not_opening_markup(_parser, [{:quicktxt, lit} | r_tokens], level) do
     {:ok, [{:text, <<lit::utf8>>}], r_tokens}
   end
 
-  defp inline_textile_element_not_opening_markup(parser, [{:bq_cite_start, start} | r_tokens], level) do
+  defp inline_textile_element_not_opening_markup(
+         parser,
+         [{:bq_cite_start, start} | r_tokens],
+         level
+       ) do
     case repeat(&bq_cite_text/3, parser, r_tokens, false, level) do
       {:ok, tree, [{:bq_cite_open, open} | r2_tokens]} ->
         case repeat(&block_textile_element/4, parser, r2_tokens, true, level + 1) do
@@ -437,7 +465,11 @@ defmodule Philomena.Textile.ParserMarkdown do
     end
   end
 
-  defp inline_textile_element_not_opening_markup(_parser, [{:bq_cite_open, tok} | r_tokens], level) do
+  defp inline_textile_element_not_opening_markup(
+         _parser,
+         [{:bq_cite_open, tok} | r_tokens],
+         level
+       ) do
     {:ok, [{:text, tok}], r_tokens}
   end
 
@@ -495,7 +527,8 @@ defmodule Philomena.Textile.ParserMarkdown do
   #    double_newline | newline | inline_textile_element;
   #
 
-  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens], bq, level) when bq == true do
+  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens], bq, level)
+       when bq == true do
     one = "\n" <> String.duplicate("> ", level)
     {:ok, [{:markup, String.duplicate(one, 2)}], r_tokens}
   end

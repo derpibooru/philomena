@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.TextileRenderer do
   def render(text, conn) do
     opts = %{image_transform: &Camo.Image.image_url/1}
     parsed = Parser.parse(opts, text)
-  
+
     images =
       parsed
       |> Enum.flat_map(fn

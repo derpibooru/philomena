@@ -134,9 +134,11 @@ defmodule PhilomenaWeb.ProfileController do
       |> TextRenderer.render_collection(conn)
       |> Enum.zip(recent_comments)
 
-    about_me = TextRenderer.render_one(%{body_md: user.description_md, body: user.description || ""}, conn)
+    about_me =
+      TextRenderer.render_one(%{body_md: user.description_md, body: user.description || ""}, conn)
 
-    scratchpad = TextRenderer.render_one(%{body_md: user.scratchpad_md, body: user.scratchpad || ""}, conn)
+    scratchpad =
+      TextRenderer.render_one(%{body_md: user.scratchpad_md, body: user.scratchpad || ""}, conn)
 
     commission_information = commission_info(user.commission, conn)
 
@@ -214,8 +216,9 @@ defmodule PhilomenaWeb.ProfileController do
   defp map_fetch(nil, _field_name), do: nil
   defp map_fetch(map, field_name), do: Map.get(map, field_name)
 
-  defp commission_info(%{information: info, information_md: info_md}, conn) when info not in [nil, ""],
-    do: TextRenderer.render_one(%{body: info, body_md: info_md}, conn)
+  defp commission_info(%{information: info, information_md: info_md}, conn)
+       when info not in [nil, ""],
+       do: TextRenderer.render_one(%{body: info, body_md: info_md}, conn)
 
   defp commission_info(_commission, _conn), do: ""
 

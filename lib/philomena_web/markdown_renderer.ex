@@ -17,7 +17,9 @@ defmodule PhilomenaWeb.MarkdownRenderer do
 
   defp find_images(text) do
     Regex.scan(~r/>>(\d+)([tsp])?/, text, capture: :all_but_first)
-    |> Enum.map(fn matches -> [Enum.at(matches, 0) |> String.to_integer(), Enum.at(matches, 1) || ""] end)
+    |> Enum.map(fn matches ->
+      [Enum.at(matches, 0) |> String.to_integer(), Enum.at(matches, 1) || ""]
+    end)
     |> Enum.filter(fn m -> Enum.at(m, 0) < 2_147_483_647 end)
   end
 
@@ -52,42 +54,50 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       img = loaded_images[Enum.at(group, 0)]
       text = "#{Enum.at(group, 0)}#{Enum.at(group, 1)}"
 
-      rendered = cond do
-        img != nil ->
-          case group do
-            [_id, "p"] when not img.hidden_from_users ->
-              Phoenix.View.render(@image_view, "_image_target.html",
-                image: img,
-                size: :medium,
-                conn: conn
-              )
-              |> safe_to_string()
-            [_id, "t"] when not img.hidden_from_users  ->
-              Phoenix.View.render(@image_view, "_image_target.html",
-                image: img,
-                size: :small,
-                conn: conn
-              )
-              |> safe_to_string()
-            [_id, "s"] when not img.hidden_from_users  ->
-              Phoenix.View.render(@image_view, "_image_target.html",
-                image: img,
-                size: :thumb_small,
-                conn: conn
-              )
-              |> safe_to_string()
-            [_id, ""] ->
-              link(">>#{img.id}#{link_suffix(img)}", to: "/images/#{img.id}")
-              |> safe_to_string()
-            [_id, suffix] when suffix in ["t", "s", "p"] ->
-              link(">>#{img.id}#{suffix}#{link_suffix(img)}", to: "/images/#{img.id}")
-              |> safe_to_string()
-            [id, suffix] -> # This condition should never trigger, but let's leave it here just in case.
-              ">>#{id}#{suffix}"
-          end
-        true ->
-          ">>#{text}"
-      end
+      rendered =
+        cond do
+          img != nil ->
+            case group do
+              [_id, "p"] when not img.hidden_from_users ->
+                Phoenix.View.render(@image_view, "_image_target.html",
+                  image: img,
+                  size: :medium,
+                  conn: conn
+                )
+                |> safe_to_string()
+
+              [_id, "t"] when not img.hidden_from_users ->
+                Phoenix.View.render(@image_view, "_image_target.html",
+                  image: img,
+                  size: :small,
+                  conn: conn
+                )
+                |> safe_to_string()
+
+              [_id, "s"] when not img.hidden_from_users ->
+                Phoenix.View.render(@image_view, "_image_target.html",
+                  image: img,
+                  size: :thumb_small,
+                  conn: conn
+                )
+                |> safe_to_string()
+
+              [_id, ""] ->
+                link(">>#{img.id}#{link_suffix(img)}", to: "/images/#{img.id}")
+                |> safe_to_string()
+
+              [_id, suffix] when suffix in ["t", "s", "p"] ->
+                link(">>#{img.id}#{suffix}#{link_suffix(img)}", to: "/images/#{img.id}")
+                |> safe_to_string()
+
+              # This condition should never trigger, but let's leave it here just in case.
+              [id, suffix] ->
+                ">>#{id}#{suffix}"
+            end
+
+          true ->
+            ">>#{text}"
+        end
 
       [text, rendered]
     end)

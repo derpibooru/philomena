@@ -5,7 +5,7 @@ defmodule Philomena.Repo.Migrations.AddMarkdownColumns do
     alter table("comments") do
       add :body_md, :varchar, default: nil
     end
-  
+
     alter table("messages") do
       add :body_md, :varchar, default: nil
     end
@@ -75,7 +75,7 @@ defmodule Philomena.Repo.Migrations.AddMarkdownColumns do
     alter table("comments") do
       remove :body_md
     end
-  
+
     alter table("messages") do
       remove :body_md
     end

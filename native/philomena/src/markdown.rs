@@ -15,7 +15,7 @@ fn common_options() -> ComrakOptions {
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
 
-    options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or(String::from("")));
+    options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
 
     options
 }
