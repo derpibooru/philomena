@@ -82,5 +82,3 @@ services:
       - app
     ports:
       - '8080:80'
-    environment:
-      - RUST_LOG=trace
