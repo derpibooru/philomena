@@ -40,6 +40,14 @@ defmodule Philomena.Textile.ParserMarkdown do
     |> Enum.map_join("", fn {_k, v} -> v end)
   end
 
+  def flatten_unquote(tree) do
+    tree
+    |> List.flatten()
+    |> Enum.map_join("", fn {_k, v} -> 
+      Regex.replace(~r/\n(> )/, v, "\n")
+    end)
+  end
+
   # Helper to turn a parse tree into a list
   def partial_flatten(tree) do
     tree
@@ -473,9 +481,39 @@ defmodule Philomena.Textile.ParserMarkdown do
     {:ok, [{:text, tok}], r_tokens}
   end
 
+  defp inline_textile_element_not_opening_markup(
+    parser,
+    [{:bq_open, start} | r_tokens],
+    level
+  ) do
+    case repeat(&block_textile_element/4, parser, r_tokens, true, level + 1) do
+      {:ok, tree, [{:bq_close, _} | r2_tokens], level} ->
+        {:ok,
+          [
+            {:markup, "\n" <> String.duplicate("> ", level)},
+            tree,
+            {:markup, "\n" <> String.duplicate("> ", level - 1)}
+          ], r2_tokens}
+
+      {:ok, tree, r2_tokens, level} ->
+        {:ok,
+          [
+            {:text, start},
+            {:text, flatten_unquote(tree)}
+          ], r2_tokens}
+    end
+  end
+
+  defp inline_textile_element_not_opening_markup(
+         _parser,
+         [{:bq_open, tok} | r_tokens],
+         level
+       ) do
+    {:ok, [{:text, tok}], r_tokens}
+  end
+
   defp inline_textile_element_not_opening_markup(parser, tokens, level) do
     [
-      {:bq_open, :bq_close, "> ", "> "},
       {:spoiler_open, :spoiler_close, "||", "||"},
       {:bracketed_b_open, :bracketed_b_close, "**", "**"},
       {:bracketed_i_open, :bracketed_i_close, "_", "_"},
@@ -488,29 +526,16 @@ defmodule Philomena.Textile.ParserMarkdown do
       {:bracketed_sub_open, :bracketed_sub_close, "%", "%"}
     ]
     |> Enum.find_value(fn {open_token, close_token, open_tag, close_tag} ->
-      if open_token == :bq_open do
-        simple_recursive(
-          open_token,
-          close_token,
-          open_tag,
-          close_tag,
-          &block_textile_element/4,
-          parser,
-          tokens,
-          level + 1
-        )
-      else
-        simple_recursive(
-          open_token,
-          close_token,
-          open_tag,
-          close_tag,
-          &block_textile_element/3,
-          parser,
-          tokens,
-          level
-        )
-      end
+      simple_recursive(
+        open_token,
+        close_token,
+        open_tag,
+        close_tag,
+        &block_textile_element/3,
+        parser,
+        tokens,
+        level
+      )
       |> case do
         {:ok, tree, r_tokens} ->
           {:ok, tree, r_tokens}
