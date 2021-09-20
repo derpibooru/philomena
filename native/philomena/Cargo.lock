@@ -143,7 +143,7 @@ dependencies = [
 [[package]]
 name = "comrak"
 version = "0.12.1"
-source = "git+https://github.com/philomena-dev/comrak?branch=main#3ecac2425999185fee33991dec6efbe812d82196"
+source = "git+https://github.com/philomena-dev/comrak?branch=main#3e2120b6b5d5d995b787dad27699f5bda4bc6112"
 dependencies = [
  "clap",
  "entities",
