@@ -43,7 +43,7 @@ defmodule Philomena.Textile.ParserMarkdown do
   def flatten_unquote(tree) do
     tree
     |> List.flatten()
-    |> Enum.map_join("", fn {_k, v} -> 
+    |> Enum.map_join("", fn {_k, v} ->
       Regex.replace(~r/\n(> )/, v, "\n")
     end)
   end
@@ -482,25 +482,25 @@ defmodule Philomena.Textile.ParserMarkdown do
   end
 
   defp inline_textile_element_not_opening_markup(
-    parser,
-    [{:bq_open, start} | r_tokens],
-    level
-  ) do
+         parser,
+         [{:bq_open, start} | r_tokens],
+         level
+       ) do
     case repeat(&block_textile_element/4, parser, r_tokens, true, level + 1) do
       {:ok, tree, [{:bq_close, _} | r2_tokens], level} ->
         {:ok,
-          [
-            {:markup, "\n" <> String.duplicate("> ", level)},
-            tree,
-            {:markup, "\n" <> String.duplicate("> ", level - 1)}
-          ], r2_tokens}
+         [
+           {:markup, "\n" <> String.duplicate("> ", level)},
+           tree,
+           {:markup, "\n" <> String.duplicate("> ", level - 1)}
+         ], r2_tokens}
 
       {:ok, tree, r2_tokens, level} ->
         {:ok,
-          [
-            {:text, start},
-            {:text, flatten_unquote(tree)}
-          ], r2_tokens}
+         [
+           {:text, start},
+           {:text, flatten_unquote(tree)}
+         ], r2_tokens}
     end
   end
 
