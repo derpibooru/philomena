@@ -210,6 +210,20 @@ blockquote {
   background-color: inherit;
 }
 
+// Prevent blockquote from gaining far too much indentation and breaking.
+blockquote blockquote blockquote blockquote blockquote blockquote {
+  margin: 1em 0;
+  padding: 1em 2px;
+}
+
+// Horizontal space is at a high premium on mobile.
+@media (max-width: $min_px_width_for_desktop_layout) {
+  blockquote {
+    margin: 1em 4px;
+    padding: 1em 4px;
+  }
+}
+
 .spoiler {
   background-color: $admin_links_hover_color;
   color: $admin_links_hover_color;
