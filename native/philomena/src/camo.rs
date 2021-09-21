@@ -27,8 +27,8 @@ fn untrusted_host(url: Url, camo_host: String, camo_key: String) -> Option<Strin
 
 pub fn image_url(uri: String) -> Option<String> {
     let cdn_host = env::var("CDN_HOST").ok()?;
-    let camo_host = env::var("CAMO_HOST").ok()?;
-    let camo_key = env::var("CAMO_KEY").ok()?;
+    let camo_host = env::var("CAMO_HOST").unwrap_or_else(|_| String::from(""));
+    let camo_key = env::var("CAMO_KEY").unwrap_or_else(|_| String::from(""));
 
     if camo_key.is_empty() {
         return Some(uri);

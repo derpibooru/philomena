@@ -14,12 +14,6 @@
 defmodule Philomena.Textile.ParserMarkdown do
   alias Philomena.Textile.Lexer
   alias Philomena.Markdown
-  alias Phoenix.HTML
-
-  defp markdown_quote(text) do
-    result = Regexp.replace(~r/\n/, text, "\\0> ")
-    "> #{result}"
-  end
 
   def parse(parser, input) do
     parser = Map.put(parser, :state, %{})
@@ -95,32 +89,6 @@ defmodule Philomena.Textile.ParserMarkdown do
   #
   #   open_token callback* close_token
   #
-  defp simple_recursive(
-         :bq_open,
-         :bq_close,
-         open_tag,
-         close_tag,
-         callback,
-         parser,
-         [
-           {:bq_open, open} | r_tokens
-         ],
-         level
-       ) do
-    case repeat(callback, parser, r_tokens, true, level) do
-      {:ok, tree, [{:bq_close, _} | r2_tokens], level} ->
-        {:ok,
-         [
-           {:markup, "\n" <> String.duplicate(open_tag, level)},
-           tree,
-           {:markup, "\n" <> String.duplicate(close_tag, level - 1)}
-         ], r2_tokens}
-
-      {:ok, tree, r2_tokens, level} ->
-        {:ok, [{:text, open}, tree], r2_tokens}
-    end
-  end
-
   defp simple_recursive(
          open_token,
          close_token,
@@ -504,14 +472,6 @@ defmodule Philomena.Textile.ParserMarkdown do
     end
   end
 
-  defp inline_textile_element_not_opening_markup(
-         _parser,
-         [{:bq_open, tok} | r_tokens],
-         level
-       ) do
-    {:ok, [{:text, tok}], r_tokens}
-  end
-
   defp inline_textile_element_not_opening_markup(parser, tokens, level) do
     [
       {:spoiler_open, :spoiler_close, "||", "||"},
@@ -566,11 +526,11 @@ defmodule Philomena.Textile.ParserMarkdown do
     inline_textile_element(parser, tokens, level)
   end
 
-  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens]) do
+  defp block_textile_element(_parser, [{:double_newline, _} | r_tokens], _level) do
     {:ok, [{:markup, "\n\n"}], r_tokens}
   end
 
-  defp block_textile_element(_parser, [{:newline, _} | r_tokens]) do
+  defp block_textile_element(_parser, [{:newline, _} | r_tokens], _level) do
     {:ok, [{:markup, "\n"}], r_tokens}
   end
 
