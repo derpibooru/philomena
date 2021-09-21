@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.TopicController do
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
   alias Philomena.{Forums, Topics, Polls, Posts}
   alias Philomena.PollVotes
-  alias PhilomenaWeb.TextileRenderer
+  alias PhilomenaWeb.TextRenderer
   alias Philomena.Repo
   import Ecto.Query
 
@@ -60,7 +60,7 @@ defmodule PhilomenaWeb.TopicController do
       |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
       |> Repo.all()
 
-    rendered = TextileRenderer.render_collection(posts, conn)
+    rendered = TextRenderer.render_collection(posts, conn)
 
     posts = Enum.zip(posts, rendered)
 

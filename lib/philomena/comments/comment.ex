@@ -11,6 +11,7 @@ defmodule Philomena.Comments.Comment do
     belongs_to :deleted_by, User
 
     field :body, :string
+    field :body_md, :string
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
     field :user_agent, :string, default: ""

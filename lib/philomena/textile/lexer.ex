@@ -2,9 +2,9 @@ defmodule Philomena.Textile.Lexer do
   import NimbleParsec
 
   token_list =
-    Enum.to_list(0x01..0x29)
-    ++ Enum.to_list(0x2b..0x2f)
-    ++ ':;<=>?[]\\^`~|'
+    Enum.to_list(0x01..0x29) ++
+      Enum.to_list(0x2B..0x2F) ++
+      ':;<=>?[]\\^`~|'
 
   space_list = '\f \r\t\u00a0\u1680\u180e\u202f\u205f\u3000' ++ Enum.to_list(0x2000..0x200A)
   space = utf8_char(space_list)

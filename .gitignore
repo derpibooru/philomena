@@ -47,3 +47,9 @@ npm-debug.log
 
 # Sobelow
 .sobelow
+
+# Unportable compiled binaries
+/priv/native/
+
+# Rust binaries
+/native/**/target

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Admin.DnpEntryController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TextileRenderer
+  alias PhilomenaWeb.TextRenderer
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Repo
   import Ecto.Query
@@ -44,8 +44,8 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
 
     bodies =
       dnp_entries
-      |> Enum.map(&%{body: &1.conditions})
-      |> TextileRenderer.render_collection(conn)
+      |> Enum.map(&%{body: &1.conditions, body_md: &1.conditions_md})
+      |> TextRenderer.render_collection(conn)
 
     dnp_entries = %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}
 

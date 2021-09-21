@@ -36,6 +36,11 @@ config :philomena, PhilomenaWeb.Endpoint,
   render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
   pubsub_server: Philomena.PubSub
 
+# Markdown
+config :philomena, Philomena.Native,
+  crate: "philomena",
+  mode: :release
+
 config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,
   slime: PhoenixSlime.Engine,

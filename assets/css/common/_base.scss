@@ -210,6 +210,20 @@ blockquote {
   background-color: inherit;
 }
 
+// Prevent blockquote from gaining far too much indentation and breaking.
+blockquote blockquote blockquote blockquote blockquote blockquote {
+  margin: 1em 0;
+  padding: 1em 2px;
+}
+
+// Horizontal space is at a high premium on mobile.
+@media (max-width: $min_px_width_for_desktop_layout) {
+  blockquote {
+    margin: 1em 4px;
+    padding: 1em 4px;
+  }
+}
+
 .spoiler {
   background-color: $admin_links_hover_color;
   color: $admin_links_hover_color;
@@ -265,6 +279,26 @@ blockquote {
 
 .textile-syntax-reference {
   margin-bottom: 6px;
+}
+
+img[alt=tiny] {
+  max-height: $image_tiny_size;
+  max-width: $image_tiny_size;
+}
+
+img[alt=small] {
+  max-height: $image_small_size;
+  max-width: $image_small_size;
+}
+
+img[alt=medium] {
+  max-height: $image_medium_size;
+  max-width: $image_medium_size;
+}
+
+img[alt=large] {
+  max-height: $image_large_size;
+  max-width: $image_large_size;
 }
 
 //donations

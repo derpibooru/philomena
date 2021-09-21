@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
   alias Philomena.Commissions.Commission
   alias Philomena.Commissions
-  alias PhilomenaWeb.TextileRenderer
+  alias PhilomenaWeb.TextRenderer
   alias Philomena.Users.User
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
@@ -36,21 +36,21 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     item_descriptions =
       items
-      |> Enum.map(&%{body: &1.description})
-      |> TextileRenderer.render_collection(conn)
+      |> Enum.map(&%{body: &1.description, body_md: &1.description_md})
+      |> TextRenderer.render_collection(conn)
 
     item_add_ons =
       items
-      |> Enum.map(&%{body: &1.add_ons})
-      |> TextileRenderer.render_collection(conn)
+      |> Enum.map(&%{body: &1.add_ons, body_md: &1.add_ons_md})
+      |> TextRenderer.render_collection(conn)
 
     [information, contact, will_create, will_not_create] =
-      TextileRenderer.render_collection(
+      TextRenderer.render_collection(
         [
-          %{body: commission.information || ""},
-          %{body: commission.contact || ""},
-          %{body: commission.will_create || ""},
-          %{body: commission.will_not_create || ""}
+          %{body_md: commission.information_md, body: commission.information || ""},
+          %{body_md: commission.contact_md, body: commission.contact || ""},
+          %{body_md: commission.will_create_md, body: commission.will_create || ""},
+          %{body_md: commission.will_not_create_md, body: commission.will_not_create || ""}
         ],
         conn
       )

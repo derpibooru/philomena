@@ -64,6 +64,7 @@ defmodule Philomena.Images.Image do
     field :votes_count, :integer, default: 0
     field :source_url, :string
     field :description, :string, default: ""
+    field :description_md, :string, default: ""
     field :image_sha512_hash, :string
     field :image_orig_sha512_hash, :string
     field :deletion_reason, :string
@@ -80,6 +81,7 @@ defmodule Philomena.Images.Image do
     field :destroyed_content, :boolean
     field :hidden_image_key, :string
     field :scratchpad, :string
+    field :scratchpad_md, :string
     field :hides_count, :integer, default: 0
 
     # todo: can probably remove these now
