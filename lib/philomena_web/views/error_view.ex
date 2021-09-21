@@ -1,17 +1,18 @@
 defmodule PhilomenaWeb.ErrorView do
   use PhilomenaWeb, :view
 
-  import PhilomenaWeb.LayoutView, only: [
-    stylesheet_path: 2,
-    dark_stylesheet_path: 1,
-    viewport_meta_tag: 1
-  ]
+  import PhilomenaWeb.LayoutView,
+    only: [
+      stylesheet_path: 2,
+      dark_stylesheet_path: 1,
+      viewport_meta_tag: 1
+    ]
 
   @codes %{
     400 => {"Bad Request", "Couldn't process your request!"},
     403 => {"Forbidden", "Not allowed to access this page (are your cookies enabled?)"},
     404 => {"Not Found", "Couldn't find what you were looking for!"},
-    500 => {"Internal Error", "Couldn't process your request!"},
+    500 => {"Internal Error", "Couldn't process your request!"}
   }
 
   # By default, Phoenix returns the status message from

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.CommentController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TextileRenderer
+  alias PhilomenaWeb.TextRenderer
   alias Philomena.Elasticsearch
   alias Philomena.{Comments.Query, Comments.Comment}
   import Ecto.Query
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.CommentController do
         preload(Comment, [:deleted_by, image: [tags: :aliases], user: [awards: :badge]])
       )
 
-    rendered = TextileRenderer.render_collection(comments.entries, conn)
+    rendered = TextRenderer.render_collection(comments.entries, conn)
 
     comments = %{comments | entries: Enum.zip(rendered, comments.entries)}
 

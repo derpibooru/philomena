@@ -9,42 +9,32 @@ defmodule PhilomenaWeb.TextileRenderer do
   # Kill bogus compile time dependency on ImageView
   @image_view Module.concat(["PhilomenaWeb.ImageView"])
 
-  def render_one(post, conn) do
-    hd(render_collection([post], conn))
-  end
-
-  def render_collection(posts, conn) do
+  def render(text, conn) do
     opts = %{image_transform: &Camo.Image.image_url/1}
-    parsed = Enum.map(posts, &Parser.parse(opts, &1.body))
+    parsed = Parser.parse(opts, text)
 
     images =
       parsed
-      |> Enum.flat_map(fn tree ->
-        tree
-        |> Enum.flat_map(fn
-          {:text, text} ->
-            [text]
+      |> Enum.flat_map(fn
+        {:text, text} ->
+          [text]
 
-          _ ->
-            []
-        end)
+        _ ->
+          []
       end)
       |> find_images
 
     parsed
-    |> Enum.map(fn tree ->
-      tree
-      |> Enum.map(fn
-        {:text, text} ->
-          text
-          |> replacement_entities()
-          |> replacement_images(conn, images)
+    |> Enum.map(fn
+      {:text, text} ->
+        text
+        |> replacement_entities()
+        |> replacement_images(conn, images)
 
-        {_k, markup} ->
-          markup
-      end)
-      |> Enum.join()
+      {_k, markup} ->
+        markup
     end)
+    |> Enum.join()
   end
 
   defp replacement_entities(t) do
@@ -99,11 +89,11 @@ defmodule PhilomenaWeb.TextileRenderer do
           |> safe_to_string()
 
         [image, suffix] when suffix in ["p", "t", "s"] ->
-          link(">>#{image.id}#{suffix}#{link_postfix(image)}", to: "/#{image.id}")
+          link(">>#{image.id}#{suffix}#{link_postfix(image)}", to: "/images/#{image.id}")
           |> safe_to_string()
 
         [image] ->
-          link(">>#{image.id}#{link_postfix(image)}", to: "/#{image.id}")
+          link(">>#{image.id}#{link_postfix(image)}", to: "/images/#{image.id}")
           |> safe_to_string()
       end
     end)

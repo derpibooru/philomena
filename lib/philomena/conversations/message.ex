@@ -10,6 +10,7 @@ defmodule Philomena.Conversations.Message do
     belongs_to :from, User
 
     field :body, :string
+    field :body_md, :string
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end

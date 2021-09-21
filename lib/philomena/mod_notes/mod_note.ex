@@ -12,6 +12,7 @@ defmodule Philomena.ModNotes.ModNote do
     field :notable_type, :string
 
     field :body, :string
+    field :body_md, :string
 
     field :notable, :any, virtual: true
 

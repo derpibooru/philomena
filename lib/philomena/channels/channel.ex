@@ -14,6 +14,7 @@ defmodule Philomena.Channels.Channel do
     field :short_name, :string
     field :title, :string, default: ""
     field :description, :string
+    field :description_md, :string
     field :tags, :string
     field :viewers, :integer, default: 0
     field :nsfw, :boolean, default: false

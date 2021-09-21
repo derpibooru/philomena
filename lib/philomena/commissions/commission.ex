@@ -17,6 +17,10 @@ defmodule Philomena.Commissions.Commission do
     field :contact, :string
     field :will_create, :string
     field :will_not_create, :string
+    field :information_md, :string
+    field :contact_md, :string
+    field :will_create_md, :string
+    field :will_not_create_md, :string
     field :commission_items_count, :integer, default: 0
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)

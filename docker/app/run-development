@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
 
+# For compatibility with musl libc
+export CARGO_FEATURE_DISABLE_INITIAL_EXEC_TLS=1
+
 background() {
   while :; do
     mix run -e 'Philomena.Release.update_channels()'
