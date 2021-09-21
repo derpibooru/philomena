@@ -24,6 +24,9 @@
     label.table-list__label
       .table-list__label__text Senior staff:
       .table-list__label__input = checkbox f, :senior_staff, class: "checkbox"
+    label.table-list__label
+      .table-list__label__text Bypass rate limits:
+      .table-list__label__input = checkbox f, :bypass_rate_limits, class: "checkbox"
     .table-list__label
       .table-list__label__text Avatar
       .table-list__label__input

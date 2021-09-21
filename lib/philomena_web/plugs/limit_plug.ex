@@ -43,6 +43,9 @@ defmodule PhilomenaWeb.LimitPlug do
       is_staff(conn.assigns.current_user) and skip_staff ->
         conn
 
+      conn.assigns.current_user.bypass_rate_limits ->
+        conn
+
       conn.assigns.ajax? ->
         conn
         |> Controller.put_flash(:error, error)
