@@ -2,6 +2,7 @@ use comrak::ComrakOptions;
 use crate::camo;
 use rustler::{MapIterator, Term};
 use std::collections::HashMap;
+use std::env;
 
 fn common_options() -> ComrakOptions {
     let mut options = ComrakOptions::default();
@@ -16,6 +17,10 @@ fn common_options() -> ComrakOptions {
     options.render.github_pre_lang = true;
 
     options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
+
+    if let Some(domains) = env::var("SITE_DOMAINS").ok() {
+        options.extension.philomena_domains = Some(domains.split(",").map(|s| s.to_string()).collect::<Vec<String>>());
+    };
 
     options
 }

@@ -104,6 +104,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
+name = "bytes"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4872d67bab6358e59559027aa3b9157c53d9358c51423c17554809a8858e0f8"
+
+[[package]]
 name = "cc"
 version = "1.0.70"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -143,10 +149,11 @@ dependencies = [
 [[package]]
 name = "comrak"
 version = "0.12.1"
-source = "git+https://github.com/philomena-dev/comrak?branch=main#b9bd7fb744d5cade8355280f4b3b3a8303410595"
+source = "git+https://github.com/philomena-dev/comrak?branch=main#52ae6ca7ebcc459e557432991cdbbcea80e10b12"
 dependencies = [
  "clap",
  "entities",
+ "http",
  "lazy_static",
  "pest",
  "pest_derive",
@@ -254,6 +261,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "http"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1323096b05d41827dadeaee54c9981958c0f94e670bc94ed80037d1a7b8b186b"
+dependencies = [
+ "bytes",
+ "fnv",
+ "itoa",
 ]
 
 [[package]]
