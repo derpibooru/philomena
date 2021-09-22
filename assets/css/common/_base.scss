@@ -63,11 +63,15 @@ h6 {
   margin-bottom: 0;
 }
 
-p {
+.paragraph {
   hyphens: none;
-  margin-bottom: 0.75rem;
-  margin-top: 0.25rem;
+  margin-bottom: var(--padding-small);
+  margin-top: var(--padding-small);
   margin-left: 2px;
+}
+
+p {
+  @extend .paragraph;
 }
 
 pre {
