@@ -79,6 +79,15 @@ pre {
   padding: 10px;
   font-size: 11px;
   font-family: $font_family_monospace;
+  border: 1px solid $meta_border_color;
+  max-width: 100%;
+
+  code {
+    overflow-y: scroll;
+    border: 0;
+    background: 0;
+    padding: 0;
+  }
 }
 
 a, a:active, a:visited {
@@ -305,8 +314,14 @@ img[alt=large] {
   max-width: $image_large_size !important;
 }
 
-.communication__body__text > table {
+table {
   @extend .table;
+}
+
+code {
+  background-color: $meta_color;
+  border: 1px solid $meta_border_color;
+  padding: 0 4px;
 }
 
 //donations

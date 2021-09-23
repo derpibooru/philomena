@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.PageController do
 
   alias Philomena.StaticPages.StaticPage
   alias Philomena.StaticPages
+  alias PhilomenaWeb.MarkdownRenderer
 
   plug :load_and_authorize_resource, model: StaticPage, id_field: "slug"
 
@@ -11,7 +12,8 @@ defmodule PhilomenaWeb.PageController do
   end
 
   def show(conn, _params) do
-    render(conn, "show.html", title: conn.assigns.static_page.title)
+    rendered = MarkdownRenderer.render_unsafe(conn.assigns.static_page.body, conn)
+    render(conn, "show.html", title: conn.assigns.static_page.title, rendered: rendered)
   end
 
   def new(conn, _params) do

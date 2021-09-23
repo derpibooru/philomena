@@ -15,6 +15,13 @@ defmodule PhilomenaWeb.MarkdownRenderer do
     Markdown.to_html(text, representations)
   end
 
+  def render_unsafe(text, conn) do
+    images = find_images(text)
+    representations = render_representations(images, conn)
+
+    Markdown.to_html_unsafe(text, representations)
+  end
+
   defp find_images(text) do
     Regex.scan(~r/>>(\d+)([tsp])?/, text, capture: :all_but_first)
     |> Enum.map(fn matches ->
