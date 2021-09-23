@@ -309,6 +309,24 @@ img[alt=large] {
   @extend .table;
 }
 
+.communication__body__text pre {
+  border: 1px solid $meta_border_color;
+  max-width: 100%;
+
+  code {
+    overflow-y: scroll;
+    border: 0;
+    background: 0;
+    padding: 0;
+  }
+}
+
+.communication__body__text code {
+  background-color: $meta_color;
+  border: 1px solid $meta_border_color;
+  padding: 0 4px;
+}
+
 //donations
 .donate-button {
   background: 0;
