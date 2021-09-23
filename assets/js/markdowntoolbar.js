@@ -49,7 +49,7 @@ const markdownSyntax = {
     action: insertLink,
     options: { image: true, shortcutKey: 'k' }
   },
-  noParse: {
+  escape: {
     action: escapeSelection,
     options: { escapeChar: '\\' }
   }
@@ -104,21 +104,12 @@ function getSelections(textarea, linesOnly = false) {
   };
 }
 
-function getSurroundingTwoLines(beforeText, afterText) {
-  // Selection typically includes the new line right before it
-  // therefore you need to include two lines before and after
-  return {
-    twoLinesBefore: beforeText.split('\n').slice(-2).join('\n'),
-    twoLinesAfter: afterText.split('\n').slice(0, 2).join('\n')
-  };
-}
-
 function transformSelection(textarea, transformer, eachLine) {
   const { selectedText, beforeSelection, afterSelection } = getSelections(textarea, eachLine),
         // For long comments, record scrollbar position to restore it later
         { scrollTop } = textarea;
 
-  const { newText, caretOffset } = transformer(selectedText, beforeSelection, afterSelection);
+  const { newText, caretOffset } = transformer(selectedText);
 
   textarea.value = beforeSelection + newText + afterSelection;
 
@@ -142,7 +133,7 @@ function insertLink(textarea, options) {
   }
 
   const prefix = options.image ? '![' : '[',
-        suffix = `](${escapeHyperlink(hyperlink)})`;
+        suffix = `](${hyperlink})`;
 
   wrapSelection(textarea, { prefix, suffix });
 }
@@ -161,15 +152,14 @@ function wrapSelection(textarea, options) {
 
     return {
       newText: prefix + newText + suffix,
-      caretOffset: emptyText ? prefix.length : -suffix.length
+      caretOffset: emptyText ? prefix.length : 0
     };
   });
 }
 
 function wrapLines(textarea, options) {
-  transformSelection(textarea, (selectedText, before, after) => {
+  transformSelection(textarea, (selectedText) => {
     const { text = selectedText, prefix = '', suffix = '' } = options,
-          { twoLinesBefore, twoLinesAfter } = getSurroundingTwoLines(before, after),
           emptyText = text === '';
     let newText = prefix;
 
@@ -180,11 +170,7 @@ function wrapLines(textarea, options) {
       newText += suffix;
     }
 
-    // Add blank lines before/after if surrounding line are not empty
-    if (isNotBlank(twoLinesBefore)) newText = `\n${newText}`;
-    if (isNotBlank(twoLinesAfter)) newText += '\n';
-
-    return { newText, caretOffset: newText.length - suffix.length };
+    return { newText, caretOffset: newText.length };
   });
 }
 
@@ -195,7 +181,7 @@ function escapeSelection(textarea, options) {
 
     if (emptyText) return;
 
-    const newText = text.replace(/([[\]()*_`\\~<>^])/g, '\\$1').replace(/\|\|/g, '\\|\\|');
+    const newText = text.replace(/([*_[\]()^`%\\~<>#|])/g, '\\$1');
 
     return {
       newText,
@@ -204,21 +190,13 @@ function escapeSelection(textarea, options) {
   });
 }
 
-function escapeHyperlink(url) {
-  return typeof url === 'string' ? url.replace(/([()])/g, '\\$1') : url;
-}
-
-function isNotBlank(string) {
-  return /\S/.test(string);
-}
-
 function clickHandler(event) {
   const button = event.target.closest('.communication__toolbar__button');
   if (!button) return;
   const toolbar = button.closest('.communication__toolbar'),
         // There may be multiple toolbars present on the page,
         // in the case of image pages with description edit active
-        // we target the textarea that shares the same parent as the toolabr
+        // we target the textarea that shares the same parent as the toolbar
         textarea = $('.js-toolbar-input', toolbar.parentNode),
         id = button.dataset.syntaxId;
 
