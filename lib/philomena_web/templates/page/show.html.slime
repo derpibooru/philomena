@@ -3,9 +3,13 @@ p
   ' Last updated
   => pretty_time(@static_page.updated_at)
 
-== @static_page.body
+p
+  => link to: Routes.page_history_path(@conn, :index, @static_page) do
+    i.fa.fa-history>
+    ' Revision history
+  = if can?(@conn, :edit, Philomena.StaticPages.StaticPage) do
+    =< link to: Routes.page_path(@conn, :edit, @static_page) do
+      i.fa.fa-edit>
+      ' Edit
 
-p = link "Revision history", to: Routes.page_history_path(@conn, :index, @static_page)
-
-= if can?(@conn, :edit, Philomena.StaticPages.StaticPage) do
-  p = link "Edit", to: Routes.page_path(@conn, :edit, @static_page)
+== @rendered
