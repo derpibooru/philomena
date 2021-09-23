@@ -245,6 +245,11 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
     color: $admin_links_hover_color;
   }
 
+  code {
+    background: 0;
+    border: 0;
+  }
+
   &:not(:hover) > .image-show-container {
     background: $admin_links_hover_color;
 
@@ -262,6 +267,9 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
   }
   a:hover {
     color: $link_dark_color;
+  }
+  code {
+    @extend code;
   }
 }
 
