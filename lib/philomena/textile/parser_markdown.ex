@@ -509,13 +509,14 @@ defmodule Philomena.Textile.ParserMarkdown do
     {:ok, [{:markup, "\n" <> String.duplicate("> ", level)}], r_tokens}
   end
 
+  # &nbsp;
   defp block_textile_element(_parser, [{:double_newline, _} | r_tokens], level)
        when level == 0 do
-    {:ok, [{:markup, "\n\n"}], r_tokens}
+    {:ok, [{:markup, "\n\u00a0\n"}], r_tokens}
   end
 
   defp block_textile_element(_parser, [{:newline, _} | r_tokens], level) when level == 0 do
-    {:ok, [{:markup, "\n"}], r_tokens}
+    {:ok, [{:markup, "\u00a0\n"}], r_tokens}
   end
 
   defp block_textile_element(parser, tokens, level) do
