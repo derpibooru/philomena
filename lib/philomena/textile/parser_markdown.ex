@@ -94,7 +94,7 @@ defmodule Philomena.Textile.ParserMarkdown do
       {:ok, tree, [{^close_token, _} | r2_tokens], _level} ->
         {:ok, [{:markup, open_tag}, tree, {:markup, close_tag}], r2_tokens}
 
-      {:ok, tree, r2_tokens} ->
+      {:ok, tree, r2_tokens, _level} ->
         {:ok, [{:text, open}, tree], r2_tokens}
     end
   end
