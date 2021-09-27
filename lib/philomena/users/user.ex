@@ -274,7 +274,15 @@ defmodule Philomena.Users.User do
 
   def update_changeset(user, attrs, roles) do
     user
-    |> cast(attrs, [:name, :email, :role, :secondary_role, :hide_default_role, :senior_staff, :bypass_rate_limits])
+    |> cast(attrs, [
+      :name,
+      :email,
+      :role,
+      :secondary_role,
+      :hide_default_role,
+      :senior_staff,
+      :bypass_rate_limits
+    ])
     |> validate_required([:name, :email, :role])
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
     |> put_assoc(:roles, roles)
