@@ -13,6 +13,14 @@ defmodule PhilomenaWeb.SettingView do
     ]
   end
 
+  def scale_options do
+    [
+      [key: "Load full images on image pages", value: "false"],
+      [key: "Load full images on image pages, sized to fit the page", value: "partscaled"],
+      [key: "Scale large images down before downloading", value: "true"]
+    ]
+  end
+
   def local_tab_class(conn) do
     case conn.assigns.current_user do
       nil -> ""

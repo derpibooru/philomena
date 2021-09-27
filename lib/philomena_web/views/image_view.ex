@@ -203,7 +203,7 @@ defmodule PhilomenaWeb.ImageView do
   def deleter(%{deleter: %{name: name}}), do: name
   def deleter(_image), do: "System"
 
-  def scaled_value(%{scale_large_images: false}), do: "false"
+  def scaled_value(%{scale_large_images: scale}), do: scale
   def scaled_value(_user), do: "true"
 
   def hides_images?(conn), do: can?(conn, :hide, %Philomena.Images.Image{})
