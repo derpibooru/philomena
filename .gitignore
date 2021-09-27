@@ -53,3 +53,4 @@ npm-debug.log
 
 # Rust binaries
 /native/**/target
+/.cargo
