@@ -74,14 +74,14 @@ h1 Content Settings
                 ' This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50.
                 ' For 1080p monitors, try 24.
           .field
-            => label f, :scale_large_images
-            => checkbox f, :scale_large_images, class: "checkbox"
-            .fieldlabel: i Scale large images down to fit your monitor (approximately) server-side before downloading. Disabling this will load full images immediately on image pages.
-          .field
             => label f, :theme
             => select f, :theme, theme_options(@conn), class: "input"
             = error_tag f, :theme
             .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
+          .field
+            => label f, :scale_large_images
+            => select f, :scale_large_images, scale_options(), class: "input"
+            = error_tag f, :scale_large_images
 
       .block__tab.hidden.flex.flex--maybe-wrap data-tab="comments"
         div

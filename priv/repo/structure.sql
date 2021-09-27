@@ -1964,7 +1964,6 @@ CREATE TABLE public.users (
     fancy_tag_field_in_settings boolean DEFAULT true NOT NULL,
     autorefresh_by_default boolean DEFAULT false NOT NULL,
     anonymous_by_default boolean DEFAULT false NOT NULL,
-    scale_large_images boolean DEFAULT true NOT NULL,
     comments_newest_first boolean DEFAULT true NOT NULL,
     comments_always_jump_to_last boolean DEFAULT false NOT NULL,
     comments_per_page integer DEFAULT 20 NOT NULL,
@@ -2010,9 +2009,10 @@ CREATE TABLE public.users (
     forced_filter_id bigint,
     confirmed_at timestamp(0) without time zone,
     senior_staff boolean DEFAULT false,
-    bypass_rate_limits boolean DEFAULT false,
     description_md character varying,
-    scratchpad_md character varying
+    scratchpad_md character varying,
+    bypass_rate_limits boolean DEFAULT false,
+    scale_large_images character varying(255) DEFAULT 'true'::character varying NOT NULL
 );
 
 
@@ -4870,3 +4870,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20210301012137);
 INSERT INTO public."schema_migrations" (version) VALUES (20210427022351);
 INSERT INTO public."schema_migrations" (version) VALUES (20210912171343);
 INSERT INTO public."schema_migrations" (version) VALUES (20210917190346);
+INSERT INTO public."schema_migrations" (version) VALUES (20210921025336);
