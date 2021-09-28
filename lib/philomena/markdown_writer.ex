@@ -3,7 +3,6 @@ defmodule Philomena.MarkdownWriter do
   alias PhilomenaWeb.TextileMarkdownRenderer
 
   def put_markdown(obj, attrs, field, field_md) do
-    IO.inspect(attrs)
     val = attrs[field] || attrs[to_string(field)] || ""
     md = TextileMarkdownRenderer.render_one(%{body: val})
   
