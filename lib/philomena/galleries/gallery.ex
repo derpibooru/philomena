@@ -14,10 +14,12 @@ defmodule Philomena.Galleries.Gallery do
     has_many :subscriptions, Subscription
     has_many :subscribers, through: [:subscriptions, :user]
 
+    # fixme: unneeded field
+    field :description_md, :string, default: ""
+
     field :title, :string
     field :spoiler_warning, :string, default: ""
     field :description, :string, default: ""
-    field :description_md, :string, default: ""
     field :image_count, :integer
     field :order_position_asc, :boolean
 

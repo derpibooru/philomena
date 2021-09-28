@@ -25,13 +25,19 @@ defmodule PhilomenaWeb.ErrorView do
   def render(template, assigns) when template != "show.html" do
     {short_msg, long_msg} = @codes[assigns.status] || @codes[500]
 
-    render(
-      PhilomenaWeb.ErrorView,
-      "show.html",
-      conn: assigns.conn,
-      status: assigns.status,
-      short_msg: short_msg,
-      long_msg: long_msg
-    )
+    case Phoenix.Controller.get_format(assigns.conn) do
+      "json" ->
+        %{"error" => short_msg}
+
+      _ ->
+        render(
+          PhilomenaWeb.ErrorView,
+          "show.html",
+          conn: assigns.conn,
+          status: assigns.status,
+          short_msg: short_msg,
+          long_msg: long_msg
+        )
+    end
   end
 end

@@ -2,6 +2,7 @@
 
 # For compatibility with musl libc
 export CARGO_FEATURE_DISABLE_INITIAL_EXEC_TLS=1
+export CARGO_HOME=/srv/philomena/.cargo
 
 background() {
   while :; do
@@ -36,6 +37,9 @@ echo
 
 # Try to create the database if it doesn't exist yet
 createdb -h postgres -U postgres philomena_dev && mix ecto.setup_dev && mix reindex_all
+
+# Explicitly compile deps to avoid racing
+mix compile
 
 # Run background jobs
 background &

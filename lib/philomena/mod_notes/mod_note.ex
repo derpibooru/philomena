@@ -1,6 +1,7 @@
 defmodule Philomena.ModNotes.ModNote do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.MarkdownWriter
 
   alias Philomena.Users.User
 
@@ -25,5 +26,6 @@ defmodule Philomena.ModNotes.ModNote do
     |> cast(attrs, [:notable_id, :notable_type, :body])
     |> validate_required([:notable_id, :notable_type, :body])
     |> validate_inclusion(:notable_type, ["User", "Report", "DnpEntry"])
+    |> put_markdown(attrs, :body, :body_md)
   end
 end

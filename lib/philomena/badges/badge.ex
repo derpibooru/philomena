@@ -3,9 +3,11 @@ defmodule Philomena.Badges.Badge do
   import Ecto.Changeset
 
   schema "badges" do
+    # fixme: unneeded field
+    field :description_md, :string, default: ""
+  
     field :title, :string
     field :description, :string, default: ""
-    field :description_md, :string, default: ""
     field :image, :string
     field :disable_award, :boolean, default: false
     field :priority, :boolean, default: false
@@ -22,6 +24,7 @@ defmodule Philomena.Badges.Badge do
     badge
     |> cast(attrs, [:title, :description, :disable_award, :priority])
     |> validate_required([:title])
+    |> validate_length(:description, max: 1000, count: :bytes)
   end
 
   def image_changeset(badge, attrs) do

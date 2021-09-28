@@ -10,9 +10,11 @@ defmodule Philomena.Filters.Filter do
   schema "filters" do
     belongs_to :user, User
 
+    # fixme: unneeded field
+    field :description_md, :string, default: ""
+
     field :name, :string
     field :description, :string, default: ""
-    field :description_md, :string, default: ""
     field :system, :boolean
     field :public, :boolean
     field :hidden_complex_str, :string
@@ -43,6 +45,7 @@ defmodule Philomena.Filters.Filter do
       :spoilered_complex_str,
       :hidden_complex_str
     ])
+    |> validate_length(:description, max: 10_000, count: :bytes)
     |> TagList.propagate_tag_list(:spoilered_tag_list, :spoilered_tag_ids)
     |> TagList.propagate_tag_list(:hidden_tag_list, :hidden_tag_ids)
     |> validate_required([:name])

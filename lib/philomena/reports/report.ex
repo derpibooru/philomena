@@ -1,6 +1,7 @@
 defmodule Philomena.Reports.Report do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.MarkdownWriter
 
   alias Philomena.Users.User
 
@@ -62,6 +63,7 @@ defmodule Philomena.Reports.Report do
   def creation_changeset(report, attrs, attribution) do
     report
     |> cast(attrs, [:category, :reason])
+    |> validate_length(:reason, max: 10_000, count: :bytes)
     |> merge_category()
     |> change(attribution)
     |> validate_required([
@@ -78,9 +80,11 @@ defmodule Philomena.Reports.Report do
   defp merge_category(changeset) do
     reason = get_field(changeset, :reason)
     category = get_field(changeset, :category)
+    new_reason = joiner(category, reason)
 
     changeset
-    |> change(reason: joiner(category, reason))
+    |> change(reason: new_reason)
+    |> put_markdown(%{reason: new_reason}, :reason, :reason_md)
   end
 
   defp joiner(category, ""), do: category
