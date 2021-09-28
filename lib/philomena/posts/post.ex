@@ -1,6 +1,7 @@
 defmodule Philomena.Posts.Post do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.MarkdownWriter
 
   alias Philomena.Users.User
   alias Philomena.Topics.Topic
@@ -36,6 +37,7 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
+    |> put_markdown(attrs, :body, :body_md)
   end
 
   @doc false
@@ -46,6 +48,7 @@ defmodule Philomena.Posts.Post do
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> put_name_at_post_time(attribution[:user])
+    |> put_markdown(attrs, :body, :body_md)
   end
 
   @doc false
@@ -58,6 +61,7 @@ defmodule Philomena.Posts.Post do
     |> change(attribution)
     |> change(topic_position: 0)
     |> put_name_at_post_time(attribution[:user])
+    |> put_markdown(attrs, :body, :body_md)
   end
 
   def hide_changeset(post, attrs, user) do
@@ -78,6 +82,7 @@ defmodule Philomena.Posts.Post do
     change(post)
     |> put_change(:destroyed_content, true)
     |> put_change(:body, "")
+    |> put_change(:body_md, "")
   end
 
   defp put_name_at_post_time(changeset, nil), do: changeset

@@ -3,6 +3,7 @@ defmodule Philomena.Images.Image do
 
   import Ecto.Changeset
   import Ecto.Query
+  import Philomena.MarkdownWriter
 
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.ImageVotes.ImageVote
@@ -122,6 +123,7 @@ defmodule Philomena.Images.Image do
     |> change(first_seen_at: now)
     |> change(attribution)
     |> validate_length(:description, max: 50_000, count: :bytes)
+    |> put_markdown(attrs, :description, :description_md)
     |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
 
@@ -218,6 +220,7 @@ defmodule Philomena.Images.Image do
     image
     |> cast(attrs, [:description])
     |> validate_length(:description, max: 50_000, count: :bytes)
+    |> put_markdown(attrs, :description, :description_md)
   end
 
   def hide_changeset(image, attrs, user) do
@@ -272,6 +275,7 @@ defmodule Philomena.Images.Image do
 
   def scratchpad_changeset(image, attrs) do
     cast(image, attrs, [:scratchpad])
+    |> put_markdown(attrs, :scratchpad, :scratchpad_md)
   end
 
   def remove_source_history_changeset(image) do

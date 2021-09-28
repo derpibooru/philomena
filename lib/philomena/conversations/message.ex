@@ -1,6 +1,7 @@
 defmodule Philomena.Conversations.Message do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.MarkdownWriter
 
   alias Philomena.Conversations.Conversation
   alias Philomena.Users.User
@@ -29,5 +30,6 @@ defmodule Philomena.Conversations.Message do
     |> validate_required([:body])
     |> put_assoc(:from, user)
     |> validate_length(:body, max: 300_000, count: :bytes)
+    |> put_markdown(attrs, :body, :body_md)
   end
 end

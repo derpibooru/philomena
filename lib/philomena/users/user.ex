@@ -4,6 +4,7 @@ defmodule Philomena.Users.User do
 
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.MarkdownWriter
 
   alias Philomena.Schema.TagList
   alias Philomena.Schema.Search
@@ -365,6 +366,7 @@ defmodule Philomena.Users.User do
     |> cast(attrs, [:description, :personal_title])
     |> validate_length(:description, max: 10_000, count: :bytes)
     |> validate_length(:personal_title, max: 24, count: :bytes)
+    |> put_markdown(attrs, :description, :description_md)
     |> validate_format(
       :personal_title,
       ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu
@@ -374,6 +376,7 @@ defmodule Philomena.Users.User do
   def scratchpad_changeset(user, attrs) do
     user
     |> cast(attrs, [:scratchpad])
+    |> put_markdown(attrs, :scratchpad, :scratchpad_md)
   end
 
   def name_changeset(user, attrs) do

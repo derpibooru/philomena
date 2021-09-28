@@ -11,10 +11,12 @@ defmodule Philomena.Channels.Channel do
     # fixme: rails STI
     field :type, :string
 
-    field :short_name, :string
-    field :title, :string, default: ""
+    # fixme: this is unused
     field :description, :string
     field :description_md, :string
+
+    field :short_name, :string
+    field :title, :string, default: ""
     field :tags, :string
     field :viewers, :integer, default: 0
     field :nsfw, :boolean, default: false
