@@ -4,7 +4,6 @@
 
 import { fetchJson } from './utils/requests';
 import { filterNode } from './imagesclientside';
-import { debounce } from './utils/events.js';
 import { hideEl, showEl } from './utils/dom.js';
 
 function handleError(response) {
@@ -37,39 +36,21 @@ function commentReply(user, url, textarea, quote) {
   textarea.focus();
 }
 
-/**
- * Stores the abort controller for the current preview request
- * @type {null|AbortController}
- */
-let previewAbortController = null;
-
-function getPreview(body, anonymous, previewLoading, previewContent) {
+function getPreview(body, anonymous, previewLoading, previewIdle, previewContent) {
   const path = '/posts/preview';
 
   if (typeof body !== 'string') return;
 
-  const trimmedBody = body.trim();
-  if (trimmedBody.length < 1) {
-    previewContent.innerHTML = '';
-    return;
-  }
-
   showEl(previewLoading);
+  hideEl(previewIdle);
 
-  // Abort previous requests if it exists
-  if (previewAbortController) previewAbortController.abort();
-  previewAbortController = new AbortController();
-
-  fetchJson('POST', path, { body, anonymous }, previewAbortController.signal)
+  fetchJson('POST', path, { body, anonymous })
     .then(handleError)
     .then(data => {
       previewContent.innerHTML = data;
       filterNode(previewContent);
-      showEl(previewContent);
+      showEl(previewIdle);
       hideEl(previewLoading);
-    })
-    .finally(() => {
-      previewAbortController = null;
     });
 }
 
@@ -99,34 +80,41 @@ function setupPreviews() {
     textarea = document.querySelector('.js-preview-description');
   }
 
-  const previewLoading = document.querySelector('.communication-preview__loading');
-  const previewContent = document.querySelector('.communication-preview__content');
+  const previewButton = document.querySelector('a[data-click-tab="preview"]');
+  const previewLoading = document.querySelector('.js-preview-loading');
+  const previewIdle = document.querySelector('.js-preview-idle');
+  const previewContent = document.querySelector('.js-preview-content');
   const previewAnon = document.querySelector('.js-preview-anonymous') || false;
 
   if (!textarea || !previewContent) {
     return;
   }
 
+  const getCacheKey = () => {
+    return (previewAnon && previewAnon.checked ? 'anon;' : '') + textarea.value;
+  }
+
+  const previewedTextAttribute = 'data-previewed-text';
   const updatePreview = () => {
-    getPreview(textarea.value, previewAnon && previewAnon.checked, previewLoading, previewContent);
+    const cachedValue = getCacheKey()
+    if (previewContent.getAttribute(previewedTextAttribute) === cachedValue) return;
+    previewContent.setAttribute(previewedTextAttribute, cachedValue);
+
+    getPreview(textarea.value, previewAnon && previewAnon.checked, previewLoading, previewIdle, previewContent);
   };
 
-  const debouncedUpdater = debounce(500, () => {
-    if (previewContent.previewedText === textarea.value) return;
-    previewContent.previewedText = textarea.value;
-
-    updatePreview();
-  });
-
-  textarea.addEventListener('keydown', debouncedUpdater);
-  textarea.addEventListener('focus', debouncedUpdater);
+  previewButton.addEventListener('click', updatePreview);
   textarea.addEventListener('change', resizeTextarea);
   textarea.addEventListener('keyup', resizeTextarea);
 
-  // Fire handler if textarea contains text on page load (e.g. editing)
-  if (textarea.value) textarea.dispatchEvent(new Event('keydown'));
+  // Fire handler for automatic resizing if textarea contains text on page load (e.g. editing)
+  if (textarea.value) textarea.dispatchEvent(new Event('change'));
 
-  previewAnon && previewAnon.addEventListener('click', updatePreview);
+  previewAnon && previewAnon.addEventListener('click', () => {
+    if (previewContent.classList.contains('hidden')) return;
+
+    updatePreview();
+  });
 
   document.addEventListener('click', event => {
     if (event.target && event.target.closest('.post-reply')) {

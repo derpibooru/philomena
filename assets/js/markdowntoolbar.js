@@ -2,7 +2,7 @@
  * Markdown toolbar
  */
 
-import { $, $$, showEl } from './utils/dom';
+import { $, $$ } from './utils/dom';
 
 const markdownSyntax = {
   bold: {
@@ -22,8 +22,15 @@ const markdownSyntax = {
     options: { prefix: '||', shortcutKey: 's' }
   },
   code: {
-    action: wrapSelection,
-    options: { prefix: '`', shortcutKey: 'e' }
+    action: wrapSelectionOrLines,
+    options: {
+      prefix: '`',
+      suffix: '`',
+      prefixMultiline: '```\n',
+      suffixMultiline: '\n```',
+      singleWrap: true,
+      shortcutKey: 'e'
+    }
   },
   strike: {
     action: wrapSelection,
@@ -62,22 +69,31 @@ function getSelections(textarea, linesOnly = false) {
       trailingSpace =  '',
       caret;
 
-  if (linesOnly) {
+  const processLinesOnly = linesOnly instanceof RegExp ? linesOnly.test(selection) : linesOnly;
+  if (processLinesOnly) {
+    const explorer = /\n/g;
     let startNewlineIndex = 0,
         endNewlineIndex = textarea.value.length;
-    const explorer = /\n/g;
     while (explorer.exec(textarea.value)) {
       const { lastIndex } = explorer;
-      if (lastIndex < selectionStart) {
-        startNewlineIndex = lastIndex + 1;
+      if (lastIndex <= selectionStart) {
+        startNewlineIndex = lastIndex;
       }
       else if (lastIndex > selectionEnd) {
-        endNewlineIndex = lastIndex;
+        endNewlineIndex = lastIndex - 1;
         break;
       }
     }
 
     selectionStart = startNewlineIndex;
+    const startRemovedValue = textarea.value.substring(selectionStart);
+    const startsWithBlankString = startRemovedValue.match(/^[\s\n]+/);
+    if (startsWithBlankString) {
+      // Offset the selection start to the first non-blank line's first non-blank character, since
+      // Some browsers treat selection up to the start of the line as including the end of the
+      // previous line
+      selectionStart += startsWithBlankString[0].length;
+    }
     selectionEnd = endNewlineIndex;
     selection = textarea.value.substring(selectionStart, selectionEnd);
   }
@@ -98,6 +114,7 @@ function getSelections(textarea, linesOnly = false) {
   }
 
   return {
+    processLinesOnly,
     selectedText: selection,
     beforeSelection: textarea.value.substring(0, selectionStart) + leadingSpace,
     afterSelection: trailingSpace + textarea.value.substring(selectionEnd)
@@ -105,11 +122,11 @@ function getSelections(textarea, linesOnly = false) {
 }
 
 function transformSelection(textarea, transformer, eachLine) {
-  const { selectedText, beforeSelection, afterSelection } = getSelections(textarea, eachLine),
+  const { selectedText, beforeSelection, afterSelection, processLinesOnly } = getSelections(textarea, eachLine),
         // For long comments, record scrollbar position to restore it later
         { scrollTop } = textarea;
 
-  const { newText, caretOffset } = transformer(selectedText);
+  const { newText, caretOffset } = transformer(selectedText, processLinesOnly);
 
   textarea.value = beforeSelection + newText + afterSelection;
 
@@ -120,7 +137,8 @@ function transformSelection(textarea, transformer, eachLine) {
   textarea.selectionStart = newSelectionStart;
   textarea.selectionEnd = newSelectionStart;
   textarea.scrollTop = scrollTop;
-  textarea.dispatchEvent(new Event('keydown'));
+  // Needed for automatic textarea resizing
+  textarea.dispatchEvent(new Event('change'));
 }
 
 function insertLink(textarea, options) {
@@ -150,28 +168,31 @@ function wrapSelection(textarea, options) {
       });
     }
 
+    newText = prefix + newText + suffix
+
     return {
-      newText: prefix + newText + suffix,
-      caretOffset: emptyText ? prefix.length : 0
+      newText,
+      caretOffset: emptyText ? prefix.length : newText.length
     };
   });
 }
 
-function wrapLines(textarea, options) {
-  transformSelection(textarea, (selectedText) => {
-    const { text = selectedText, prefix = '', suffix = '' } = options,
+function wrapLines(textarea, options, eachLine = true) {
+  transformSelection(textarea, (selectedText, processLinesOnly) => {
+    const { text = selectedText, singleWrap = false } = options,
+          prefix = (processLinesOnly && options.prefixMultiline) || options.prefix || '',
+          suffix = (processLinesOnly && options.suffixMultiline) || options.suffix || '',
           emptyText = text === '';
-    let newText = prefix;
+    let newText = singleWrap
+      ? prefix + text.trim() + suffix
+      : text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
 
-    if (!emptyText) {
-      newText = text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
-    }
-    else {
-      newText += suffix;
-    }
+    return { newText, caretOffset: emptyText ? prefix.length : newText.length };
+  }, eachLine);
+}
 
-    return { newText, caretOffset: newText.length };
-  });
+function wrapSelectionOrLines(textarea, options) {
+  wrapLines(textarea, options, /\n/);
 }
 
 function escapeSelection(textarea, options) {
@@ -223,15 +244,6 @@ function setupToolbar() {
   });
   $$('.js-toolbar-input').forEach(textarea => {
     textarea.addEventListener('keydown', shortcutHandler);
-  });
-
-  // Transform non-JS basic editor to two-column layout with preview
-  $$('.js-preview-input-wrapper').forEach(wrapper => {
-    wrapper.classList.remove('block__column--full');
-    wrapper.classList.add('block__column--half');
-  });
-  $$('.js-preview-output-wrapper').forEach(wrapper => {
-    showEl(wrapper);
   });
 }
 

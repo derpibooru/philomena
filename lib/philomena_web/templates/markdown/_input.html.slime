@@ -3,25 +3,22 @@
 - action_icon = assigns[:action_icon] || 'edit'
 - field_name = assigns[:name] || :body
 - field_placeholder = assigns[:placeholder] || "Your message"
-.block__content.block--split
-  .block__column--full.js-preview-input-wrapper
-    .block__column__header
-      i.fa> class="fa-#{action_icon}"
-      = action_text
+.block__header.block__header--js-tabbed
+  a.selected href="#" data-click-tab="write"
+    i.fa> class="fa-#{action_icon}"
+    = action_text
 
-    = render PhilomenaWeb.MarkdownView, "_help.html", conn: @conn
-    = render PhilomenaWeb.MarkdownView, "_toolbar.html", conn: @conn
+  a href="#" data-click-tab="preview"
+    i.fa.fa-cog.fa-fw.fa-spin.js-preview-loading.hidden> title=raw('Loading preview&hellip;')
+    i.fa.fa-eye.fa-fw.js-preview-idle>
+    | Preview
 
-    .field
-      = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: true
-      = error_tag form, field_name
+.block__tab.communication-edit__tab.selected.js-preview-input-wrapper data-tab="write"
+  = render PhilomenaWeb.MarkdownView, "_help.html", conn: @conn
+  = render PhilomenaWeb.MarkdownView, "_toolbar.html", conn: @conn
 
-  .block__column--half.hidden.communication-preview.js-preview-output-wrapper
-    .block__column__header.flex.flex--spaced-out
-      span
-        i.fa.fa-eye>
-        ' Preview
-      span.communication-preview__loading.hidden
-        i.fa.fa-spin.fa-fw.fa-cog> title=raw('Loading preview&hellip;')
+  .field
+    = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: true
+    = error_tag form, field_name
 
-    .communication-preview__content
+.block__tab.communication-edit__tab.hidden.js-preview-content data-tab="preview"
