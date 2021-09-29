@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Admin.ModNoteController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.ModNotes.ModNote
   alias Philomena.Polymorphic
   alias Philomena.ModNotes
@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 
-    bodies = TextRenderer.render_collection(mod_notes, conn)
+    bodies = MarkdownRenderer.render_collection(mod_notes, conn)
     preloaded = Polymorphic.load_polymorphic(mod_notes, notable: [notable_id: :notable_type])
     mod_notes = %{mod_notes | entries: Enum.zip(bodies, preloaded)}
 

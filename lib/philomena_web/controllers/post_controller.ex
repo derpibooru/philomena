@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.PostController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Elasticsearch
   alias Philomena.{Posts.Query, Posts.Post}
   import Ecto.Query
@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.PostController do
         preload(Post, [:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 
-    rendered = TextRenderer.render_collection(posts.entries, conn)
+    rendered = MarkdownRenderer.render_collection(posts.entries, conn)
 
     posts = %{posts | entries: Enum.zip(rendered, posts.entries)}
 
