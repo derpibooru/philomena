@@ -9,7 +9,7 @@
     ins> __underline__
     del> ~~strike~~
     sup> ^sup^
-    sub ~sub~
+    sub %sub%
 
   button< class="button" type="button" data-click-toggle="button:hover + .textile_help, button:focus + .textile_help"
     ' &hellip;
