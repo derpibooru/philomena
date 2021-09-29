@@ -73,7 +73,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
         reportable: [reportable_id: :reportable_type]
       )
 
-    body = TextRenderer.render_one(%{body: report.reason, body_md: report.reason_md}, conn)
+    body = TextRenderer.render_one(%{body: report.reason}, conn)
 
     render(conn, "show.html", title: "Showing Report", report: report, body: body)
   end

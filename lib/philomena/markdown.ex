@@ -7,7 +7,7 @@ defmodule Philomena.Markdown do
   def to_html_unsafe(text, replacements),
     do: Philomena.Native.markdown_to_html_unsafe(text, replacements)
 
-  def escape_markdown(text) do
+  def escape(text) do
     @markdown_chars
     |> Regex.replace(text, fn m ->
       "\\#{m}"

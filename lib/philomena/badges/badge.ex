@@ -3,9 +3,6 @@ defmodule Philomena.Badges.Badge do
   import Ecto.Changeset
 
   schema "badges" do
-    # fixme: unneeded field
-    field :description_md, :string, default: ""
-  
     field :title, :string
     field :description, :string, default: ""
     field :image, :string

@@ -1,7 +1,6 @@
 defmodule Philomena.Comments.Comment do
   use Ecto.Schema
   import Ecto.Changeset
-  import Philomena.MarkdownWriter
 
   alias Philomena.Images.Image
   alias Philomena.Users.User
@@ -12,7 +11,6 @@ defmodule Philomena.Comments.Comment do
     belongs_to :deleted_by, User
 
     field :body, :string
-    field :body_md, :string
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
     field :user_agent, :string, default: ""
@@ -36,7 +34,6 @@ defmodule Philomena.Comments.Comment do
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> put_name_at_post_time(attribution[:user])
-    |> put_markdown(attrs, :body, :body_md)
   end
 
   def changeset(comment, attrs, edited_at \\ nil) do
@@ -46,7 +43,6 @@ defmodule Philomena.Comments.Comment do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
-    |> put_markdown(attrs, :body, :body_md)
   end
 
   def hide_changeset(comment, attrs, user) do
@@ -67,7 +63,6 @@ defmodule Philomena.Comments.Comment do
     change(comment)
     |> put_change(:destroyed_content, true)
     |> put_change(:body, "")
-    |> put_change(:body_md, "")
   end
 
   defp put_name_at_post_time(changeset, nil), do: changeset

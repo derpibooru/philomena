@@ -19,7 +19,7 @@
     }
   ],
   "remote_images": [{
-      "url": "https://derpicdn.net/img/view/2015/9/26/988000.gif",
+      "url": "https://derpicdn.net/img/2015/9/26/988000/thumb.gif",
       "source_url": "https://derpibooru.org/988000",
       "description": "Fairly large GIF (~23MB), use to test WebM stuff.",
       "tag_input": "alicorn, angry, animated, art, artist:assasinmonkey, artist:equum_amici, badass, barrier, crying, dark, epic, female, fight, force field, glare, glow, good vs evil, lord tirek, low angle, magic, mare, messy mane, metal as fuck, perspective, plot, pony, raised hoof, safe, size difference, spread wings, stomping, twilight's kingdom, twilight sparkle, twilight sparkle (alicorn), twilight vs tirek, underhoof"
@@ -51,9 +51,10 @@
     }
   ],
   "comments": [
-    "bold is *bold*, italic is _italic_, spoiler is [spoiler]spoiler[/spoiler], code is @code@, underline is +underline+, strike is -strike-, sup is ^sup^, sub is ~sub~.",
+    "bold is **bold**, italic is _italic_, spoiler is ||spoiler||, code is `code`, underline is __underline__, strike is ~~strike~~, sup is ^sup^, sub is %sub%.",
     "inline embedded thumbnails (tsp): >>1t >>1s >>1p",
-    "buggy embedded image inside a spoiler: [spoiler]who needs it anyway >>1s[/spoiler]"
+    "embedded image inside a spoiler: ||who needs it anyway >>1s||",
+    "spoilers inside of a table\n\nHello | World\n--- | ---:\n`||cool beans!||` | ||cool beans!||"
   ],
   "forum_posts": [{
       "dis": [{

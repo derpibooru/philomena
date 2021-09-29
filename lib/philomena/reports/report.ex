@@ -1,7 +1,6 @@
 defmodule Philomena.Reports.Report do
   use Ecto.Schema
   import Ecto.Changeset
-  import Philomena.MarkdownWriter
 
   alias Philomena.Users.User
 
@@ -14,7 +13,6 @@ defmodule Philomena.Reports.Report do
     field :user_agent, :string, default: ""
     field :referrer, :string, default: ""
     field :reason, :string
-    field :reason_md, :string
     field :state, :string, default: "open"
     field :open, :boolean, default: true
 
@@ -80,11 +78,9 @@ defmodule Philomena.Reports.Report do
   defp merge_category(changeset) do
     reason = get_field(changeset, :reason)
     category = get_field(changeset, :category)
-    new_reason = joiner(category, reason)
 
     changeset
-    |> change(reason: new_reason)
-    |> put_markdown(%{reason: new_reason}, :reason, :reason_md)
+    |> change(reason: joiner(category, reason))
   end
 
   defp joiner(category, ""), do: category

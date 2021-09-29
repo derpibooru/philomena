@@ -44,7 +44,7 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
 
     bodies =
       dnp_entries
-      |> Enum.map(&%{body: &1.conditions, body_md: &1.conditions_md})
+      |> Enum.map(&%{body: &1.conditions})
       |> TextRenderer.render_collection(conn)
 
     dnp_entries = %{dnp_entries | entries: Enum.zip(bodies, dnp_entries.entries)}

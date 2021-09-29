@@ -1,7 +1,6 @@
 defmodule Philomena.Commissions.Item do
   use Ecto.Schema
   import Ecto.Changeset
-  import Philomena.MarkdownWriter
 
   alias Philomena.Commissions.Commission
   alias Philomena.Images.Image
@@ -12,10 +11,8 @@ defmodule Philomena.Commissions.Item do
 
     field :item_type, :string
     field :description, :string
-    field :description_md, :string
     field :base_price, :decimal
     field :add_ons, :string
-    field :add_ons_md, :string
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
@@ -30,7 +27,5 @@ defmodule Philomena.Commissions.Item do
     |> validate_number(:base_price, greater_than_or_equal_to: 0, less_than_or_equal_to: 99_999)
     |> validate_inclusion(:item_type, Commission.types())
     |> foreign_key_constraint(:example_image_id, name: :fk_rails_56d368749a)
-    |> put_markdown(attrs, :description, :description_md)
-    |> put_markdown(attrs, :add_ons, :add_ons_md)
   end
 end

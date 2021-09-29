@@ -165,8 +165,7 @@ CREATE TABLE public.badges (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     disable_award boolean DEFAULT false NOT NULL,
-    priority boolean DEFAULT false,
-    description_md character varying
+    priority boolean DEFAULT false
 );
 
 
@@ -207,7 +206,6 @@ CREATE TABLE public.channels (
     id integer NOT NULL,
     short_name character varying NOT NULL,
     title character varying NOT NULL,
-    description character varying,
     channel_image character varying,
     tags character varying,
     viewers integer DEFAULT 0 NOT NULL,
@@ -228,8 +226,7 @@ CREATE TABLE public.channels (
     total_viewer_minutes integer DEFAULT 0 NOT NULL,
     banner_image character varying,
     remote_stream_id integer,
-    thumbnail_url character varying DEFAULT ''::character varying,
-    description_md character varying
+    thumbnail_url character varying DEFAULT ''::character varying
 );
 
 
@@ -258,7 +255,7 @@ ALTER SEQUENCE public.channels_id_seq OWNED BY public.channels.id;
 
 CREATE TABLE public.comments (
     id integer NOT NULL,
-    body character varying NOT NULL,
+    body_textile character varying DEFAULT ''::character varying NOT NULL,
     ip inet,
     fingerprint character varying,
     user_agent character varying DEFAULT ''::character varying,
@@ -275,7 +272,7 @@ CREATE TABLE public.comments (
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     destroyed_content boolean DEFAULT false,
     name_at_post_time character varying,
-    body_md character varying
+    body character varying NOT NULL
 );
 
 
@@ -306,14 +303,14 @@ CREATE TABLE public.commission_items (
     id integer NOT NULL,
     commission_id integer,
     item_type character varying,
-    description character varying,
+    description_textile character varying,
     base_price numeric,
-    add_ons character varying,
+    add_ons_textile character varying,
     example_image_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    description_md character varying,
-    add_ons_md character varying
+    description character varying,
+    add_ons character varying
 );
 
 
@@ -345,18 +342,18 @@ CREATE TABLE public.commissions (
     user_id integer NOT NULL,
     open boolean NOT NULL,
     categories character varying[] DEFAULT '{}'::character varying[] NOT NULL,
-    information character varying,
-    contact character varying,
+    information_textile character varying,
+    contact_textile character varying,
     sheet_image_id integer,
-    will_create character varying,
-    will_not_create character varying,
+    will_create_textile character varying,
+    will_not_create_textile character varying,
     commission_items_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    information_md character varying,
-    contact_md character varying,
-    will_create_md character varying,
-    will_not_create_md character varying
+    information character varying,
+    contact character varying,
+    will_create character varying,
+    will_not_create character varying
 );
 
 
@@ -429,16 +426,16 @@ CREATE TABLE public.dnp_entries (
     tag_id integer NOT NULL,
     aasm_state character varying DEFAULT 'requested'::character varying NOT NULL,
     dnp_type character varying NOT NULL,
-    conditions character varying NOT NULL,
-    reason character varying NOT NULL,
+    conditions_textile character varying DEFAULT ''::character varying NOT NULL,
+    reason_textile character varying DEFAULT ''::character varying NOT NULL,
     hide_reason boolean DEFAULT false NOT NULL,
-    instructions character varying NOT NULL,
+    instructions_textile character varying DEFAULT ''::character varying NOT NULL,
     feedback character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    conditions_md character varying,
-    reason_md character varying,
-    instructions_md character varying
+    conditions character varying NOT NULL,
+    reason character varying NOT NULL,
+    instructions character varying NOT NULL
 );
 
 
@@ -551,8 +548,7 @@ CREATE TABLE public.filters (
     user_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    user_id integer,
-    description_md character varying
+    user_id integer
 );
 
 
@@ -679,8 +675,7 @@ CREATE TABLE public.galleries (
     watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     watcher_count integer DEFAULT 0 NOT NULL,
     image_count integer DEFAULT 0 NOT NULL,
-    order_position_asc boolean DEFAULT false NOT NULL,
-    description_md character varying
+    order_position_asc boolean DEFAULT false NOT NULL
 );
 
 
@@ -931,7 +926,7 @@ CREATE TABLE public.images (
     watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     watcher_count integer DEFAULT 0 NOT NULL,
     source_url character varying,
-    description character varying DEFAULT ''::character varying NOT NULL,
+    description_textile character varying DEFAULT ''::character varying NOT NULL,
     image_sha512_hash character varying,
     image_orig_sha512_hash character varying,
     deletion_reason character varying,
@@ -962,11 +957,11 @@ CREATE TABLE public.images (
     updated_at timestamp without time zone NOT NULL,
     destroyed_content boolean DEFAULT false NOT NULL,
     hidden_image_key character varying,
-    scratchpad character varying,
+    scratchpad_textile character varying,
     hides_count integer DEFAULT 0 NOT NULL,
     image_duration double precision,
-    description_md character varying,
-    scratchpad_md character varying
+    description character varying DEFAULT ''::character varying NOT NULL,
+    scratchpad character varying
 );
 
 
@@ -995,12 +990,12 @@ ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 CREATE TABLE public.messages (
     id integer NOT NULL,
-    body character varying NOT NULL,
+    body_textile character varying DEFAULT ''::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     from_id integer NOT NULL,
     conversation_id integer NOT NULL,
-    body_md character varying
+    body character varying NOT NULL
 );
 
 
@@ -1032,11 +1027,11 @@ CREATE TABLE public.mod_notes (
     moderator_id integer NOT NULL,
     notable_id integer NOT NULL,
     notable_type character varying NOT NULL,
-    body text NOT NULL,
+    body_textile text DEFAULT ''::text NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    body_md character varying
+    body character varying NOT NULL
 );
 
 
@@ -1202,7 +1197,7 @@ ALTER SEQUENCE public.polls_id_seq OWNED BY public.polls.id;
 
 CREATE TABLE public.posts (
     id integer NOT NULL,
-    body character varying NOT NULL,
+    body_textile character varying DEFAULT ''::character varying NOT NULL,
     edit_reason character varying,
     ip inet,
     fingerprint character varying,
@@ -1220,7 +1215,7 @@ CREATE TABLE public.posts (
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     destroyed_content boolean DEFAULT false NOT NULL,
     name_at_post_time character varying,
-    body_md character varying
+    body character varying NOT NULL
 );
 
 
@@ -1253,7 +1248,7 @@ CREATE TABLE public.reports (
     fingerprint character varying,
     user_agent character varying DEFAULT ''::character varying,
     referrer character varying DEFAULT ''::character varying,
-    reason character varying NOT NULL,
+    reason_textile character varying DEFAULT ''::character varying NOT NULL,
     state character varying DEFAULT 'open'::character varying NOT NULL,
     open boolean DEFAULT true NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -1262,7 +1257,7 @@ CREATE TABLE public.reports (
     admin_id integer,
     reportable_id integer NOT NULL,
     reportable_type character varying NOT NULL,
-    reason_md character varying
+    reason character varying NOT NULL
 );
 
 
@@ -1557,7 +1552,7 @@ CREATE TABLE public.tags (
     id integer NOT NULL,
     name character varying NOT NULL,
     slug character varying NOT NULL,
-    description character varying DEFAULT ''::character varying,
+    description_textile character varying DEFAULT ''::character varying,
     short_description character varying DEFAULT ''::character varying,
     namespace character varying,
     name_in_namespace character varying,
@@ -1570,7 +1565,7 @@ CREATE TABLE public.tags (
     updated_at timestamp without time zone NOT NULL,
     category character varying,
     mod_notes character varying,
-    description_md character varying
+    description character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -1952,7 +1947,7 @@ CREATE TABLE public.users (
     name character varying NOT NULL,
     slug character varying NOT NULL,
     role character varying DEFAULT 'user'::character varying NOT NULL,
-    description character varying,
+    description_textile character varying,
     avatar character varying,
     spoiler_type character varying DEFAULT 'static'::character varying NOT NULL,
     theme character varying DEFAULT 'default'::character varying NOT NULL,
@@ -1991,7 +1986,7 @@ CREATE TABLE public.users (
     metadata_updates_count integer DEFAULT 0 NOT NULL,
     images_favourited_count integer DEFAULT 0 NOT NULL,
     last_donation_at timestamp without time zone,
-    scratchpad text,
+    scratchpad_textile text,
     use_centered_layout boolean DEFAULT true NOT NULL,
     secondary_role character varying,
     hide_default_role boolean DEFAULT false NOT NULL,
@@ -2009,8 +2004,8 @@ CREATE TABLE public.users (
     forced_filter_id bigint,
     confirmed_at timestamp(0) without time zone,
     senior_staff boolean DEFAULT false,
-    description_md character varying,
-    scratchpad_md character varying,
+    description character varying,
+    scratchpad character varying,
     bypass_rate_limits boolean DEFAULT false,
     scale_large_images character varying(255) DEFAULT 'true'::character varying NOT NULL
 );
@@ -4871,3 +4866,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20210427022351);
 INSERT INTO public."schema_migrations" (version) VALUES (20210912171343);
 INSERT INTO public."schema_migrations" (version) VALUES (20210917190346);
 INSERT INTO public."schema_migrations" (version) VALUES (20210921025336);
+INSERT INTO public."schema_migrations" (version) VALUES (20210929181319);
