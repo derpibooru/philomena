@@ -16,7 +16,3 @@ import './vendor/values-entries.polyfill';
 // Our code
 import './ujs';
 import './when-ready';
-
-import '../css/themes/default.scss';
-import '../css/themes/dark.scss';
-import '../css/themes/red.scss';
