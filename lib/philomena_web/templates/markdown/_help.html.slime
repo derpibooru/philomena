@@ -13,4 +13,5 @@
 
   p
     a href="/pages/markdown"
-      ' Detailed syntax guide
+      i.fa.fa-question-circle>
+      strong Detailed syntax guide
