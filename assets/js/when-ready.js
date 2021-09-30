@@ -31,7 +31,7 @@ import { setupTagEvents }       from './tagsmisc';
 import { setupTimestamps }      from './timeago';
 import { setupImageUpload }     from './upload';
 import { setupSearch }          from './search';
-import { setupToolbar }         from './textiletoolbar';
+import { setupToolbar }         from './markdowntoolbar.js';
 import { hideStaffTools }       from './staffhider';
 import { pollOptionCreator }    from './poll';
 

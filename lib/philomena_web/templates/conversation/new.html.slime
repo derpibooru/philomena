@@ -20,25 +20,8 @@ h1 New Conversation
     = error_tag f, :title
 
   = inputs_for f, :messages, fn fm ->
-    .block
-      .block__header.block__header--js-tabbed
-        a.selected href="#" data-click-tab="write"
-          i.fa.fa-pencil-alt>
-          | Reply
-
-        a href="#" data-click-tab="preview"
-          i.fa.fa-eye>
-          | Preview
-
-      .block__tab.communication-edit__tab.selected data-tab="write"
-        = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-        = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-        = textarea fm, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Your message", required: true
-        = error_tag fm, :body
-
-      .block__tab.communication-edit__tab.hidden data-tab="preview"
-        | [Loading preview...]
+    div
+      = render PhilomenaWeb.MarkdownView, "_input.html", changeset: @changeset, conn: @conn, f: fm, action_icon: "pencil-alt", action_text: "Compose"
 
   .block__content.communication-edit__actions
     = submit "Send", class: "button", autocomplete: "off", data: [disable_with: "Sending..."]

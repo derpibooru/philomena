@@ -1,0 +1,17 @@
+.editor-syntax-reference
+  strong<> Syntax quick reference:
+
+  span
+    strong> **bold**
+    em> *italic*
+    span.spoiler> ||hide text||
+    code> `code`
+    ins> __underline__
+    del> ~~strike~~
+    sup> ^sup^
+    sub %sub%
+
+  p
+    a href="/pages/markdown"
+      i.fa.fa-question-circle>
+      strong Detailed syntax guide

@@ -1,9 +1,10 @@
 /**
- * Textile previews (posts, comments, messages)
+ * Markdown previews (posts, comments, messages)
  */
 
 import { fetchJson } from './utils/requests';
 import { filterNode } from './imagesclientside';
+import { hideEl, showEl } from './utils/dom.js';
 
 function handleError(response) {
   const errorMessage = '<div>Preview failed to load!</div>';
@@ -35,43 +36,84 @@ function commentReply(user, url, textarea, quote) {
   textarea.focus();
 }
 
-function getPreview(body, anonymous, previewTab, isImage = false) {
-  let path = '/posts/preview';
+function getPreview(body, anonymous, previewLoading, previewIdle, previewContent) {
+  const path = '/posts/preview';
+
+  if (typeof body !== 'string') return;
+
+  showEl(previewLoading);
+  hideEl(previewIdle);
 
   fetchJson('POST', path, { body, anonymous })
     .then(handleError)
     .then(data => {
-      previewTab.innerHTML = data;
-      filterNode(previewTab);
+      previewContent.innerHTML = data;
+      filterNode(previewContent);
+      showEl(previewIdle);
+      hideEl(previewLoading);
     });
+}
+
+/**
+ * Resizes the event target <textarea> to match the size of its contained text, between set
+ * minimum and maximum height values. Former comes from CSS, latter is hard coded below.
+ * @template {{ target: HTMLTextAreaElement }} E
+ * @param {E} e
+ */
+function resizeTextarea(e) {
+  // Reset inline height for fresh calculations
+  e.target.style.height = '';
+  const { borderTopWidth, borderBottomWidth, height } = window.getComputedStyle(e.target);
+  // Add scrollHeight and borders (because border-box) to get the target size that avoids scrollbars
+  const contentHeight = e.target.scrollHeight + parseFloat(borderTopWidth) + parseFloat(borderBottomWidth);
+  // Get the original default height provided by page styles
+  const regularHeight = parseFloat(height);
+  // Limit textarea's size to between the original height and 1000px
+  const newHeight = Math.max(regularHeight, Math.min(1000, contentHeight));
+  e.target.style.height = `${newHeight}px`;
 }
 
 function setupPreviews() {
   let textarea = document.querySelector('.js-preview-input');
-  let imageDesc = false;
 
   if (!textarea) {
     textarea = document.querySelector('.js-preview-description');
-    imageDesc = true;
   }
 
   const previewButton = document.querySelector('a[data-click-tab="preview"]');
-  const previewTab = document.querySelector('.block__tab[data-tab="preview"]');
-  const previewAnon = document.querySelector('.preview-anonymous') || false;
+  const previewLoading = document.querySelector('.js-preview-loading');
+  const previewIdle = document.querySelector('.js-preview-idle');
+  const previewContent = document.querySelector('.js-preview-content');
+  const previewAnon = document.querySelector('.js-preview-anonymous') || false;
 
-  if (!textarea || !previewButton) {
+  if (!textarea || !previewContent) {
     return;
   }
 
-  previewButton.addEventListener('click', () => {
-    if (previewTab.previewedText === textarea.value) return;
-    previewTab.previewedText = textarea.value;
+  const getCacheKey = () => {
+    return (previewAnon && previewAnon.checked ? 'anon;' : '') + textarea.value;
+  }
 
-    getPreview(textarea.value, Boolean(previewAnon.checked), previewTab, imageDesc);
-  });
+  const previewedTextAttribute = 'data-previewed-text';
+  const updatePreview = () => {
+    const cachedValue = getCacheKey()
+    if (previewContent.getAttribute(previewedTextAttribute) === cachedValue) return;
+    previewContent.setAttribute(previewedTextAttribute, cachedValue);
+
+    getPreview(textarea.value, previewAnon && previewAnon.checked, previewLoading, previewIdle, previewContent);
+  };
+
+  previewButton.addEventListener('click', updatePreview);
+  textarea.addEventListener('change', resizeTextarea);
+  textarea.addEventListener('keyup', resizeTextarea);
+
+  // Fire handler for automatic resizing if textarea contains text on page load (e.g. editing)
+  if (textarea.value) textarea.dispatchEvent(new Event('change'));
 
   previewAnon && previewAnon.addEventListener('click', () => {
-    getPreview(textarea.value, Boolean(previewAnon.checked), previewTab, imageDesc);
+    if (previewContent.classList.contains('hidden')) return;
+
+    updatePreview();
   });
 
   document.addEventListener('click', event => {

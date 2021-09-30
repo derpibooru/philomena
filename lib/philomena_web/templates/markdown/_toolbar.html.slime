@@ -29,6 +29,6 @@
     i.fa.fa-link
   button.communication__toolbar__button tabindex="-1" type="button" title="insert image (ctrl+k)" data-syntax-id="image"
     i.fa.fa-image
-  button.communication__toolbar__button tabindex="-1" type="button" title="Text you want the parser to ignore" data-syntax-id="noParse"
+  button.communication__toolbar__button tabindex="-1" type="button" title="Text you want the parser to ignore" data-syntax-id="escape"
     span
-      | no parse
+      | escape

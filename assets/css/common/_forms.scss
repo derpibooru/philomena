@@ -74,6 +74,10 @@ form p {
   box-sizing: border-box;
 }
 
+.input--resize-vertical {
+  resize: vertical;
+}
+
 .checkbox {
   margin: 0.2em 0 0 0.4em;
   padding: 0;

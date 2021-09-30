@@ -222,3 +222,7 @@ a.block__header--single-item, .block__header a {
     display: none;
   }
 }
+
+.block__content--top-border {
+  border-top: $border;
+}

@@ -3,7 +3,7 @@ article.block.communication id="comment_#{@comment.id}"
     .flex__fixed.spacing-right
       .post-image-container
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn
-        
+
     .flex__grow.communication__body
       span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
       br
