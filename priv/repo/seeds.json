@@ -24,9 +24,9 @@
       "access_level": "normal"
     },
     {
-      "name": "Episode Discussion",
+      "name": "Shows and Movies",
       "short_name": "pony",
-      "description": "Discuss the show, characters, and theories",
+      "description": "Discuss TV shows and movies, as well as their characters and theories.",
       "access_level": "normal"
     },
     {
@@ -63,7 +63,7 @@
   "users": [{
     "name": "Administrator",
     "email": "admin@example.com",
-    "password": "trixieisbestpony",
+    "password": "philomena",
     "role": "admin"
   }],
   "rating_tags": [

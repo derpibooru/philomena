@@ -2,19 +2,19 @@
   "users": [{
       "name": "Hot Pocket Consumer",
       "email": "moderator@example.com",
-      "password": "willdeleteglimmerposts4hotpockets",
+      "password": "philomena",
       "role": "moderator"
     },
     {
       "name": "Hoping For a Promotion",
       "email": "assistant@example.com",
-      "password": "hotpocketfetchingass",
+      "password": "philomena",
       "role": "assistant"
     },
     {
       "name": "Pleb",
       "email": "user@example.com",
-      "password": "glimmerpostingplebeian",
+      "password": "philomena",
       "role": "user"
     }
   ],
