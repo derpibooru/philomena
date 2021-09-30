@@ -18,14 +18,14 @@ fn common_options() -> ComrakOptions {
 
     options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
 
-    if let Some(domains) = env::var("SITE_DOMAINS").ok() {
-        options.extension.philomena_domains = Some(domains.split(",").map(|s| s.to_string()).collect::<Vec<String>>());
-    };
+    if let Ok(domains) = env::var("SITE_DOMAINS") {
+        options.extension.philomena_domains = Some(domains.split(',').map(|s| s.to_string()).collect::<Vec<String>>());
+    }
 
     options
 }
 
-fn map_to_hashmap<'a>(map: Term<'a>) -> Option<HashMap<String, String>> {
+fn map_to_hashmap(map: Term) -> Option<HashMap<String, String>> {
     Some(MapIterator::new(map)?.map(|(key, value)| {
         let key: String = key.decode().unwrap_or_else(|_| String::from(""));
         let value: String = value.decode().unwrap_or_else(|_| String::from(""));
@@ -34,7 +34,7 @@ fn map_to_hashmap<'a>(map: Term<'a>) -> Option<HashMap<String, String>> {
     }).collect())
 }
 
-pub fn to_html<'a>(input: String, reps: Term<'a>) -> String {
+pub fn to_html(input: String, reps: Term) -> String {
     let mut options = common_options();
     options.render.escape = true;
 
@@ -43,7 +43,7 @@ pub fn to_html<'a>(input: String, reps: Term<'a>) -> String {
     comrak::markdown_to_html(&input, &options)
 }
 
-pub fn to_html_unsafe<'a>(input: String, reps: Term<'a>) -> String {
+pub fn to_html_unsafe(input: String, reps: Term) -> String {
     let mut options = common_options();
     options.render.unsafe_ = true;
 

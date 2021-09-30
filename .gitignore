@@ -39,6 +39,9 @@ npm-debug.log
 # Intellij IDEA
 .idea
 
+# VS Code
+.vscode
+
 # ElixirLS
 .elixir_ls
 
