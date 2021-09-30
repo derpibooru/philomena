@@ -1,4 +1,4 @@
-# NIF for Elixir.Philomena.Markdown
+# NIF for Elixir.Philomena.Native
 
 ## To build the NIF module:
 
@@ -9,8 +9,8 @@
 ## To load the NIF:
 
 ```elixir
-defmodule Philomena.Markdown do
-    use Rustler, otp_app: <otp-app>, crate: "philomena_markdown"
+defmodule Philomena.Native do
+    use Rustler, otp_app: <otp-app>, crate: "philomena"
 
     # When your NIF is loaded, it will override this function.
     def add(_a, _b), do: :erlang.nif_error(:nif_not_loaded)

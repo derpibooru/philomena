@@ -20,7 +20,7 @@ defmodule Philomena.Repo.Migrations.RenameBodyFields do
     rename table("commission_items"), :add_ons, to: :add_ons_textile
     rename table("commission_items"), :description_md, to: :description
     rename table("commission_items"), :add_ons_md, to: :add_ons
-  
+
     rename table("images"), :description, to: :description_textile
     rename table("images"), :scratchpad, to: :scratchpad_textile
     rename table("images"), :description_md, to: :description
@@ -92,8 +92,14 @@ defmodule Philomena.Repo.Migrations.RenameBodyFields do
 
     execute("update images set description='' where description is null;")
     execute("update tags set description='' where description is null;")
-    execute("alter table images alter column description set default ''::character varying, alter column description set not null;")
-    execute("alter table tags alter column description set default ''::character varying, alter column description set not null;")
+
+    execute(
+      "alter table images alter column description set default ''::character varying, alter column description set not null;"
+    )
+
+    execute(
+      "alter table tags alter column description set default ''::character varying, alter column description set not null;"
+    )
 
     # Unneeded columns
     alter table("badges") do

@@ -61,8 +61,7 @@ defmodule PhilomenaWeb.TagController do
 
     interactions = Interactions.user_interactions(images, user)
 
-    body =
-      MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
+    body = MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
       MarkdownRenderer.render_collection(

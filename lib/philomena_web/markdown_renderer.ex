@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       end)
       |> render_representations(conn)
 
-    Enum.map(collection, fn %{body: text}  ->
+    Enum.map(collection, fn %{body: text} ->
       Markdown.to_html(text, representations)
     end)
   end

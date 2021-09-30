@@ -134,11 +134,9 @@ defmodule PhilomenaWeb.ProfileController do
       |> MarkdownRenderer.render_collection(conn)
       |> Enum.zip(recent_comments)
 
-    about_me =
-      MarkdownRenderer.render_one(%{body: user.description || ""}, conn)
+    about_me = MarkdownRenderer.render_one(%{body: user.description || ""}, conn)
 
-    scratchpad =
-      MarkdownRenderer.render_one(%{body: user.scratchpad || ""}, conn)
+    scratchpad = MarkdownRenderer.render_one(%{body: user.scratchpad || ""}, conn)
 
     commission_information = commission_info(user.commission, conn)
 

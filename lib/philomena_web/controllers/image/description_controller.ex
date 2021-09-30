@@ -34,8 +34,7 @@ defmodule PhilomenaWeb.Image.DescriptionController do
 
         Images.reindex_image(image)
 
-        body =
-          MarkdownRenderer.render_one(%{body: image.description}, conn)
+        body = MarkdownRenderer.render_one(%{body: image.description}, conn)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)

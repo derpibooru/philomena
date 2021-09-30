@@ -139,8 +139,7 @@ defmodule PhilomenaWeb.ImageLoader do
 
     dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
 
-    description =
-      MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
+    description = MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
 
     [{tag, description, dnp_entries}]
   end
