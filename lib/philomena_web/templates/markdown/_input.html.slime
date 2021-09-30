@@ -18,7 +18,7 @@
   = render PhilomenaWeb.MarkdownView, "_toolbar.html", conn: @conn
 
   .field
-    = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: true
+    = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: required?(@conn)
     = error_tag form, field_name
 
 .block__tab.communication-edit__tab.hidden.js-preview-content data-tab="preview"

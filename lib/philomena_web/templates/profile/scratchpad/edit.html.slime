@@ -6,7 +6,7 @@ h1 Updating Moderation Scratchpad
       p Oops, something went wrong! Please check the errors below.
   .block
     div
-      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_text: "Scratchpad", placeholder: "Scratchpad Contents", name: :scratchpad
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_text: "Scratchpad", placeholder: "Scratchpad Contents", name: :scratchpad, required: false
 
     .block__content.communication-edit__actions
       => submit "Update", class: "button"
