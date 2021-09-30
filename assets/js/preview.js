@@ -61,15 +61,13 @@ function getPreview(body, anonymous, previewLoading, previewIdle, previewContent
  * @param {E} e
  */
 function resizeTextarea(e) {
-  // Reset inline height for fresh calculations
-  e.target.style.height = '';
   const { borderTopWidth, borderBottomWidth, height } = window.getComputedStyle(e.target);
   // Add scrollHeight and borders (because border-box) to get the target size that avoids scrollbars
   const contentHeight = e.target.scrollHeight + parseFloat(borderTopWidth) + parseFloat(borderBottomWidth);
   // Get the original default height provided by page styles
-  const regularHeight = parseFloat(height);
+  const currentHeight = parseFloat(height);
   // Limit textarea's size to between the original height and 1000px
-  const newHeight = Math.max(regularHeight, Math.min(1000, contentHeight));
+  const newHeight = Math.max(currentHeight, Math.min(1000, contentHeight));
   e.target.style.height = `${newHeight}px`;
 }
 
