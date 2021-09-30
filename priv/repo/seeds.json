@@ -63,7 +63,7 @@
   "users": [{
     "name": "Administrator",
     "email": "admin@example.com",
-    "password": "philomena",
+    "password": "philomena123",
     "role": "admin"
   }],
   "rating_tags": [

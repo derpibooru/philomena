@@ -2,19 +2,19 @@
   "users": [{
       "name": "Hot Pocket Consumer",
       "email": "moderator@example.com",
-      "password": "philomena",
+      "password": "philomena123",
       "role": "moderator"
     },
     {
       "name": "Hoping For a Promotion",
       "email": "assistant@example.com",
-      "password": "philomena",
+      "password": "philomena123",
       "role": "assistant"
     },
     {
       "name": "Pleb",
       "email": "user@example.com",
-      "password": "philomena",
+      "password": "philomena123",
       "role": "user"
     }
   ],
