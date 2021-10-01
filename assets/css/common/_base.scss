@@ -85,7 +85,8 @@ pre {
   font-family: $font_family_monospace;
   border: 1px solid $meta_border_color;
   max-width: 100%;
-  overflow-y: scroll;
+  overflow-y: hidden;
+  overflow-x: auto;
 
   code {
     border: 0;
