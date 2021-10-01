@@ -70,6 +70,10 @@ h6 {
   margin-left: 2px;
 }
 
+.paragraph img, .communication__body__text img, .block__content img {
+  max-width: 100%;
+}
+
 p {
   @extend .paragraph;
 }
@@ -81,9 +85,9 @@ pre {
   font-family: $font_family_monospace;
   border: 1px solid $meta_border_color;
   max-width: 100%;
+  overflow-y: scroll;
 
   code {
-    overflow-y: scroll;
     border: 0;
     background: 0;
     padding: 0;
@@ -168,6 +172,7 @@ hr {
   border: 0;
   height: 1px;
   background: $border_color;
+  margin: var(--padding-small);
 }
 
 #error_explanation {
