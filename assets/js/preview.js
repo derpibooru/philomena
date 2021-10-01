@@ -17,14 +17,14 @@ function handleError(response) {
 }
 
 function commentReply(user, url, textarea, quote) {
-  const text = `"@${user}":${url}`;
+  const text = `[${user}](${url})`;
   let newval = textarea.value;
 
   if (newval && /\n$/.test(newval)) newval += '\n';
   newval += `${text}\n`;
 
   if (quote) {
-    newval += `[bq="${user.replace('"', '\'')}"] ${quote} [/bq]\n`;
+    newval += `> ${quote.replaceAll('\n', '\n> ')}\n\n`;
   }
 
   textarea.value = newval;
