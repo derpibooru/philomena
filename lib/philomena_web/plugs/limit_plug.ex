@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.LimitPlug do
       is_staff(conn.assigns.current_user) and skip_staff ->
         conn
 
-      conn.assigns.current_user.bypass_rate_limits ->
+      bypasses_rate_limits(conn.assigns.current_user) ->
         conn
 
       conn.assigns.ajax? ->
@@ -70,6 +70,9 @@ defmodule PhilomenaWeb.LimitPlug do
   defp is_staff(%User{role: "moderator"}), do: true
   defp is_staff(%User{role: "assistant"}), do: true
   defp is_staff(_), do: false
+
+  defp bypasses_rate_limits(%User{bypass_rate_limits: true}), do: true
+  defp bypasses_rate_limits(_), do: false
 
   defp current_user_id(%{id: id}), do: id
   defp current_user_id(_), do: nil

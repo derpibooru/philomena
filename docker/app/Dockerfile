@@ -1,4 +1,4 @@
-FROM elixir:1.12.0-alpine
+FROM elixir:1.12.3-alpine
 
 RUN apk update \
     && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg imagemagick postgresql-client wget rust cargo \

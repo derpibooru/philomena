@@ -1,7 +1,6 @@
 defmodule Philomena.DnpEntries.DnpEntry do
   use Ecto.Schema
   import Ecto.Changeset
-  import Philomena.MarkdownWriter
 
   alias Philomena.Tags.Tag
   alias Philomena.Users.User
@@ -18,9 +17,6 @@ defmodule Philomena.DnpEntries.DnpEntry do
     field :hide_reason, :boolean, default: false
     field :instructions, :string, default: ""
     field :feedback, :string, default: ""
-    field :conditions_md, :string, default: ""
-    field :reason_md, :string, default: ""
-    field :instructions_md, :string, default: ""
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
@@ -39,9 +35,6 @@ defmodule Philomena.DnpEntries.DnpEntry do
     |> validate_required([:reason, :dnp_type])
     |> validate_inclusion(:dnp_type, types())
     |> validate_conditions()
-    |> put_markdown(attrs, :conditions, :conditions_md)
-    |> put_markdown(attrs, :reason, :reason_md)
-    |> put_markdown(attrs, :instructions, :instructions_md)
     |> foreign_key_constraint(:tag_id, name: "fk_rails_473a736b4a")
   end
 

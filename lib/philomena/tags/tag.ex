@@ -2,7 +2,6 @@ defmodule Philomena.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
-  import Philomena.MarkdownWriter
 
   alias Philomena.Channels.Channel
   alias Philomena.DnpEntries.DnpEntry
@@ -78,7 +77,6 @@ defmodule Philomena.Tags.Tag do
     field :category, :string
     field :images_count, :integer, default: 0
     field :description, :string
-    field :description_md, :string
     field :short_description, :string
     field :namespace, :string
     field :name_in_namespace, :string
@@ -101,7 +99,6 @@ defmodule Philomena.Tags.Tag do
     |> cast(attrs, [:category, :description, :short_description, :mod_notes])
     |> put_change(:implied_tag_list, Enum.map_join(tag.implied_tags, ",", & &1.name))
     |> validate_required([])
-    |> put_markdown(attrs, :description, :description_md)
   end
 
   def changeset(tag, attrs, implied_tags) do
@@ -109,7 +106,6 @@ defmodule Philomena.Tags.Tag do
     |> cast(attrs, [:category, :description, :short_description, :mod_notes])
     |> put_assoc(:implied_tags, implied_tags)
     |> validate_required([])
-    |> put_markdown(attrs, :description, :description_md)
   end
 
   def image_changeset(tag, attrs) do

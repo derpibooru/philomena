@@ -6,29 +6,10 @@
       p Oops, something went wrong! Please check the errors below.
 
   .block
-    .block__header.block__header--js-tabbed
-      a.selected href="#" data-click-tab="write"
-        i.fas.fa-edit>
-        ' Edit
-
-      a href="#" data-click-tab="preview"
-        i.fa.fa-eye>
-        ' Preview
-
-    .block__tab.communication-edit__tab.selected data-tab="write"
-      = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-      = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-      .field
-        = textarea f, :body, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Please read the site rules before posting and use [spoiler][/spoiler] for above-rating stuff.", required: true
-        = error_tag f, :body
-
-    .block__tab.communication-edit__tab.hidden data-tab="preview"
-      ' [Loading preview...]
+    div
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Please read the site rules before posting and use ||spoilers|| for above-rating stuff."
 
     .block__content.communication-edit__actions
       => submit "Post", class: "button", data: [disable_with: raw("Posting&hellip;")]
 
-      = if @conn.assigns.current_user do
-        = checkbox f, :anonymous, value: anonymous_by_default?(@conn)
-        = label f, :anonymous, "Anonymous"
+      = render PhilomenaWeb.MarkdownView, "_anon_checkbox.html", conn: @conn, f: f

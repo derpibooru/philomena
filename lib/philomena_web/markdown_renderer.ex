@@ -8,11 +8,21 @@ defmodule PhilomenaWeb.MarkdownRenderer do
 
   @image_view Module.concat(["PhilomenaWeb.ImageView"])
 
-  def render(text, conn) do
-    images = find_images(text)
-    representations = render_representations(images, conn)
+  def render_one(item, conn) do
+    hd(render_collection([item], conn))
+  end
 
-    Markdown.to_html(text, representations)
+  def render_collection(collection, conn) do
+    representations =
+      collection
+      |> Enum.flat_map(fn %{body: text} ->
+        find_images(text)
+      end)
+      |> render_representations(conn)
+
+    Enum.map(collection, fn %{body: text} ->
+      Markdown.to_html(text, representations)
+    end)
   end
 
   def render_unsafe(text, conn) do

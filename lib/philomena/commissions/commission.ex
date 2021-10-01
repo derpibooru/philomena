@@ -1,7 +1,6 @@
 defmodule Philomena.Commissions.Commission do
   use Ecto.Schema
   import Ecto.Changeset
-  import Philomena.MarkdownWriter
 
   alias Philomena.Commissions.Item
   alias Philomena.Images.Image
@@ -18,10 +17,6 @@ defmodule Philomena.Commissions.Commission do
     field :contact, :string
     field :will_create, :string
     field :will_not_create, :string
-    field :information_md, :string
-    field :contact_md, :string
-    field :will_create_md, :string
-    field :will_not_create_md, :string
     field :commission_items_count, :integer, default: 0
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
@@ -46,10 +41,6 @@ defmodule Philomena.Commissions.Commission do
     |> validate_length(:will_create, max: 1000, count: :bytes)
     |> validate_length(:will_not_create, max: 1000, count: :bytes)
     |> validate_subset(:categories, Keyword.values(categories()))
-    |> put_markdown(attrs, :information, :information_md)
-    |> put_markdown(attrs, :contact, :contact_md)
-    |> put_markdown(attrs, :will_create, :will_create_md)
-    |> put_markdown(attrs, :will_not_create, :will_not_create_md)
   end
 
   defp drop_blank_categories(changeset) do

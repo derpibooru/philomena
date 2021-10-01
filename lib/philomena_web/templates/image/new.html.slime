@@ -41,7 +41,7 @@
   .field
     = label f, :source_url, "The page you found this image on"
     = url_input f, :source_url, class: "input input--wide js-image-input", placeholder: "Source URL"
-  
+
   .field
     label for="image[tag_input]"
       ' Describe with
@@ -64,24 +64,12 @@
 
   .field
     .block
-      .block__header.block__header--js-tabbed
-        = link "Description", to: "#", class: "selected", data: [click_tab: "write"]
-        = link "Preview", to: "#", data: [click_tab: "preview"]
+      .communication-edit__wrap
+        = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_icon: "pencil-alt", action_text: "Description", placeholder: "Describe this image in plain words - this should generally be info about the image that doesn't belong in the tags or source.", name: :description, class: "js-image-input", required: false
 
-      .block__tab.selected data-tab="write"
-        = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-        = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-        = textarea f, :description, class: "input input--wide input--text js-preview-description js-image-input js-toolbar-input", placeholder: "Describe this image in plain words - this should generally be info about the image that doesn't belong in the tags or source."
-      .block__tab.hidden data-tab="preview"
-        | Loading preview...
-
-  = if @conn.assigns.current_user do
-    .field
-      = label f, :anonymous, "Post anonymously"
-      = checkbox f, :anonymous, class: "checkbox", value: anonymous_by_default?(@conn)
+  = render PhilomenaWeb.MarkdownView, "_anon_checkbox.html", conn: @conn, f: f, label: "Post anonymously"
 
   = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "image", conn: @conn
 
   .actions
-    = submit "Upload", class: "button", autocomplete: "off", data: [disable_with: "Please wait..."]
+    = submit "Upload", class: "button input--separate-top", autocomplete: "off", data: [disable_with: "Please wait..."]

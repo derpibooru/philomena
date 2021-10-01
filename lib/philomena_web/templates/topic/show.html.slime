@@ -108,7 +108,7 @@ h1 = @topic.title
     - true ->
 
   = if can?(@conn, :hide, @topic) do
-    .block__content
+    .block__content.block__content--top-border
       input.toggle-box id="administrator_tools" type="checkbox" checked=false
       label for="administrator_tools" Manage Topic
       .toggle-box-container

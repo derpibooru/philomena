@@ -1,7 +1,10 @@
+const fs = require('fs');
 const path = require('path');
 const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const IgnoreEmitPlugin = require('ignore-emit-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -10,6 +13,11 @@ const multiEntry = require('rollup-plugin-multi-entry')();
 const buble = require('rollup-plugin-buble')({ transforms: { dangerousForOf: true } });
 
 let plugins = [
+  new IgnoreEmitPlugin(/css\/.*(?<!css)$/),
+  new MiniCssExtractPlugin({
+    filename: '[name].css',
+    chunkFilename: '[id].css'
+  }),
   new CopyPlugin({
     patterns: [
       { from: path.resolve(__dirname, 'static') },
@@ -27,10 +35,21 @@ if (!isDevelopment){
   ]);
 }
 
+const themeNames =
+  fs.readdirSync(path.resolve(__dirname, 'css/themes')).map(name =>
+    name.match(/([-a-z]+).scss/)[1]
+  );
+
+const themes = {};
+for (const name of themeNames) {
+  themes[`css/${name}`] = `./css/themes/${name}.scss`;
+}
+
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: {
     'js/app.js': './js/app.js',
+    ...themes
   },
   output: {
     filename: '[name]',
@@ -77,18 +96,9 @@ module.exports = {
         ],
       },
       {
-        test: /themes\/[a-z]+\.scss$/,
+        test: /\.scss$/,
         use: [
-          {
-            loader: 'file-loader',
-            options: {
-              sourceMaps: isDevelopment,
-              name: '[name].css',
-              outputPath: '/css',
-              publicPath: '/css',
-            },
-          },
-          { loader: 'extract-loader', options: { sourceMaps: isDevelopment } },
+          MiniCssExtractPlugin.loader,
           {
             loader: 'css-loader',
             options: {
@@ -109,8 +119,16 @@ module.exports = {
               },
             },
           },
-          { loader: 'sass-loader', options: { sourceMap: isDevelopment } },
-        ],
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: isDevelopment,
+              sassOptions: {
+                quietDeps: true
+              }
+            }
+          },
+        ]
       },
     ],
   },

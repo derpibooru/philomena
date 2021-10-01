@@ -11,8 +11,8 @@ crate-type = ["dylib"]
 
 [dependencies]
 comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main" }
+jemallocator = { version = "0.3.2", features = ["disable_initial_exec_tls"] }
 rustler = "0.22"
-jemallocator = "0.3.2"
 ring = "0.16"
 base64 = "0.13"
 url = "2.2"

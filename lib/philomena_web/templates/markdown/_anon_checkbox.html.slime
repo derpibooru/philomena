@@ -1,0 +1,5 @@
+- f = assigns[:f]
+- label_lext = assigns[:label] || "Anonymous"
+= if @conn.assigns.current_user do
+  => checkbox f, :anonymous, value: anonymous_by_default?(@conn), class: "js-preview-anonymous"
+  = label f, :anonymous, label_lext

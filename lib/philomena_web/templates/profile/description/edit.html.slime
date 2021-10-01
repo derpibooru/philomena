@@ -14,25 +14,8 @@ h1 Updating Profile Description
         = error_tag f, :personal_title
 
   .block
-    .block__header.block__header--js-tabbed
-      a.selected href="#" data-click-tab="write"
-        i.fas.fa-edit>
-        ' About Me
-
-      a href="#" data-click-tab="preview"
-        i.fa.fa-eye>
-        ' Preview
-
-    .block__tab.communication-edit__tab.selected data-tab="write"
-      = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-      = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-      .field
-        = textarea f, :description, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Description (up to 10000 characters)"
-        = error_tag f, :description
-
-    .block__tab.communication-edit__tab.hidden data-tab="preview"
-      ' [Loading preview...]
+    div
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_text: "About Me", placeholder: "Description (up to 10000 characters)", name: :description, required: false
 
     .block__content.communication-edit__actions
       => submit "Update", class: "button"

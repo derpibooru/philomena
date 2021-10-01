@@ -15,12 +15,12 @@ rustler::init! {
 // Markdown NIF wrappers.
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html<'a>(input: String, reps: Term<'a>) -> String {
+fn markdown_to_html(input: String, reps: Term) -> String {
     markdown::to_html(input, reps)
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html_unsafe<'a>(input: String, reps: Term<'a>) -> String {
+fn markdown_to_html_unsafe(input: String, reps: Term) -> String {
     markdown::to_html_unsafe(input, reps)
 }
 

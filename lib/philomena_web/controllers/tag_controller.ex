@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.TagController do
   alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
   alias Philomena.{Images, Images.Image}
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Interactions
   import Ecto.Query
 
@@ -61,12 +61,11 @@ defmodule PhilomenaWeb.TagController do
 
     interactions = Interactions.user_interactions(images, user)
 
-    body =
-      TextRenderer.render_one(%{body_md: tag.description_md, body: tag.description || ""}, conn)
+    body = MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
 
     dnp_bodies =
-      TextRenderer.render_collection(
-        Enum.map(tag.dnp_entries, &%{body_md: &1.conditions_md, body: &1.conditions || ""}),
+      MarkdownRenderer.render_collection(
+        Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}),
         conn
       )
 

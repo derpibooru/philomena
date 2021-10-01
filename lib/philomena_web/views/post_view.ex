@@ -1,27 +1,10 @@
 defmodule PhilomenaWeb.PostView do
   alias Philomena.Attribution
-  alias Philomena.Textile.Parser
 
   use PhilomenaWeb, :view
 
-  def textile_safe_author(object) do
-    author_name = author_name(object)
-    at_author_name = "@" <> author_name
-
-    Parser.parse(%{image_transform: & &1}, at_author_name)
-    |> Parser.flatten()
-    |> case do
-      ^at_author_name ->
-        author_name
-
-      _ ->
-        # Cover *all* possibilities.
-        literal =
-          author_name
-          |> String.replace("==]", "==]==][==")
-
-        "[==#{literal}==]"
-    end
+  def markdown_safe_author(object) do
+    Philomena.Markdown.escape("@" <> author_name(object))
   end
 
   defp author_name(object) do

@@ -175,10 +175,6 @@ defmodule PhilomenaWeb.ImageView do
 
   def scope(conn), do: PhilomenaWeb.ImageScope.scope(conn)
 
-  def anonymous_by_default?(conn) do
-    conn.assigns.current_user.anonymous_by_default
-  end
-
   def info_row(_conn, []), do: []
 
   def info_row(conn, [{tag, description, dnp_entries}]) do

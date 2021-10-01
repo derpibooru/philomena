@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.ProfileController do
 
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.UserStatistics.UserStatistic
   alias Philomena.Users.User
   alias Philomena.Bans
@@ -131,14 +131,12 @@ defmodule PhilomenaWeb.ProfileController do
     recent_comments =
       recent_comments
       |> Enum.filter(&Canada.Can.can?(current_user, :show, &1.image))
-      |> TextRenderer.render_collection(conn)
+      |> MarkdownRenderer.render_collection(conn)
       |> Enum.zip(recent_comments)
 
-    about_me =
-      TextRenderer.render_one(%{body_md: user.description_md, body: user.description || ""}, conn)
+    about_me = MarkdownRenderer.render_one(%{body: user.description || ""}, conn)
 
-    scratchpad =
-      TextRenderer.render_one(%{body_md: user.scratchpad_md, body: user.scratchpad || ""}, conn)
+    scratchpad = MarkdownRenderer.render_one(%{body: user.scratchpad || ""}, conn)
 
     commission_information = commission_info(user.commission, conn)
 
@@ -216,9 +214,9 @@ defmodule PhilomenaWeb.ProfileController do
   defp map_fetch(nil, _field_name), do: nil
   defp map_fetch(map, field_name), do: Map.get(map, field_name)
 
-  defp commission_info(%{information: info, information_md: info_md}, conn)
+  defp commission_info(%{information: info}, conn)
        when info not in [nil, ""],
-       do: TextRenderer.render_one(%{body: info, body_md: info_md}, conn)
+       do: MarkdownRenderer.render_one(%{body: info}, conn)
 
   defp commission_info(_commission, _conn), do: ""
 
@@ -285,7 +283,7 @@ defmodule PhilomenaWeb.ProfileController do
 
         mod_notes =
           mod_notes
-          |> TextRenderer.render_collection(conn)
+          |> MarkdownRenderer.render_collection(conn)
           |> Enum.zip(mod_notes)
 
         assign(conn, :mod_notes, mod_notes)

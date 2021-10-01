@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Image.DescriptionController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Images.Image
   alias Philomena.Images
 
@@ -34,8 +34,7 @@ defmodule PhilomenaWeb.Image.DescriptionController do
 
         Images.reindex_image(image)
 
-        body =
-          TextRenderer.render_one(%{body: image.description, body_md: image.description_md}, conn)
+        body = MarkdownRenderer.render_one(%{body: image.description}, conn)
 
         conn
         |> put_view(PhilomenaWeb.ImageView)

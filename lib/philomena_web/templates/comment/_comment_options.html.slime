@@ -18,7 +18,7 @@ div
 
 div
   - link_path = Routes.image_path(@conn, :show, @comment.image) <> "#comment_#{@comment.id}"
-  - safe_author = PhilomenaWeb.PostView.textile_safe_author(@comment)
+  - safe_author = PhilomenaWeb.PostView.markdown_safe_author(@comment)
   - quote_body = if @comment.hidden_from_users, do: "", else: @comment.body
 
   a.communication__interaction title="Link to comment" href=link_path

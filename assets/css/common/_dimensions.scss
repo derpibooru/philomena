@@ -27,7 +27,7 @@ $header_sub_height: 32px;
 $header_font_size: 16px;
 $header_spacing: 12px;
 $header_field_spacing: 8px;
-$header_field_vertical_spacing: ($header_height - $header_field_height) / 2;
+$header_field_vertical_spacing: ($header_height - $header_field_height) * 0.5;
 $block_header_height: 32px;
 $block_header_sub_height: 26px;
 $block_spacing: 6px;

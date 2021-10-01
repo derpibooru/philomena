@@ -5,25 +5,8 @@ h1 Updating Moderation Scratchpad
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
   .block
-    .block__header.block__header--js-tabbed
-      a.selected href="#" data-click-tab="write"
-        i.fas.fa-edit>
-        ' Scratchpad
-
-      a href="#" data-click-tab="preview"
-        i.fa.fa-eye>
-        ' Preview
-
-    .block__tab.communication-edit__tab.selected data-tab="write"
-      = render PhilomenaWeb.TextileView, "_help.html", conn: @conn
-      = render PhilomenaWeb.TextileView, "_toolbar.html", conn: @conn
-
-      .field
-        = textarea f, :scratchpad, class: "input input--wide input--text js-preview-input js-toolbar-input", placeholder: "Scratchpad Contents"
-        = error_tag f, :scratchpad
-
-    .block__tab.communication-edit__tab.hidden data-tab="preview"
-      ' [Loading preview...]
+    div
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_text: "Scratchpad", placeholder: "Scratchpad Contents", name: :scratchpad, required: false
 
     .block__content.communication-edit__actions
       => submit "Update", class: "button"

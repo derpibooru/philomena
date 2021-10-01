@@ -16,7 +16,7 @@ podman-compose build
 podman-compose up
 ```
 
-Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / trixieisbestpony
+Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / philomena123
 
 ## Troubleshooting
 

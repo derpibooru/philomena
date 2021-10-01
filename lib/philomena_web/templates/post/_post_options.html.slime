@@ -18,7 +18,7 @@ div
 
 div
   - link_path = Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "#post_#{@post.id}"
-  - safe_author = textile_safe_author(@post)
+  - safe_author = markdown_safe_author(@post)
   - quote_body = if @post.hidden_from_users, do: "", else: @post.body
 
   a.communication__interaction title="Link to post" href=link_path

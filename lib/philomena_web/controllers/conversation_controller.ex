@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.ConversationController do
 
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Conversations, Conversations.Conversation, Conversations.Message}
-  alias PhilomenaWeb.TextRenderer
+  alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Repo
   import Ecto.Query
 
@@ -72,7 +72,7 @@ defmodule PhilomenaWeb.ConversationController do
 
     rendered =
       messages.entries
-      |> TextRenderer.render_collection(conn)
+      |> MarkdownRenderer.render_collection(conn)
 
     messages = %{messages | entries: Enum.zip(messages.entries, rendered)}
 

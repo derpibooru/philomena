@@ -54,7 +54,7 @@ form p {
 }
 
 .input--text {
-  height: 8.6em;
+  min-height: 8.6em;
 }
 
 .input--separate-left {
@@ -72,6 +72,10 @@ form p {
   border: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.input--resize-vertical {
+  resize: vertical;
 }
 
 .checkbox {

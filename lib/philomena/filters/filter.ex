@@ -10,9 +10,6 @@ defmodule Philomena.Filters.Filter do
   schema "filters" do
     belongs_to :user, User
 
-    # fixme: unneeded field
-    field :description_md, :string, default: ""
-
     field :name, :string
     field :description, :string, default: ""
     field :system, :boolean
