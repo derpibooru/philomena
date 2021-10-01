@@ -3,6 +3,8 @@
 - action_icon = assigns[:action_icon] || 'edit'
 - field_name = assigns[:name] || :body
 - field_placeholder = assigns[:placeholder] || "Your message"
+- is_required = assigns[:required]
+- input_classes = assigns[:class]
 .block__header.block__header--js-tabbed
   a.selected href="#" data-click-tab="write"
     i.fa> class="fa-#{action_icon}"
@@ -18,7 +20,7 @@
   = render PhilomenaWeb.MarkdownView, "_toolbar.html", conn: @conn
 
   .field
-    = textarea form, field_name, class: "input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", placeholder: field_placeholder, required: required?(@conn)
+    = textarea form, field_name, class: add_classes("input input--wide input--text input--resize-vertical js-toolbar-input js-preview-input", input_classes), placeholder: field_placeholder, required: required?(is_required)
     = error_tag form, field_name
 
 .block__tab.communication-edit__tab.hidden.js-preview-content data-tab="preview"
