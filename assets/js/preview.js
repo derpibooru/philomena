@@ -24,7 +24,7 @@ function commentReply(user, url, textarea, quote) {
   newval += `${text}\n`;
 
   if (quote) {
-    newval += `> ${quote.replaceAll('\n', '\n> ')}\n\n`;
+    newval += `> ${quote.replace(/\n/g, '\n> ')}\n\n`;
   }
 
   textarea.value = newval;
