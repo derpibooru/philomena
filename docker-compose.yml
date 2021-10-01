@@ -45,7 +45,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:13.4-alpine
+    image: postgres:14.0-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
