@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.StatView do
     {
       %{"doc_count" => min_docs},
       %{"doc_count" => max_docs}
-    } = Enum.min_max_by(data, & &1["doc_count"], fn -> %{"doc_count" => 0} end)
+    } = Enum.min_max_by(data, & &1["doc_count"], fn -> {%{"doc_count" => 0}, %{"doc_count" => 0}} end)
 
     graph_width = 950
     graph_height = 475
