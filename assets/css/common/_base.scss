@@ -68,6 +68,11 @@ h6 {
   margin-bottom: var(--padding-small);
   margin-top: var(--padding-small);
   margin-left: 2px;
+  line-height: 1.35em;
+}
+
+.communication__body__text .paragraph {
+  margin-bottom: var(--padding-normal);
 }
 
 .paragraph img, .communication__body__text img, .block__content img {
