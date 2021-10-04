@@ -230,8 +230,18 @@ hr {
 blockquote {
   margin: 1em 2em;
   border: 1px dotted $foreground_color;
-  padding: 1em;
+  padding: var(--padding-small);
   background-color: inherit;
+}
+
+blockquote .paragraph {
+  &:first-child {
+    margin-top: 0;
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 // Prevent blockquote from gaining far too much indentation and breaking.
