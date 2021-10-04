@@ -254,7 +254,7 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
 @media (max-width: $min_px_width_for_desktop_layout) {
   blockquote {
     margin: 1em 4px;
-    padding: 1em 4px;
+    padding: var(--padding-small) 4px;
   }
 }
 
