@@ -187,6 +187,9 @@ function wrapLines(textarea, options, eachLine = true) {
       ? prefix + text.trim() + suffix
       : text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
 
+    // Force a space at the end of lines with only blockquote markers
+    newText = newText.replace(/^((?:>\s+)*)>$/gm, '$1> ')
+
     return { newText, caretOffset: emptyText ? prefix.length : newText.length };
   }, eachLine);
 }

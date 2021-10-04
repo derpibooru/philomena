@@ -33,7 +33,7 @@ elixir:
   p
     ' There are, on average,
     span.stat>
-      = number_with_delimiter(trunc(img_bucket["non_deleted"]["avg_comments"]["value"]))
+      = number_with_delimiter(trunc(img_bucket["non_deleted"]["avg_comments"]["value"] || 0))
     ' comments on each image on the site.
   
   h3 Votes

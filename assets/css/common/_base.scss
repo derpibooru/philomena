@@ -68,6 +68,11 @@ h6 {
   margin-bottom: var(--padding-small);
   margin-top: var(--padding-small);
   margin-left: 2px;
+  line-height: 1.35em;
+}
+
+.communication__body__text .paragraph {
+  margin-bottom: var(--padding-normal);
 }
 
 .paragraph img, .communication__body__text img, .block__content img {
@@ -308,25 +313,19 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
   margin-bottom: 6px;
 }
 
-img[alt=tiny] {
-  max-height: $image_tiny_size !important;
-  max-width: $image_tiny_size !important;
+@mixin image-alt-size($name, $size) {
+  @media (min-width: $size) {
+    img[alt=#{$name}] {
+      max-height: $size !important;
+      max-width: $size !important;
+    }
+  }
 }
 
-img[alt=small] {
-  max-height: $image_small_size !important;
-  max-width: $image_small_size !important;
-}
-
-img[alt=medium] {
-  max-height: $image_medium_size !important;
-  max-width: $image_medium_size !important;
-}
-
-img[alt=large] {
-  max-height: $image_large_size !important;
-  max-width: $image_large_size !important;
-}
+@include image-alt-size(tiny, $image_tiny_size);
+@include image-alt-size(small, $image_small_size);
+@include image-alt-size(medium, $image_medium_size);
+@include image-alt-size(large, $image_large_size);
 
 table {
   @extend .table;
