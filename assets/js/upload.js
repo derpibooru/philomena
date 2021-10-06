@@ -6,10 +6,24 @@ import { fetchJson, handleError } from './utils/requests';
 import { $, $$, hideEl, showEl, makeEl, clearEl } from './utils/dom';
 import { addTag } from './tagsinput';
 
+const MATROSKA_MAGIC = 0x1a45dfa3;
+
 function scrapeUrl(url) {
   return fetchJson('POST', '/images/scrape', { url })
     .then(handleError)
     .then(response => response.json());
+}
+
+function elementForEmbeddedImage({ camo_url }) {
+  // The upload was fetched from the scraper and is a path name
+  if (typeof camo_url === 'string') {
+    return makeEl('img', { className: 'scraper-preview--image', src: camo_url });
+  }
+
+  // The upload was fetched from a file input and is an ArrayBuffer
+  const objectUrl = URL.createObjectURL(new Blob([camo_url]));
+  const tagName = new DataView(camo_url).getUint32(0) === MATROSKA_MAGIC ? 'video' : 'img';
+  return makeEl(tagName, { className: 'scraper-preview--image', src: objectUrl });
 }
 
 function setupImageUpload() {
@@ -26,8 +40,7 @@ function setupImageUpload() {
     clearEl(imgPreviews);
 
     images.forEach((image, index) => {
-      const img = makeEl('img', { className: 'scraper-preview--image' });
-      img.src = image.camo_url;
+      const img = elementForEmbeddedImage(image);
       const imgWrap = makeEl('span', { className: 'scraper-preview--image-wrapper' });
       imgWrap.appendChild(img);
 
@@ -72,7 +85,7 @@ function setupImageUpload() {
   });
 
   // Watch for files added to the form
-  fileField.addEventListener('change', () => { fileField.files.length && reader.readAsDataURL(fileField.files[0]); });
+  fileField.addEventListener('change', () => { fileField.files.length && reader.readAsArrayBuffer(fileField.files[0]); });
 
   // Watch for [Fetch] clicks
   fetchButton.addEventListener('click', () => {
