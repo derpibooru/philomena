@@ -81,7 +81,8 @@ function initializeFilters() {
 }
 
 function unmarshal(data) {
-  try { return JSON.parse(data); } catch (_) { return data; }
+  try { return JSON.parse(data); }
+  catch (_) { return data; }
 }
 
 function loadBooruData() {

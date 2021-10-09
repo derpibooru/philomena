@@ -1,4 +1,4 @@
-import { $, $$, clearEl, removeEl, insertBefore } from './utils/dom';
+import { $, $$, removeEl} from './utils/dom';
 import { delegate, leftClick } from './utils/events';
 
 function pollOptionRemover(_event, target) {
@@ -28,7 +28,7 @@ function pollOptionCreator() {
       const newHtml = prevFieldCopy.outerHTML.replace(/(\d+)/g, `${existingOptionCount}`);
 
       // Insert copy before the button
-      addPollOptionButton.insertAdjacentHTML("beforebegin", newHtml);
+      addPollOptionButton.insertAdjacentHTML('beforebegin', newHtml);
       existingOptionCount++;
     }
 

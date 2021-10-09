@@ -122,7 +122,7 @@ function setupImageUpload() {
   });
 
   // Fetch on "enter" in url field
-  remoteUrl.addEventListener("keydown", function(event) {
+  remoteUrl.addEventListener('keydown', event => {
     if (event.keyCode === 13) { // Hit enter
       fetchButton.click();
     }

@@ -6,9 +6,9 @@ import { fetchJson } from './utils/requests';
 import { $ } from './utils/dom';
 
 const endpoints = {
-  vote(imageId) { return `/images/${imageId}/vote` },
-  fave(imageId) { return `/images/${imageId}/fave` },
-  hide(imageId) { return `/images/${imageId}/hide` },
+  vote(imageId) { return `/images/${imageId}/vote`; },
+  fave(imageId) { return `/images/${imageId}/fave`; },
+  hide(imageId) { return `/images/${imageId}/hide`; },
 };
 
 const spoilerDownvoteMsg =
@@ -34,16 +34,16 @@ function modifyCache(callback) {
   cacheEl.value = JSON.stringify(callback(JSON.parse(cacheEl.value)));
 }
 
-function cacheStatus(image_id, interaction_type, value) {
+function cacheStatus(imageId, interactionType, value) {
   modifyCache(cache => {
-    cache[`${image_id}${interaction_type}`] = { image_id, interaction_type, value };
+    cache[`${imageId}${interactionType}`] = { imageId, interactionType, value };
     return cache;
   });
 }
 
-function uncacheStatus(image_id, interaction_type) {
+function uncacheStatus(imageId, interactionType) {
   modifyCache(cache => {
-    delete cache[`${image_id}${interaction_type}`];
+    delete cache[`${imageId}${interactionType}`];
     return cache;
   });
 }

@@ -30,10 +30,12 @@ function commentPosted(response) {
 
   if (requestOk) {
     response.text().then(text => {
-      if (text.includes('<div class="flash flash--warning">'))
+      if (text.includes('<div class="flash flash--warning">')) {
         window.location.reload();
-      else
+      }
+      else {
         displayComments(container, text);
+      }
     });
   }
   else {
