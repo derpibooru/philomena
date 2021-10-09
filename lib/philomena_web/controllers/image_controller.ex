@@ -81,6 +81,7 @@ defmodule PhilomenaWeb.ImageController do
 
     image_changeset =
       image
+      |> update_in([:sources], &sources_for_edit/1)
       |> Images.change_image()
 
     watching = Images.subscribed?(image, conn.assigns.current_user)
@@ -109,7 +110,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def new(conn, _params) do
     changeset =
-      %Image{sources: [%Source{}]}
+      %Image{sources: sources_for_edit()}
       |> Images.change_image()
 
     render(conn, "new.html", title: "New Image", changeset: changeset)
@@ -218,4 +219,8 @@ defmodule PhilomenaWeb.ImageController do
         |> assign(:source_change_count, source_changes)
     end
   end
+
+  defp sources_for_edit(), do: [%Source{}]
+  defp sources_for_edit([]), do: sources_for_edit()
+  defp source_for_edit(sources), do: sources
 end
