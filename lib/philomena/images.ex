@@ -92,11 +92,6 @@ defmodule Philomena.Images do
       |> Image.cache_changeset()
       |> repo.update()
     end)
-    |> Multi.run(:source_change, fn repo, %{image: image} ->
-      %SourceChange{image_id: image.id, initial: true}
-      |> SourceChange.creation_changeset(attrs, attribution)
-      |> repo.insert()
-    end)
     |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
       tag_ids = image.added_tags |> Enum.map(& &1.id)
       tags = Tag |> where([t], t.id in ^tag_ids)
@@ -333,27 +328,67 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
-  def update_source(%Image{} = image, attribution, attrs) do
-    image_changes =
-      image
-      |> Image.source_changeset(attrs)
-
-    source_changes =
-      Ecto.build_assoc(image, :source_changes)
-      |> SourceChange.creation_changeset(attrs, attribution)
+  def update_sources(%Image{} = image, attribution, attrs) do
+    old_sources = attrs["old_source_input"]
+    new_sources = attrs["source_input"]
 
     Multi.new()
-    |> Multi.update(:image, image_changes)
-    |> Multi.run(:source_change, fn repo, _changes ->
-      case image_changes.changes do
-        %{source_url: _new_source} ->
-          repo.insert(source_changes)
+    |> Multi.run(:image, fn repo, _chg ->
+      image = repo.preload(image, [:sources])
 
-        _ ->
-          {:ok, nil}
+      image
+      |> Image.source_changeset(%{}, old_sources, new_sources)
+      |> repo.update()
+      |> case do
+        {:ok, image} ->
+          {:ok, {image, image.added_sources, image.removed_sources}}
+
+        error ->
+          error
       end
     end)
+    |> Multi.run(:added_source_changes, fn repo, %{image: {image, added_sources, _removed}} ->
+      source_changes =
+        added_sources
+        |> Enum.map(&source_change_attributes(attribution, image, &1, true, attribution[:user]))
+
+      {count, nil} = repo.insert_all(SourceChange, source_changes)
+
+      {:ok, count}
+    end)
+    |> Multi.run(:removed_source_changes, fn repo, %{image: {image, _added, removed_sources}} ->
+      source_changes =
+        removed_sources
+        |> Enum.map(&source_change_attributes(attribution, image, &1, false, attribution[:user]))
+
+      {count, nil} = repo.insert_all(SourceChange, source_changes)
+
+      {:ok, count}
+    end)
     |> Repo.transaction()
+  end
+
+  defp source_change_attributes(attribution, image, source, added, user) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    user_id =
+      case user do
+        nil -> nil
+        user -> user.id
+      end
+
+    %{
+      image_id: image.id,
+      source: source,
+      user_id: user_id,
+      created_at: now,
+      updated_at: now,
+      ip: attribution[:ip],
+      fingerprint: attribution[:fingerprint],
+      user_agent: attribution[:user_agent],
+      referrer: attribution[:referrer],
+      added: added
+    }
   end
 
   def update_locked_tags(%Image{} = image, attrs) do
@@ -787,6 +822,7 @@ defmodule Philomena.Images do
       :hiders,
       :deleter,
       :gallery_interactions,
+      :sources,
       tags: [:aliases, :aliased_tag]
     ]
   end

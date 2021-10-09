@@ -21,19 +21,18 @@ defmodule PhilomenaWeb.Image.SourceController do
   plug :load_and_authorize_resource,
     model: Image,
     id_name: "image_id",
-    preload: [:user, tags: :aliases]
+    preload: [:user, :sources, tags: :aliases]
 
   def update(conn, %{"image" => image_params}) do
     attributes = conn.assigns.attributes
     image = conn.assigns.image
-    old_source = image.source_url
 
-    case Images.update_source(image, attributes, image_params) do
-      {:ok, %{image: image}} ->
+    case Images.update_sources(image, attributes, image_params) do
+      {:ok, %{image: {image, added_sources, removed_sources}}} ->
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:source_update",
-          %{image_id: image.id, added: [image.source_url], removed: [old_source]}
+          %{image_id: image.id, added: [added_sources], removed: [removed_sources]}
         )
 
         PhilomenaWeb.Endpoint.broadcast!(
@@ -49,7 +48,7 @@ defmodule PhilomenaWeb.Image.SourceController do
           |> where(image_id: ^image.id)
           |> Repo.aggregate(:count, :id)
 
-        if old_source != image.source_url do
+        if Enum.any?(added_sources) or Enum.any?(removed_sources) do
           UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
