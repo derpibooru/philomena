@@ -34,6 +34,18 @@ export function clearEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>
   });
 }
 
+export function disableEl<E extends HTMLInputElement>(...elements: E[] | ConcatArray<E>[]) {
+  ([] as E[]).concat(...elements).forEach(el => {
+    el.disabled = true;
+  });
+}
+
+export function enableEl<E extends HTMLInputElement>(...elements: E[] | ConcatArray<E>[]) {
+  ([] as E[]).concat(...elements).forEach(el => {
+    el.disabled = false;
+  });
+}
+
 export function removeEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
   ([] as E[]).concat(...elements).forEach(el => el.parentNode?.removeChild(el));
 }

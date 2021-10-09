@@ -1,14 +1,34 @@
 .block
+  - has_sources = Enum.any?(@image.sources)
   = form_for @changeset, Routes.image_source_path(@conn, :update, @image), [method: "put", class: "hidden", id: "source-form", data: [remote: "true"]], fn f ->
     = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban do
 
       = if @changeset.action do
         .alert.alert-danger
           p Oops, something went wrong! Please check the errors below.
-      
-      .flex
-        = url_input f, :source_url, id: "source-field", class: "input input--wide", autocomplete: "off", placeholder: "Source URL"
-        = submit "Save source", class: "button button--separate-left"
+
+      p
+        'The page(s) you found this image on. Images may have a maximum of
+        span.js-max-source-count> 10
+        ' source URLs. Leave any sources you don't want to use blank.
+
+      = inputs_for f, :sources, [as: "image[old_sources]", skip_hidden: true], fn fs ->
+        = hidden_input fs, :source
+      = inputs_for f, :sources, [skip_hidden: true], fn fs ->
+        .field.js-image-source.field--inline.flex--no-wrap.flex--centered
+          = text_input fs, :source, class: "input flex__grow js-source-url", placeholder: "Source URL"
+          = error_tag fs, :source
+
+          label.input--separate-left.flex__fixed.flex--centered
+            a.js-source-remove href="#"
+              i.fa.fa-trash>
+              ' Delete
+
+      .field
+        button.button.js-image-add-source type="button"
+          i.fa.fa-plus>
+          ' Add source
+        = submit "Save sources", class: "button button--separate-left"
         button.button.button--separate-left type="reset" data-click-hide="#source-form" data-click-show="#image-source"
           ' Cancel
 
@@ -18,14 +38,17 @@
       p
         ' You can't edit the source on this image.
 
-  .flex.flex--wrap#image-source
+  .flex.flex--wrap.flex--centered#image-source
     p
-      a.button.button--separate-right#edit-source data-click-focus="#source-field" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
+      a.button.button--separate-right#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
         i.fas.fa-edit>
-        ' Source:
+        = if !has_sources || length(@image.sources) == 1 do
+          ' Source:
+        - else
+          ' Sources:
 
     p
-      = if Enum.any?(@image.sources) do
+      = if has_sources do
         = for source <- @image.sources do
           a.js-source-link href=source.source
             strong= source.source

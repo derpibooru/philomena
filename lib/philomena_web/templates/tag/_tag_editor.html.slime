@@ -1,6 +1,6 @@
 elixir:
   textarea_options = [
-    class: "input input--wide tagsinput js-image-input js-taginput js-taginput-plain js-taginput-#{@name}",
+    class: "input input--wide tagsinput js-image-tags-input js-taginput js-taginput-plain js-taginput-#{@name}",
     placeholder: "Add tags separated with commas",
     autocomplete: "off"
   ]

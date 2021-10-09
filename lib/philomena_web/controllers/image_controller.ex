@@ -9,9 +9,10 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.{
     Images,
     Images.Image,
+    Images.Source,
     Comments.Comment,
     Galleries.Gallery
-  }
+    }
 
   alias Philomena.Elasticsearch
   alias Philomena.Interactions
@@ -108,7 +109,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def new(conn, _params) do
     changeset =
-      %Image{}
+      %Image{sources: [%Source{}]}
       |> Images.change_image()
 
     render(conn, "new.html", title: "New Image", changeset: changeset)

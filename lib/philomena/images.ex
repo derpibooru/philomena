@@ -77,10 +77,12 @@ defmodule Philomena.Images do
   """
   def create_image(attribution, attrs \\ %{}) do
     tags = Tags.get_or_create_tags(attrs["tag_input"])
+    sources = attrs["sources"]
 
     image =
       %Image{}
       |> Image.creation_changeset(attrs, attribution)
+      |> Image.source_changeset(attrs, [], sources)
       |> Image.tag_changeset(attrs, [], tags)
       |> Image.dnp_changeset(attribution[:user])
       |> Uploader.analyze_upload(attrs)
@@ -329,23 +331,25 @@ defmodule Philomena.Images do
   end
 
   def update_sources(%Image{} = image, attribution, attrs) do
-    old_sources = attrs["old_source_input"]
-    new_sources = attrs["source_input"]
+    old_sources = attrs["old_sources"]
+    new_sources = attrs["sources"]
 
     Multi.new()
-    |> Multi.run(:image, fn repo, _chg ->
-      image = repo.preload(image, [:sources])
+    |> Multi.run(
+         :image,
+         fn repo, _chg ->
+           image = repo.preload(image, [:sources])
 
-      image
-      |> Image.source_changeset(%{}, old_sources, new_sources)
-      |> repo.update()
-      |> case do
-        {:ok, image} ->
-          {:ok, {image, image.added_sources, image.removed_sources}}
+           image
+           |> Image.source_changeset(%{}, old_sources, new_sources)
+           |> repo.update()
+           |> case do
+                {:ok, image} ->
+                  {:ok, {image, image.added_sources, image.removed_sources}}
 
-        error ->
-          error
-      end
+                error ->
+                  error
+              end
     end)
     |> Multi.run(:added_source_changes, fn repo, %{image: {image, added_sources, _removed}} ->
       source_changes =

@@ -50,13 +50,13 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
          )
 
     create constraint(:image_sources, :image_sources_source_check,
-             check: "substr(source, 1, 7) = 'http://' or substr(source, 1, 8) = 'https://'"
+             check: "source ~* '^https?://'"
            )
 
     execute("""
     insert into image_sources (image_id, source)
     select id as image_id, substr(source_url, 1, 255) as source from images
-    where source_url is not null and (substr(source_url, 1, 7) = 'http://' or substr(source_url, 1, 8) = 'https://');
+    where source_url is not null and source_url ~* '^https?://';
     """)
 
     # First insert the "added" changes...
@@ -123,7 +123,7 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
     execute("truncate image_sources")
 
     drop constraint(:image_sources, :image_sources_source_check,
-           check: "substr(source, 1, 7) = 'http://' or substr(source, 1, 8) = 'https://'"
+           check: "source ~* '^https?://'"
          )
 
     create constraint(:image_sources, :length_must_be_valid,

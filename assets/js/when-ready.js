@@ -2,10 +2,10 @@
  * Functions to execute when the DOM is ready
  */
 
-import { whenReady }            from './utils/dom';
+import { whenReady } from './utils/dom';
 
-import { showOwnedComments }    from './communications/comment';
-import { showOwnedPosts }       from './communications/post';
+import { showOwnedComments } from './communications/comment';
+import { showOwnedPosts } from './communications/post';
 
 import { listenAutocomplete }   from './autocomplete';
 import { loadBooruData }        from './booru';
@@ -35,6 +35,7 @@ import { setupToolbar }         from './markdowntoolbar';
 import { hideStaffTools }       from './staffhider';
 import { pollOptionCreator }    from './poll';
 import { warnAboutPMs }         from './pmwarning';
+import { imageSourcesCreator }  from './sources.js';
 
 whenReady(() => {
 
@@ -68,5 +69,6 @@ whenReady(() => {
   hideStaffTools();
   pollOptionCreator();
   warnAboutPMs();
+  imageSourcesCreator();
 
 });
