@@ -17,8 +17,9 @@ background() {
 # Always install assets
 (
 cd /srv/philomena/assets
-# workaround for #31
-npm install || (chown -R root:root node_modules && npm install)
+npm install
+# why is javascript so terrible
+chown -R $(id -un):$(id -gn) node_modules
 )
 
 # Always install mix dependencies
