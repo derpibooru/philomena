@@ -44,7 +44,7 @@ defmodule Philomena.Images.Image do
     many_to_many :locked_tags, Tag, join_through: "image_tag_locks", on_replace: :delete
     has_one :intensity, ImageIntensity
     has_many :galleries, through: [:gallery_interactions, :image]
-    has_many :sources, Source
+    has_many :sources, Source, on_replace: :delete
 
     field :image, :string
     field :image_name, :string
