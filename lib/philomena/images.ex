@@ -335,21 +335,19 @@ defmodule Philomena.Images do
     new_sources = attrs["sources"]
 
     Multi.new()
-    |> Multi.run(
-         :image,
-         fn repo, _chg ->
-           image = repo.preload(image, [:sources])
+    |> Multi.run(:image, fn repo, _chg ->
+      image = repo.preload(image, [:sources])
 
-           image
-           |> Image.source_changeset(%{}, old_sources, new_sources)
-           |> repo.update()
-           |> case do
-                {:ok, image} ->
-                  {:ok, {image, image.added_sources, image.removed_sources}}
+      image
+      |> Image.source_changeset(%{}, old_sources, new_sources)
+      |> repo.update()
+      |> case do
+          {:ok, image} ->
+            {:ok, {image, image.added_sources, image.removed_sources}}
 
-                error ->
-                  error
-              end
+          error ->
+            error
+        end
     end)
     |> Multi.run(:added_source_changes, fn repo, %{image: {image, added_sources, _removed}} ->
       source_changes =
@@ -383,7 +381,7 @@ defmodule Philomena.Images do
 
     %{
       image_id: image.id,
-      source: source,
+      source_url: source,
       user_id: user_id,
       created_at: now,
       updated_at: now,

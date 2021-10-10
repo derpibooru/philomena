@@ -841,9 +841,9 @@ ALTER SEQUENCE public.image_intensities_id_seq OWNED BY public.image_intensities
 -- Name: image_sources; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.image_sources(
-    image_id bigint                 NOT NULL,
-    source   character varying(255) NOT NULL,
+CREATE TABLE public.image_sources (
+    image_id bigint NOT NULL,
+    source character varying(255) NOT NULL,
     CONSTRAINT image_sources_source_check CHECK (((source)::text ~* '^https?://'::text))
 );
 
