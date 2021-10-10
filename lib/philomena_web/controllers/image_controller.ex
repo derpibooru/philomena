@@ -80,8 +80,7 @@ defmodule PhilomenaWeb.ImageController do
       |> Comments.change_comment()
 
     image_changeset =
-      image
-      |> update_in([:sources], &sources_for_edit/1)
+      %{image | sources: sources_for_edit(image.sources)}
       |> Images.change_image()
 
     watching = Images.subscribed?(image, conn.assigns.current_user)
@@ -222,5 +221,5 @@ defmodule PhilomenaWeb.ImageController do
 
   defp sources_for_edit(), do: [%Source{}]
   defp sources_for_edit([]), do: sources_for_edit()
-  defp source_for_edit(sources), do: sources
+  defp sources_for_edit(sources), do: sources
 end
