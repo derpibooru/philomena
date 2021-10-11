@@ -2,15 +2,23 @@ env:
   browser: true
   es6: true
 
+parser: '@typescript-eslint/parser'
+
 parserOptions:
   ecmaVersion: 6
   sourceType: module
+
+plugins:
+  - '@typescript-eslint'
 
 globals:
   ga: false
   md5: false
   Sortable: false
   ActionCable: false
+
+extends:
+  - 'plugin:@typescript-eslint/recommended'
 
 rules:
   accessor-pairs: 2
@@ -83,7 +91,6 @@ rules:
   no-console: 0
   no-const-assign: 2
   no-constant-condition: 2
-  no-continue: 2
   no-control-regex: 2
   no-debugger: 2
   no-delete-var: 2
@@ -245,3 +252,10 @@ rules:
   wrap-regex: 0
   yield-star-spacing: 2
   yoda: [2, 'never']
+
+# Disable rules which are impossible to satisfy (types require .ts extension)
+overrides:
+  - files:
+      - '*.js'
+    rules:
+      '@typescript-eslint/explicit-module-boundary-types': 0

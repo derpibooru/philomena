@@ -90,11 +90,11 @@ function setupPreviews() {
 
   const getCacheKey = () => {
     return (previewAnon && previewAnon.checked ? 'anon;' : '') + textarea.value;
-  }
+  };
 
   const previewedTextAttribute = 'data-previewed-text';
   const updatePreview = () => {
-    const cachedValue = getCacheKey()
+    const cachedValue = getCacheKey();
     if (previewContent.getAttribute(previewedTextAttribute) === cachedValue) return;
     previewContent.setAttribute(previewedTextAttribute, cachedValue);
 

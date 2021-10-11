@@ -8,7 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/cache@v2
+      - name: Cache mix deps
+        uses: actions/cache@v2
         with:
           path: |
             _build
@@ -25,3 +26,28 @@ jobs:
         run: |
           docker-compose run app mix sobelow --config
           docker-compose run app mix deps.audit
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Cache node_modules
+        id: cache-node-modules
+        uses: actions/cache@v2
+        with:
+          path: ./assets/node_modules
+          key: node_modules-${{ hashFiles('./assets/package-lock.json') }}
+
+      - name: Install npm dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --ignore-scripts
+        working-directory: ./assets
+
+      - name: Run ESLint
+        run: npm run lint
+        working-directory: ./assets

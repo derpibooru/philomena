@@ -286,7 +286,7 @@ span.spoiler div.image-container {
   &:empty {
     display: none;
   }
-  img {
+  img, video {
     max-height: 200px;
     max-width: 200px;
   }

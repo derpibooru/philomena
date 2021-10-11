@@ -8,7 +8,7 @@ import { delegate } from './utils/events';
 import store from './utils/store';
 
 const NOTIFICATION_INTERVAL = 600000,
-  NOTIFICATION_EXPIRES = 300000;
+      NOTIFICATION_EXPIRES = 300000;
 
 function makeRequest(verb) {
   return fetchJson(verb, '/notifications/unread').then(handleError);
@@ -17,7 +17,7 @@ function makeRequest(verb) {
 function bindSubscriptionLinks() {
   delegate(document, 'fetchcomplete', {
     '.js-subscription-link': event => {
-      const target = $("#js-subscription-target");
+      const target = $('#js-subscription-target');
       event.detail.text().then(text => {
         target.outerHTML = text;
       });

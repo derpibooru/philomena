@@ -102,7 +102,7 @@ function setupTagsInput(tagBlock) {
     if (name.length === 0 || tags.indexOf(name) !== -1) return;
 
     // Remove instead if the tag name starts with a minus
-    if (name[0] === "-") {
+    if (name[0] === '-') {
       name = name.slice(1); // eslint-disable-line no-param-reassign
       const tagLink = $(`[data-tag-name="${escapeCss(name)}"]`, container);
 

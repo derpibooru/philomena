@@ -168,7 +168,7 @@ function wrapSelection(textarea, options) {
       });
     }
 
-    newText = prefix + newText + suffix
+    newText = prefix + newText + suffix;
 
     return {
       newText,
@@ -188,7 +188,7 @@ function wrapLines(textarea, options, eachLine = true) {
       : text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
 
     // Force a space at the end of lines with only blockquote markers
-    newText = newText.replace(/^((?:>\s+)*)>$/gm, '$1> ')
+    newText = newText.replace(/^((?:>\s+)*)>$/gm, '$1> ');
 
     return { newText, caretOffset: emptyText ? prefix.length : newText.length };
   }, eachLine);

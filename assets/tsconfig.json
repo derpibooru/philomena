@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "baseUrl": "./js",
+    "target": "ES2018",
+    "allowJs": true,
+    "strict": true
+  }
+}

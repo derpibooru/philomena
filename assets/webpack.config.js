@@ -5,12 +5,14 @@ const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const IgnoreEmitPlugin = require('ignore-emit-webpack-plugin');
+const ESLintPlugin = require('eslint-webpack-plugin');
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
 const includePaths = require('rollup-plugin-includepaths')();
 const multiEntry = require('rollup-plugin-multi-entry')();
 const buble = require('rollup-plugin-buble')({ transforms: { dangerousForOf: true } });
+const typescript = require('@rollup/plugin-typescript')();
 
 let plugins = [
   new IgnoreEmitPlugin(/css\/.*(?<!css)$/),
@@ -24,7 +26,16 @@ let plugins = [
     ],
   }),
 ];
-if (!isDevelopment){
+if (isDevelopment) {
+  plugins = plugins.concat([
+    new ESLintPlugin({
+      extensions: ['js', 'ts'],
+      failOnError: true,
+      failOnWarning: isDevelopment
+    })
+  ]);
+}
+else {
   plugins = plugins.concat([
     new TerserPlugin({
       cache: true,
@@ -90,6 +101,7 @@ module.exports = {
                 buble,
                 includePaths,
                 multiEntry,
+                typescript,
               ]
             }
           },

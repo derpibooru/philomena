@@ -58,11 +58,11 @@ function formRemote(event, target) {
     headers: headers(),
     body: new FormData(target)
   }).then(response => {
-    if (response && response.status == 300) {
+    if (response && response.status === 300) {
       window.location.reload(true);
       return;
     }
-    fire(target, 'fetchcomplete', response)
+    fire(target, 'fetchcomplete', response);
   });
 }
 

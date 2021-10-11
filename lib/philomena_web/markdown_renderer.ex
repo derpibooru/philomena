@@ -16,12 +16,12 @@ defmodule PhilomenaWeb.MarkdownRenderer do
     representations =
       collection
       |> Enum.flat_map(fn %{body: text} ->
-        find_images(text)
+        find_images(text || "")
       end)
       |> render_representations(conn)
 
     Enum.map(collection, fn %{body: text} ->
-      Markdown.to_html(text, representations)
+      Markdown.to_html(text || "", representations)
     end)
   end
 

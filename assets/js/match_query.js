@@ -5,18 +5,18 @@
 
 const tokenList = [
         ['fuzz', /^~(?:\d+(\.\d+)?|\.\d+)/],
-        ['boost', /^\^[\-\+]?\d+(\.\d+)?/],
-        ['quoted_lit', /^\s*"(?:(?:[^"]|\\")+)"/],
+        ['boost', /^\^[-+]?\d+(\.\d+)?/],
+        ['quoted_lit', /^\s*"(?:[^"]|\\")+"/],
         ['lparen', /^\s*\(\s*/],
         ['rparen', /^\s*\)\s*/],
-        ['and_op', /^\s*(?:\&\&|AND)\s+/],
+        ['and_op', /^\s*(?:&&|AND)\s+/],
         ['and_op', /^\s*,\s*/],
         ['or_op', /^\s*(?:\|\||OR)\s+/],
         ['not_op', /^\s*NOT(?:\s+|(?=\())/],
-        ['not_op', /^\s*[\!\-]\s*/],
+        ['not_op', /^\s*[!-]\s*/],
         ['space', /^\s+/],
-        ['word', /^(?:[^\s,\(\)\^~]|\\[\s,\(\)\^~])+/],
-        ['word', /^(?:[^\s,\(\)]|\\[\s,\(\)])+/]
+        ['word', /^(?:[^\s,()^~]|\\[\s,()^~])+/],
+        ['word', /^(?:[^\s,()]|\\[\s,()])+/]
       ],
       numberFields = ['id', 'width', 'height', 'aspect_ratio',
         'comment_count', 'score', 'upvotes', 'downvotes',
@@ -35,6 +35,7 @@ const tokenList = [
         id: 'data-image-id',
         width: 'data-width',
         height: 'data-height',
+        /* eslint-disable camelcase */
         aspect_ratio: 'data-aspect-ratio',
         comment_count: 'data-comment-count',
         tag_count: 'data-tag-count',
@@ -43,10 +44,11 @@ const tokenList = [
         sha512_hash: 'data-sha512',
         orig_sha512_hash: 'data-orig-sha512',
         created_at: 'data-created-at'
+        /* eslint-enable camelcase */
       };
 
 
-function SearchTerm(termStr, options) {
+function SearchTerm(termStr) {
   this.term = termStr.trim();
   this.parsed = false;
 }
@@ -57,8 +59,6 @@ SearchTerm.prototype.append = function(substr) {
 };
 
 SearchTerm.prototype.parseRangeField = function(field) {
-  let qual;
-
   if (numberFields.indexOf(field) !== -1) {
     return [field, 'eq', 'number'];
   }
@@ -67,7 +67,7 @@ SearchTerm.prototype.parseRangeField = function(field) {
     return [field, 'eq', 'date'];
   }
 
-  qual = /^(\w+)\.([lg]te?|eq)$/.exec(field);
+  const qual = /^(\w+)\.([lg]te?|eq)$/.exec(field);
 
   if (qual) {
     if (numberFields.indexOf(qual[1]) !== -1) {
@@ -116,28 +116,29 @@ SearchTerm.prototype.parseRelativeDate = function(dateVal, qual) {
     }
   }
   else {
-    throw `Cannot parse date string: ${dateVal}`;
+    throw new Error(`Cannot parse date string: ${dateVal}`);
   }
 };
 
 SearchTerm.prototype.parseAbsoluteDate = function(dateVal, qual) {
-  let parseRes = [
-        /^(\d{4})/,
-        /^\-(\d{2})/,
-        /^\-(\d{2})/,
-        /^(?:\s+|T|t)(\d{2})/,
-        /^:(\d{2})/,
-        /^:(\d{2})/
-      ],
-      timeZoneOffset = [0, 0],
-      timeData = [0, 0, 1, 0, 0, 0],
-      bottomDate = null,
-      topDate = null,
+  const parseRes = [
+          /^(\d{4})/,
+          /^-(\d{2})/,
+          /^-(\d{2})/,
+          /^(?:\s+|T|t)(\d{2})/,
+          /^:(\d{2})/,
+          /^:(\d{2})/
+        ],
+        timeZoneOffset = [0, 0],
+        timeData = [0, 0, 1, 0, 0, 0],
+        origDateVal = dateVal;
+  let topDate = null,
       i,
       match,
-      origDateVal = dateVal;
+      bottomDate = null,
+      localDateVal = origDateVal;
 
-  match = /([\+\-])(\d{2}):(\d{2})$/.exec(dateVal);
+  match = /([+-])(\d{2}):(\d{2})$/.exec(localDateVal);
   if (match) {
     timeZoneOffset[0] = parseInt(match[2], 10);
     timeZoneOffset[1] = parseInt(match[3], 10);
@@ -145,18 +146,18 @@ SearchTerm.prototype.parseAbsoluteDate = function(dateVal, qual) {
       timeZoneOffset[0] *= -1;
       timeZoneOffset[1] *= -1;
     }
-    dateVal = dateVal.substr(0, dateVal.length - 6);
+    localDateVal = localDateVal.substr(0, localDateVal.length - 6);
   }
   else {
-    dateVal = dateVal.replace(/[Zz]$/, '');
+    localDateVal = localDateVal.replace(/[Zz]$/, '');
   }
 
   for (i = 0; i < parseRes.length; i += 1) {
-    if (dateVal.length === 0) {
+    if (localDateVal.length === 0) {
       break;
     }
 
-    match = parseRes[i].exec(dateVal);
+    match = parseRes[i].exec(localDateVal);
     if (match) {
       if (i === 1) {
         timeData[i] = parseInt(match[1], 10) - 1;
@@ -164,17 +165,17 @@ SearchTerm.prototype.parseAbsoluteDate = function(dateVal, qual) {
       else {
         timeData[i] = parseInt(match[1], 10);
       }
-      dateVal = dateVal.substr(
-        match[0].length, dateVal.length - match[0].length
+      localDateVal = localDateVal.substr(
+        match[0].length, localDateVal.length - match[0].length
       );
     }
     else {
-      throw `Cannot parse date string: ${origDateVal}`;
+      throw new Error(`Cannot parse date string: ${origDateVal}`);
     }
   }
 
-  if (dateVal.length > 0) {
-    throw `Cannot parse date string: ${origDateVal}`;
+  if (localDateVal.length > 0) {
+    throw new Error(`Cannot parse date string: ${origDateVal}`);
   }
 
   // Apply the user-specified time zone offset. The JS Date constructor
@@ -210,9 +211,8 @@ SearchTerm.prototype.parseDate = function(dateVal, qual) {
   }
 };
 
-SearchTerm.prototype.parse = function(substr) {
-  let matchArr,
-      rangeParsing,
+SearchTerm.prototype.parse = function() {
+  let rangeParsing,
       candidateTermSpace,
       termCandidate;
 
@@ -230,7 +230,7 @@ SearchTerm.prototype.parse = function(substr) {
   this.termSpace = 'tags';
   this.termType = 'literal';
 
-  matchArr = this.term.split(':');
+  const matchArr = this.term.split(':');
 
   if (matchArr.length > 1) {
     candidateTermSpace = matchArr[0];
@@ -258,7 +258,7 @@ SearchTerm.prototype.parse = function(substr) {
       this.term = termCandidate;
       this.termSpace = candidateTermSpace;
     }
-    else if (candidateTermSpace == 'my') {
+    else if (candidateTermSpace === 'my') {
       this.termType = 'my';
       this.termSpace = termCandidate;
     }
@@ -285,9 +285,9 @@ SearchTerm.prototype.parse = function(substr) {
 
 SearchTerm.prototype._normalizeTerm = function() {
   if (!this.wildcardable) {
-    return this.term.replace('\"', '"');
+    return this.term.replace('"', '"');
   }
-  return this.term.replace(/\\([^\*\?])/g, '$1');
+  return this.term.replace(/\\([^*?])/g, '$1');
 };
 
 SearchTerm.prototype.fuzzyMatch = function(targetStr) {
@@ -309,16 +309,16 @@ SearchTerm.prototype.fuzzyMatch = function(targetStr) {
     targetDistance = this.fuzz;
   }
 
-  targetStr = targetStr.toLowerCase();
+  const targetStrLower = targetStr.toLowerCase();
 
-  for (i = 0; i <= targetStr.length; i += 1) {
+  for (i = 0; i <= targetStrLower.length; i += 1) {
     v1.push(i);
   }
 
   for (i = 0; i < this.term.length; i += 1) {
     v2[0] = i;
-    for (j = 0; j < targetStr.length; j += 1) {
-      const cost = this.term[i] === targetStr[j] ? 0 : 1;
+    for (j = 0; j < targetStrLower.length; j += 1) {
+      const cost = this.term[i] === targetStrLower[j] ? 0 : 1;
       v2[j + 1] = Math.min(
         // Deletion.
         v1[j + 1] + 1,
@@ -327,8 +327,8 @@ SearchTerm.prototype.fuzzyMatch = function(targetStr) {
         // Substitution or No Change.
         v1[j] + cost
       );
-      if (i > 1 && j > 1 && this.term[i] === targetStr[j - 1] &&
-                    targetStr[i - 1] === targetStr[j]) {
+      if (i > 1 && j > 1 && this.term[i] === targetStrLower[j - 1] &&
+                    targetStrLower[i - 1] === targetStrLower[j]) {
         v2[j + 1] = Math.min(v2[j], v0[j - 1] + cost);
       }
     }
@@ -339,7 +339,7 @@ SearchTerm.prototype.fuzzyMatch = function(targetStr) {
     v2 = temp;
   }
 
-  return v1[targetStr.length] <= targetDistance;
+  return v1[targetStrLower.length] <= targetDistance;
 };
 
 SearchTerm.prototype.exactMatch = function(targetStr) {
@@ -354,10 +354,8 @@ SearchTerm.prototype.interactionMatch = function(imageID, type, interaction, int
   let ret = false;
 
   interactions.forEach(v => {
-    if (v.image_id == imageID && v.interaction_type == type && (interaction == null || v.value == interaction)) {
+    if (v.image_id === imageID && v.interaction_type === type && (interaction === null || v.value === interaction)) {
       ret = true;
-
-      return;
     }
   });
 
@@ -365,8 +363,9 @@ SearchTerm.prototype.interactionMatch = function(imageID, type, interaction, int
 };
 
 SearchTerm.prototype.match = function(target) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias,consistent-this
+  const ohffs = this;
   let ret = false,
-      ohffs = this,
       compFunc,
       numbuh,
       date;
@@ -427,9 +426,9 @@ SearchTerm.prototype.match = function(target) {
   }
   else if (this.termType === 'date') {
     // Date matching.
-    date = (new Date(
+    date = new Date(
       target.getAttribute(termSpaceToImageField[this.termSpace])
-    )).getTime();
+    ).getTime();
 
     switch (this.compare) {
       // The open-left, closed-right date range specified by the
@@ -481,23 +480,25 @@ SearchTerm.prototype.match = function(target) {
   return ret;
 };
 
-function generateLexArray(searchStr, options) {
-  let opQueue = [],
-      searchTerm = null,
+function generateLexArray(searchStr) {
+  const opQueue = [],
+        groupNegate = [],
+        tokenStack = [];
+  let searchTerm = null,
       boost = null,
       fuzz = null,
       lparenCtr = 0,
       negate = false,
-      groupNegate = [],
-      tokenStack = [],
-      boostFuzzStr = '';
+      boostFuzzStr = '',
+      localSearchStr = searchStr;
 
-  while (searchStr.length > 0) {
+  while (localSearchStr.length > 0) {
+    // eslint-disable-next-line no-loop-func
     tokenList.every(tokenArr => {
-      let tokenName = tokenArr[0],
-          tokenRE = tokenArr[1],
-          match = tokenRE.exec(searchStr),
-          balanced, op;
+      const tokenName = tokenArr[0],
+            tokenRE = tokenArr[1];
+      let match = tokenRE.exec(localSearchStr),
+          op;
 
       if (match) {
         match = match[0];
@@ -560,15 +561,18 @@ function generateLexArray(searchStr, options) {
             break;
           case 'rparen':
             if (lparenCtr > 0) {
-              searchTerm.append(match);
+              if (searchTerm) {
+                searchTerm.append(match);
+              }
+              else {
+                searchTerm = new SearchTerm(match);
+              }
               lparenCtr -= 1;
             }
             else {
-              balanced = false;
               while (opQueue.length) {
                 op = opQueue.shift();
                 if (op === 'lparen') {
-                  balanced = true;
                   break;
                 }
                 tokenStack.push(op);
@@ -587,7 +591,7 @@ function generateLexArray(searchStr, options) {
               boostFuzzStr += match;
             }
             else {
-              searchTerm = new SearchTerm(match, options);
+              searchTerm = new SearchTerm(match);
             }
             break;
           case 'boost':
@@ -596,7 +600,7 @@ function generateLexArray(searchStr, options) {
               boostFuzzStr += match;
             }
             else {
-              searchTerm = new SearchTerm(match, options);
+              searchTerm = new SearchTerm(match);
             }
             break;
           case 'quoted_lit':
@@ -604,7 +608,7 @@ function generateLexArray(searchStr, options) {
               searchTerm.append(match);
             }
             else {
-              searchTerm = new SearchTerm(match, options);
+              searchTerm = new SearchTerm(match);
             }
             break;
           case 'word':
@@ -617,7 +621,7 @@ function generateLexArray(searchStr, options) {
               searchTerm.append(match);
             }
             else {
-              searchTerm = new SearchTerm(match, options);
+              searchTerm = new SearchTerm(match);
             }
             break;
           default:
@@ -628,8 +632,8 @@ function generateLexArray(searchStr, options) {
         }
 
         // Truncate string and restart the token tests.
-        searchStr = searchStr.substr(
-          match.length, searchStr.length - match.length
+        localSearchStr = localSearchStr.substr(
+          match.length, localSearchStr.length - match.length
         );
 
         // Break since we have found a match.
@@ -652,7 +656,7 @@ function generateLexArray(searchStr, options) {
 
   if (opQueue.indexOf('rparen') !== -1 ||
             opQueue.indexOf('lparen') !== -1) {
-    throw 'Mismatched parentheses.';
+    throw new Error('Mismatched parentheses.');
   }
 
   // Memory-efficient concatenation of remaining operators queue to the
@@ -663,8 +667,8 @@ function generateLexArray(searchStr, options) {
 }
 
 function parseTokens(lexicalArray) {
-  let operandStack = [],
-      negate, op1, op2, parsed;
+  const operandStack = [];
+  let negate, op1, op2;
   lexicalArray.forEach((token, i) => {
     if (token !== 'not_op') {
       negate = lexicalArray[i + 1] === 'not_op';
@@ -674,7 +678,7 @@ function parseTokens(lexicalArray) {
         op1 = operandStack.pop();
 
         if (typeof op1 === 'undefined' || typeof op2 === 'undefined') {
-          throw 'Missing operand.';
+          throw new Error('Missing operand.');
         }
 
         operandStack.push(new SearchAST(token, negate, op1, op2));
@@ -691,7 +695,7 @@ function parseTokens(lexicalArray) {
   });
 
   if (operandStack.length > 1) {
-    throw 'Missing operator.';
+    throw new Error('Missing operator.');
   }
 
   op1 = operandStack.pop();
@@ -707,8 +711,8 @@ function parseTokens(lexicalArray) {
   return op1;
 }
 
-function parseSearch(searchStr, options) {
-  return parseTokens(generateLexArray(searchStr, options));
+function parseSearch(searchStr) {
+  return parseTokens(generateLexArray(searchStr));
 }
 
 function isTerminal(operand) {
@@ -724,25 +728,27 @@ function SearchAST(op, negate, leftOperand, rightOperand) {
 }
 
 function combineOperands(ast1, ast2, parentAST) {
+  let localAst1;
   if (parentAST.op === 'and_op') {
-    ast1 = ast1 && ast2;
+    localAst1 = ast1 && ast2;
   }
   else {
-    ast1 = ast1 || ast2;
+    localAst1 = ast1 || ast2;
   }
 
   if (parentAST.negate) {
-    return !ast1;
+    return !localAst1;
   }
 
-  return ast1;
+  return localAst1;
 }
 
 // Evaluation of the AST in regard to a target image
 SearchAST.prototype.hitsImage = function(image) {
-  let treeStack = [],
-      // Left side node.
-      ast1 = this,
+  const treeStack = [];
+  // Left side node.
+  // eslint-disable-next-line @typescript-eslint/no-this-alias,consistent-this
+  let ast1 = this,
       // Right side node.
       ast2,
       // Parent node of the current subtree.
@@ -834,9 +840,9 @@ SearchAST.prototype.hitsImage = function(image) {
 SearchAST.prototype.dumpTree = function() {
   // Dumps to string a simple diagram of the syntax tree structure
   // (starting with this object as the root) for debugging purposes.
-  let retStrArr = [],
-      treeQueue = [['', this]],
-      treeArr,
+  const retStrArr = [],
+        treeQueue = [['', this]];
+  let treeArr,
       prefix,
       tree;
 
