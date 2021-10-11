@@ -100,43 +100,41 @@ for comment_body <- resources["comments"] do
 end
 
 IO.puts "---- Generating forum posts"
-for resource <- resources["forum_posts"] do
-  for {forum_name, topics} <- resource do
-    forum = Repo.get_by!(Forum, short_name: forum_name)
+for %{"forum" => forum_name, "topics" => topics} <- resources["forum_posts"] do
+  forum = Repo.get_by!(Forum, short_name: forum_name)
 
-    for {topic_name, [first_post | posts]} <- topics do
-      Topics.create_topic(
-        forum,
-        request_attributes,
-        %{
-          "title" => topic_name,
-          "posts" => %{
-            "0" => %{
-              "body" => first_post,
-            }
+  for %{"title" => topic_name, "posts" => [first_post | posts]} <- topics do
+    Topics.create_topic(
+      forum,
+      request_attributes,
+      %{
+        "title" => topic_name,
+        "posts" => %{
+          "0" => %{
+            "body" => first_post,
           }
         }
-      )
-      |> case do
-        {:ok, %{topic: topic}} ->
-          for post <- posts do
-            Posts.create_post(
-              topic,
-              request_attributes,
-              %{"body" => post}
-            )
-            |> case do
-              {:ok, %{post: post}} ->
-                Posts.reindex_post(post)
+      }
+    )
+    |> case do
+      {:ok, %{topic: topic}} ->
+        for post <- posts do
+          Posts.create_post(
+            topic,
+            request_attributes,
+            %{"body" => post}
+          )
+          |> case do
+            {:ok, %{post: post}} ->
+              Posts.reindex_post(post)
 
-              {:error, :post, changeset, _so_far} ->
-                IO.inspect changeset.errors
-            end
+            {:error, :post, changeset, _so_far} ->
+              IO.inspect changeset.errors
           end
+        end
 
-        {:error, :topic, changeset, _so_far} ->
-          IO.inspect changeset.errors
-      end
+      {:error, :topic, changeset, _so_far} ->
+        IO.inspect changeset.errors
     end
   end
 end
