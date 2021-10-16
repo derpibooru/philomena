@@ -14,14 +14,14 @@ function scrapeUrl(url) {
     .then(response => response.json());
 }
 
-function elementForEmbeddedImage({ camo_url }) {
+function elementForEmbeddedImage({ camo_url, type }) {
   // The upload was fetched from the scraper and is a path name
   if (typeof camo_url === 'string') {
     return makeEl('img', { className: 'scraper-preview--image', src: camo_url });
   }
 
   // The upload was fetched from a file input and is an ArrayBuffer
-  const objectUrl = URL.createObjectURL(new Blob([camo_url]));
+  const objectUrl = URL.createObjectURL(new Blob([camo_url], { type }));
   const tagName = new DataView(camo_url).getUint32(0) === MATROSKA_MAGIC ? 'video' : 'img';
   return makeEl(tagName, { className: 'scraper-preview--image', src: objectUrl });
 }
@@ -75,6 +75,7 @@ function setupImageUpload() {
   reader.addEventListener('load', event => {
     showImages([{
       camo_url: event.target.result,
+      type: fileField.files[0].type
     }]);
 
     // Clear any currently cached data, because the file field
