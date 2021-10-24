@@ -12,9 +12,9 @@ defmodule Philomena.Analyzers.Svg do
   end
 
   defp stats(file) do
-    case System.cmd("identify", ["-format", "%W %H\n", file]) do
+    case System.cmd("svgstat", [file]) do
       {output, 0} ->
-        [width, height] =
+        [_size, _frames, width, height, _num, _den] =
           output
           |> String.trim()
           |> String.split(" ")

@@ -12,6 +12,7 @@ RUN git clone https://github.com/philomena-dev/cli_intensities /tmp/cli_intensit
 
 ADD https://api.github.com/repos/philomena-dev/mediatools/git/refs/heads/master /tmp/mediatools_version.json
 RUN git clone https://github.com/philomena-dev/mediatools /tmp/mediatools \
+    && ln -s /usr/lib/librsvg-2.so.2 /usr/lib/librsvg-2.so \
     && cd /tmp/mediatools \
     && make -j$(nproc) install
 

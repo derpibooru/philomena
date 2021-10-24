@@ -57,23 +57,27 @@
     "spoilers inside of a table\n\nHello | World\n--- | ---:\n`||cool beans!||` | ||cool beans!||"
   ],
   "forum_posts": [{
-      "dis": [{
-          "Example topic": [
-            "example post",
-            "yet another example post"
-          ]
-        },
-        {
-          "Second example topic": [
-            "post",
-            "post 2"
-          ]
-        }
-      ]
-    },
+    "forum": "dis",
+    "topics": [{
+      "title": "Example Topic",
+        "posts": [
+          "example post",
+          "yet another example post"
+        ]
+      },
+      {
+        "title": "Second Example Topic",
+        "posts": [
+          "post",
+          "post 2"
+        ]
+      }
+    ]},
     {
-      "art": [{
-        "Embedded images": [
+      "forum": "art",
+      "topics": [{
+        "title": "Embedded Images",
+        "posts": [
           ">>1t >>1s >>1p",
           ">>1",
           "non-existent: >>1000t >>1000s >>1000p >>1000"
