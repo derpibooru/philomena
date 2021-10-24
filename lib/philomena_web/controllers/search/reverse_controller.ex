@@ -10,7 +10,8 @@ defmodule PhilomenaWeb.Search.ReverseController do
     create(conn, params)
   end
 
-  def create(conn, %{"image" => image_params}) when is_map(image_params) do
+  def create(conn, %{"image" => image_params})
+      when is_map(image_params) and image_params != %{} do
     images = ImageReverse.images(image_params)
 
     render(conn, "index.html", title: "Reverse Search", images: images)
