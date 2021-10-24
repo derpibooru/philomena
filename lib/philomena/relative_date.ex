@@ -83,7 +83,7 @@ defmodule Philomena.RelativeDate do
         {:ok, datetime}
 
       _error ->
-        parse_relative(input)
+        parse_relative(String.downcase(input))
     end
   end
 
