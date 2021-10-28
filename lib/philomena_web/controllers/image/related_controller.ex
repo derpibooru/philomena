@@ -66,7 +66,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
 
     render(conn, "index.html",
       title: "##{image.id} - Related Images",
-      layout_class: "wide",
+      layout_class: "layout--wide",
       images: images,
       interactions: interactions
     )
