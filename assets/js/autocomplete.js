@@ -100,12 +100,12 @@ function createParent() {
   document.body.appendChild(parent);
 }
 
-function showAutocomplete(suggestions, targetInput) {
+function showAutocomplete(suggestions, fetchedTerm, targetInput) {
   // Remove old autocomplete suggestions
   removeParent();
 
   // Save suggestions in cache
-  cache[targetInput.value] = suggestions;
+  cache[fetchedTerm] = suggestions;
 
   // If the input target is not empty, still visible, and suggestions were found
   if (targetInput.value && targetInput.style.display !== 'none' && suggestions.length) {
@@ -115,8 +115,8 @@ function showAutocomplete(suggestions, targetInput) {
   }
 }
 
-function getSuggestions() {
-  return fetch(inputField.dataset.acSource + inputField.value).then(response => response.json());
+function getSuggestions(term) {
+  return fetch(`${inputField.dataset.acSource}${term}`).then(response => response.json());
 }
 
 function listenAutocomplete() {
@@ -130,18 +130,18 @@ function listenAutocomplete() {
     timeout = window.setTimeout(() => {
       inputField = event.target;
       originalTerm = inputField.value;
+
+      const fetchedTerm = inputField.value;
       const {ac, acMinLength} = inputField.dataset;
 
-      if (ac && (inputField.value.length >= acMinLength)) {
-
-        if (cache[inputField.value]) {
-          showAutocomplete(cache[inputField.value], event.target);
+      if (ac && (fetchedTerm.length >= acMinLength)) {
+        if (cache[fetchedTerm]) {
+          showAutocomplete(cache[fetchedTerm], event.target);
         }
         else {
           // inputField could get overwritten while the suggestions are being fetched - use event.target
-          getSuggestions().then(suggestions => showAutocomplete(suggestions, event.target));
+          getSuggestions(fetchedTerm).then(suggestions => showAutocomplete(suggestions, fetchedTerm, event.target));
         }
-
       }
     }, 300);
   });
