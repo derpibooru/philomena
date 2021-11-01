@@ -155,6 +155,7 @@ defmodule Philomena.Users.User do
 
   defp validate_name(changeset) do
     changeset
+    |> update_change(:name, &String.trim/1)
     |> validate_required([:name])
     |> validate_length(:name, max: 50)
   end
@@ -283,6 +284,7 @@ defmodule Philomena.Users.User do
     ])
     |> validate_required([:name, :email, :role])
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
+    |> validate_name()
     |> put_assoc(:roles, roles)
     |> put_slug()
     |> unique_constraints()
@@ -379,8 +381,8 @@ defmodule Philomena.Users.User do
 
     user
     |> cast(attrs, [:name])
-    |> validate_required([:name])
-    |> put_slug
+    |> validate_name()
+    |> put_slug()
     |> unique_constraints()
     |> put_change(:last_renamed_at, now)
   end
