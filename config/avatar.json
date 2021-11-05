@@ -2,7 +2,9 @@
   "header": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"125\" height=\"125\" viewBox=\"0 0 125 125\" class=\"avatar-svg\">",
   "background": "<rect width=\"125\" height=\"125\" fill=\"#c6dff2\"/>",
   "species": [
-    "batpony"
+    "unicorn",
+    "pegasus",
+    "earthpony"
   ],
   "body_shapes": [
     {

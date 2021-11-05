@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.UserAttributionView do
 
     case not is_nil(object.user) and reveal_anon? do
       true -> "#{object.user.name} (##{hash}, hidden)"
-      false -> "Background Bat ##{hash}"
+      false -> "Background Pony ##{hash}"
     end
   end
 
