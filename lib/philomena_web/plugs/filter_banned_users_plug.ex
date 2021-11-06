@@ -34,6 +34,7 @@ defmodule PhilomenaWeb.FilterBannedUsersPlug do
   end
 
   defp maybe_halt_no_fingerprint(%{halted: true} = conn), do: conn
+  defp maybe_halt_no_fingerprint(%{method: "GET"} = conn), do: conn
 
   defp maybe_halt_no_fingerprint(conn) do
     conn = Conn.fetch_cookies(conn)
