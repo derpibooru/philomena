@@ -77,6 +77,15 @@ defmodule PhilomenaWeb.Router do
     ]
 
     resources "/registrations", RegistrationController, only: [:new, :create], singleton: true
+  end
+
+  scope "/", PhilomenaWeb do
+    pipe_through [
+      :browser,
+      :ensure_tor_authorized,
+      :redirect_if_user_is_authenticated
+    ]
+
     resources "/passwords", PasswordController, only: [:new, :create, :edit, :update]
     resources "/confirmations", ConfirmationController, only: [:new, :create, :show]
     resources "/unlocks", UnlockController, only: [:new, :create, :show]
