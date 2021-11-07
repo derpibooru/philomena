@@ -22,6 +22,7 @@ defmodule PhilomenaWeb.Image.AnonymousController do
 
     conn
     |> put_flash(:info, "Successfully updated anonymity.")
+    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 
@@ -30,5 +31,12 @@ defmodule PhilomenaWeb.Image.AnonymousController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(conn, _action, image) do
+    %{
+      body: "Updated anonymity of image >>#{image.id}",
+      subject_path: Routes.image_path(conn, :show, image)
+    }
   end
 end

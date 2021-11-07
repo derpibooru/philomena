@@ -9,8 +9,8 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
   plug :verify_authorized
   plug PhilomenaWeb.UserAttributionPlug
 
-  def update(conn, %{"tags" => tags, "image_ids" => image_ids}) do
-    tags = Tag.parse_tag_list(tags)
+  def update(conn, %{"tags" => tag_list, "image_ids" => image_ids}) do
+    tags = Tag.parse_tag_list(tag_list)
 
     added_tag_names = Enum.reject(tags, &String.starts_with?(&1, "-"))
 
@@ -46,7 +46,15 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
 
     case Images.batch_update(image_ids, added_tags, removed_tags, attributes) do
       {:ok, _} ->
-        json(conn, %{succeeded: image_ids, failed: []})
+        conn
+        |> PhilomenaWeb.ModerationLogPlug.call(
+          details: &log_details/3,
+          data: %{
+            tag_list: tag_list,
+            image_count: Enum.count(image_ids)
+          }
+        )
+        |> json(%{succeeded: image_ids, failed: []})
 
       _error ->
         json(conn, %{succeeded: [], failed: image_ids})
@@ -58,5 +66,12 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(conn, _action, data) do
+    %{
+      body: "Batch tagged '#{data.tag_list}' on #{data.image_count} images",
+      subject_path: Routes.profile_path(conn, :show, conn.assigns.current_user)
+    }
   end
 end

@@ -14,6 +14,14 @@ defmodule PhilomenaWeb.Image.SourceHistoryController do
 
     conn
     |> put_flash(:info, "Successfully deleted source history.")
+    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
+  end
+
+  defp log_details(conn, _action, image) do
+    %{
+      body: "Deleted source history for image >>#{image.id}",
+      subject_path: Routes.image_path(conn, :show, image)
+    }
   end
 end

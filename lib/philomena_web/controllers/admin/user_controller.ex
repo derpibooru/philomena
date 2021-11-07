@@ -59,9 +59,10 @@ defmodule PhilomenaWeb.Admin.UserController do
 
   def update(conn, %{"user" => user_params}) do
     case Users.update_user(conn.assigns.user, user_params) do
-      {:ok, _user} ->
+      {:ok, user} ->
         conn
         |> put_flash(:info, "User successfully updated.")
+        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: user)
         |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
 
       {:error, %{user: changeset}} ->
@@ -78,5 +79,12 @@ defmodule PhilomenaWeb.Admin.UserController do
 
   defp load_roles(conn, _opts) do
     assign(conn, :roles, Repo.all(Role))
+  end
+
+  defp log_details(conn, _action, user) do
+    %{
+      body: "Updated user details for #{user.name}",
+      subject_path: Routes.profile_path(conn, :show, user)
+    }
   end
 end

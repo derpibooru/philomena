@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Topic.LockController do
   import Plug.Conn
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.Topics
@@ -26,6 +27,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully locked!")
+        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -42,6 +44,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
+        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -49,5 +52,18 @@ defmodule PhilomenaWeb.Topic.LockController do
         |> put_flash(:error, "Unable to unlock the topic!")
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
+  end
+
+  defp log_details(conn, action, topic) do
+    body =
+      case action do
+        :create -> "Locked topic '#{topic.title}' (#{topic.lock_reason}) in #{topic.forum.name}"
+        :delete -> "Unlocked topic '#{topic.title}' in #{topic.forum.name}"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.forum_topic_path(conn, :show, topic.forum, topic)
+    }
   end
 end

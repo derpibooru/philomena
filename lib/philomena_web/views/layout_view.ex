@@ -117,6 +117,9 @@ defmodule PhilomenaWeb.LayoutView do
   def manages_bans?(conn),
     do: can?(conn, :create, Philomena.Bans.User)
 
+  def can_see_moderation_log?(conn),
+    do: can?(conn, :index, Philomena.ModerationLogs.ModerationLog)
+
   def viewport_meta_tag(conn) do
     ua = get_user_agent(conn)
 

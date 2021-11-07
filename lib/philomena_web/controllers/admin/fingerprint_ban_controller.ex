@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.Admin.FingerprintBanController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Bans.Fingerprint, as: FingerprintBan
   alias Philomena.Bans
   alias Philomena.Repo
@@ -44,9 +45,10 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   def create(conn, %{"fingerprint" => fingerprint_ban_params}) do
     case Bans.create_fingerprint(conn.assigns.current_user, fingerprint_ban_params) do
-      {:ok, _fingerprint_ban} ->
+      {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint was successfully banned.")
+        |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
         |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -61,9 +63,10 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   def update(conn, %{"fingerprint" => fingerprint_ban_params}) do
     case Bans.update_fingerprint(conn.assigns.fingerprint, fingerprint_ban_params) do
-      {:ok, _fingerprint_ban} ->
+      {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint ban successfully updated.")
+        |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
         |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -72,10 +75,11 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
   end
 
   def delete(conn, _params) do
-    {:ok, _fingerprint_ban} = Bans.delete_fingerprint(conn.assigns.fingerprint)
+    {:ok, fingerprint_ban} = Bans.delete_fingerprint(conn.assigns.fingerprint)
 
     conn
     |> put_flash(:info, "Fingerprint ban successfully deleted.")
+    |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
     |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
   end
 
@@ -105,5 +109,16 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(conn, action, ban) do
+    body =
+      case action do
+        :create -> "Created a fingerprint ban #{ban.generated_ban_id}"
+        :update -> "Updated a fingerprint ban #{ban.generated_ban_id}"
+        :delete -> "Deleted a fingerprint ban #{ban.generated_ban_id}"
+      end
+
+    %{body: body, subject_path: Routes.admin_fingerprint_ban_path(conn, :index)}
   end
 end
