@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
     persisted: true
 
   def create(conn, _params) do
-    {:ok, _report} =
+    {:ok, report} =
       DuplicateReports.claim_duplicate_report(
         conn.assigns.duplicate_report,
         conn.assigns.current_user
@@ -20,14 +20,28 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
 
     conn
     |> put_flash(:info, "Successfully claimed report.")
+    |> moderation_log(details: &log_details/3, data: report)
     |> redirect(to: Routes.duplicate_report_path(conn, :index))
   end
 
   def delete(conn, _params) do
-    {:ok, _report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
+    {:ok, report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
 
     conn
     |> put_flash(:info, "Successfully released report.")
+    |> moderation_log(details: &log_details/3)
     |> redirect(to: Routes.duplicate_report_path(conn, :index))
+  end
+
+  defp log_details(conn, action, _) do
+    body = case action do
+      :create -> "Claimed a duplicate report"
+      :delete -> "Released a duplicate report"
+    end
+
+    %{
+      body: body,
+      subject_path: Routes.duplicate_report_path(conn, :index)
+    }
   end
 end
