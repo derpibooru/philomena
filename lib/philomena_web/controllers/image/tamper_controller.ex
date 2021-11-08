@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Image.TamperController do
     image = conn.assigns.image
     user = conn.assigns.user
 
-    {:ok, _result} =
+    {:ok, result} =
       ImageVotes.delete_vote_transaction(image, user)
       |> Repo.transaction()
 
@@ -24,6 +24,26 @@ defmodule PhilomenaWeb.Image.TamperController do
 
     conn
     |> put_flash(:info, "Vote removed.")
+    |> moderation_log(
+      details: &log_details/3,
+      data: %{vote: result, image: image}
+    )
     |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+  end
+
+  defp log_details(conn, _action, data) do
+    image = data.image
+
+    vote_type =
+      case data.vote do
+        %{undownvote: {1, _}} -> "downvote"
+        %{unupvote: {1, _}} -> "upvote"
+        _ -> "vote"
+      end
+
+    %{
+      body: "Deleted #{vote_type} by #{conn.assigns.user.name} on image >>#{data.image.id}",
+      subject_path: Routes.image_path(conn, :show, image)
+    }
   end
 end

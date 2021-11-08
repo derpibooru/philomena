@@ -46,9 +46,10 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
   def create(conn, %{"subnet" => subnet_ban_params}) do
     case Bans.create_subnet(conn.assigns.current_user, subnet_ban_params) do
-      {:ok, _subnet_ban} ->
+      {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet was successfully banned.")
+        |> moderation_log(details: &log_details/3, data: subnet_ban)
         |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -63,9 +64,10 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
   def update(conn, %{"subnet" => subnet_ban_params}) do
     case Bans.update_subnet(conn.assigns.subnet, subnet_ban_params) do
-      {:ok, _subnet_ban} ->
+      {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet ban successfully updated.")
+        |> moderation_log(details: &log_details/3, data: subnet_ban)
         |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -74,10 +76,11 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
   end
 
   def delete(conn, _params) do
-    {:ok, _subnet_ban} = Bans.delete_subnet(conn.assigns.subnet)
+    {:ok, subnet_ban} = Bans.delete_subnet(conn.assigns.subnet)
 
     conn
     |> put_flash(:info, "Subnet ban successfully deleted.")
+    |> moderation_log(details: &log_details/3, data: subnet_ban)
     |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
   end
 
@@ -107,5 +110,16 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(conn, action, ban) do
+    body =
+      case action do
+        :create -> "Created a subnet ban #{ban.generated_ban_id}"
+        :update -> "Updated a subnet ban #{ban.generated_ban_id}"
+        :delete -> "Deleted a subnet ban #{ban.generated_ban_id}"
+      end
+
+    %{body: body, subject_path: Routes.admin_subnet_ban_path(conn, :index)}
   end
 end

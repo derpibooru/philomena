@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully hidden!")
+        |> moderation_log(details: &log_details/3, data: comment)
         |> redirect(
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )
@@ -35,6 +36,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully unhidden!")
+        |> moderation_log(details: &log_details/3, data: comment)
         |> redirect(
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )
@@ -46,5 +48,18 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )
     end
+  end
+
+  defp log_details(conn, action, comment) do
+    body =
+      case action do
+        :create -> "Hidden comment on image >>#{comment.image_id} (#{comment.deletion_reason})"
+        :delete -> "Restored comment on image >>#{comment.image_id}"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
+    }
   end
 end

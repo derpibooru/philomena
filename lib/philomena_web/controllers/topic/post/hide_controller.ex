@@ -20,6 +20,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully hidden.")
+        |> moderation_log(details: &log_details/3, data: post)
         |> redirect(
           to:
             Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
@@ -44,6 +45,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully unhidden.")
+        |> moderation_log(details: &log_details/3, data: post)
         |> redirect(
           to:
             Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
@@ -59,5 +61,23 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
               "#post_#{post.id}"
         )
     end
+  end
+
+  defp log_details(conn, action, post) do
+    body =
+      case action do
+        :create ->
+          "Hidden forum post ##{post.id} in topic '#{post.topic.title}' (#{post.deletion_reason})"
+
+        :delete ->
+          "Restored forum post ##{post.id} in topic '#{post.topic.title}'"
+      end
+
+    %{
+      body: body,
+      subject_path:
+        Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
+          "#post_#{post.id}"
+    }
   end
 end

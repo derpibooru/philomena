@@ -23,6 +23,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag image successfully updated.")
+        |> moderation_log(details: &log_details/3, data: tag)
         |> redirect(to: Routes.tag_path(conn, :show, tag))
 
       {:error, :tag, changeset, _changes} ->
@@ -31,10 +32,24 @@ defmodule PhilomenaWeb.Tag.ImageController do
   end
 
   def delete(conn, _params) do
-    {:ok, _tag} = Tags.remove_tag_image(conn.assigns.tag)
+    {:ok, tag} = Tags.remove_tag_image(conn.assigns.tag)
 
     conn
     |> put_flash(:info, "Tag image successfully removed.")
+    |> moderation_log(details: &log_details/3, data: tag)
     |> redirect(to: Routes.tag_path(conn, :show, conn.assigns.tag))
+  end
+
+  defp log_details(conn, action, tag) do
+    body =
+      case action do
+        :update -> "Updated image on tag '#{tag.name}'"
+        :delete -> "Removed image on tag '#{tag.name}'"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.tag_path(conn, :show, tag)
+    }
   end
 end

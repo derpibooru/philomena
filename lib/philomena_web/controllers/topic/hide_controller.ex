@@ -27,6 +27,7 @@ defmodule PhilomenaWeb.Topic.HideController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully hidden!")
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -43,6 +44,7 @@ defmodule PhilomenaWeb.Topic.HideController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully restored!")
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -50,5 +52,21 @@ defmodule PhilomenaWeb.Topic.HideController do
         |> put_flash(:error, "Unable to restore the topic!")
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
     end
+  end
+
+  defp log_details(conn, action, topic) do
+    body =
+      case action do
+        :create ->
+          "Hidden topic '#{topic.title}' (#{topic.deletion_reason}) in #{topic.forum.name}"
+
+        :delete ->
+          "Restored topic '#{topic.title}' in #{topic.forum.name}"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.forum_topic_path(conn, :show, topic.forum, topic)
+    }
   end
 end

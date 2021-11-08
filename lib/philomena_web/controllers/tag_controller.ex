@@ -97,6 +97,7 @@ defmodule PhilomenaWeb.TagController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag successfully updated.")
+        |> moderation_log(details: &log_details/3, data: tag)
         |> redirect(to: Routes.tag_path(conn, :show, tag))
 
       {:error, changeset} ->
@@ -105,10 +106,11 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def delete(conn, _params) do
-    {:ok, _tag} = Tags.delete_tag(conn.assigns.tag)
+    {:ok, tag} = Tags.delete_tag(conn.assigns.tag)
 
     conn
     |> put_flash(:info, "Tag queued for deletion.")
+    |> moderation_log(details: &log_details/3, data: tag)
     |> redirect(to: "/")
   end
 
@@ -168,5 +170,18 @@ defmodule PhilomenaWeb.TagController do
         |> redirect(to: Routes.tag_path(conn, :show, tag))
         |> halt()
     end
+  end
+
+  defp log_details(conn, action, tag) do
+    body =
+      case action do
+        :update -> "Updated details on tag '#{tag.name}'"
+        :delete -> "Deleted tag '#{tag.name}'"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.tag_path(conn, :show, tag)
+    }
   end
 end

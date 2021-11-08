@@ -47,9 +47,10 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   def create(conn, %{"user" => user_ban_params}) do
     case Bans.create_user(conn.assigns.current_user, user_ban_params) do
-      {:ok, _user_ban} ->
+      {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User was successfully banned.")
+        |> moderation_log(details: &log_details/3, data: user_ban)
         |> redirect(to: Routes.admin_user_ban_path(conn, :index))
 
       {:error, :user_ban, changeset, _changes} ->
@@ -67,9 +68,10 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
   def update(conn, %{"user" => user_ban_params}) do
     case Bans.update_user(conn.assigns.user, user_ban_params) do
-      {:ok, _user_ban} ->
+      {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User ban successfully updated.")
+        |> moderation_log(details: &log_details/3, data: user_ban)
         |> redirect(to: Routes.admin_user_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -78,10 +80,11 @@ defmodule PhilomenaWeb.Admin.UserBanController do
   end
 
   def delete(conn, _params) do
-    {:ok, _user_ban} = Bans.delete_user(conn.assigns.user)
+    {:ok, user_ban} = Bans.delete_user(conn.assigns.user)
 
     conn
     |> put_flash(:info, "User ban successfully deleted.")
+    |> moderation_log(details: &log_details/3, data: user_ban)
     |> redirect(to: Routes.admin_user_ban_path(conn, :index))
   end
 
@@ -111,5 +114,16 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(conn, action, ban) do
+    body =
+      case action do
+        :create -> "Created a user ban #{ban.generated_ban_id}"
+        :update -> "Updated a user ban #{ban.generated_ban_id}"
+        :delete -> "Deleted a user ban #{ban.generated_ban_id}"
+      end
+
+    %{body: body, subject_path: Routes.admin_user_ban_path(conn, :index)}
   end
 end
