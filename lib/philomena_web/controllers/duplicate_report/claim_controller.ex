@@ -34,10 +34,11 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
   end
 
   defp log_details(conn, action, _) do
-    body = case action do
-      :create -> "Claimed a duplicate report"
-      :delete -> "Released a duplicate report"
-    end
+    body =
+      case action do
+        :create -> "Claimed a duplicate report"
+        :delete -> "Released a duplicate report"
+      end
 
     %{
       body: body,

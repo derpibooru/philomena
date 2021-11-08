@@ -32,7 +32,8 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptController do
 
   defp log_details(conn, _action, report) do
     %{
-      body: "Accepted duplicate report, merged #{report.image.id} into #{report.duplicate_of_image.id}",
+      body:
+        "Accepted duplicate report, merged #{report.image.id} into #{report.duplicate_of_image.id}",
       subject_path: Routes.image_path(conn, :show, report.image)
     }
   end
