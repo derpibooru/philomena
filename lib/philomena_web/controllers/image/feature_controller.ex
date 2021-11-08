@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.Image.FeatureController do
 
     conn
     |> put_flash(:info, "Image marked as featured image.")
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 
@@ -30,5 +31,12 @@ defmodule PhilomenaWeb.Image.FeatureController do
       _false ->
         conn
     end
+  end
+
+  defp log_details(conn, _action, image) do
+    %{
+      body: "Featured image >>#{image.id}",
+      subject_path: Routes.image_path(conn, :show, image)
+    }
   end
 end

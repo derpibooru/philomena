@@ -16,9 +16,10 @@ defmodule PhilomenaWeb.Image.DeleteController do
     user = conn.assigns.current_user
 
     case Images.hide_image(image, user, image_params) do
-      {:ok, _image} ->
+      {:ok, result} ->
         conn
         |> put_flash(:info, "Image successfully hidden.")
+        |> moderation_log(details: &log_details/3, data: result.image)
         |> redirect(to: Routes.image_path(conn, :show, image))
 
       _error ->
@@ -35,6 +36,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
       {:ok, image} ->
         conn
         |> put_flash(:info, "Hide reason updated.")
+        |> moderation_log(details: &log_details/3, data: image)
         |> redirect(to: Routes.image_path(conn, :show, image))
 
       {:error, _changeset} ->
@@ -60,10 +62,25 @@ defmodule PhilomenaWeb.Image.DeleteController do
   def delete(conn, _params) do
     image = conn.assigns.image
 
-    {:ok, _image} = Images.unhide_image(image)
+    {:ok, image} = Images.unhide_image(image)
 
     conn
     |> put_flash(:info, "Image successfully unhidden.")
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
+  end
+
+  defp log_details(conn, action, image) do
+    body =
+      case action do
+        :create -> "Hidden image >>#{image.id} (#{image.deletion_reason})"
+        :update -> "Changed hide reason of >>#{image.id} (#{image.deletion_reason})"
+        :delete -> "Restored image >>#{image.id}"
+      end
+
+    %{
+      body: body,
+      subject_path: Routes.image_path(conn, :show, image)
+    }
   end
 end

@@ -327,6 +327,8 @@ defmodule PhilomenaWeb.Router do
       resources "/source_changes", FingerprintProfile.SourceChangeController, only: [:index]
     end
 
+    resources "/moderation_logs", ModerationLogController, only: [:index]
+
     scope "/admin", Admin, as: :admin do
       resources "/reports", ReportController, only: [:index, :show] do
         resources "/claim", Report.ClaimController, only: [:create, :delete], singleton: true

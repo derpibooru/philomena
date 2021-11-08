@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
     preload: [:image, :duplicate_of_image]
 
   def create(conn, _params) do
-    {:ok, _report} =
+    {:ok, report} =
       DuplicateReports.reject_duplicate_report(
         conn.assigns.duplicate_report,
         conn.assigns.current_user
@@ -21,6 +21,14 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
 
     conn
     |> put_flash(:info, "Successfully rejected report.")
+    |> moderation_log(details: &log_details/3, data: report)
     |> redirect(to: Routes.duplicate_report_path(conn, :index))
+  end
+
+  defp log_details(conn, _action, report) do
+    %{
+      body: "Rejected duplicate report (#{report.image.id} -> #{report.duplicate_of_image.id})",
+      subject_path: Routes.duplicate_report_path(conn, :index)
+    }
   end
 end

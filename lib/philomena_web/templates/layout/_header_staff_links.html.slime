@@ -38,8 +38,13 @@
 
         = if manages_mod_notes?(@conn) do
           = link to: Routes.admin_mod_note_path(@conn, :index), class: "header__link" do
-            i.fa.fa-fw.fa-sticky-note>
+            i.fa.fa-fw.fa-clipboard>
             ' Mod Notes
+
+        = if can_see_moderation_log?(@conn) do
+          = link to: Routes.moderation_log_path(@conn, :index), class: "header__link" do
+            i.fa.fa-fw.fa-list-alt>
+            ' Mod Logs
 
   = if @duplicate_report_count do
     = link to: Routes.duplicate_report_path(@conn, :index), class: "header__link", title: "Duplicates" do

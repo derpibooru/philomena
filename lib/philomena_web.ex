@@ -24,6 +24,7 @@ defmodule PhilomenaWeb do
       import Plug.Conn
       import PhilomenaWeb.Gettext
       import Canary.Plugs
+      import PhilomenaWeb.ModerationLogPlug, only: [moderation_log: 2]
       alias PhilomenaWeb.Router.Helpers, as: Routes
     end
   end

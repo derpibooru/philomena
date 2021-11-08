@@ -24,6 +24,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.StaticPages.StaticPage
   alias Philomena.Adverts.Advert
   alias Philomena.SiteNotices.SiteNotice
+  alias Philomena.ModerationLogs.ModerationLog
 
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Bans.Subnet, as: SubnetBan
@@ -126,6 +127,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Manage galleries
   def can?(%User{role: "moderator"}, _action, %Gallery{}), do: true
+
+  # See moderation logs
+  def can?(%User{role: "moderator"}, _action, ModerationLog), do: true
 
   # And some privileged moderators can...
 
