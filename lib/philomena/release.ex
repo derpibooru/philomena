@@ -29,6 +29,11 @@ defmodule Philomena.Release do
     PhilomenaWeb.StatsUpdater.update_stats!()
   end
 
+  def clean_moderation_logs do
+    start_app()
+    Philomena.ModerationLogs.cleanup!()
+  end
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end

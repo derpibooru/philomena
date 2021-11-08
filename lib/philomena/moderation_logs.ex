@@ -74,4 +74,10 @@ defmodule Philomena.ModerationLogs do
   def delete_moderation_log(%ModerationLog{} = moderation_log) do
     Repo.delete(moderation_log)
   end
+
+  def cleanup! do
+    ModerationLog
+    |> where([ml], ml.created_at < ago(2, "week"))
+    |> Repo.delete_all()
+  end
 end
