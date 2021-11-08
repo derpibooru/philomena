@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Tag.ImageController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Tags.Tag
   alias Philomena.Tags
 
@@ -24,7 +23,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag image successfully updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: tag)
+        |> moderation_log(details: &log_details/3, data: tag)
         |> redirect(to: Routes.tag_path(conn, :show, tag))
 
       {:error, :tag, changeset, _changes} ->
@@ -37,7 +36,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
 
     conn
     |> put_flash(:info, "Tag image successfully removed.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: tag)
+    |> moderation_log(details: &log_details/3, data: tag)
     |> redirect(to: Routes.tag_path(conn, :show, conn.assigns.tag))
   end
 

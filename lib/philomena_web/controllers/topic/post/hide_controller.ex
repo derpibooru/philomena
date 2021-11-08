@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Topic.Post.HideController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Posts.Post
   alias Philomena.Posts
 
@@ -21,7 +20,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully hidden.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: post)
+        |> moderation_log(details: &log_details/3, data: post)
         |> redirect(
           to:
             Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
@@ -46,7 +45,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully unhidden.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: post)
+        |> moderation_log(details: &log_details/3, data: post)
         |> redirect(
           to:
             Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>

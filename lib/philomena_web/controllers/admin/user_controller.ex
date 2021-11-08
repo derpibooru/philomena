@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.Admin.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User successfully updated.")
-        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: user)
+        |> moderation_log(details: &log_details/3, data: user)
         |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
 
       {:error, %{user: changeset}} ->

@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Image.Comment.DeleteController do
 
         conn
         |> put_flash(:info, "Comment successfully destroyed!")
-        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: comment)
+        |> moderation_log(details: &log_details/3, data: comment)
         |> redirect(
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )

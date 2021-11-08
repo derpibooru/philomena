@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Image.HashController do
 
     conn
     |> put_flash(:info, "Successfully cleared hash.")
-    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 

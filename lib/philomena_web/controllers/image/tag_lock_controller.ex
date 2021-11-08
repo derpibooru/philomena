@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Image.TagLockController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Images.Image
   alias Philomena.Images
 
@@ -24,7 +23,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
 
     conn
     |> put_flash(:info, "Successfully updated list of locked tags.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 
@@ -33,7 +32,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
 
     conn
     |> put_flash(:info, "Successfully locked tags.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 
@@ -42,7 +41,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
 
     conn
     |> put_flash(:info, "Successfully unlocked tags.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 

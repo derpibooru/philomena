@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.Topic.LockController do
   import Plug.Conn
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.Topics
@@ -27,7 +26,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully locked!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -44,7 +43,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->

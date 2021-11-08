@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Elasticsearch
   alias Philomena.{Tags, Tags.Tag}
@@ -98,7 +97,7 @@ defmodule PhilomenaWeb.TagController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag successfully updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: tag)
+        |> moderation_log(details: &log_details/3, data: tag)
         |> redirect(to: Routes.tag_path(conn, :show, tag))
 
       {:error, changeset} ->
@@ -111,7 +110,7 @@ defmodule PhilomenaWeb.TagController do
 
     conn
     |> put_flash(:info, "Tag queued for deletion.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: tag)
+    |> moderation_log(details: &log_details/3, data: tag)
     |> redirect(to: "/")
   end
 

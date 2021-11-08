@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Admin.ArtistLink.ContactController do
 
     conn
     |> put_flash(:info, "Artist successfully marked as contacted.")
-    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: artist_link)
+    |> moderation_log(details: &log_details/3, data: artist_link)
     |> redirect(to: Routes.admin_artist_link_path(conn, :index))
   end
 

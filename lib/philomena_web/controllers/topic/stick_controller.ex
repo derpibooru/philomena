@@ -2,7 +2,6 @@ defmodule PhilomenaWeb.Topic.StickController do
   import Plug.Conn
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.Topics
@@ -26,7 +25,7 @@ defmodule PhilomenaWeb.Topic.StickController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully stickied!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->
@@ -43,7 +42,7 @@ defmodule PhilomenaWeb.Topic.StickController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unstickied!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->

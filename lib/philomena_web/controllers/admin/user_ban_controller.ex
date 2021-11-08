@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Admin.UserBanController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Bans
   alias Philomena.Repo
@@ -51,7 +50,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User was successfully banned.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: user_ban)
+        |> moderation_log(details: &log_details/3, data: user_ban)
         |> redirect(to: Routes.admin_user_ban_path(conn, :index))
 
       {:error, :user_ban, changeset, _changes} ->
@@ -72,7 +71,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User ban successfully updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: user_ban)
+        |> moderation_log(details: &log_details/3, data: user_ban)
         |> redirect(to: Routes.admin_user_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -85,7 +84,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
     conn
     |> put_flash(:info, "User ban successfully deleted.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: user_ban)
+    |> moderation_log(details: &log_details/3, data: user_ban)
     |> redirect(to: Routes.admin_user_ban_path(conn, :index))
   end
 

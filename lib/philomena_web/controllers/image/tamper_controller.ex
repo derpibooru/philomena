@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Image.TamperController do
 
     conn
     |> put_flash(:info, "Vote removed.")
-    |> PhilomenaWeb.ModerationLogPlug.call(
+    |> moderation_log(
       details: &log_details/3,
       data: %{vote: result, image: image}
     )

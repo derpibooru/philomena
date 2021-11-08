@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Topic.Post.DeleteController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully destroyed!")
-        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: post)
+        |> moderation_log(details: &log_details/3, data: post)
         |> redirect(
           to:
             Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>

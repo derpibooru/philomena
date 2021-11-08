@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Image.RepairController do
 
     conn
     |> put_flash(:info, "Repair job enqueued.")
-    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: conn.assigns.image)
+    |> moderation_log(details: &log_details/3, data: conn.assigns.image)
     |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
   end
 

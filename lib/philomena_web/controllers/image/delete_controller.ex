@@ -4,7 +4,6 @@ defmodule PhilomenaWeb.Image.DeleteController do
   # N.B.: this would be Image.Hide, because it hides the image, but that is
   # taken by the user action
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Images.Image
   alias Philomena.Images
 
@@ -20,7 +19,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
       {:ok, result} ->
         conn
         |> put_flash(:info, "Image successfully hidden.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: result.image)
+        |> moderation_log(details: &log_details/3, data: result.image)
         |> redirect(to: Routes.image_path(conn, :show, image))
 
       _error ->
@@ -37,7 +36,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
       {:ok, image} ->
         conn
         |> put_flash(:info, "Hide reason updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: image)
+        |> moderation_log(details: &log_details/3, data: image)
         |> redirect(to: Routes.image_path(conn, :show, image))
 
       {:error, _changeset} ->
@@ -67,7 +66,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
 
     conn
     |> put_flash(:info, "Image successfully unhidden.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/3, data: image)
     |> redirect(to: Routes.image_path(conn, :show, image))
   end
 

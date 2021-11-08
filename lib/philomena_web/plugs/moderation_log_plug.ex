@@ -39,4 +39,8 @@ defmodule PhilomenaWeb.ModerationLogPlug do
 
     conn
   end
+
+  @doc false
+  @spec moderation_log(Conn.t(), call_opts()) :: Conn.t()
+  def moderation_log(conn, opts), do: call(conn, opts)
 end

@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Admin.SubnetBanController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Bans.Subnet, as: SubnetBan
   alias Philomena.Bans
   alias Philomena.Repo
@@ -50,7 +49,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet was successfully banned.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: subnet_ban)
+        |> moderation_log(details: &log_details/3, data: subnet_ban)
         |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -68,7 +67,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet ban successfully updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: subnet_ban)
+        |> moderation_log(details: &log_details/3, data: subnet_ban)
         |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -81,7 +80,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
     conn
     |> put_flash(:info, "Subnet ban successfully deleted.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: subnet_ban)
+    |> moderation_log(details: &log_details/3, data: subnet_ban)
     |> redirect(to: Routes.admin_subnet_ban_path(conn, :index))
   end
 

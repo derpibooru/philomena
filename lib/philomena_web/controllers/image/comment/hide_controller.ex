@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Image.Comment.HideController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Comments.Comment
   alias Philomena.Comments
 
@@ -16,7 +15,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully hidden!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: comment)
+        |> moderation_log(details: &log_details/3, data: comment)
         |> redirect(
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )
@@ -37,7 +36,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully unhidden!")
-        |> ModerationLogPlug.call(details: &log_details/3, data: comment)
+        |> moderation_log(details: &log_details/3, data: comment)
         |> redirect(
           to: Routes.image_path(conn, :show, comment.image_id) <> "#comment_#{comment.id}"
         )

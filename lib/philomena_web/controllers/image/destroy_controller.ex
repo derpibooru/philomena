@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
       {:ok, image} ->
         conn
         |> put_flash(:info, "Image contents destroyed.")
-        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: image)
+        |> moderation_log(details: &log_details/3, data: image)
         |> redirect(to: Routes.image_path(conn, :show, image))
 
       _error ->

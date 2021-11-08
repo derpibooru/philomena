@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.Admin.FingerprintBanController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ModerationLogPlug
   alias Philomena.Bans.Fingerprint, as: FingerprintBan
   alias Philomena.Bans
   alias Philomena.Repo
@@ -48,7 +47,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint was successfully banned.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
+        |> moderation_log(details: &log_details/3, data: fingerprint_ban)
         |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -66,7 +65,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint ban successfully updated.")
-        |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
+        |> moderation_log(details: &log_details/3, data: fingerprint_ban)
         |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
 
       {:error, changeset} ->
@@ -79,7 +78,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
     conn
     |> put_flash(:info, "Fingerprint ban successfully deleted.")
-    |> ModerationLogPlug.call(details: &log_details/3, data: fingerprint_ban)
+    |> moderation_log(details: &log_details/3, data: fingerprint_ban)
     |> redirect(to: Routes.admin_fingerprint_ban_path(conn, :index))
   end
 

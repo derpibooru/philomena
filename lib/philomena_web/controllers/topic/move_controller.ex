@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Topic.MoveController do
 
         conn
         |> put_flash(:info, "Topic successfully moved!")
-        |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/3, data: topic)
         |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
 
       {:error, _changeset} ->

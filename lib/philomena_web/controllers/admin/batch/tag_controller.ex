@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     case Images.batch_update(image_ids, added_tags, removed_tags, attributes) do
       {:ok, _} ->
         conn
-        |> PhilomenaWeb.ModerationLogPlug.call(
+        |> moderation_log(
           details: &log_details/3,
           data: %{
             tag_list: tag_list,

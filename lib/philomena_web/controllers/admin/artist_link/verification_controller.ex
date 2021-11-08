@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Admin.ArtistLink.VerificationController do
 
     conn
     |> put_flash(:info, "Artist link successfully verified.")
-    |> PhilomenaWeb.ModerationLogPlug.call(details: &log_details/3, data: result.artist_link)
+    |> moderation_log(details: &log_details/3, data: result.artist_link)
     |> redirect(to: Routes.admin_artist_link_path(conn, :index))
   end
 
