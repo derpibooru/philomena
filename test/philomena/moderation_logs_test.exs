@@ -6,24 +6,25 @@ defmodule Philomena.ModerationLogsTest do
   describe "moderation_logs" do
     alias Philomena.ModerationLogs.ModerationLog
 
-    import Philomena.ModerationLogsFixtures
+    import Philomena.UsersFixtures
 
-    @invalid_attrs %{}
+    test "create_moderation_log/4 with valid data creates a moderation_log" do
+      user = user_fixture()
 
-    test "list_moderation_logs/0 returns all moderation_logs" do
-      moderation_log = moderation_log_fixture()
-      assert ModerationLogs.list_moderation_logs() == [moderation_log]
+      assert {:ok, %ModerationLog{} = _moderation_log} =
+               ModerationLogs.create_moderation_log(
+                 user,
+                 "User:update",
+                 "/path/to/subject",
+                 "Updated user"
+               )
     end
 
-    test "create_moderation_log/1 with valid data creates a moderation_log" do
-      valid_attrs = %{}
+    test "create_moderation_log/4 with invalid data returns error changeset" do
+      user = user_fixture()
 
-      assert {:ok, %ModerationLog{} = moderation_log} =
-               ModerationLogs.create_moderation_log(valid_attrs)
-    end
-
-    test "create_moderation_log/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = ModerationLogs.create_moderation_log(@invalid_attrs)
+      assert {:error, %Ecto.Changeset{}} =
+               ModerationLogs.create_moderation_log(user, nil, nil, nil)
     end
   end
 end
