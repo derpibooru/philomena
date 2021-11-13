@@ -287,4 +287,68 @@ defmodule PhilomenaWeb.ImageView do
 
     Philomena.Search.Evaluator.hits?(doc, query)
   end
+
+  def image_source_icon(nil), do: "fa fa-link"
+  def image_source_icon(""), do: "fa fa-link"
+
+  def image_source_icon(source) do
+    site_domains =
+      String.split(Application.get_env(:philomena, :site_domains), ",") ++
+        Application.get_env(:philomena, :cdn_host)
+
+    uri = URI.parse(source)
+
+    case uri.host do
+      "twitter.com" ->
+        "fab fa-twitter"
+
+      "www.twitter.com" ->
+        "fab fa-twitter"
+
+      "pbs.twimg.com" ->
+        "fab fa-twitter"
+
+      "twimg.com" ->
+        "fab fa-twitter"
+
+      "deviantart.com" ->
+        "fab fa-deviantart"
+
+      "www.deviantart.com" ->
+        "fab fa-deviantart"
+
+      "sta.sh" ->
+        "fab fa-deviantart"
+
+      "www.sta.sh" ->
+        "fab fa-deviantart"
+
+      "cdn.discordapp.com" ->
+        "fab fa-discord"
+
+      "discordapp.com" ->
+        "fab fa-discord"
+
+      "discord.com" ->
+        "fab fa-discord"
+
+      "derpibooru.org" ->
+        "fab fa-phoenix-framework"
+
+      "www.derpibooru.org" ->
+        "fab fa-phoenix-framework"
+
+      "trixiebooru.org" ->
+        "fab fa-phoenix-framework"
+
+      "www.trixiebooru.org" ->
+        "fab fa-phoenix-framework"
+
+      "derpicdn.net" ->
+        "fab fa-phoenix-framework"
+
+      link ->
+        if Enum.member?(site_domains, link), do: "favicon-home", else: "fa fa-link"
+    end
+  end
 end

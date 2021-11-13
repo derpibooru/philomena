@@ -46,16 +46,6 @@
           ' Source:
         - else
           ' Sources:
-
-    p
-      = if has_sources do
-        = for source <- @image.sources do
-          a.js-source-link href=source.source
-            strong= source.source
-
-      - else
-        em> not provided yet
-
       = if @source_change_count > 0 do
         a.button.button--link.button--separate-left href=Routes.image_source_change_path(@conn, :index, @image) title="Source history"
           i.fa.fa-history>
@@ -68,3 +58,22 @@
           button.button.button--state-danger.button--separate-left type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
             i.fas.fa-eraser>
             ' Wipe
+  .image_sources
+    = if has_sources do
+      - [first_source | sources] = @image.sources
+      .image_source__icon
+        i class=image_source_icon(first_source.source)
+      .image_source__link
+        a.js-source-link href=first_source.source
+          strong = first_source.source
+      = for source <- sources do
+        .image_source__icon
+          i class=image_source_icon(source.source)
+        .image_source__link
+          a href=source.source
+            strong = source.source
+    - else
+      .image_source__icon
+        i.fa.fa-unlink
+      .image_source__link
+        em> not provided yet

@@ -59,7 +59,8 @@ defmodule Philomena.Images.SourceDiffer do
           []
         end
 
-      _ -> []
+      _ ->
+        []
     end)
   end
 

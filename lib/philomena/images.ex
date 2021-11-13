@@ -342,12 +342,12 @@ defmodule Philomena.Images do
       |> Image.source_changeset(%{}, old_sources, new_sources)
       |> repo.update()
       |> case do
-          {:ok, image} ->
-            {:ok, {image, image.added_sources, image.removed_sources}}
+        {:ok, image} ->
+          {:ok, {image, image.added_sources, image.removed_sources}}
 
-          error ->
-            error
-        end
+        error ->
+          error
+      end
     end)
     |> Multi.run(:added_source_changes, fn repo, %{image: {image, added_sources, _removed}} ->
       source_changes =

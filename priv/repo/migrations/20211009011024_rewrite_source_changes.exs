@@ -49,9 +49,7 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
            check: "length(source) >= 8 and length(source) <= 1024"
          )
 
-    create constraint(:image_sources, :image_sources_source_check,
-             check: "source ~* '^https?://'"
-           )
+    create constraint(:image_sources, :image_sources_source_check, check: "source ~* '^https?://'")
 
     execute("""
     insert into image_sources (image_id, source)
@@ -122,9 +120,7 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
 
     execute("truncate image_sources")
 
-    drop constraint(:image_sources, :image_sources_source_check,
-           check: "source ~* '^https?://'"
-         )
+    drop constraint(:image_sources, :image_sources_source_check, check: "source ~* '^https?://'")
 
     create constraint(:image_sources, :length_must_be_valid,
              check: "length(source) >= 8 and length(source) <= 1024"

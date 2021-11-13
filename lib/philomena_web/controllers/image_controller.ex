@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.ImageController do
     Images.Source,
     Comments.Comment,
     Galleries.Gallery
-    }
+  }
 
   alias Philomena.Elasticsearch
   alias Philomena.Interactions
