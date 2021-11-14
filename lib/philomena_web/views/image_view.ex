@@ -294,57 +294,28 @@ defmodule PhilomenaWeb.ImageView do
   def image_source_icon(source) do
     site_domains =
       String.split(Application.get_env(:philomena, :site_domains), ",") ++
-        Application.get_env(:philomena, :cdn_host)
+        [Application.get_env(:philomena, :cdn_host)]
 
     uri = URI.parse(source)
 
     case uri.host do
-      "twitter.com" ->
+      u when u in ["twitter.com", "www.twitter.com", "pbs.twimg.com", "twimg.com"] ->
         "fab fa-twitter"
 
-      "www.twitter.com" ->
-        "fab fa-twitter"
-
-      "pbs.twimg.com" ->
-        "fab fa-twitter"
-
-      "twimg.com" ->
-        "fab fa-twitter"
-
-      "deviantart.com" ->
+      u when u in ["deviantart.com", "www.deviantart.com", "sta.sh", "www.sta.sh"] ->
         "fab fa-deviantart"
 
-      "www.deviantart.com" ->
-        "fab fa-deviantart"
-
-      "sta.sh" ->
-        "fab fa-deviantart"
-
-      "www.sta.sh" ->
-        "fab fa-deviantart"
-
-      "cdn.discordapp.com" ->
+      u when u in ["cdn.discordapp.com", "discordapp.com", "discord.com"] ->
         "fab fa-discord"
 
-      "discordapp.com" ->
-        "fab fa-discord"
-
-      "discord.com" ->
-        "fab fa-discord"
-
-      "derpibooru.org" ->
-        "fab fa-phoenix-framework"
-
-      "www.derpibooru.org" ->
-        "fab fa-phoenix-framework"
-
-      "trixiebooru.org" ->
-        "fab fa-phoenix-framework"
-
-      "www.trixiebooru.org" ->
-        "fab fa-phoenix-framework"
-
-      "derpicdn.net" ->
+      u
+      when u in [
+             "derpibooru.org",
+             "www.derpibooru.org",
+             "trixiebooru.org",
+             "www.trixiebooru.org",
+             "derpicdn.net"
+           ] ->
         "fab fa-phoenix-framework"
 
       link ->
