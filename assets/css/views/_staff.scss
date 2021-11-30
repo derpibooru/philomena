@@ -7,10 +7,12 @@
 
 .staff-block__user-card {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto 8em;
 }
 
 .staff-block__user {
+  flex-grow: 1;
+  width: auto;
   padding: 1em;
 }
 
@@ -34,4 +36,9 @@
 
 .staff-block__category {
   margin-top: 1em;
+}
+
+.staff-block__user-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

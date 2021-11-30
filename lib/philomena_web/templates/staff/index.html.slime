@@ -33,7 +33,7 @@ h1 Staff
 
       .staff-block__grid
         = for user <- users do
-          .block.flex.flex__grow
+          .block.flex.flex--column
             .block__content.staff-block__user
               .staff-block__user-card
                 .staff-block__avatar
@@ -46,4 +46,4 @@ h1 Staff
                     i.fa.fa-envelope>
                     ' Send PM
               hr.staff-block__separator
-              p = staff_description(user)
+              p.staff-block__user-description = staff_description(user)
