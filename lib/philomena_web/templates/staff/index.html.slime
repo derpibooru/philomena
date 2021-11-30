@@ -44,7 +44,7 @@ h1 Staff
                         => user.name
                         | (Unavailable)
                   .staff-block__info
-                    / the vast emptiness
+                    .staff-block__filler
                 - else
                   .staff-block__avatar
                     a.profile-block href=Routes.profile_path(@conn, :show, user)
