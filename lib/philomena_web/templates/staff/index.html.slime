@@ -33,7 +33,7 @@ h1 Staff
 
       .staff-block__grid
         = for user <- users do
-          .block.flex.flex__grow
+          .block.flex.flex--column
             .block__content.staff-block__user
               .staff-block__user-card
                 = if unavailable?(user) do
@@ -57,4 +57,4 @@ h1 Staff
                       ' Send PM
               = unless unavailable?(user) do
                 hr.staff-block__separator
-                p = staff_description(user)
+                p.staff-block__user-description = staff_description(user)
