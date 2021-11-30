@@ -32,6 +32,13 @@ defmodule PhilomenaWeb.StaffController do
           users,
           &(&1.role == "assistant" and &1.secondary_role in [nil, ""] and
               &1.hide_default_role == false)
+        ),
+      Others:
+        Enum.filter(
+          users,
+          &(&1.role != "user" and
+              &1.secondary_role not in [nil, "", "Site Developer", "Devops", "Public Relations"] and
+              &1.hide_default_role == true)
         )
     ]
 
