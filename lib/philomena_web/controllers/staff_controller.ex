@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.StaffController do
       "Technical Team":
         Enum.filter(
           users,
-          &(&1.role != "admin" and &1.secondary_role in ["Site Developer", "Devops"] and &1.hide_default_role == false)
+          &(&1.role != "admin" and &1.secondary_role in ["Site Developer", "Devops"])
         ),
       "Public Relations":
         Enum.filter(users, &(&1.role != "admin" and &1.secondary_role == "Public Relations" and &1.hide_default_role == false)),
@@ -31,7 +31,20 @@ defmodule PhilomenaWeb.StaffController do
           users,
           &(&1.role == "assistant" and &1.secondary_role in [nil, ""] and &1.hide_default_role == false)
         ),
-      "Unavailable Staff": Enum.filter(users, &(&1.hide_default_role == true))
+      Others:
+        Enum.filter(
+          users,
+          &(&1.role != "user" and
+              &1.secondary_role not in [nil, "", "Site Developer", "Devops", "Public Relations"] and
+              &1.hide_default_role == true)
+        ),
+      "Unavailable Staff":
+        Enum.filter(
+          users,
+          &(&1.role != "user" and
+            &1.secondary_role in ["", nil] and
+            &1.hide_default_role == true)
+        )
     ]
 
     render(conn, "index.html", title: "Site Staff", categories: categories)

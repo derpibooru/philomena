@@ -1,19 +1,60 @@
 h1 Staff
+.block.block--fixed.block--warning
+  h3 Do you wish to submit a report?
+  p
+    strong> 
+      ' Do
+      em not
+    ' PM staff members with your reports. Instead, if you think something breaks
+    = link to: "/pages/rules" do
+      | the rules
+    ' , use the "Report" button, which is included next to all user-created content on the site. This will ensure swift handling of your issue, since most staff members don't check their PMs nearly as vigilantly as the reports queue.
+  p Staff PMs are only for general questions or for getting help with using the site.
+
+.block.block--fixed
+  p
+    ' Before contacting any of the staff members, you should try to ask your question in our
+    = link to: "/pages/discord" do
+      ' Discord
+    ' or
+    = link to: "/pages/irc" do
+      ' IRC channels.
+  p Keep in mind that all staff are unpaid volunteers who donate their time and effort into making sure this site remains organized and operational. Please do not harass them, and try to keep your PMs constructive. We will happily answer your questions, however receiving plenty of PMs for no reason gets tiring and impacts our ability to tend to more important matters, so please make sure you actually have a need to contact a staff member before doing so.
+
 .staff-block
   = for {header, users} <- @categories do
+    - header = to_string(header)
 
     = if Enum.any?(users) do
-      h4 = header
+      div class="block block--fixed staff-block__category #{category_class(header)}" = header
+      p.staff-block__description
+        i.fa.fa-fw.fa-info-circle>
+        = category_description(header)
 
-      = for user <- users do
-        = if unavailable?(user) do
-          .profile-block
-            = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px avatar-disabled"
-            b.staff-title-muted
-              => user.name
-              | (Unavailable)
-        - else
-          a.profile-block href=Routes.profile_path(@conn, :show, user)
-            = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px"
-            b
-              => user.name
+      .staff-block__grid
+        = for user <- users do
+          .block.flex.flex__grow
+            .block__content.staff-block__user
+              .staff-block__user-card
+                = if unavailable?(user) do
+                  .staff-block__avatar
+                    .profile-block
+                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px avatar-disabled"
+                      b.staff-title-muted
+                        => user.name
+                        | (Unavailable)
+                  .staff-block__info
+                    / the vast emptiness
+                - else
+                  .staff-block__avatar
+                    a.profile-block href=Routes.profile_path(@conn, :show, user)
+                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px"
+                      p
+                        b = user.name
+                  .staff-block__info
+                    = link to: Routes.conversation_path(@conn, :new, recipient: user.name), class: "button" do
+                      i.fa.fa-envelope>
+                      ' Send PM
+              = unless unavailable?(user) do
+                hr.staff-block__separator
+                p = staff_description(user)

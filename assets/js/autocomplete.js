@@ -136,7 +136,7 @@ function listenAutocomplete() {
 
       if (ac && (fetchedTerm.length >= acMinLength)) {
         if (cache[fetchedTerm]) {
-          showAutocomplete(cache[fetchedTerm], event.target);
+          showAutocomplete(cache[fetchedTerm], fetchedTerm, event.target);
         }
         else {
           // inputField could get overwritten while the suggestions are being fetched - use event.target

@@ -171,6 +171,11 @@ a.block__header--single-item, .block__header a {
   border-color: $primary_color;
 }
 
+.block--assistant {
+  background: $assistant_color;
+  border-color: $assistant_border_color;
+}
+
 /* Somewhat dirty workaround for <h*> margins */
 
 .block__content, .block__tab, .block--fixed {
