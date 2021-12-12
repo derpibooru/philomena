@@ -258,6 +258,27 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
   }
 }
 
+.spoiler, .spoiler-revealed {
+  display: inline-block;
+  position: relative;
+}
+
+.spoiler::before, .spoiler-revealed::before {
+  content: ' ';
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $admin_links_hover_color;
+}
+
+.spoiler:hover::before, .spoiler-revealed::before {
+  display: none;
+}
+
 .spoiler {
   background-color: $admin_links_hover_color;
   color: $admin_links_hover_color;
@@ -291,27 +312,6 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
   }
   code {
     @extend code;
-  }
-}
-
-.spoiler, .spoiler-revealed {
-  .imgspoiler {
-    background-color: $admin_links_hover_color;
-    img {
-      visibility: hidden;
-    }
-  }
-
-  .imgspoiler:hover, .imgspoiler-revealed {
-    background-color: $admin_links_color;
-    img {
-      visibility: visible;
-    }
-  }
-
-  .imgspoiler, .imgspoiler-revealed {
-    display: inline-block;
-    max-width: 100%;
   }
 }
 
