@@ -3,8 +3,8 @@
     = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Searching for #{@conn.params["q"]}", route: fn p -> Routes.search_path(@conn, :index, p) end, scope: scope(@conn)
 
   - assigns[:error] ->
-    p
-      ' Oops, there was an error evaluating your query:
+    .block.block--fixed.block--danger
+      ' Oops, there was an error parsing your query! Check for mistakes like mismatched parentheses. The error was:
     pre = assigns[:error]
 
   - blank?(@conn.params["q"]) ->
