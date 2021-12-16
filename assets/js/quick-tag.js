@@ -42,10 +42,12 @@ function activate() {
 
 function reset() {
 
-  store.remove(currentTagStorage);
-  store.remove(imageQueueStorage);
+  if (window.confirm('Are you sure you want to abort batch tagging?')) {
+    store.remove(currentTagStorage);
+    store.remove(imageQueueStorage);
 
-  toggleActiveState();
+    toggleActiveState();
+  }
 
 }
 
