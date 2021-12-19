@@ -518,6 +518,10 @@ defmodule Philomena.Users do
       unsubscribe_restricted_actors(user)
     end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{user: user}} -> {:ok, user}
+      {:error, :user, changeset, _} -> {:error, changeset}
+    end
   end
 
   defp clean_roles(nil), do: []
