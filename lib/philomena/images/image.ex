@@ -182,7 +182,11 @@ defmodule Philomena.Images.Image do
 
     cond do
       width <= 0 or height <= 0 ->
-        add_error(changeset, :image, "contents corrupt, not recognized, or dimensions are too large to process")
+        add_error(
+          changeset,
+          :image,
+          "contents corrupt, not recognized, or dimensions are too large to process"
+        )
 
       width > 32767 or height > 32767 ->
         add_error(changeset, :image, "side dimensions are larger than 32767 px")
