@@ -74,6 +74,7 @@ defmodule Philomena.Images.Query do
       date_fields: ~W(created_at updated_at first_seen_at),
       literal_fields:
         ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format mime_type),
+      bool_fields: ~W(animated processed thumbnails_generated),
       ngram_fields: ~W(description),
       custom_fields: ~W(gallery_id),
       default_field: {"namespaced_tags.name", :term},
@@ -106,7 +107,7 @@ defmodule Philomena.Images.Query do
           ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
       ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
       ip_fields: ~W(ip),
-      bool_fields: ~W(deleted),
+      bool_fields: fields[:bool_fields] ++ ~W(deleted),
       aliases:
         Map.merge(fields[:aliases], %{
           "upvoted_by" => "upvoters",
