@@ -1,9 +1,9 @@
-FROM elixir:1.12.3-alpine
+FROM elixir:1.13.1-alpine
 
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
     && apk update --allow-untrusted \
-    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg imagemagick postgresql-client wget rust cargo --allow-untrusted \
+    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg imagemagick postgresql14-client wget rust cargo --allow-untrusted \
     && mix local.hex --force \
     && mix local.rebar --force
 
