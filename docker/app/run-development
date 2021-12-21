@@ -19,8 +19,6 @@ background() {
 (
 cd /srv/philomena/assets
 npm install
-# why is javascript so terrible
-node_modules/.bin/webpack
 )
 
 # Always install mix dependencies
