@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
   end
 
   def delete(conn, _params) do
-    {:ok, report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
+    {:ok, _report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
 
     conn
     |> put_flash(:info, "Successfully released report.")
