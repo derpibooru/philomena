@@ -40,7 +40,9 @@ defmodule Philomena.Scrapers.Pillowfort do
   defp title(%{"title" => title}) when title not in [nil, ""], do: [remove_html_tags(title)]
   defp title(_), do: []
 
-  defp content(%{"content" => content}) when content not in [nil, ""], do: [remove_html_tags(content)]
+  defp content(%{"content" => content}) when content not in [nil, ""],
+    do: [remove_html_tags(content)]
+
   defp content(_), do: []
 
   defp remove_html_tags(text) do
