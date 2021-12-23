@@ -168,5 +168,8 @@ h1 Search
     = select f, :sf, sort_fields, class: "input input--separate-left", name: "sf", autocomplete: "off", selected: @conn.params["sf"]
     = select f, :sd, sort_directions, class: "input input--separate-left", name: "sd", autocomplete: "off", selected: @conn.params["sd"]
 
+    = if present?(@conn.params["hidden"]) do
+      = hidden_input f, :hidden, name: "hidden", value: @conn.params["hidden"]
+
     = if hides_images?(@conn) do
       = select f, :del, sort_hidden, class: "input input--separate-left", name: "del", autocomplete: "off", selected: @conn.params["del"]

@@ -18,6 +18,8 @@ header.header
         input type="hidden" name="sf" value=@conn.params["sf"]
       = if present?(@conn.params["sd"]) do
         input type="hidden" name="sd" value=@conn.params["sd"]
+      = if present?(@conn.params["hidden"]) do
+        input type="hidden" name="hidden" value=@conn.params["hidden"]
 
       = if hides_images?(@conn) do
         = select f, :del, [{"-D", ""}, {"+D", 1}, {"*D", "deleted"}, {"DO", "only"}], name: "del", class: "input header__input js-staff-action", autocomplete: "off"
