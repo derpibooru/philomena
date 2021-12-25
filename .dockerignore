@@ -1,0 +1,6 @@
+assets
+_build
+.cargo
+deps
+.elixir_ls
+priv

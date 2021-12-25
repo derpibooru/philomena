@@ -16,6 +16,7 @@ defmodule Philomena.Images.Image do
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
 
+  alias Philomena.Images.Image
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.TagValidator
   alias Philomena.Images.DnpValidator
@@ -156,15 +157,43 @@ defmodule Philomena.Images.Image do
       :image_is_animated
     ])
     |> validate_number(:image_size, greater_than: 0, less_than_or_equal_to: 125_000_000)
-    |> validate_number(:image_width, greater_than: 0, less_than_or_equal_to: 32767)
-    |> validate_number(:image_height, greater_than: 0, less_than_or_equal_to: 32767)
     |> validate_length(:image_name, max: 255, count: :bytes)
     |> validate_inclusion(
       :image_mime_type,
       ~W(image/gif image/jpeg image/png image/svg+xml video/webm),
       message: "(#{attrs["image_mime_type"]}) is invalid"
     )
-    |> unsafe_validate_unique([:image_orig_sha512_hash], Repo)
+    |> check_dimensions()
+    |> prepare_changes(fn changeset ->
+      sha512 = fetch_field!(changeset, :image_orig_sha512_hash)
+      other_image = Repo.get_by(Image, image_orig_sha512_hash: sha512)
+
+      if not is_nil(other_image) do
+        add_error(changeset, :image, "has already been uploaded: it's image #{other_image.id}")
+      else
+        changeset
+      end
+    end)
+  end
+
+  defp check_dimensions(changeset) do
+    width = fetch_field!(changeset, :image_width)
+    height = fetch_field!(changeset, :image_height)
+
+    cond do
+      width <= 0 or height <= 0 ->
+        add_error(
+          changeset,
+          :image,
+          "contents corrupt, not recognized, or dimensions are too large to process"
+        )
+
+      width > 32767 or height > 32767 ->
+        add_error(changeset, :image, "side dimensions are larger than 32767 px")
+
+      true ->
+        changeset
+    end
   end
 
   def remove_image_changeset(image) do

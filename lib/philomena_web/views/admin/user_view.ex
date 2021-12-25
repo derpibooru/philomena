@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Admin.UserView do
         id: input_id,
         checked_value: to_string(role.id),
         hidden_input: false,
-        checked: Enum.member?(Enum.map(input_value(form, field), & &1.id), role.id)
+        checked: Enum.member?(Enum.map(Map.get(form.data, field), & &1.id), role.id)
       )
 
     content_tag(:li, class: "table-list__label") do

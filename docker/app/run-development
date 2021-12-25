@@ -19,8 +19,6 @@ background() {
 (
 cd /srv/philomena/assets
 npm install
-# why is javascript so terrible
-chown -R $(id -un):$(id -gn) node_modules
 )
 
 # Always install mix dependencies

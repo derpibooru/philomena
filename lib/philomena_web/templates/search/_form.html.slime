@@ -26,6 +26,7 @@ h1 Search
           a data-search-add="width:1920" data-search-select-last="4" data-search-show-help="numeric" Image width
           a data-search-add="height:1080" data-search-select-last="4" data-search-show-help="numeric" Image height
           a data-search-add="aspect_ratio:1" data-search-select-last="1" data-search-show-help="numeric" Aspect ratio
+          a data-search-add="animated:false" data-search-select-last="5" data-search-show-help="boolean" Animated
           a data-search-add="duration:10" data-search-select-last="2" data-search-show-help="numeric" Duration (seconds)
           a data-search-add="pixels.gte:5000000" data-search-select-last="7" data-search-show-help="numeric" Pixels
           a data-search-add="size.lt:1048576" data-search-select-last="7" data-search-show-help="numeric" File size (bytes)
@@ -46,6 +47,20 @@ h1 Search
         a href="/pages/search_syntax" Help
 
     .block__content
+      .hidden.walloftext data-search-help="boolean"
+        strong.js-search-help-subject>
+        ' is a Boolean-valued field. It only accepts the values
+        code> true
+        ' and
+        code false
+        |.
+        br
+        br
+        em<> Example:
+        ' to find images which are not animated, you would use
+        code animated:false
+        | .
+
       .hidden.walloftext data-search-help="numeric"
         strong.js-search-help-subject>
         | is a numerical range field. Four qualifiers,
@@ -152,6 +167,9 @@ h1 Search
 
     = select f, :sf, sort_fields, class: "input input--separate-left", name: "sf", autocomplete: "off", selected: @conn.params["sf"]
     = select f, :sd, sort_directions, class: "input input--separate-left", name: "sd", autocomplete: "off", selected: @conn.params["sd"]
+
+    = if present?(@conn.params["hidden"]) do
+      = hidden_input f, :hidden, name: "hidden", value: @conn.params["hidden"]
 
     = if hides_images?(@conn) do
       = select f, :del, sort_hidden, class: "input input--separate-left", name: "del", autocomplete: "off", selected: @conn.params["del"]

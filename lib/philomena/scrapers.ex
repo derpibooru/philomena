@@ -1,6 +1,7 @@
 defmodule Philomena.Scrapers do
   @scrapers [
     Philomena.Scrapers.Deviantart,
+    Philomena.Scrapers.Pillowfort,
     Philomena.Scrapers.Twitter,
     Philomena.Scrapers.Tumblr,
     Philomena.Scrapers.Raw

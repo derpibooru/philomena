@@ -8,10 +8,14 @@
       span.block__header__title Essential user details
     label.table-list__label
       .table-list__label__text Name:
-      .table-list__label__input = text_input f, :name, class: "input"
+      .table-list__label__input
+        = error_tag f, :name
+        = text_input f, :name, class: "input"
     label.table-list__label
       .table-list__label__text Email:
-      .table-list__label__input = text_input f, :email, class: "input"
+      .table-list__label__input
+        = error_tag f, :email
+        = text_input f, :email, class: "input"
     label.table-list__label
       .table-list__label__text Role:
       .table-list__label__input = select f, :role, ["user", "assistant", "moderator", "admin"], class: "input"

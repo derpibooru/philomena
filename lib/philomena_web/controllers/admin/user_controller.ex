@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Admin.UserController do
     id_field: "slug",
     preload: [:roles]
 
-  plug :load_roles when action in [:edit]
+  plug :load_roles when action in [:edit, :update]
 
   def index(conn, %{"q" => q}) do
     User
@@ -62,10 +62,10 @@ defmodule PhilomenaWeb.Admin.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User successfully updated.")
-        |> moderation_log(details: &log_details/3, data: user.user)
-        |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+        |> moderation_log(details: &log_details/3, data: user)
+        |> redirect(to: Routes.profile_path(conn, :show, user))
 
-      {:error, %{user: changeset}} ->
+      {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
     end
   end
