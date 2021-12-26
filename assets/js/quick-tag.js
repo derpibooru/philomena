@@ -42,11 +42,17 @@ function activate() {
 
 function reset() {
 
-  if (window.confirm('Are you sure you want to abort batch tagging?')) {
-    store.remove(currentTagStorage);
-    store.remove(imageQueueStorage);
+  store.remove(currentTagStorage);
+  store.remove(imageQueueStorage);
 
-    toggleActiveState();
+  toggleActiveState();
+
+}
+
+function promptReset() {
+
+  if (window.confirm('Are you sure you want to abort batch tagging?')) {
+    reset();
   }
 
 }
@@ -96,7 +102,7 @@ function clickHandler(event) {
 
   const targets = {
     '.js-quick-tag': activate,
-    '.js-quick-tag--abort': reset,
+    '.js-quick-tag--abort': promptReset,
     '.js-quick-tag--submit': submit,
     '.js-quick-tag--all': toggleAllImages,
     '.media-box': modifyImageQueue,
