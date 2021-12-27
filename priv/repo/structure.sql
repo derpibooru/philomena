@@ -117,6 +117,16 @@ ALTER SEQUENCE public.artist_links_id_seq OWNED BY public.artist_links.id;
 
 
 --
+-- Name: autocomplete; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.autocomplete (
+    content bytea NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
 -- Name: badge_awards; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4959,3 +4969,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20210917190346);
 INSERT INTO public."schema_migrations" (version) VALUES (20210921025336);
 INSERT INTO public."schema_migrations" (version) VALUES (20210929181319);
 INSERT INTO public."schema_migrations" (version) VALUES (20211107130226);
+INSERT INTO public."schema_migrations" (version) VALUES (20211219194836);

@@ -34,6 +34,11 @@ defmodule Philomena.Release do
     Philomena.ModerationLogs.cleanup!()
   end
 
+  def generate_autocomplete do
+    start_app()
+    Philomena.Autocomplete.generate_autocomplete!()
+  end
+
   defp repos do
     Application.fetch_env!(@app, :ecto_repos)
   end

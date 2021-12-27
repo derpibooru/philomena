@@ -2,6 +2,9 @@
  * Autocomplete.
  */
 
+import { LocalAutocompleter } from 'utils/local-autocompleter';
+import { handleError } from 'utils/requests';
+
 const cache = {};
 let inputField, originalTerm;
 
@@ -122,8 +125,23 @@ function getSuggestions(term) {
 function listenAutocomplete() {
   let timeout;
 
+  /** @type {LocalAutocompleter} */
+  let localAc = null;
+  let localFetched = false;
+
+  document.addEventListener('focusin', fetchLocalAutocomplete);
+
   document.addEventListener('input', event => {
     removeParent();
+    fetchLocalAutocomplete(event);
+
+    if (localAc !== null && 'ac' in event.target.dataset) {
+      inputField = event.target;
+      originalTerm = inputField.value;
+
+      const suggestions = localAc.topK(inputField.value, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
+      return showAutocomplete(suggestions, originalTerm, event.target);
+    }
 
     window.clearTimeout(timeout);
     // Use a timeout to delay requests until the user has stopped typing
@@ -150,6 +168,16 @@ function listenAutocomplete() {
   document.addEventListener('click', event => {
     if (event.target && event.target !== inputField) removeParent();
   });
+
+  function fetchLocalAutocomplete(event) {
+    if (!localFetched && event.target.dataset && 'ac' in event.target.dataset) {
+      localFetched = true;
+      fetch('/autocomplete/compiled', { credentials: 'omit', cache: 'force-cache' })
+        .then(handleError)
+        .then(resp => resp.arrayBuffer())
+        .then(buf => localAc = new LocalAutocompleter(buf));
+    }
+  }
 }
 
 export { listenAutocomplete };
