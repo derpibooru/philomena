@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.ActivityController do
     {:ok, {images, _tags}} =
       ImageLoader.search_string(
         conn,
-        "created_at.lte:3 minutes ago",
+        "created_at.lte:3 minutes ago, thumbnails_generated:true",
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
