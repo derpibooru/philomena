@@ -35,8 +35,10 @@ export class LocalAutocompleter {
     this.referenceStart = this.view.getUint32(backingStore.byteLength - 8, true);
     /** @type {number} */
     this.formatVersion = this.view.getUint32(backingStore.byteLength - 12, true);
+    /** @type {number} */
+    this.numSecondary = (backingStore.byteLength - this.referenceStart - this.numTags * 8 - 12) / 4;
 
-    if (this.formatVersion !== 1) {
+    if (this.formatVersion !== 2) {
       throw new Error('Incompatible autocomplete format version');
     }
   }
@@ -71,9 +73,39 @@ export class LocalAutocompleter {
   getResultAt(i) {
     const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
     const imageCount = this.view.getUint32(this.referenceStart + i * 8 + 4, true);
+
+    if (imageCount >>> 31 & 1) {
+      // This is actually an alias, so follow it
+      return this.getResultAt(imageCount & ~(1 << 31));
+    }
+
     const [ name, associations ] = this.getTagFromLocation(nameLocation);
 
     return { name, imageCount, associations };
+  }
+
+  /**
+   * Get a Result object as the ith tag inside the file, secondary ordering.
+   *
+   * @param {number} i
+   * @returns {Result}
+   */
+  getSecondaryResultAt(i) {
+    const referenceIndex = this.view.getUint32(this.referenceStart + this.numTags * 8 + i * 4);
+    return this.getResultAt(referenceIndex);
+  }
+
+  /**
+   * Returns the name of a tag without any namespace component.
+   *
+   * @param {string} s
+   * @returns {string}
+   */
+  nameInNamespace(s) {
+    const v = s.split(':', 2);
+
+    if (v.length === 2) return v[1];
+    return v[0];
   }
 
   /**
@@ -117,6 +149,37 @@ export class LocalAutocompleter {
     while (l < this.numTags - 1) {
       const result = this.getResultAt(++l);
       if (!result.name.startsWith(prefix)) {
+        break;
+      }
+
+      // Add if no associations are filtered
+      if (hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
+        results.push(result);
+      }
+    }
+
+    // Binary search again to find in secondary list
+    l = 0;
+    r = this.numSecondary;
+
+    while (l < r - 1) {
+      const m = (l + (r - l) / 2) | 0;
+      const { name } = this.getSecondaryResultAt(m);
+
+      if (this.nameInNamespace(name).slice(0, prefix.length) >= prefix) {
+        // too large, go left
+        r = m;
+      }
+      else {
+        // too small, go right
+        l = m;
+      }
+    }
+
+    // Scan forward until no more matches occur
+    while (l < this.numSecondary - 1) {
+      const result = this.getSecondaryResultAt(++l);
+      if (!this.nameInNamespace(result.name).startsWith(prefix)) {
         break;
       }
 
