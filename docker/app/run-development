@@ -10,6 +10,7 @@ background() {
     mix run -e 'Philomena.Release.verify_artist_links()'
     mix run -e 'Philomena.Release.update_stats()'
     mix run -e 'Philomena.Release.clean_moderation_logs()'
+    mix run -e 'Philomena.Release.generate_autocomplete()'
 
     sleep 300
   done

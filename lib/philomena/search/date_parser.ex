@@ -30,6 +30,13 @@ defmodule Philomena.Search.DateParser do
   defp timezone_bounds([tz_off, tz_hour]), do: [tz_off, tz_hour, 0]
   defp timezone_bounds([tz_off, tz_hour, tz_minute]), do: [tz_off, tz_hour, tz_minute]
 
+  defp days_in_year(year) do
+    case Calendar.ISO.leap_year?(year) do
+      true -> 366
+      _ -> 365
+    end
+  end
+
   defp days_in_month(year, month) when month in 1..12 do
     Calendar.ISO.days_in_month(year, month)
   end
@@ -50,7 +57,8 @@ defmodule Philomena.Search.DateParser do
   end
 
   defp date_bounds([year]) do
-    lower_upper({{year, 1, 1}, {0, 0, 0}}, 31_536_000)
+    days = days_in_year(year)
+    lower_upper({{year, 1, 1}, {0, 0, 0}}, 86_400 * days)
   end
 
   defp date_bounds([year, month]) do
