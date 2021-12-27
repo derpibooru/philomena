@@ -36,7 +36,8 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
-    {:ok, {images, _tags}} = ImageLoader.search_string(conn, "created_at.lte:3 minutes ago, thumbnails_generated:true")
+    {:ok, {images, _tags}} =
+      ImageLoader.search_string(conn, "created_at.lte:3 minutes ago, thumbnails_generated:true")
 
     images = Elasticsearch.search_records(images, preload(Image, tags: :aliases))
 
