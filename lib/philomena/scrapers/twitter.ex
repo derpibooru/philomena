@@ -1,8 +1,8 @@
 defmodule Philomena.Scrapers.Twitter do
-  @gt_regex ~r|decodeURIComponent\("gt=(\d+);|
   @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
   @script_regex ~r|="(https://abs.twimg.com/responsive-web/client-web(?:-legacy)?/main\.[\da-z]+\.js)"|
   @bearer_regex ~r|"(AAAAAAAAAAAAA[^"]*)"|
+  @activate_url "https://api.twitter.com/1.1/guest/activate.json"
 
   @spec can_handle?(URI.t(), String.t()) :: true | false
   def can_handle?(_uri, url) do
@@ -63,12 +63,13 @@ defmodule Philomena.Scrapers.Twitter do
   end
 
   defp extract_guest_token_and_bearer({:ok, %Tesla.Env{body: page}}) do
-    [gt] = Regex.run(@gt_regex, page, capture: :all_but_first)
     [script | _] = Regex.run(@script_regex, page, capture: :all_but_first)
-
     {:ok, %{body: body}} = Philomena.Http.get(script)
 
     [bearer] = Regex.run(@bearer_regex, body, capture: :all_but_first)
+
+    {:ok, %{body: body}} = Philomena.Http.post(@activate_url, nil, [{"Authorization", "Bearer #{bearer}"}])
+    gt = Map.fetch!(Jason.decode!(body), "guest_token")
 
     {gt, bearer}
   end
