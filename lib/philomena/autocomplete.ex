@@ -163,6 +163,7 @@ defmodule Philomena.Autocomplete do
   @spec get_associations(tags_list()) :: assoc_map()
   defp get_associations(tags) do
     tags
+    |> Enum.filter(fn {_, _, _, aliased} -> is_nil(aliased) end)
     |> Enum.map(fn {name, images_count, id, _} ->
       # Randomly sample 100 images with this tag
       image_sample =
