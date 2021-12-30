@@ -185,7 +185,7 @@ defmodule Philomena.Autocomplete do
         |> having([_, t], fragment("(100 * count(*)::float / LEAST(?, 100)) > 50", ^images_count))
         |> select([_, t], t.id)
         |> limit(8)
-        |> Repo.all(timeout: 120_000)
+        |> Repo.all(timeout: 300_000)
 
       {name, assoc_ids}
     end)
