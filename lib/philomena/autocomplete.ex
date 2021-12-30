@@ -65,7 +65,7 @@ defmodule Philomena.Autocomplete do
     reference_indexes =
       tags
       |> Enum.with_index()
-      |> Enum.map(fn {name, index} -> {name, index} end)
+      |> Enum.map(fn {{name, _, _, _}, index} -> {name, index} end)
       |> Map.new()
 
     references =
@@ -90,7 +90,7 @@ defmodule Philomena.Autocomplete do
 
     secondary_references =
       tags
-      |> Enum.map(&{name_in_namespace(elem(&1, 0)), &1})
+      |> Enum.map(&{name_in_namespace(elem(&1, 0)), elem(&1, 0)})
       |> Enum.sort()
       |> Enum.reduce(<<>>, fn {_k, v}, secondary_references ->
         target = Map.fetch!(reference_indexes, v)

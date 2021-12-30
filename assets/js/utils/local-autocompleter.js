@@ -92,27 +92,26 @@ export class LocalAutocompleter {
    * Get a Result object as the ith tag inside the file.
    *
    * @param {number} i
-   * @returns {Result}
+   * @returns {[string, Result]}
    */
   getResultAt(i) {
     const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
     const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
+    const [ name, associations ] = this.getTagFromLocation(nameLocation);
 
     if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return this.getResultAt(-imageCount);
+      return [ name, this.getResultAt(-imageCount)[1] ];
     }
 
-    const [ name, associations ] = this.getTagFromLocation(nameLocation);
-
-    return { name, imageCount, associations };
+    return [ name, { name, imageCount, associations } ];
   }
 
   /**
    * Get a Result object as the ith tag inside the file, secondary ordering.
    *
    * @param {number} i
-   * @returns {Result}
+   * @returns {[string, Result]}
    */
   getSecondaryResultAt(i) {
     const referenceIndex = this.view.getUint32(this.secondaryStart + i * 4, true);
@@ -122,7 +121,7 @@ export class LocalAutocompleter {
   /**
    * Perform a binary search to fetch all results matching a condition.
    *
-   * @param {(i: number) => Result} getResult
+   * @param {(i: number) => [string, Result]} getResult
    * @param {(name: string) => number} compare
    * @param {{[key: string]: Result}} results
    */
@@ -136,9 +135,9 @@ export class LocalAutocompleter {
 
     while (min < max - 1) {
       const med = (min + (max - min) / 2) | 0;
-      const { name } = getResult(med);
+      const sortKey = getResult(med)[0];
 
-      if (compare(name) >= 0) {
+      if (compare(sortKey) >= 0) {
         // too large, go left
         max = med;
       }
@@ -150,8 +149,8 @@ export class LocalAutocompleter {
 
     // Scan forward until no more matches occur
     while (min < this.numTags - 1) {
-      const result = getResult(++min);
-      if (compare(result.name) !== 0) {
+      const [ sortKey, result ] = getResult(++min);
+      if (compare(sortKey) !== 0) {
         break;
       }
 
