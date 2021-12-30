@@ -172,7 +172,7 @@ function listenAutocomplete() {
   function fetchLocalAutocomplete(event) {
     if (!localFetched && event.target.dataset && 'ac' in event.target.dataset) {
       localFetched = true;
-      fetch('/autocomplete/compiled', { credentials: 'omit', cache: 'force-cache' })
+      fetch('/autocomplete/compiled?vsn=2', { credentials: 'omit', cache: 'force-cache' })
         .then(handleError)
         .then(resp => resp.arrayBuffer())
         .then(buf => localAc = new LocalAutocompleter(buf));
