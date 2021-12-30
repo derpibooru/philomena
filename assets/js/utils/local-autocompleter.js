@@ -101,7 +101,7 @@ export class LocalAutocompleter {
 
     if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return [ name, this.getResultAt(-imageCount)[1] ];
+      return [ name, this.getResultAt(-imageCount - 1)[1] ];
     }
 
     return [ name, { name, imageCount, associations } ];

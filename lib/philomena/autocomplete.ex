@@ -75,7 +75,7 @@ defmodule Philomena.Autocomplete do
         if not is_nil(alias_target) do
           target = Map.fetch!(reference_indexes, alias_target)
 
-          <<references::binary, pos::32-little, -target::32-little>>
+          <<references::binary, pos::32-little, -(target + 1)::32-little>>
         else
           <<references::binary, pos::32-little, images_count::32-little>>
         end
