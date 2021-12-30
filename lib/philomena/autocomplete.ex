@@ -110,15 +110,14 @@ defmodule Philomena.Autocomplete do
     #     };
     #
 
-    ac_file =
-      <<
-        ac_file::binary,
-        references::binary,
-        secondary_references::binary,
-        2::32-little,
-        reference_start::32-little,
-        length(tags)::32-little
-      >>
+    ac_file = <<
+      ac_file::binary,
+      references::binary,
+      secondary_references::binary,
+      2::32-little,
+      reference_start::32-little,
+      length(tags)::32-little
+    >>
 
     # Insert the autocomplete binary
     new_ac =
