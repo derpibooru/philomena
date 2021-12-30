@@ -82,7 +82,7 @@ export class LocalAutocompleter {
     const name = this.decoder.decode(this.data.slice(location + 1, location + nameLength + 1));
 
     for (let i = 0; i < assnLength; i++) {
-      associations.push(this.view.getUint32(location + 1 + nameLength + i * 4, true));
+      associations.push(this.view.getUint32(location + 1 + nameLength + 1 + i * 4, true));
     }
 
     return [ name, associations ];
