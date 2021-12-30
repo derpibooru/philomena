@@ -137,9 +137,9 @@ function listenAutocomplete() {
 
     if (localAc !== null && 'ac' in event.target.dataset) {
       inputField = event.target;
-      originalTerm = inputField.value;
+      originalTerm = `${inputField.value}`.toLowerCase();
 
-      const suggestions = localAc.topK(inputField.value, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
+      const suggestions = localAc.topK(originalTerm, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
       return showAutocomplete(suggestions, originalTerm, event.target);
     }
 

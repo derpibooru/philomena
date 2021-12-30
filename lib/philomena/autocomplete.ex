@@ -61,9 +61,8 @@ defmodule Philomena.Autocomplete do
 
     ac_file = int32_align(ac_file)
     reference_start = byte_size(ac_file)
-    size_of_reference = 8
 
-    reference_locations =
+    reference_indexes =
       tags
       |> Enum.with_index()
       |> Enum.map(fn {name, index} -> {name, index} end)
@@ -74,11 +73,11 @@ defmodule Philomena.Autocomplete do
         pos = Map.fetch!(name_locations, name)
 
         if not is_nil(alias_target) do
-          target = Map.fetch!(reference_locations, alias_target)
+          target = Map.fetch!(reference_indexes, alias_target)
 
-          <<references::binary, pos::32-little, 1::1, target::31-little>>
+          <<references::binary, pos::32-little, -target::32-little>>
         else
-          <<references::binary, pos::32-little, 0::1, images_count::31-little>>
+          <<references::binary, pos::32-little, images_count::32-little>>
         end
       end)
 
@@ -92,10 +91,9 @@ defmodule Philomena.Autocomplete do
     secondary_references =
       tags
       |> Enum.map(&{name_in_namespace(elem(&1, 0)), &1})
-      |> Enum.uniq_by(fn {k, _v} -> k end)
       |> Enum.sort()
       |> Enum.reduce(<<>>, fn {_k, v}, secondary_references ->
-        target = Map.fetch!(reference_locations, v)
+        target = Map.fetch!(reference_indexes, v)
 
         <<secondary_references::binary, target::32-little>>
       end)

@@ -11,6 +11,30 @@
  */
 
 /**
+ * Compare two strings, C-style.
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {number}
+ */
+function strcmp(a, b) {
+  return a < b ? -1 : Number(a > b);
+}
+
+/**
+ * Returns the name of a tag without any namespace component.
+ *
+ * @param {string} s
+ * @returns {string}
+ */
+function nameInNamespace(s) {
+  const v = s.split(':', 2);
+
+  if (v.length === 2) return v[1];
+  return v[0];
+}
+
+/**
  * See lib/philomena/autocomplete.ex for binary structure details.
  *
  * A binary blob is used to avoid the creation of large amounts of garbage on
@@ -34,9 +58,9 @@ export class LocalAutocompleter {
     /** @type {number} */
     this.referenceStart = this.view.getUint32(backingStore.byteLength - 8, true);
     /** @type {number} */
-    this.formatVersion = this.view.getUint32(backingStore.byteLength - 12, true);
+    this.secondaryStart = this.referenceStart + 8 * this.numTags;
     /** @type {number} */
-    this.numSecondary = (backingStore.byteLength - this.referenceStart - this.numTags * 8 - 12) / 4;
+    this.formatVersion = this.view.getUint32(backingStore.byteLength - 12, true);
 
     if (this.formatVersion !== 2) {
       throw new Error('Incompatible autocomplete format version');
@@ -72,11 +96,11 @@ export class LocalAutocompleter {
    */
   getResultAt(i) {
     const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
-    const imageCount = this.view.getUint32(this.referenceStart + i * 8 + 4, true);
+    const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
 
-    if (imageCount >>> 31 & 1) {
+    if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return this.getResultAt(imageCount & ~(1 << 31));
+      return this.getResultAt(-imageCount);
     }
 
     const [ name, associations ] = this.getTagFromLocation(nameLocation);
@@ -91,21 +115,51 @@ export class LocalAutocompleter {
    * @returns {Result}
    */
   getSecondaryResultAt(i) {
-    const referenceIndex = this.view.getUint32(this.referenceStart + this.numTags * 8 + i * 4);
+    const referenceIndex = this.view.getUint32(this.secondaryStart + i * 4, true);
     return this.getResultAt(referenceIndex);
   }
 
   /**
-   * Returns the name of a tag without any namespace component.
+   * Perform a binary search to fetch all results matching a condition.
    *
-   * @param {string} s
-   * @returns {string}
+   * @param {(i: number) => Result} getResult
+   * @param {(name: string) => number} compare
+   * @param {{[key: string]: Result}} results
    */
-  nameInNamespace(s) {
-    const v = s.split(':', 2);
+  scanResults(getResult, compare, results) {
+    let min = 0;
+    let max = this.numTags;
 
-    if (v.length === 2) return v[1];
-    return v[0];
+    /** @type {number[]} */
+    //@ts-expect-error No type for window.booru yet
+    const hiddenTags = window.booru.hiddenTagList;
+
+    while (min < max - 1) {
+      const med = (min + (max - min) / 2) | 0;
+      const { name } = getResult(med);
+
+      if (compare(name) >= 0) {
+        // too large, go left
+        max = med;
+      }
+      else {
+        // too small, go right
+        min = med;
+      }
+    }
+
+    // Scan forward until no more matches occur
+    while (min < this.numTags - 1) {
+      const result = getResult(++min);
+      if (compare(result.name) !== 0) {
+        break;
+      }
+
+      // Add if no associations are filtered
+      if (hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
+        results[result.name] = result;
+      }
+    }
   }
 
   /**
@@ -116,82 +170,24 @@ export class LocalAutocompleter {
    * @returns {Result[]}
    */
   topK(prefix, k) {
-    /** @type {Result[]} */
-    const results = [];
-
-    /** @type {number[]} */
-    //@ts-expect-error No type for window.booru yet
-    const hiddenTags = window.booru.hiddenTagList;
+    /** @type {{[key: string]: Result}} */
+    const results = {};
 
     if (prefix === '') {
-      return results;
+      return [];
     }
 
-    // Binary search to find last smaller prefix
-    let l = 0;
-    let r = this.numTags;
+    // Find normally, in full name-sorted order
+    const prefixMatch = (/** @type {string} */ name) => strcmp(name.slice(0, prefix.length), prefix);
+    this.scanResults(this.getResultAt.bind(this), prefixMatch, results);
 
-    while (l < r - 1) {
-      const m = (l + (r - l) / 2) | 0;
-      const { name } = this.getResultAt(m);
-
-      if (name.slice(0, prefix.length) >= prefix) {
-        // too large, go left
-        r = m;
-      }
-      else {
-        // too small, go right
-        l = m;
-      }
-    }
-
-    // Scan forward until no more matches occur
-    while (l < this.numTags - 1) {
-      const result = this.getResultAt(++l);
-      if (!result.name.startsWith(prefix)) {
-        break;
-      }
-
-      // Add if no associations are filtered
-      if (hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
-        results.push(result);
-      }
-    }
-
-    // Binary search again to find in secondary list
-    l = 0;
-    r = this.numSecondary;
-
-    while (l < r - 1) {
-      const m = (l + (r - l) / 2) | 0;
-      const { name } = this.getSecondaryResultAt(m);
-
-      if (this.nameInNamespace(name).slice(0, prefix.length) >= prefix) {
-        // too large, go left
-        r = m;
-      }
-      else {
-        // too small, go right
-        l = m;
-      }
-    }
-
-    // Scan forward until no more matches occur
-    while (l < this.numSecondary - 1) {
-      const result = this.getSecondaryResultAt(++l);
-      if (!this.nameInNamespace(result.name).startsWith(prefix)) {
-        break;
-      }
-
-      // Add if no associations are filtered
-      if (hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
-        results.push(result);
-      }
-    }
+    // Find in secondary order
+    const namespaceMatch = (/** @type {string} */ name) => strcmp(nameInNamespace(name).slice(0, prefix.length), prefix);
+    this.scanResults(this.getSecondaryResultAt.bind(this), namespaceMatch, results);
 
     // Sort results by image count
-    results.sort((a, b) => b.imageCount - a.imageCount);
+    const sorted = Object.values(results).sort((a, b) => b.imageCount - a.imageCount);
 
-    return results.slice(0, k);
+    return sorted.slice(0, k);
   }
 }
