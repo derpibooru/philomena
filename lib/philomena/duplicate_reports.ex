@@ -26,6 +26,9 @@ defmodule Philomena.DuplicateReports do
   end
 
   def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05) do
+    # for each color channel
+    dist = dist * 3
+
     from i in Image,
       inner_join: it in ImageIntensity,
       on: it.image_id == i.id,
