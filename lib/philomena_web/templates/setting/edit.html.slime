@@ -155,6 +155,10 @@ h1 Content Settings
         => checkbox f, :hide_uploader, checked: @conn.cookies["hide_uploader"] == "true"
         .fieldlabel: i Hide the uploader and date posted information on image pages.
       .field
+        => label f, :unfilter_tag_suggestions
+        => checkbox f, :unfilter_tag_suggestions, checked: @conn.cookies["unfilter_tag_suggestions"] == "true"
+        .fieldlabel: i Don't attempt to filter tag suggestions using your current filter.
+      .field
         => label f, :hide_score
         => checkbox f, :hide_score, checked: @conn.cookies["hide_score"] == "true"
         .fieldlabel: i Hide score information for images.

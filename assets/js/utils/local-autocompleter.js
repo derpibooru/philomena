@@ -2,6 +2,7 @@
 /*
  * Client-side tag completion.
  */
+import store from './store';
 
 /**
  * @typedef {object} Result
@@ -126,6 +127,8 @@ export class LocalAutocompleter {
    * @param {{[key: string]: Result}} results
    */
   scanResults(getResult, compare, results) {
+    const unfilter = store.get('unfilter_tag_suggestions');
+
     let min = 0;
     let max = this.numTags;
 
@@ -154,8 +157,8 @@ export class LocalAutocompleter {
         break;
       }
 
-      // Add if no associations are filtered
-      if (hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
+      // Add if not filtering or no associations are filtered
+      if (unfilter || hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
         results[result.name] = result;
       }
     }
