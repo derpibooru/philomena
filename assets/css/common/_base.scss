@@ -27,6 +27,15 @@ body {
   line-height: 1.15;
 }
 
+/* normalize.css breakage */
+sup, sub {
+  line-height: 1.15em;
+}
+
+sub {
+  bottom: -0.15em;
+}
+
 h1, h2, h3, h4, h5 {
   font-weight: normal;
   text-rendering: optimizeLegibility;
