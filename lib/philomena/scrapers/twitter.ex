@@ -68,7 +68,9 @@ defmodule Philomena.Scrapers.Twitter do
 
     [bearer] = Regex.run(@bearer_regex, body, capture: :all_but_first)
 
-    {:ok, %{body: body}} = Philomena.Http.post(@activate_url, nil, [{"Authorization", "Bearer #{bearer}"}])
+    {:ok, %{body: body}} =
+      Philomena.Http.post(@activate_url, nil, [{"Authorization", "Bearer #{bearer}"}])
+
     gt = Map.fetch!(Jason.decode!(body), "guest_token")
 
     {gt, bearer}
