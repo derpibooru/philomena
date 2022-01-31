@@ -26,7 +26,7 @@ function showVideoThumb(img) {
   return true;
 }
 
-function showThumb(img) {
+export function showThumb(img) {
   const size = img.dataset.size;
   const uris = JSON.parse(img.dataset.uris);
   const thumbUri = uris[size].replace(/webm$/, 'gif');
@@ -57,7 +57,7 @@ function showThumb(img) {
   return true;
 }
 
-function showBlock(img) {
+export function showBlock(img) {
   img.querySelector('.image-filtered').classList.add('hidden');
   const imageShowClasses = img.querySelector('.image-show').classList;
   imageShowClasses.remove('hidden');
@@ -82,7 +82,7 @@ function hideVideoThumb(img, spoilerUri, reason) {
   vidEl.pause();
 }
 
-function hideThumb(img, spoilerUri, reason) {
+export function hideThumb(img, spoilerUri, reason) {
   const picEl = img.querySelector('picture');
   if (!picEl) return hideVideoThumb(img, spoilerUri, reason);
 
@@ -97,7 +97,7 @@ function hideThumb(img, spoilerUri, reason) {
   imgOverlay.classList.remove('hidden');
 }
 
-function spoilerThumb(img, spoilerUri, reason) {
+export function spoilerThumb(img, spoilerUri, reason) {
   hideThumb(img, spoilerUri, reason);
 
   switch (window.booru.spoilerType) {
@@ -114,7 +114,7 @@ function spoilerThumb(img, spoilerUri, reason) {
   }
 }
 
-function spoilerBlock(img, spoilerUri, reason) {
+export function spoilerBlock(img, spoilerUri, reason) {
   const imgEl = img.querySelector('.image-filtered img');
   const imgReason = img.querySelector('.filter-explanation');
 
@@ -126,5 +126,3 @@ function spoilerBlock(img, spoilerUri, reason) {
   img.querySelector('.image-show').classList.add('hidden');
   img.querySelector('.image-filtered').classList.remove('hidden');
 }
-
-export { showThumb, showBlock, spoilerThumb, spoilerBlock, hideThumb };

@@ -1,8 +1,6 @@
-/**
- * Request Utils
- */
+// Request Utils
 
-function fetchJson(verb, endpoint, body) {
+export function fetchJson(verb, endpoint, body) {
   const data = {
     method: verb,
     credentials: 'same-origin',
@@ -21,7 +19,7 @@ function fetchJson(verb, endpoint, body) {
   return fetch(endpoint, data);
 }
 
-function fetchHtml(endpoint) {
+export function fetchHtml(endpoint) {
   return fetch(endpoint, {
     credentials: 'same-origin',
     headers: {
@@ -31,11 +29,9 @@ function fetchHtml(endpoint) {
   });
 }
 
-function handleError(response) {
+export function handleError(response) {
   if (!response.ok) {
     throw new Error('Received error from server');
   }
   return response;
 }
-
-export { fetchJson, fetchHtml, handleError };

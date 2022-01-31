@@ -1,7 +1,4 @@
-//@ts-check
-/*
- * Client-side tag completion.
- */
+// Client-side tag completion.
 import store from './store';
 
 /**
@@ -132,8 +129,6 @@ export class LocalAutocompleter {
     let min = 0;
     let max = this.numTags;
 
-    /** @type {number[]} */
-    //@ts-expect-error No type for window.booru yet
     const hiddenTags = window.booru.hiddenTagList;
 
     while (min < max - 1) {

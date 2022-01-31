@@ -13,7 +13,7 @@ import { registerEvents }       from './boorujs';
 import { setupBurgerMenu }      from './burger';
 import { bindCaptchaLinks }     from './captcha';
 import { setupComments }        from './comment';
-import { setupDupeReports }     from './duplicate_reports.js';
+import { setupDupeReports }     from './duplicate_reports';
 import { setFingerprintCookie } from './fingerprint';
 import { setupGalleryEditing }  from './galleries';
 import { initImagesClientside } from './imagesclientside';
@@ -31,7 +31,7 @@ import { setupTagEvents }       from './tagsmisc';
 import { setupTimestamps }      from './timeago';
 import { setupImageUpload }     from './upload';
 import { setupSearch }          from './search';
-import { setupToolbar }         from './markdowntoolbar.js';
+import { setupToolbar }         from './markdowntoolbar';
 import { hideStaffTools }       from './staffhider';
 import { pollOptionCreator }    from './poll';
 
