@@ -1,5 +1,13 @@
 #!/usr/bin/env sh
 
+# Create S3 dirs
+mkdir -p /srv/philomena/priv/s3/philomena
+ln -s /srv/philomena/priv/system/images/thumbs /srv/philomena/priv/s3/philomena/images
+ln -s /srv/philomena/priv/system/images /srv/philomena/priv/s3/philomena/adverts
+ln -s /srv/philomena/priv/system/images /srv/philomena/priv/s3/philomena/avatars
+ln -s /srv/philomena/priv/system/images /srv/philomena/priv/s3/philomena/badges
+ln -s /srv/philomena/priv/system/images /srv/philomena/priv/s3/philomena/tags
+
 # For compatibility with musl libc
 export CARGO_FEATURE_DISABLE_INITIAL_EXEC_TLS=1
 export CARGO_HOME=/srv/philomena/.cargo

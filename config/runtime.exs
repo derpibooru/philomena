@@ -67,6 +67,12 @@ if is_nil(System.get_env("START_WORKER")) do
   config :exq, queues: []
 end
 
+# S3 config
+config :ex_aws, :s3,
+  scheme: System.fetch_env!("S3_SCHEME"),
+  host: System.fetch_env!("S3_HOST"),
+  port: System.fetch_env!("S3_PORT")
+
 if config_env() != :test do
   # Database config
   config :philomena, Philomena.Repo,
