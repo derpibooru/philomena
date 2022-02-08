@@ -41,12 +41,12 @@ defmodule Philomena.Processors do
   def processor(_content_type), do: nil
 
   @doc """
-  Takes an analyzer and version list and generates a list of versions to be
+  Takes a MIME type and version list and generates a list of versions to be
   generated (e.g., ["thumb.png"]). List contents differ based on file type.
   """
-  @spec versions(map(), keyword) :: [String.t()]
-  def versions(analysis, valid_sizes) do
-    processor(analysis.mime_type).versions(valid_sizes)
+  @spec versions(String.t(), keyword) :: [String.t()]
+  def versions(mime_type, valid_sizes) do
+    processor(mime_type).versions(valid_sizes)
   end
 
   @doc """

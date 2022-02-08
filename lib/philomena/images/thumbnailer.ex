@@ -22,6 +22,8 @@ defmodule Philomena.Images.Thumbnailer do
     tall: {1024, 4096}
   ]
 
+  @acl [acl: :public_read]
+
   def thumbnail_versions do
     @versions
   end
@@ -32,6 +34,34 @@ defmodule Philomena.Images.Thumbnailer do
     Enum.filter(@versions, fn
       {_name, {width, height}} -> image_width > width or image_height > height
     end)
+  end
+
+  def hide_thumbnails(image, key) do
+    moved_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+
+    source_prefix = visible_image_thumb_prefix(image)
+    target_prefix = hidden_image_thumb_prefix(image, key)
+
+    bulk_rename(moved_files, source_prefix, target_prefix)
+  end
+
+  def unhide_thumbnails(image, key) do
+    moved_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+
+    source_prefix = hidden_image_thumb_prefix(image, key)
+    target_prefix = visible_image_thumb_prefix(image)
+
+    bulk_rename(moved_files, source_prefix, target_prefix)
+  end
+
+  def destroy_thumbnails(image) do
+    affected_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+
+    hidden_prefix = hidden_image_thumb_prefix(image, image.hidden_image_key)
+    visible_prefix = visible_image_thumb_prefix(image)
+
+    bulk_delete(affected_files, hidden_prefix)
+    bulk_delete(affected_files, visible_prefix)
   end
 
   def generate_thumbnails(image_id) do
@@ -82,7 +112,7 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   defp download_image_file(image) do
-    tempfile = Briefly.create!(extname: "." <> image.image_format)
+    tempfile = Briefly.create!(extname: ".#{image.image_format}")
     path = Path.join(image_thumb_prefix(image), "full.#{image.image_format}")
 
     ExAws.request!(S3.download_file(bucket(), path, tempfile))
@@ -95,19 +125,43 @@ defmodule Philomena.Images.Thumbnailer do
 
     file
     |> S3.Upload.stream_file()
-    |> S3.upload(bucket(), path, acl: :public_read)
+    |> S3.upload(bucket(), path, @acl)
     |> ExAws.request!()
   end
 
-  defp image_thumb_prefix(%Image{
-        created_at: created_at,
-        id: id,
-        hidden_from_users: true,
-        hidden_image_key: key
-      }),
-      do: Path.join([image_file_root(), time_identifier(created_at), "#{id}-#{key}"])
+  def bulk_rename(file_names, source_prefix, target_prefix) do
+    Enum.map(file_names, fn name ->
+      source = Path.join(source_prefix, name)
+      target = Path.join(target_prefix, name)
 
-  defp image_thumb_prefix(%Image{created_at: created_at, id: id}),
+      ExAws.request!(S3.put_object_copy(bucket(), target, bucket(), source, @acl))
+      ExAws.request!(S3.delete_object(bucket(), source))
+    end)
+  end
+
+  def bulk_delete(file_names, prefix) do
+    Enum.map(file_names, fn name ->
+      target = Path.join(prefix, name)
+
+      ExAws.request!(S3.delete_object(bucket(), target))
+    end)
+  end
+
+  # This method wraps the following two for code that doesn't care
+  # and just wants the files (most code should take this path)
+
+  defp image_thumb_prefix(%{hidden_from_users: true} = image),
+    do: hidden_image_thumb_prefix(image, image.hidden_image_key)
+
+  defp image_thumb_prefix(image),
+    do: visible_image_thumb_prefix(image)
+
+  # These methods handle the actual distinction between the two
+
+  defp hidden_image_thumb_prefix(%Image{created_at: created_at, id: id}, key),
+    do: Path.join([image_file_root(), time_identifier(created_at), "#{id}-#{key}"])
+
+  defp visible_image_thumb_prefix(%Image{created_at: created_at, id: id}),
     do: Path.join([image_file_root(), time_identifier(created_at), to_string(id)])
 
   defp time_identifier(time),
