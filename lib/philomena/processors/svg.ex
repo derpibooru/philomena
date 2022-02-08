@@ -7,16 +7,17 @@ defmodule Philomena.Processors.Svg do
     |> Kernel.++(["rendered.png", "full.png"])
   end
 
-  def process(analysis, file, versions) do
+  def process(_analysis, file, versions) do
     preview = preview(file)
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled = Enum.flat_map(versions, &scale_if_smaller(file, analysis.dimensions, preview, &1))
+    scaled = Enum.flat_map(versions, &scale(preview, &1))
+    full = [{:copy, preview, "full.png"}]
 
     %{
       intensities: intensities,
-      thumbnails: scaled ++ [{:copy, preview, "rendered.png"}]
+      thumbnails: scaled ++ full ++ [{:copy, preview, "rendered.png"}]
     }
   end
 
@@ -35,26 +36,7 @@ defmodule Philomena.Processors.Svg do
     preview
   end
 
-  defp scale_if_smaller(_file, _dimensions, preview, {:full, _target_dim}) do
-    [{:symlink_original, "full.svg"}, {:copy, preview, "full.png"}]
-  end
-
-  defp scale_if_smaller(
-         _file,
-         {width, height},
-         preview,
-         {thumb_name, {target_width, target_height}}
-       ) do
-    if width > target_width or height > target_height do
-      scaled = scale(preview, {target_width, target_height})
-
-      [{:copy, scaled, "#{thumb_name}.png"}]
-    else
-      [{:copy, preview, "#{thumb_name}.png"}]
-    end
-  end
-
-  defp scale(preview, {width, height}) do
+  defp scale(preview, {thumb_name, {width, height}}) do
     scaled = Briefly.create!(extname: ".png")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
 
@@ -63,6 +45,6 @@ defmodule Philomena.Processors.Svg do
 
     {_output, 0} = System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
 
-    scaled
+    [{:copy, scaled, "#{thumb_name}.png"}]
   end
 end

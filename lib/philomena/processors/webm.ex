@@ -23,13 +23,13 @@ defmodule Philomena.Processors.Webm do
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled =
-      Enum.flat_map(versions, &scale_if_smaller(stripped, mp4, palette, duration, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(stripped, palette, duration, dimensions, &1))
+    mp4 = [{:copy, mp4, "full.mp4"}]
 
     %{
       replace_original: stripped,
       intensities: intensities,
-      thumbnails: scaled ++ [{:copy, preview, "rendered.png"}]
+      thumbnails: scaled ++ mp4 ++ [{:copy, preview, "rendered.png"}]
     }
   end
 
@@ -70,31 +70,12 @@ defmodule Philomena.Processors.Webm do
     stripped
   end
 
-  defp scale_if_smaller(_file, mp4, _palette, _duration, _dimensions, {:full, _target_dim}) do
-    [
-      {:symlink_original, "full.webm"},
-      {:copy, mp4, "full.mp4"}
-    ]
-  end
-
-  defp scale_if_smaller(
-         file,
-         mp4,
-         palette,
-         duration,
-         {width, height},
-         {thumb_name, {target_width, target_height}}
-       ) do
-    {webm, mp4} =
-      if width > target_width or height > target_height do
-        scale_videos(file, {width, height}, {target_width, target_height})
-      else
-        {file, mp4}
-      end
+  defp scale(file, palette, duration, dimensions, {thumb_name, target_dimensions}) do
+    {webm, mp4} = scale_videos(file, dimensions, target_dimensions)
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(file, palette, duration, {target_width, target_height})
+        gif = scale_gif(file, palette, duration, target_dimensions)
 
         [
           {:copy, webm, "#{thumb_name}.webm"},
