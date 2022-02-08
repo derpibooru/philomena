@@ -6,6 +6,7 @@ defmodule Philomena.Uploader do
   alias Philomena.Filename
   alias Philomena.Analyzers
   alias Philomena.Sha512
+  alias ExAws.S3
   import Ecto.Changeset
 
   @doc """
@@ -58,18 +59,15 @@ defmodule Philomena.Uploader do
   in the transaction.
   """
   @spec persist_upload(any(), String.t(), String.t()) :: any()
-
-  # sobelow_skip ["Traversal"]
   def persist_upload(model, file_root, field_name) do
     source = Map.get(model, field(upload_key(field_name)))
     dest = Map.get(model, field(field_name))
     target = Path.join(file_root, dest)
-    dir = Path.dirname(target)
 
-    # Create the target directory if it doesn't exist yet,
-    # then write the file.
-    File.mkdir_p!(dir)
-    File.cp!(source, target)
+    source
+    |> S3.Upload.stream_file()
+    |> S3.upload(bucket(), target, acl: :public_read)
+    |> ExAws.request!()
   end
 
   @doc """
@@ -107,8 +105,11 @@ defmodule Philomena.Uploader do
   defp try_remove("", _file_root), do: nil
   defp try_remove(nil, _file_root), do: nil
 
-  # sobelow_skip ["Traversal.FileModule"]
-  defp try_remove(file, file_root), do: File.rm(Path.join(file_root, file))
+  defp try_remove(file, file_root) do
+    path = Path.join(file_root, file)
+
+    ExAws.request!(S3.delete_object(bucket(), path))
+  end
 
   defp prefix_attributes(map, prefix),
     do: Map.new(map, fn {key, value} -> {"#{prefix}_#{key}", value} end)
@@ -118,4 +119,8 @@ defmodule Philomena.Uploader do
   defp remove_key(field_name), do: "removed_#{field_name}"
 
   defp field(field_name), do: String.to_existing_atom(field_name)
+
+  defp bucket do
+    Application.fetch_env!(:philomena, :s3_bucket)
+  end
 end

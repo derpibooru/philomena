@@ -1,6 +1,12 @@
 defmodule Philomena.Processors.Gif do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    sizes
+    |> Enum.map(fn {name, _} -> "#{name}.gif" end)
+    |> Kernel.++(["full.webm", "full.mp4", "rendered.png"])
+  end
+
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     duration = analysis.duration

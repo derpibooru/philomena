@@ -1,6 +1,10 @@
 defmodule Philomena.Processors.Png do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    Enum.map(sizes, fn {name, _} -> "#{name}.png" end)
+  end
+
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     animated? = analysis.animated?

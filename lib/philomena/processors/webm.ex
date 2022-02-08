@@ -2,6 +2,17 @@ defmodule Philomena.Processors.Webm do
   alias Philomena.Intensities
   import Bitwise
 
+  def versions(sizes) do
+    webm_versions = Enum.map(sizes, fn {name, _} -> "#{name}.webm" end)
+    mp4_versions = Enum.map(sizes, fn {name, _} -> "#{name}.mp4" end)
+    gif_versions =
+      sizes
+      |> Enum.filter(fn {name, _} -> name in [:thumb_tiny, :thumb_small, :thumb] end)
+      |> Enum.map(fn {name, _} -> "#{name}.gif" end)
+
+    webm_versions ++ mp4_versions ++ gif_versions
+  end
+
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     duration = analysis.duration

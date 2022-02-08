@@ -1,6 +1,12 @@
 defmodule Philomena.Processors.Svg do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    sizes
+    |> Enum.map(fn {name, _} -> "#{name}.png" end)
+    |> Kernel.++(["rendered.png", "full.png"])
+  end
+
   def process(analysis, file, versions) do
     preview = preview(file)
 

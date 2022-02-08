@@ -1,6 +1,10 @@
 defmodule Philomena.Processors.Jpeg do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    Enum.map(sizes, fn {name, _} -> "#{name}.jpg" end)
+  end
+
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     stripped = optimize(strip(file))

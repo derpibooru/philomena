@@ -10,6 +10,7 @@ defmodule Philomena.Images.Thumbnailer do
   alias Philomena.Analyzers
   alias Philomena.Sha512
   alias Philomena.Repo
+  alias ExAws.S3
 
   @versions [
     thumb_tiny: {50, 50},
@@ -18,27 +19,24 @@ defmodule Philomena.Images.Thumbnailer do
     small: {320, 240},
     medium: {800, 600},
     large: {1280, 1024},
-    tall: {1024, 4096},
-    full: nil
+    tall: {1024, 4096}
   ]
 
   def thumbnail_versions do
-    Enum.filter(@versions, fn {_name, dimensions} ->
-      not is_nil(dimensions)
-    end)
+    @versions
   end
 
-  def thumbnail_urls(image, hidden_key) do
-    Path.join([image_thumb_dir(image), "*"])
-    |> Path.wildcard()
-    |> Enum.map(fn version_name ->
-      Path.join([image_url_base(image, hidden_key), Path.basename(version_name)])
+  # A list of version sizes that should be generated for the image,
+  # based on its dimensions. The processor can generate a list of paths.
+  def generated_sizes(%{image_width: image_width, image_height: image_height}) do
+    Enum.filter(@versions, fn
+      {_name, {width, height}} -> image_width > width or image_height > height
     end)
   end
 
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
-    file = image_file(image)
+    file = download_image_file(image)
     {:ok, analysis} = Analyzers.analyze(file)
 
     apply_edit_script(image, Processors.process(analysis, file, @versions))
@@ -135,6 +133,24 @@ defmodule Philomena.Images.Thumbnailer do
   def image_file(%Image{image: image}),
     do: Path.join(image_file_root(), image)
 
+  defp download_image_file(%Image{image: path} = image) do
+    tempfile = Briefly.create!(extname: "." <> image.image_format)
+    path = Path.join(image_file_root(), path)
+
+    ExAws.request!(S3.download_file(bucket(), path, tempfile))
+
+    tempfile
+  end
+
+  defp upload_image_file(%Image{image: path}, new_file) do
+    path = Path.join(image_file_root(), path)
+
+    new_file
+    |> S3.Upload.stream_file()
+    |> S3.upload(bucket(), path, acl: :public_read)
+    |> ExAws.request!()
+  end
+
   def image_thumb_dir(%Image{
         created_at: created_at,
         id: id,
@@ -163,4 +179,8 @@ defmodule Philomena.Images.Thumbnailer do
 
   defp image_url_root,
     do: Application.get_env(:philomena, :image_url_root)
+
+  defp bucket() do
+    Application.fetch_env!(:philomena, :s3_bucket)
+  end
 end
