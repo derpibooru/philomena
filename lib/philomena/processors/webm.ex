@@ -5,6 +5,7 @@ defmodule Philomena.Processors.Webm do
   def versions(sizes) do
     webm_versions = Enum.map(sizes, fn {name, _} -> "#{name}.webm" end)
     mp4_versions = Enum.map(sizes, fn {name, _} -> "#{name}.mp4" end)
+
     gif_versions =
       sizes
       |> Enum.filter(fn {name, _} -> name in [:thumb_tiny, :thumb_small, :thumb] end)
