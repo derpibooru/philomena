@@ -36,6 +36,13 @@ defmodule Philomena.Images.Thumbnailer do
     end)
   end
 
+  def thumbnail_urls(image, hidden_key) do
+    Processors.versions(image.image_mime_type, generated_sizes(image))
+    |> Enum.map(fn name ->
+      Path.join(image_url_base(image, hidden_key), name)
+    end)
+  end
+
   def hide_thumbnails(image, key) do
     moved_files = Processors.versions(image.image_mime_type, generated_sizes(image))
 
@@ -120,7 +127,7 @@ defmodule Philomena.Images.Thumbnailer do
     tempfile
   end
 
-  defp upload_file(image, file, version_name) do
+  def upload_file(image, file, version_name) do
     path = Path.join(image_thumb_prefix(image), version_name)
 
     file
@@ -164,11 +171,20 @@ defmodule Philomena.Images.Thumbnailer do
   defp visible_image_thumb_prefix(%Image{created_at: created_at, id: id}),
     do: Path.join([image_file_root(), time_identifier(created_at), to_string(id)])
 
+  defp image_url_base(%Image{created_at: created_at, id: id}, nil),
+    do: Path.join([image_url_root(), time_identifier(created_at), to_string(id)])
+
+  defp image_url_base(%Image{created_at: created_at, id: id}, key),
+    do: Path.join([image_url_root(), time_identifier(created_at), "#{id}-#{key}"])
+
   defp time_identifier(time),
     do: Enum.join([time.year, time.month, time.day], "/")
 
   defp image_file_root,
     do: Application.fetch_env!(:philomena, :image_file_root)
+
+  defp image_url_root,
+    do: Application.fetch_env!(:philomena, :image_url_root)
 
   defp bucket,
     do: Application.fetch_env!(:philomena, :s3_bucket)

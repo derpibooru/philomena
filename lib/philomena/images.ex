@@ -13,7 +13,6 @@ defmodule Philomena.Images do
   alias Philomena.ImagePurgeWorker
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
-  alias Philomena.Images.Hider
   alias Philomena.Images.Uploader
   alias Philomena.Images.Tagging
   alias Philomena.Images.Thumbnailer
@@ -198,7 +197,7 @@ defmodule Philomena.Images do
       {:ok, image} ->
         Uploader.unpersist_old_upload(image)
         purge_files(image, image.hidden_image_key)
-        Hider.destroy_thumbnails(image)
+        Thumbnailer.destroy_thumbnails(image)
 
         {:ok, image}
 
@@ -539,7 +538,7 @@ defmodule Philomena.Images do
   defp process_after_hide(result) do
     case result do
       {:ok, %{image: image, tags: tags, reports: {_count, reports}} = result} ->
-        Hider.hide_thumbnails(image, image.hidden_image_key)
+        Thumbnailer.hide_thumbnails(image, image.hidden_image_key)
 
         Comments.reindex_comments(image)
         Reports.reindex_reports(reports)
@@ -590,7 +589,7 @@ defmodule Philomena.Images do
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image, tags: tags}} ->
-        Hider.unhide_thumbnails(image, key)
+        Thumbnailer.unhide_thumbnails(image, key)
 
         reindex_image(image)
         purge_files(image, image.hidden_image_key)
@@ -774,7 +773,9 @@ defmodule Philomena.Images do
   end
 
   def perform_purge(files) do
-    Hider.purge_cache(files)
+    {_out, 0} = System.cmd("purge-cache", [Jason.encode!(%{files: files})])
+
+    :ok
   end
 
   alias Philomena.Images.Subscription
