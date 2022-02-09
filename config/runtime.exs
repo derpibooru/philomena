@@ -31,7 +31,7 @@ config :philomena,
   tag_url_root: System.fetch_env!("TAG_URL_ROOT"),
   redis_host: System.get_env("REDIS_HOST", "localhost"),
   proxy_host: System.get_env("PROXY_HOST"),
-  s3_bucket: System.fetch_env!("S3_BUCKET")
+  s3_bucket: System.fetch_env!("S3_BUCKET"),
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
   cdn_host: System.fetch_env!("CDN_HOST")

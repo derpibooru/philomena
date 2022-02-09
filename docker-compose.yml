@@ -79,7 +79,7 @@ services:
   files:
     build:
       context: .
-      dockerfile: ./docker/app/Dockerfile
+      dockerfile: ./docker/files/Dockerfile
     volumes:
       - .:/srv/philomena
 
