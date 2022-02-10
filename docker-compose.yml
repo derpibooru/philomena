@@ -77,9 +77,9 @@ services:
       driver: "none"
 
   files:
-    build:
-      context: .
-      dockerfile: ./docker/files/Dockerfile
+    image: andrewgaul/s3proxy:sha-5aec5c1
+    environment:
+      - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
       - .:/srv/philomena
 
