@@ -37,14 +37,15 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   def thumbnail_urls(image, hidden_key) do
-    Processors.versions(image.image_mime_type, generated_sizes(image))
+    image
+    |> all_versions()
     |> Enum.map(fn name ->
       Path.join(image_url_base(image, hidden_key), name)
     end)
   end
 
   def hide_thumbnails(image, key) do
-    moved_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+    moved_files = all_versions(image)
 
     source_prefix = visible_image_thumb_prefix(image)
     target_prefix = hidden_image_thumb_prefix(image, key)
@@ -53,7 +54,7 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   def unhide_thumbnails(image, key) do
-    moved_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+    moved_files = all_versions(image)
 
     source_prefix = hidden_image_thumb_prefix(image, key)
     target_prefix = visible_image_thumb_prefix(image)
@@ -62,7 +63,7 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   def destroy_thumbnails(image) do
-    affected_files = Processors.versions(image.image_mime_type, generated_sizes(image))
+    affected_files = all_versions(image)
 
     hidden_prefix = hidden_image_thumb_prefix(image, image.hidden_image_key)
     visible_prefix = visible_image_thumb_prefix(image)
@@ -136,22 +137,29 @@ defmodule Philomena.Images.Thumbnailer do
     |> ExAws.request!()
   end
 
-  def bulk_rename(file_names, source_prefix, target_prefix) do
+  defp bulk_rename(file_names, source_prefix, target_prefix) do
     Enum.map(file_names, fn name ->
       source = Path.join(source_prefix, name)
       target = Path.join(target_prefix, name)
 
-      ExAws.request!(S3.put_object_copy(bucket(), target, bucket(), source, @acl))
-      ExAws.request!(S3.delete_object(bucket(), source))
+      ExAws.request(S3.put_object_copy(bucket(), target, bucket(), source, @acl))
+      ExAws.request(S3.delete_object(bucket(), source))
     end)
   end
 
-  def bulk_delete(file_names, prefix) do
+  defp bulk_delete(file_names, prefix) do
     Enum.map(file_names, fn name ->
       target = Path.join(prefix, name)
 
-      ExAws.request!(S3.delete_object(bucket(), target))
+      ExAws.request(S3.delete_object(bucket(), target))
     end)
+  end
+
+  defp all_versions(image) do
+    generated = Processors.versions(image.image_mime_type, generated_sizes(image))
+    full = ["full.#{image.image_format}"]
+
+    generated ++ full
   end
 
   # This method wraps the following two for code that doesn't care
