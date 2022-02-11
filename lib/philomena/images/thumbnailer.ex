@@ -8,6 +8,7 @@ defmodule Philomena.Images.Thumbnailer do
   alias Philomena.Images.Image
   alias Philomena.Processors
   alias Philomena.Analyzers
+  alias Philomena.Uploader
   alias Philomena.Sha512
   alias Philomena.Repo
   alias ExAws.S3
@@ -131,10 +132,7 @@ defmodule Philomena.Images.Thumbnailer do
   def upload_file(image, file, version_name) do
     path = Path.join(image_thumb_prefix(image), version_name)
 
-    file
-    |> S3.Upload.stream_file()
-    |> S3.upload(bucket(), path, @acl)
-    |> ExAws.request!()
+    Uploader.persist_file(path, file)
   end
 
   defp bulk_rename(file_names, source_prefix, target_prefix) do

@@ -6,6 +6,7 @@ defmodule Philomena.Uploader do
   alias Philomena.Filename
   alias Philomena.Analyzers
   alias Philomena.Sha512
+  alias Philomena.Mime
   alias ExAws.S3
   import Ecto.Changeset
 
@@ -64,9 +65,19 @@ defmodule Philomena.Uploader do
     dest = Map.get(model, field(field_name))
     target = Path.join(file_root, dest)
 
-    source
+    persist_file(target, source)
+  end
+
+  @doc """
+  Persist an arbitrary file to storage at the given path with the correct
+  content type and permissions.
+  """
+  def persist_file(path, file) do
+    {_, mime} = Mime.file(path)
+
+    file
     |> S3.Upload.stream_file()
-    |> S3.upload(bucket(), target, acl: :public_read)
+    |> S3.upload(bucket(), path, acl: :public_read, content_type: mime)
     |> ExAws.request!()
   end
 
