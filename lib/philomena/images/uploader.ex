@@ -14,8 +14,4 @@ defmodule Philomena.Images.Uploader do
   def persist_upload(image) do
     Thumbnailer.upload_file(image, image.uploaded_image, "full.#{image.image_format}")
   end
-
-  def unpersist_old_upload(image) do
-    Thumbnailer.destroy_thumbnails(image)
-  end
 end

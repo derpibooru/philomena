@@ -109,7 +109,6 @@ defmodule Philomena.Images do
     |> case do
       {:ok, %{image: image}} = result ->
         Uploader.persist_upload(image)
-        Uploader.unpersist_old_upload(image)
 
         repair_image(image)
         reindex_image(image)
@@ -195,7 +194,6 @@ defmodule Philomena.Images do
     |> Repo.update()
     |> case do
       {:ok, image} ->
-        Uploader.unpersist_old_upload(image)
         purge_files(image, image.hidden_image_key)
         Thumbnailer.destroy_thumbnails(image)
 
@@ -262,7 +260,6 @@ defmodule Philomena.Images do
     |> case do
       {:ok, image} ->
         Uploader.persist_upload(image)
-        Uploader.unpersist_old_upload(image)
 
         repair_image(image)
         purge_files(image, image.hidden_image_key)
