@@ -25,8 +25,8 @@ services:
       - AVATAR_URL_ROOT=/avatars
       - ADVERT_URL_ROOT=/spns
       - IMAGE_URL_ROOT=/img
-      - BADGE_URL_ROOT=/badges
-      - TAG_URL_ROOT=/tags
+      - BADGE_URL_ROOT=/badge-img
+      - TAG_URL_ROOT=/tag-img
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - REDIS_HOST=redis
       - DATABASE_URL=ecto://postgres:postgres@postgres/philomena_dev
