@@ -1,6 +1,7 @@
 #!/usr/bin/env sh
 
 # Create S3 dirs
+mkdir -p /srv/philomena/priv/static/system/images/thumbs
 mkdir -p /srv/philomena/priv/s3/philomena
 ln -sf /srv/philomena/priv/static/system/images/thumbs /srv/philomena/priv/s3/philomena/images
 ln -sf /srv/philomena/priv/static/system/images /srv/philomena/priv/s3/philomena/adverts
