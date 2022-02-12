@@ -153,7 +153,7 @@ defmodule Philomena.Images.Thumbnailer do
     end)
   end
 
-  defp all_versions(image) do
+  def all_versions(image) do
     generated = Processors.versions(image.image_mime_type, generated_sizes(image))
     full = ["full.#{image.image_format}"]
 
@@ -163,10 +163,10 @@ defmodule Philomena.Images.Thumbnailer do
   # This method wraps the following two for code that doesn't care
   # and just wants the files (most code should take this path)
 
-  defp image_thumb_prefix(%{hidden_from_users: true} = image),
+  def image_thumb_prefix(%{hidden_from_users: true} = image),
     do: hidden_image_thumb_prefix(image, image.hidden_image_key)
 
-  defp image_thumb_prefix(image),
+  def image_thumb_prefix(image),
     do: visible_image_thumb_prefix(image)
 
   # These methods handle the actual distinction between the two

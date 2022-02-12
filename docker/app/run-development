@@ -43,7 +43,7 @@ until wget -qO - elasticsearch:9200; do
   sleep 2
 done
 
-until wget -qO - files/philomena; do
+until wget -qO /dev/null files/philomena; do
   echo -n "."
   sleep 2
 done
