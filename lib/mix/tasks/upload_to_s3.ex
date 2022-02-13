@@ -21,6 +21,14 @@ defmodule Mix.Tasks.UploadToS3 do
   def run([concurrency | args]) do
     {concurrency, _} = Integer.parse(concurrency)
 
+    if Enum.member?(args, "--dev") do
+      Application.put_env(:philomena, :advert_file_root, "priv/static/system/images/adverts")
+      Application.put_env(:philomena, :avatar_file_root, "priv/static/system/images/avatars")
+      Application.put_env(:philomena, :badge_file_root, "priv/static/system/images")
+      Application.put_env(:philomena, :image_file_root, "priv/static/system/images")
+      Application.put_env(:philomena, :tag_file_root, "priv/static/system/images")
+    end
+
     if Enum.member?(args, "--adverts") do
       file_root = Application.fetch_env!(:philomena, :advert_file_root)
       new_file_root = System.get_env("NEW_ADVERT_FILE_ROOT", "adverts")
