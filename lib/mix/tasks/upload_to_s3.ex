@@ -25,42 +25,72 @@ defmodule Mix.Tasks.UploadToS3 do
       file_root = System.get_env("OLD_ADVERT_FILE_ROOT", "priv/static/system/images/adverts")
       new_file_root = Application.fetch_env!(:philomena, :advert_file_root)
 
-      IO.puts "\nAdverts:"
-      upload_typical(where(Advert, [a], not is_nil(a.image)), concurrency, file_root, new_file_root, :image)
+      IO.puts("\nAdverts:")
+
+      upload_typical(
+        where(Advert, [a], not is_nil(a.image)),
+        concurrency,
+        file_root,
+        new_file_root,
+        :image
+      )
     end
 
     if Enum.member?(args, "--avatars") do
       file_root = System.get_env("OLD_AVATAR_FILE_ROOT", "priv/static/system/images/avatars")
       new_file_root = Application.fetch_env!(:philomena, :avatar_file_root)
 
-      IO.puts "\nAvatars:"
-      upload_typical(where(User, [u], not is_nil(u.avatar)), concurrency, file_root, new_file_root, :avatar)
+      IO.puts("\nAvatars:")
+
+      upload_typical(
+        where(User, [u], not is_nil(u.avatar)),
+        concurrency,
+        file_root,
+        new_file_root,
+        :avatar
+      )
     end
 
     if Enum.member?(args, "--badges") do
       file_root = System.get_env("OLD_BADGE_FILE_ROOT", "priv/static/system/images")
       new_file_root = Application.fetch_env!(:philomena, :badge_file_root)
 
-      IO.puts "\nBadges:"
-      upload_typical(where(Badge, [b], not is_nil(b.image)), concurrency, file_root, new_file_root, :image)
+      IO.puts("\nBadges:")
+
+      upload_typical(
+        where(Badge, [b], not is_nil(b.image)),
+        concurrency,
+        file_root,
+        new_file_root,
+        :image
+      )
     end
 
     if Enum.member?(args, "--tags") do
       file_root = System.get_env("OLD_TAG_FILE_ROOT", "priv/static/system/images")
       new_file_root = Application.fetch_env!(:philomena, :tag_file_root)
 
-      IO.puts "\nTags:"
-      upload_typical(where(Tag, [t], not is_nil(t.image)), concurrency, file_root, new_file_root, :image)
+      IO.puts("\nTags:")
+
+      upload_typical(
+        where(Tag, [t], not is_nil(t.image)),
+        concurrency,
+        file_root,
+        new_file_root,
+        :image
+      )
     end
 
     if Enum.member?(args, "--images") do
-      file_root = Path.join(System.get_env("OLD_IMAGE_FILE_ROOT", "priv/static/system/images"), "thumbs")
+      file_root =
+        Path.join(System.get_env("OLD_IMAGE_FILE_ROOT", "priv/static/system/images"), "thumbs")
+
       new_file_root = Application.fetch_env!(:philomena, :image_file_root)
 
       # Temporarily set file root to empty path so we can get the proper prefix
       Application.put_env(:philomena, :image_file_root, "")
 
-      IO.puts "\nImages:"
+      IO.puts("\nImages:")
       upload_images(where(Image, [i], not is_nil(i.image)), concurrency, file_root, new_file_root)
     end
   end
@@ -71,7 +101,7 @@ defmodule Mix.Tasks.UploadToS3 do
       |> Task.async_stream(&upload_typical_model(&1, file_root, new_file_root, field_name))
       |> Stream.run()
 
-      IO.write "\r#{hd(models).id}"
+      IO.write("\r#{hd(models).id}")
     end)
   end
 
@@ -90,7 +120,7 @@ defmodule Mix.Tasks.UploadToS3 do
       |> Task.async_stream(&upload_image_model(&1, file_root, new_file_root))
       |> Stream.run()
 
-      IO.write "\r#{hd(models).id}"
+      IO.write("\r#{hd(models).id}")
     end)
   end
 
