@@ -119,6 +119,7 @@ defmodule Philomena.Users.User do
     field :hide_default_role, :boolean, default: false
     field :senior_staff, :boolean, default: false
     field :bypass_rate_limits, :boolean, default: false
+    field :verified, :boolean, default: false
 
     # For avatar validation/persistence
     field :avatar_width, :integer, virtual: true
@@ -444,6 +445,14 @@ defmodule Philomena.Users.User do
 
   def unforce_filter_changeset(user) do
     change(user, forced_filter_id: nil)
+  end
+
+  def verify_changeset(user) do
+    change(user, verified: true)
+  end
+
+  def unverify_changeset(user) do
+    change(user, verified: false)
   end
 
   def create_totp_secret_changeset(user) do

@@ -379,6 +379,8 @@ defmodule PhilomenaWeb.Router do
           only: [:create, :delete],
           singleton: true
 
+        resources "/verification", User.VerificationController, only: [:create, :delete], singleton: true
+
         resources "/unlock", User.UnlockController, only: [:create], singleton: true
         resources "/api_key", User.ApiKeyController, only: [:delete], singleton: true
         resources "/downvotes", User.DownvoteController, only: [:delete], singleton: true

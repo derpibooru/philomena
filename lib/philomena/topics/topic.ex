@@ -31,6 +31,7 @@ defmodule Philomena.Topics.Topic do
     field :slug, :string
     field :anonymous, :boolean, default: false
     field :hidden_from_users, :boolean, default: false
+    field :approved_at, :utc_datetime
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end

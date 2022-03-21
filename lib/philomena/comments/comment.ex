@@ -22,6 +22,7 @@ defmodule Philomena.Comments.Comment do
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
     field :name_at_post_time, :string
+    field :approved_at, :utc_datetime
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
