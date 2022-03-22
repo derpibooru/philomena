@@ -283,7 +283,7 @@ CREATE TABLE public.comments (
     destroyed_content boolean DEFAULT false,
     name_at_post_time character varying,
     body character varying NOT NULL,
-    approved_at timestamp(0) without time zone
+    approved boolean DEFAULT false
 );
 
 
@@ -973,7 +973,7 @@ CREATE TABLE public.images (
     image_duration double precision,
     description character varying DEFAULT ''::character varying NOT NULL,
     scratchpad character varying,
-    approved_at timestamp(0) without time zone
+    approved boolean DEFAULT false
 );
 
 
@@ -1261,7 +1261,7 @@ CREATE TABLE public.posts (
     destroyed_content boolean DEFAULT false NOT NULL,
     name_at_post_time character varying,
     body character varying NOT NULL,
-    approved_at timestamp(0) without time zone
+    approved boolean DEFAULT false
 );
 
 
@@ -1681,7 +1681,7 @@ CREATE TABLE public.topics (
     locked_by_id integer,
     last_post_id integer,
     hidden_from_users boolean DEFAULT false NOT NULL,
-    approved_at timestamp(0) without time zone
+    approved boolean DEFAULT false
 );
 
 

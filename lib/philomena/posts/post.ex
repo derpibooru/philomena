@@ -4,6 +4,7 @@ defmodule Philomena.Posts.Post do
 
   alias Philomena.Users.User
   alias Philomena.Topics.Topic
+  alias Philomena.Schema.Approval
 
   schema "posts" do
     belongs_to :user, User
@@ -23,7 +24,7 @@ defmodule Philomena.Posts.Post do
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
     field :name_at_post_time, :string
-    field :approved_at, :utc_datetime
+    field :approved, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
@@ -36,6 +37,7 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
+    |> Approval.maybe_put_approval(post.user)
   end
 
   @doc false
@@ -46,6 +48,8 @@ defmodule Philomena.Posts.Post do
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> put_name_at_post_time(attribution[:user])
+    |> Approval.maybe_put_approval(attribution[:user])
+    |> Approval.maybe_strip_images(attribution[:user])
   end
 
   @doc false
@@ -58,6 +62,8 @@ defmodule Philomena.Posts.Post do
     |> change(attribution)
     |> change(topic_position: 0)
     |> put_name_at_post_time(attribution[:user])
+    |> Approval.maybe_put_approval(attribution[:user])
+    |> Approval.maybe_strip_images(attribution[:user])
   end
 
   def hide_changeset(post, attrs, user) do
@@ -78,6 +84,11 @@ defmodule Philomena.Posts.Post do
     change(post)
     |> put_change(:destroyed_content, true)
     |> put_change(:body, "")
+  end
+
+  def approve_changeset(post) do
+    change(post)
+    |> put_change(:approved, true)
   end
 
   defp put_name_at_post_time(changeset, nil), do: changeset

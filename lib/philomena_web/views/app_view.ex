@@ -162,6 +162,21 @@ defmodule PhilomenaWeb.AppView do
   def communication_body_class(%{destroyed_content: true}), do: "communication--destroyed"
   def communication_body_class(_communication), do: nil
 
+  def can_view_communication?(conn, communication) do
+    user_id =
+      case conn.assigns.current_user do
+        nil -> -1
+        user -> user.id
+      end
+
+    cond do
+      can?(conn, :hide, communication) and not hide_staff_tools?(conn) -> true
+      communication.destroyed_content -> false
+      not communication.approved and communication.user_id != user_id -> false
+      true -> true
+    end
+  end
+
   def hide_staff_tools?(conn),
     do: conn.cookies["hide_staff_tools"] == "true"
 

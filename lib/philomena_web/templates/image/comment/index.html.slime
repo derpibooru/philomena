@@ -14,7 +14,7 @@ elixir:
         i.fa.fa-sync
         span.hide-mobile<> Refresh
 
-= for {comment, body} <- @comments, not comment.destroyed_content or (can?(@conn, :show, comment) and not hide_staff_tools?(@conn)) do
+= for {comment, body} <- @comments, can_view_communication?(@conn, comment) do
   = render PhilomenaWeb.CommentView, "_comment.html", comment: comment, body: body, conn: @conn
 
 .block

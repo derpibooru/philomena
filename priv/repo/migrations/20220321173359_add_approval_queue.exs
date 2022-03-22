@@ -7,19 +7,19 @@ defmodule Philomena.Repo.Migrations.AddApprovalQueue do
     end
 
     alter table("images") do
-      add :approved_at, :utc_datetime
+      add :approved, :boolean, default: false
     end
 
     alter table("comments") do
-      add :approved_at, :utc_datetime
+      add :approved, :boolean, default: false
     end
 
     alter table("posts") do
-      add :approved_at, :utc_datetime
+      add :approved, :boolean, default: false
     end
 
     alter table("topics") do
-      add :approved_at, :utc_datetime
+      add :approved, :boolean, default: false
     end
 
     alter table("users") do

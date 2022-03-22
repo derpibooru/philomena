@@ -60,6 +60,26 @@ defmodule Philomena.Reports do
     |> reindex_after_update()
   end
 
+  def create_system_report(reportable_id, reportable_type, category, reason) do
+    attrs = %{
+      reason: reason,
+      category: category
+    }
+
+    attributes = %{
+      system: true,
+      ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32},
+      fingerprint: "ffff",
+      user_agent:
+        "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0"
+    }
+
+    %Report{reportable_id: reportable_id, reportable_type: reportable_type}
+    |> Report.creation_changeset(attrs, attributes)
+    |> Repo.insert()
+    |> reindex_after_update()
+  end
+
   @doc """
   Updates a report.
 

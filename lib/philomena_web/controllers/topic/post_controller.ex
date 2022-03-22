@@ -36,7 +36,12 @@ defmodule PhilomenaWeb.Topic.PostController do
     case Posts.create_post(topic, attributes, post_params) do
       {:ok, %{post: post}} ->
         Posts.notify_post(post)
-        UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
+
+        if post.approved do
+          UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
+        else
+          Posts.report_non_approved(post)
+        end
 
         if forum.access_level == "normal" do
           PhilomenaWeb.Endpoint.broadcast!(

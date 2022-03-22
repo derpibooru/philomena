@@ -117,6 +117,15 @@ defmodule Philomena.Posts do
     Exq.enqueue(Exq, "notifications", NotificationWorker, ["Posts", post.id])
   end
 
+  def report_non_approved(post) do
+    Reports.create_system_report(
+      post.id,
+      "Post",
+      "Approval",
+      "Post contains externally-embedded images and has been flagged for review."
+    )
+  end
+
   def perform_notify(post_id) do
     post = get_post!(post_id)
 
@@ -235,6 +244,31 @@ defmodule Philomena.Posts do
     |> Post.destroy_changeset()
     |> Repo.update()
     |> reindex_after_update()
+  end
+
+  def approve_post(%Post{} = post, user) do
+    reports =
+      Report
+      |> where(reportable_type: "Post", reportable_id: ^post.id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+
+    post = Post.approve_changeset(post)
+
+    Multi.new()
+    |> Multi.update(:post, post)
+    |> Multi.update_all(:reports, reports, [])
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{post: post, reports: {_count, reports}}} ->
+        Reports.reindex_reports(reports)
+        reindex_post(post)
+
+        {:ok, post}
+
+      error ->
+        error
+    end
   end
 
   @doc """

@@ -197,6 +197,40 @@ defmodule Philomena.Comments do
     |> Repo.update()
   end
 
+  def approve_comment(%Comment{} = comment, user) do
+    reports =
+      Report
+      |> where(reportable_type: "Comment", reportable_id: ^comment.id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+
+    comment = Comment.approve_changeset(comment)
+
+    Multi.new()
+    |> Multi.update(:comment, comment)
+    |> Multi.update_all(:reports, reports, [])
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{comment: comment, reports: {_count, reports}}} ->
+        Reports.reindex_reports(reports)
+        reindex_comment(comment)
+
+        {:ok, comment}
+
+      error ->
+        error
+    end
+  end
+
+  def report_non_approved(comment) do
+    Reports.create_system_report(
+      comment.id,
+      "Comment",
+      "Approval",
+      "Comment contains externally-embedded images and has been flagged for review."
+    )
+  end
+
   def migrate_comments(image, duplicate_of_image) do
     {count, nil} =
       Comment
