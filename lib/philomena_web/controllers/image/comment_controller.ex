@@ -78,11 +78,11 @@ defmodule PhilomenaWeb.Image.CommentController do
           PhilomenaWeb.Api.Json.CommentView.render("show.json", %{comment: comment})
         )
 
-        Comments.notify_comment(comment)
         Comments.reindex_comment(comment)
         Images.reindex_image(conn.assigns.image)
 
         if comment.approved do
+          Comments.notify_comment(comment)
           UserStatistics.inc_stat(conn.assigns.current_user, :comments_posted)
         else
           Comments.report_non_approved(comment)

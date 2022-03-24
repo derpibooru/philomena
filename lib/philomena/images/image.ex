@@ -326,6 +326,12 @@ defmodule Philomena.Images.Image do
     cast(image, attrs, [:anonymous])
   end
 
+  def approve_changeset(image) do
+    change(image)
+    |> put_change(:approved, true)
+    |> put_change(:first_seen_at, DateTime.truncate(DateTime.utc_now(), :second))
+  end
+
   def cache_changeset(image) do
     changeset = change(image)
     image = apply_changes(changeset)

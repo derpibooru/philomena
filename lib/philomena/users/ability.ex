@@ -273,9 +273,6 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Topic{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :approve, %Topic{}),
-    do: true
-
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Post{}),
     do: true
 

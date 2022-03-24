@@ -34,6 +34,7 @@ import { setupSearch }          from './search';
 import { setupToolbar }         from './markdowntoolbar';
 import { hideStaffTools }       from './staffhider';
 import { pollOptionCreator }    from './poll';
+import { warnAboutPMs }         from './pmwarning';
 
 whenReady(() => {
 
@@ -66,5 +67,6 @@ whenReady(() => {
   setupToolbar();
   hideStaffTools();
   pollOptionCreator();
+  warnAboutPMs();
 
 });

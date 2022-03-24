@@ -9,6 +9,7 @@ defmodule Philomena.Comments do
 
   alias Philomena.Elasticsearch
   alias Philomena.Reports.Report
+  alias Philomena.UserStatistics
   alias Philomena.Comments.Comment
   alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
   alias Philomena.IndexWorker
@@ -212,6 +213,8 @@ defmodule Philomena.Comments do
     |> Repo.transaction()
     |> case do
       {:ok, %{comment: comment, reports: {_count, reports}}} ->
+        notify_comment(comment)
+        UserStatistics.inc_stat(comment.user, :comments_posted)
         Reports.reindex_reports(reports)
         reindex_comment(comment)
 
@@ -221,6 +224,8 @@ defmodule Philomena.Comments do
         error
     end
   end
+
+  def report_non_approved(%Comment{approved: true}), do: false
 
   def report_non_approved(comment) do
     Reports.create_system_report(

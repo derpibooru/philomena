@@ -18,8 +18,6 @@ defmodule PhilomenaWeb.Topic.Post.ApproveController do
 
     case Posts.approve_post(post, user) do
       {:ok, post} ->
-        UserStatistics.inc_stat(post.user(:forum_posts))
-
         conn
         |> put_flash(:info, "Post successfully approved.")
         |> moderation_log(details: &log_details/3, data: post)

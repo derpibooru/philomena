@@ -18,12 +18,18 @@ defmodule Philomena.Repo.Migrations.AddApprovalQueue do
       add :approved, :boolean, default: false
     end
 
-    alter table("topics") do
+    alter table("messages") do
       add :approved, :boolean, default: false
     end
 
     alter table("users") do
       add :verified, :boolean, default: false
     end
+
+    create index(:images, [:hidden_from_users, :approved],
+             where: "hidden_from_users = false and approved = false"
+           )
+
+    create index(:reports, [:system], where: "system = true")
   end
 end

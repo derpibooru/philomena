@@ -177,10 +177,15 @@ defmodule PhilomenaWeb.Router do
 
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
       resources "/reports", Conversation.ReportController, only: [:new, :create]
-      resources "/messages", Conversation.MessageController, only: [:create]
+
+      resources "/messages", Conversation.MessageController, only: [:create] do
+        resources "/approve", Conversation.Message.ApproveController,
+          only: [:create],
+          singleton: true
+      end
+
       resources "/read", Conversation.ReadController, only: [:create, :delete], singleton: true
       resources "/hide", Conversation.HideController, only: [:create, :delete], singleton: true
-      resources "/approve", Conversation.ApproveController, only: [:create], singleton: true
     end
 
     resources "/images", ImageController, only: [] do
@@ -240,7 +245,6 @@ defmodule PhilomenaWeb.Router do
         resources "/stick", Topic.StickController, only: [:create, :delete], singleton: true
         resources "/lock", Topic.LockController, only: [:create, :delete], singleton: true
         resources "/hide", Topic.HideController, only: [:create, :delete], singleton: true
-        resources "/approve", Topic.ApproveController, only: [:create], singleton: true
 
         resources "/posts", Topic.PostController, only: [:edit, :update] do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
@@ -339,6 +343,8 @@ defmodule PhilomenaWeb.Router do
         resources "/claim", Report.ClaimController, only: [:create, :delete], singleton: true
         resources "/close", Report.CloseController, only: [:create], singleton: true
       end
+
+      resources "/approvals", ApprovalController, only: [:index]
 
       resources "/artist_links", ArtistLinkController, only: [:index] do
         resources "/verification", ArtistLink.VerificationController,

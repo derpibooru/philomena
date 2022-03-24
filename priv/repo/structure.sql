@@ -1007,7 +1007,8 @@ CREATE TABLE public.messages (
     updated_at timestamp without time zone NOT NULL,
     from_id integer NOT NULL,
     conversation_id integer NOT NULL,
-    body character varying NOT NULL
+    body character varying NOT NULL,
+    approved boolean DEFAULT false
 );
 
 
@@ -1680,8 +1681,7 @@ CREATE TABLE public.topics (
     deleted_by_id integer,
     locked_by_id integer,
     last_post_id integer,
-    hidden_from_users boolean DEFAULT false NOT NULL,
-    approved boolean DEFAULT false
+    hidden_from_users boolean DEFAULT false NOT NULL
 );
 
 
@@ -2904,6 +2904,13 @@ CREATE INDEX image_tag_locks_tag_id_index ON public.image_tag_locks USING btree 
 
 
 --
+-- Name: images_hidden_from_users_approved_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX images_hidden_from_users_approved_index ON public.images USING btree (hidden_from_users, approved) WHERE ((hidden_from_users = false) AND (approved = false));
+
+
+--
 -- Name: index_adverts_on_restrictions; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4098,6 +4105,13 @@ CREATE INDEX moderation_logs_user_id_created_at_index ON public.moderation_logs 
 --
 
 CREATE INDEX moderation_logs_user_id_index ON public.moderation_logs USING btree (user_id);
+
+
+--
+-- Name: reports_system_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_system_index ON public.reports USING btree (system) WHERE (system = true);
 
 
 --

@@ -58,6 +58,9 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       image.hidden_from_users ->
         " (deleted)"
 
+      not image.approved ->
+        " (pending approval)"
+
       true ->
         ""
     end
@@ -75,7 +78,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
         cond do
           img != nil ->
             case group do
-              [_id, "p"] when not img.hidden_from_users ->
+              [_id, "p"] when not img.hidden_from_users and img.approved ->
                 Phoenix.View.render(@image_view, "_image_target.html",
                   image: img,
                   size: :medium,
@@ -83,7 +86,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
                 )
                 |> safe_to_string()
 
-              [_id, "t"] when not img.hidden_from_users ->
+              [_id, "t"] when not img.hidden_from_users and img.approved ->
                 Phoenix.View.render(@image_view, "_image_target.html",
                   image: img,
                   size: :small,
@@ -91,13 +94,16 @@ defmodule PhilomenaWeb.MarkdownRenderer do
                 )
                 |> safe_to_string()
 
-              [_id, "s"] when not img.hidden_from_users ->
+              [_id, "s"] when not img.hidden_from_users and img.approved ->
                 Phoenix.View.render(@image_view, "_image_target.html",
                   image: img,
                   size: :thumb_small,
                   conn: conn
                 )
                 |> safe_to_string()
+
+              [id, suffix] when not img.approved ->
+                ">>#{img.id}#{suffix}#{link_suffix(img)}"
 
               [_id, ""] ->
                 link(">>#{img.id}#{link_suffix(img)}", to: "/images/#{img.id}")

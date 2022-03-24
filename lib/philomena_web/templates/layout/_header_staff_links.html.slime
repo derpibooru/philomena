@@ -46,6 +46,12 @@
             i.fa.fa-fw.fa-list-alt>
             ' Mod Logs
 
+  = if @pending_approval_count do
+    = link to: Routes.admin_approval_path(@conn, :index), class: "header__link", title: "Approval Queue" do
+      ' Q
+      span.header__counter__admin
+        = @pending_approval_count
+
   = if @duplicate_report_count do
     = link to: Routes.duplicate_report_path(@conn, :index), class: "header__link", title: "Duplicates" do
       ' D

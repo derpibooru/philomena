@@ -1,16 +1,16 @@
-defmodule PhilomenaWeb.Conversation.ApproveController do
+defmodule PhilomenaWeb.Conversation.Message.ApproveController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Conversations.Conversation
+  alias Philomena.Conversations.Message
   alias Philomena.Conversations
 
   plug PhilomenaWeb.CanaryMapPlug, create: :approve
 
   plug :load_and_authorize_resource,
-    model: Conversation,
-    id_field: "slug",
-    id_name: "conversation_id",
-    persisted: true
+    model: Message,
+    id_name: "message_id",
+    persisted: true,
+    preload: [:conversation]
 
   def create(conn, _params) do
     message = conn.assigns.message

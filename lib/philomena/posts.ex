@@ -10,6 +10,7 @@ defmodule Philomena.Posts do
   alias Philomena.Elasticsearch
   alias Philomena.Topics.Topic
   alias Philomena.Topics
+  alias Philomena.UserStatistics
   alias Philomena.Posts.Post
   alias Philomena.Posts.ElasticsearchIndex, as: PostIndex
   alias Philomena.IndexWorker
@@ -116,6 +117,8 @@ defmodule Philomena.Posts do
   def notify_post(post) do
     Exq.enqueue(Exq, "notifications", NotificationWorker, ["Posts", post.id])
   end
+
+  def report_non_approved(%Post{approved: true}), do: false
 
   def report_non_approved(post) do
     Reports.create_system_report(
@@ -261,6 +264,8 @@ defmodule Philomena.Posts do
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->
+        notify_post(post)
+        UserStatistics.inc_stat(post.user, :forum_posts)
         Reports.reindex_reports(reports)
         reindex_post(post)
 
