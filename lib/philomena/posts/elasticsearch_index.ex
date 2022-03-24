@@ -65,7 +65,7 @@ defmodule Philomena.Posts.ElasticsearchIndex do
       deleted: post.hidden_from_users,
       access_level: post.topic.forum.access_level,
       destroyed_content: post.destroyed_content,
-      approved: post.topic.approved && post.approved
+      approved: post.approved
     }
   end
 
