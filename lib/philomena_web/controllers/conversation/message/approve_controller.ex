@@ -14,7 +14,6 @@ defmodule PhilomenaWeb.Conversation.Message.ApproveController do
 
   def create(conn, _params) do
     message = conn.assigns.message
-    user = conn.assigns.current_user
 
     {:ok, _message} = Conversations.approve_conversation_message(message)
 
@@ -24,7 +23,7 @@ defmodule PhilomenaWeb.Conversation.Message.ApproveController do
     |> redirect(to: "/")
   end
 
-  defp log_details(conn, _action, message) do
+  defp log_details(_conn, _action, message) do
     %{
       body: "Approved private message in conversation ##{message.conversation_id}",
       subject_path: "/"

@@ -153,9 +153,9 @@ defmodule Philomena.Images do
     end
   end
 
-  defp maybe_approve_image(image, nil), do: false
+  defp maybe_approve_image(_image, nil), do: false
 
-  defp maybe_approve_image(image, %User{verified: false, role: role}) when role == "user",
+  defp maybe_approve_image(_image, %User{verified: false, role: role}) when role == "user",
     do: false
 
   defp maybe_approve_image(image, _user), do: approve_image(image)

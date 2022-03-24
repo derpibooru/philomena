@@ -102,7 +102,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
                 )
                 |> safe_to_string()
 
-              [id, suffix] when not img.approved ->
+              [_id, suffix] when not img.approved ->
                 ">>#{img.id}#{suffix}#{link_suffix(img)}"
 
               [_id, ""] ->
