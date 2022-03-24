@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Conversation.Message.ApproveController do
   def create(conn, _params) do
     message = conn.assigns.message
 
-    {:ok, _message} = Conversations.approve_conversation_message(message)
+    {:ok, _message} = Conversations.approve_conversation_message(message, conn.assigns.current_user)
 
     conn
     |> put_flash(:info, "Conversation message approved.")

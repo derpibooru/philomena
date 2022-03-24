@@ -7,6 +7,7 @@ defmodule Philomena.Conversations do
   alias Ecto.Multi
   alias Philomena.Repo
   alias Philomena.Reports
+  alias Philomena.Reports.Report
   alias Philomena.Conversations.Conversation
 
   @doc """
@@ -207,7 +208,13 @@ defmodule Philomena.Conversations do
     |> Repo.transaction()
   end
 
-  def approve_conversation_message(message) do
+  def approve_conversation_message(message, user) do
+    reports_query =
+      Report
+      |> where(reportable_type: "Conversation", reportable_id: ^message.conversation_id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+
     message_query =
       message
       |> Message.approve_changeset()
@@ -216,12 +223,20 @@ defmodule Philomena.Conversations do
       Conversation
       |> where(id: ^message.conversation_id)
 
-    now = DateTime.utc_now()
-
     Multi.new()
     |> Multi.update(:message, message_query)
     |> Multi.update_all(:conversation, conversation_query, set: [to_read: false])
+    |> Multi.update_all(:reports, reports_query, [])
     |> Repo.transaction()
+    |> case do
+      {:ok, %{reports: {_count, reports}} = result} ->
+        Reports.reindex_reports(reports)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
   end
 
   def report_non_approved(id) do
