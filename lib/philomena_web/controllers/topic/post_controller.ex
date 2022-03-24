@@ -79,7 +79,11 @@ defmodule PhilomenaWeb.Topic.PostController do
     user = conn.assigns.current_user
 
     case Posts.update_post(post, user, post_params) do
-      {:ok, _post} ->
+      {:ok, post} ->
+        if not post.approved do
+          Posts.report_non_approved(post)
+        end
+
         conn
         |> put_flash(:info, "Post successfully edited.")
         |> redirect(

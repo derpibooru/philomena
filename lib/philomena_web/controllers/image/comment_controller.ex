@@ -112,6 +112,10 @@ defmodule PhilomenaWeb.Image.CommentController do
   def update(conn, %{"comment" => comment_params}) do
     case Comments.update_comment(conn.assigns.comment, conn.assigns.current_user, comment_params) do
       {:ok, %{comment: comment}} ->
+        if not comment.approved do
+          Comments.report_non_approved(comment)
+        end
+
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "comment:update",
