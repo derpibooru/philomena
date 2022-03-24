@@ -31,5 +31,11 @@ defmodule Philomena.Repo.Migrations.AddApprovalQueue do
            )
 
     create index(:reports, [:system], where: "system = true")
+
+    execute("update images set approved = true;")
+    execute("update posts set approved = true;")
+    execute("update comments set approved = true;")
+    execute("update messages set approved = true;")
+    execute("update users set verified = true where created_at < '2022-03-01';")
   end
 end
