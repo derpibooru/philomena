@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.ApprovalController do
       Image
       |> where(hidden_from_users: false)
       |> where(approved: false)
-      |> order_by(desc: :id)
+      |> order_by(asc: :id)
       |> preload([:user, tags: [:aliases, :aliased_tag]])
       |> Repo.paginate(conn.assigns.scrivener)
 

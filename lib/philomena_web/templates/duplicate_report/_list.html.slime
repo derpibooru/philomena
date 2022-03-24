@@ -118,10 +118,15 @@
             td.danger Different rating tags
 
         tr
-          = if forward_merge?(report) do
-            td.warning Target newer
-          - else
-            td.success Target older
+          = cond do
+            - not source_approved?(report) ->
+              td.danger Source is not approved
+            - not target_approved?(report) ->
+              td.danger Target is not approved
+            - forward_merge?(report) ->
+              td.warning Target newer
+            - true ->
+              td.success Target older
 
     .flex.flex--column.grid--dupe-report-list__cell.border-vertical id="report_options_#{report.id}"
       .dr__status-options class=background_class
