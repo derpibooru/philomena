@@ -16,10 +16,12 @@ function warnAboutPMs() {
   textarea.addEventListener('input', () => {
     const value = textarea.value;
 
-    if (value.match(imageEmbedRegex))
+    if (value.match(imageEmbedRegex)) {
       warning.classList.remove('hidden');
-    else if (!warning.classList.contains('hidden'))
+    }
+    else if (!warning.classList.contains('hidden')) {
       warning.classList.add('hidden');
+    }
   });
 }
 
