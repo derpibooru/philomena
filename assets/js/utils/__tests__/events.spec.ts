@@ -3,7 +3,7 @@ import { getRandomArrayItem } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
 
 describe('Event utils', () => {
-  const mockEvent = getRandomArrayItem(['click', 'blur', 'mouseleave']);
+  const mockEvent = getRandomArrayItem(['click', 'blur', 'mouseleave'] as (keyof GlobalEventHandlersEventMap)[]);
 
   describe('fire', () => {
     it('should call the native dispatchEvent method on the element', () => {

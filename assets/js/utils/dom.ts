@@ -1,6 +1,4 @@
-/**
- * DOM Utils
- */
+// DOM Utils
 
 /**
  * Get the first matching element
