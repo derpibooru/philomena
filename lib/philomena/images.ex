@@ -115,7 +115,7 @@ defmodule Philomena.Images do
         repair_image(image)
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
-        UserStatistics.inc_stat(attribution[:user], :uploads)
+        maybe_approve_image(image, attribution[:user])
 
         result
 
@@ -133,6 +133,55 @@ defmodule Philomena.Images do
 
   defp maybe_create_subscription_on_upload(multi, _user) do
     multi
+  end
+
+  def approve_image(image) do
+    image
+    |> Repo.preload(:user)
+    |> Image.approve_changeset()
+    |> Repo.update()
+    |> case do
+      {:ok, image} ->
+        reindex_image(image)
+        increment_user_stats(image.user)
+        maybe_suggest_user_verification(image.user)
+
+        {:ok, image}
+
+      error ->
+        error
+    end
+  end
+
+  defp maybe_approve_image(_image, nil), do: false
+
+  defp maybe_approve_image(_image, %User{verified: false, role: role}) when role == "user",
+    do: false
+
+  defp maybe_approve_image(image, _user), do: approve_image(image)
+
+  defp increment_user_stats(nil), do: false
+
+  defp increment_user_stats(%User{} = user) do
+    UserStatistics.inc_stat(user, :uploads)
+  end
+
+  defp maybe_suggest_user_verification(%User{id: id, uploads_count: 5, verified: false}) do
+    Reports.create_system_report(
+      id,
+      "User",
+      "Verification",
+      "User has uploaded enough approved images to be considered for verification."
+    )
+  end
+
+  defp maybe_suggest_user_verification(_user), do: false
+
+  def count_pending_approvals() do
+    Image
+    |> where(hidden_from_users: false)
+    |> where(approved: false)
+    |> Repo.aggregate(:count)
   end
 
   def feature_image(featurer, %Image{} = image) do

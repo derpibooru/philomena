@@ -2,7 +2,7 @@
  * localStorage utils
  */
 
-const lastUpdatedSuffix = '__lastUpdated';
+export const lastUpdatedSuffix = '__lastUpdated';
 
 export default {
 
@@ -38,9 +38,11 @@ export default {
 
   // Watch changes to a specified key - returns value on change
   watch(key, callback) {
-    window.addEventListener('storage', event => {
+    const handler = event => {
       if (event.key === key) callback(this.get(key));
-    });
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
   },
 
   // set() with an additional key containing the current time + expiration time
@@ -56,11 +58,7 @@ export default {
     const lastUpdatedKey = key + lastUpdatedSuffix;
     const lastUpdatedTime = this.get(lastUpdatedKey);
 
-    if (Date.now() > lastUpdatedTime) {
-      return true;
-    }
-
-    return false;
+    return Date.now() > lastUpdatedTime;
   },
 
 };

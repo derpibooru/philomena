@@ -15,6 +15,7 @@ defmodule Philomena.Reports.Report do
     field :reason, :string
     field :state, :string, default: "open"
     field :open, :boolean, default: true
+    field :system, :boolean, default: false
 
     # fixme: rails polymorphic relation
     field :reportable_id, :integer

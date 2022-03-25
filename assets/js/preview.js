@@ -4,7 +4,7 @@
 
 import { fetchJson } from './utils/requests';
 import { filterNode } from './imagesclientside';
-import { hideEl, showEl } from './utils/dom.js';
+import { hideEl, showEl } from './utils/dom';
 
 function handleError(response) {
   const errorMessage = '<div>Preview failed to load!</div>';

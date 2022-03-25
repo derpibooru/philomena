@@ -145,5 +145,7 @@
       br
       .flex.flex--spaced-out
         = link "Lock specific tags", to: Routes.image_tag_lock_path(@conn, :show, @image), class: "button"
+        = if not @image.approved and can?(@conn, :approve, @image) do
+          = button_to "Approve image", Routes.image_approve_path(@conn, :create, @image), method: "post", class: "button button--state-success", data: [confirm: "Are you sure?"]
         = if @image.hidden_from_users and can?(@conn, :destroy, @image) do
-            = button_to "Destroy image", Routes.image_destroy_path(@conn, :create, @image), method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]
+          = button_to "Destroy image", Routes.image_destroy_path(@conn, :create, @image), method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]

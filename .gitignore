@@ -57,3 +57,6 @@ npm-debug.log
 # Rust binaries
 /native/**/target
 /.cargo
+
+# Jest coverage
+/assets/coverage

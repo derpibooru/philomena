@@ -6,7 +6,8 @@ defmodule Philomena.Conversations do
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias Philomena.Repo
-
+  alias Philomena.Reports
+  alias Philomena.Reports.Report
   alias Philomena.Conversations.Conversation
 
   @doc """
@@ -187,6 +188,12 @@ defmodule Philomena.Conversations do
       Ecto.build_assoc(conversation, :messages)
       |> Message.creation_changeset(attrs, user)
 
+    show_as_read =
+      case message do
+        %{changes: %{approved: true}} -> false
+        _ -> true
+      end
+
     conversation_query =
       Conversation
       |> where(id: ^conversation.id)
@@ -196,9 +203,55 @@ defmodule Philomena.Conversations do
     Multi.new()
     |> Multi.insert(:message, message)
     |> Multi.update_all(:conversation, conversation_query,
-      set: [from_read: false, to_read: false, last_message_at: now]
+      set: [from_read: show_as_read, to_read: show_as_read, last_message_at: now]
     )
     |> Repo.transaction()
+  end
+
+  def approve_conversation_message(message, user) do
+    reports_query =
+      Report
+      |> where(reportable_type: "Conversation", reportable_id: ^message.conversation_id)
+      |> select([r], r.id)
+      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+
+    message_query =
+      message
+      |> Message.approve_changeset()
+
+    conversation_query =
+      Conversation
+      |> where(id: ^message.conversation_id)
+
+    Multi.new()
+    |> Multi.update(:message, message_query)
+    |> Multi.update_all(:conversation, conversation_query, set: [to_read: false])
+    |> Multi.update_all(:reports, reports_query, [])
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{reports: {_count, reports}} = result} ->
+        Reports.reindex_reports(reports)
+
+        {:ok, result}
+
+      error ->
+        error
+    end
+  end
+
+  def report_non_approved(id) do
+    Reports.create_system_report(
+      id,
+      "Conversation",
+      "Approval",
+      "PM contains externally-embedded images and has been flagged for review."
+    )
+  end
+
+  def set_as_read(conversation) do
+    conversation
+    |> Conversation.to_read_changeset()
+    |> Repo.update()
   end
 
   @doc """

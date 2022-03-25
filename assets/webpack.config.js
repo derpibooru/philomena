@@ -1,18 +1,25 @@
-const fs = require('fs');
-const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
-const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const IgnoreEmitPlugin = require('ignore-emit-webpack-plugin');
-const ESLintPlugin = require('eslint-webpack-plugin');
+import fs from 'fs';
+import path from 'path';
+import url from 'url';
+import TerserPlugin from 'terser-webpack-plugin';
+import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import CopyPlugin from 'copy-webpack-plugin';
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import IgnoreEmitPlugin from 'ignore-emit-webpack-plugin';
+import ESLintPlugin from 'eslint-webpack-plugin';
+import autoprefixer from 'autoprefixer';
+import rollupPluginIncludepaths from 'rollup-plugin-includepaths';
+import rollupPluginMultiEntry from 'rollup-plugin-multi-entry';
+import rollupPluginBuble from 'rollup-plugin-buble';
+import rollupPluginTypescript from '@rollup/plugin-typescript';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const includePaths = require('rollup-plugin-includepaths')();
-const multiEntry = require('rollup-plugin-multi-entry')();
-const buble = require('rollup-plugin-buble')({ transforms: { dangerousForOf: true } });
-const typescript = require('@rollup/plugin-typescript')();
+const includePaths = rollupPluginIncludepaths();
+const multiEntry = rollupPluginMultiEntry();
+const buble = rollupPluginBuble({ transforms: { dangerousForOf: true } });
+const typescript = rollupPluginTypescript();
 
 let plugins = [
   new IgnoreEmitPlugin(/css\/.*(?<!css)$/),
@@ -56,7 +63,7 @@ for (const name of themeNames) {
   themes[`css/${name}`] = `./css/themes/${name}.scss`;
 }
 
-module.exports = {
+export default {
   mode: isDevelopment ? 'development' : 'production',
   entry: {
     'js/app.js': './js/app.js',
@@ -126,7 +133,7 @@ module.exports = {
                 ident: 'postcss',
                 syntax: 'postcss-scss',
                 plugins: [
-                  require('autoprefixer')(),
+                  autoprefixer(),
                 ],
               },
             },

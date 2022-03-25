@@ -42,7 +42,10 @@ defmodule PhilomenaWeb.Admin.ReportController do
           %{
             bool: %{
               must: %{term: %{open: true}},
-              must_not: %{term: %{admin_id: user.id}}
+              must_not: [
+                %{term: %{admin_id: user.id}},
+                %{term: %{system: true}}
+              ]
             }
           }
         ]
@@ -59,11 +62,20 @@ defmodule PhilomenaWeb.Admin.ReportController do
       |> Repo.all()
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
 
+    system_reports =
+      Report
+      |> where(open: true, system: true)
+      |> preload([:admin, user: :linked_tags])
+      |> order_by(desc: :created_at)
+      |> Repo.all()
+      |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
+
     render(conn, "index.html",
       title: "Admin - Reports",
       layout_class: "layout--wide",
       reports: reports,
-      my_reports: my_reports
+      my_reports: my_reports,
+      system_reports: system_reports
     )
   end
 

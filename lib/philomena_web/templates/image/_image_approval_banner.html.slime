@@ -1,0 +1,12 @@
+= if not @image.approved and not @image.hidden_from_users do
+  .block.block--fixed.block--warning
+    h2 Hold up!
+    p This image is pending approval from a staff member. It will appear on the site once it's reviewed and approved.
+    p 
+      ' Don't worry,
+      strong
+        ' the image will not lose any viewership,
+      ' it will appear on the homepage and in search results as normal (as if it was uploaded at the time of approval).
+    p
+      a href="/pages/approval"
+        strong Click here to learn more about image approval and verification.

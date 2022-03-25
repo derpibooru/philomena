@@ -63,6 +63,7 @@ defmodule PhilomenaWeb.ImageLoader do
     ]
     |> maybe_show_deleted(show_hidden?, del)
     |> maybe_custom_hide(user, hidden)
+    |> hide_non_approved()
   end
 
   # Allow moderators to index hidden images
@@ -93,6 +94,10 @@ defmodule PhilomenaWeb.ImageLoader do
 
   defp maybe_custom_hide(filters, _user, _param),
     do: filters
+
+  # Hide all images that aren't approved from all search queries.
+  defp hide_non_approved(filters),
+    do: [%{term: %{approved: false}} | filters]
 
   # TODO: the search parser should try to optimize queries
   defp search_tag_name(%{term: %{"namespaced_tags.name" => tag_name}}), do: [tag_name]

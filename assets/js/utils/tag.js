@@ -19,13 +19,13 @@ function sortTags(hidden, a, b) {
   return a.spoiler_image_uri ? -1 : 1;
 }
 
-function getHiddenTags() {
+export function getHiddenTags() {
   return unique(window.booru.hiddenTagList)
     .map(tagId => getTag(tagId))
     .sort(sortTags.bind(null, true));
 }
 
-function getSpoileredTags() {
+export function getSpoileredTags() {
   if (window.booru.spoilerType === 'off') return [];
 
   return unique(window.booru.spoileredTagList)
@@ -34,16 +34,16 @@ function getSpoileredTags() {
     .sort(sortTags.bind(null, false));
 }
 
-function imageHitsTags(img, matchTags) {
+export function imageHitsTags(img, matchTags) {
   const imageTags = JSON.parse(img.dataset.imageTags);
   return matchTags.filter(t => imageTags.indexOf(t.id) !== -1);
 }
 
-function imageHitsComplex(img, matchComplex) {
+export function imageHitsComplex(img, matchComplex) {
   return matchComplex.hitsImage(img);
 }
 
-function displayTags(tags) {
+export function displayTags(tags) {
   const mainTag = tags[0], otherTags = tags.slice(1);
   let list = escapeHtml(mainTag.name), extras;
 
@@ -54,5 +54,3 @@ function displayTags(tags) {
 
   return list;
 }
-
-export { getHiddenTags, getSpoileredTags, imageHitsTags, imageHitsComplex, displayTags };

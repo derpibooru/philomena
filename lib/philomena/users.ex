@@ -671,6 +671,18 @@ defmodule Philomena.Users do
     |> setup_roles()
   end
 
+  def verify_user(%User{} = user) do
+    user
+    |> User.verify_changeset()
+    |> Repo.update()
+  end
+
+  def unverify_user(%User{} = user) do
+    user
+    |> User.unverify_changeset()
+    |> Repo.update()
+  end
+
   defp setup_roles(nil), do: nil
 
   defp setup_roles(user) do

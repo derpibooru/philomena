@@ -86,7 +86,8 @@ defmodule Philomena.Images.ElasticsearchIndex do
               name_in_namespace: %{type: "keyword"},
               namespace: %{type: "keyword"}
             }
-          }
+          },
+          approved: %{type: "boolean"}
         }
       }
     }
@@ -149,7 +150,8 @@ defmodule Philomena.Images.ElasticsearchIndex do
       hidden_by_users: image.hiders |> Enum.map(&String.downcase(&1.name)),
       upvoters: image.upvoters |> Enum.map(&String.downcase(&1.name)),
       downvoters: image.downvoters |> Enum.map(&String.downcase(&1.name)),
-      deleted_by_user: if(!!image.deleter, do: image.deleter.name)
+      deleted_by_user: if(!!image.deleter, do: image.deleter.name),
+      approved: image.approved
     }
   end
 

@@ -75,7 +75,7 @@ defmodule PhilomenaWeb.ImageSorter do
   end
 
   defp parse_sf(_params, sd, query) do
-    %{query: query, sorts: [%{"id" => sd}]}
+    %{query: query, sorts: [%{"first_seen_at" => sd}]}
   end
 
   defp random_query(seed, sd, query) do

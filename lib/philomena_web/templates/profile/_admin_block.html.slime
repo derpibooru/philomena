@@ -153,8 +153,19 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
           i.fa.fa-fw.fa-ban
           span.admin__button Ban this sucker
 
+  ul.profile-admin__options__column
     = if can?(@conn, :index, Philomena.Users.User) do
       li
         = link to: Routes.admin_user_api_key_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fas.fa-fw.fa-key
           span.admin__button Reset API key
+
+      li
+        = if @user.verified do
+          = link to: Routes.admin_user_verification_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+            i.fas.fa-fw.fa-user-times
+            span.admin__button Revoke Verification
+        - else
+          = link to: Routes.admin_user_verification_path(@conn, :create, @user), data: [confirm: "Are you really, really sure?", method: "create"] do
+            i.fas.fa-fw.fa-user-check
+            span.admin__button Grant Verification

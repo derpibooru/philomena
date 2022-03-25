@@ -31,7 +31,8 @@ defmodule Philomena.Reports.ElasticsearchIndex do
           reportable_type: %{type: "keyword"},
           reportable_id: %{type: "keyword"},
           open: %{type: "boolean"},
-          reason: %{type: "text", analyzer: "snowball"}
+          reason: %{type: "text", analyzer: "snowball"},
+          system: %{type: "boolean"}
         }
       }
     }
@@ -53,7 +54,8 @@ defmodule Philomena.Reports.ElasticsearchIndex do
       reportable_id: report.reportable_id,
       fingerprint: report.fingerprint,
       open: report.open,
-      reason: report.reason
+      reason: report.reason,
+      system: report.system
     }
   end
 

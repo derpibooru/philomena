@@ -177,7 +177,13 @@ defmodule PhilomenaWeb.Router do
 
     resources "/conversations", ConversationController, only: [:index, :show, :new, :create] do
       resources "/reports", Conversation.ReportController, only: [:new, :create]
-      resources "/messages", Conversation.MessageController, only: [:create]
+
+      resources "/messages", Conversation.MessageController, only: [:create] do
+        resources "/approve", Conversation.Message.ApproveController,
+          only: [:create],
+          singleton: true
+      end
+
       resources "/read", Conversation.ReadController, only: [:create, :delete], singleton: true
       resources "/hide", Conversation.HideController, only: [:create, :delete], singleton: true
     end
@@ -186,6 +192,7 @@ defmodule PhilomenaWeb.Router do
       resources "/vote", Image.VoteController, only: [:create, :delete], singleton: true
       resources "/fave", Image.FaveController, only: [:create, :delete], singleton: true
       resources "/hide", Image.HideController, only: [:create, :delete], singleton: true
+      resources "/approve", Image.ApproveController, only: [:create], singleton: true
 
       resources "/subscription", Image.SubscriptionController,
         only: [:create, :delete],
@@ -196,6 +203,7 @@ defmodule PhilomenaWeb.Router do
       resources "/comments", Image.CommentController, only: [:edit, :update] do
         resources "/hide", Image.Comment.HideController, only: [:create, :delete], singleton: true
         resources "/delete", Image.Comment.DeleteController, only: [:create], singleton: true
+        resources "/approve", Image.Comment.ApproveController, only: [:create], singleton: true
       end
 
       resources "/delete", Image.DeleteController,
@@ -241,6 +249,7 @@ defmodule PhilomenaWeb.Router do
         resources "/posts", Topic.PostController, only: [:edit, :update] do
           resources "/hide", Topic.Post.HideController, only: [:create, :delete], singleton: true
           resources "/delete", Topic.Post.DeleteController, only: [:create], singleton: true
+          resources "/approve", Topic.Post.ApproveController, only: [:create], singleton: true
         end
 
         resources "/poll", Topic.PollController, only: [:edit, :update], singleton: true do
@@ -335,6 +344,8 @@ defmodule PhilomenaWeb.Router do
         resources "/close", Report.CloseController, only: [:create], singleton: true
       end
 
+      resources "/approvals", ApprovalController, only: [:index]
+
       resources "/artist_links", ArtistLinkController, only: [:index] do
         resources "/verification", ArtistLink.VerificationController,
           only: [:create],
@@ -376,6 +387,10 @@ defmodule PhilomenaWeb.Router do
         resources "/avatar", User.AvatarController, only: [:delete], singleton: true
 
         resources "/activation", User.ActivationController,
+          only: [:create, :delete],
+          singleton: true
+
+        resources "/verification", User.VerificationController,
           only: [:create, :delete],
           singleton: true
 

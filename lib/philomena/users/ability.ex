@@ -45,8 +45,14 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # View filters
   def can?(%User{role: "moderator"}, :show, %Filter{}), do: true
 
-  # Manage images
+  # Privileged mods can hard-delete images
+  def can?(%User{role: "moderator", role_map: %{"Image" => "admin"}}, :destroy, %Image{}),
+    do: true
+
+  # ...but normal ones cannot
   def can?(%User{role: "moderator"}, :destroy, %Image{}), do: false
+
+  # Manage images
   def can?(%User{role: "moderator"}, _action, Image), do: true
   def can?(%User{role: "moderator"}, _action, %Image{}), do: true
 
@@ -62,8 +68,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   def can?(%User{role: "moderator"}, :show, %Topic{hidden_from_users: true}), do: true
 
-  # View conversations
+  # View and approve conversations
   def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
+  def can?(%User{role: "moderator"}, :approve, %Conversation{}), do: true
 
   # View IP addresses and fingerprints
   def can?(%User{role: "moderator"}, :show, :ip_address), do: true
@@ -90,9 +97,11 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :edit, %Post{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Post{}), do: true
   def can?(%User{role: "moderator"}, :delete, %Post{}), do: true
+  def can?(%User{role: "moderator"}, :approve, %Post{}), do: true
   def can?(%User{role: "moderator"}, :edit, %Comment{}), do: true
   def can?(%User{role: "moderator"}, :hide, %Comment{}), do: true
   def can?(%User{role: "moderator"}, :delete, %Comment{}), do: true
+  def can?(%User{role: "moderator"}, :approve, %Comment{}), do: true
 
   # Show the DNP list
   def can?(%User{role: "moderator"}, _action, DnpEntry), do: true
@@ -198,6 +207,13 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
       ),
       do: true
 
+  def can?(
+        %User{role: "assistant", role_map: %{"Image" => "moderator"}},
+        :approve,
+        %Image{}
+      ),
+      do: true
+
   # Dupe assistant actions
   def can?(
         %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
@@ -244,6 +260,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :hide, %Comment{}),
     do: true
 
+  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :approve, %Comment{}),
+    do: true
+
   # Topic assistant actions
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Topic{}),
     do: true
@@ -261,6 +280,9 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
     do: true
 
   def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Post{}),
+    do: true
+
+  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :approve, %Post{}),
     do: true
 
   # Tag assistant actions

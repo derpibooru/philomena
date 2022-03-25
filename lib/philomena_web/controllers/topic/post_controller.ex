@@ -35,8 +35,12 @@ defmodule PhilomenaWeb.Topic.PostController do
 
     case Posts.create_post(topic, attributes, post_params) do
       {:ok, %{post: post}} ->
-        Posts.notify_post(post)
-        UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
+        if post.approved do
+          Posts.notify_post(post)
+          UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
+        else
+          Posts.report_non_approved(post)
+        end
 
         if forum.access_level == "normal" do
           PhilomenaWeb.Endpoint.broadcast!(
@@ -75,7 +79,11 @@ defmodule PhilomenaWeb.Topic.PostController do
     user = conn.assigns.current_user
 
     case Posts.update_post(post, user, post_params) do
-      {:ok, _post} ->
+      {:ok, post} ->
+        if not post.approved do
+          Posts.report_non_approved(post)
+        end
+
         conn
         |> put_flash(:info, "Post successfully edited.")
         |> redirect(

@@ -75,6 +75,7 @@ defmodule Philomena.Topics do
     |> case do
       {:ok, %{topic: topic}} = result ->
         Posts.reindex_post(hd(topic.posts))
+        Posts.report_non_approved(hd(topic.posts))
 
         result
 
