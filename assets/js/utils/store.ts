@@ -59,7 +59,7 @@ export default {
     const lastUpdatedKey = key + lastUpdatedSuffix;
     const lastUpdatedTime = this.get<number>(lastUpdatedKey);
 
-    return lastUpdatedTime !== null && Date.now() > lastUpdatedTime;
+    return lastUpdatedTime === null || Date.now() > lastUpdatedTime;
   },
 
 };
