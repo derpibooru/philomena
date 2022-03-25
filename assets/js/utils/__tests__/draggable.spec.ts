@@ -269,7 +269,7 @@ describe('Draggable Utilities', () => {
         initDraggables();
 
         const mockEvent = createDragEvent('dragstart');
-        const documentClosestSpy = jest.spyOn(mockDraggable, 'closest').mockReturnValue(null);
+        const draggableClosestSpy = jest.spyOn(mockDraggable, 'closest').mockReturnValue(null);
 
         try {
           fireEvent(mockDraggable, mockEvent);
@@ -277,7 +277,7 @@ describe('Draggable Utilities', () => {
           expect(mockEvent.dataTransfer?.effectAllowed).toBeFalsy();
         }
         finally {
-          documentClosestSpy.mockRestore();
+          draggableClosestSpy.mockRestore();
         }
       });
     });
