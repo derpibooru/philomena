@@ -44,6 +44,7 @@ describe('Array Utilities', () => {
         moveElement(input, 2, 1);
         expect(input).toEqual(['a', 'c', 'b', 'd']);
       });
+
       it('should work with ascending index parameters', () => {
         const input = ['a', 'b', 'c', 'd'];
         moveElement(input, 1, 2);
@@ -88,50 +89,48 @@ describe('Array Utilities', () => {
           ['', null, false, uniqueValue, mockObject, Infinity, undefined]
         )).toBe(true);
       });
+    });
 
-      it('should return true for matching up to the first array\'s length', () => {
+    describe('negative cases', () => {
+      it('should NOT return true for matching only up to the first array\'s length', () => {
         // Numbers
-        expect(arraysEqual([0], [0, 1])).toBe(true);
-        expect(arraysEqual([0, 1], [0, 1, 2])).toBe(true);
+        expect(arraysEqual([0], [0, 1])).toBe(false);
+        expect(arraysEqual([0, 1], [0, 1, 2])).toBe(false);
 
         // Strings
-        expect(arraysEqual(['a'], ['a', 'b'])).toBe(true);
-        expect(arraysEqual(['a', 'b'], ['a', 'b', 'c'])).toBe(true);
+        expect(arraysEqual(['a'], ['a', 'b'])).toBe(false);
+        expect(arraysEqual(['a', 'b'], ['a', 'b', 'c'])).toBe(false);
 
         // Object by reference
         const uniqueValue1 = Symbol('item1');
         const uniqueValue2 = Symbol('item2');
-        expect(arraysEqual([uniqueValue1], [uniqueValue1, uniqueValue2])).toBe(true);
+        expect(arraysEqual([uniqueValue1], [uniqueValue1, uniqueValue2])).toBe(false);
 
         // Mixed parameters
         const mockObject = { value: Math.random() };
         expect(arraysEqual(
           [''],
           ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(true);
+        )).toBe(false);
         expect(arraysEqual(
           ['', null],
           ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(true);
+        )).toBe(false);
         expect(arraysEqual(
           ['', null, false],
           ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(true);
+        )).toBe(false);
         expect(arraysEqual(
           ['', null, false, mockObject],
           ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(true);
+        )).toBe(false);
         expect(arraysEqual(
           ['', null, false, mockObject, Infinity],
           ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(true);
+        )).toBe(false);
       });
-    });
 
-    describe('negative cases', () => {
-      // FIXME This case should be handled
-      // eslint-disable-next-line jest/no-disabled-tests
-      it.skip('should return false for arrays of different length', () => {
+      it('should return false for arrays of different length', () => {
         // Numbers
         expect(arraysEqual([], [0])).toBe(false);
         expect(arraysEqual([0], [])).toBe(false);

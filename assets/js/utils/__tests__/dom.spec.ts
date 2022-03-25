@@ -245,11 +245,6 @@ describe('DOM Utilities', () => {
       jest.restoreAllMocks();
     });
 
-    it('should throw error if element has no parent', () => {
-      const detachedElement = document.createElement('div');
-      expect(() => removeEl(detachedElement)).toThrow(/propert(y|ies).*null/);
-    });
-
     it('should call the native removeElement method on parent', () => {
       const parentNode = document.createElement('div');
       const childNode = document.createElement('p');
@@ -310,6 +305,7 @@ describe('DOM Utilities', () => {
       expect(mockParent.children[0].tagName).toBe('STRONG');
       expect(mockParent.children[1].tagName).toBe('SPAN');
     });
+
     it('should insert between two elements', () => {
       const mockParent = document.createElement('p');
       const mockFirstExisingElement = document.createElement('span');
@@ -324,15 +320,6 @@ describe('DOM Utilities', () => {
       expect(mockParent.children[0].tagName).toBe('SPAN');
       expect(mockParent.children[1].tagName).toBe('STRONG');
       expect(mockParent.children[2].tagName).toBe('EM');
-    });
-
-    it('should fail if there is no parent', () => {
-      const mockParent = document.createElement('p');
-      const mockNewElement = document.createElement('em');
-
-      expect(() => {
-        insertBefore(mockParent, mockNewElement);
-      }).toThrow(/propert(y|ies).*null/);
     });
   });
 

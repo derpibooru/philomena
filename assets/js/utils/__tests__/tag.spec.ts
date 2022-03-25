@@ -1,48 +1,45 @@
-import { displayTags, getHiddenTags, getSpoileredTags, imageHitsComplex, imageHitsTags } from '../tag';
+import { displayTags, getHiddenTags, getSpoileredTags, imageHitsComplex, imageHitsTags, TagData } from '../tag';
 import { mockStorage } from '../../../test/mock-storage';
 import { getRandomArrayItem } from '../../../test/randomness';
 import parseSearch from '../../match_query';
 
-// TODO Move to source file when rewriting in TypeScript
-interface StorageTagInfo {
-  id: number;
-  name: string;
-  images: number;
-  spoiler_image_uri: string | null;
-}
-
 describe('Tag utilities', () => {
   const tagStorageKeyPrefix = 'bor_tags_';
-  const mockTagInfo: Record<string, StorageTagInfo> = {
+  const mockTagInfo: Record<string, TagData> = {
     1: {
       id: 1,
       name: 'safe',
       images: 69,
       spoiler_image_uri: null,
+      fetchedAt: null,
     },
     2: {
       id: 2,
       name: 'fox',
       images: 1,
       spoiler_image_uri: '/mock-fox-spoiler-image.svg',
+      fetchedAt: null,
     },
     3: {
       id: 3,
       name: 'paw pads',
       images: 42,
       spoiler_image_uri: '/mock-paw-pads-spoiler-image.svg',
+      fetchedAt: null,
     },
     4: {
       id: 4,
       name: 'whiskers',
       images: 42,
       spoiler_image_uri: null,
+      fetchedAt: null,
     },
     5: {
       id: 5,
       name: 'lilo & stitch',
       images: 6,
       spoiler_image_uri: null,
+      fetchedAt: null,
     },
   };
   const getEnabledSpoilerType = () => getRandomArrayItem<SpoilerType>(['click', 'hover', 'static']);
