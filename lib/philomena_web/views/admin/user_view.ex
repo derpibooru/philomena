@@ -56,6 +56,7 @@ defmodule PhilomenaWeb.Admin.UserView do
   def description("admin", "Badge"), do: "Manage badges"
   def description("admin", "Advert"), do: "Manage ads"
   def description("admin", "StaticPage"), do: "Manage static pages"
+  def description("admin", "Image"), do: "Hard-delete images"
 
   def description(_name, _resource_type), do: "(unknown permission)"
 
@@ -90,7 +91,8 @@ defmodule PhilomenaWeb.Admin.UserView do
       ["admin", "SiteNotice"],
       ["admin", "Badge"],
       ["admin", "Advert"],
-      ["admin", "StaticPage"]
+      ["admin", "StaticPage"],
+      ["admin", "Image"]
     ]
   end
 end

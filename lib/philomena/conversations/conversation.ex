@@ -37,6 +37,11 @@ defmodule Philomena.Conversations.Conversation do
     |> cast(attrs, [:from_read, :to_read])
   end
 
+  def to_read_changeset(conversation) do
+    change(conversation)
+    |> put_change(:to_read, true)
+  end
+
   def hidden_changeset(conversation, attrs) do
     conversation
     |> cast(attrs, [:from_hidden, :to_hidden])

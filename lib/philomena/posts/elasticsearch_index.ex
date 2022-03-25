@@ -36,7 +36,8 @@ defmodule Philomena.Posts.ElasticsearchIndex do
           created_at: %{type: "date"},
           deleted: %{type: "boolean"},
           access_level: %{type: "keyword"},
-          destroyed_content: %{type: "boolean"}
+          destroyed_content: %{type: "boolean"},
+          approved: %{type: "boolean"}
         }
       }
     }
@@ -63,7 +64,8 @@ defmodule Philomena.Posts.ElasticsearchIndex do
       updated_at: post.updated_at,
       deleted: post.hidden_from_users,
       access_level: post.topic.forum.access_level,
-      destroyed_content: post.destroyed_content
+      destroyed_content: post.destroyed_content,
+      approved: post.approved
     }
   end
 

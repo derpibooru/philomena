@@ -1,0 +1,32 @@
+.block
+  .block__header
+    .block__header__title.approval-grid
+      .approval-items--main
+        span ID
+        span Image
+        span Uploader
+        span Time
+      .approval-items--footer.hide-mobile
+        span.hide-mobile Actions
+  = for image <- @images do
+    .block__content.alternating-color
+      .approval-grid
+        .approval-items--main
+          span = link ">>#{image.id}", to: Routes.image_path(@conn, :show, image)
+          span = image_thumb(@conn, image)
+          span
+            = if image.user do
+              = link image.user.name, to: Routes.profile_path(@conn, :show, image.user)
+            - else
+              em>
+                = truncated_ip_link(@conn, image.ip)
+              = link_to_fingerprint(@conn, image.fingerprint)
+          span = pretty_time(image.created_at)
+        .approval-items--footer
+          = if can?(@conn, :approve, image) do
+            = button_to "Approve", Routes.image_approve_path(@conn, :create, image), method: "post", class: "button button--state-success"
+          = if can?(@conn, :hide, image) do
+            = form_for :image, Routes.image_delete_path(@conn, :create, image), [method: "post"], fn f ->
+              .field.field--inline
+                = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
+                = submit "Delete", class: "button button--state-danger button--separate-left"

@@ -70,6 +70,7 @@ for image_def <- resources["remote_images"] do
   )
   |> case do
     {:ok, %{image: image}} ->
+      Images.approve_image(image)
       Images.reindex_image(image)
       Tags.reindex_tags(image.added_tags)
 
@@ -91,6 +92,7 @@ for comment_body <- resources["comments"] do
   )
   |> case do
     {:ok, %{comment: comment}} ->
+      Comments.approve_comment(comment, pleb)
       Comments.reindex_comment(comment)
       Images.reindex_image(image)
 
@@ -126,6 +128,7 @@ for %{"forum" => forum_name, "topics" => topics} <- resources["forum_posts"] do
           )
           |> case do
             {:ok, %{post: post}} ->
+              Posts.approve_post(post, pleb)
               Posts.reindex_post(post)
 
             {:error, :post, changeset, _so_far} ->

@@ -30,7 +30,8 @@ defmodule Philomena.Comments.ElasticsearchIndex do
           anonymous: %{type: "keyword"},
           # boolean
           hidden_from_users: %{type: "keyword"},
-          body: %{type: "text", analyzer: "snowball"}
+          body: %{type: "text", analyzer: "snowball"},
+          approved: %{type: "boolean"}
         }
       }
     }
@@ -49,7 +50,8 @@ defmodule Philomena.Comments.ElasticsearchIndex do
       image_tag_ids: comment.image.tags |> Enum.map(& &1.id),
       anonymous: comment.anonymous,
       hidden_from_users: comment.image.hidden_from_users || comment.hidden_from_users,
-      body: comment.body
+      body: comment.body,
+      approved: comment.image.approved && comment.approved
     }
   end
 

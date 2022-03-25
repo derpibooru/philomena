@@ -1,0 +1,16 @@
+- route = fn p -> Routes.admin_approval_path(@conn, :index, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route
+
+h1 Approval Queue
+
+.block
+  .block__header
+    = pagination
+
+  = if Enum.any?(@images) do
+    = render PhilomenaWeb.Admin.ApprovalView, "_approvals.html", images: @images, conn: @conn
+  - else
+    ' No images are pending approval. Good job!
+
+  .block__header.block__header--light
+    = pagination

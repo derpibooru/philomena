@@ -59,7 +59,7 @@ h1 = @topic.title
   / The actual posts
   .posts-area
     .post-list
-      = for {post, body} <- @posts, (!post.destroyed_content or can?(@conn, :hide, post)) do
+      = for {post, body} <- @posts, can_view_communication?(@conn, post) do
         = render PhilomenaWeb.PostView, "_post.html", conn: @conn, post: post, body: body
 
       = if @conn.assigns.advert do

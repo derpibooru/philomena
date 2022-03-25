@@ -1,3 +1,4 @@
+= render PhilomenaWeb.ImageView, "_image_approval_banner.html", image: @image, conn: @conn
 = render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, watching: @watching, user_galleries: @user_galleries, changeset: @image_changeset, conn: @conn
 = render PhilomenaWeb.ImageView, "_image_page.html", image: @image, conn: @conn
 

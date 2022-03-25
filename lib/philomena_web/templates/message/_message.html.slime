@@ -1,4 +1,18 @@
 article.block.communication
+  = if not @message.approved and (can?(@conn, :approve, @message) or @message.from_id == @conn.assigns.current_user.id) do
+    .block__content
+      .block.block--fixed.block--danger
+        p
+          i.fas.fa-exclamation-triangle>
+          ' This private message is pending approval from a staff member.
+        = if can?(@conn, :approve, @message) do
+          p
+            ul.horizontal-list
+              li
+                = link(to: Routes.conversation_message_approve_path(@conn, :create, @message.conversation_id, @message), data: [confirm: "Are you sure?"], method: "post", class: "button") do
+                  i.fas.fa-check>
+                  ' Approve
+
   .block__content.flex.flex--no-wrap
     .flex__fixed.spacing-right
       = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
