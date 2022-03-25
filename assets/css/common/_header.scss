@@ -106,6 +106,14 @@ select.header__input, select.header__input:focus {
   &::-ms-expand {
     display: none;
   }
+
+  & option, & optgroup {
+    background-color: $header_field_color;
+  }
+
+  &:hover option, &:hover optgroup {
+    background-color: $header_field_hover_color;
+  }
 }
 
 .header__input--search {
