@@ -9,6 +9,8 @@ defmodule PhilomenaWeb.ImageNavigator do
   }
 
   def find_consecutive(conn, image, compiled_query, compiled_filter) do
+    conn = update_in(conn.params, &Map.put_new(&1, "sf", "id"))
+
     %{query: compiled_query, sorts: sorts} = ImageSorter.parse_sort(conn.params, compiled_query)
 
     sorts =

@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.ImageSorter do
   @allowed_fields ~W(
+    id
     updated_at
     first_seen_at
     aspect_ratio
@@ -25,6 +26,10 @@ defmodule PhilomenaWeb.ImageSorter do
 
   defp parse_sd(%{"sd" => sd}) when sd in ~W(asc desc), do: sd
   defp parse_sd(_params), do: "desc"
+
+  defp parse_sf(%{"sf" => sf}, sd, query) when sf == "id" do
+    %{query: query, sorts: [%{"id" => sd}]}
+  end
 
   defp parse_sf(%{"sf" => sf}, sd, query) when sf in @allowed_fields do
     %{query: query, sorts: [%{sf => sd}, %{"id" => sd}]}
