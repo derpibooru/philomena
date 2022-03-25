@@ -6,7 +6,7 @@ export const lastUpdatedSuffix = '__lastUpdated';
 
 export default {
 
-  set(key, value) {
+  set(key: string, value: unknown) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
@@ -16,17 +16,18 @@ export default {
     }
   },
 
-  get(key) {
+  get<Value = unknown>(key: string): Value | null {
     const value = localStorage.getItem(key);
+    if (value === null) return null;
     try {
       return JSON.parse(value);
     }
     catch (err) {
-      return value;
+      return value as unknown as Value;
     }
   },
 
-  remove(key) {
+  remove(key: string) {
     try {
       localStorage.removeItem(key);
       return true;
@@ -37,8 +38,8 @@ export default {
   },
 
   // Watch changes to a specified key - returns value on change
-  watch(key, callback) {
-    const handler = event => {
+  watch(key: string, callback: (value: unknown) => void) {
+    const handler = (event: StorageEvent) => {
       if (event.key === key) callback(this.get(key));
     };
     window.addEventListener('storage', handler);
@@ -46,7 +47,7 @@ export default {
   },
 
   // set() with an additional key containing the current time + expiration time
-  setWithExpireTime(key, value, maxAge) {
+  setWithExpireTime(key: string, value: unknown, maxAge: number) {
     const lastUpdatedKey = key + lastUpdatedSuffix;
     const lastUpdatedTime = Date.now() + maxAge;
 
@@ -54,11 +55,11 @@ export default {
   },
 
   // Whether the value of a key set with setWithExpireTime() has expired
-  hasExpired(key) {
+  hasExpired(key: string) {
     const lastUpdatedKey = key + lastUpdatedSuffix;
-    const lastUpdatedTime = this.get(lastUpdatedKey);
+    const lastUpdatedTime = this.get<number>(lastUpdatedKey);
 
-    return Date.now() > lastUpdatedTime;
+    return lastUpdatedTime !== null && Date.now() > lastUpdatedTime;
   },
 
 };
