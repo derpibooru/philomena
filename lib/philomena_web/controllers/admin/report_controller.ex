@@ -28,7 +28,8 @@ defmodule PhilomenaWeb.Admin.ReportController do
       title: "Admin - Reports",
       layout_class: "layout--wide",
       reports: reports,
-      my_reports: []
+      my_reports: [],
+      system_reports: []
     )
   end
 

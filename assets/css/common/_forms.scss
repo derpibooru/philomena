@@ -170,6 +170,10 @@ select.input, select.input:focus {
   & option {
     background-color: $input_color;
   }
+
+  &:hover option {
+    background-color: $input_color_active;
+  }
 }
 
 select.input:hover, select.input:focus:hover {
