@@ -245,6 +245,11 @@ describe('DOM Utilities', () => {
       jest.restoreAllMocks();
     });
 
+    it('should NOT throw error if element has no parent', () => {
+      const detachedElement = document.createElement('div');
+      expect(() => removeEl(detachedElement)).not.toThrow();
+    });
+
     it('should call the native removeElement method on parent', () => {
       const parentNode = document.createElement('div');
       const childNode = document.createElement('p');
@@ -321,13 +326,28 @@ describe('DOM Utilities', () => {
       expect(mockParent.children[1].tagName).toBe('STRONG');
       expect(mockParent.children[2].tagName).toBe('EM');
     });
+
+    it('should NOT fail if there is no parent', () => {
+      const mockParent = document.createElement('p');
+      const mockNewElement = document.createElement('em');
+
+      expect(() => {
+        insertBefore(mockParent, mockNewElement);
+      }).not.toThrow();
+    });
   });
 
   describe('onLeftClick', () => {
+    let cleanup: VoidFunction | undefined;
+
+    afterEach(() => {
+      if (cleanup) cleanup();
+    });
+
     it('should call callback on left click', () => {
       const mockCallback = jest.fn();
       const element = document.createElement('div');
-      onLeftClick(mockCallback, element as unknown as Document);
+      cleanup = onLeftClick(mockCallback, element as unknown as Document);
 
       fireEvent.click(element, { button: 0 });
 
@@ -337,7 +357,7 @@ describe('DOM Utilities', () => {
     it('should NOT call callback on non-left click', () => {
       const mockCallback = jest.fn();
       const element = document.createElement('div');
-      onLeftClick(mockCallback, element as unknown as Document);
+      cleanup = onLeftClick(mockCallback, element as unknown as Document);
 
       const mockButton = getRandomArrayItem([1, 2, 3, 4, 5]);
       fireEvent.click(element, { button: mockButton });
@@ -347,9 +367,24 @@ describe('DOM Utilities', () => {
 
     it('should add click event listener to the document by default', () => {
       const mockCallback = jest.fn();
-      onLeftClick(mockCallback);
+      cleanup = onLeftClick(mockCallback);
 
       fireEvent.click(document.body);
+
+      expect(mockCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a cleanup function that removes the listener', () => {
+      const mockCallback = jest.fn();
+      const element = document.createElement('div');
+      const localCleanup = onLeftClick(mockCallback, element as unknown as Document);
+
+      fireEvent.click(element, { button: 0 });
+
+      // Remove the listener
+      localCleanup();
+
+      fireEvent.click(element, { button: 0 });
 
       expect(mockCallback).toHaveBeenCalledTimes(1);
     });
