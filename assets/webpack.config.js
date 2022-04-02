@@ -33,6 +33,7 @@ let plugins = [
     ],
   }),
 ];
+
 if (isDevelopment) {
   plugins = plugins.concat([
     new ESLintPlugin({
