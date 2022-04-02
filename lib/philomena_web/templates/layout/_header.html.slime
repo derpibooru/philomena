@@ -25,26 +25,26 @@ header.header
         = select f, :del, [{"-D", ""}, {"+D", 1}, {"*D", "deleted"}, {"DO", "only"}], name: "del", class: "input header__input js-staff-action", autocomplete: "off"
 
       button.header__search__button type="submit" title="Search"
-        i.fa-embedded--search
+        i.fas.fa-search
       a.header__search__button href="/search/reverse" title="Search using an image"
-        i.fa-embedded--camera
+        i.fa-search-button.fas.fa-camera
       a.header__search__button href="/pages/search_syntax" title="Search syntax help"
-        i.fa-embedded--help
+        i.fa-search-button.fas.fa-question
 
     .flex.flex--centered.flex--no-wrap.header__force-right
       = if @current_user do
         a.header__link href="/notifications" title="Notifications"
-          i.fa-embedded--notification>
+          i.fas.fa-bell>
           span.js-notification-ticker.fa__text.header__counter data-notification-count=@notification_count = @notification_count
 
         a.header__link href="/conversations" title="Conversations"
           = if @conversation_count > 0 do
-            i.fa-embedded--unread-message>
-            span.fa-embedded__text.header__counter
+            i.fa-unread-icon.fas.fa-envelope-open>
+            span.header__counter
               = @conversation_count
           - else
-            i.fa-embedded--message>
-            span.fa-embedded__text.header__counter.hidden
+            i.fas.fa-envelope>
+            span.header__counter.hidden
               | 0
 
         a.header__link.hide-mobile href="/filters" title="Filters"
