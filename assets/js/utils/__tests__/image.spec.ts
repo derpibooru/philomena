@@ -54,6 +54,22 @@ describe('Image utils', () => {
       mockSpoilerOverlay,
     };
   };
+  const imageFilteredClass = 'image-filtered';
+  const imageShowClass = 'image-show';
+  const spoilerPendingClass = 'spoiler-pending';
+  const createImageFilteredElement = (mockElement: HTMLDivElement) => {
+    const mockFilteredImageElement = document.createElement('div');
+    mockFilteredImageElement.classList.add(imageFilteredClass);
+    mockElement.appendChild(mockFilteredImageElement);
+    return { mockFilteredImageElement };
+  };
+  const createImageShowElement = (mockElement: HTMLDivElement) => {
+    const mockShowElement = document.createElement('div');
+    mockShowElement.classList.add(imageShowClass);
+    mockShowElement.classList.add(hiddenClass);
+    mockElement.appendChild(mockShowElement);
+    return { mockShowElement };
+  };
 
   describe('showThumb', () => {
     let mockServeHidpiValue: string | null = null;
@@ -144,6 +160,26 @@ describe('Image utils', () => {
         expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
 
         expect(result).toBe(true);
+      });
+
+      ['data-size', 'data-uris'].forEach(missingAttributeName => {
+        it(`should return early if the ${missingAttributeName} attribute is missing`, () => {
+          const { mockElement } = createMockElements({
+            extension: 'webm',
+          });
+          const jsonParseSpy = jest.spyOn(JSON, 'parse');
+
+          mockElement.removeAttribute(missingAttributeName);
+
+          try {
+            const result = showThumb(mockElement);
+            expect(result).toBe(false);
+            expect(jsonParseSpy).not.toHaveBeenCalled();
+          }
+          finally {
+            jsonParseSpy.mockRestore();
+          }
+        });
       });
 
       it('should return early if there is no video element', () => {
@@ -304,30 +340,39 @@ describe('Image utils', () => {
       const result = showThumb(mockElement);
       expect(result).toBe(false);
     });
+
+    it('should return false if overlay is missing', () => {
+      const { mockElement, mockSpoilerOverlay } = createMockElementWithPicture('jpg');
+      mockSpoilerOverlay.parentNode?.removeChild(mockSpoilerOverlay);
+      const result = showThumb(mockElement);
+      expect(result).toBe(false);
+    });
   });
 
   describe('showBlock', () => {
-    const imageFilteredClass = 'image-filtered';
-    const imageShowClass = 'image-show';
-    const spoilerPendingClass = 'spoiler-pending';
-
     it('should hide the filtered image element and show the image', () => {
       const mockElement = document.createElement('div');
 
-      const mockFilteredImageElement = document.createElement('div');
-      mockFilteredImageElement.classList.add(imageFilteredClass);
-      mockElement.appendChild(mockFilteredImageElement);
-
-      const mockShowElement = document.createElement('div');
-      mockShowElement.classList.add(imageShowClass);
-      mockShowElement.classList.add(hiddenClass);
-      mockElement.appendChild(mockShowElement);
+      const { mockFilteredImageElement } = createImageFilteredElement(mockElement);
+      const { mockShowElement } = createImageShowElement(mockElement);
 
       showBlock(mockElement);
 
       expect(mockFilteredImageElement).toHaveClass(hiddenClass);
       expect(mockShowElement).not.toHaveClass(hiddenClass);
       expect(mockShowElement).toHaveClass(spoilerPendingClass);
+    });
+
+    it('should not throw if image-filtered element is missing', () => {
+      const mockElement = document.createElement('div');
+      createImageShowElement(mockElement);
+      expect(() => showBlock(mockElement)).not.toThrow();
+    });
+
+    it('should not throw if image-show element is missing', () => {
+      const mockElement = document.createElement('div');
+      createImageFilteredElement(mockElement);
+      expect(() => showBlock(mockElement)).not.toThrow();
     });
   });
 
@@ -528,9 +573,7 @@ describe('Image utils', () => {
   });
 
   describe('spoilerBlock', () => {
-    const imageFilteredClass = 'image-filtered';
     const filterExplanationClass = 'filter-explanation';
-    const imageShowClass = 'image-show';
     const createFilteredImageElement = () => {
       const mockImageFiltered = document.createElement('div');
       mockImageFiltered.classList.add(imageFilteredClass, hiddenClass);
@@ -541,22 +584,31 @@ describe('Image utils', () => {
 
       return { mockImageFiltered, mockImage };
     };
-
-    it('should do nothing if image element is missing', () => {
+    const createMockElement = (appendImageShow = true, appendImageFiltered = true) => {
       const mockElement = document.createElement('div');
+      const { mockImageFiltered, mockImage } = createFilteredImageElement();
+      if (appendImageFiltered) mockElement.appendChild(mockImageFiltered);
+      const mockExplanation = document.createElement('span');
+      mockExplanation.classList.add(filterExplanationClass);
+      mockElement.appendChild(mockExplanation);
+
+      const mockImageShow = document.createElement('div');
+      mockImageShow.classList.add(imageShowClass);
+      if (appendImageShow) mockElement.appendChild(mockImageShow);
+
+      return { mockElement, mockImage, mockExplanation, mockImageShow, mockImageFiltered };
+    };
+
+    it('should not throw if image element is missing', () => {
+      const mockElement = document.createElement('div');
+      const { mockImageFiltered, mockImage } = createFilteredImageElement();
+      mockImage.parentNode?.removeChild(mockImage);
+      mockElement.appendChild(mockImageFiltered);
       expect(() => spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason)).not.toThrow();
     });
 
     it('should update the elements with the parameters and set classes if image element is found', () => {
-      const mockElement = document.createElement('div');
-      const { mockImageFiltered, mockImage } = createFilteredImageElement();
-      mockElement.appendChild(mockImageFiltered);
-      const mockExplanation = document.createElement('span');
-      mockExplanation.classList.add(filterExplanationClass);
-      mockElement.appendChild(mockExplanation);
-      const mockImageShow = document.createElement('div');
-      mockImageShow.classList.add(imageShowClass);
-      mockElement.appendChild(mockImageShow);
+      const { mockElement, mockImage, mockExplanation, mockImageShow, mockImageFiltered } = createMockElement();
 
       spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason);
 
@@ -564,6 +616,16 @@ describe('Image utils', () => {
       expect(mockExplanation).toContainHTML(mockSpoilerReason);
       expect(mockImageShow).toHaveClass(hiddenClass);
       expect(mockImageFiltered).not.toHaveClass(hiddenClass);
+    });
+
+    it('should not throw if image-filtered element is missing', () => {
+      const { mockElement } = createMockElement(true, false);
+      expect(() => spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason)).not.toThrow();
+    });
+
+    it('should not throw if image-show element is missing', () => {
+      const { mockElement } = createMockElement(false, true);
+      expect(() => spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason)).not.toThrow();
     });
   });
 });

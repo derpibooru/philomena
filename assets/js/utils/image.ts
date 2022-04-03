@@ -1,11 +1,7 @@
 import { clearEl } from './dom';
 import store from './store';
 
-function showVideoThumb(img: HTMLDivElement) {
-  const size = img.dataset.size;
-  const urisString = img.dataset.uris;
-  if (!size || !urisString) return;
-
+function showVideoThumb(img: HTMLDivElement, size: string, urisString: string) {
   const uris = JSON.parse(urisString);
   const thumbUri = uris[size];
 
@@ -33,13 +29,13 @@ function showVideoThumb(img: HTMLDivElement) {
 export function showThumb(img: HTMLDivElement) {
   const size = img.dataset.size;
   const urisString = img.dataset.uris;
-  if (!size || !urisString) return;
+  if (!size || !urisString) return false;
 
   const uris = JSON.parse(urisString);
   const thumbUri = uris[size].replace(/webm$/, 'gif');
 
   const picEl = img.querySelector('picture');
-  if (!picEl) return showVideoThumb(img);
+  if (!picEl) return showVideoThumb(img, size, urisString);
 
   const imgEl = picEl.querySelector('img');
   if (!imgEl || imgEl.src.indexOf(thumbUri) !== -1) return false;
@@ -53,7 +49,7 @@ export function showThumb(img: HTMLDivElement) {
 
   imgEl.src = thumbUri;
   const overlay = img.querySelector('.js-spoiler-info-overlay');
-  if (!overlay) return;
+  if (!overlay) return false;
 
   if (uris[size].indexOf('.webm') !== -1) {
     overlay.classList.remove('hidden');
@@ -130,7 +126,8 @@ export function spoilerThumb(img: HTMLDivElement, spoilerUri: string, reason: st
 }
 
 export function spoilerBlock(img: HTMLDivElement, spoilerUri: string, reason: string) {
-  const imgEl = img.querySelector<HTMLImageElement>('.image-filtered img');
+  const imgFiltered = img.querySelector('.image-filtered');
+  const imgEl = imgFiltered?.querySelector<HTMLImageElement>('img');
   const imgReason = img.querySelector<HTMLElement>('.filter-explanation');
 
   if (!imgEl) return;
@@ -141,5 +138,5 @@ export function spoilerBlock(img: HTMLDivElement, spoilerUri: string, reason: st
   }
 
   img.querySelector('.image-show')?.classList.add('hidden');
-  img.querySelector('.image-filtered')?.classList.remove('hidden');
+  if (imgFiltered) imgFiltered.classList.remove('hidden');
 }
