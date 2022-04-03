@@ -1,4 +1,4 @@
-import { initDraggables } from '../draggable';
+import { clearDragSource, initDraggables } from '../draggable';
 import { fireEvent } from '@testing-library/dom';
 import { getRandomArrayItem } from '../../../test/randomness';
 
@@ -115,6 +115,14 @@ describe('Draggable Utilities', () => {
 
         expect(mockEvent.dataTransfer?.effectAllowed).toEqual('move');
       });
+
+      it('should not throw if the event has no dataTransfer property', () => {
+        initDraggables();
+
+        const mockEvent = createDragEvent('dragstart');
+        delete (mockEvent as Record<keyof typeof mockEvent, unknown>).dataTransfer;
+        expect(() => fireEvent(mockDraggable, mockEvent)).not.toThrow();
+      });
     });
 
     describe('dragOver', () => {
@@ -227,6 +235,20 @@ describe('Draggable Utilities', () => {
         finally {
           boundingBoxSpy.mockRestore();
         }
+      });
+
+      it('should not throw if drag source element is not set', () => {
+        clearDragSource();
+        initDraggables();
+
+        const mockSecondDraggable = createDraggableElement();
+        mockDragContainer.appendChild(mockSecondDraggable);
+
+        const mockDropEvent = createDragEvent('drop');
+        fireEvent(mockDraggable, mockDropEvent);
+
+        expect(() => fireEvent(mockDraggable, mockDropEvent)).not.toThrow();
+        expect(mockDropEvent.defaultPrevented).toBe(true);
       });
     });
 

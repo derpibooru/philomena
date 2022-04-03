@@ -53,7 +53,7 @@ function drop(event: DragEvent, target: HTMLElement) {
 }
 
 function dragEnd(event: DragEvent, target: HTMLElement) {
-  dragSrcEl?.classList.remove('dragging');
+  clearDragSource();
 
   if (target.parentNode) {
     $$('.over', target.parentNode).forEach(t => t.classList.remove('over'));
@@ -77,4 +77,12 @@ export function initDraggables() {
   document.addEventListener('dragleave', wrapper(dragLeave));
   document.addEventListener('dragend', wrapper(dragEnd));
   document.addEventListener('drop', wrapper(drop));
+}
+
+export function clearDragSource() {
+  if (!dragSrcEl) return;
+
+  dragSrcEl.classList.remove('dragging');
+  // eslint-disable-next-line no-undefined
+  dragSrcEl = undefined;
 }
