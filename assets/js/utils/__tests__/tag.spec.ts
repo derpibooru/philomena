@@ -144,6 +144,12 @@ describe('Tag utilities', () => {
         mockTagInfo[4],
       ]);
     });
+
+    it('should return empty array if data attribute is missing', () => {
+      const mockImage = new Image();
+      const result = imageHitsTags(mockImage, []);
+      expect(result).toEqual([]);
+    });
   });
 
   describe('imageHitsComplex', () => {
