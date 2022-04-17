@@ -51,10 +51,6 @@ export function makeEl<Tag extends keyof HTMLElementTagNameMap>(tag: Tag, attr?:
   return el;
 }
 
-export function insertBefore(existingElement: HTMLElement, newElement: HTMLElement) {
-  existingElement.parentNode?.insertBefore(newElement, existingElement);
-}
-
 export function onLeftClick(callback: (e: MouseEvent) => boolean | void, context: Pick<GlobalEventHandlers, 'addEventListener' | 'removeEventListener'> = document): VoidFunction {
   const handler: typeof callback = event => {
     if (event.button === 0) callback(event);

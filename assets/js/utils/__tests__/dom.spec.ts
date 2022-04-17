@@ -5,7 +5,6 @@ import {
   escapeCss,
   escapeHtml,
   hideEl,
-  insertBefore,
   makeEl,
   onLeftClick,
   removeEl,
@@ -294,46 +293,6 @@ describe('DOM Utilities', () => {
       expect(el.nodeName).toEqual('P');
       expect(el).toHaveClass(mockClassOne);
       expect(el).toHaveClass(mockClassTwo);
-    });
-  });
-
-  describe('insertBefore', () => {
-    it('should insert the new element before the existing element', () => {
-      const mockParent = document.createElement('p');
-      const mockExisingElement = document.createElement('span');
-      mockParent.appendChild(mockExisingElement);
-      const mockNewElement = document.createElement('strong');
-
-      insertBefore(mockExisingElement, mockNewElement);
-
-      expect(mockParent.children).toHaveLength(2);
-      expect(mockParent.children[0].tagName).toBe('STRONG');
-      expect(mockParent.children[1].tagName).toBe('SPAN');
-    });
-
-    it('should insert between two elements', () => {
-      const mockParent = document.createElement('p');
-      const mockFirstExisingElement = document.createElement('span');
-      const mockSecondExisingElement = document.createElement('em');
-      mockParent.appendChild(mockFirstExisingElement);
-      mockParent.appendChild(mockSecondExisingElement);
-      const mockNewElement = document.createElement('strong');
-
-      insertBefore(mockSecondExisingElement, mockNewElement);
-
-      expect(mockParent.children).toHaveLength(3);
-      expect(mockParent.children[0].tagName).toBe('SPAN');
-      expect(mockParent.children[1].tagName).toBe('STRONG');
-      expect(mockParent.children[2].tagName).toBe('EM');
-    });
-
-    it('should NOT fail if there is no parent', () => {
-      const mockParent = document.createElement('p');
-      const mockNewElement = document.createElement('em');
-
-      expect(() => {
-        insertBefore(mockParent, mockNewElement);
-      }).not.toThrow();
     });
   });
 
