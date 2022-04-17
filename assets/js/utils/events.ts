@@ -12,12 +12,12 @@ export function leftClick<E extends MouseEvent, Target extends EventTarget>(func
   return (event: E, target: Target) => { if (event.button === 0) return func(event, target); };
 }
 
-export function delegate<K extends keyof GlobalEventHandlersEventMap>(node: GlobalEventHandlers, event: K, selectors: Record<string, ((e: GlobalEventHandlersEventMap[K], target: Element) => boolean)>) {
+export function delegate<K extends keyof GlobalEventHandlersEventMap, Target extends Element>(node: GlobalEventHandlers, event: K, selectors: Record<string, ((e: GlobalEventHandlersEventMap[K], target: Target) => void | boolean)>) {
   node.addEventListener(event, e => {
     for (const selector in selectors) {
-      const evtTarget = e.target as EventTarget | Element | null;
+      const evtTarget = e.target as EventTarget | Target | null;
       if (evtTarget && 'closest' in evtTarget && typeof evtTarget.closest === 'function') {
-        const target = evtTarget.closest(selector);
+        const target = evtTarget.closest(selector) as Target;
         if (target && selectors[selector](e, target) === false) break;
       }
     }

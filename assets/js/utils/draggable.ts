@@ -1,4 +1,5 @@
 import { $$ } from './dom';
+import { delegate } from './events';
 
 let dragSrcEl: HTMLElement | null = null;
 
@@ -60,23 +61,14 @@ function dragEnd(event: DragEvent, target: HTMLElement) {
   }
 }
 
-function wrapper<E extends Event, T extends Element>(func: (event: E, target: T) => void) {
-  return function(event: E) {
-    const evtTarget = event.target as EventTarget | Element | null;
-    if (evtTarget && 'closest' in evtTarget && typeof evtTarget.closest === 'function') {
-      const target: T | null = evtTarget.closest('.drag-container [draggable]');
-      if (target) func(event, target);
-    }
-  };
-}
-
 export function initDraggables() {
-  document.addEventListener('dragstart', wrapper(dragStart));
-  document.addEventListener('dragover', wrapper(dragOver));
-  document.addEventListener('dragenter', wrapper(dragEnter));
-  document.addEventListener('dragleave', wrapper(dragLeave));
-  document.addEventListener('dragend', wrapper(dragEnd));
-  document.addEventListener('drop', wrapper(drop));
+  const draggableSelector = '.drag-container [draggable]';
+  delegate(document, 'dragstart', { [draggableSelector]: dragStart});
+  delegate(document, 'dragover', { [draggableSelector]: dragOver});
+  delegate(document, 'dragenter', { [draggableSelector]: dragEnter});
+  delegate(document, 'dragleave', { [draggableSelector]: dragLeave});
+  delegate(document, 'dragend', { [draggableSelector]: dragEnd});
+  delegate(document, 'drop', { [draggableSelector]: drop});
 }
 
 export function clearDragSource() {
