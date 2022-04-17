@@ -381,6 +381,8 @@ describe('DOM Utilities', () => {
 
       fireEvent.click(element, { button: 0 });
 
+      expect(mockCallback).toHaveBeenCalledTimes(1);
+
       // Remove the listener
       localCleanup();
 

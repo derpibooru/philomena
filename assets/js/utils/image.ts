@@ -1,8 +1,7 @@
 import { clearEl } from './dom';
 import store from './store';
 
-function showVideoThumb(img: HTMLDivElement, size: string, urisString: string) {
-  const uris = JSON.parse(urisString);
+function showVideoThumb(img: HTMLDivElement, size: string, uris: Record<string, string>) {
   const thumbUri = uris[size];
 
   const vidEl = img.querySelector('video');
@@ -31,11 +30,11 @@ export function showThumb(img: HTMLDivElement) {
   const urisString = img.dataset.uris;
   if (!size || !urisString) return false;
 
-  const uris = JSON.parse(urisString);
+  const uris: Record<string, string> = JSON.parse(urisString);
   const thumbUri = uris[size].replace(/webm$/, 'gif');
 
   const picEl = img.querySelector('picture');
-  if (!picEl) return showVideoThumb(img, size, urisString);
+  if (!picEl) return showVideoThumb(img, size, uris);
 
   const imgEl = picEl.querySelector('img');
   if (!imgEl || imgEl.src.indexOf(thumbUri) !== -1) return false;
@@ -128,15 +127,16 @@ export function spoilerThumb(img: HTMLDivElement, spoilerUri: string, reason: st
 export function spoilerBlock(img: HTMLDivElement, spoilerUri: string, reason: string) {
   const imgFiltered = img.querySelector('.image-filtered');
   const imgEl = imgFiltered?.querySelector<HTMLImageElement>('img');
-  const imgReason = img.querySelector<HTMLElement>('.filter-explanation');
-
   if (!imgEl) return;
+
+  const imgReason = img.querySelector<HTMLElement>('.filter-explanation');
+  const imageShow = img.querySelector('.image-show');
 
   imgEl.src = spoilerUri;
   if (imgReason) {
     imgReason.innerHTML = reason;
   }
 
-  img.querySelector('.image-show')?.classList.add('hidden');
+  imageShow?.classList.add('hidden');
   if (imgFiltered) imgFiltered.classList.remove('hidden');
 }

@@ -1,6 +1,6 @@
 import { $$ } from './dom';
 
-let dragSrcEl: HTMLElement | undefined;
+let dragSrcEl: HTMLElement | null = null;
 
 function dragStart(event: DragEvent, target: HTMLElement) {
   target.classList.add('dragging');
@@ -83,6 +83,5 @@ export function clearDragSource() {
   if (!dragSrcEl) return;
 
   dragSrcEl.classList.remove('dragging');
-  // eslint-disable-next-line no-undefined
-  dragSrcEl = undefined;
+  dragSrcEl = null;
 }

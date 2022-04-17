@@ -10,7 +10,7 @@ interface Result {
 /**
  * Compare two strings, C-style.
  */
-function strcmp(a: string, b: string):number {
+function strcmp(a: string, b: string): number {
   return a < b ? -1 : Number(a > b);
 }
 
@@ -140,7 +140,7 @@ export class LocalAutocompleter {
   /**
    * Find the top k results by image count which match the given string prefix.
    */
-  topK(prefix: string, k:number): Result[] {
+  topK(prefix: string, k: number): Result[] {
     const results: Record<string, Result> = {};
 
     if (prefix === '') {
