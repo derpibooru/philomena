@@ -17,6 +17,10 @@ ul
   li = link "View fingerprint ban history", to: Routes.admin_fingerprint_ban_path(@conn, :index, fingerprint: @fingerprint)
   li = link "Ban this sucker", to: Routes.admin_fingerprint_ban_path(@conn, :new, fingerprint: @fingerprint)
 
+h2 Actions
+ul
+  li = link "Revert all tag changes", to: Routes.tag_change_full_revert_path(@conn, :create, [fingerprint: @fingerprint]), data: [confirm: "Are you really, really sure?", method: "create"]
+
 h4 Observed users
 table.table
   thead
