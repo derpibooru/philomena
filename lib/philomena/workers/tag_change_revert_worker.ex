@@ -2,6 +2,7 @@ defmodule Philomena.TagChangeRevertWorker do
   alias Philomena.TagChanges.TagChange
   alias Philomena.TagChanges
   alias Philomena.Batch
+  alias Philomena.Repo
   import Ecto.Query
 
   def perform(%{"user_id" => user_id, "attributes" => attributes}) do
@@ -23,8 +24,17 @@ defmodule Philomena.TagChangeRevertWorker do
   end
 
   defp revert_all(queryable, attributes) do
-    Batch.query_batches(queryable, [batch_size: 100], fn ids ->
-      TagChanges.mass_revert(ids, attributes)
+    Batch.query_batches(queryable, [batch_size: 100], fn queryable ->
+      ids = Repo.all(select(queryable, [tc], tc.id))
+      TagChanges.mass_revert(ids, cast_ip(atomify_keys(attributes)))
     end)
+  end
+
+  defp atomify_keys(map) do
+    Map.new(map, fn {k, v} -> {String.to_existing_atom(k), v} end)
+  end
+
+  defp cast_ip(attributes) do
+    %{attributes | ip: elem(EctoNetwork.INET.cast(attributes[:ip]), 1)}
   end
 end
