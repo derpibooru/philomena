@@ -6,6 +6,7 @@ defmodule Philomena.TagChanges do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
+  alias Philomena.TagChangeRevertWorker
   alias Philomena.TagChanges.TagChange
   alias Philomena.Images.Tagging
   alias Philomena.Tags.Tag
@@ -98,6 +99,15 @@ defmodule Philomena.TagChanges do
         error
     end
   end
+
+  def full_revert(%{user_id: _user_id, attributes: _attributes} = params),
+    do: Exq.enqueue(Exq, "indexing", TagChangeRevertWorker, [params])
+
+  def full_revert(%{ip: _ip, attributes: _attributes} = params),
+    do: Exq.enqueue(Exq, "indexing", TagChangeRevertWorker, [params])
+
+  def full_revert(%{fingerprint: _fingerprint, attributes: _attributes} = params),
+    do: Exq.enqueue(Exq, "indexing", TagChangeRevertWorker, [params])
 
   @doc """
   Gets a single tag_change.

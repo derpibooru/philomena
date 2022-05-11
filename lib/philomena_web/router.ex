@@ -439,6 +439,11 @@ defmodule PhilomenaWeb.Router do
       only: [:create],
       singleton: true
 
+    resources "/tag_changes/full_revert", TagChange.FullRevertController,
+      as: :tag_change_full_revert,
+      only: [:create],
+      singleton: true
+
     resources "/pages", PageController, only: [:index, :new, :create, :edit, :update]
     resources "/channels", ChannelController, only: [:new, :create, :edit, :update, :delete]
   end
