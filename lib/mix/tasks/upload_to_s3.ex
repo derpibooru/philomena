@@ -142,7 +142,7 @@ defmodule Mix.Tasks.UploadToS3 do
     {_, mime} = Mime.file(path)
     contents = File.read!(path)
 
-    S3.put_object(bucket(), uploaded_path, contents, acl: :public_read, content_type: mime)
+    S3.put_object(bucket(), uploaded_path, contents, content_type: mime)
     |> ExAws.request!()
   end
 

@@ -23,8 +23,6 @@ defmodule Philomena.Images.Thumbnailer do
     tall: {1024, 4096}
   ]
 
-  @acl [acl: :public_read]
-
   def thumbnail_versions do
     @versions
   end
@@ -140,7 +138,7 @@ defmodule Philomena.Images.Thumbnailer do
       source = Path.join(source_prefix, name)
       target = Path.join(target_prefix, name)
 
-      ExAws.request(S3.put_object_copy(bucket(), target, bucket(), source, @acl))
+      ExAws.request(S3.put_object_copy(bucket(), target, bucket(), source))
       ExAws.request(S3.delete_object(bucket(), source))
     end)
   end

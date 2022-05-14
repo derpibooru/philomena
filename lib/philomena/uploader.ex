@@ -73,11 +73,11 @@ defmodule Philomena.Uploader do
   content type and permissions.
   """
   def persist_file(path, file) do
-    {_, mime} = Mime.file(path)
+    {_, mime} = Mime.file(file)
 
     file
     |> S3.Upload.stream_file()
-    |> S3.upload(bucket(), path, acl: :public_read, content_type: mime)
+    |> S3.upload(bucket(), path, content_type: mime)
     |> ExAws.request!()
   end
 
