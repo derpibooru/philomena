@@ -87,8 +87,17 @@ services:
     build:
       context: .
       dockerfile: ./docker/web/Dockerfile
+      args:
+        - APP_DIR=/srv/philomena
+        - S3_SCHEME=http
+        - S3_HOST=files
+        - S3_PORT=80
+        - S3_BUCKET=philomena
     volumes:
       - .:/srv/philomena
+    environment:
+      - AWS_ACCESS_KEY_ID=local-identity
+      - AWS_SECRET_ACCESS_KEY=local-credential
     logging:
       driver: "none"
     depends_on:
