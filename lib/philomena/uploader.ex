@@ -5,9 +5,8 @@ defmodule Philomena.Uploader do
 
   alias Philomena.Filename
   alias Philomena.Analyzers
+  alias Philomena.Objects
   alias Philomena.Sha512
-  alias Philomena.Mime
-  alias ExAws.S3
   import Ecto.Changeset
 
   @doc """
@@ -73,12 +72,7 @@ defmodule Philomena.Uploader do
   content type and permissions.
   """
   def persist_file(path, file) do
-    {_, mime} = Mime.file(file)
-
-    file
-    |> S3.Upload.stream_file()
-    |> S3.upload(bucket(), path, content_type: mime)
-    |> ExAws.request!()
+    Objects.put(path, file)
   end
 
   @doc """
@@ -117,9 +111,7 @@ defmodule Philomena.Uploader do
   defp try_remove(nil, _file_root), do: nil
 
   defp try_remove(file, file_root) do
-    path = Path.join(file_root, file)
-
-    ExAws.request!(S3.delete_object(bucket(), path))
+    Objects.delete(Path.join(file_root, file))
   end
 
   defp prefix_attributes(map, prefix),
@@ -130,8 +122,4 @@ defmodule Philomena.Uploader do
   defp remove_key(field_name), do: "removed_#{field_name}"
 
   defp field(field_name), do: String.to_existing_atom(field_name)
-
-  defp bucket do
-    Application.fetch_env!(:philomena, :s3_bucket)
-  end
 end

@@ -10,9 +10,8 @@ defmodule Mix.Tasks.UploadToS3 do
   }
 
   alias Philomena.Images.Thumbnailer
-  alias Philomena.Mime
+  alias Philomena.Objects
   alias Philomena.Batch
-  alias ExAws.S3
   import Ecto.Query
 
   @shortdoc "Dumps existing image files to S3 storage backend"
@@ -139,14 +138,6 @@ defmodule Mix.Tasks.UploadToS3 do
   end
 
   defp put_file(path, uploaded_path) do
-    {_, mime} = Mime.file(path)
-    contents = File.read!(path)
-
-    S3.put_object(bucket(), uploaded_path, contents, content_type: mime)
-    |> ExAws.request!()
-  end
-
-  defp bucket do
-    Application.fetch_env!(:philomena, :s3_bucket)
+    Objects.put(uploaded_path, path)
   end
 end

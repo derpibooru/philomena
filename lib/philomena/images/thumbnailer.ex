@@ -9,9 +9,9 @@ defmodule Philomena.Images.Thumbnailer do
   alias Philomena.Processors
   alias Philomena.Analyzers
   alias Philomena.Uploader
+  alias Philomena.Objects
   alias Philomena.Sha512
   alias Philomena.Repo
-  alias ExAws.S3
 
   @versions [
     thumb_tiny: {50, 50},
@@ -122,7 +122,7 @@ defmodule Philomena.Images.Thumbnailer do
     tempfile = Briefly.create!(extname: ".#{image.image_format}")
     path = Path.join(image_thumb_prefix(image), "full.#{image.image_format}")
 
-    ExAws.request!(S3.download_file(bucket(), path, tempfile))
+    Objects.download_file(path, tempfile)
 
     tempfile
   end
@@ -138,17 +138,15 @@ defmodule Philomena.Images.Thumbnailer do
       source = Path.join(source_prefix, name)
       target = Path.join(target_prefix, name)
 
-      ExAws.request(S3.put_object_copy(bucket(), target, bucket(), source))
-      ExAws.request(S3.delete_object(bucket(), source))
+      Objects.copy(source, target)
+      Objects.delete(source)
     end)
   end
 
   defp bulk_delete(file_names, prefix) do
-    Enum.map(file_names, fn name ->
-      target = Path.join(prefix, name)
-
-      ExAws.request(S3.delete_object(bucket(), target))
-    end)
+    file_names
+    |> Enum.map(&Path.join(prefix, &1))
+    |> Objects.delete_multiple()
   end
 
   def all_versions(image) do
@@ -189,7 +187,4 @@ defmodule Philomena.Images.Thumbnailer do
 
   defp image_url_root,
     do: Application.fetch_env!(:philomena, :image_url_root)
-
-  defp bucket,
-    do: Application.fetch_env!(:philomena, :s3_bucket)
 end

@@ -31,7 +31,6 @@ config :philomena,
   tag_url_root: System.fetch_env!("TAG_URL_ROOT"),
   redis_host: System.get_env("REDIS_HOST", "localhost"),
   proxy_host: System.get_env("PROXY_HOST"),
-  s3_bucket: System.fetch_env!("S3_BUCKET"),
   camo_host: System.get_env("CAMO_HOST"),
   camo_key: System.get_env("CAMO_KEY"),
   cdn_host: System.fetch_env!("CDN_HOST")
@@ -67,11 +66,26 @@ if is_nil(System.get_env("START_WORKER")) do
   config :exq, queues: []
 end
 
-# S3 config
-config :ex_aws, :s3,
+# S3/Object store config
+config :philomena, :s3_primary_options,
+  region: System.get_env("S3_REGION", "us-east-1"),
   scheme: System.fetch_env!("S3_SCHEME"),
   host: System.fetch_env!("S3_HOST"),
-  port: System.fetch_env!("S3_PORT")
+  port: System.fetch_env!("S3_PORT"),
+  access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+
+config :philomena, :s3_primary_bucket, System.fetch_env!("S3_BUCKET")
+
+config :philomena, :s3_secondary_options,
+  region: System.get_env("ALT_S3_REGION", "us-east-1"),
+  scheme: System.get_env("ALT_S3_SCHEME"),
+  host: System.get_env("ALT_S3_HOST"),
+  port: System.get_env("ALT_S3_PORT"),
+  access_key_id: System.get_env("ALT_AWS_ACCESS_KEY_ID"),
+  secret_access_key: System.get_env("ALT_AWS_SECRET_ACCESS_KEY")
+
+config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
 
 if config_env() != :test do
   # Database config
