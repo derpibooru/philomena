@@ -72,7 +72,7 @@ defmodule Philomena.Objects do
 
   defp run_all(fun) do
     backends()
-    |> Task.async_stream(fun)
+    |> Task.async_stream(fun, timeout: :infinity)
     |> Stream.run()
   end
 
