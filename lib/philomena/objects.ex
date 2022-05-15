@@ -8,6 +8,7 @@ defmodule Philomena.Objects do
   # Fetch a key from the primary storage backend and
   # write it into the destination file.
   #
+  # sobelow_skip ["Traversal.FileModule"]
   @spec download_file(String.t(), String.t()) :: any()
   def download_file(key, file_path) do
     [opts] = primary_opts()
@@ -23,6 +24,7 @@ defmodule Philomena.Objects do
   # Upload a file using a single API call, writing the
   # contents from the given path to storage.
   #
+  # sobelow_skip ["Traversal.FileModule"]
   @spec put(String.t(), String.t()) :: any()
   def put(key, file_path) do
     {_, mime} = Mime.file(file_path)
