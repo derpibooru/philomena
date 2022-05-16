@@ -73,7 +73,8 @@ config :philomena, :s3_primary_options,
   host: System.fetch_env!("S3_HOST"),
   port: System.fetch_env!("S3_PORT"),
   access_key_id: System.fetch_env!("AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY")
+  secret_access_key: System.fetch_env!("AWS_SECRET_ACCESS_KEY"),
+  http_opts: [timeout: 180_000, recv_timeout: 180_000]
 
 config :philomena, :s3_primary_bucket, System.fetch_env!("S3_BUCKET")
 
@@ -83,9 +84,16 @@ config :philomena, :s3_secondary_options,
   host: System.get_env("ALT_S3_HOST"),
   port: System.get_env("ALT_S3_PORT"),
   access_key_id: System.get_env("ALT_AWS_ACCESS_KEY_ID"),
-  secret_access_key: System.get_env("ALT_AWS_SECRET_ACCESS_KEY")
+  secret_access_key: System.get_env("ALT_AWS_SECRET_ACCESS_KEY"),
+  http_opts: [timeout: 180_000, recv_timeout: 180_000]
 
 config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
+
+config :ex_aws, :hackney_opts,
+  timeout: 180_000,
+  recv_timeout: 180_000,
+  use_default_pool: false,
+  pool: false
 
 if config_env() != :test do
   # Database config
