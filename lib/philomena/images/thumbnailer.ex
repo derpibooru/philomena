@@ -134,13 +134,19 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   defp bulk_rename(file_names, source_prefix, target_prefix) do
-    Enum.map(file_names, fn name ->
-      source = Path.join(source_prefix, name)
-      target = Path.join(target_prefix, name)
+    file_names
+    |> Task.async_stream(
+      fn name ->
+        source = Path.join(source_prefix, name)
+        target = Path.join(target_prefix, name)
+        Objects.copy(source, target)
 
-      Objects.copy(source, target)
-      Objects.delete(source)
-    end)
+        name
+      end,
+      timeout: :infinity
+    )
+    |> Stream.map(fn {:ok, name} -> name end)
+    |> bulk_delete(source_prefix)
   end
 
   defp bulk_delete(file_names, prefix) do
