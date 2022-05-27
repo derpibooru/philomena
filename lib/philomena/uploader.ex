@@ -72,7 +72,7 @@ defmodule Philomena.Uploader do
   content type and permissions.
   """
   def persist_file(path, file) do
-    Objects.put(path, file)
+    Objects.upload(path, file)
   end
 
   @doc """

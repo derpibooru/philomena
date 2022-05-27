@@ -37,6 +37,22 @@ defmodule Philomena.Objects do
   end
 
   #
+  # Upload a file using multiple API calls, writing the
+  # contents from the given path to storage.
+  #
+  @spec upload(String.t(), String.t()) :: any()
+  def upload(key, file_path) do
+    {_, mime} = Mime.file(file_path)
+
+    run_all(fn opts ->
+      file_path
+      |> ExAws.S3.Upload.stream_file()
+      |> ExAws.S3.upload(opts[:bucket], key, content_type: mime)
+      |> ExAws.request!(opts[:config_overrides])
+    end)
+  end
+
+  #
   # Copies a key from the source to the destination,
   # overwriting the destination object if its exists.
   #
