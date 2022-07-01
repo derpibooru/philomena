@@ -535,14 +535,16 @@ defmodule Philomena.Images do
   defp process_after_hide(result) do
     case result do
       {:ok, %{image: image, tags: tags, reports: {_count, reports}} = result} ->
-        Thumbnailer.hide_thumbnails(image, image.hidden_image_key)
+        spawn(fn ->
+          Thumbnailer.hide_thumbnails(image, image.hidden_image_key)
+          purge_files(image, image.hidden_image_key)
+        end)
 
         Comments.reindex_comments(image)
         Reports.reindex_reports(reports)
         Tags.reindex_tags(tags)
         reindex_image(image)
         reindex_copied_tags(result)
-        purge_files(image, image.hidden_image_key)
 
         {:ok, result}
 
@@ -586,7 +588,9 @@ defmodule Philomena.Images do
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image, tags: tags}} ->
-        Thumbnailer.unhide_thumbnails(image, key)
+        spawn(fn ->
+          Thumbnailer.unhide_thumbnails(image, key)
+        end)
 
         reindex_image(image)
         purge_files(image, image.hidden_image_key)
