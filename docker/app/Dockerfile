@@ -1,4 +1,4 @@
-FROM elixir:1.13.1-alpine
+FROM elixir:1.13.4-alpine
 
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
