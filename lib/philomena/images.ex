@@ -4,6 +4,7 @@ defmodule Philomena.Images do
   """
 
   import Ecto.Query, warn: false
+  require Logger
 
   alias Ecto.Multi
   alias Philomena.Repo
@@ -108,9 +109,7 @@ defmodule Philomena.Images do
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
-        Uploader.persist_upload(image)
-
-        repair_image(image)
+        async_upload(image, attrs["image"])
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
         maybe_approve_image(image, attribution[:user])
@@ -120,6 +119,44 @@ defmodule Philomena.Images do
       result ->
         result
     end
+  end
+
+  defp async_upload(image, plug_upload) do
+    linked_pid =
+      spawn(fn ->
+        # Make sure task will finish before VM exit
+        Process.flag(:trap_exit, true)
+
+        # Wait to be freed up by the caller
+        receive do
+          :ready -> nil
+        end
+
+        # Start trying to upload
+        try_upload(image, 0)
+      end)
+
+    # Give the upload to the linked process
+    Plug.Upload.give_away(plug_upload, linked_pid, self())
+
+    # Free up the linked process
+    send(linked_pid, :ready)
+  end
+
+  defp try_upload(image, retry_count) when retry_count < 100 do
+    try do
+      Uploader.persist_upload(image)
+      repair_image(image)
+    rescue
+      e ->
+        Logger.error("Upload failed: #{inspect(e)} [try ##{retry_count}]")
+        Process.sleep(5000)
+        try_upload(image, retry_count + 1)
+    end
+  end
+
+  defp try_upload(image, retry_count) do
+    Logger.error("Aborting upload of #{image.id} after #{retry_count} retries")
   end
 
   defp maybe_create_subscription_on_upload(multi, %User{watch_on_upload: true} = user) do

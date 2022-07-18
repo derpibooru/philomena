@@ -86,10 +86,26 @@ defmodule Philomena.Objects do
     end)
   end
 
-  defp run_all(fun) do
+  defp run_all(wrapped) do
+    fun = fn opts ->
+      try do
+        wrapped.(opts)
+        :ok
+      rescue
+        _ -> :error
+      end
+    end
+
     backends()
     |> Task.async_stream(fun, timeout: :infinity)
-    |> Stream.run()
+    |> Enum.any?(fn {_, v} -> v == :error end)
+    |> case do
+      true ->
+        raise "Failed to operate on all backends"
+
+      _ ->
+        :ok
+    end
   end
 
   defp backends do
