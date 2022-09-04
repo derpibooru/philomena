@@ -27,7 +27,7 @@ defmodule Philomena.Processors.Jpeg do
     with {output, 0} <-
            System.cmd("identify", ["-format", "%[orientation]\t%[profile:icc]", file]),
          [orientation, profile] <- String.split(output, "\t") do
-      orientation != "Undefined" or profile != ""
+      orientation not in ["Undefined", "TopLeft"] or profile != ""
     else
       _ ->
         true
