@@ -1,6 +1,6 @@
 defmodule Philomena.Scrapers.Deviantart do
-  @image_regex ~r|<link data-rh="true" rel="preload" href="([^"]*)" as="image"/>|
-  @source_regex ~r|<link data-rh="true" rel="canonical" href="([^"]*)"/>|
+  @image_regex ~r|data-rh="true" rel="preload" href="([^"]*)" as="image"|
+  @source_regex ~r|rel="canonical" href="([^"]*)"|
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
   @serial_regex ~r|https://www.deviantart.com/(?:.*?)-(\d+)\z|
   @cdnint_regex ~r|(https://images-wixmp-[0-9a-f]+.wixmp.com)(?:/intermediary)?/f/([^/]*)/([^/?]*)|
