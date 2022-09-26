@@ -1,5 +1,5 @@
 .block
-  .block__header: span.block__header__title Statistics
+  .block__header: span.block__header__title Statistics (Last 90 Days)
   .block__content
     table.table.table--stats.center
       tr
