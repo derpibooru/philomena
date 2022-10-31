@@ -13,6 +13,8 @@ defmodule PhilomenaWeb.Api.Rss.WatchedController do
 
     # NB: this is RSS, but using the RSS format causes Phoenix not to
     # escape HTML
-    render(conn, "index.html", layout: false, images: images)
+    conn
+    |> put_resp_header("content-type", "application/rss+xml")
+    |> render("index.html", layout: false, images: images)
   end
 end
