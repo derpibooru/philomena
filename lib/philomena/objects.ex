@@ -71,9 +71,13 @@ defmodule Philomena.Objects do
     #   |> ExAws.request!(opts[:config_overrides])
     # end)
 
-    file_path = Briefly.create!()
-    download_file(source_key, file_path)
-    upload(dest_key, file_path)
+    try do
+      file_path = Briefly.create!()
+      download_file(source_key, file_path)
+      upload(dest_key, file_path)
+    rescue
+      _ -> Logger.warn("Failed to copy #{source_key} -> #{dest_key}")
+    end
   end
 
   #
