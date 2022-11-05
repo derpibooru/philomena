@@ -75,8 +75,8 @@ defmodule Philomena.Objects do
       file_path = Briefly.create!()
       download_file(source_key, file_path)
       upload(dest_key, file_path)
-    rescue
-      _ -> Logger.warn("Failed to copy #{source_key} -> #{dest_key}")
+    catch
+      _kind, _value -> Logger.warn("Failed to copy #{source_key} -> #{dest_key}")
     end
   end
 
@@ -107,8 +107,8 @@ defmodule Philomena.Objects do
       try do
         wrapped.(opts)
         :ok
-      rescue
-        _ -> :error
+      catch
+        _kind, _value -> :error
       end
     end
 
