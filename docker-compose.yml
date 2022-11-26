@@ -45,7 +45,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:14.4-alpine
+    image: postgres:15.1-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -67,7 +67,7 @@ services:
         hard: 65536
 
   redis:
-    image: redis:7.0.2-alpine
+    image: redis:7.0.5-alpine
     logging:
       driver: "none"
 

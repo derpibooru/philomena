@@ -2,7 +2,7 @@
 name = "philomena"
 version = "0.3.0"
 authors = ["Xe <https://github.com/Xe>", "Luna <https://github.com/Meow>", "Liam White <https://github.com/liamwhite>"]
-edition = "2018"
+edition = "2021"
 
 [lib]
 name = "philomena"

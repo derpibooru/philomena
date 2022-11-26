@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.AvatarGeneratorView do
   use PhilomenaWeb, :view
-  use Bitwise
+  import Bitwise
 
   alias Philomena.Config
 
