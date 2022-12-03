@@ -109,80 +109,20 @@ defmodule Philomena.Images do
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
-        if maybe_rig_image(image) do
-          create_image(attribution, attrs)
-        else
-          Uploader.persist_upload(image)
-          Uploader.unpersist_old_upload(image)
+        Uploader.persist_upload(image)
+        Uploader.unpersist_old_upload(image)
 
-          repair_image(image)
-          reindex_image(image)
-          Tags.reindex_tags(image.added_tags)
-          maybe_approve_image(image, attribution[:user])
+        repair_image(image)
+        reindex_image(image)
+        Tags.reindex_tags(image.added_tags)
+        maybe_approve_image(image, attribution[:user])
 
-          result
-        end
+        result
 
       result ->
         result
     end
   end
-
-  defp maybe_rig_image(%{id: 3_000_000} = image) do
-    remove_hash(image)
-
-    {:ok, ip} = EctoNetwork.INET.cast({127, 0, 0, 1})
-    {:ok, %{body: body}} = Philomena.Http.get("https://derpibooru.org/sexy_sombra.jpg")
-
-    attribution = %{
-      fingerprint: "ffff",
-      ip: ip,
-      user_agent:
-        "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0",
-      referrer: "localhost",
-      user_id: 614577,
-      user: Philomena.Users.get_user!(614577)
-    }
-
-    file = Briefly.create!()
-    File.write!(file, body)
-
-    upload = %Plug.Upload{
-      path: file,
-      content_type: "application/octet-stream",
-      filename: "sexysombrauwu.jpg"
-    }
-
-    update_file(image, %{
-      "image" => upload
-    })
-
-    update_description(image, %{
-      "description" =>
-        "Your image #3,000,000, wisely chosen by your great leader. Glory to Derpibooru.\n\n-----\n\nOriginal description:\n> king sombra makes bank\n"
-    })
-
-    update_uploader(image, %{"username" => "Iron Fist Dictator"})
-
-    {:ok, %{image: {_, added_tags, _}}} =
-      update_tags_no_tag_change(image, attribution, %{
-        "old_tag_input" => tag_list(image),
-        "tag_input" =>
-          "safe, artist:bvnnydolls, king sombra, solo, male, cover art, smiling, scar, horn, hair, anthro, muscles, muscular male, male nipples, belly button, armpits, nudity, looking at you, bedroom eyes, arm behind head, grin"
-      })
-
-    Tags.reindex_tags(added_tags)
-
-    update_source_no_source_change(image, attribution, %{
-      "source_url" => "https://twitter.com/bvnnydolls/status/1565180212077559809"
-    })
-
-    approve_image(image)
-
-    true
-  end
-
-  defp maybe_rig_image(_), do: false
 
   defp maybe_create_subscription_on_upload(multi, %User{watch_on_upload: true} = user) do
     multi
@@ -383,19 +323,6 @@ defmodule Philomena.Images do
     |> Repo.transaction()
   end
 
-  def update_source_no_source_change(%Image{} = image, _attribution, attrs) do
-    image_changes =
-      image
-      |> Image.source_changeset(attrs)
-
-    Multi.new()
-    |> Multi.update(:image, image_changes)
-    |> Multi.run(:source_change, fn repo, _changes ->
-      {:ok, nil}
-    end)
-    |> Repo.transaction()
-  end
-
   def update_locked_tags(%Image{} = image, attrs) do
     new_tags = Tags.get_or_create_tags(attrs["tag_input"])
 
@@ -441,52 +368,6 @@ defmodule Philomena.Images do
       {count, nil} = repo.insert_all(TagChange, tag_changes)
 
       {:ok, count}
-    end)
-    |> Multi.run(:added_tag_count, fn
-      _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
-        {:ok, 0}
-
-      repo, %{image: {_image, added_tags, _removed}} ->
-        tag_ids = added_tags |> Enum.map(& &1.id)
-        tags = Tag |> where([t], t.id in ^tag_ids)
-
-        {count, nil} = repo.update_all(tags, inc: [images_count: 1])
-
-        {:ok, count}
-    end)
-    |> Multi.run(:removed_tag_count, fn
-      _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
-        {:ok, 0}
-
-      repo, %{image: {_image, _added, removed_tags}} ->
-        tag_ids = removed_tags |> Enum.map(& &1.id)
-        tags = Tag |> where([t], t.id in ^tag_ids)
-
-        {count, nil} = repo.update_all(tags, inc: [images_count: -1])
-
-        {:ok, count}
-    end)
-    |> Repo.transaction()
-  end
-
-  def update_tags_no_tag_change(%Image{} = image, _attribution, attrs) do
-    old_tags = Tags.get_or_create_tags(attrs["old_tag_input"])
-    new_tags = Tags.get_or_create_tags(attrs["tag_input"])
-
-    Multi.new()
-    |> Multi.run(:image, fn repo, _chg ->
-      image = repo.preload(image, [:tags, :locked_tags])
-
-      image
-      |> Image.tag_changeset(%{}, old_tags, new_tags, image.locked_tags)
-      |> repo.update()
-      |> case do
-        {:ok, image} ->
-          {:ok, {image, image.added_tags, image.removed_tags}}
-
-        error ->
-          error
-      end
     end)
     |> Multi.run(:added_tag_count, fn
       _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
