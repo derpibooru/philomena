@@ -1,6 +1,5 @@
 defmodule PhilomenaWeb.UserAttributionView do
   use PhilomenaWeb, :view
-  use Bitwise
 
   alias Philomena.Attribution
   alias PhilomenaWeb.AvatarGeneratorView
