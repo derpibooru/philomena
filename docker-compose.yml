@@ -77,7 +77,7 @@ services:
       driver: "none"
 
   files:
-    image: andrewgaul/s3proxy:sha-5aec5c1
+    image: andrewgaul/s3proxy:sha-ba0fd6d
     environment:
       - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
