@@ -12,6 +12,8 @@ import {
   toggleEl,
   whenReady,
   findFirstTextNode,
+  disableEl,
+  enableEl,
 } from '../dom';
 import { getRandomArrayItem, getRandomIntBetween } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
@@ -146,6 +148,74 @@ describe('DOM Utilities', () => {
       expect(mockElements1[1]).toHaveClass(hiddenClass);
       expect(mockElements2[0]).toHaveClass(hiddenClass);
       expect(mockElements2[1]).toHaveClass(hiddenClass);
+    });
+  });
+
+  describe('disableEl', () => {
+    it('should set the disabled attribute to true', () => {
+      const mockElement = document.createElement('button');
+      disableEl(mockElement);
+      expect(mockElement).toBeDisabled();
+    });
+
+    it('should set the disabled attribute to true on all provided elements', () => {
+      const mockElements = [
+        document.createElement('input'),
+        document.createElement('button'),
+      ];
+      disableEl(mockElements);
+      expect(mockElements[0]).toBeDisabled();
+      expect(mockElements[1]).toBeDisabled();
+    });
+
+    it('should set the disabled attribute to true on elements provided in multiple arrays', () => {
+      const mockElements1 = [
+        document.createElement('input'),
+        document.createElement('button'),
+      ];
+      const mockElements2 = [
+        document.createElement('textarea'),
+        document.createElement('button'),
+      ];
+      disableEl(mockElements1, mockElements2);
+      expect(mockElements1[0]).toBeDisabled();
+      expect(mockElements1[1]).toBeDisabled();
+      expect(mockElements2[0]).toBeDisabled();
+      expect(mockElements2[1]).toBeDisabled();
+    });
+  });
+
+  describe('enableEl', () => {
+    it('should set the disabled attribute to false', () => {
+      const mockElement = document.createElement('button');
+      enableEl(mockElement);
+      expect(mockElement).toBeEnabled();
+    });
+
+    it('should set the disabled attribute to false on all provided elements', () => {
+      const mockElements = [
+        document.createElement('input'),
+        document.createElement('button'),
+      ];
+      enableEl(mockElements);
+      expect(mockElements[0]).toBeEnabled();
+      expect(mockElements[1]).toBeEnabled();
+    });
+
+    it('should set the disabled attribute to false on elements provided in multiple arrays', () => {
+      const mockElements1 = [
+        document.createElement('input'),
+        document.createElement('button'),
+      ];
+      const mockElements2 = [
+        document.createElement('textarea'),
+        document.createElement('button'),
+      ];
+      enableEl(mockElements1, mockElements2);
+      expect(mockElements1[0]).toBeEnabled();
+      expect(mockElements1[1]).toBeEnabled();
+      expect(mockElements2[0]).toBeEnabled();
+      expect(mockElements2[1]).toBeEnabled();
     });
   });
 
