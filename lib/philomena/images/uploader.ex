@@ -3,6 +3,7 @@ defmodule Philomena.Images.Uploader do
   Upload and processing callback logic for Images.
   """
 
+  alias Philomena.Images.Thumbnailer
   alias Philomena.Images.Image
   alias Philomena.Uploader
 
@@ -11,14 +12,6 @@ defmodule Philomena.Images.Uploader do
   end
 
   def persist_upload(image) do
-    Uploader.persist_upload(image, image_file_root(), "image")
-  end
-
-  def unpersist_old_upload(image) do
-    Uploader.unpersist_old_upload(image, image_file_root(), "image")
-  end
-
-  defp image_file_root do
-    Application.get_env(:philomena, :image_file_root)
+    Thumbnailer.upload_file(image, image.uploaded_image, "full.#{image.image_format}")
   end
 end

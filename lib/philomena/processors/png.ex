@@ -1,13 +1,16 @@
 defmodule Philomena.Processors.Png do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    Enum.map(sizes, fn {name, _} -> "#{name}.png" end)
+  end
+
   def process(analysis, file, versions) do
-    dimensions = analysis.dimensions
     animated? = analysis.animated?
 
     {:ok, intensities} = Intensities.file(file)
 
-    scaled = Enum.flat_map(versions, &scale_if_smaller(file, animated?, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(file, animated?, &1))
 
     %{
       intensities: intensities,
@@ -43,26 +46,7 @@ defmodule Philomena.Processors.Png do
     optimized
   end
 
-  defp scale_if_smaller(_file, _animated?, _dimensions, {:full, _target_dim}) do
-    [{:symlink_original, "full.png"}]
-  end
-
-  defp scale_if_smaller(
-         file,
-         animated?,
-         {width, height},
-         {thumb_name, {target_width, target_height}}
-       ) do
-    if width > target_width or height > target_height do
-      scaled = scale(file, animated?, {target_width, target_height})
-
-      [{:copy, scaled, "#{thumb_name}.png"}]
-    else
-      [{:symlink_original, "#{thumb_name}.png"}]
-    end
-  end
-
-  defp scale(file, animated?, {width, height}) do
+  defp scale(file, animated?, {thumb_name, {width, height}}) do
     scaled = Briefly.create!(extname: ".png")
 
     scale_filter =
@@ -92,6 +76,6 @@ defmodule Philomena.Processors.Png do
 
     System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])
 
-    scaled
+    [{:copy, scaled, "#{thumb_name}.png"}]
   end
 end

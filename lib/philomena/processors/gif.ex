@@ -1,19 +1,25 @@
 defmodule Philomena.Processors.Gif do
   alias Philomena.Intensities
 
+  def versions(sizes) do
+    sizes
+    |> Enum.map(fn {name, _} -> "#{name}.gif" end)
+    |> Kernel.++(["full.webm", "full.mp4", "rendered.png"])
+  end
+
   def process(analysis, file, versions) do
-    dimensions = analysis.dimensions
     duration = analysis.duration
     preview = preview(duration, file)
     palette = palette(file)
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled = Enum.flat_map(versions, &scale_if_smaller(palette, file, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(palette, file, &1))
+    videos = generate_videos(file)
 
     %{
       intensities: intensities,
-      thumbnails: scaled ++ [{:copy, preview, "rendered.png"}]
+      thumbnails: scaled ++ videos ++ [{:copy, preview, "rendered.png"}]
     }
   end
 
@@ -60,27 +66,7 @@ defmodule Philomena.Processors.Gif do
     palette
   end
 
-  # Generate full version, and WebM and MP4 previews
-  defp scale_if_smaller(_palette, file, _dimensions, {:full, _target_dim}) do
-    [{:symlink_original, "full.gif"}] ++ generate_videos(file)
-  end
-
-  defp scale_if_smaller(
-         palette,
-         file,
-         {width, height},
-         {thumb_name, {target_width, target_height}}
-       ) do
-    if width > target_width or height > target_height do
-      scaled = scale(palette, file, {target_width, target_height})
-
-      [{:copy, scaled, "#{thumb_name}.gif"}]
-    else
-      [{:symlink_original, "#{thumb_name}.gif"}]
-    end
-  end
-
-  defp scale(palette, file, {width, height}) do
+  defp scale(palette, file, {thumb_name, {width, height}}) do
     scaled = Briefly.create!(extname: ".gif")
 
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
@@ -104,7 +90,7 @@ defmodule Philomena.Processors.Gif do
         scaled
       ])
 
-    scaled
+    [{:copy, scaled, "#{thumb_name}.gif"}]
   end
 
   defp generate_videos(file) do
