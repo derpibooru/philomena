@@ -5,6 +5,7 @@ defmodule Philomena.Uploader do
 
   alias Philomena.Filename
   alias Philomena.Analyzers
+  alias Philomena.Objects
   alias Philomena.Sha512
   import Ecto.Changeset
 
@@ -58,18 +59,20 @@ defmodule Philomena.Uploader do
   in the transaction.
   """
   @spec persist_upload(any(), String.t(), String.t()) :: any()
-
-  # sobelow_skip ["Traversal"]
   def persist_upload(model, file_root, field_name) do
     source = Map.get(model, field(upload_key(field_name)))
     dest = Map.get(model, field(field_name))
     target = Path.join(file_root, dest)
-    dir = Path.dirname(target)
 
-    # Create the target directory if it doesn't exist yet,
-    # then write the file.
-    File.mkdir_p!(dir)
-    File.cp!(source, target)
+    persist_file(target, source)
+  end
+
+  @doc """
+  Persist an arbitrary file to storage at the given path with the correct
+  content type and permissions.
+  """
+  def persist_file(path, file) do
+    Objects.upload(path, file)
   end
 
   @doc """
@@ -107,8 +110,9 @@ defmodule Philomena.Uploader do
   defp try_remove("", _file_root), do: nil
   defp try_remove(nil, _file_root), do: nil
 
-  # sobelow_skip ["Traversal.FileModule"]
-  defp try_remove(file, file_root), do: File.rm(Path.join(file_root, file))
+  defp try_remove(file, file_root) do
+    Objects.delete(Path.join(file_root, file))
+  end
 
   defp prefix_attributes(map, prefix),
     do: Map.new(map, fn {key, value} -> {"#{prefix}_#{key}", value} end)

@@ -8,6 +8,8 @@ defmodule Philomena.Images.Thumbnailer do
   alias Philomena.Images.Image
   alias Philomena.Processors
   alias Philomena.Analyzers
+  alias Philomena.Uploader
+  alias Philomena.Objects
   alias Philomena.Sha512
   alias Philomena.Repo
 
@@ -18,30 +20,63 @@ defmodule Philomena.Images.Thumbnailer do
     small: {320, 240},
     medium: {800, 600},
     large: {1280, 1024},
-    tall: {1024, 4096},
-    full: nil
+    tall: {1024, 4096}
   ]
 
   def thumbnail_versions do
-    Enum.filter(@versions, fn {_name, dimensions} ->
-      not is_nil(dimensions)
+    @versions
+  end
+
+  # A list of version sizes that should be generated for the image,
+  # based on its dimensions. The processor can generate a list of paths.
+  def generated_sizes(%{image_width: image_width, image_height: image_height}) do
+    Enum.filter(@versions, fn
+      {_name, {width, height}} -> image_width > width or image_height > height
     end)
   end
 
   def thumbnail_urls(image, hidden_key) do
-    Path.join([image_thumb_dir(image), "*"])
-    |> Path.wildcard()
-    |> Enum.map(fn version_name ->
-      Path.join([image_url_base(image, hidden_key), Path.basename(version_name)])
+    image
+    |> all_versions()
+    |> Enum.map(fn name ->
+      Path.join(image_url_base(image, hidden_key), name)
     end)
+  end
+
+  def hide_thumbnails(image, key) do
+    moved_files = all_versions(image)
+
+    source_prefix = visible_image_thumb_prefix(image)
+    target_prefix = hidden_image_thumb_prefix(image, key)
+
+    bulk_rename(moved_files, source_prefix, target_prefix)
+  end
+
+  def unhide_thumbnails(image, key) do
+    moved_files = all_versions(image)
+
+    source_prefix = hidden_image_thumb_prefix(image, key)
+    target_prefix = visible_image_thumb_prefix(image)
+
+    bulk_rename(moved_files, source_prefix, target_prefix)
+  end
+
+  def destroy_thumbnails(image) do
+    affected_files = all_versions(image)
+
+    hidden_prefix = hidden_image_thumb_prefix(image, image.hidden_image_key)
+    visible_prefix = visible_image_thumb_prefix(image)
+
+    bulk_delete(affected_files, hidden_prefix)
+    bulk_delete(affected_files, visible_prefix)
   end
 
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
-    file = image_file(image)
+    file = download_image_file(image)
     {:ok, analysis} = Analyzers.analyze(file)
 
-    apply_edit_script(image, Processors.process(analysis, file, @versions))
+    apply_edit_script(image, Processors.process(analysis, file, generated_sizes(image)))
     generate_dupe_reports(image)
     recompute_meta(image, file, &Image.thumbnail_changeset/2)
 
@@ -56,16 +91,13 @@ defmodule Philomena.Images.Thumbnailer do
     do: ImageIntensities.create_image_intensity(image, intensities)
 
   defp apply_change(image, {:replace_original, new_file}),
-    do: copy(new_file, image_file(image))
+    do: upload_file(image, new_file, "full.#{image.image_format}")
 
   defp apply_change(image, {:thumbnails, thumbnails}),
-    do: Enum.map(thumbnails, &apply_thumbnail(image, image_thumb_dir(image), &1))
+    do: Enum.map(thumbnails, &apply_thumbnail(image, &1))
 
-  defp apply_thumbnail(_image, thumb_dir, {:copy, new_file, destination}),
-    do: copy(new_file, Path.join(thumb_dir, destination))
-
-  defp apply_thumbnail(image, thumb_dir, {:symlink_original, destination}),
-    do: symlink(image_file(image), Path.join(thumb_dir, destination))
+  defp apply_thumbnail(image, {:copy, new_file, destination}),
+    do: upload_file(image, new_file, destination)
 
   defp generate_dupe_reports(image) do
     if not image.duplication_checked do
@@ -86,65 +118,66 @@ defmodule Philomena.Images.Thumbnailer do
     |> Repo.update!()
   end
 
-  # Copy from source to destination, creating parent directories along
-  # the way and setting the appropriate permission bits when necessary.
-  #
-  # sobelow_skip ["Traversal.FileModule"]
-  defp copy(source, destination) do
-    prepare_dir(destination)
+  defp download_image_file(image) do
+    tempfile = Briefly.create!(extname: ".#{image.image_format}")
+    path = Path.join(image_thumb_prefix(image), "full.#{image.image_format}")
 
-    File.rm(destination)
-    File.cp!(source, destination)
+    Objects.download_file(path, tempfile)
 
-    set_perms(destination)
+    tempfile
   end
 
-  # Try to handle filesystems that don't support symlinks
-  # by falling back to a copy.
-  #
-  # sobelow_skip ["Traversal.FileModule"]
-  defp symlink(source, destination) do
-    source = Path.absname(source)
+  def upload_file(image, file, version_name) do
+    path = Path.join(image_thumb_prefix(image), version_name)
 
-    prepare_dir(destination)
-
-    case File.ln_s(source, destination) do
-      :ok ->
-        set_perms(destination)
-
-      _err ->
-        copy(source, destination)
-    end
+    Uploader.persist_file(path, file)
   end
 
-  # 0o644 = (S_IRUSR | S_IWUSR) | S_IRGRP | S_IROTH
-  #
-  # sobelow_skip ["Traversal.FileModule"]
-  defp set_perms(destination),
-    do: File.chmod(destination, 0o644)
+  defp bulk_rename(file_names, source_prefix, target_prefix) do
+    file_names
+    |> Task.async_stream(
+      fn name ->
+        source = Path.join(source_prefix, name)
+        target = Path.join(target_prefix, name)
+        Objects.copy(source, target)
 
-  # Prepare the directory by creating it if it does not yet exist.
-  #
-  # sobelow_skip ["Traversal.FileModule"]
-  defp prepare_dir(destination) do
-    destination
-    |> Path.dirname()
-    |> File.mkdir_p!()
+        name
+      end,
+      timeout: :infinity
+    )
+    |> Stream.map(fn {:ok, name} -> name end)
+    |> bulk_delete(source_prefix)
   end
 
-  def image_file(%Image{image: image}),
-    do: Path.join(image_file_root(), image)
+  defp bulk_delete(file_names, prefix) do
+    file_names
+    |> Enum.map(&Path.join(prefix, &1))
+    |> Objects.delete_multiple()
+  end
 
-  def image_thumb_dir(%Image{
-        created_at: created_at,
-        id: id,
-        hidden_from_users: true,
-        hidden_image_key: key
-      }),
-      do: Path.join([image_thumbnail_root(), time_identifier(created_at), "#{id}-#{key}"])
+  def all_versions(image) do
+    generated = Processors.versions(image.image_mime_type, generated_sizes(image))
+    full = ["full.#{image.image_format}"]
 
-  def image_thumb_dir(%Image{created_at: created_at, id: id}),
-    do: Path.join([image_thumbnail_root(), time_identifier(created_at), to_string(id)])
+    generated ++ full
+  end
+
+  # This method wraps the following two for code that doesn't care
+  # and just wants the files (most code should take this path)
+
+  def image_thumb_prefix(%{hidden_from_users: true} = image),
+    do: hidden_image_thumb_prefix(image, image.hidden_image_key)
+
+  def image_thumb_prefix(image),
+    do: visible_image_thumb_prefix(image)
+
+  # These methods handle the actual distinction between the two
+
+  defp hidden_image_thumb_prefix(%Image{created_at: created_at, id: id}, key),
+    do: Path.join([image_file_root(), time_identifier(created_at), "#{id}-#{key}"])
+
+  defp visible_image_thumb_prefix(%Image{created_at: created_at, id: id}),
+    do: Path.join([image_file_root(), time_identifier(created_at), to_string(id)])
 
   defp image_url_base(%Image{created_at: created_at, id: id}, nil),
     do: Path.join([image_url_root(), time_identifier(created_at), to_string(id)])
@@ -156,11 +189,8 @@ defmodule Philomena.Images.Thumbnailer do
     do: Enum.join([time.year, time.month, time.day], "/")
 
   defp image_file_root,
-    do: Application.get_env(:philomena, :image_file_root)
-
-  defp image_thumbnail_root,
-    do: Application.get_env(:philomena, :image_file_root) <> "/thumbs"
+    do: Application.fetch_env!(:philomena, :image_file_root)
 
   defp image_url_root,
-    do: Application.get_env(:philomena, :image_url_root)
+    do: Application.fetch_env!(:philomena, :image_url_root)
 end

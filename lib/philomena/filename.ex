@@ -8,8 +8,7 @@ defmodule Philomena.Filename do
     [
       time_identifier(DateTime.utc_now()),
       "/",
-      usec_identifier(),
-      pid_identifier(),
+      UUID.uuid1(),
       ".",
       extension
     ]
@@ -18,18 +17,5 @@ defmodule Philomena.Filename do
 
   defp time_identifier(time) do
     Enum.join([time.year, time.month, time.day], "/")
-  end
-
-  defp usec_identifier do
-    DateTime.utc_now()
-    |> DateTime.to_unix(:microsecond)
-    |> to_string()
-  end
-
-  defp pid_identifier do
-    self()
-    |> :erlang.pid_to_list()
-    |> to_string()
-    |> String.replace(~r/[^0-9]/, "")
   end
 end

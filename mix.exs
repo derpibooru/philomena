@@ -69,6 +69,10 @@ defmodule Philomena.MixProject do
       {:castore, "~> 0.1"},
       {:mint, "~> 1.2"},
       {:exq, "~> 0.14"},
+      {:ex_aws, "~> 2.0",
+       github: "liamwhite/ex_aws", ref: "a340859dd8ac4d63bd7a3948f0994e493e49bda4", override: true},
+      {:ex_aws_s3, "~> 2.0"},
+      {:sweet_xml, "~> 0.7"},
 
       # Markdown
       {:rustler, "~> 0.22"},
