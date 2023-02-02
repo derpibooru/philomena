@@ -51,6 +51,6 @@ defmodule Philomena.Batch do
     |> where([m], field(m, ^id_field) > ^max_id)
     |> select([m], field(m, ^id_field))
     |> limit(^batch_size)
-    |> Repo.all()
+    |> Repo.all(timeout: 120_000)
   end
 end

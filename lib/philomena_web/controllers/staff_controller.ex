@@ -20,16 +20,22 @@ defmodule PhilomenaWeb.StaffController do
           &(&1.role != "admin" and &1.secondary_role in ["Site Developer", "Devops"])
         ),
       "Public Relations":
-        Enum.filter(users, &(&1.role != "admin" and &1.secondary_role == "Public Relations" and &1.hide_default_role == false)),
+        Enum.filter(
+          users,
+          &(&1.role != "admin" and &1.secondary_role == "Public Relations" and
+              &1.hide_default_role == false)
+        ),
       Moderators:
         Enum.filter(
           users,
-          &(&1.role == "moderator" and &1.secondary_role in [nil, ""] and &1.hide_default_role == false)
+          &(&1.role == "moderator" and &1.secondary_role in [nil, ""] and
+              &1.hide_default_role == false)
         ),
       Assistants:
         Enum.filter(
           users,
-          &(&1.role == "assistant" and &1.secondary_role in [nil, ""] and &1.hide_default_role == false)
+          &(&1.role == "assistant" and &1.secondary_role in [nil, ""] and
+              &1.hide_default_role == false)
         ),
       Others:
         Enum.filter(
@@ -42,8 +48,8 @@ defmodule PhilomenaWeb.StaffController do
         Enum.filter(
           users,
           &(&1.role != "user" and
-            &1.secondary_role in ["", nil] and
-            &1.hide_default_role == true)
+              &1.secondary_role in ["", nil] and
+              &1.hide_default_role == true)
         )
     ]
 

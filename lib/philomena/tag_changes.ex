@@ -24,7 +24,7 @@ defmodule Philomena.TagChanges do
       |> join(:inner, [tc], _ in assoc(tc, :image))
       |> where([tc, i], tc.id in ^ids and i.hidden_from_users == false)
       |> order_by(desc: :created_at)
-      |> Repo.all()
+      |> Repo.all(timeout: 120_000)
       |> Enum.reject(&is_nil(&1.tag_id))
       |> Enum.uniq_by(&{&1.image_id, &1.tag_id})
 
@@ -47,9 +47,13 @@ defmodule Philomena.TagChanges do
 
     Repo.transaction(fn ->
       {_count, inserted} =
-        Repo.insert_all(Tagging, to_add, on_conflict: :nothing, returning: [:image_id, :tag_id])
+        Repo.insert_all(Tagging, to_add,
+          on_conflict: :nothing,
+          returning: [:image_id, :tag_id],
+          timeout: 120_000
+        )
 
-      {_count, deleted} = Repo.delete_all(to_remove)
+      {_count, deleted} = Repo.delete_all(to_remove, timeout: 120_000)
 
       inserted = Enum.map(inserted, &[&1.image_id, &1.tag_id])
 
@@ -63,7 +67,7 @@ defmodule Philomena.TagChanges do
           Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: false})
         end)
 
-      Repo.insert_all(TagChange, added_changes ++ removed_changes)
+      Repo.insert_all(TagChange, added_changes ++ removed_changes, timeout: 120_000)
 
       # In order to merge into the existing tables here in one go, insert_all
       # is used with a query that is guaranteed to conflict on every row by
