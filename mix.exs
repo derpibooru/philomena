@@ -36,62 +36,62 @@ defmodule Philomena.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.6"},
-      {:phoenix_pubsub, "~> 2.0"},
-      {:phoenix_ecto, "~> 4.2"},
-      {:ecto_sql, "~> 3.5"},
+      {:phoenix_pubsub, "~> 2.1"},
+      {:phoenix_ecto, "~> 4.4"},
+      {:ecto_sql, "~> 3.9"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_html, "~> 2.14"},
-      {:phoenix_live_reload, "~> 1.3", only: :dev},
-      {:gettext, "~> 0.18"},
-      {:jason, "~> 1.2"},
-      {:ranch, "~> 1.6", override: true},
-      {:plug_cowboy, "~> 2.3"},
+      {:phoenix_live_reload, "~> 1.4", only: :dev},
+      {:gettext, "~> 0.22"},
+      {:jason, "~> 1.4"},
+      {:ranch, "~> 2.1", override: true},
+      {:plug_cowboy, "~> 2.6"},
       {:phoenix_slime, "~> 0.13"},
       {:phoenix_pubsub_redis, "~> 3.0"},
       {:ecto_network, "~> 1.3"},
-      {:bcrypt_elixir, "~> 2.3"},
+      {:bcrypt_elixir, "~> 3.0"},
       {:pot, "~> 1.0"},
       {:secure_compare, "~> 0.1"},
-      {:elastix, "~> 0.8"},
-      {:nimble_parsec, "~> 1.1"},
+      {:elastix, "~> 0.10"},
+      {:nimble_parsec, "~> 1.2"},
       {:canary, "~> 1.1"},
       {:scrivener_ecto, "~> 2.7"},
       {:pbkdf2, "~> 2.0",
        github: "code-time/erlang-pbkdf2", ref: "f8f0012a97f58ade9c70ac93260e4259e4ca4b8d"},
       {:qrcode, "~> 0.1"},
-      {:redix, "~> 0.10.0"},
-      {:bamboo, "~> 1.6"},
-      {:bamboo_smtp, "~> 3.1"},
-      {:remote_ip, "~> 0.2"},
-      {:briefly, "~> 0.3"},
-      {:phoenix_mtm, "~> 1.0"},
-      {:tesla, "~> 1.4"},
-      {:castore, "~> 0.1"},
-      {:mint, "~> 1.2"},
-      {:exq, "~> 0.14"},
+      {:redix, "~> 1.2"},
+      {:bamboo, "~> 2.2"},
+      {:bamboo_smtp, "~> 4.2"},
+      {:remote_ip, "~> 1.1"},
+      {:briefly, "~> 0.4"},
+      {:tesla, "~> 1.5"},
+      {:castore, "~> 1.0", override: true},
+      {:mint, "~> 1.4"},
+      {:exq, "~> 0.17"},
       {:ex_aws, "~> 2.0",
        github: "liamwhite/ex_aws", ref: "a340859dd8ac4d63bd7a3948f0994e493e49bda4", override: true},
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.7"},
+      {:inet_cidr, "~> 1.0"},
 
       # Markdown
-      {:rustler, "~> 0.22"},
+      {:rustler, "~> 0.27"},
 
       # Linting
-      {:credo, "~> 1.5", only: [:dev, :test], override: true},
+      {:credo, "~> 1.6", only: [:dev, :test], override: true},
       {:credo_envvar, "~> 0.1", only: [:dev, :test], runtime: false},
-      {:credo_naming, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:credo_naming, "~> 2.0", only: [:dev, :test], runtime: false},
 
       # Security checks
       {:sobelow, "~> 0.11", only: [:dev, :test], runtime: true},
-      {:mix_audit, "~> 0.1", only: [:dev, :test], runtime: false},
+      {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
 
       # Static analysis
-      {:dialyxir, "~> 1.0", only: :dev, runtime: false},
+      {:dialyxir, "~> 1.2", only: :dev, runtime: false},
 
       # Fixes for OTP/25
       {:neotoma, "~> 1.7.3", manager: :rebar3, override: true},
-      {:hut, "~> 1.3.0", manager: :rebar3, override: true}
+      {:hut, "~> 1.4.0", manager: :rebar3, override: true}
     ]
   end
 

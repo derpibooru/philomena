@@ -188,4 +188,55 @@ defmodule PhilomenaWeb.AppView do
   def blank?(_object), do: false
 
   def present?(object), do: not blank?(object)
+
+  # This and related functions are taken from
+  # https://github.com/adam12/phoenix_mtm
+  # Copied due to the package no longer being actively updated
+  # and screwing up our dependencies.
+  # Credit goes to the respective authors.
+  def collection_checkboxes(form, field, collection, opts \\ []) do
+    name = input_name(form, field) <> "[]"
+    selected = Keyword.get(opts, :selected, [])
+    input_opts = Keyword.get(opts, :input_opts, [])
+    label_opts = Keyword.get(opts, :label_opts, [])
+    mapper = Keyword.get(opts, :mapper, &mapper_unwrapped/6)
+    wrapper = Keyword.get(opts, :wrapper, &(&1))
+
+    inputs = Enum.map(collection, fn {label_content, value} ->
+      id = input_id(form, field) <> "_#{value}"
+
+      input_opts =
+        input_opts
+        |> Keyword.put(:type, "checkbox")
+        |> Keyword.put(:id, id)
+        |> Keyword.put(:name, name)
+        |> Keyword.put(:value, "#{value}")
+        |> put_selected(selected, value)
+
+      label_opts = label_opts ++ [for: id]
+
+      mapper.(form, field, input_opts, label_content, label_opts, opts)
+      |> wrapper.()
+    end)
+
+    html_escape(
+      inputs ++
+      hidden_input(form, field, [name: name, value: ""])
+    )
+  end
+
+  defp put_selected(opts, selected, value) do
+    if Enum.member?(selected, value) do
+      Keyword.put(opts, :checked, true)
+    else
+      opts
+    end
+  end
+
+  defp mapper_unwrapped(form, field, input_opts, label_content, label_opts, _opts) do
+    [
+      tag(:input, input_opts),
+      label(form, field, "#{label_content}", label_opts)
+    ]
+  end
 end

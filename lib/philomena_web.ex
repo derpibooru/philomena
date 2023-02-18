@@ -43,7 +43,6 @@ defmodule PhilomenaWeb do
 
       import PhilomenaWeb.ErrorHelpers
       import PhilomenaWeb.Gettext
-      import PhoenixMTM.Helpers
       alias PhilomenaWeb.Router.Helpers, as: Routes
 
       # Wrong way around for convenience
