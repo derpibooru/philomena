@@ -200,28 +200,29 @@ defmodule PhilomenaWeb.AppView do
     input_opts = Keyword.get(opts, :input_opts, [])
     label_opts = Keyword.get(opts, :label_opts, [])
     mapper = Keyword.get(opts, :mapper, &mapper_unwrapped/6)
-    wrapper = Keyword.get(opts, :wrapper, &(&1))
+    wrapper = Keyword.get(opts, :wrapper, & &1)
 
-    inputs = Enum.map(collection, fn {label_content, value} ->
-      id = input_id(form, field) <> "_#{value}"
+    inputs =
+      Enum.map(collection, fn {label_content, value} ->
+        id = input_id(form, field) <> "_#{value}"
 
-      input_opts =
-        input_opts
-        |> Keyword.put(:type, "checkbox")
-        |> Keyword.put(:id, id)
-        |> Keyword.put(:name, name)
-        |> Keyword.put(:value, "#{value}")
-        |> put_selected(selected, value)
+        input_opts =
+          input_opts
+          |> Keyword.put(:type, "checkbox")
+          |> Keyword.put(:id, id)
+          |> Keyword.put(:name, name)
+          |> Keyword.put(:value, "#{value}")
+          |> put_selected(selected, value)
 
-      label_opts = label_opts ++ [for: id]
+        label_opts = label_opts ++ [for: id]
 
-      mapper.(form, field, input_opts, label_content, label_opts, opts)
-      |> wrapper.()
-    end)
+        mapper.(form, field, input_opts, label_content, label_opts, opts)
+        |> wrapper.()
+      end)
 
     html_escape(
       inputs ++
-      hidden_input(form, field, [name: name, value: ""])
+        hidden_input(form, field, name: name, value: "")
     )
   end
 

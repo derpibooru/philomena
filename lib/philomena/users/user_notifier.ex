@@ -3,16 +3,13 @@ defmodule Philomena.Users.UserNotifier do
   alias Philomena.Mailer
 
   defp deliver(to, subject, body) do
-    email =
-      Email.new_email(
-        to: to,
-        from: mailer_address(),
-        subject: subject,
-        text_body: body
-      )
-      |> Mailer.deliver_later()
-
-    {:ok, email}
+    Email.new_email(
+      to: to,
+      from: mailer_address(),
+      subject: subject,
+      text_body: body
+    )
+    |> Mailer.deliver_later()
   end
 
   defp mailer_address do
