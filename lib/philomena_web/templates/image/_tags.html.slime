@@ -12,7 +12,7 @@
           ' The following tags have been restricted on this image:
           code= Enum.map_join(@image.locked_tags, ", ", & &1.name)
 
-      = form_for @changeset, Routes.image_tag_path(@conn, :update, @image), [id: "tags-form", method: "put", data: [remote: true]], fn f ->
+      = form_for @changeset, Routes.image_tag_path(@conn, :update, @image), [id: "tags-form", method: "put", data: [remote: "true"]], fn f ->
         = if @changeset.action do
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
