@@ -73,7 +73,7 @@
     = if can?(@conn, :edit, @commission) do
       = link "Edit this listing", to: Routes.profile_commission_path(@conn, :edit, @user)
       br
-      = link "Delete this listing", to: Routes.profile_commission_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure about that?", method: :delete]
+      = link "Delete this listing", to: Routes.profile_commission_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure about that?", method: "delete"]
       br
     = link "Report this listing", to: Routes.profile_commission_report_path(@conn, :new, @user)
 

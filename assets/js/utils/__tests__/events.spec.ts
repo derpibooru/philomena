@@ -47,7 +47,7 @@ describe('Event utils', () => {
 
       fireEvent(mockButton, new Event('click', { bubbles: true }));
 
-      expect(mockHandler).toBeCalledTimes(1);
+      expect(mockHandler).toHaveBeenCalledTimes(1);
 
       const [event, target] = mockHandler.mock.calls[0];
       expect(event).toBeInstanceOf(Event);
@@ -64,7 +64,7 @@ describe('Event utils', () => {
 
       fireEvent.click(mockButton, { button: 0 });
 
-      expect(mockHandler).toBeCalledTimes(1);
+      expect(mockHandler).toHaveBeenCalledTimes(1);
     });
 
     it('should NOT fire on any other click', () => {
@@ -76,7 +76,7 @@ describe('Event utils', () => {
 
       fireEvent.click(mockButton, { button: mockButtonNumber });
 
-      expect(mockHandler).toBeCalledTimes(0);
+      expect(mockHandler).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -107,7 +107,7 @@ describe('Event utils', () => {
 
       fireEvent(mockButton, new Event('click', { bubbles: true }));
 
-      expect(mockHandler).toBeCalledTimes(1);
+      expect(mockHandler).toHaveBeenCalledTimes(1);
 
       const [event, target] = mockHandler.mock.calls[0];
       expect(event).toBeInstanceOf(Event);
@@ -136,8 +136,8 @@ describe('Event utils', () => {
 
       fireEvent(mockButton, new Event('click', { bubbles: true }));
 
-      expect(mockWrapperHandler).toBeCalledTimes(1);
-      expect(mockParentHandler).not.toBeCalled();
+      expect(mockWrapperHandler).toHaveBeenCalledTimes(1);
+      expect(mockParentHandler).not.toHaveBeenCalled();
     });
   });
 });

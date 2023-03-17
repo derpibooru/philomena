@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.ScraperPlug do
     params_name = Keyword.get(opts, :params_name, "image")
     params_key = Keyword.get(opts, :params_key, "image")
     name = extract_filename(url, headers)
-    file = Briefly.create!()
+    file = Plug.Upload.random_file!(UUID.uuid1())
 
     File.write!(file, body)
 

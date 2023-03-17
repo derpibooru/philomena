@@ -98,6 +98,7 @@ export default {
           outputPath: './fonts',
           publicPath: '../fonts',
         },
+        dependency: { not: ['url'] },
       },
       {
         test: /app\.js/,
@@ -123,7 +124,11 @@ export default {
             loader: 'css-loader',
             options: {
               sourceMap: isDevelopment,
-              url: (url) => !url.startsWith('/'),
+              url: {
+                filter: (url, _resourcePath) => {
+                  return !url.startsWith('/');
+                }
+              }
             },
           },
           {

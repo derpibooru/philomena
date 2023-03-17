@@ -1,13 +1,16 @@
 defmodule Philomena.Processors.Jpeg do
   alias Philomena.Intensities
 
-  def process(analysis, file, versions) do
-    dimensions = analysis.dimensions
+  def versions(sizes) do
+    Enum.map(sizes, fn {name, _} -> "#{name}.jpg" end)
+  end
+
+  def process(_analysis, file, versions) do
     stripped = optimize(strip(file))
 
     {:ok, intensities} = Intensities.file(stripped)
 
-    scaled = Enum.flat_map(versions, &scale_if_smaller(stripped, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(stripped, &1))
 
     %{
       replace_original: stripped,
@@ -68,21 +71,7 @@ defmodule Philomena.Processors.Jpeg do
     optimized
   end
 
-  defp scale_if_smaller(_file, _dimensions, {:full, _target_dim}) do
-    [{:symlink_original, "full.jpg"}]
-  end
-
-  defp scale_if_smaller(file, {width, height}, {thumb_name, {target_width, target_height}}) do
-    if width > target_width or height > target_height do
-      scaled = scale(file, {target_width, target_height})
-
-      [{:copy, scaled, "#{thumb_name}.jpg"}]
-    else
-      [{:symlink_original, "#{thumb_name}.jpg"}]
-    end
-  end
-
-  defp scale(file, {width, height}) do
+  defp scale(file, {thumb_name, {width, height}}) do
     scaled = Briefly.create!(extname: ".jpg")
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
 
@@ -102,7 +91,7 @@ defmodule Philomena.Processors.Jpeg do
 
     {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
 
-    scaled
+    [{:copy, scaled, "#{thumb_name}.jpg"}]
   end
 
   defp srgb_profile do

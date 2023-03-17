@@ -55,4 +55,4 @@
                 = link "Edit item", to: Routes.profile_commission_item_path(@conn, :edit, @user, item)
                 br
                 br
-                = link "Delete item", to: Routes.profile_commission_item_path(@conn, :delete, @user, item), data: [confirm: "Are you really, really sure?", method: :delete]
+                = link "Delete item", to: Routes.profile_commission_item_path(@conn, :delete, @user, item), data: [confirm: "Are you really, really sure?", method: "delete"]

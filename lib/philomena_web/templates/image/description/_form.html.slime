@@ -1,4 +1,4 @@
-= form_for @changeset, Routes.image_description_path(@conn, :update, @image), [class: "block hidden", id: "description-form", data: [remote: true]], fn f ->
+= form_for @changeset, Routes.image_description_path(@conn, :update, @image), [class: "block hidden", id: "description-form", data: [remote: "true"]], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
