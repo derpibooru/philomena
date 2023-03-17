@@ -46,9 +46,7 @@ if (isDevelopment) {
 else {
   plugins = plugins.concat([
     new TerserPlugin({
-      cache: true,
       parallel: true,
-      sourceMap: isDevelopment,
     }),
     new CssMinimizerPlugin(),
   ]);
