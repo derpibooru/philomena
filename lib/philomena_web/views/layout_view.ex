@@ -45,14 +45,14 @@ defmodule PhilomenaWeb.LayoutView do
       user_name: if(user, do: user.name, else: nil),
       user_slug: if(user, do: user.slug, else: nil),
       user_is_signed_in: if(user, do: "true", else: "false"),
-      user_can_edit_filter: if(user, do: filter.user_id == user.id, else: "false"),
+      user_can_edit_filter: if(user, do: filter.user_id == user.id, else: "false") |> to_string(),
       spoiler_type: if(user, do: user.spoiler_type, else: "static"),
       watched_tag_list: Jason.encode!(if(user, do: user.watched_tag_ids, else: [])),
-      fancy_tag_edit: if(user, do: user.fancy_tag_field_on_edit, else: "true"),
-      fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: "true"),
+      fancy_tag_edit: if(user, do: user.fancy_tag_field_on_edit, else: "true") |> to_string(),
+      fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: "true") |> to_string(),
       interactions: Jason.encode!(interactions),
       ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags])),
-      hide_staff_tools: conn.cookies["hide_staff_tools"]
+      hide_staff_tools: conn.cookies["hide_staff_tools"] |> to_string()
     ]
 
     data = Keyword.merge(data, extra)
