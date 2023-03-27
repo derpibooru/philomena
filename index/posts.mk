@@ -5,7 +5,7 @@ ELASTICDUMP ?= elasticdump
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=posts.jsonl --output=http://localhost:9200/ --output-index=posts --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc)"
+	$(ELASTICDUMP) --input=posts.jsonl --output=http://localhost:9200/ --output-index=posts --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata authors
 	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_posts.jsonb_object_agg(object) from temp_posts.post_search_json group by post_id) to stdout;' > posts.jsonl
