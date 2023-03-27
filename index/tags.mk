@@ -5,7 +5,7 @@ ELASTICDUMP ?= elasticdump
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=tags.jsonl --output=http://localhost:9200/ --output-index=tags --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc)"
+	$(ELASTICDUMP) --input=tags.jsonl --output=http://localhost:9200/ --output-index=tags --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata aliases implied_tags implied_by_tags
 	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_tags.jsonb_object_agg(object) from temp_tags.tag_search_json group by tag_id) to stdout;' > tags.jsonl
