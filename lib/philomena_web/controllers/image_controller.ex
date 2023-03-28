@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def index(conn, _params) do
     {:ok, {images, _tags}} =
-      ImageLoader.search_string(conn, "created_at.lte:3 minutes ago, thumbnails_generated:true")
+      ImageLoader.search_string(conn, "created_at.lte:3 minutes ago, -thumbnails_generated:false")
 
     images = Elasticsearch.search_records(images, preload(Image, tags: :aliases))
 
