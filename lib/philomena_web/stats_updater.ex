@@ -86,16 +86,16 @@ defmodule PhilomenaWeb.StatsUpdater do
   end
 
   defp users do
-    first_user = Repo.one(first(User))
-    last_user = Repo.one(last(User))
-    time = DateTime.utc_now() |> DateTime.add(-86400, :second)
+    total =
+      User
+      |> Repo.aggregate(:count, :id)
 
     last_24h =
       User
-      |> where([u], u.created_at > ^time)
+      |> where([u], u.created_at > ago(1, "day"))
       |> Repo.aggregate(:count, :id)
 
-    {diff(last_user, first_user), last_24h}
+    {total, last_24h}
   end
 
   defp galleries do
