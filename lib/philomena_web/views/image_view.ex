@@ -58,6 +58,18 @@ defmodule PhilomenaWeb.ImageView do
     |> append_gif_urls(image, show_hidden)
   end
 
+  def select_version(image, version_name) do
+    Thumbnailer.thumbnail_versions()
+    |> Map.new(fn {name, {width, height}} ->
+      if image.image_width > width or image.image_height > height do
+        {name, version_name}
+      else
+        {name, :full}
+      end
+    end)
+    |> Map.get(version_name, :full)
+  end
+
   defp append_full_url(urls, %{hidden_from_users: false} = image, _show_hidden),
     do: Map.put(urls, :full, pretty_url(image, true, false))
 
