@@ -48,15 +48,8 @@ defmodule Philomena.Objects do
   #
   @spec upload(String.t(), String.t()) :: any()
   def upload(key, file_path) do
+    # Workaround for API rate limit issues on R2
     put(key, file_path)
-    # {_, mime} = Mime.file(file_path)
-    #
-    # run_all(fn opts ->
-    #   file_path
-    #   |> ExAws.S3.Upload.stream_file()
-    #   |> ExAws.S3.upload(opts[:bucket], key, content_type: mime, max_concurrency: 2)
-    #   |> ExAws.request!(opts[:config_overrides])
-    # end)
   end
 
   #

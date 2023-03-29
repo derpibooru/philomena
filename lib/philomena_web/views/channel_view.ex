@@ -1,9 +1,6 @@
 defmodule PhilomenaWeb.ChannelView do
   use PhilomenaWeb, :view
 
-  def channel_image(%{channel_image: image, is_live: false}) when image not in [nil, ""],
-    do: channel_url_root() <> "/" <> image
-
   def channel_image(%{type: "LivestreamChannel", short_name: short_name}) do
     now = DateTime.utc_now() |> DateTime.to_unix(:microsecond)
 
@@ -23,8 +20,4 @@ defmodule PhilomenaWeb.ChannelView do
       Camo.Image.image_url(
         "https://static-cdn.jtvnw.net/previews-ttv/live_user_#{String.downcase(short_name)}-320x180.jpg"
       )
-
-  defp channel_url_root do
-    Application.get_env(:philomena, :channel_url_root)
-  end
 end

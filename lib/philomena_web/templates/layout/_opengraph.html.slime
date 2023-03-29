@@ -6,6 +6,8 @@ meta name="format-detection" content="telephone=no"
   - image = @conn.assigns.image
   - filtered = not image.thumbnails_generated
   - description = "##{image.id} - #{Philomena.Images.tag_list(image)} - Derpibooru"
+  - thumb_large = ImageView.thumb_urls(image, false)[:large]
+  - thumb_rendered = ImageView.thumb_url(image, false, :rendered)
 
   meta name="keywords" content=tag_list(image)
   meta name="description" content=description
@@ -25,16 +27,16 @@ meta name="format-detection" content="telephone=no"
   = cond do
     - image.image_mime_type == "video/webm" and not filtered ->
       meta property="og:type" content="video.other"
-      meta property="og:image" content=ImageView.thumb_url(image, false, :rendered)
-      meta property="og:video" content=ImageView.thumb_url(image, false, :large)
+      meta property="og:image" content=thumb_rendered
+      meta property="og:video" content=thumb_large
 
     - image.image_mime_type == "image/svg+xml" and not filtered ->
       meta property="og:type" content="website"
-      meta property="og:image" content=ImageView.thumb_url(image, false, :rendered)
+      meta property="og:image" content=thumb_rendered
 
     - not filtered ->
       meta property="og:type" content="website"
-      meta property="og:image" content=ImageView.thumb_url(image, false, :large)
+      meta property="og:image" content=thumb_large
 
     - true ->
       meta property="og:type" content="website"

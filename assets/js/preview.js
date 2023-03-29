@@ -3,6 +3,7 @@
  */
 
 import { fetchJson } from './utils/requests';
+import { bindImageTarget } from './image_expansion';
 import { filterNode } from './imagesclientside';
 import { hideEl, showEl } from './utils/dom';
 
@@ -49,6 +50,7 @@ function getPreview(body, anonymous, previewLoading, previewIdle, previewContent
     .then(data => {
       previewContent.innerHTML = data;
       filterNode(previewContent);
+      bindImageTarget(previewContent);
       showEl(previewIdle);
       hideEl(previewLoading);
     });
