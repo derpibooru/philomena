@@ -171,8 +171,12 @@ function listenAutocomplete() {
 
   function fetchLocalAutocomplete(event) {
     if (!localFetched && event.target.dataset && 'ac' in event.target.dataset) {
+      const now = new Date();
+      const cacheKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`;
+
       localFetched = true;
-      fetch('/autocomplete/compiled?vsn=2', { credentials: 'omit', cache: 'force-cache' })
+
+      fetch(`/autocomplete/compiled?vsn=2&key=${cacheKey}`, { credentials: 'omit', cache: 'force-cache' })
         .then(handleError)
         .then(resp => resp.arrayBuffer())
         .then(buf => localAc = new LocalAutocompleter(buf));
