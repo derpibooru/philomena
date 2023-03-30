@@ -19,18 +19,17 @@ defmodule PhilomenaWeb.TorPlug do
   def call(conn, _opts) do
     onion? = onion?(conn.host)
     user = conn.assigns.current_user
-    ip = conn.remote_ip
 
-    maybe_redirect(conn, user, ip, onion?)
+    maybe_redirect(conn, user, onion?)
   end
 
-  def maybe_redirect(conn, nil, {127, 0, 0, 1}, true) do
+  def maybe_redirect(conn, nil, true) do
     conn
     |> Controller.redirect(to: Routes.session_path(conn, :new))
     |> Conn.halt()
   end
 
-  def maybe_redirect(conn, _user, _ip, _onion?), do: conn
+  def maybe_redirect(conn, _user, _onion?), do: conn
 
   # This is allowed, because nginx won't forward the request
   # to the appserver if the hostname isn't in a specific list
