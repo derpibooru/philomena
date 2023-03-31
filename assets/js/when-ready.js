@@ -70,8 +70,8 @@ whenReady(() => {
   pollOptionCreator();
   warnAboutPMs();
 
-  let ticker = $('.game__progress_ticker');
-
-  if (ticker)
+  const ticker = $('.game__progress_ticker');
+  if (ticker) {
     ticker.style.left = `${ticker.dataset.percentage}%`;
+  }
 });
