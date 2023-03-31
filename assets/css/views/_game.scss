@@ -1,0 +1,124 @@
+// Hi, brave soul who reads this.
+// I've written this file like you see mostly
+// because this is how redesign is written.
+// This file is... terrible tbh.
+// Redesign is much better.
+:root {
+  --border-radius: 0.25rem;
+
+  --team1-color: #38407c;
+  --team2-color: #dc591a;
+  --middle-color: #7a4a55;
+
+  --bar-outline-color: #665773;
+}
+
+.game {
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.5rem;
+  max-width: 1280px;
+  width: calc(100% - 1rem);
+  margin: auto;
+}
+
+.game__team_banner {
+  background: #303030;
+  border: 1px solid #00000000;
+  border-radius: var(--border-radius);
+  color: #d8d8d8;
+  text-align: center;
+  padding: 0.1rem;
+  margin-top: 0.1rem;
+}
+
+.game__team_banner img {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.25rem;
+}
+
+.game__team_banner--nlr {
+  background: var(--team1-color);
+}
+
+.game__team_banner--se {
+  background: var(--team2-color);
+}
+
+.game > p {
+  margin: auto;
+  margin-top: 0.25rem;
+}
+
+.game__your_team {
+  margin-bottom: 0.25rem;
+}
+
+.game__team_titles {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.game__title--team1 {
+  display: flex;
+  flex-direction: row;
+  line-height: 2rem;
+
+  & > span {
+    font-size: 16px;
+  }
+}
+
+.game__title--team2 {
+  @extend .game__title--team1;
+  margin-left: auto;
+}
+
+.game__team_logo {
+  width: 2rem;
+  height: 2rem;
+  margin: 0 0.5rem;
+}
+
+.game__team_logo--nlr {
+  filter: invert(25%) sepia(10%) saturate(4171%) hue-rotate(198deg) brightness(90%) contrast(88%);
+}
+
+.game__team_logo--se {
+  filter: invert(36%) sepia(57%) saturate(1428%) hue-rotate(350deg) brightness(102%) contrast(93%);
+}
+
+.game__progress {
+  display: flex;
+  position: relative;
+  border: 1px solid #00000000;
+  border-radius: var(--border-radius);
+  height: 1rem;
+  width: 100%;
+  overflow: hidden;
+}
+
+.game__progress_bar {
+  background: linear-gradient(
+    90deg,
+    var(--team1-color) 0%,
+    var(--middle-color) 50%,
+    var(--team2-color) 100%
+  );
+  height: 1rem;
+  width: 100%;
+}
+
+.game__progress_ticker {
+  display: block;
+  position: absolute;
+  width: 2px;
+  height: 1rem;
+  background: #f0f0f088;
+  top: 0;
+}
+
+.game__score {
+  margin: 0 0.25rem;
+}

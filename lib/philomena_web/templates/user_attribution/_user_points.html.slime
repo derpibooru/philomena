@@ -1,0 +1,16 @@
+= if !!@object.user do
+  - team_data = team_data_for_user(@object.user)
+  - rank = rank_for_user(@object.user)
+
+  .game__team_banner class=team_data.style
+    span
+      img src=team_data.icon
+      =<> team_data.name
+    .game__team_banner_separator
+    span 
+      ' Rank:
+      strong = rank
+    .game__team_banner_separator
+    span 
+      => team_data.points
+      ' points

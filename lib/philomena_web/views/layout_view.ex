@@ -4,6 +4,7 @@ defmodule PhilomenaWeb.LayoutView do
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
   alias Plug.Conn
+  alias Philomena.Games
 
   def layout_class(conn) do
     conn.assigns[:layout_class] || "layout--narrow"
@@ -134,5 +135,20 @@ defmodule PhilomenaWeb.LayoutView do
       [ua] -> ua
       _ -> ""
     end
+  end
+
+  def current_scores do
+    team_scores = Games.team_scores()
+    diff = Enum.at(team_scores, 0) - Enum.at(team_scores, 1)
+    # guarantee that we're not dividing by zero lol
+    total = Enum.sum(team_scores) + 0.001
+
+    %{
+      team1_score: Enum.at(team_scores, 0),
+      team2_score: Enum.at(team_scores, 1),
+      total_score: total,
+      diff: diff,
+      percentage: "#{50 + 50 * (diff / total * -1)}"
+    }
   end
 end

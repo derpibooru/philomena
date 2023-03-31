@@ -20,6 +20,7 @@ defmodule Philomena.Comments do
   alias Philomena.Versions
   alias Philomena.Reports
   alias Philomena.Users.User
+  alias Philomena.Games.{Player, Team}
 
   @doc """
   Gets a single comment.
@@ -61,8 +62,36 @@ defmodule Philomena.Comments do
     Multi.new()
     |> Multi.insert(:comment, comment)
     |> Multi.update_all(:image, image_query, inc: [comments_count: 1])
+    |> maybe_create_points_for_comment(attribution[:user])
     |> maybe_create_subscription_on_reply(image, attribution[:user])
     |> Repo.transaction()
+  end
+
+  defp maybe_create_points_for_comment(multi, nil), do: multi
+
+  defp maybe_create_points_for_comment(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: 1])
+          repo.update_all(team_query, inc: [points: 1])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
+    end
   end
 
   defp maybe_create_subscription_on_reply(multi, image, %User{watch_on_reply: true} = user) do
@@ -159,11 +188,13 @@ defmodule Philomena.Comments do
       |> select([r], r.id)
       |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
+    original_comment = Repo.preload(comment, :user)
     comment = Comment.hide_changeset(comment, attrs, user)
 
     Multi.new()
     |> Multi.update(:comment, comment)
     |> Multi.update_all(:reports, reports, [])
+    |> maybe_remove_points_for_comment(original_comment.user)
     |> Repo.transaction()
     |> case do
       {:ok, %{comment: comment, reports: {_count, reports}}} ->
@@ -174,6 +205,33 @@ defmodule Philomena.Comments do
 
       error ->
         error
+    end
+  end
+
+  defp maybe_remove_points_for_comment(multi, nil), do: multi
+
+  defp maybe_remove_points_for_comment(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 1)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 1)])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
     end
   end
 

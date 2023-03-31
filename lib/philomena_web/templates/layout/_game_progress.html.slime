@@ -1,0 +1,28 @@
+- score_data = current_scores()
+
+.game
+  .game__team_titles
+    .game__title--team1
+      .game__team_logo
+        img.game__team_logo--nlr src="/nlr.svg"
+      span.hide-mobile New Lunar Republic
+      span.hide-desktop NLR
+      span.game__score
+        | (
+        = score_data.team1_score
+        | )
+    .game__title--team2
+      span.game__score
+        | (
+        = score_data.team2_score
+        | )
+      span.hide-mobile Solar Empire
+      span.hide-desktop SE
+      .game__team_logo
+        img.game__team_logo--se src="/se.svg"
+  .game__progress
+    .game__progress_bar
+    .game__progress_ticker data-percentage=score_data.percentage
+  p 
+    ' Earn points for your team with positive on-site interactions (uploading, commenting, etc).
+    strong Bad or abusive behavior will lead to punishment and point loss.

@@ -35,6 +35,7 @@ defmodule Philomena.Images do
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
   alias Philomena.Users.User
+  alias Philomena.Games.{Player, Team}
 
   @doc """
   Gets a single image.
@@ -105,6 +106,7 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
+    |> maybe_create_points_for_image(attribution[:user])
     |> maybe_create_subscription_on_upload(attribution[:user])
     |> Repo.transaction()
     |> case do
@@ -118,6 +120,33 @@ defmodule Philomena.Images do
 
       result ->
         result
+    end
+  end
+
+  defp maybe_create_points_for_image(multi, nil), do: multi
+
+  defp maybe_create_points_for_image(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: 5])
+          repo.update_all(team_query, inc: [points: 5])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
     end
   end
 
@@ -490,9 +519,37 @@ defmodule Philomena.Images do
     image
     |> Image.hide_changeset(attrs, user)
     |> hide_image_multi(image, user, Multi.new())
+    |> maybe_remove_points_for_image(Repo.preload(image, :user).user)
     |> Multi.update_all(:duplicate_reports, duplicate_reports, [])
     |> Repo.transaction()
     |> process_after_hide()
+  end
+
+  defp maybe_remove_points_for_image(multi, nil), do: multi
+
+  defp maybe_remove_points_for_image(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 5)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 5)])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
+    end
   end
 
   def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image, user) do

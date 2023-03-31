@@ -20,6 +20,7 @@ defmodule Philomena.Users.User do
   alias Philomena.UserIps.UserIp
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Donations.Donation
+  alias Philomena.Games
 
   @derive {Phoenix.Param, key: :slug}
   @derive {Inspect, except: [:password]}
@@ -36,6 +37,7 @@ defmodule Philomena.Users.User do
     has_many :user_fingerprints, UserFingerprint
     has_many :bans, UserBan
     has_many :donations, Donation
+    has_many :game_profiles, Games.Player
     has_one :commission, Commission
     many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
 
@@ -216,6 +218,7 @@ defmodule Philomena.Users.User do
   """
   def confirm_changeset(user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
+    Games.create_player(user)
     change(user, confirmed_at: now)
   end
 

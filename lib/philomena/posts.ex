@@ -21,6 +21,7 @@ defmodule Philomena.Posts do
   alias Philomena.Reports
   alias Philomena.Reports.Report
   alias Philomena.Users.User
+  alias Philomena.Games.{Player, Team}
 
   @doc """
   Gets a single post.
@@ -90,6 +91,7 @@ defmodule Philomena.Posts do
 
       {:ok, count}
     end)
+    |> maybe_create_points_for_post(attributes[:user])
     |> maybe_create_subscription_on_reply(topic, attributes[:user])
     |> Repo.transaction()
     |> case do
@@ -100,6 +102,33 @@ defmodule Philomena.Posts do
 
       error ->
         error
+    end
+  end
+
+  defp maybe_create_points_for_post(multi, nil), do: multi
+
+  defp maybe_create_points_for_post(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: 2])
+          repo.update_all(team_query, inc: [points: 2])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
     end
   end
 
@@ -217,11 +246,13 @@ defmodule Philomena.Posts do
       |> select([r], r.id)
       |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
+    original_post = Repo.preload(post, :user)
     post = Post.hide_changeset(post, attrs, user)
 
     Multi.new()
     |> Multi.update(:post, post)
     |> Multi.update_all(:reports, reports, [])
+    |> maybe_remove_points_for_post(original_post.user)
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->
@@ -232,6 +263,33 @@ defmodule Philomena.Posts do
 
       error ->
         error
+    end
+  end
+
+  defp maybe_remove_points_for_post(multi, nil), do: multi
+
+  defp maybe_remove_points_for_post(multi, user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case user do
+      %User{game_profiles: [profile | _]} ->
+        profile_query =
+          Player
+          |> where(user_id: ^user.id)
+
+        team_query =
+          Team
+          |> where(id: ^profile.team_id)
+
+        multi
+        |> Multi.run(:increment_points, fn repo, _changes ->
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 2)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 2)])
+          {:ok, 0}
+        end)
+
+      _ ->
+        multi
     end
   end
 

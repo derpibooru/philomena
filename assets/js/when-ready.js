@@ -2,7 +2,8 @@
  * Functions to execute when the DOM is ready
  */
 
-import { whenReady }            from './utils/dom';
+
+import { whenReady, $ }            from './utils/dom';
 
 import { showOwnedComments }    from './communications/comment';
 import { showOwnedPosts }       from './communications/post';
@@ -69,4 +70,8 @@ whenReady(() => {
   pollOptionCreator();
   warnAboutPMs();
 
+  let ticker = $('.game__progress_ticker');
+
+  if (ticker)
+    ticker.style.left = `${ticker.dataset.percentage}%`;
 });

@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.UserAttributionView do
 
   alias Philomena.Attribution
   alias PhilomenaWeb.AvatarGeneratorView
+  alias Philomena.Repo
 
   def anonymous?(object) do
     Attribution.anonymous?(object)
@@ -86,6 +87,38 @@ defmodule PhilomenaWeb.UserAttributionView do
     |> personal_title(user)
     |> secondary_role(user)
     |> staff_role(user)
+  end
+
+  def team_data_for_user(user) do
+    user = Repo.preload(user, :game_profiles)
+    game_profile = Repo.preload(user.game_profiles, :team) |> Enum.at(0)
+
+    %{
+      name: if(game_profile.team.id == 1, do: "NLR", else: "SE"),
+      icon: if(game_profile.team.id == 1, do: "/nlr.svg", else: "/se.svg"),
+      points: game_profile.points,
+      style:
+        if(game_profile.team.id == 1, do: "game__team_banner--nlr", else: "game__team_banner--se")
+    }
+  end
+
+  def rank_for_user(user) do
+    user = Repo.preload(user, :game_profiles)
+
+    case Enum.at(user.game_profiles, 0).points do
+      n when n == 6969 -> "V.NICE"
+      n when n >= 5000 -> "A"
+      n when n >= 2000 -> "B"
+      n when n == 1337 -> "L33T"
+      n when n == 666 -> "SATAN"
+      n when n >= 500 -> "C"
+      n when n == 420 -> "GRASS"
+      n when n >= 100 -> "D"
+      n when n == 69 -> "NICE"
+      n when n >= 25 -> "E"
+      n when n >= 5 -> "F"
+      _ -> "NONE"
+    end
   end
 
   defp personal_title(labels, %{personal_title: t}) do
