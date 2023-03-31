@@ -36,7 +36,11 @@ defmodule PhilomenaWeb.CommentController do
         conn.assigns.pagination
       )
       |> Elasticsearch.search_records(
-        preload(Comment, [:deleted_by, image: [tags: :aliases], user: [awards: :badge]])
+        preload(Comment, [
+          :deleted_by,
+          image: [tags: :aliases],
+          user: [awards: :badge, game_profiles: :team]
+        ])
       )
 
     rendered = MarkdownRenderer.render_collection(comments.entries, conn)

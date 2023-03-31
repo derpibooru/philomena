@@ -57,7 +57,12 @@ defmodule PhilomenaWeb.TopicController do
       |> where(topic_id: ^conn.assigns.topic.id)
       |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
       |> order_by(asc: :created_at)
-      |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
+      |> preload([
+        :deleted_by,
+        :topic,
+        topic: :forum,
+        user: [awards: :badge, game_profiles: :team]
+      ])
       |> Repo.all()
 
     rendered = MarkdownRenderer.render_collection(posts, conn)

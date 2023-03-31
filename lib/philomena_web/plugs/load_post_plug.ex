@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.LoadPostPlug do
 
     Post
     |> where(topic_id: ^topic.id, id: ^to_string(conn.params[param]))
-    |> preload(topic: :forum, user: [awards: :badge])
+    |> preload(topic: :forum, user: [awards: :badge, game_profiles: :team])
     |> Repo.one()
     |> maybe_hide_post(conn, show_hidden)
   end

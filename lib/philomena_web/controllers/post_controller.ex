@@ -33,7 +33,7 @@ defmodule PhilomenaWeb.PostController do
         conn.assigns.pagination
       )
       |> Elasticsearch.search_records(
-        preload(Post, [:deleted_by, topic: :forum, user: [awards: :badge]])
+        preload(Post, [:deleted_by, topic: :forum, user: [awards: :badge, game_profiles: :team]])
       )
 
     rendered = MarkdownRenderer.render_collection(posts.entries, conn)
