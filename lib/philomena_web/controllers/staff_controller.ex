@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.StaffController do
       User
       |> where([u], u.role in ["admin", "moderator", "assistant"])
       |> order_by(asc: :name)
+      |> preload(game_profiles: :team)
       |> Repo.all()
 
     categories = [
