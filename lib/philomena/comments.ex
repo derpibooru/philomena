@@ -225,8 +225,8 @@ defmodule Philomena.Comments do
 
         multi
         |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: -min(profile.points, 1)])
-          repo.update_all(team_query, inc: [points: -min(profile.points, 1)])
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 2)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 2)])
           {:ok, 0}
         end)
 

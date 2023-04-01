@@ -283,8 +283,8 @@ defmodule Philomena.Posts do
 
         multi
         |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: -min(profile.points, 2)])
-          repo.update_all(team_query, inc: [points: -min(profile.points, 2)])
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 4)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 4)])
           {:ok, 0}
         end)
 

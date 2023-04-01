@@ -140,8 +140,8 @@ defmodule Philomena.Images do
 
         multi
         |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: 5])
-          repo.update_all(team_query, inc: [points: 5])
+          repo.update_all(profile_query, inc: [points: 10])
+          repo.update_all(team_query, inc: [points: 10])
           {:ok, 0}
         end)
 
@@ -542,8 +542,8 @@ defmodule Philomena.Images do
 
         multi
         |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: -min(profile.points, 5)])
-          repo.update_all(team_query, inc: [points: -min(profile.points, 5)])
+          repo.update_all(profile_query, inc: [points: -min(profile.points, 15)])
+          repo.update_all(team_query, inc: [points: -min(profile.points, 15)])
           {:ok, 0}
         end)
 
