@@ -105,7 +105,11 @@ defmodule PhilomenaWeb.UserAttributionView do
   def rank_for_user(user) do
     user = Repo.preload(user, :game_profiles)
 
-    case Enum.at(user.game_profiles, 0).points do
+    rank_string_from_profile(Enum.at(user.game_profiles, 0))
+  end
+
+  defp rank_string_from_profile(%{points: points, rank_override: nil}) do
+    case points do
       n when n == 6969 -> "V.NICE"
       n when n >= 5000 -> "A"
       n when n >= 2000 -> "B"
@@ -120,6 +124,9 @@ defmodule PhilomenaWeb.UserAttributionView do
       _ -> "NONE"
     end
   end
+
+  defp rank_string_from_profile(%{rank_override: override}), do: override
+  defp rank_string_from_profile(_), do: "NONE"
 
   defp personal_title(labels, %{personal_title: t}) do
     case blank?(t) do

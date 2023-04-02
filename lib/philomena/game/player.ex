@@ -13,6 +13,7 @@ defmodule Philomena.Games.Player do
     belongs_to :game, Game
 
     field :points, :integer
+    field :rank_override, :string
 
     timestamps(inserted_at: :created_at, updated_at: :updated_at, type: :utc_datetime)
   end
