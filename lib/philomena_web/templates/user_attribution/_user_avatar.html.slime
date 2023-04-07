@@ -1,4 +1,2 @@
 = if !!@object.user do
   = user_avatar(@object, assigns[:class] || "avatar--100px")
-  = if assigns[:class] != "avatar--28px" do
-    = render PhilomenaWeb.UserAttributionView, "_user_points.html", object: @object

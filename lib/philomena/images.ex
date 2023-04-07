@@ -106,7 +106,6 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> maybe_create_points_for_image(attribution[:user])
     |> maybe_create_subscription_on_upload(attribution[:user])
     |> Repo.transaction()
     |> case do
@@ -120,33 +119,6 @@ defmodule Philomena.Images do
 
       result ->
         result
-    end
-  end
-
-  defp maybe_create_points_for_image(multi, nil), do: multi
-
-  defp maybe_create_points_for_image(multi, user) do
-    user = Repo.preload(user, :game_profiles)
-
-    case user do
-      %User{game_profiles: [profile | _]} ->
-        profile_query =
-          Player
-          |> where(user_id: ^user.id)
-
-        team_query =
-          Team
-          |> where(id: ^profile.team_id)
-
-        multi
-        |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: 10])
-          repo.update_all(team_query, inc: [points: 10])
-          {:ok, 0}
-        end)
-
-      _ ->
-        multi
     end
   end
 

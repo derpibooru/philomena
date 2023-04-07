@@ -26,7 +26,6 @@ html lang="en"
     #container class=container_class(@current_user)
       = render PhilomenaWeb.LayoutView, "_header.html", assigns
       = render PhilomenaWeb.LayoutView, "_flash_warnings.html", assigns
-      = render PhilomenaWeb.LayoutView, "_game_progress.html", assigns
       main#content class=layout_class(@conn)
         = @inner_content
       = render PhilomenaWeb.LayoutView, "_footer.html", assigns

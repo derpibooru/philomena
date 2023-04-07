@@ -91,7 +91,6 @@ defmodule Philomena.Posts do
 
       {:ok, count}
     end)
-    |> maybe_create_points_for_post(attributes[:user])
     |> maybe_create_subscription_on_reply(topic, attributes[:user])
     |> Repo.transaction()
     |> case do
@@ -102,33 +101,6 @@ defmodule Philomena.Posts do
 
       error ->
         error
-    end
-  end
-
-  defp maybe_create_points_for_post(multi, nil), do: multi
-
-  defp maybe_create_points_for_post(multi, user) do
-    user = Repo.preload(user, :game_profiles)
-
-    case user do
-      %User{game_profiles: [profile | _]} ->
-        profile_query =
-          Player
-          |> where(user_id: ^user.id)
-
-        team_query =
-          Team
-          |> where(id: ^profile.team_id)
-
-        multi
-        |> Multi.run(:increment_points, fn repo, _changes ->
-          repo.update_all(profile_query, inc: [points: 2])
-          repo.update_all(team_query, inc: [points: 2])
-          {:ok, 0}
-        end)
-
-      _ ->
-        multi
     end
   end
 

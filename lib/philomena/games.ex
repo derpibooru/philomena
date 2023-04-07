@@ -4,10 +4,9 @@ defmodule Philomena.Games do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.Games.{Game, Player, Team}
+  alias Philomena.Games.{Player, Team}
 
   def create_player(user, attrs \\ %{"points" => 0}) do
     %Player{}
