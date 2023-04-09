@@ -39,7 +39,7 @@ defmodule Philomena.Polls.Poll do
     |> validate_required([:title, :active_until, :vote_method])
     |> validate_length(:title, max: 140, count: :bytes)
     |> validate_inclusion(:vote_method, ["single", "multiple"])
-    |> cast_assoc(:options, with: &PollOption.creation_changeset/2)
+    |> cast_assoc(:options, required: true, with: &PollOption.creation_changeset/2)
     |> validate_length(:options, min: 2, max: 20)
     |> ignore_if_blank()
   end
