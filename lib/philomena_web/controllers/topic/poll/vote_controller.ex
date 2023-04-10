@@ -51,6 +51,14 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
     end
   end
 
+  def create(conn, _params) do
+    topic = conn.assigns.topic
+
+    conn
+    |> put_flash(:error, "Your vote was not recorded.")
+    |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+  end
+
   def delete(conn, %{"id" => poll_vote_id}) do
     topic = conn.assigns.topic
     poll_vote = PollVotes.get_poll_vote!(poll_vote_id)

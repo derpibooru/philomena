@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Topic.PollView do
   def winning_option(poll) do
     poll
     |> ranked_options()
-    |> hd()
+    |> Enum.at(0)
   end
 
   def active?(poll) do
