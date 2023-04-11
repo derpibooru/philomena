@@ -57,11 +57,16 @@ defmodule Philomena.Posts do
       Topic
       |> where(id: ^topic.id)
 
+    topic_lock_query =
+      topic_query
+      |> lock("FOR UPDATE")
+
     forum_query =
       Forum
       |> where(id: ^topic.forum_id)
 
     Multi.new()
+    |> Multi.all(:topic_lock, topic_lock_query)
     |> Multi.run(:post, fn repo, _ ->
       last_position =
         Post
