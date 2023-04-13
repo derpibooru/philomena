@@ -1,4 +1,5 @@
 - size = assigns[:size] || :full
+- embed_display = assigns[:embed_display] || false
 
 = content_tag :div, [data: image_container_data(@conn, @image, size), class: "image-show-container"] do
   .block.block--fixed.block--warning.block--no-margin.image-filtered.hidden
@@ -10,7 +11,7 @@
     =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
     ' .
 
-  = if size == :full do
+  = if size == :full and not embed_display do
     .image-target.hidden.image-show data-scaled=scaled_value(@conn.assigns.current_user) data-uris=Jason.encode!(thumb_urls(@image, can?(@conn, :hide, @image))) data-width=@image.image_width data-height=@image.image_height data-image-size=@image.image_size data-mime-type=@image.image_mime_type
       = if @image.image_mime_type == "video/webm" do
         video controls=true
