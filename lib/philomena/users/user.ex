@@ -218,8 +218,11 @@ defmodule Philomena.Users.User do
   """
   def confirm_changeset(user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    Games.create_player(user)
-    change(user, confirmed_at: now)
+    user = change(user, confirmed_at: now)
+
+    Games.create_player(user.data)
+
+    user
   end
 
   @doc """
