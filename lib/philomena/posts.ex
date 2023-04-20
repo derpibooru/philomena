@@ -224,11 +224,24 @@ defmodule Philomena.Posts do
       |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
     original_post = Repo.preload(post, :user)
+
+    topics =
+      Topic
+      |> where(last_post_id: ^post.id)
+      |> update(set: [last_post_id: nil])
+
+    forums =
+      Forum
+      |> where(last_post_id: ^post.id)
+      |> update(set: [last_post_id: nil])
+
     post = Post.hide_changeset(post, attrs, user)
 
     Multi.new()
     |> Multi.update(:post, post)
     |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:topics, topics, [])
+    |> Multi.update_all(:forums, forums, [])
     |> maybe_remove_points_for_post(original_post.user)
     |> Repo.transaction()
     |> case do

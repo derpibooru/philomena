@@ -104,6 +104,6 @@ defmodule PhilomenaWeb.ReportController do
   defp redirect_path(conn, _user), do: Routes.report_path(conn, :index)
 
   defp max_reports do
-    3
+    5
   end
 end

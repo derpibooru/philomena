@@ -168,7 +168,7 @@ defmodule Philomena.ArtistLinks do
   def count_artist_links(user) do
     if Canada.Can.can?(user, :index, %ArtistLink{}) do
       ArtistLink
-      |> where([ul], ul.aasm_state in ^["unverified", "link_verified", "contacted"])
+      |> where([ul], ul.aasm_state in ^["unverified", "link_verified"])
       |> Repo.aggregate(:count, :id)
     else
       nil
