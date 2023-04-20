@@ -222,11 +222,23 @@ defmodule Philomena.Posts do
       |> select([r], r.id)
       |> update(set: [open: false, state: "closed", admin_id: ^user.id])
 
+    topics =
+      Topic
+      |> where(last_post_id: ^post.id)
+      |> update(set: [last_post_id: nil])
+
+    forums =
+      Forum
+      |> where(last_post_id: ^post.id)
+      |> update(set: [last_post_id: nil])
+
     post = Post.hide_changeset(post, attrs, user)
 
     Multi.new()
     |> Multi.update(:post, post)
     |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:topics, topics, [])
+    |> Multi.update_all(:forums, forums, [])
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->

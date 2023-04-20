@@ -268,8 +268,25 @@ defmodule Philomena.Topics do
   end
 
   def hide_topic(topic, deletion_reason, user) do
-    Topic.hide_changeset(topic, deletion_reason, user)
-    |> Repo.update()
+    topic_changes = Topic.hide_changeset(topic, deletion_reason, user)
+
+    forums =
+      Forum
+      |> join(:inner, [f], _ in assoc(f, :last_post))
+      |> where([f, p], p.topic_id == ^topic.id)
+      |> update(set: [last_post_id: nil])
+
+    Multi.new()
+    |> Multi.update(:topic, topic_changes)
+    |> Multi.update_all(:forums, forums, [])
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{topic: topic}} ->
+        {:ok, topic}
+
+      error ->
+        error
+    end
   end
 
   def unhide_topic(topic) do
