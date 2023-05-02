@@ -30,7 +30,16 @@ defmodule PhilomenaWeb.ActivityController do
     {top_scoring, _tags} =
       ImageLoader.query(
         conn,
-        %{range: %{first_seen_at: %{gt: "now-3d"}}},
+        %{
+          bool: %{
+            must: %{
+              range: %{first_seen_at: %{gt: "now-3d"}}
+            },
+            must_not: [
+              %{terms: %{tag_ids: [589483]}}
+            ]
+          }
+        },
         sorts: &%{query: &1, sorts: [%{wilson_score: :desc}, %{first_seen_at: :desc}]},
         pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )

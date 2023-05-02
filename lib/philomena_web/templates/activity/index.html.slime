@@ -13,7 +13,7 @@
         ' Issues? Want to chat?
         a href="/pages/contact" Contact us!
       .block.hide-mobile
-        a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago&amp;sf=wilson_score&amp;sd=desc"
+        a.block__header--single-item.center href="/search?q=first_seen_at.gt:3 days ago, -ai generated&amp;sf=wilson_score&amp;sd=desc"
           ' Trending Images
         .block__content.flex.flex--centered.flex--wrap.image-flex-grid
           = for image <- @top_scoring do
