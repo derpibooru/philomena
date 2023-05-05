@@ -60,14 +60,14 @@ defmodule PhilomenaWeb.Image.TagChangeController do
 
   defp log_details(conn, _action, %{image: image, details: details}) do
     %{
-      body: "Deleted tag change (#{details}) from history",
+      body: "Deleted tag change #{details} on >>#{image.id} from history",
       subject_path: Routes.image_path(conn, :show, image)
     }
   end
 
   defp tag_change_details(%TagChange{added: true, tag: tag}),
-    do: "added tag \"#{tag.name}\""
+    do: "+#{tag.name}"
 
   defp tag_change_details(%TagChange{added: false, tag: tag}),
-    do: "removed tag \"#{tag.name}\""
+    do: "-#{tag.name}"
 end
