@@ -19,6 +19,8 @@
           th Action
           th Timestamp
           th User
+          = if reverts_tag_changes?(@conn) do
+            th Moderation
 
       tbody
         = for tag_change <- @tag_changes do
@@ -60,6 +62,10 @@
                   ' This user is a staff member.
                   br
                   ' Ask them before reverting their changes.
+            = if reverts_tag_changes?(@conn) do
+              td
+                a href=Routes.image_tag_change_path(@conn, :delete, tag_change.image, tag_change) data-method="delete" data-confirm="Are you really, really sure?"
+                  ' Delete from history
 
   .block__header
     = @pagination
