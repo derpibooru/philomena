@@ -5,7 +5,20 @@ defmodule Philomena.Images.TagValidator do
   def validate_tags(changeset) do
     tags = changeset |> get_field(:tags)
 
-    validate_tag_input(changeset, tags)
+    changeset
+    |> validate_tag_input(tags)
+    |> set_rating_changed()
+  end
+
+  defp set_rating_changed(changeset) do
+    added_tags = changeset |> get_field(:added_tags) |> extract_names()
+    removed_tags = changeset |> get_field(:removed_tags) |> extract_names()
+    ratings = all_ratings()
+
+    added_ratings = MapSet.intersection(ratings, added_tags) |> MapSet.size()
+    removed_ratings = MapSet.intersection(ratings, removed_tags) |> MapSet.size()
+
+    put_change(changeset, :ratings_changed, added_ratings + removed_ratings > 0)
   end
 
   defp validate_tag_input(changeset, tags) do
@@ -106,6 +119,13 @@ defmodule Philomena.Images.TagValidator do
     tags
     |> Enum.map(& &1.name)
     |> MapSet.new()
+  end
+
+  defp all_ratings do
+    safe_rating()
+    |> MapSet.union(sexual_ratings())
+    |> MapSet.union(horror_ratings())
+    |> MapSet.union(gross_rating())
   end
 
   defp safe_rating, do: MapSet.new(["safe"])
