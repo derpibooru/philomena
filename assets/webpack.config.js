@@ -9,8 +9,7 @@ import IgnoreEmitPlugin from 'ignore-emit-webpack-plugin';
 import ESLintPlugin from 'eslint-webpack-plugin';
 import autoprefixer from 'autoprefixer';
 import rollupPluginIncludepaths from 'rollup-plugin-includepaths';
-import rollupPluginMultiEntry from 'rollup-plugin-multi-entry';
-import rollupPluginBuble from 'rollup-plugin-buble';
+import rollupPluginMultiEntry from '@rollup/plugin-multi-entry';
 import rollupPluginTypescript from '@rollup/plugin-typescript';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -18,7 +17,6 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const includePaths = rollupPluginIncludepaths();
 const multiEntry = rollupPluginMultiEntry();
-const buble = rollupPluginBuble({ transforms: { dangerousForOf: true } });
 const typescript = rollupPluginTypescript();
 
 let plugins = [
@@ -105,7 +103,6 @@ export default {
             loader: 'webpack-rollup-loader',
             options: {
               plugins: [
-                buble,
                 includePaths,
                 multiEntry,
                 typescript,

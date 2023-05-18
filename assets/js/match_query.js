@@ -874,7 +874,4 @@ SearchAST.prototype.dumpTree = function() {
   return retStrArr.join('\n');
 };
 
-// Force module handling for Jest, can be removed after TypeScript migration
-export {};
-
 export default parseSearch;

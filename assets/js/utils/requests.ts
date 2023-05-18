@@ -1,7 +1,9 @@
 // Request Utils
 
-export function fetchJson(verb, endpoint, body) {
-  const data = {
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH';
+
+export function fetchJson(verb: HttpMethod, endpoint: string, body?: Record<string, unknown>): Promise<Response> {
+  const data: RequestInit = {
     method: verb,
     credentials: 'same-origin',
     headers: {
@@ -19,7 +21,7 @@ export function fetchJson(verb, endpoint, body) {
   return fetch(endpoint, data);
 }
 
-export function fetchHtml(endpoint) {
+export function fetchHtml(endpoint: string): Promise<Response> {
   return fetch(endpoint, {
     credentials: 'same-origin',
     headers: {
@@ -29,7 +31,7 @@ export function fetchHtml(endpoint) {
   });
 }
 
-export function handleError(response) {
+export function handleError(response: Response): Response {
   if (!response.ok) {
     throw new Error('Received error from server');
   }

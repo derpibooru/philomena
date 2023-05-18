@@ -51,6 +51,7 @@ interface BooruObject {
    * @type {import('../js/match_query.js').SearchAST}
    */
   spoileredFilter: unknown;
+  tagsVersion: number;
 }
 
 interface Window {

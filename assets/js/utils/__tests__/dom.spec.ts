@@ -5,7 +5,6 @@ import {
   escapeCss,
   escapeHtml,
   hideEl,
-  insertBefore,
   makeEl,
   onLeftClick,
   removeEl,
@@ -245,9 +244,9 @@ describe('DOM Utilities', () => {
       jest.restoreAllMocks();
     });
 
-    it('should throw error if element has no parent', () => {
+    it('should NOT throw error if element has no parent', () => {
       const detachedElement = document.createElement('div');
-      expect(() => removeEl(detachedElement)).toThrow(/propert(y|ies).*null/);
+      expect(() => removeEl(detachedElement)).not.toThrow();
     });
 
     it('should call the native removeElement method on parent', () => {
@@ -297,50 +296,17 @@ describe('DOM Utilities', () => {
     });
   });
 
-  describe('insertBefore', () => {
-    it('should insert the new element before the existing element', () => {
-      const mockParent = document.createElement('p');
-      const mockExisingElement = document.createElement('span');
-      mockParent.appendChild(mockExisingElement);
-      const mockNewElement = document.createElement('strong');
-
-      insertBefore(mockExisingElement, mockNewElement);
-
-      expect(mockParent.children).toHaveLength(2);
-      expect(mockParent.children[0].tagName).toBe('STRONG');
-      expect(mockParent.children[1].tagName).toBe('SPAN');
-    });
-    it('should insert between two elements', () => {
-      const mockParent = document.createElement('p');
-      const mockFirstExisingElement = document.createElement('span');
-      const mockSecondExisingElement = document.createElement('em');
-      mockParent.appendChild(mockFirstExisingElement);
-      mockParent.appendChild(mockSecondExisingElement);
-      const mockNewElement = document.createElement('strong');
-
-      insertBefore(mockSecondExisingElement, mockNewElement);
-
-      expect(mockParent.children).toHaveLength(3);
-      expect(mockParent.children[0].tagName).toBe('SPAN');
-      expect(mockParent.children[1].tagName).toBe('STRONG');
-      expect(mockParent.children[2].tagName).toBe('EM');
-    });
-
-    it('should fail if there is no parent', () => {
-      const mockParent = document.createElement('p');
-      const mockNewElement = document.createElement('em');
-
-      expect(() => {
-        insertBefore(mockParent, mockNewElement);
-      }).toThrow(/propert(y|ies).*null/);
-    });
-  });
-
   describe('onLeftClick', () => {
+    let cleanup: VoidFunction | undefined;
+
+    afterEach(() => {
+      if (cleanup) cleanup();
+    });
+
     it('should call callback on left click', () => {
       const mockCallback = jest.fn();
       const element = document.createElement('div');
-      onLeftClick(mockCallback, element as unknown as Document);
+      cleanup = onLeftClick(mockCallback, element as unknown as Document);
 
       fireEvent.click(element, { button: 0 });
 
@@ -350,7 +316,7 @@ describe('DOM Utilities', () => {
     it('should NOT call callback on non-left click', () => {
       const mockCallback = jest.fn();
       const element = document.createElement('div');
-      onLeftClick(mockCallback, element as unknown as Document);
+      cleanup = onLeftClick(mockCallback, element as unknown as Document);
 
       const mockButton = getRandomArrayItem([1, 2, 3, 4, 5]);
       fireEvent.click(element, { button: mockButton });
@@ -360,9 +326,26 @@ describe('DOM Utilities', () => {
 
     it('should add click event listener to the document by default', () => {
       const mockCallback = jest.fn();
-      onLeftClick(mockCallback);
+      cleanup = onLeftClick(mockCallback);
 
       fireEvent.click(document.body);
+
+      expect(mockCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return a cleanup function that removes the listener', () => {
+      const mockCallback = jest.fn();
+      const element = document.createElement('div');
+      const localCleanup = onLeftClick(mockCallback, element as unknown as Document);
+
+      fireEvent.click(element, { button: 0 });
+
+      expect(mockCallback).toHaveBeenCalledTimes(1);
+
+      // Remove the listener
+      localCleanup();
+
+      fireEvent.click(element, { button: 0 });
 
       expect(mockCallback).toHaveBeenCalledTimes(1);
     });

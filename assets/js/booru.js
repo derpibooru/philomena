@@ -2,12 +2,25 @@ import { $ } from './utils/dom';
 import parseSearch from './match_query';
 import store from './utils/store';
 
-/* Store a tag locally, marking the retrieval time */
+/**
+ * Store a tag locally, marking the retrieval time
+ * @param {TagData} tagData
+ */
 function persistTag(tagData) {
-  tagData.fetchedAt = new Date().getTime() / 1000;
-  store.set(`bor_tags_${tagData.id}`, tagData);
+  /**
+   * @type {TagData}
+   */
+  const persistData = {
+    ...tagData,
+    fetchedAt: new Date().getTime() / 1000,
+  };
+  store.set(`bor_tags_${tagData.id}`, persistData);
 }
 
+/**
+ * @param {TagData} tag
+ * @return {boolean}
+ */
 function isStale(tag) {
   const now = new Date().getTime() / 1000;
   return tag.fetchedAt === null || tag.fetchedAt < (now - 604800);
@@ -21,11 +34,31 @@ function clearTags() {
   });
 }
 
-/* Returns a single tag, or a dummy tag object if we don't know about it yet */
+/**
+ * @param {unknown} value
+ * @returns {value is TagData}
+ */
+function isValidStoredTag(value) {
+  if ('id' in value && 'name' in value && 'images' in value && 'spoiler_image_uri' in value) {
+    return typeof value.id === 'number'
+      && typeof value.name === 'string'
+      && typeof value.images === 'number'
+      && (value.spoiler_image_uri === null || typeof value.spoiler_image_uri === 'string')
+      && (value.fetchedAt === null || typeof value.fetchedAt === 'number');
+  }
+
+  return false;
+}
+
+/**
+ * Returns a single tag, or a dummy tag object if we don't know about it yet
+ * @param {number} tagId
+ * @returns {TagData}
+ */
 function getTag(tagId) {
   const stored = store.get(`bor_tags_${tagId}`);
 
-  if (stored) {
+  if (isValidStoredTag(stored)) {
     return stored;
   }
 
@@ -34,10 +67,14 @@ function getTag(tagId) {
     name: '(unknown tag)',
     images: 0,
     spoiler_image_uri: null,
+    fetchedAt: null,
   };
 }
 
-/* Fetches lots of tags in batches and stores them locally */
+/**
+ * Fetches lots of tags in batches and stores them locally
+ * @param {number[]} tagIds
+ */
 function fetchAndPersistTags(tagIds) {
   if (!tagIds.length) return;
 
@@ -50,7 +87,10 @@ function fetchAndPersistTags(tagIds) {
     .then(() => fetchAndPersistTags(remaining));
 }
 
-/* Figure out which tags in the list we don't know about */
+/**
+ * Figure out which tags in the list we don't know about
+ * @param {number[]} tagIds
+ */
 function fetchNewOrStaleTags(tagIds) {
   const fetchIds = [];
 

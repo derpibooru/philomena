@@ -4,7 +4,7 @@
 
 import { $$ } from './utils/dom';
 import store from './utils/store';
-import { initTagDropdown} from './tags';
+import { initTagDropdown } from './tags';
 import { setupTagsInput, reloadTagsInput } from './tagsinput';
 
 function tagInputButtons({target}) {
