@@ -48,7 +48,8 @@ defmodule PhilomenaWeb.ConversationController do
       |> join(
         :inner_lateral,
         [c],
-        _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id)
+        _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id),
+        on: true
       )
       |> order_by(desc: :last_message_at)
       |> preload([:to, :from])

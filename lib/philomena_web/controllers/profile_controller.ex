@@ -66,7 +66,8 @@ defmodule PhilomenaWeb.ProfileController do
       |> join(
         :inner_lateral,
         [t],
-        _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id)
+        _ in fragment("SELECT count(*) FROM users WHERE watched_tag_ids @> ARRAY[?]", t.id),
+        on: true
       )
       |> select([t, c], {t.id, c.count})
       |> Repo.all()

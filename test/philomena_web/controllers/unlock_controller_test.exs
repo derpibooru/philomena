@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
 
   alias Philomena.Users
   alias Philomena.Repo
+  alias Phoenix.Flash
   import Philomena.UsersFixtures
 
   setup do
@@ -26,7 +27,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
         })
 
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "If your email is in our system"
+      assert Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Repo.get_by!(Users.UserToken, user_id: user.id).context == "unlock"
     end
 
@@ -39,7 +40,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
         })
 
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "If your email is in our system"
+      assert Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       refute Repo.get_by(Users.UserToken, user_id: user.id)
     end
 
@@ -50,7 +51,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
         })
 
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "If your email is in our system"
+      assert Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Repo.all(Users.UserToken) == []
     end
   end
@@ -64,20 +65,20 @@ defmodule PhilomenaWeb.UnlockControllerTest do
 
       conn = get(conn, Routes.unlock_path(conn, :show, token))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "Account unlocked successfully"
+      assert Flash.get(conn.assigns.flash, :info) =~ "Account unlocked successfully"
       refute Users.get_user!(user.id).locked_at
       refute get_session(conn, :user_token)
       assert Repo.all(Users.UserToken) == []
 
       conn = get(conn, Routes.unlock_path(conn, :show, token))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Unlock link is invalid or it has expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Unlock link is invalid or it has expired"
     end
 
     test "does not unlock with invalid token", %{conn: conn, user: user} do
       conn = get(conn, Routes.unlock_path(conn, :show, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Unlock link is invalid or it has expired"
+      assert Flash.get(conn.assigns.flash, :error) =~ "Unlock link is invalid or it has expired"
       assert Users.get_user!(user.id).locked_at
     end
   end

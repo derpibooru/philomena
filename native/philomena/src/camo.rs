@@ -1,6 +1,8 @@
 use ring::hmac;
 use std::env;
 use url::Url;
+use base64::Engine;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 
 fn trusted_host(mut url: Url) -> Option<String> {
     url.set_port(Some(443)).ok()?;
@@ -13,8 +15,8 @@ fn untrusted_host(url: Url, camo_host: String, camo_key: String) -> Option<Strin
     let camo_url = format!("https://{}", camo_host);
     let key = hmac::Key::new(hmac::HMAC_SHA1_FOR_LEGACY_USE_ONLY, camo_key.as_ref());
     let tag = hmac::sign(&key, url.to_string().as_bytes());
-    let encoded = base64::encode_config(tag.as_ref(), base64::URL_SAFE_NO_PAD);
-    let encoded_url = base64::encode_config(url.as_ref(), base64::URL_SAFE_NO_PAD);
+    let encoded = URL_SAFE_NO_PAD.encode(tag.as_ref());
+    let encoded_url = URL_SAFE_NO_PAD.encode(url.as_ref());
     let path = format!("{}/{}", encoded, encoded_url);
 
     let mut camo_uri = Url::parse(&camo_url).ok()?;

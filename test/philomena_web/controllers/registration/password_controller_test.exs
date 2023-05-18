@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
   use PhilomenaWeb.ConnCase, async: true
 
   alias Philomena.Users
+  alias Phoenix.Flash
   import Philomena.UsersFixtures
 
   setup :register_and_log_in_user
@@ -19,7 +20,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
 
       assert redirected_to(new_password_conn) == Routes.registration_path(conn, :edit)
       assert get_session(new_password_conn, :user_token) != get_session(conn, :user_token)
-      assert get_flash(new_password_conn, :info) =~ "Password updated successfully"
+      assert Flash.get(new_password_conn.assigns.flash, :info) =~ "Password updated successfully"
       assert Users.get_user_by_email_and_password(user.email, "new valid password", & &1)
     end
 
@@ -34,7 +35,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
         })
 
       assert redirected_to(old_password_conn) == Routes.registration_path(conn, :edit)
-      assert get_flash(old_password_conn, :error) =~ "Failed to update password"
+      assert Flash.get(old_password_conn.assigns.flash, :error) =~ "Failed to update password"
       assert get_session(old_password_conn, :user_token) == get_session(conn, :user_token)
     end
   end

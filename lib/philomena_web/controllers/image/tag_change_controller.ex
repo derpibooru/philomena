@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.Image.TagChangeController do
     )
   end
 
-  def delete(conn, params) do
+  def delete(conn, _params) do
     image = conn.assigns.image
     tag_change = conn.assigns.tag_change
 
