@@ -1,9 +1,9 @@
-import { delegate, fire, leftClick, on } from '../events';
+import { delegate, fire, leftClick, on, PhilomenaAvailableEventsMap } from '../events';
 import { getRandomArrayItem } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
 
 describe('Event utils', () => {
-  const mockEvent = getRandomArrayItem(['click', 'blur', 'mouseleave'] as (keyof GlobalEventHandlersEventMap)[]);
+  const mockEvent = getRandomArrayItem(['click', 'blur', 'mouseleave'] as (keyof PhilomenaAvailableEventsMap)[]);
 
   describe('fire', () => {
     it('should call the native dispatchEvent method on the element', () => {

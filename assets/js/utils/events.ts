@@ -1,10 +1,34 @@
 // DOM events
 
+export interface PhilomenaAvailableEventsMap {
+  dragstart: DragEvent,
+  dragover: DragEvent,
+  dragenter: DragEvent,
+  dragleave: DragEvent,
+  dragend: DragEvent,
+  drop: DragEvent,
+  click: MouseEvent,
+  submit: Event,
+  reset: Event
+}
+
+export interface PhilomenaEventElement {
+  addEventListener<K extends keyof PhilomenaAvailableEventsMap>(
+    type: K,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    listener: (this: Document | HTMLElement, ev: PhilomenaAvailableEventsMap[K]) => any,
+    options?: boolean | AddEventListenerOptions | undefined
+  ): void;
+}
+
 export function fire<El extends Element, D>(el: El, event: string, detail: D) {
   el.dispatchEvent(new CustomEvent<D>(event, { detail, bubbles: true, cancelable: true }));
 }
 
-export function on<K extends keyof GlobalEventHandlersEventMap>(node: GlobalEventHandlers, event: K, selector: string, func: ((e: GlobalEventHandlersEventMap[K], target: Element) => boolean)) {
+export function on<K extends keyof PhilomenaAvailableEventsMap>(
+  node: PhilomenaEventElement,
+  event: K, selector: string, func: ((e: PhilomenaAvailableEventsMap[K], target: Element) => boolean)
+) {
   delegate(node, event, { [selector]: func });
 }
 
@@ -12,7 +36,11 @@ export function leftClick<E extends MouseEvent, Target extends EventTarget>(func
   return (event: E, target: Target) => { if (event.button === 0) return func(event, target); };
 }
 
-export function delegate<K extends keyof GlobalEventHandlersEventMap, Target extends Element>(node: GlobalEventHandlers, event: K, selectors: Record<string, ((e: GlobalEventHandlersEventMap[K], target: Target) => void | boolean)>) {
+export function delegate<K extends keyof PhilomenaAvailableEventsMap, Target extends Element>(
+  node: PhilomenaEventElement,
+  event: K,
+  selectors: Record<string, ((e: PhilomenaAvailableEventsMap[K], target: Target) => void | boolean)>
+) {
   node.addEventListener(event, e => {
     for (const selector in selectors) {
       const evtTarget = e.target as EventTarget | Target | null;
