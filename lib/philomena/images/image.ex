@@ -214,6 +214,11 @@ defmodule Philomena.Images.Image do
     |> SourceDiffer.diff_input(old_sources, new_sources)
   end
 
+  def sources_changeset(image, new_sources) do
+    change(image)
+    |> put_assoc(:sources, new_sources)
+  end
+
   def tag_changeset(image, attrs, old_tags, new_tags, excluded_tags \\ []) do
     image
     |> cast(attrs, [])

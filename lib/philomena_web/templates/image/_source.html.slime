@@ -38,8 +38,8 @@
       p
         ' You can't edit the source on this image.
 
-  .flex.flex--wrap.flex--centered#image-source
-    p
+  .flex.flex--wrap.flex--column#image-source
+    .flex
       a.button.button--separate-right#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
         i.fas.fa-edit>
         = if !has_sources || length(@image.sources) == 1 do
@@ -58,22 +58,22 @@
           button.button.button--state-danger.button--separate-left type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
             i.fas.fa-eraser>
             ' Wipe
-  .image_sources
-    = if has_sources do
-      - [first_source | sources] = @image.sources
-      .image_source__icon
-        i class=image_source_icon(first_source.source)
-      .image_source__link
-        a.js-source-link href=first_source.source
-          strong = first_source.source
-      = for source <- sources do
+    .image_sources
+      = if has_sources do
+        - [first_source | sources] = @image.sources
         .image_source__icon
-          i class=image_source_icon(source.source)
+          i class=image_source_icon(first_source.source)
         .image_source__link
-          a href=source.source
-            strong = source.source
-    - else
-      .image_source__icon
-        i.fa.fa-unlink
-      .image_source__link
-        em> not provided yet
+          a.js-source-link href=first_source.source
+            strong = first_source.source
+        = for source <- sources do
+          .image_source__icon
+            i class=image_source_icon(source.source)
+          .image_source__link
+            a href=source.source
+              strong = source.source
+      - else
+        .image_source__icon
+          i.fa.fa-unlink
+        .image_source__link
+          em> not provided yet

@@ -308,18 +308,75 @@ defmodule PhilomenaWeb.ImageView do
       u when u in ["cdn.discordapp.com", "discordapp.com", "discord.com"] ->
         "fab fa-discord"
 
+      u when u in ["youtube.com", "www.youtube.com"] ->
+        "fab fa-youtube"
+
+      u when u in ["pillowfort.social", "www.pillowfort.social"] ->
+        "fa fa-bed"
+
+      u when u in ["vk.com", "vk.ru"] ->
+        "fab fa-vk"
+
+      u when u in ["pixiv.net", "www.pixiv.net", "artfight.net", "www.artfight.net"] ->
+        "fa fa-paintbrush"
+
+      u when u in ["patreon.com", "www.patreon.com"] ->
+        "fab fa-patreon"
+
+      u when u in ["ych.art", "ych.commishes.com", "commishes.com"] ->
+        "fa fa-palette"
+
+      u when u in ["artstation.com", "www.artstation.com"] ->
+        "fab fa-artstation"
+
+      u when u in ["instagram.com", "www.instagram.com"] ->
+        "fab fa-instagram"
+
+      u when u in ["reddit.com", "www.reddit.com"] ->
+        "fab fa-reddit"
+
+      u when u in ["facebook.com", "www.facebook.com", "fb.me", "www.fb.me"] ->
+        "fab fa-facebook"
+
+      u when u in ["tiktok.com", "www.tiktok.com"] ->
+        "fab fa-tiktok"
+
       u
       when u in [
-             "derpibooru.org",
-             "www.derpibooru.org",
-             "trixiebooru.org",
-             "www.trixiebooru.org",
-             "derpicdn.net"
+             "furaffinity.net",
+             "www.furaffinity.net",
+             "furbooru.org",
+             "inkbunny.net",
+             "e621.net",
+             "e926.net"
            ] ->
-        "fab fa-phoenix-framework"
+        "fa fa-paw"
+
+      u
+      when u in [
+             "awoo.space",
+             "bark.lgbt",
+             "equestria.social",
+             "foxy.social",
+             "mastodon.art",
+             "mastodon.social",
+             "meow.social",
+             "pawoo.net",
+             "pettingzoo.co",
+             "pony.social",
+             "vulpine.club",
+             "yiff.life"
+           ] ->
+        "fab fa-mastodon"
 
       link ->
-        if Enum.member?(site_domains, link), do: "favicon-home", else: "fa fa-link"
+        cond do
+          Enum.member?(site_domains, link) -> "favicon-home"
+          String.contains?(link, "tumblr") -> "fab fa-tumblr"
+          String.contains?(link, "deviantart") -> "fab fa-deviantart"
+          String.contains?(link, "sofurry") -> "fa fa-paw"
+          true -> "fa fa-link"
+        end
     end
   end
 end

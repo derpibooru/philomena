@@ -548,6 +548,13 @@ defmodule Philomena.Images do
     |> Multi.run(:copy_tags, fn _, %{} ->
       {:ok, Tags.copy_tags(image, duplicate_of_image)}
     end)
+    |> Multi.run(:migrate_sources, fn repo, %{} ->
+      {:ok,
+       migrate_sources(
+         repo.preload(image, [:sources]),
+         repo.preload(duplicate_of_image, [:sources])
+       )}
+    end)
     |> Multi.run(:migrate_comments, fn _, %{} ->
       {:ok, Comments.migrate_comments(image, duplicate_of_image)}
     end)
@@ -918,6 +925,17 @@ defmodule Philomena.Images do
       |> Repo.delete_all()
 
     {:ok, count}
+  end
+
+  def migrate_sources(source, target) do
+    sources =
+      (source.sources ++ target.sources)
+      |> Enum.uniq()
+      |> Enum.take(10)
+
+    target
+    |> Image.sources_changeset(sources)
+    |> Repo.update()
   end
 
   def notify_merge(source, target) do

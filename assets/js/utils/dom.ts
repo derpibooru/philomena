@@ -1,5 +1,7 @@
 // DOM Utils
 
+type PhilomenaInputElements = HTMLTextAreaElement | HTMLInputElement | HTMLButtonElement;
+
 /**
  * Get the first matching element
  */
@@ -34,13 +36,13 @@ export function clearEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>
   });
 }
 
-export function disableEl<E extends HTMLInputElement>(...elements: E[] | ConcatArray<E>[]) {
+export function disableEl<E extends PhilomenaInputElements>(...elements: E[] | ConcatArray<E>[]) {
   ([] as E[]).concat(...elements).forEach(el => {
     el.disabled = true;
   });
 }
 
-export function enableEl<E extends HTMLInputElement>(...elements: E[] | ConcatArray<E>[]) {
+export function enableEl<E extends PhilomenaInputElements>(...elements: E[] | ConcatArray<E>[]) {
   ([] as E[]).concat(...elements).forEach(el => {
     el.disabled = false;
   });
