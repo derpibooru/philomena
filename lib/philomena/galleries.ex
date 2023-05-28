@@ -15,6 +15,7 @@ defmodule Philomena.Galleries do
   alias Philomena.GalleryReorderWorker
   alias Philomena.Notifications
   alias Philomena.NotificationWorker
+  alias Philomena.Notifications.{Notification, UnreadNotification}
   alias Philomena.Images
 
   @doc """
@@ -90,9 +91,24 @@ defmodule Philomena.Galleries do
       |> select([i], i.image_id)
       |> Repo.all()
 
-    Repo.delete(gallery)
+    unread_notifications =
+      UnreadNotification
+      |> join(:inner, [un], _ in assoc(un, :notification))
+      |> where([_, n], n.actor_type == "Gallery")
+      |> where([_, n], n.actor_id == ^gallery.id)
+
+    notifications =
+      Notification
+      |> where(actor_type: "Gallery")
+      |> where(actor_id: ^gallery.id)
+
+    Multi.new()
+    |> Multi.delete(:gallery, gallery)
+    |> Multi.delete_all(:unread_notifications, unread_notifications)
+    |> Multi.delete_all(:notifications, notifications)
+    |> Repo.transaction()
     |> case do
-      {:ok, gallery} ->
+      {:ok, %{gallery: gallery}} ->
         unindex_gallery(gallery)
         Images.reindex_images(images)
 

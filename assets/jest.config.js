@@ -16,7 +16,7 @@ export default {
       functions: 0,
       lines: 0,
     },
-    './js/utils/**/*.js': {
+    './js/utils/**/*.ts': {
       statements: 100,
       branches: 100,
       functions: 100,

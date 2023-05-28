@@ -1,4 +1,4 @@
-FROM openresty/openresty:1.21.4.1-5-alpine
+FROM openresty/openresty:1.21.4.1-7-alpine
 ARG APP_DIR
 ARG S3_SCHEME
 ARG S3_HOST

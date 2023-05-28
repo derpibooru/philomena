@@ -1,31 +1,23 @@
 // Client-side tag completion.
 import store from './store';
 
-/**
- * @typedef {object} Result
- * @property {string} name
- * @property {number} imageCount
- * @property {number[]} associations
- */
+interface Result {
+  name: string;
+  imageCount: number;
+  associations: number[];
+}
 
 /**
  * Compare two strings, C-style.
- *
- * @param {string} a
- * @param {string} b
- * @returns {number}
  */
-function strcmp(a, b) {
+function strcmp(a: string, b: string): number {
   return a < b ? -1 : Number(a > b);
 }
 
 /**
  * Returns the name of a tag without any namespace component.
- *
- * @param {string} s
- * @returns {string}
  */
-function nameInNamespace(s) {
+function nameInNamespace(s: string): string {
   const v = s.split(':', 2);
 
   if (v.length === 2) return v[1];
@@ -39,25 +31,24 @@ function nameInNamespace(s) {
  * the JS heap and speed up the execution of the search.
  */
 export class LocalAutocompleter {
+  private data: Uint8Array;
+  private view: DataView;
+  private decoder: TextDecoder;
+  private numTags: number;
+  private referenceStart: number;
+  private secondaryStart: number;
+  private formatVersion: number;
+
   /**
    * Build a new local autocompleter.
-   *
-   * @param {ArrayBuffer} backingStore
    */
-  constructor(backingStore) {
-    /** @type {Uint8Array} */
+  constructor(backingStore: ArrayBuffer) {
     this.data = new Uint8Array(backingStore);
-    /** @type {DataView} */
     this.view = new DataView(backingStore);
-    /** @type {TextDecoder} */
     this.decoder = new TextDecoder();
-    /** @type {number} */
     this.numTags = this.view.getUint32(backingStore.byteLength - 4, true);
-    /** @type {number} */
     this.referenceStart = this.view.getUint32(backingStore.byteLength - 8, true);
-    /** @type {number} */
     this.secondaryStart = this.referenceStart + 8 * this.numTags;
-    /** @type {number} */
     this.formatVersion = this.view.getUint32(backingStore.byteLength - 12, true);
 
     if (this.formatVersion !== 2) {
@@ -67,11 +58,8 @@ export class LocalAutocompleter {
 
   /**
    * Get a tag's name and its associations given a byte location inside the file.
-   *
-   * @param {number} location
-   * @returns {[string, number[]]}
    */
-  getTagFromLocation(location) {
+  getTagFromLocation(location: number): [string, number[]] {
     const nameLength = this.view.getUint8(location);
     const assnLength = this.view.getUint8(location + 1 + nameLength);
 
@@ -88,11 +76,8 @@ export class LocalAutocompleter {
 
   /**
    * Get a Result object as the ith tag inside the file.
-   *
-   * @param {number} i
-   * @returns {[string, Result]}
    */
-  getResultAt(i) {
+  getResultAt(i: number): [string, Result] {
     const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
     const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
     const [ name, associations ] = this.getTagFromLocation(nameLocation);
@@ -107,23 +92,16 @@ export class LocalAutocompleter {
 
   /**
    * Get a Result object as the ith tag inside the file, secondary ordering.
-   *
-   * @param {number} i
-   * @returns {[string, Result]}
    */
-  getSecondaryResultAt(i) {
+  getSecondaryResultAt(i: number): [string, Result] {
     const referenceIndex = this.view.getUint32(this.secondaryStart + i * 4, true);
     return this.getResultAt(referenceIndex);
   }
 
   /**
    * Perform a binary search to fetch all results matching a condition.
-   *
-   * @param {(i: number) => [string, Result]} getResult
-   * @param {(name: string) => number} compare
-   * @param {{[key: string]: Result}} results
    */
-  scanResults(getResult, compare, results) {
+  scanResults(getResult: (i: number) => [string, Result], compare: (name: string) => number, results: Record<string, Result>) {
     const unfilter = store.get('unfilter_tag_suggestions');
 
     let min = 0;
@@ -132,7 +110,7 @@ export class LocalAutocompleter {
     const hiddenTags = window.booru.hiddenTagList;
 
     while (min < max - 1) {
-      const med = (min + (max - min) / 2) | 0;
+      const med = min + (max - min) / 2 | 0;
       const sortKey = getResult(med)[0];
 
       if (compare(sortKey) >= 0) {
@@ -161,25 +139,20 @@ export class LocalAutocompleter {
 
   /**
    * Find the top k results by image count which match the given string prefix.
-   *
-   * @param {string} prefix
-   * @param {number} k
-   * @returns {Result[]}
    */
-  topK(prefix, k) {
-    /** @type {{[key: string]: Result}} */
-    const results = {};
+  topK(prefix: string, k: number): Result[] {
+    const results: Record<string, Result> = {};
 
     if (prefix === '') {
       return [];
     }
 
     // Find normally, in full name-sorted order
-    const prefixMatch = (/** @type {string} */ name) => strcmp(name.slice(0, prefix.length), prefix);
+    const prefixMatch = (name: string) => strcmp(name.slice(0, prefix.length), prefix);
     this.scanResults(this.getResultAt.bind(this), prefixMatch, results);
 
     // Find in secondary order
-    const namespaceMatch = (/** @type {string} */ name) => strcmp(nameInNamespace(name).slice(0, prefix.length), prefix);
+    const namespaceMatch = (name: string) => strcmp(nameInNamespace(name).slice(0, prefix.length), prefix);
     this.scanResults(this.getSecondaryResultAt.bind(this), namespaceMatch, results);
 
     // Sort results by image count

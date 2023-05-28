@@ -1,11 +1,19 @@
 import { escapeHtml } from './dom';
 import { getTag } from '../booru';
 
-function unique(array) {
+export interface TagData {
+  id: number;
+  name: string;
+  images: number;
+  spoiler_image_uri: string | null;
+  fetchedAt: null | number;
+}
+
+function unique<Item>(array: Item[]): Item[] {
   return array.filter((a, b, c) => c.indexOf(a) === b);
 }
 
-function sortTags(hidden, a, b) {
+function sortTags(hidden: boolean, a: TagData, b: TagData): number {
   // If both tags have a spoiler image, sort by images count desc (hidden) or asc (spoilered)
   if (a.spoiler_image_uri && b.spoiler_image_uri) {
     return hidden ? b.images - a.images : a.images - b.images;
@@ -34,16 +42,20 @@ export function getSpoileredTags() {
     .sort(sortTags.bind(null, false));
 }
 
-export function imageHitsTags(img, matchTags) {
-  const imageTags = JSON.parse(img.dataset.imageTags);
+export function imageHitsTags(img: HTMLImageElement, matchTags: TagData[]): TagData[] {
+  const imageTagsString = img.dataset.imageTags;
+  if (typeof imageTagsString === 'undefined') {
+    return [];
+  }
+  const imageTags = JSON.parse(imageTagsString);
   return matchTags.filter(t => imageTags.indexOf(t.id) !== -1);
 }
 
-export function imageHitsComplex(img, matchComplex) {
+export function imageHitsComplex(img: HTMLImageElement, matchComplex: { hitsImage: (img: HTMLImageElement) => boolean }) {
   return matchComplex.hitsImage(img);
 }
 
-export function displayTags(tags) {
+export function displayTags(tags: TagData[]): string {
   const mainTag = tags[0], otherTags = tags.slice(1);
   let list = escapeHtml(mainTag.name), extras;
 

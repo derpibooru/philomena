@@ -23,7 +23,7 @@ defmodule Philomena.Polymorphic do
     "Comment" => [:user, image: [tags: :aliases]],
     "Commission" => [:user],
     "Conversation" => [:from, :to],
-    "DnpEntry" => [:requesting_user],
+    "DnpEntry" => [:requesting_user, :tag],
     "Gallery" => [:creator],
     "Image" => [:user, tags: :aliases],
     "Post" => [:user, topic: :forum],

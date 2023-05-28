@@ -3,6 +3,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
   alias Philomena.Users
   alias Philomena.Repo
+  alias Phoenix.Flash
   import Philomena.UsersFixtures
 
   setup do
@@ -25,7 +26,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
         })
 
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "If your email is in our system"
+      assert Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Repo.get_by!(Users.UserToken, user_id: user.id).context == "reset_password"
     end
 
@@ -36,7 +37,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
         })
 
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :info) =~ "If your email is in our system"
+      assert Flash.get(conn.assigns.flash, :info) =~ "If your email is in our system"
       assert Repo.all(Users.UserToken) == []
     end
   end
@@ -59,7 +60,9 @@ defmodule PhilomenaWeb.PasswordControllerTest do
     test "does not render reset password with invalid token", %{conn: conn} do
       conn = get(conn, Routes.password_path(conn, :edit, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Reset password link is invalid or it has expired"
+
+      assert Flash.get(conn.assigns.flash, :error) =~
+               "Reset password link is invalid or it has expired"
     end
   end
 
@@ -84,7 +87,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
       assert redirected_to(conn) == Routes.session_path(conn, :new)
       refute get_session(conn, :user_token)
-      assert get_flash(conn, :info) =~ "Password reset successfully"
+      assert Flash.get(conn.assigns.flash, :info) =~ "Password reset successfully"
       assert Users.get_user_by_email_and_password(user.email, "new valid password", & &1)
     end
 
@@ -105,7 +108,9 @@ defmodule PhilomenaWeb.PasswordControllerTest do
     test "does not reset password with invalid token", %{conn: conn} do
       conn = put(conn, Routes.password_path(conn, :update, "oops"))
       assert redirected_to(conn) == "/"
-      assert get_flash(conn, :error) =~ "Reset password link is invalid or it has expired"
+
+      assert Flash.get(conn.assigns.flash, :error) =~
+               "Reset password link is invalid or it has expired"
     end
   end
 end

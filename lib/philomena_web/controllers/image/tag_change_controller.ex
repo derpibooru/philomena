@@ -2,12 +2,19 @@ defmodule PhilomenaWeb.Image.TagChangeController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Images.Image
+  alias Philomena.TagChanges
   alias Philomena.TagChanges.TagChange
   alias Philomena.Repo
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: TagChange,
+    preload: [:tag],
+    persisted: true,
+    only: [:delete]
 
   def index(conn, params) do
     image = conn.assigns.image
@@ -27,6 +34,21 @@ defmodule PhilomenaWeb.Image.TagChangeController do
     )
   end
 
+  def delete(conn, _params) do
+    image = conn.assigns.image
+    tag_change = conn.assigns.tag_change
+
+    TagChanges.delete_tag_change(tag_change)
+
+    conn
+    |> put_flash(:info, "Successfully deleted tag change from history.")
+    |> moderation_log(
+      details: &log_details/3,
+      data: %{image: image, details: tag_change_details(tag_change)}
+    )
+    |> redirect(to: Routes.image_path(conn, :show, image))
+  end
+
   defp added_filter(query, %{"added" => "1"}),
     do: where(query, added: true)
 
@@ -35,4 +57,17 @@ defmodule PhilomenaWeb.Image.TagChangeController do
 
   defp added_filter(query, _params),
     do: query
+
+  defp log_details(conn, _action, %{image: image, details: details}) do
+    %{
+      body: "Deleted tag change #{details} on >>#{image.id} from history",
+      subject_path: Routes.image_path(conn, :show, image)
+    }
+  end
+
+  defp tag_change_details(%TagChange{added: true, tag: tag}),
+    do: "+#{tag.name}"
+
+  defp tag_change_details(%TagChange{added: false, tag: tag}),
+    do: "-#{tag.name}"
 end

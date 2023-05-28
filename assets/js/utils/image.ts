@@ -1,9 +1,7 @@
 import { clearEl } from './dom';
 import store from './store';
 
-function showVideoThumb(img) {
-  const size = img.dataset.size;
-  const uris = JSON.parse(img.dataset.uris);
+function showVideoThumb(img: HTMLDivElement, size: string, uris: Record<string, string>) {
   const thumbUri = uris[size];
 
   const vidEl = img.querySelector('video');
@@ -21,18 +19,22 @@ function showVideoThumb(img) {
   vidEl.classList.remove('hidden');
   vidEl.play();
 
-  img.querySelector('.js-spoiler-info-overlay').classList.add('hidden');
+  const overlay = img.querySelector('.js-spoiler-info-overlay');
+  if (overlay) overlay.classList.add('hidden');
 
   return true;
 }
 
-export function showThumb(img) {
+export function showThumb(img: HTMLDivElement) {
   const size = img.dataset.size;
-  const uris = JSON.parse(img.dataset.uris);
+  const urisString = img.dataset.uris;
+  if (!size || !urisString) return false;
+
+  const uris: Record<string, string> = JSON.parse(urisString);
   const thumbUri = uris[size].replace(/webm$/, 'gif');
 
   const picEl = img.querySelector('picture');
-  if (!picEl) return showVideoThumb(img);
+  if (!picEl) return showVideoThumb(img, size, uris);
 
   const imgEl = picEl.querySelector('img');
   if (!imgEl || imgEl.src.indexOf(thumbUri) !== -1) return false;
@@ -45,26 +47,30 @@ export function showThumb(img) {
   }
 
   imgEl.src = thumbUri;
+  const overlay = img.querySelector('.js-spoiler-info-overlay');
+  if (!overlay) return false;
+
   if (uris[size].indexOf('.webm') !== -1) {
-    const overlay = img.querySelector('.js-spoiler-info-overlay');
     overlay.classList.remove('hidden');
     overlay.innerHTML = 'WebM';
   }
   else {
-    img.querySelector('.js-spoiler-info-overlay').classList.add('hidden');
+    overlay.classList.add('hidden');
   }
 
   return true;
 }
 
-export function showBlock(img) {
-  img.querySelector('.image-filtered').classList.add('hidden');
-  const imageShowClasses = img.querySelector('.image-show').classList;
-  imageShowClasses.remove('hidden');
-  imageShowClasses.add('spoiler-pending');
+export function showBlock(img: HTMLDivElement) {
+  img.querySelector('.image-filtered')?.classList.add('hidden');
+  const imageShowClasses = img.querySelector('.image-show')?.classList;
+  if (imageShowClasses) {
+    imageShowClasses.remove('hidden');
+    imageShowClasses.add('spoiler-pending');
+  }
 }
 
-function hideVideoThumb(img, spoilerUri, reason) {
+function hideVideoThumb(img: HTMLDivElement, spoilerUri: string, reason: string) {
   const vidEl = img.querySelector('video');
   if (!vidEl) return;
 
@@ -74,15 +80,17 @@ function hideVideoThumb(img, spoilerUri, reason) {
 
   imgEl.classList.remove('hidden');
   imgEl.src = spoilerUri;
-  imgOverlay.innerHTML = reason;
-  imgOverlay.classList.remove('hidden');
+  if (imgOverlay) {
+    imgOverlay.innerHTML = reason;
+    imgOverlay.classList.remove('hidden');
+  }
 
   clearEl(vidEl);
   vidEl.classList.add('hidden');
   vidEl.pause();
 }
 
-export function hideThumb(img, spoilerUri, reason) {
+export function hideThumb(img: HTMLDivElement, spoilerUri: string, reason: string) {
   const picEl = img.querySelector('picture');
   if (!picEl) return hideVideoThumb(img, spoilerUri, reason);
 
@@ -93,11 +101,13 @@ export function hideThumb(img, spoilerUri, reason) {
 
   imgEl.srcset = '';
   imgEl.src = spoilerUri;
-  imgOverlay.innerHTML = reason;
-  imgOverlay.classList.remove('hidden');
+  if (imgOverlay) {
+    imgOverlay.innerHTML = reason;
+    imgOverlay.classList.remove('hidden');
+  }
 }
 
-export function spoilerThumb(img, spoilerUri, reason) {
+export function spoilerThumb(img: HTMLDivElement, spoilerUri: string, reason: string) {
   hideThumb(img, spoilerUri, reason);
 
   switch (window.booru.spoilerType) {
@@ -114,15 +124,19 @@ export function spoilerThumb(img, spoilerUri, reason) {
   }
 }
 
-export function spoilerBlock(img, spoilerUri, reason) {
-  const imgEl = img.querySelector('.image-filtered img');
-  const imgReason = img.querySelector('.filter-explanation');
-
+export function spoilerBlock(img: HTMLDivElement, spoilerUri: string, reason: string) {
+  const imgFiltered = img.querySelector('.image-filtered');
+  const imgEl = imgFiltered?.querySelector<HTMLImageElement>('img');
   if (!imgEl) return;
 
-  imgEl.src = spoilerUri;
-  imgReason.innerHTML = reason;
+  const imgReason = img.querySelector<HTMLElement>('.filter-explanation');
+  const imageShow = img.querySelector('.image-show');
 
-  img.querySelector('.image-show').classList.add('hidden');
-  img.querySelector('.image-filtered').classList.remove('hidden');
+  imgEl.src = spoilerUri;
+  if (imgReason) {
+    imgReason.innerHTML = reason;
+  }
+
+  imageShow?.classList.add('hidden');
+  if (imgFiltered) imgFiltered.classList.remove('hidden');
 }

@@ -240,4 +240,12 @@ defmodule PhilomenaWeb.AppView do
       label(form, field, "#{label_content}", label_opts)
     ]
   end
+
+  def get_flash(%{assigns: %{flash: nil}}), do: %{}
+  def get_flash(%{assigns: %{flash: flash}}), do: flash
+  def get_flash(_), do: %{}
+
+  def get_flash(%{assigns: %{flash: nil}}, _key), do: %{}
+  def get_flash(%{assigns: %{flash: flash}}, key), do: Phoenix.Flash.get(flash, key)
+  def get_flash(_, _key), do: %{}
 end

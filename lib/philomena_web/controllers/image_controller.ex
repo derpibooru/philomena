@@ -159,7 +159,8 @@ defmodule PhilomenaWeb.ImageController do
         "SELECT EXISTS(SELECT 1 FROM gallery_interactions gi WHERE gi.image_id = ? AND gi.gallery_id = ?)",
         ^image.id,
         g.id
-      )
+      ),
+      on: true
     )
     |> select([g, e], {g, e.exists})
     |> order_by(desc: :updated_at)
@@ -175,12 +176,14 @@ defmodule PhilomenaWeb.ImageController do
       |> join(
         :inner_lateral,
         [i],
-        _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id)
+        _ in fragment("SELECT COUNT(*) FROM tag_changes t WHERE t.image_id = ?", i.id),
+        on: true
       )
       |> join(
         :inner_lateral,
         [i, _],
-        _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id)
+        _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id),
+        on: true
       )
       |> preload([:deleter, :locked_tags, user: [awards: :badge], tags: :aliases])
       |> select([i, t, s], {i, t.count, s.count})

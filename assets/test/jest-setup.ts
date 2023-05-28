@@ -20,4 +20,5 @@ window.booru = {
   watchedTagList: [],
   hiddenFilter: blankFilter,
   spoileredFilter: blankFilter,
+  tagsVersion: 5
 };
