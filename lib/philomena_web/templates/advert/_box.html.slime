@@ -9,6 +9,6 @@
 
   p
     strong
-      ' Derpibooru costs over $25 a day to operate -
-      = link "help support us financially", to: "/pages/donations"
+      ' Help fund the $15 daily operational cost of Derpibooru -
+      = link "support us financially", to: "/pages/donations"
       ' !
