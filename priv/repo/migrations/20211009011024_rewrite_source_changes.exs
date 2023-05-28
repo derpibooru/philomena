@@ -51,47 +51,51 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
 
     create constraint(:image_sources, :image_sources_source_check, check: "source ~* '^https?://'")
 
-    execute("""
-    insert into image_sources (image_id, source)
-    select id as image_id, substr(source_url, 1, 255) as source from images
-    where source_url is not null and source_url ~* '^https?://';
-    """)
+    # These statements should not be ran by the migration in production.
+    # Run them manually in psql instead.
+    if System.get_env("MIX_ENV") != "prod" do
+      execute("""
+      insert into image_sources (image_id, source)
+      select id as image_id, substr(source_url, 1, 255) as source from images
+      where source_url is not null and source_url ~* '^https?://';
+      """)
 
-    # First insert the "added" changes...
-    execute("""
-    with ranked_added_source_changes as (
-      select
-        image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent,
-        substr(referrer, 1, 255) as referrer,
-        substr(new_value, 1, 255) as value, true as added,
-        rank() over (partition by image_id order by created_at asc)
-        from old_source_changes
-        where new_value is not null
-    )
-    insert into source_changes
-    (image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added)
-    select image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added
-    from ranked_added_source_changes
-    where "rank" > 1;
-    """)
+      # First insert the "added" changes...
+      execute("""
+      with ranked_added_source_changes as (
+        select
+          image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent,
+          substr(referrer, 1, 255) as referrer,
+          substr(new_value, 1, 255) as value, true as added,
+          rank() over (partition by image_id order by created_at asc)
+          from old_source_changes
+          where new_value is not null
+      )
+      insert into source_changes
+      (image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added)
+      select image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added
+      from ranked_added_source_changes
+      where "rank" > 1;
+      """)
 
-    # ...then the "removed" changes
-    execute("""
-    with ranked_removed_source_changes as (
-      select
-        image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent,
-        substr(referrer, 1, 255) as referrer,
-        substr(new_value, 1, 255) as value, false as added,
-        rank() over (partition by image_id order by created_at desc)
-        from old_source_changes
-        where new_value is not null
-    )
-    insert into source_changes
-    (image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added)
-    select image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added
-    from ranked_removed_source_changes
-    where "rank" > 1;
-    """)
+      # ...then the "removed" changes
+      execute("""
+      with ranked_removed_source_changes as (
+        select
+          image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent,
+          substr(referrer, 1, 255) as referrer,
+          substr(new_value, 1, 255) as value, false as added,
+          rank() over (partition by image_id order by created_at desc)
+          from old_source_changes
+          where new_value is not null
+      )
+      insert into source_changes
+      (image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added)
+      select image_id, user_id, ip, created_at, updated_at, fingerprint, user_agent, referrer, value, added
+      from ranked_removed_source_changes
+      where "rank" > 1;
+      """)
+    end
 
     create index(:source_changes, [:image_id], name: "index_source_changes_on_image_id")
     create index(:source_changes, [:user_id], name: "index_source_changes_on_user_id")
