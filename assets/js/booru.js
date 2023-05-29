@@ -39,7 +39,7 @@ function clearTags() {
  * @returns {value is TagData}
  */
 function isValidStoredTag(value) {
-  if ('id' in value && 'name' in value && 'images' in value && 'spoiler_image_uri' in value) {
+  if (value !== null && 'id' in value && 'name' in value && 'images' in value && 'spoiler_image_uri' in value) {
     return typeof value.id === 'number'
       && typeof value.name === 'string'
       && typeof value.images === 'number'
