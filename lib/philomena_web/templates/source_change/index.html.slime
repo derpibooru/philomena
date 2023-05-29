@@ -7,10 +7,10 @@
       thead
         tr
           th colspan=2 Image
-          th New Source
+          th Source
+          th Action
           th Timestamp
           th User
-          th Initial?
 
       tbody
         = for source_change <- @source_changes do
@@ -21,8 +21,13 @@
               = render PhilomenaWeb.ImageView, "_image_container.html", image: source_change.image, size: :thumb_tiny, conn: @conn
 
             td
-              = source_change.new_value
-            
+              = source_change.source_url
+
+            = if source_change.added do
+              td.success Added
+            - else
+              td.danger Removed
+
             td
               = pretty_time(source_change.created_at)
 
@@ -40,10 +45,6 @@
                   ' This user is a staff member.
                   br
                   ' Ask them before reverting their changes.
-
-            td
-              = if source_change.initial do
-                ' &#x2713;
 
   .block__header
     = @pagination

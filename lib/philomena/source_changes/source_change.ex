@@ -10,10 +10,10 @@ defmodule Philomena.SourceChanges.SourceChange do
     field :fingerprint, :string
     field :user_agent, :string, default: ""
     field :referrer, :string, default: ""
-    field :new_value, :string
-    field :initial, :boolean, default: false
+    field :value, :string
+    field :added, :boolean
 
-    field :source_url, :string, source: :new_value
+    field :source_url, :string, source: :value
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end

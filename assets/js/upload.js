@@ -3,7 +3,7 @@
  */
 
 import { fetchJson, handleError } from './utils/requests';
-import { $, $$, hideEl, showEl, makeEl, clearEl } from './utils/dom';
+import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
 
 const MATROSKA_MAGIC = 0x1a45dfa3;
@@ -31,8 +31,10 @@ function setupImageUpload() {
   if (!imgPreviews) return;
 
   const form = imgPreviews.closest('form');
-  const [ fileField, remoteUrl, scraperError ] = $$('.js-scraper', form);
-  const [ sourceEl, tagsEl, descrEl ] = $$('.js-image-input', form);
+  const [fileField, remoteUrl, scraperError] = $$('.js-scraper', form);
+  const descrEl = $('.js-image-descr-input', form);
+  const tagsEl = $('.js-image-tags-input', form);
+  const sourceEl = $$('.js-image-source', form).find(input => input.value === '');
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 

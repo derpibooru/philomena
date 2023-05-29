@@ -36,6 +36,7 @@ import { setupToolbar }         from './markdowntoolbar';
 import { hideStaffTools }       from './staffhider';
 import { pollOptionCreator }    from './poll';
 import { warnAboutPMs }         from './pmwarning';
+import { imageSourcesCreator }  from './sources';
 
 whenReady(() => {
 
@@ -69,6 +70,7 @@ whenReady(() => {
   hideStaffTools();
   pollOptionCreator();
   warnAboutPMs();
+  imageSourcesCreator();
 
   const ticker = $('.game__progress_ticker');
   if (ticker) {

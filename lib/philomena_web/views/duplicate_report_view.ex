@@ -58,19 +58,24 @@ defmodule PhilomenaWeb.DuplicateReportView do
     do: abs(duplicate_of_image.image_aspect_ratio - image.image_aspect_ratio) <= 0.009
 
   def neither_have_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: blank?(duplicate_of_image.source_url) and blank?(image.source_url)
+    do: Enum.empty?(duplicate_of_image.sources) and Enum.empty?(image.sources)
 
-  def same_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: to_string(duplicate_of_image.source_url) == to_string(image.source_url)
+  def same_source?(%{image: image, duplicate_of_image: duplicate_of_image}) do
+    MapSet.equal?(MapSet.new(image.sources), MapSet.new(duplicate_of_image.sources))
+  end
 
-  def similar_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: uri_host(image.source_url) == uri_host(duplicate_of_image.source_url)
+  def similar_source?(%{image: image, duplicate_of_image: duplicate_of_image}) do
+    MapSet.equal?(
+      MapSet.new(image.sources, &URI.parse(&1.source).host),
+      MapSet.new(duplicate_of_image.sources, &URI.parse(&1.source).host)
+    )
+  end
 
   def source_on_target?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: present?(duplicate_of_image.source_url) and blank?(image.source_url)
+    do: Enum.any?(duplicate_of_image.sources) and Enum.empty?(image.sources)
 
   def source_on_source?(%{image: image, duplicate_of_image: duplicate_of_image}),
-    do: blank?(duplicate_of_image.source_url) && present?(image.source_url)
+    do: Enum.empty?(duplicate_of_image.sources) && Enum.any?(image.sources)
 
   def same_artist_tags?(%{image: image, duplicate_of_image: duplicate_of_image}),
     do: MapSet.equal?(artist_tags(image), artist_tags(duplicate_of_image))

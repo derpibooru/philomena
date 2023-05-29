@@ -8,6 +8,7 @@ defmodule Philomena.Images.Image do
   alias Philomena.ImageVotes.ImageVote
   alias Philomena.ImageFaves.ImageFave
   alias Philomena.ImageHides.ImageHide
+  alias Philomena.Images.Source
   alias Philomena.Images.Subscription
   alias Philomena.Users.User
   alias Philomena.Tags.Tag
@@ -18,6 +19,7 @@ defmodule Philomena.Images.Image do
 
   alias Philomena.Images.Image
   alias Philomena.Images.TagDiffer
+  alias Philomena.Images.SourceDiffer
   alias Philomena.Images.TagValidator
   alias Philomena.Images.DnpValidator
   alias Philomena.Repo
@@ -42,6 +44,7 @@ defmodule Philomena.Images.Image do
     many_to_many :locked_tags, Tag, join_through: "image_tag_locks", on_replace: :delete
     has_one :intensity, ImageIntensity
     has_many :galleries, through: [:gallery_interactions, :image]
+    has_many :sources, Source, on_replace: :delete
 
     field :image, :string
     field :image_name, :string
@@ -91,6 +94,8 @@ defmodule Philomena.Images.Image do
 
     field :removed_tags, {:array, :any}, default: [], virtual: true
     field :added_tags, {:array, :any}, default: [], virtual: true
+    field :removed_sources, {:array, :any}, default: [], virtual: true
+    field :added_sources, {:array, :any}, default: [], virtual: true
 
     field :uploaded_image, :string, virtual: true
     field :removed_image, :string, virtual: true
@@ -203,11 +208,15 @@ defmodule Philomena.Images.Image do
     |> change(image: nil)
   end
 
-  def source_changeset(image, attrs) do
+  def source_changeset(image, attrs, old_sources, new_sources) do
     image
-    |> cast(attrs, [:source_url])
-    |> validate_required(:source_url)
-    |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
+    |> cast(attrs, [])
+    |> SourceDiffer.diff_input(old_sources, new_sources)
+  end
+
+  def sources_changeset(image, new_sources) do
+    change(image)
+    |> put_assoc(:sources, new_sources)
   end
 
   def tag_changeset(image, attrs, old_tags, new_tags, excluded_tags \\ []) do

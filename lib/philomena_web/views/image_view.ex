@@ -287,4 +287,96 @@ defmodule PhilomenaWeb.ImageView do
 
     Philomena.Search.Evaluator.hits?(doc, query)
   end
+
+  def image_source_icon(nil), do: "fa fa-link"
+  def image_source_icon(""), do: "fa fa-link"
+
+  def image_source_icon(source) do
+    site_domains =
+      String.split(Application.get_env(:philomena, :site_domains), ",") ++
+        [Application.get_env(:philomena, :cdn_host)]
+
+    uri = URI.parse(source)
+
+    case uri.host do
+      u when u in ["twitter.com", "www.twitter.com", "pbs.twimg.com", "twimg.com"] ->
+        "fab fa-twitter"
+
+      u when u in ["deviantart.com", "www.deviantart.com", "sta.sh", "www.sta.sh"] ->
+        "fab fa-deviantart"
+
+      u when u in ["cdn.discordapp.com", "discordapp.com", "discord.com"] ->
+        "fab fa-discord"
+
+      u when u in ["youtube.com", "www.youtube.com"] ->
+        "fab fa-youtube"
+
+      u when u in ["pillowfort.social", "www.pillowfort.social"] ->
+        "fa fa-bed"
+
+      u when u in ["vk.com", "vk.ru"] ->
+        "fab fa-vk"
+
+      u when u in ["pixiv.net", "www.pixiv.net", "artfight.net", "www.artfight.net"] ->
+        "fa fa-paintbrush"
+
+      u when u in ["patreon.com", "www.patreon.com"] ->
+        "fab fa-patreon"
+
+      u when u in ["ych.art", "ych.commishes.com", "commishes.com"] ->
+        "fa fa-palette"
+
+      u when u in ["artstation.com", "www.artstation.com"] ->
+        "fab fa-artstation"
+
+      u when u in ["instagram.com", "www.instagram.com"] ->
+        "fab fa-instagram"
+
+      u when u in ["reddit.com", "www.reddit.com"] ->
+        "fab fa-reddit"
+
+      u when u in ["facebook.com", "www.facebook.com", "fb.me", "www.fb.me"] ->
+        "fab fa-facebook"
+
+      u when u in ["tiktok.com", "www.tiktok.com"] ->
+        "fab fa-tiktok"
+
+      u
+      when u in [
+             "furaffinity.net",
+             "www.furaffinity.net",
+             "furbooru.org",
+             "inkbunny.net",
+             "e621.net",
+             "e926.net"
+           ] ->
+        "fa fa-paw"
+
+      u
+      when u in [
+             "awoo.space",
+             "bark.lgbt",
+             "equestria.social",
+             "foxy.social",
+             "mastodon.art",
+             "mastodon.social",
+             "meow.social",
+             "pawoo.net",
+             "pettingzoo.co",
+             "pony.social",
+             "vulpine.club",
+             "yiff.life"
+           ] ->
+        "fab fa-mastodon"
+
+      link ->
+        cond do
+          Enum.member?(site_domains, link) -> "favicon-home"
+          String.contains?(link, "tumblr") -> "fab fa-tumblr"
+          String.contains?(link, "deviantart") -> "fab fa-deviantart"
+          String.contains?(link, "sofurry") -> "fa fa-paw"
+          true -> "fa fa-link"
+        end
+    end
+  end
 end

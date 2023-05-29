@@ -940,30 +940,10 @@ ALTER SEQUENCE public.image_intensities_id_seq OWNED BY public.image_intensities
 --
 
 CREATE TABLE public.image_sources (
-    id bigint NOT NULL,
     image_id bigint NOT NULL,
-    source text NOT NULL,
-    CONSTRAINT length_must_be_valid CHECK (((length(source) >= 8) AND (length(source) <= 1024)))
+    source character varying(255) NOT NULL,
+    CONSTRAINT image_sources_source_check CHECK (((source)::text ~* '^https?://'::text))
 );
-
-
---
--- Name: image_sources_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.image_sources_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: image_sources_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.image_sources_id_seq OWNED BY public.image_sources.id;
 
 
 --
@@ -1232,6 +1212,44 @@ CREATE SEQUENCE public.notifications_id_seq
 --
 
 ALTER SEQUENCE public.notifications_id_seq OWNED BY public.notifications.id;
+
+
+--
+-- Name: old_source_changes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.old_source_changes (
+    id integer NOT NULL,
+    ip inet NOT NULL,
+    fingerprint character varying,
+    user_agent character varying DEFAULT ''::character varying,
+    referrer character varying DEFAULT ''::character varying,
+    new_value character varying,
+    initial boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    user_id integer,
+    image_id integer NOT NULL
+);
+
+
+--
+-- Name: old_source_changes_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.old_source_changes_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: old_source_changes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.old_source_changes_id_seq OWNED BY public.old_source_changes.id;
 
 
 --
@@ -1512,17 +1530,17 @@ ALTER SEQUENCE public.site_notices_id_seq OWNED BY public.site_notices.id;
 --
 
 CREATE TABLE public.source_changes (
-    id integer NOT NULL,
+    id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    user_id bigint,
     ip inet NOT NULL,
-    fingerprint character varying,
-    user_agent character varying DEFAULT ''::character varying,
-    referrer character varying DEFAULT ''::character varying,
-    new_value character varying,
-    initial boolean DEFAULT false NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    user_id integer,
-    image_id integer NOT NULL
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    added boolean NOT NULL,
+    fingerprint character varying(255),
+    user_agent character varying(255) DEFAULT ''::character varying,
+    referrer character varying(255) DEFAULT ''::character varying,
+    value character varying(255) NOT NULL
 );
 
 
@@ -2385,13 +2403,6 @@ ALTER TABLE ONLY public.image_intensities ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- Name: image_sources id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.image_sources ALTER COLUMN id SET DEFAULT nextval('public.image_sources_id_seq'::regclass);
-
-
---
 -- Name: images id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2424,6 +2435,13 @@ ALTER TABLE ONLY public.moderation_logs ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 ALTER TABLE ONLY public.notifications ALTER COLUMN id SET DEFAULT nextval('public.notifications_id_seq'::regclass);
+
+
+--
+-- Name: old_source_changes id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.old_source_changes ALTER COLUMN id SET DEFAULT nextval('public.old_source_changes_id_seq'::regclass);
 
 
 --
@@ -2771,14 +2789,6 @@ ALTER TABLE ONLY public.image_intensities
 
 
 --
--- Name: image_sources image_sources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.image_sources
-    ADD CONSTRAINT image_sources_pkey PRIMARY KEY (id);
-
-
---
 -- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -2816,6 +2826,14 @@ ALTER TABLE ONLY public.moderation_logs
 
 ALTER TABLE ONLY public.notifications
     ADD CONSTRAINT notifications_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: old_source_changes old_source_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.old_source_changes
+    ADD CONSTRAINT old_source_changes_pkey PRIMARY KEY (id);
 
 
 --
@@ -3551,6 +3569,13 @@ CREATE UNIQUE INDEX index_image_intensities_on_image_id ON public.image_intensit
 
 
 --
+-- Name: index_image_source_on_image_id_and_source; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_image_source_on_image_id_and_source ON public.image_sources USING btree (image_id, source);
+
+
+--
 -- Name: index_image_subscriptions_on_image_id_and_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3681,6 +3706,27 @@ CREATE INDEX index_mod_notes_on_notable_type_and_notable_id ON public.mod_notes 
 --
 
 CREATE UNIQUE INDEX index_notifications_on_actor_id_and_actor_type ON public.notifications USING btree (actor_id, actor_type);
+
+
+--
+-- Name: index_old_source_changes_on_image_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_source_changes_on_image_id ON public.old_source_changes USING btree (image_id);
+
+
+--
+-- Name: index_old_source_changes_on_ip; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_source_changes_on_ip ON public.old_source_changes USING btree (ip);
+
+
+--
+-- Name: index_old_source_changes_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_old_source_changes_on_user_id ON public.old_source_changes USING btree (user_id);
 
 
 --
@@ -4320,10 +4366,10 @@ ALTER TABLE ONLY public.image_taggings
 
 
 --
--- Name: source_changes fk_rails_10271ec4d0; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: old_source_changes fk_rails_10271ec4d0; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.source_changes
+ALTER TABLE ONLY public.old_source_changes
     ADD CONSTRAINT fk_rails_10271ec4d0 FOREIGN KEY (image_id) REFERENCES public.images(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -4720,10 +4766,10 @@ ALTER TABLE ONLY public.polls
 
 
 --
--- Name: source_changes fk_rails_8d8cb9cb3b; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: old_source_changes fk_rails_8d8cb9cb3b; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.source_changes
+ALTER TABLE ONLY public.old_source_changes
     ADD CONSTRAINT fk_rails_8d8cb9cb3b FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
@@ -5125,6 +5171,19 @@ ALTER TABLE ONLY public.image_tag_locks
 
 ALTER TABLE ONLY public.moderation_logs
     ADD CONSTRAINT moderation_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+-- Name: source_changes source_changes_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.source_changes
+    ADD CONSTRAINT source_changes_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: source_changes source_changes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.source_changes
+    ADD CONSTRAINT source_changes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5163,6 +5222,7 @@ INSERT INTO public."schema_migrations" (version) VALUES (20210912171343);
 INSERT INTO public."schema_migrations" (version) VALUES (20210917190346);
 INSERT INTO public."schema_migrations" (version) VALUES (20210921025336);
 INSERT INTO public."schema_migrations" (version) VALUES (20210929181319);
+INSERT INTO public."schema_migrations" (version) VALUES (20211009011024);
 INSERT INTO public."schema_migrations" (version) VALUES (20211107130226);
 INSERT INTO public."schema_migrations" (version) VALUES (20211219194836);
 INSERT INTO public."schema_migrations" (version) VALUES (20220321173359);
