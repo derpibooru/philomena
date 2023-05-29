@@ -17,6 +17,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.Uploader
   alias Philomena.Images.Tagging
   alias Philomena.Images.Thumbnailer
+  alias Philomena.Images.Source
   alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
   alias Philomena.IndexWorker
   alias Philomena.ImageFeatures.ImageFeature
@@ -959,6 +960,7 @@ defmodule Philomena.Images do
   def migrate_sources(source, target) do
     sources =
       (source.sources ++ target.sources)
+      |> Enum.map(fn s -> %Source{image_id: target.id, source: s.source} end)
       |> Enum.uniq()
       |> Enum.take(10)
 
