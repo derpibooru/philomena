@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.ImageController do
   alias Philomena.{
     Images,
     Images.Image,
+    Images.Source,
     Comments.Comment,
     Galleries.Gallery
   }
@@ -79,7 +80,7 @@ defmodule PhilomenaWeb.ImageController do
       |> Comments.change_comment()
 
     image_changeset =
-      image
+      %{image | sources: sources_for_edit(image.sources)}
       |> Images.change_image()
 
     watching = Images.subscribed?(image, conn.assigns.current_user)
@@ -108,7 +109,7 @@ defmodule PhilomenaWeb.ImageController do
 
   def new(conn, _params) do
     changeset =
-      %Image{}
+      %Image{sources: sources_for_edit()}
       |> Images.change_image()
 
     render(conn, "new.html", title: "New Image", changeset: changeset)
@@ -185,7 +186,7 @@ defmodule PhilomenaWeb.ImageController do
         _ in fragment("SELECT COUNT(*) FROM source_changes s WHERE s.image_id = ?", i.id),
         on: true
       )
-      |> preload([:deleter, :locked_tags, user: [awards: :badge], tags: :aliases])
+      |> preload([:deleter, :locked_tags, :sources, user: [awards: :badge], tags: :aliases])
       |> select([i, t, s], {i, t.count, s.count})
       |> Repo.one()
       |> case do
@@ -217,4 +218,8 @@ defmodule PhilomenaWeb.ImageController do
         |> assign(:source_change_count, source_changes)
     end
   end
+
+  defp sources_for_edit(), do: [%Source{}]
+  defp sources_for_edit([]), do: sources_for_edit()
+  defp sources_for_edit(sources), do: sources
 end

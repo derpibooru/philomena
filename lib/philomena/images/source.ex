@@ -4,9 +4,10 @@ defmodule Philomena.Images.Source do
 
   alias Philomena.Images.Image
 
+  @primary_key false
   schema "image_sources" do
-    belongs_to :image, Image
-    field :source, :string
+    belongs_to :image, Image, primary_key: true
+    field :source, :string, primary_key: true
   end
 
   @doc false

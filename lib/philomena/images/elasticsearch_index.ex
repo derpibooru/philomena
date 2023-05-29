@@ -119,7 +119,7 @@ defmodule Philomena.Images.ElasticsearchIndex do
       mime_type: image.image_mime_type,
       uploader: if(!!image.user and !image.anonymous, do: String.downcase(image.user.name)),
       true_uploader: if(!!image.user, do: String.downcase(image.user.name)),
-      source_url: image.source_url |> to_string |> String.downcase(),
+      source_url: image.sources |> Enum.map(&String.downcase(&1.source)),
       file_name: image.image_name,
       original_format: image.image_format,
       processed: image.processed,
