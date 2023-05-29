@@ -80,7 +80,9 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
       comment_count: image.comments_count,
       tag_count: length(image.tags),
       description: image.description,
-      source_url: image.source_url,
+      source_url:
+        if(Enum.count(image.sources) > 0, do: Enum.at(image.sources, 0).source, else: ""),
+      source_urls: Enum.map(image.sources, & &1.source),
       view_url: ImageView.pretty_url(image, false, false),
       representations: ImageView.thumb_urls(image, false),
       thumbnails_generated: image.thumbnails_generated,

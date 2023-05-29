@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
       |> where([i], i.hidden_from_users == false)
       |> order_by([_i, f], desc: f.created_at)
       |> limit(1)
-      |> preload([:user, :intensity, tags: :aliases])
+      |> preload([:user, :intensity, :sources, tags: :aliases])
       |> Repo.one()
 
     case featured_image do

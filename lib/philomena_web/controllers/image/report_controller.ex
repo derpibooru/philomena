@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Image.ReportController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [tags: :aliases]
+    preload: [:sources, tags: :aliases]
 
   def new(conn, _params) do
     image = conn.assigns.image

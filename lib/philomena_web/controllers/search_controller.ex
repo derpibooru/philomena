@@ -12,7 +12,12 @@ defmodule PhilomenaWeb.SearchController do
 
     case ImageLoader.search_string(conn, params["q"]) do
       {:ok, {images, tags}} ->
-        images = search_function(custom_ordering?(conn)).(images, preload(Image, tags: :aliases))
+        images =
+          search_function(custom_ordering?(conn)).(
+            images,
+            preload(Image, [:sources, tags: :aliases])
+          )
+
         interactions = Interactions.user_interactions(images, user)
 
         conn

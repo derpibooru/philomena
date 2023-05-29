@@ -15,9 +15,9 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
     preload: [
       :verified_links,
       commission: [
-        sheet_image: [tags: :aliases],
+        sheet_image: [:sources, tags: :aliases],
         user: [awards: :badge],
-        items: [example_image: [tags: :aliases]]
+        items: [example_image: [:sources, tags: :aliases]]
       ]
     ],
     persisted: true

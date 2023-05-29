@@ -241,6 +241,12 @@ defmodule PhilomenaWeb.AppView do
     ]
   end
 
+  def image_has_sources(image), do: Enum.count(image.sources) > 0
+
+  def image_first_source(image) do
+    if image_has_sources(image), do: Enum.at(image.sources, 0).source, else: ""
+  end
+
   def get_flash(%{assigns: %{flash: nil}}), do: %{}
   def get_flash(%{assigns: %{flash: flash}}), do: flash
   def get_flash(_), do: %{}

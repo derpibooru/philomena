@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.CommentController do
       |> Elasticsearch.search_records(
         preload(Comment, [
           :deleted_by,
-          image: [tags: :aliases],
+          image: [:sources, tags: :aliases],
           user: [awards: :badge, game_profiles: :team]
         ])
       )

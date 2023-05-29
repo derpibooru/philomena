@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Api.Json.OembedController do
   defp load_image(id) do
     Image
     |> where(id: ^id, hidden_from_users: false)
-    |> preload([:user, tags: :aliases])
+    |> preload([:user, :sources, tags: :aliases])
     |> Repo.one()
   end
 

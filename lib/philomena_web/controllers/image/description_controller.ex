@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Image.DescriptionController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [:user, tags: :aliases]
+    preload: [:user, :sources, tags: :aliases]
 
   def update(conn, %{"image" => image_params}) do
     image = conn.assigns.image
