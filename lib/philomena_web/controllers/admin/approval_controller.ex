@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Admin.ApprovalController do
       |> where(hidden_from_users: false)
       |> where(approved: false)
       |> order_by(asc: :id)
-      |> preload([:user, tags: [:aliases, :aliased_tag]])
+      |> preload([:user, :sources, tags: [:aliases, :aliased_tag]])
       |> Repo.paginate(conn.assigns.scrivener)
 
     render(conn, "index.html", title: "Admin - Approval Queue", images: images)
