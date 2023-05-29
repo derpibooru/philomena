@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
     image =
       Image
       |> where(id: ^id)
-      |> preload([:user, :intensity, tags: :aliases])
+      |> preload([:user, :intensity, :sources, tags: :aliases])
       |> Repo.one()
 
     case image do

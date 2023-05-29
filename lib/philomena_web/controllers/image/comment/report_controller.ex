@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [tags: :aliases]
+    preload: [:sources, tags: :aliases]
 
   plug PhilomenaWeb.LoadCommentPlug
 

@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.Image.TagChangeController do
       TagChange
       |> where(image_id: ^image.id)
       |> added_filter(params)
-      |> preload([:tag, :user, image: [:user, tags: :aliases]])
+      |> preload([:tag, :user, image: [:user, :sources, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
 

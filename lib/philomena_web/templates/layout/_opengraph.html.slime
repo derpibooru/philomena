@@ -17,8 +17,8 @@ meta name="format-detection" content="telephone=no"
   = for tag <- artist_tags(image.tags) do
     meta property="dc:creator" content=tag.name_in_namespace
 
-  = if image.source_url not in [nil, ""] do
-    meta property="foaf:primaryTopic" content=image.source_url
+  = if image_has_sources(image) do
+    meta property="foaf:primaryTopic" content=image_first_source(image)
 
   link rel="alternate" type="application/json+oembed" href=Routes.api_json_oembed_url(@conn, :index, url: Routes.image_path(@conn, :show, image)) title="oEmbed JSON Profile"
 

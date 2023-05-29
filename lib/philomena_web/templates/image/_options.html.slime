@@ -28,7 +28,7 @@
     p Loading...
   .block__tab.hidden data-tab="sharing"
     #embed_options
-      - source_link = if @image.source_url in [nil, ""], do: " (Original source unknown at time of posting)", else: " - [url=#{@image.source_url}]Original source[/url]"
+      - source_link = if image_has_sources(@image), do: " - [url=#{image_first_source(@image)}]Original source[/url]", else: " (Original source unknown at time of posting)"
       h5 Derpibooru
       p
         strong> Small thumbnail

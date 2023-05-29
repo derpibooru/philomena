@@ -162,7 +162,9 @@ defmodule PhilomenaWeb.ImageView do
       downvotes: image.downvotes_count,
       comment_count: image.comments_count,
       created_at: DateTime.to_iso8601(image.created_at),
-      source_url: image.source_url,
+      source_url:
+        if(Enum.count(image.sources) > 0, do: Enum.at(image.sources, 0).source, else: ""),
+      source_urls: Jason.encode!(Enum.map(image.sources, & &1.source)),
       uris: Jason.encode!(thumb_urls(image, can?(conn, :show, image))),
       width: image.image_width,
       height: image.image_height,

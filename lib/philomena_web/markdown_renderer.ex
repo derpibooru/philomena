@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
 
     Image
     |> where([i], i.id in ^ids)
-    |> preload(tags: :aliases)
+    |> preload([:sources, tags: :aliases])
     |> Repo.all()
     |> Map.new(&{&1.id, &1})
   end

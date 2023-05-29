@@ -48,9 +48,9 @@ h1 Reverse Search
           th
             h3 = link "##{match.id}", to: Routes.image_path(@conn, :show, match)
             p
-              = if match.source_url not in [nil, ""] do
+              = if image_has_sources(match) do
                 span.source_url
-                  = link "Source", to: match.source_url
+                  = link "Source", to: image_first_source(match)
               - else
                 ' Unknown source
 

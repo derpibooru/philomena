@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Api.Json.OembedView do
       version: "1.0",
       type: "photo",
       title: "##{image.id} - #{tag_list(image)} - Derpibooru",
-      author_url: image.source_url || "",
+      author_url: image_first_source(image),
       author_name: artist_tags(image.tags),
       provider_name: "Derpibooru",
       provider_url: PhilomenaWeb.Endpoint.url(),

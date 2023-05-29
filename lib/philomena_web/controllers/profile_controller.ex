@@ -28,7 +28,10 @@ defmodule PhilomenaWeb.ProfileController do
       awards: [:badge, :awarded_by],
       public_links: :tag,
       verified_links: :tag,
-      commission: [sheet_image: [tags: :aliases], items: [example_image: [tags: :aliases]]]
+      commission: [
+        sheet_image: [:sources, tags: :aliases],
+        items: [example_image: [:sources, tags: :aliases]]
+      ]
     ]
 
   plug :set_admin_metadata
@@ -119,10 +122,10 @@ defmodule PhilomenaWeb.ProfileController do
       Elasticsearch.msearch_records(
         [recent_uploads, recent_faves, recent_artwork, recent_comments, recent_posts],
         [
-          preload(Image, tags: :aliases),
-          preload(Image, tags: :aliases),
-          preload(Image, tags: :aliases),
-          preload(Comment, user: [awards: :badge], image: [tags: :aliases]),
+          preload(Image, [:sources, tags: :aliases]),
+          preload(Image, [:sources, tags: :aliases]),
+          preload(Image, [:sources, tags: :aliases]),
+          preload(Comment, user: [awards: :badge], image: [:sources, tags: :aliases]),
           preload(Post, user: [awards: :badge], topic: :forum)
         ]
       )
@@ -144,7 +147,7 @@ defmodule PhilomenaWeb.ProfileController do
     recent_galleries =
       Gallery
       |> where(creator_id: ^user.id)
-      |> preload([:creator, thumbnail: [tags: :aliases]])
+      |> preload([:creator, thumbnail: [:sources, tags: :aliases]])
       |> limit(4)
       |> Repo.all()
 

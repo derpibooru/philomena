@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Image.ReportingController do
     model: Image,
     id_name: "image_id",
     persisted: true,
-    preload: [tags: :aliases]
+    preload: [:sources, tags: :aliases]
 
   def show(conn, _params) do
     image = conn.assigns.image
@@ -21,8 +21,8 @@ defmodule PhilomenaWeb.Image.ReportingController do
       |> preload([
         :user,
         :modifier,
-        image: [:user, tags: :aliases],
-        duplicate_of_image: [:user, tags: :aliases]
+        image: [:user, :sources, tags: :aliases],
+        duplicate_of_image: [:user, :sources, tags: :aliases]
       ])
       |> where([d], d.image_id == ^image.id or d.duplicate_of_image_id == ^image.id)
       |> Repo.all()

@@ -74,7 +74,7 @@ defmodule PhilomenaWeb.CommissionController do
       where: ui.updated_at >= ago(2, "week"),
       group_by: c.id,
       order_by: [asc: fragment("random()")],
-      preload: [user: [awards: :badge], items: [example_image: [tags: :aliases]]]
+      preload: [user: [awards: :badge], items: [example_image: [:sources, tags: :aliases]]]
   end
 
   defp presence(nil),
