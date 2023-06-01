@@ -1,12 +1,15 @@
-div
-  p
+.block
+  .block__header
+    span.block__header__title
+      i.fas.fa-file-lines>
+      ' Description
+  .block__content
+    p
+      = if String.length(@body) > 0 do
+        == @body
+      - else
+        em No description provided.
     = if can?(@conn, :edit_description, @image) do
       a.button#edit-description href="#" data-click-focus="#description" data-click-hide=".image-description" data-click-show="#description-form" title="Edit description" accessKey="d"
         i.fas.fa-edit>
-        ' Description:
-
-    - else
-      ' Description:
-
-  .image-description__text
-    == @body
+        ' Edit
