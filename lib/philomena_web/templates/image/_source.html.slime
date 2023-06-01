@@ -2,7 +2,6 @@
   - has_sources = Enum.any?(@image.sources)
   = form_for @changeset, Routes.image_source_path(@conn, :update, @image), [method: "put", class: "hidden", id: "source-form", data: [remote: "true"]], fn f ->
     = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban do
-
       = if @changeset.action do
         .alert.alert-danger
           p Oops, something went wrong! Please check the errors below.
@@ -38,42 +37,49 @@
       p
         ' You can't edit the source on this image.
 
-  .flex.flex--wrap.flex--column#image-source
-    .flex
-      a.button.button--separate-right#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
-        i.fas.fa-edit>
+  .block#image-source
+    .block__header
+      span.block__header__title
+        i.fas.fa-link>
         = if !has_sources || length(@image.sources) == 1 do
-          ' Source:
+          ' Source
         - else
-          ' Sources:
-      = if @source_change_count > 0 do
-        a.button.button--link.button--separate-left href=Routes.image_source_change_path(@conn, :index, @image) title="Source history"
-          i.fa.fa-history>
-          | History (
-          = @source_change_count
-          | )
-
-      = if can?(@conn, :hide, @image) and not hide_staff_tools?(@conn) do
-        = form_for @changeset, Routes.image_source_history_path(@conn, :delete, @image), [method: "delete"], fn _f ->
-          button.button.button--state-danger.button--separate-left type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
-            i.fas.fa-eraser>
-            ' Wipe
-    .image_sources
-      = if has_sources do
-        - [first_source | sources] = @image.sources
-        .image_source__icon
-          i class=image_source_icon(first_source.source)
-        .image_source__link
-          a.js-source-link href=first_source.source
-            strong = first_source.source
-        = for source <- sources do
+          ' Sources
+    .block__content.flex.flex--wrap.flex--column
+      .image_sources
+        = if has_sources do
+          - [first_source | sources] = @image.sources
           .image_source__icon
-            i class=image_source_icon(source.source)
+            i class=image_source_icon(first_source.source)
           .image_source__link
-            a href=source.source
-              strong = source.source
-      - else
-        .image_source__icon
-          i.fa.fa-unlink
-        .image_source__link
-          em> not provided yet
+            a.js-source-link href=first_source.source
+              strong = first_source.source
+          = for source <- sources do
+            .image_source__icon
+              i class=image_source_icon(source.source)
+            .image_source__link
+              a href=source.source
+                strong = source.source
+        - else
+          .image_source__icon
+            i.fa.fa-unlink
+          .image_source__link
+            em> not provided yet
+      .flex
+        a.button#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
+          i.fas.fa-edit>
+          = if has_sources do
+            ' Add/Edit
+          - else
+            ' Add
+        = if @source_change_count > 0 do
+          a.button.button--link.button--separate-left href=Routes.image_source_change_path(@conn, :index, @image) title="Source history"
+            i.fa.fa-history>
+            | History (
+            = @source_change_count
+            | )
+        = if can?(@conn, :hide, @image) and not hide_staff_tools?(@conn) do
+          = form_for @changeset, Routes.image_source_history_path(@conn, :delete, @image), [method: "delete"], fn _f ->
+            button.button.button--state-danger.button--separate-left type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
+              i.fas.fa-eraser>
+              ' Wipe
