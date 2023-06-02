@@ -94,6 +94,18 @@ a.block__header--single-item, .block__header a {
   padding: 0 ($header_spacing * 0.5) 0 $header_spacing;
 }
 
+.block__header__buttons {
+  display: flex;
+  flex-direction: row;
+  line-height: 100%;
+  align-items: center;
+  background: 0;
+}
+
+.block__tagbox {
+  padding-top: $block_spacing + 5px;
+}
+
 .block__header--light {
   background: $block_header_light_color;
   a, .header__span {

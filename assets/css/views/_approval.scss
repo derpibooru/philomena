@@ -30,6 +30,13 @@
   margin-bottom: auto;
 }
 
+.approval-items__details {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: var(--padding-normal);
+  line-height: 100%;
+}
+
 @media (max-width: $min_px_width_for_desktop_layout) {
   .approval-grid {
     grid-template-columns: 1fr;

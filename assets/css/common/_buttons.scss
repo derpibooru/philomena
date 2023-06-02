@@ -23,6 +23,13 @@
   }
 }
 
+.button--inline {
+  padding: 0.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  font-weight: 100;
+}
+
 .button--bold {
   font-weight: bold;
 }
@@ -87,5 +94,9 @@
   &:hover {
     background-color: $button_danger_hover_background;
     border-color: $button_danger_hover_border;
+  }
+
+  &.button--inline {
+    color: $button_danger_hover_border !important;
   }
 }
