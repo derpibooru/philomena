@@ -57,18 +57,19 @@
         ' You can't edit the tags on this image.
 
   .block.tagsauce
-    .block__header
+    .block__header.flex
       span.block__header__title
         i.fas.fa-tag>
         ' Tags
-    .block__content
+      .block__header__buttons
+        a.button.button--inline.js-tag-sauce-toggle#edit-tags data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input" title="Edit tags" accessKey="t"
+          i.fas.fa-edit>
+          ' Edit
+        = if @tag_change_count > 0 do
+          a.button.button--link.button--inline href=Routes.image_tag_change_path(@conn, :index, @image) title="Tag history"
+            i.fa.fa-history>
+            | History (
+            = @tag_change_count
+            | )
+    .block__content.block__tagbox
       = render PhilomenaWeb.TagView, "_tag_list.html", tags: tags, conn: @conn
-      a.button.js-tag-sauce-toggle#edit-tags data-click-toggle=".tagsauce, .js-imageform" data-click-focus=".js-taginput-plain:not(.hidden), .js-taginput-input" title="Edit tags" accessKey="t"
-        i.fas.fa-edit>
-        ' Edit
-      = if @tag_change_count > 0 do
-        a.button.button--link.button--separate-left href=Routes.image_tag_change_path(@conn, :index, @image) title="Tag history"
-          i.fa.fa-history>
-          | History (
-          = @tag_change_count
-          | )

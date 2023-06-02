@@ -13,7 +13,9 @@
       .approval-grid
         .approval-items--main
           span = link ">>#{image.id}", to: Routes.image_path(@conn, :show, image)
-          span = image_thumb(@conn, image)
+          .approval-items__details class=class_for_image(image)
+            span = image_thumb(@conn, image)
+            span = warning_text(image)
           span
             = if image.user do
               = link image.user.name, to: Routes.profile_path(@conn, :show, image.user)
