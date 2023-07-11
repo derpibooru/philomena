@@ -367,7 +367,9 @@ defmodule PhilomenaWeb.ImageView do
              "pettingzoo.co",
              "pony.social",
              "vulpine.club",
-             "yiff.life"
+             "yiff.life",
+             "socel.net",
+             "octodon.social"
            ] ->
         "fab fa-mastodon"
 
