@@ -70,7 +70,7 @@ defmodule Philomena.Objects do
       download_file(source_key, file_path)
       upload(dest_key, file_path)
     catch
-      _kind, _value -> Logger.warn("Failed to copy #{source_key} -> #{dest_key}")
+      _kind, _value -> Logger.warning("Failed to copy #{source_key} -> #{dest_key}")
     end
   end
 
@@ -111,7 +111,7 @@ defmodule Philomena.Objects do
     |> Enum.any?(fn {_, v} -> v == :error end)
     |> case do
       true ->
-        Logger.warn("Failed to operate on all backends")
+        Logger.warning("Failed to operate on all backends")
 
       _ ->
         :ok

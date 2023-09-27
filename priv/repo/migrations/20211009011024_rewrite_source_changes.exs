@@ -49,7 +49,9 @@ defmodule Philomena.Repo.Migrations.RewriteSourceChanges do
            check: "length(source) >= 8 and length(source) <= 1024"
          )
 
-    create constraint(:image_sources, :image_sources_source_check, check: "source ~* '^https?://'")
+    create constraint(:image_sources, :image_sources_source_check,
+             check: "source ~* '^https?://'"
+           )
 
     # These statements should not be ran by the migration in production.
     # Run them manually in psql instead.

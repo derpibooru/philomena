@@ -1,6 +1,6 @@
-FROM elixir:1.14.4-alpine
+FROM elixir:1.15.4-alpine
 
-ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/5.1 /tmp/ffmpeg_version.json
+ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.0 /tmp/ffmpeg_version.json
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
     && apk update --allow-untrusted \

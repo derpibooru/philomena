@@ -6,7 +6,7 @@ defmodule Philomena.Search.LiteralParser do
 
   float =
     ascii_string([?0..?9], min: 1)
-    |> optional(ascii_char('.') |> ascii_string([?0..?9], min: 1))
+    |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
     |> reduce(:to_number)
 

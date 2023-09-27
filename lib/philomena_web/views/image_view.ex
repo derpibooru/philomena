@@ -138,7 +138,7 @@ defmodule PhilomenaWeb.ImageView do
       |> display_order()
       |> Enum.map_join("_", & &1.slug)
       |> String.to_charlist()
-      |> Enum.filter(&(&1 in ?a..?z or &1 in '0123456789_-+'))
+      |> Enum.filter(&(&1 in ?a..?z or &1 in ~c"0123456789_-+"))
       |> List.to_string()
       |> String.slice(0..150)
 
@@ -225,7 +225,11 @@ defmodule PhilomenaWeb.ImageView do
   def hidden_toggle(%{assigns: %{current_user: nil}}, _route, _params), do: nil
 
   def hidden_toggle(conn, route, params) do
-    render(PhilomenaWeb.ImageView, "_hidden_toggle.html", route: route, params: params, conn: conn)
+    render(PhilomenaWeb.ImageView, "_hidden_toggle.html",
+      route: route,
+      params: params,
+      conn: conn
+    )
   end
 
   def deleted_toggle(conn, route, params) do
