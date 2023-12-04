@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.AdminCountersPlug do
   defp maybe_assign_admin_metrics(conn, _user, false), do: conn
 
   defp maybe_assign_admin_metrics(conn, user, true) do
-    pending_approvals = Images.count_pending_approvals()
+    pending_approvals = Images.count_pending_approvals(user)
     duplicate_reports = DuplicateReports.count_duplicate_reports(user)
     reports = Reports.count_reports(user)
     artist_links = ArtistLinks.count_artist_links(user)

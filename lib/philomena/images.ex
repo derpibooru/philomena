@@ -210,11 +210,15 @@ defmodule Philomena.Images do
 
   defp maybe_suggest_user_verification(_user), do: false
 
-  def count_pending_approvals() do
-    Image
-    |> where(hidden_from_users: false)
-    |> where(approved: false)
-    |> Repo.aggregate(:count)
+  def count_pending_approvals(user) do
+    if Canada.Can.can?(user, :approve, %Image{}) do
+      Image
+      |> where(hidden_from_users: false)
+      |> where(approved: false)
+      |> Repo.aggregate(:count)
+    else
+      nil
+    end
   end
 
   def feature_image(featurer, %Image{} = image) do
