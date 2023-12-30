@@ -7,15 +7,14 @@ defmodule PhilomenaWeb.TagChange.FullRevertController do
   plug :verify_authorized
   plug PhilomenaWeb.UserAttributionPlug
 
-  def create(conn, params) do
-    attributes = conn.assigns.attributes
-
+  def create(%{assigns: %{attributes: attributes}} = conn, params) do
     attributes = %{
       ip: to_string(attributes[:ip]),
       fingerprint: attributes[:fingerprint],
       referrer: attributes[:referrer],
       user_agent: attributes[:referrer],
-      user_id: attributes[:user].id
+      user_id: attributes[:user].id,
+      batch_size: attributes[:batch_size] || 100
     }
 
     case params do
