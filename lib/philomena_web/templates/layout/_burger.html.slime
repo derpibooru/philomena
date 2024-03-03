@@ -11,7 +11,7 @@ nav#burger
   a href="/tags"
     i.fa.fa-fw.fa-tag<>
     ' Tags
-  a href="/search?q=first_seen_at.gt:3 days ago&amp;sf=wilson_score&amp;sd=desc"
+  a href="/search?q=first_seen_at.gt:3 days ago, -ai generated&amp;sf=wilson_score&amp;sd=desc"
     i.fas.fa-fw.fa-poll<>
     ' Rankings
   a href="/filters"
