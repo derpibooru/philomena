@@ -17,7 +17,7 @@ function makeRequest(verb) {
 function bindSubscriptionLinks() {
   delegate(document, 'fetchcomplete', {
     '.js-subscription-link': event => {
-      const target = $('#js-subscription-target');
+      const target = event.target.closest('.js-subscription-target');
       event.detail.text().then(text => {
         target.outerHTML = text;
       });

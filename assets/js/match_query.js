@@ -407,15 +407,15 @@ SearchTerm.prototype.match = function(target) {
     // Should work with most my:conditions except watched.
     switch (this.termSpace) {
       case 'faves':
-        ret = this.interactionMatch(target.getAttribute('data-image-id'), 'faved', null, window.booru.interactions);
+        ret = this.interactionMatch(Number(target.getAttribute('data-image-id')), 'faved', null, window.booru.interactions);
 
         break;
       case 'upvotes':
-        ret = this.interactionMatch(target.getAttribute('data-image-id'), 'voted', 'up', window.booru.interactions);
+        ret = this.interactionMatch(Number(target.getAttribute('data-image-id')), 'voted', 'up', window.booru.interactions);
 
         break;
       case 'downvotes':
-        ret = this.interactionMatch(target.getAttribute('data-image-id'), 'voted', 'down', window.booru.interactions);
+        ret = this.interactionMatch(Number(target.getAttribute('data-image-id')), 'voted', 'down', window.booru.interactions);
 
         break;
       default:

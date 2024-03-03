@@ -13,7 +13,7 @@ defmodule Philomena.Search.IntParser do
     |> ignore()
 
   int =
-    optional(ascii_char('-+'))
+    optional(ascii_char(~c"-+"))
     |> ascii_string([?0..?9], min: 1)
     |> reduce({List, :to_string, []})
     |> reduce(:to_int)

@@ -8,9 +8,9 @@ defmodule Philomena.Search.Lexer do
     |> ignore()
 
   float =
-    optional(ascii_char('-+'))
+    optional(ascii_char(~c"-+"))
     |> ascii_string([?0..?9], min: 1)
-    |> optional(ascii_char('.') |> ascii_string([?0..?9], min: 1))
+    |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
     |> reduce(:to_number)
 

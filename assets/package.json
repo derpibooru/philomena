@@ -30,7 +30,7 @@
     "jest-environment-jsdom": "^29.4.3",
     "mini-css-extract-plugin": "^2.7.2",
     "normalize-scss": "^7.0.1",
-    "postcss": "^8.4.21",
+    "postcss": "^8.4.31",
     "postcss-loader": "^7.2.4",
     "postcss-scss": "^4.0.6",
     "postcss-url": "^10.1.3",

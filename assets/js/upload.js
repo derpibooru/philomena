@@ -34,7 +34,7 @@ function setupImageUpload() {
   const [fileField, remoteUrl, scraperError] = $$('.js-scraper', form);
   const descrEl = $('.js-image-descr-input', form);
   const tagsEl = $('.js-image-tags-input', form);
-  const sourceEl = $$('.js-image-source', form).find(input => input.value === '');
+  const sourceEl = $$('.js-source-url', form).find(input => input.value === '');
   const fetchButton = $('#js-scraper-preview');
   if (!fetchButton) return;
 

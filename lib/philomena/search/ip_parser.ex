@@ -3,9 +3,9 @@ defmodule Philomena.Search.IpParser do
 
   ipv4_octet =
     choice([
-      ascii_char('2') |> ascii_char('5') |> ascii_char([?0..?5]),
-      ascii_char('2') |> ascii_char([?0..?4]) |> ascii_char([?0..?9]),
-      ascii_char('1') |> ascii_char([?0..?9]) |> ascii_char([?0..?9]),
+      ascii_char(~c"2") |> ascii_char(~c"5") |> ascii_char([?0..?5]),
+      ascii_char(~c"2") |> ascii_char([?0..?4]) |> ascii_char([?0..?9]),
+      ascii_char(~c"1") |> ascii_char([?0..?9]) |> ascii_char([?0..?9]),
       ascii_char([?1..?9]) |> ascii_char([?0..?9]),
       ascii_char([?0..?9])
     ])
@@ -16,15 +16,15 @@ defmodule Philomena.Search.IpParser do
     |> concat(ipv4_octet)
 
   ipv4_prefix =
-    ascii_char('/')
+    ascii_char(~c"/")
     |> choice([
-      ascii_char('3') |> ascii_char([?0..?2]),
+      ascii_char(~c"3") |> ascii_char([?0..?2]),
       ascii_char([?1..?2]) |> ascii_char([?0..?9]),
       ascii_char([?0..?9])
     ])
     |> reduce({List, :to_string, []})
 
-  ipv6_hexadectet = ascii_string('0123456789abcdefABCDEF', min: 1, max: 4)
+  ipv6_hexadectet = ascii_string(~c"0123456789abcdefABCDEF", min: 1, max: 4)
 
   ipv6_ls32 =
     choice([
@@ -115,10 +115,10 @@ defmodule Philomena.Search.IpParser do
     ])
 
   ipv6_prefix =
-    ascii_char('/')
+    ascii_char(~c"/")
     |> choice([
-      ascii_char('1') |> ascii_char('2') |> ascii_char([?0..?8]),
-      ascii_char('1') |> ascii_char([?0..?1]) |> ascii_char([?0..?9]),
+      ascii_char(~c"1") |> ascii_char(~c"2") |> ascii_char([?0..?8]),
+      ascii_char(~c"1") |> ascii_char([?0..?1]) |> ascii_char([?0..?9]),
       ascii_char([?1..?9]) |> ascii_char([?0..?9]),
       ascii_char([?0..?9])
     ])
