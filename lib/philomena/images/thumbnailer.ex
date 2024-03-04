@@ -76,16 +76,26 @@ defmodule Philomena.Images.Thumbnailer do
     file = download_image_file(image)
     {:ok, analysis} = Analyzers.analyze(file)
 
-    apply_edit_script(image, Processors.process(analysis, file, generated_sizes(image)))
+    file = apply_edit_script(image, file, Processors.process(analysis, file, generated_sizes(image)))
     generate_dupe_reports(image)
     recompute_meta(image, file, &Image.thumbnail_changeset/2)
 
-    apply_edit_script(image, Processors.post_process(analysis, file))
+    file = apply_edit_script(image, file, Processors.post_process(analysis, file))
     recompute_meta(image, file, &Image.process_changeset/2)
   end
 
-  defp apply_edit_script(image, changes),
-    do: Enum.map(changes, &apply_change(image, &1))
+  defp apply_edit_script(image, file, changes) do
+    Enum.reduce(changes, file, fn change, existing_file ->
+      apply_change(image, change)
+
+      case change do
+        {:replace_original, new_file} ->
+          new_file
+        _ ->
+          existing_file
+      end
+    end)
+  end
 
   defp apply_change(image, {:intensities, intensities}),
     do: ImageIntensities.create_image_intensity(image, intensities)
