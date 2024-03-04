@@ -2,11 +2,10 @@ defmodule PhilomenaWeb.MarkdownRenderer do
   alias Philomena.Markdown
   alias Philomena.Images.Image
   alias Philomena.Repo
+  alias PhilomenaWeb.ImageView
   import Phoenix.HTML
   import Phoenix.HTML.Link
   import Ecto.Query
-
-  @image_view Module.concat(["PhilomenaWeb.ImageView"])
 
   def render_one(item, conn) do
     hd(render_collection([item], conn))
@@ -79,28 +78,28 @@ defmodule PhilomenaWeb.MarkdownRenderer do
           img != nil ->
             case group do
               [_id, "p"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(@image_view, "_image_target.html",
+                Phoenix.View.render(ImageView, "_image_target.html",
                   embed_display: true,
                   image: img,
-                  size: @image_view.select_version(img, :medium),
+                  size: ImageView.select_version(img, :medium),
                   conn: conn
                 )
                 |> safe_to_string()
 
               [_id, "t"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(@image_view, "_image_target.html",
+                Phoenix.View.render(ImageView, "_image_target.html",
                   embed_display: true,
                   image: img,
-                  size: @image_view.select_version(img, :small),
+                  size: ImageView.select_version(img, :small),
                   conn: conn
                 )
                 |> safe_to_string()
 
               [_id, "s"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(@image_view, "_image_target.html",
+                Phoenix.View.render(ImageView, "_image_target.html",
                   embed_display: true,
                   image: img,
-                  size: @image_view.select_version(img, :thumb_small),
+                  size: ImageView.select_version(img, :thumb_small),
                   conn: conn
                 )
                 |> safe_to_string()
