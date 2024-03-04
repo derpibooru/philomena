@@ -65,7 +65,6 @@ defmodule Philomena.MixProject do
       {:qrcode, "~> 0.1"},
       {:redix, "~> 1.2"},
       {:bamboo, "~> 2.2"},
-      {:bamboo_smtp, "~> 4.2"},
       {:remote_ip, "~> 1.1"},
       {:briefly, "~> 0.4"},
       {:tesla, "~> 1.5"},
@@ -77,6 +76,13 @@ defmodule Philomena.MixProject do
       {:ex_aws_s3, "~> 2.0"},
       {:sweet_xml, "~> 0.7"},
       {:inet_cidr, "~> 1.0"},
+
+      # SMTP
+      {:tls_certificate_check, "~> 1.21"},
+      {:bamboo_smtp, "~> 4.2",
+       github: "botsquad/bamboo_smtp",
+       ref: "c630ccde40070deffc7d78ee6e4a08c9199f145b",
+       override: true},
 
       # Markdown
       {:rustler, "~> 0.27"},
