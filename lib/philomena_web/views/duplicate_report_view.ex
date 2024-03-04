@@ -149,7 +149,4 @@ defmodule PhilomenaWeb.DuplicateReportView do
 
   defp proper_subset?(set1, set2),
     do: MapSet.subset?(set1, set2) and not MapSet.equal?(set1, set2)
-
-  defp uri_host(nil), do: nil
-  defp uri_host(str), do: URI.parse(str).host
 end
