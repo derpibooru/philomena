@@ -50,7 +50,7 @@ services:
       - redis
 
   postgres:
-    image: postgres:15.3-alpine
+    image: postgres:16.2-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -72,12 +72,12 @@ services:
         hard: 65536
 
   redis:
-    image: redis:7.0.11-alpine
+    image: redis:7.2.4-alpine
     logging:
       driver: "none"
 
   files:
-    image: andrewgaul/s3proxy:sha-ba0fd6d
+    image: andrewgaul/s3proxy:sha-ec12ae0
     environment:
       - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
