@@ -47,7 +47,7 @@ defmodule Philomena.MixProject do
       {:ranch, "~> 2.1", override: true},
       {:plug_cowboy, "~> 2.6"},
       {:slime, "~> 1.3.0",
-       github: "liamwhite/slime", ref: "cd4ced179197daa596bbb9d313f3808103c9624e", override: true},
+       github: "liamwhite/slime", ref: "4c8ad4e9e9dcc792f4db769a9ef2ad7d6eba8f31", override: true},
       {:phoenix_slime, "~> 0.13",
        github: "slime-lang/phoenix_slime", ref: "8944de91654d6fcf6bdcc0aed6b8647fe3398241"},
       {:phoenix_pubsub_redis, "~> 3.0"},
