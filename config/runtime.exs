@@ -130,7 +130,7 @@ if config_env() == :prod do
   {:ok, ip} = :inet.parse_address(System.get_env("APP_IP", "127.0.0.1") |> String.to_charlist())
 
   config :philomena, PhilomenaWeb.Endpoint,
-    http: [ip: ip, port: {:system, "PORT"}],
+    http: [ip: ip, port: System.fetch_env!("PORT")],
     url: [host: System.fetch_env!("APP_HOSTNAME"), scheme: "https", port: 443],
     secret_key_base: System.fetch_env!("SECRET_KEY_BASE"),
     server: not is_nil(System.get_env("START_ENDPOINT"))
