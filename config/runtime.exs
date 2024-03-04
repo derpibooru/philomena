@@ -6,6 +6,7 @@ import Config
 # by calling `mix release`.
 #
 # See `mix help release` for more information.
+{:ok, _} = Application.ensure_all_started(:tls_certificate_check)
 
 config :bcrypt_elixir,
   log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS", "12"))
@@ -120,7 +121,10 @@ if config_env() == :prod do
     username: System.fetch_env!("SMTP_USERNAME"),
     password: System.fetch_env!("SMTP_PASSWORD"),
     tls: :always,
-    auth: :always
+    auth: :always,
+    tls_options:
+      [middlebox_comp_mode: false] ++
+        :tls_certificate_check.options(System.fetch_env!("SMTP_RELAY"))
 
   # Production endpoint config
   {:ok, ip} = :inet.parse_address(System.get_env("APP_IP", "127.0.0.1") |> String.to_charlist())
