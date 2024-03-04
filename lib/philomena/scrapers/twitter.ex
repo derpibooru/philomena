@@ -19,8 +19,8 @@ defmodule Philomena.Scrapers.Twitter do
       images: [
         %{
           url: image_url,
-          camo_url: Camo.Image.image_url(image_url),
-        },
+          camo_url: Camo.Image.image_url(image_url)
+        }
       ]
     }
   end

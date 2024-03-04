@@ -11,8 +11,7 @@ defmodule Philomena.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      dialyzer: [plt_add_apps: [:mix]],
-      rustler_crates: [philomena: []]
+      dialyzer: [plt_add_apps: [:mix]]
     ]
   end
 
@@ -58,7 +57,6 @@ defmodule Philomena.MixProject do
       {:secure_compare, "~> 0.1"},
       {:elastix, "~> 0.10"},
       {:nimble_parsec, "~> 1.2"},
-      {:canary, "~> 1.1"},
       {:scrivener_ecto, "~> 2.7"},
       {:pbkdf2, ">= 0.0.0",
        github: "basho/erlang-pbkdf2", ref: "7e9bd5fcd3cc3062159e4c9214bb628aa6feb5ca"},
@@ -101,7 +99,11 @@ defmodule Philomena.MixProject do
 
       # Fixes for OTP/25
       {:neotoma, "~> 1.7.3", manager: :rebar3, override: true},
-      {:hut, "~> 1.4.0", manager: :rebar3, override: true}
+      {:hut, "~> 1.4.0", manager: :rebar3, override: true},
+
+      # Fixes for Elixir v1.15+
+      {:canary, "~> 1.1",
+       github: "marcinkoziej/canary", ref: "704debde7a2c0600f78c687807884bf37c45bd79"}
     ]
   end
 
