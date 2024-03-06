@@ -1,10 +1,10 @@
-FROM elixir:1.15.7-otp-26-alpine
+FROM elixir:1.16.1-alpine
 
-ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.0 /tmp/ffmpeg_version.json
+ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.1 /tmp/ffmpeg_version.json
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
     && apk update --allow-untrusted \
-    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg rsvg-convert imagemagick postgresql15-client wget rust cargo --allow-untrusted \
+    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg rsvg-convert imagemagick postgresql16-client wget rust cargo --allow-untrusted \
     && mix local.hex --force \
     && mix local.rebar --force
 

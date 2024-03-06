@@ -4,13 +4,13 @@ defmodule Philomena.Scrapers.Tumblr do
   @size_regex ~r|_(\d+)(\..+)\z|
   @sizes [1280, 540, 500, 400, 250, 100, 75]
   @tumblr_ranges [
-    InetCidr.parse("66.6.32.0/24"),
-    InetCidr.parse("66.6.33.0/24"),
-    InetCidr.parse("66.6.44.0/24"),
-    InetCidr.parse("74.114.152.0/24"),
-    InetCidr.parse("74.114.153.0/24"),
-    InetCidr.parse("74.114.154.0/24"),
-    InetCidr.parse("74.114.155.0/24")
+    InetCidr.parse_cidr!("66.6.32.0/24"),
+    InetCidr.parse_cidr!("66.6.33.0/24"),
+    InetCidr.parse_cidr!("66.6.44.0/24"),
+    InetCidr.parse_cidr!("74.114.152.0/24"),
+    InetCidr.parse_cidr!("74.114.153.0/24"),
+    InetCidr.parse_cidr!("74.114.154.0/24"),
+    InetCidr.parse_cidr!("74.114.155.0/24")
   ]
 
   @spec can_handle?(URI.t(), String.t()) :: true | false

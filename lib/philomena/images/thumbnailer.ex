@@ -76,7 +76,9 @@ defmodule Philomena.Images.Thumbnailer do
     file = download_image_file(image)
     {:ok, analysis} = Analyzers.analyze(file)
 
-    file = apply_edit_script(image, file, Processors.process(analysis, file, generated_sizes(image)))
+    file =
+      apply_edit_script(image, file, Processors.process(analysis, file, generated_sizes(image)))
+
     generate_dupe_reports(image)
     recompute_meta(image, file, &Image.thumbnail_changeset/2)
 
@@ -91,6 +93,7 @@ defmodule Philomena.Images.Thumbnailer do
       case change do
         {:replace_original, new_file} ->
           new_file
+
         _ ->
           existing_file
       end

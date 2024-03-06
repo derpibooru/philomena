@@ -1,7 +1,7 @@
 defmodule Philomena.Native do
   @moduledoc false
 
-  use Rustler, otp_app: :philomena
+  use Rustler, otp_app: :philomena, crate: "philomena"
 
   @spec markdown_to_html(String.t(), %{String.t() => String.t()}) :: String.t()
   def markdown_to_html(_text, _replacements), do: :erlang.nif_error(:nif_not_loaded)
