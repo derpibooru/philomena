@@ -47,7 +47,11 @@ h1 Content Settings
         p
           ' RSS feed link (for Newsblur, RSSOwl, Thunderbird, etc.):
           br
-          = url_input f, :subscribe_url, value: Routes.api_rss_watched_url(@conn, :index, key: @conn.assigns.current_user.authentication_token), class: "input input--wide"
+          #rss-feed-button>
+            code>
+              = link("Click to show", to: "#", data: [click_show: "#rss-link", click_hide: "#rss-feed-button"])
+          #rss-link.hidden
+            = url_input f, :subscribe_url, value: Routes.api_rss_watched_url(@conn, :index, key: @conn.assigns.current_user.authentication_token), class: "input input--wide"
           br
           ' Do not share this URL with anyone, it may allow an attacker to compromise your account.
 
