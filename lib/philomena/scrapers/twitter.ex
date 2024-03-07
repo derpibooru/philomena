@@ -9,19 +9,27 @@ defmodule Philomena.Scrapers.Twitter do
   def scrape(_uri, url) do
     [user, status_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
-    image_url = "https://d.fxtwitter.com/#{user}/status/#{status_id}.jpg"
+    api_url = "https://api.fxtwitter.com/#{user}/status/#{status_id}"
+    {:ok, %Tesla.Env{status: 200, body: body}} = Philomena.Http.get(api_url)
 
-    {:ok, %Tesla.Env{status: 200}} = Philomena.Http.head(image_url)
+    json = Jason.decode!(body)
+
+    images =
+      Enum.map(json["tweet"]["media"]["photos"], fn p ->
+        %{
+          url: large_format(p["url"]),
+          camo_url: Camo.Image.image_url(p["url"])
+        }
+      end)
 
     %{
       source_url: "https://twitter.com/#{user}/status/#{status_id}",
       author_name: user,
-      images: [
-        %{
-          url: image_url,
-          camo_url: Camo.Image.image_url(image_url)
-        }
-      ]
+      images: images
     }
+  end
+
+  defp large_format(str) do
+    String.replace_suffix(str, ".jpg", "?format=jpg&name=large")
   end
 end
