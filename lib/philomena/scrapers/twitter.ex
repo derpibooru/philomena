@@ -17,7 +17,7 @@ defmodule Philomena.Scrapers.Twitter do
     images =
       Enum.map(json["tweet"]["media"]["photos"], fn p ->
         %{
-          url: large_format(p["url"]),
+          url: "#{p["url"]}:orig",
           camo_url: Camo.Image.image_url(p["url"])
         }
       end)
@@ -27,9 +27,5 @@ defmodule Philomena.Scrapers.Twitter do
       author_name: user,
       images: images
     }
-  end
-
-  defp large_format(str) do
-    String.replace_suffix(str, ".jpg", "?format=jpg&name=large")
   end
 end
