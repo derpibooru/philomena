@@ -21,6 +21,7 @@ h1 Search
           a data-search-add="comment_count.gt:20" data-search-select-last="2" data-search-show-help="numeric" Number of comments
           a data-search-add="uploader:k_a" data-search-select-last="3" data-search-show-help="literal" Uploader
           a data-search-add="original_format:gif" data-search-select-last="3" data-search-show-help="literal" File extension
+          a data-search-add="file_name:tumblr_*" data-search-select-last="8" data-search-show-help="literal" Original file name
           a data-search-add="mime_type:image/jpeg" data-search-select-last="10" data-search-show-help="literal" MIME type
           a data-search-add="source_url:*deviantart.com*" data-search-select-last="16" data-search-show-help="literal" Image source URL
           a data-search-add="width:1920" data-search-select-last="4" data-search-show-help="numeric" Image width
