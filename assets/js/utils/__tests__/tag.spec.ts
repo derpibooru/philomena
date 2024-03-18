@@ -2,6 +2,7 @@ import { displayTags, getHiddenTags, getSpoileredTags, imageHitsComplex, imageHi
 import { mockStorage } from '../../../test/mock-storage';
 import { getRandomArrayItem } from '../../../test/randomness';
 import parseSearch from '../../match_query';
+import { SpoilerType } from '../../../types/booru-object';
 
 describe('Tag utilities', () => {
   const tagStorageKeyPrefix = 'bor_tags_';

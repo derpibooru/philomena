@@ -1,11 +1,5 @@
 import '@testing-library/jest-dom';
-
-const blankFilter = {
-  leftOperand: null,
-  negate: false,
-  op: null,
-  rightOperand: null,
-};
+import { matchNone } from '../js/query/boolean';
 
 window.booru = {
   csrfToken: 'mockCsrfToken',
@@ -18,7 +12,8 @@ window.booru = {
   userCanEditFilter: false,
   userIsSignedIn: false,
   watchedTagList: [],
-  hiddenFilter: blankFilter,
-  spoileredFilter: blankFilter,
+  hiddenFilter: matchNone(),
+  spoileredFilter: matchNone(),
+  interactions: [],
   tagsVersion: 5
 };

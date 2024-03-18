@@ -1,5 +1,6 @@
 import { escapeHtml } from './dom';
 import { getTag } from '../booru';
+import { AstMatcher } from '../query/types';
 
 export interface TagData {
   id: number;
@@ -42,7 +43,7 @@ export function getSpoileredTags() {
     .sort(sortTags.bind(null, false));
 }
 
-export function imageHitsTags(img: HTMLImageElement, matchTags: TagData[]): TagData[] {
+export function imageHitsTags(img: HTMLElement, matchTags: TagData[]): TagData[] {
   const imageTagsString = img.dataset.imageTags;
   if (typeof imageTagsString === 'undefined') {
     return [];
@@ -51,8 +52,8 @@ export function imageHitsTags(img: HTMLImageElement, matchTags: TagData[]): TagD
   return matchTags.filter(t => imageTags.indexOf(t.id) !== -1);
 }
 
-export function imageHitsComplex(img: HTMLImageElement, matchComplex: { hitsImage: (img: HTMLImageElement) => boolean }) {
-  return matchComplex.hitsImage(img);
+export function imageHitsComplex(img: HTMLElement, matchComplex: AstMatcher) {
+  return matchComplex(img);
 }
 
 export function displayTags(tags: TagData[]): string {
