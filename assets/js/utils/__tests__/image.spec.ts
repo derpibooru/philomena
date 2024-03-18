@@ -3,6 +3,7 @@ import { getRandomArrayItem } from '../../../test/randomness';
 import { mockStorage } from '../../../test/mock-storage';
 import { createEvent, fireEvent } from '@testing-library/dom';
 import { EventType } from '@testing-library/dom/types/events';
+import { SpoilerType } from '../../../types/booru-object';
 
 describe('Image utils', () => {
   const hiddenClass = 'hidden';
