@@ -82,7 +82,8 @@ defmodule Philomena.Images.Query do
       aliases: %{
         "faved_by" => "favourited_by_users",
         "faved_by_id" => "favourited_by_user_ids"
-      }
+      },
+      no_downcase_fields: ~W(file_name)
     ]
   end
 
