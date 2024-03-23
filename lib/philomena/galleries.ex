@@ -203,7 +203,7 @@ defmodule Philomena.Galleries do
     |> case do
       {:ok, result} ->
         Images.reindex_image(image)
-        notify_gallery(gallery)
+        notify_gallery(gallery, image)
         reindex_gallery(gallery)
 
         {:ok, result}
@@ -261,11 +261,11 @@ defmodule Philomena.Galleries do
     |> Repo.aggregate(:max, :position)
   end
 
-  def notify_gallery(gallery) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Galleries", gallery.id])
+  def notify_gallery(gallery, image) do
+    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Galleries", [gallery.id, image.id]])
   end
 
-  def perform_notify(gallery_id) do
+  def perform_notify([gallery_id, image_id]) do
     gallery = get_gallery!(gallery_id)
 
     subscriptions =
@@ -279,8 +279,8 @@ defmodule Philomena.Galleries do
       %{
         actor_id: gallery.id,
         actor_type: "Gallery",
-        actor_child_id: nil,
-        actor_child_type: nil,
+        actor_child_id: image_id,
+        actor_child_type: "Image",
         action: "added images to"
       }
     )
