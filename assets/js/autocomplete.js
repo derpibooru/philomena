@@ -134,16 +134,19 @@ function listenAutocomplete() {
   document.addEventListener('input', event => {
     removeParent();
     fetchLocalAutocomplete(event);
+    window.clearTimeout(timeout);
 
     if (localAc !== null && 'ac' in event.target.dataset) {
       inputField = event.target;
       originalTerm = `${inputField.value}`.toLowerCase();
 
       const suggestions = localAc.topK(originalTerm, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
-      return showAutocomplete(suggestions, originalTerm, event.target);
+
+      if (suggestions.length) {
+        return showAutocomplete(suggestions, originalTerm, event.target);
+      }
     }
 
-    window.clearTimeout(timeout);
     // Use a timeout to delay requests until the user has stopped typing
     timeout = window.setTimeout(() => {
       inputField = event.target;
@@ -158,7 +161,11 @@ function listenAutocomplete() {
         }
         else {
           // inputField could get overwritten while the suggestions are being fetched - use event.target
-          getSuggestions(fetchedTerm).then(suggestions => showAutocomplete(suggestions, fetchedTerm, event.target));
+          getSuggestions(fetchedTerm).then(suggestions => {
+            if (fetchedTerm === event.target.value) {
+              showAutocomplete(suggestions, fetchedTerm, event.target);
+            }
+          });
         }
       }
     }, 300);
