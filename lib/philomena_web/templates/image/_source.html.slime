@@ -1,4 +1,4 @@
-.block
+.js-sourcesauce
   - has_sources = Enum.any?(@image.sources)
   = form_for @changeset, Routes.image_source_path(@conn, :update, @image), [method: "put", class: "hidden", id: "source-form", data: [remote: "true"]], fn f ->
     = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban do

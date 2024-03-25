@@ -1,5 +1,5 @@
 defmodule Philomena.Scrapers.Twitter do
-  @url_regex ~r|\Ahttps?://(?:mobile\.)?twitter.com/([A-Za-z\d_]+)/status/([\d]+)/?|
+  @url_regex ~r|\Ahttps?://(?:mobile\.)?(?:twitter\|x).com/([A-Za-z\d_]+)/status/([\d]+)/?|
 
   @spec can_handle?(URI.t(), String.t()) :: true | false
   def can_handle?(_uri, url) do

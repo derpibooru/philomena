@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
           |> Elasticsearch.search_records(preload(Tag, :aliased_tag))
           |> Enum.map(&(&1.aliased_tag || &1))
           |> Enum.uniq_by(& &1.id)
-          |> Enum.filter(&(&1.images_count > 3))
+          |> Enum.filter(&(&1.images_count > 0))
           |> Enum.sort_by(&(-&1.images_count))
           |> Enum.take(5)
           |> Enum.map(&%{label: "#{&1.name} (#{&1.images_count})", value: &1.name})
