@@ -13,9 +13,10 @@ defmodule Philomena.Scrapers.Twitter do
     {:ok, %Tesla.Env{status: 200, body: body}} = Philomena.Http.get(api_url)
 
     json = Jason.decode!(body)
+    tweet = json["tweet"]
 
     images =
-      Enum.map(json["tweet"]["media"]["photos"], fn p ->
+      Enum.map(tweet["media"]["photos"], fn p ->
         %{
           url: "#{p["url"]}:orig",
           camo_url: Camo.Image.image_url(p["url"])
@@ -23,8 +24,9 @@ defmodule Philomena.Scrapers.Twitter do
       end)
 
     %{
-      source_url: "https://twitter.com/#{user}/status/#{status_id}",
-      author_name: user,
+      source_url: tweet["url"],
+      author_name: tweet["author"]["screen_name"],
+      description: tweet["text"],
       images: images
     }
   end
