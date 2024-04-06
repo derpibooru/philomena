@@ -187,7 +187,7 @@ defmodule Philomena.Images.Image do
     height = fetch_field!(changeset, :image_height)
 
     cond do
-      width <= 0 or height <= 0 ->
+      is_nil(width) or is_nil(height) or width <= 0 or height <= 0 ->
         add_error(
           changeset,
           :image,
