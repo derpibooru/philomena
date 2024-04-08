@@ -34,6 +34,7 @@ defmodule PhilomenaWeb.SearchController do
         render(conn, "index.html",
           title: "Searching for #{params["q"]}",
           images: [],
+          tags: [],
           error: msg,
           search_query: params["q"]
         )
