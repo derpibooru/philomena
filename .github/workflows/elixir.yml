@@ -7,40 +7,40 @@ jobs:
     name: 'Build Elixir app'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Cache mix deps
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             _build
             deps
           key: ${{ runner.os }}-build-deps-${{ hashFiles('mix.lock') }}
 
-      - run: docker-compose pull
-      - run: docker-compose build
+      - run: docker compose pull
+      - run: docker compose build
 
       - name: Build and test
-        run: docker-compose run app run-test
+        run: docker compose run app run-test
 
       - name: Security lint
         run: |
-          docker-compose run app mix sobelow --config
-          docker-compose run app mix deps.audit
+          docker compose run app mix sobelow --config
+          docker compose run app mix deps.audit
   lint-and-test:
     name: 'JavaScript Linting and Unit Tests'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '20'
 
       - name: Cache node_modules
         id: cache-node-modules
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ./assets/node_modules
           key: node_modules-${{ hashFiles('./assets/package-lock.json') }}
