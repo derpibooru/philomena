@@ -2,11 +2,11 @@
 ![Philomena](/assets/static/images/phoenix.svg)
 
 ## Getting started
-On systems with `docker` and `docker-compose` installed, the process should be as simple as:
+On systems with `docker` and `docker compose` installed, the process should be as simple as:
 
 ```
-docker-compose build
-docker-compose up
+docker compose build
+docker compose up
 ```
 
 If you use `podman` and `podman-compose` instead, the process for constructing a rootless container is nearly identical:
