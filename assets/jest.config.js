@@ -30,12 +30,13 @@ export default {
   moduleNameMapper: {
     './js/(.*)': '<rootDir>/js/$1',
   },
-  transform: {},
-  globals: {
-    extensionsToTreatAsEsm: ['.ts', '.js'],
-    'ts-jest': {
+  transform: {
+    '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: '<rootDir>/tsconfig.json',
       useESM: true,
-    },
+    }]
   },
+  globals: {
+    extensionsToTreatAsEsm: ['.ts', '.js'],
+  }
 };
