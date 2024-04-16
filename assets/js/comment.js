@@ -6,6 +6,7 @@ import { $ } from './utils/dom';
 import { showOwnedComments } from './communications/comment';
 import { filterNode } from './imagesclientside';
 import { fetchHtml } from './utils/requests';
+import { timeAgo } from './timeago';
 
 function handleError(response) {
 
@@ -91,7 +92,7 @@ function insertParentPost(data, clickedLink, fullComment) {
   fullComment.previousSibling.classList.add('fetched-comment');
 
   // Execute timeago on the new comment - it was not present when first run
-  window.booru.timeAgo(fullComment.previousSibling.getElementsByTagName('time'));
+  timeAgo(fullComment.previousSibling.getElementsByTagName('time'));
 
   // Add class active_reply_link to the clicked link
   clickedLink.classList.add('active_reply_link');
@@ -125,7 +126,7 @@ function displayComments(container, commentsHtml) {
   container.innerHTML = commentsHtml;
 
   // Execute timeago on comments
-  window.booru.timeAgo(document.getElementsByTagName('time'));
+  timeAgo(document.getElementsByTagName('time'));
 
   // Filter images in the comments
   filterNode(container);
