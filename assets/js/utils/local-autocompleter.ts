@@ -63,8 +63,7 @@ export class LocalAutocompleter {
     const nameLength = this.view.getUint8(location);
     const assnLength = this.view.getUint8(location + 1 + nameLength);
 
-    /** @type {number[]} */
-    const associations = [];
+    const associations: number[] = [];
     const name = this.decoder.decode(this.data.slice(location + 1, location + nameLength + 1));
 
     for (let i = 0; i < assnLength; i++) {
