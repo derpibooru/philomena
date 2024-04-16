@@ -10,7 +10,7 @@ path = "src/lib.rs"
 crate-type = ["dylib"]
 
 [dependencies]
-comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main" }
+comrak = { git = "https://github.com/philomena-dev/comrak", branch = "main", default-features = false }
 jemallocator = { version = "0.5.0", features = ["disable_initial_exec_tls"] }
 rustler = "0.28"
 ring = "0.16"
