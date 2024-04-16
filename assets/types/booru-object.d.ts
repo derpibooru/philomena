@@ -13,6 +13,13 @@ interface Interaction {
 }
 
 interface BooruObject {
+  /**
+   * Automatic timestamp recalculation function for userscript use
+   */
+  timeAgo: (args: HTMLTimeElement[]) => void;
+  /**
+   * Anti-forgery token sent by the server
+   */
   csrfToken: string;
   /**
    * One of the specified values, based on user setting

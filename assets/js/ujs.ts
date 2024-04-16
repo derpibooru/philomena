@@ -1,3 +1,4 @@
+import { assertNotNull, assertNotUndefined } from './utils/assert';
 import { $$, makeEl, findFirstTextNode } from './utils/dom';
 import { fire, delegate, leftClick } from './utils/events';
 
@@ -6,7 +7,7 @@ const headers = () => ({
   'x-requested-with': 'XMLHttpRequest'
 });
 
-function confirm(event, target) {
+function confirm(event: Event, target: HTMLElement) {
   if (!window.confirm(target.dataset.confirm)) {
     event.preventDefault();
     event.stopImmediatePropagation();
@@ -14,28 +15,28 @@ function confirm(event, target) {
   }
 }
 
-function disable(event, target) {
+function disable(event: Event, target: HTMLAnchorElement | HTMLButtonElement | HTMLInputElement) {
   // failed validations prevent the form from being submitted;
   // stop here or the form will be permanently locked
   if (target.type === 'submit' && target.closest(':invalid') !== null) return;
 
   // Store what's already there so we don't lose it
-  const label = findFirstTextNode(target);
+  const label = findFirstTextNode<Text>(target);
   if (label) {
-    target.dataset.enableWith = label.nodeValue;
+    target.dataset.enableWith = assertNotNull(label.nodeValue);
     label.nodeValue = ` ${target.dataset.disableWith}`;
   }
   else {
     target.dataset.enableWith = target.innerHTML;
-    target.innerHTML = target.dataset.disableWith;
+    target.innerHTML = assertNotUndefined(target.dataset.disableWith);
   }
 
   // delay is needed because Safari stops the submit if the button is immediately disabled
-  requestAnimationFrame(() => target.disabled = 'disabled');
+  requestAnimationFrame(() => target.setAttribute('disabled', 'disabled'));
 }
 
 // you should use button_to instead of link_to[method]!
-function linkMethod(event, target) {
+function linkMethod(event: Event, target: HTMLAnchorElement) {
   event.preventDefault();
 
   const form   = makeEl('form',  { action: target.href, method: 'POST' });
@@ -49,41 +50,42 @@ function linkMethod(event, target) {
   form.submit();
 }
 
-function formRemote(event, target) {
+function formRemote(event: Event, target: HTMLFormElement) {
   event.preventDefault();
 
   fetch(target.action, {
     credentials: 'same-origin',
-    method: (target.dataset.method || target.method || 'POST').toUpperCase(),
+    method: (target.dataset.method || target.method).toUpperCase(),
     headers: headers(),
     body: new FormData(target)
   }).then(response => {
-    if (response && response.status === 300) {
-      window.location.reload(true);
-      return;
-    }
     fire(target, 'fetchcomplete', response);
+    if (response && response.status === 300) {
+      window.location.reload();
+    }
   });
 }
 
-function formReset(event, target) {
-  $$('[disabled][data-disable-with][data-enable-with]', target).forEach(input => {
+function formReset(_event: Event | null, target: HTMLElement) {
+  $$<HTMLElement>('[disabled][data-disable-with][data-enable-with]', target).forEach(input => {
     const label = findFirstTextNode(input);
     if (label) {
       label.nodeValue = ` ${input.dataset.enableWith}`;
     }
-    else { input.innerHTML = target.dataset.enableWith; }
+    else {
+      input.innerHTML = assertNotUndefined(input.dataset.enableWith);
+    }
     delete input.dataset.enableWith;
     input.removeAttribute('disabled');
   });
 }
 
-function linkRemote(event, target) {
+function linkRemote(event: Event, target: HTMLAnchorElement) {
   event.preventDefault();
 
   fetch(target.href, {
     credentials: 'same-origin',
-    method: target.dataset.method.toUpperCase(),
+    method: (target.dataset.method || 'get').toUpperCase(),
     headers: headers()
   }).then(response =>
     fire(target, 'fetchcomplete', response)
@@ -106,5 +108,7 @@ delegate(document, 'reset', {
 });
 
 window.addEventListener('pageshow', () => {
-  [].forEach.call(document.forms, form => formReset(null, form));
+  for (const form of document.forms) {
+    formReset(null, form);
+  }
 });

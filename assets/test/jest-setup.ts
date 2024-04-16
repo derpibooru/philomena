@@ -2,6 +2,8 @@ import '@testing-library/jest-dom';
 import { matchNone } from '../js/query/boolean';
 
 window.booru = {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  timeAgo: () => {},
   csrfToken: 'mockCsrfToken',
   hiddenTag: '/mock-tagblocked.svg',
   hiddenTagList: [],

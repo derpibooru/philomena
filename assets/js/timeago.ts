@@ -2,7 +2,9 @@
  * Frontend timestamps.
  */
 
-const strings = {
+import { assertNotNull } from './utils/assert';
+
+const strings: Record<string, string> = {
   seconds: 'less than a minute',
   minute: 'about a minute',
   minutes: '%d minutes',
@@ -16,16 +18,21 @@ const strings = {
   years: '%d years',
 };
 
-function distance(time) {
-  return new Date() - time;
+function distance(time: Date) {
+  return new Date().getTime() - time.getTime();
 }
 
-function substitute(key, amount) {
-  return strings[key].replace('%d', Math.round(amount));
+function substitute(key: string, amount: number) {
+  return strings[key].replace('%d', Math.round(amount).toString());
 }
 
-function setTimeAgo(el) {
-  const date = new Date(el.getAttribute('datetime'));
+function setTimeAgo(el: HTMLTimeElement) {
+  const datetime = el.getAttribute('datetime');
+  if (!datetime) {
+    return;
+  }
+
+  const date = new Date(datetime);
   const distMillis = distance(date);
 
   const seconds = Math.abs(distMillis) / 1000,
@@ -49,20 +56,20 @@ function setTimeAgo(el) {
                      substitute('years', years);
 
   if (!el.getAttribute('title')) {
-    el.setAttribute('title', el.textContent);
+    el.setAttribute('title', assertNotNull(el.textContent));
   }
   el.textContent = words + (distMillis < 0 ? ' from now' : ' ago');
 }
 
-function timeAgo(args) {
-  [].forEach.call(args, el => setTimeAgo(el));
+export function timeAgo(args: HTMLTimeElement[] | HTMLCollectionOf<HTMLTimeElement>) {
+  for (const el of args) {
+    setTimeAgo(el);
+  }
 }
 
-function setupTimestamps() {
+export function setupTimestamps() {
   timeAgo(document.getElementsByTagName('time'));
   window.setTimeout(setupTimestamps, 60000);
 }
-
-export { setupTimestamps };
 
 window.booru.timeAgo = timeAgo;
