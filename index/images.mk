@@ -72,7 +72,20 @@ galleries: image_search_json
 
 tags: image_search_json
 	psql $(DATABASE) -v ON_ERROR_STOP=1 <<-SQL
-		insert into temp_images.image_search_json (image_id, object) select it.image_id, jsonb_build_object('tag_ids', jsonb_agg(it.tag_id), 'tag_count', count(*)) from image_taggings it group by image_id;
+		insert into temp_images.image_search_json (image_id, object) select it.image_id, jsonb_build_object(
+			'tag_ids', jsonb_agg(it.tag_id),
+			'tag_count', count(*),
+			'error_tag_count', count(case when t.category = 'error' then t.category else null end),
+			'rating_tag_count', count(case when t.category = 'rating' then t.category else null end),
+			'origin_tag_count', count(case when t.category = 'origin' then t.category else null end),
+			'character_tag_count', count(case when t.category = 'character' then t.category else null end),
+			'oc_tag_count', count(case when t.category = 'oc' then t.category else null end),
+			'species_tag_count', count(case when t.category = 'species' then t.category else null end),
+			'body_type_tag_count', count(case when t.category = 'body-type' then t.category else null end),
+			'content_fanmade_tag_count', count(case when t.category = 'content-fanmade' then t.category else null end),
+			'content_official_tag_count', count(case when t.category = 'content-official' then t.category else null end),
+			'spoiler_tag_count', count(case when t.category = 'spoiler' then t.category else null end),
+		) from image_taggings it inner join tags t on t.id = it.tag_id group by image_id;
 	SQL
 
 sources: image_search_json
