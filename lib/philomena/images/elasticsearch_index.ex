@@ -56,6 +56,7 @@ defmodule Philomena.Images.ElasticsearchIndex do
           size: %{type: "integer"},
           sha512_hash: %{type: "keyword"},
           source_url: %{type: "keyword"},
+          source_count: %{type: "integer"},
           tag_count: %{type: "integer"},
           tag_ids: %{type: "keyword"},
           tags: %{type: "text", analyzer: "keyword"},
@@ -87,7 +88,17 @@ defmodule Philomena.Images.ElasticsearchIndex do
               namespace: %{type: "keyword"}
             }
           },
-          approved: %{type: "boolean"}
+          approved: %{type: "boolean"},
+          error_tag_count: %{type: "integer"},
+          rating_tag_count: %{type: "integer"},
+          origin_tag_count: %{type: "integer"},
+          character_tag_count: %{type: "integer"},
+          oc_tag_count: %{type: "integer"},
+          species_tag_count: %{type: "integer"},
+          body_type_tag_count: %{type: "integer"},
+          content_fanmade_tag_count: %{type: "integer"},
+          content_official_tag_count: %{type: "integer"},
+          spoiler_tag_count: %{type: "integer"}
         }
       }
     }
@@ -120,6 +131,7 @@ defmodule Philomena.Images.ElasticsearchIndex do
       uploader: if(!!image.user and !image.anonymous, do: String.downcase(image.user.name)),
       true_uploader: if(!!image.user, do: String.downcase(image.user.name)),
       source_url: image.sources |> Enum.map(&String.downcase(&1.source)),
+      source_count: length(image.sources),
       file_name: image.image_name,
       original_format: image.image_format,
       processed: image.processed,
@@ -151,7 +163,17 @@ defmodule Philomena.Images.ElasticsearchIndex do
       upvoters: image.upvoters |> Enum.map(&String.downcase(&1.name)),
       downvoters: image.downvoters |> Enum.map(&String.downcase(&1.name)),
       deleted_by_user: if(!!image.deleter, do: image.deleter.name),
-      approved: image.approved
+      approved: image.approved,
+      error_tag_count: Enum.count(image.tags, &(&1.category == "error")),
+      rating_tag_count: Enum.count(image.tags, &(&1.category == "rating")),
+      origin_tag_count: Enum.count(image.tags, &(&1.category == "origin")),
+      character_tag_count: Enum.count(image.tags, &(&1.category == "character")),
+      oc_tag_count: Enum.count(image.tags, &(&1.category == "oc")),
+      species_tag_count: Enum.count(image.tags, &(&1.category == "species")),
+      body_type_tag_count: Enum.count(image.tags, &(&1.category == "body-type")),
+      content_fanmade_tag_count: Enum.count(image.tags, &(&1.category == "content-fanmade")),
+      content_official_tag_count: Enum.count(image.tags, &(&1.category == "content-official")),
+      spoiler_tag_count: Enum.count(image.tags, &(&1.category == "spoiler"))
     }
   end
 
