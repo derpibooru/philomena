@@ -117,6 +117,7 @@ describe('Remote utilities', () => {
     // https://www.benmvp.com/blog/mocking-window-location-methods-jest-jsdom/
     let oldWindowLocation: Location;
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     beforeAll(() => {
       oldWindowLocation = window.location;
       delete (window as any).location;
@@ -136,6 +137,7 @@ describe('Remote utilities', () => {
     beforeEach(() => {
       (window.location.reload as any).mockReset();
     });
+    /* eslint-enable @typescript-eslint/no-explicit-any */
 
     afterAll(() => {
       // restore window.location to the jsdom Location object
