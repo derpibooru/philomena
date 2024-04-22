@@ -25,7 +25,7 @@ export default {
   },
   preset: 'ts-jest/presets/js-with-ts-esm',
   setupFilesAfterEnv: ['<rootDir>/test/jest-setup.ts'],
-  testEnvironment: 'jsdom',
+  testEnvironment: './fix-jsdom.ts',
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   moduleNameMapper: {
     './js/(.*)': '<rootDir>/js/$1',
