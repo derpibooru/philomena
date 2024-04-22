@@ -66,10 +66,26 @@ defmodule Philomena.Images.Query do
     end
   end
 
+  defp tag_count_fields do
+    [
+      "body_type_tag_count",
+      "error_tag_count",
+      "character_tag_count",
+      "content_fanmade_tag_count",
+      "content_official_tag_count",
+      "oc_tag_count",
+      "origin_tag_count",
+      "rating_tag_count",
+      "species_tag_count",
+      "spoiler_tag_count"
+    ]
+  end
+
   defp anonymous_fields do
     [
       int_fields:
-        ~W(id width height comment_count score upvotes downvotes faves uploader_id faved_by_id tag_count pixels size),
+        ~W(id width height score upvotes downvotes faves uploader_id faved_by_id pixels size comment_count source_count tag_count) ++
+          tag_count_fields(),
       float_fields: ~W(aspect_ratio wilson_score duration),
       date_fields: ~W(created_at updated_at first_seen_at),
       literal_fields:
