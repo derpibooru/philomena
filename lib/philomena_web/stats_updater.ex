@@ -45,13 +45,15 @@ defmodule PhilomenaWeb.StatsUpdater do
         distinct_creators: distinct_creators,
         images_in_galleries: images_in_galleries
       )
+      |> Phoenix.HTML.Safe.to_iodata()
+      |> IO.iodata_to_binary()
 
     now = DateTime.utc_now() |> DateTime.truncate(:second)
 
     static_page = %{
       title: "Statistics",
       slug: "stats",
-      body: Phoenix.HTML.safe_to_string(result),
+      body: result,
       created_at: now,
       updated_at: now
     }
