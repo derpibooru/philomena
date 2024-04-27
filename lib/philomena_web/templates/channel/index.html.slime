@@ -37,6 +37,6 @@ p
   strong> Q: Do you host streams?
   | A: No, we cheat and just link to streams on Picarto since that's where (almost) everyone is already. This is simply a nice way to track streaming artists.
 p
-  strong> Q: How do I get my stream/a friend's stream/<artist>'s stream here?
+  strong> Q: How do I get my stream/a friend's stream/&lt;artist&gt;'s stream here?
   ' A: Send a private message to a site administrator
   ' with a link to the stream and the artist tag if applicable.

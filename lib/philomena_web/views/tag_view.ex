@@ -103,6 +103,8 @@ defmodule PhilomenaWeb.TagView do
     {tags, shipping, data}
   end
 
+  # This is a rendered template, so raw/1 has no effect on safety
+  # sobelow_skip ["XSS.Raw"]
   defp render_quick_tags({tags, shipping, data}, conn) do
     render(PhilomenaWeb.TagView, "_quick_tag_table.html",
       tags: tags,
@@ -110,6 +112,8 @@ defmodule PhilomenaWeb.TagView do
       data: data,
       conn: conn
     )
+    |> Phoenix.HTML.Safe.to_iodata()
+    |> Phoenix.HTML.raw()
   end
 
   defp names_in_tab("default", data) do

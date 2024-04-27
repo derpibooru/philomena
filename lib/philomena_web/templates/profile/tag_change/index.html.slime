@@ -4,16 +4,16 @@ h1
     = @user.name
 
 - route = fn p -> Routes.profile_tag_change_path(@conn, :index, @user, p) end
-- params = if @conn.params["added"], do: [added: @conn.params["added"]]
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: params
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: @pagination_params
 
 .block
   .block__header
-    span.block__header__title
-      | Display only:
+    = form_for @conn, Routes.profile_tag_change_path(@conn, :index, @user), [method: "get", enforce_utf8: false], fn f ->
+      = text_input f, :only_tag, class: "input", placeholder: "Tag", title: "Only show this tag", autocapitalize: "none"
+      = submit "Search", class: "button", title: "Search"
 
-    = link "Removed", to: Routes.profile_tag_change_path(@conn, :index, @user, added: 0)
-    = link "Added", to: Routes.profile_tag_change_path(@conn, :index, @user, added: 1)
-    = link "All", to: Routes.profile_tag_change_path(@conn, :index, @user)
+      = link "Removed", to: Routes.profile_tag_change_path(@conn, :index, @user, Keyword.merge(@pagination_params, added: 0))
+      = link "Added", to: Routes.profile_tag_change_path(@conn, :index, @user, Keyword.merge(@pagination_params, added: 1))
+      = link "All", to: Routes.profile_tag_change_path(@conn, :index, @user, Keyword.delete(@pagination_params, :added))
 
   = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination
