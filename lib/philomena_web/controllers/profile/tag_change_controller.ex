@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
     # params.permit(:added, :only_tag) ...
     pagination_params =
       [added: conn.params["added"], only_tag: conn.params["only_tag"]]
-      |> Keyword.filter(fn {k, _v} -> Map.has_key?(conn.params, "#{k}") end)
+      |> Keyword.filter(fn {_k, v} -> not is_nil(v) and v != "" end)
 
     render(conn, "index.html",
       title: "Tag Changes for User `#{user.name}'",
@@ -50,14 +50,16 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
   defp added_filter(query, _params),
     do: query
 
-  defp only_tag_join(query, %{"only_tag" => only_tag}) when only_tag != "",
-    do: join(query, :inner, [tc], t in Tag, on: tc.tag_id == t.id)
+  defp only_tag_join(query, %{"only_tag" => only_tag})
+       when is_binary(only_tag) and only_tag != "",
+       do: join(query, :inner, [tc], t in Tag, on: tc.tag_id == t.id)
 
   defp only_tag_join(query, _params),
     do: query
 
-  defp only_tag_filter(query, %{"only_tag" => only_tag}) when only_tag != "",
-    do: where(query, [_, _, t], t.name == ^only_tag)
+  defp only_tag_filter(query, %{"only_tag" => only_tag})
+       when is_binary(only_tag) and only_tag != "",
+       do: where(query, [_, _, t], t.name == ^only_tag)
 
   defp only_tag_filter(query, _params),
     do: query
