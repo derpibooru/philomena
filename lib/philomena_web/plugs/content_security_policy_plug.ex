@@ -41,7 +41,13 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         |> Enum.map(&cspify_element/1)
         |> Enum.join("; ")
 
-      put_resp_header(conn, "content-security-policy", csp_value)
+      if conn.status == 500 and allow_relaxed_csp() do
+        # Allow Plug.Debugger to function in this case
+        delete_resp_header(conn, "content-security-policy")
+      else
+        # Enforce CSP otherwise
+        put_resp_header(conn, "content-security-policy", csp_value)
+      end
     end)
   end
 
@@ -69,4 +75,6 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
 
     Enum.join([key | value], " ")
   end
+
+  defp allow_relaxed_csp, do: Application.get_env(:philomena, :csp_relaxed, false)
 end
