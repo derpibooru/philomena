@@ -92,12 +92,6 @@ div.image-container {
   overflow: hidden;
   /* prevent .media-box__overlay from overflowing the container */
   text-align: center;
-  a::before {
-    content: "";
-    display: inline-block;
-    height: 100%;
-    vertical-align: middle;
-  }
   img,
   video {
     vertical-align: middle;
@@ -105,12 +99,12 @@ div.image-container {
     max-height: 100%;
   }
   /* Make the link cover the whole container if the image is oblong */
-  a {
+  a, picture, video {
     width: 100%;
     height: 100%;
-    display: inline-block;
-    text-align: center;
-    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
