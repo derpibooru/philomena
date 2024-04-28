@@ -6,7 +6,7 @@
     strong
       = link("This image is blocked by your current filter - click here to display it anyway", to: "#", data: [click_unfilter: @image.id])
     p
-      = img_tag(Routes.static_path(PhilomenaWeb.Endpoint, "/images/tagblocked.svg"), width: 250, height: 250, data: [click_unfilter: @image.id])
+      = img_tag(static_path(@conn, "/images/tagblocked.svg"), width: 250, height: 250, data: [click_unfilter: @image.id])
     span.filter-explanation
     =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
     ' .

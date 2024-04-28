@@ -79,7 +79,7 @@ h1 Content Settings
                 ' For 1080p monitors, try 24.
           .field
             => label f, :theme
-            => select f, :theme, theme_options(@conn), class: "input"
+            => select f, :theme, theme_options(), class: "input"
             = error_tag f, :theme
             .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
           .field
