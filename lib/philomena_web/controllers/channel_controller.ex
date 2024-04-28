@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.ChannelController do
 
     if user, do: Channels.clear_notification(channel, user)
 
-    redirect(conn, external: url(channel))
+    redirect(conn, external: channel_url(channel))
   end
 
   def new(conn, _params) do
@@ -101,15 +101,15 @@ defmodule PhilomenaWeb.ChannelController do
   defp maybe_show_nsfw(query, true), do: query
   defp maybe_show_nsfw(query, _falsy), do: where(query, [c], c.nsfw == false)
 
-  defp url(%{type: "LivestreamChannel", short_name: short_name}),
+  defp channel_url(%{type: "LivestreamChannel", short_name: short_name}),
     do: "http://www.livestream.com/#{short_name}"
 
-  defp url(%{type: "PicartoChannel", short_name: short_name}),
+  defp channel_url(%{type: "PicartoChannel", short_name: short_name}),
     do: "https://picarto.tv/#{short_name}"
 
-  defp url(%{type: "PiczelChannel", short_name: short_name}),
+  defp channel_url(%{type: "PiczelChannel", short_name: short_name}),
     do: "https://piczel.tv/watch/#{short_name}"
 
-  defp url(%{type: "TwitchChannel", short_name: short_name}),
+  defp channel_url(%{type: "TwitchChannel", short_name: short_name}),
     do: "https://www.twitch.tv/#{short_name}"
 end

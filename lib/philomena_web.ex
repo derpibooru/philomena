@@ -17,6 +17,8 @@ defmodule PhilomenaWeb do
   and import those modules here.
   """
 
+  def static_paths, do: ~w(assets images favicon.ico favicon.svg robots.txt)
+
   def controller do
     quote do
       use Phoenix.Controller, namespace: PhilomenaWeb
@@ -26,6 +28,8 @@ defmodule PhilomenaWeb do
       import Canary.Plugs
       import PhilomenaWeb.ModerationLogPlug, only: [moderation_log: 2]
       alias PhilomenaWeb.Router.Helpers, as: Routes
+
+      unquote(verified_routes())
     end
   end
 
@@ -47,6 +51,8 @@ defmodule PhilomenaWeb do
 
       # Wrong way around for convenience
       import PhilomenaWeb.AppView
+
+      unquote(verified_routes())
     end
   end
 
@@ -62,6 +68,15 @@ defmodule PhilomenaWeb do
     quote do
       use Phoenix.Channel
       import PhilomenaWeb.Gettext
+    end
+  end
+
+  def verified_routes do
+    quote do
+      use Phoenix.VerifiedRoutes,
+        endpoint: PhilomenaWeb.Endpoint,
+        router: PhilomenaWeb.Router,
+        statics: PhilomenaWeb.static_paths()
     end
   end
 

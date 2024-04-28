@@ -25,6 +25,8 @@ defmodule PhilomenaWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint PhilomenaWeb.Endpoint
+
+      use PhilomenaWeb, :verified_routes
     end
   end
 

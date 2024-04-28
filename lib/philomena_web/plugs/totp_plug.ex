@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.TotpPlug do
   """
 
   alias PhilomenaWeb.Router.Helpers, as: Routes
+  use PhilomenaWeb, :verified_routes
 
   @doc false
   @spec init(any()) :: any()
