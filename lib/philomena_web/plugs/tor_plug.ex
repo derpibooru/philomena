@@ -6,7 +6,6 @@ defmodule PhilomenaWeb.TorPlug do
 
       plug PhilomenaWeb.TorPlug
   """
-  alias PhilomenaWeb.Router.Helpers, as: Routes
   use PhilomenaWeb, :verified_routes
 
   alias Phoenix.Controller

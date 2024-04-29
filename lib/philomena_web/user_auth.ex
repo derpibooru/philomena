@@ -3,7 +3,6 @@ defmodule PhilomenaWeb.UserAuth do
   import Phoenix.Controller
 
   alias Philomena.Users
-  alias PhilomenaWeb.Router.Helpers, as: Routes
   alias PhilomenaWeb.UserIpUpdater
   alias PhilomenaWeb.UserFingerprintUpdater
 
