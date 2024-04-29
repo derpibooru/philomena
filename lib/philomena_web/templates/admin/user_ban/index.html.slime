@@ -1,16 +1,16 @@
 h1 User Bans
 
-- route = fn p -> Routes.admin_user_ban_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/user_bans?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route, params: page_params(@conn.params)
 
-= form_for :user_ban, Routes.admin_user_ban_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+= form_for :user_ban, ~p"/admin/user_bans", [method: "get", class: "hform"], fn f ->
   .field
     = text_input f, :q, name: "q", class: "hform__text input", placeholder: "Search"
     = submit "Search", class: "button hform__button"
 
 .block
   .block__header
-    a href=Routes.admin_user_ban_path(@conn, :new)
+    a href=~p"/admin/user_bans/new"
       i.fa.fa-plus>
       ' New user ban
 
@@ -31,7 +31,7 @@ h1 User Bans
         = for ban <- @user_bans do
           tr
             td
-              = link ban.user.name, to: Routes.profile_path(@conn, :show, ban.user)
+              = link ban.user.name, to: ~p"/profiles/#{ban.user}"
 
             td
               => pretty_time ban.created_at
@@ -53,10 +53,10 @@ h1 User Bans
               = ban.generated_ban_id
 
             td
-                => link "Edit", to: Routes.admin_user_ban_path(@conn, :edit, ban)
+                => link "Edit", to: ~p"/admin/user_bans/#{ban}/edit"
                 = if @current_user.role == "admin" do
                   ' &bull;
-                  => link "Destroy", to: Routes.admin_user_ban_path(@conn, :delete, ban), data: [confirm: "Are you really, really sure?", method: "delete"]
+                  => link "Destroy", to: ~p"/admin/user_bans/#{ban}", data: [confirm: "Are you really, really sure?", method: "delete"]
 
   .block__header.block__header--light
     = pagination

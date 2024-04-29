@@ -8,7 +8,7 @@
     p
       = img_tag(static_path(@conn, "/images/tagblocked.svg"), width: 250, height: 250, data: [click_unfilter: @image.id])
     span.filter-explanation
-    =< link("your current filter", to: Routes.filter_path(@conn, :show, @conn.assigns.current_filter), class: "filter-link")
+    =< link("your current filter", to: ~p"/filters/#{@conn.assigns.current_filter}", class: "filter-link")
     ' .
 
   = if size == :full and not embed_display do
@@ -19,7 +19,7 @@
         picture
   - else
     .image-show.hidden
-      a href=Routes.image_path(@conn, :show, @image) title=title_text(@image)
+      a href=~p"/images/#{@image}" title=title_text(@image)
         span.imgspoiler
           - thumb_url = thumb_url(@image, can?(@conn, :show, @image), size)
 

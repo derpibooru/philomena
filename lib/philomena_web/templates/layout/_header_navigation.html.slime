@@ -22,7 +22,7 @@
         i.fa.fa-caret-down<
     .dropdown__content
       = for forum <- @conn.assigns.forums do
-        a.header__link href=Routes.forum_path(@conn, :show, forum)
+        a.header__link href=~p"/forums/#{forum}"
           = forum.name
 
       a.header__link href="/posts"

@@ -1,8 +1,8 @@
 h1
   ' Editing moderation notes for image
-  = link "##{@image.id}", to: Routes.image_path(@conn, :show, @image)
+  = link "##{@image.id}", to: ~p"/images/#{@image}"
 
-= form_for @changeset, Routes.image_scratchpad_path(@conn, :update, @image), fn f ->
+= form_for @changeset, ~p"/images/#{@image}/scratchpad", fn f ->
   .field
     = textarea f, :scratchpad, placeholder: "Scratchpad contents", class: "input input--wide"
 

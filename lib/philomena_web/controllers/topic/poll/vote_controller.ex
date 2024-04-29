@@ -42,12 +42,12 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
       {:ok, _votes} ->
         conn
         |> put_flash(:info, "Your vote has been recorded.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       _error ->
         conn
         |> put_flash(:error, "Your vote was not recorded.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
     end
   end
 
@@ -56,7 +56,7 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
 
     conn
     |> put_flash(:error, "Your vote was not recorded.")
-    |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+    |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
   end
 
   def delete(conn, %{"id" => poll_vote_id}) do
@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
 
     conn
     |> put_flash(:info, "Vote successfully removed.")
-    |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+    |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
   end
 
   defp verify_authorized(conn, _opts) do

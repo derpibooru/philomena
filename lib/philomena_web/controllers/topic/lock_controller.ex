@@ -27,12 +27,12 @@ defmodule PhilomenaWeb.Topic.LockController do
         conn
         |> put_flash(:info, "Topic successfully locked!")
         |> moderation_log(details: &log_details/3, data: topic)
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to lock the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
     end
   end
 
@@ -44,12 +44,12 @@ defmodule PhilomenaWeb.Topic.LockController do
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
         |> moderation_log(details: &log_details/3, data: topic)
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Unable to unlock the topic!")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, topic.forum, topic))
+        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
     end
   end
 
@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.Topic.LockController do
 
     %{
       body: body,
-      subject_path: Routes.forum_topic_path(conn, :show, topic.forum, topic)
+      subject_path: ~p"/forums/#{topic.forum}/topics/#{topic}"
     }
   end
 end

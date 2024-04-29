@@ -1,3 +1,3 @@
 h1 Editing award
 
-= render PhilomenaWeb.Profile.AwardView, "_form.html", changeset: @changeset, badges: @badges, action: Routes.profile_award_path(@conn, :update, @user, @award), conn: @conn
+= render PhilomenaWeb.Profile.AwardView, "_form.html", changeset: @changeset, badges: @badges, action: ~p"/profiles/#{@user}/awards/#{@award}", conn: @conn

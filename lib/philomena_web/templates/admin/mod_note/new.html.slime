@@ -3,4 +3,4 @@ h2
   => @conn.params["notable_type"]
   => @conn.params["notable_id"]
 
-= render PhilomenaWeb.Admin.ModNoteView, "_form.html", changeset: @changeset, action: Routes.admin_mod_note_path(@conn, :create), conn: @conn
+= render PhilomenaWeb.Admin.ModNoteView, "_form.html", changeset: @changeset, action: ~p"/admin/mod_notes", conn: @conn

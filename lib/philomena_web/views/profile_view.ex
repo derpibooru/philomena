@@ -83,7 +83,7 @@ defmodule PhilomenaWeb.ProfileView do
 
     abbrv = "(" <> abbrv <> ")"
 
-    link(abbrv, to: Routes.profile_path(conn, :show, user))
+    link(abbrv, to: ~p"/profiles/#{user}")
   end
 
   def user_abbrv(_conn, _user), do: content_tag(:span, "(n/a)")

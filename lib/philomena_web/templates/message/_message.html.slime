@@ -9,7 +9,7 @@ article.block.communication
           p
             ul.horizontal-list
               li
-                = link(to: Routes.conversation_message_approve_path(@conn, :create, @message.conversation_id, @message), data: [confirm: "Are you sure?"], method: "post", class: "button") do
+                = link(to: ~p"/conversations/#{@message.conversation_id}/messages/#{@message}/approve", data: [confirm: "Are you sure?"], method: "post", class: "button") do
                   i.fas.fa-check>
                   ' Approve
 

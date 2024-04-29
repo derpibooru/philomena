@@ -13,13 +13,13 @@ defmodule PhilomenaWeb.Registration.PasswordController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "Password updated successfully.")
-        |> put_session(:user_return_to, Routes.registration_path(conn, :edit))
+        |> put_session(:user_return_to, ~p"/registrations/edit")
         |> UserAuth.log_in_user(user)
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Failed to update password.")
-        |> redirect(to: Routes.registration_path(conn, :edit))
+        |> redirect(to: ~p"/registrations/edit")
     end
   end
 end

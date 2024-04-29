@@ -1,4 +1,4 @@
-- link = Routes.gallery_path(@conn, :show, @gallery)
+- link = ~p"/galleries/#{@gallery}"
 
 .media-box
   a.media-box__header.media-box__header--link href=link title=@gallery.title

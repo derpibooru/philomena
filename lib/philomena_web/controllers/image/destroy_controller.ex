@@ -16,12 +16,12 @@ defmodule PhilomenaWeb.Image.DestroyController do
         conn
         |> put_flash(:info, "Image contents destroyed.")
         |> moderation_log(details: &log_details/3, data: image)
-        |> redirect(to: Routes.image_path(conn, :show, image))
+        |> redirect(to: ~p"/images/#{image}")
 
       _error ->
         conn
         |> put_flash(:error, "Failed to destroy image.")
-        |> redirect(to: Routes.image_path(conn, :show, image))
+        |> redirect(to: ~p"/images/#{image}")
     end
   end
 
@@ -33,7 +33,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
       _false ->
         conn
         |> put_flash(:error, "Cannot destroy a non-hidden image!")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
     end
   end
@@ -41,7 +41,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
   defp log_details(conn, _action, image) do
     %{
       body: "Hard-deleted image >>#{image.id}",
-      subject_path: Routes.image_path(conn, :show, image)
+      subject_path: ~p"/images/#{image}"
     }
   end
 end

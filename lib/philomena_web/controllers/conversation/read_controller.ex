@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Conversation.ReadController do
 
     conn
     |> put_flash(:info, "Conversation marked as read.")
-    |> redirect(to: Routes.conversation_path(conn, :show, conversation))
+    |> redirect(to: ~p"/conversations/#{conversation}")
   end
 
   def delete(conn, _params) do
@@ -31,6 +31,6 @@ defmodule PhilomenaWeb.Conversation.ReadController do
 
     conn
     |> put_flash(:info, "Conversation marked as unread.")
-    |> redirect(to: Routes.conversation_path(conn, :index))
+    |> redirect(to: ~p"/conversations")
   end
 end

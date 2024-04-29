@@ -7,71 +7,71 @@
 
       .dropdown__content.js-burger-links
         = if manages_site_notices?(@conn) do
-          = link to: Routes.admin_site_notice_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/site_notices", class: "header__link" do
             i.fa.fa-fw.fa-info-circle>
             ' Site Notices
 
         = if manages_users?(@conn) do
-          = link to: Routes.admin_user_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/users", class: "header__link" do
             i.fa.fa-fw.fa-users>
             ' Users
 
         = if manages_forums?(@conn) do
-          = link to: Routes.admin_forum_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/forums", class: "header__link" do
             i.fa.fa-fw.fa-paragraph>
             ' Forums
 
         = if manages_ads?(@conn) do
-          = link to: Routes.admin_advert_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/adverts", class: "header__link" do
             i.fa.fa-fw.fa-shopping-bag>
             ' Adverts
 
         = if manages_badges?(@conn) do
-          = link to: Routes.admin_badge_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/badges", class: "header__link" do
             i.fa.fa-fw.fa-trophy>
             ' Badges
 
         = if manages_static_pages?(@conn) do
-          = link to: Routes.page_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/pages", class: "header__link" do
             i.fa.fa-fw.fa-sticky-note>
             ' Pages
 
         = if manages_mod_notes?(@conn) do
-          = link to: Routes.admin_mod_note_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/mod_notes", class: "header__link" do
             i.fa.fa-fw.fa-clipboard>
             ' Mod Notes
 
         = if can_see_moderation_log?(@conn) do
-          = link to: Routes.moderation_log_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/moderation_logs", class: "header__link" do
             i.fa.fa-fw.fa-list-alt>
             ' Mod Logs
 
   = if @pending_approval_count do
-    = link to: Routes.admin_approval_path(@conn, :index), class: "header__link", title: "Approval Queue" do
+    = link to: ~p"/admin/approvals", class: "header__link", title: "Approval Queue" do
       ' Q
       span.header__counter__admin
         = @pending_approval_count
 
   = if @duplicate_report_count do
-    = link to: Routes.duplicate_report_path(@conn, :index), class: "header__link", title: "Duplicates" do
+    = link to: ~p"/duplicate_reports", class: "header__link", title: "Duplicates" do
       ' D
       span.header__counter__admin
         = @duplicate_report_count
 
   = if @report_count do
-    = link to: Routes.admin_report_path(@conn, :index), class: "header__link", title: "Reports" do
+    = link to: ~p"/admin/reports", class: "header__link", title: "Reports" do
       ' R
       span.header__counter__admin
         = @report_count
 
   = if @artist_link_count do
-    = link to: Routes.admin_artist_link_path(@conn, :index), class: "header__link", title: "Artist Links" do
+    = link to: ~p"/admin/artist_links", class: "header__link", title: "Artist Links" do
       ' L
       span.header__counter__admin
         = @artist_link_count
 
   = if @dnp_entry_count do
-    = link to: Routes.admin_dnp_entry_path(@conn, :index), class: "header__link", title: "DNP Requests" do
+    = link to: ~p"/admin/dnp_entries", class: "header__link", title: "DNP Requests" do
       ' S
       span.header__counter__admin
         = @dnp_entry_count
@@ -84,14 +84,14 @@
 
       .dropdown__content.dropdown__content-right.js-burger-links
 
-          = link to: Routes.admin_user_ban_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/user_bans", class: "header__link" do
             i.fa.fa-fw.fa-user>
             ' User Bans
 
-          = link to: Routes.admin_subnet_ban_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/subnet_bans", class: "header__link" do
             i.fab.fa-fw.fa-internet-explorer>
             ' IP Bans
 
-          = link to: Routes.admin_fingerprint_ban_path(@conn, :index), class: "header__link" do
+          = link to: ~p"/admin/fingerprint_bans", class: "header__link" do
             i.fa.fa-fw.fa-desktop>
             ' FP Bans

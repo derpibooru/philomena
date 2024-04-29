@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.User.AvatarController do
 
     conn
     |> put_flash(:info, "Successfully removed avatar.")
-    |> redirect(to: Routes.admin_user_path(conn, :edit, conn.assigns.user))
+    |> redirect(to: ~p"/admin/users/#{conn.assigns.user}/edit")
   end
 
   defp verify_authorized(conn, _opts) do

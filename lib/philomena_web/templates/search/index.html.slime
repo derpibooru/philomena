@@ -1,6 +1,6 @@
 = cond do
   - Enum.any?(@images) or override_display(@tags) ->
-    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Searching for #{@conn.params["q"]}", route: fn p -> Routes.search_path(@conn, :index, p) end, scope: scope(@conn)
+    = render PhilomenaWeb.ImageView, "index.html", conn: @conn, tags: @tags, images: @images, header: "Searching for #{@conn.params["q"]}", route: fn p -> ~p"/search?#{p}" end, scope: scope(@conn)
 
   - assigns[:error] ->
     .block.block--fixed.block--danger

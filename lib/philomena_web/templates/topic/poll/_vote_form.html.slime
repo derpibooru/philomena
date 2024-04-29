@@ -1,4 +1,4 @@
-= form_for :poll_vote, Routes.forum_topic_poll_vote_path(@conn, :create, @forum, @topic), [class: "poll-vote-form"], fn _f ->
+= form_for :poll_vote, ~p"/forums/#{@forum}/topics/#{@topic}/poll/votes", [class: "poll-vote-form"], fn _f ->
   h4.poll__header
     ' Poll:
     = @poll.title

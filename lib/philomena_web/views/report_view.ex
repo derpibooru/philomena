@@ -42,39 +42,39 @@ defmodule PhilomenaWeb.ReportView do
   def pretty_state(_report), do: "Open"
 
   def link_to_reported_thing(conn, %Image{} = r),
-    do: link("Image >>#{r.id}", to: Routes.image_path(conn, :show, r))
+    do: link("Image >>#{r.id}", to: ~p"/images/#{r}")
 
   def link_to_reported_thing(conn, %Comment{} = r),
     do:
       link("Comment on image >>#{r.image.id}",
-        to: Routes.image_path(conn, :show, r.image) <> "#comment_#{r.id}"
+        to: ~p"/images/#{r.image}" <> "#comment_#{r.id}"
       )
 
   def link_to_reported_thing(conn, %Conversation{} = r),
     do:
       link("Conversation between #{r.from.name} and #{r.to.name}",
-        to: Routes.conversation_path(conn, :show, r)
+        to: ~p"/conversations/#{r}"
       )
 
   def link_to_reported_thing(conn, %Commission{} = r),
     do:
       link("#{r.user.name}'s commission page",
-        to: Routes.profile_commission_path(conn, :show, r.user)
+        to: ~p"/profiles/#{r.user}/commission"
       )
 
   def link_to_reported_thing(conn, %Gallery{} = r),
-    do: link("Gallery '#{r.title}' by #{r.creator.name}", to: Routes.gallery_path(conn, :show, r))
+    do: link("Gallery '#{r.title}' by #{r.creator.name}", to: ~p"/galleries/#{r}")
 
   def link_to_reported_thing(conn, %Post{} = r),
     do:
       link("Post in #{r.topic.title}",
         to:
-          Routes.forum_topic_path(conn, :show, r.topic.forum, r.topic, post_id: r.id) <>
+          ~p"/forums/#{r.topic.forum}/topics/#{r.topic}?#{[post_id: r.id]}" <>
             "#post_#{r.id}"
       )
 
   def link_to_reported_thing(conn, %User{} = r),
-    do: link("User '#{r.name}'", to: Routes.profile_path(conn, :show, r))
+    do: link("User '#{r.name}'", to: ~p"/profiles/#{r}")
 
   def link_to_reported_thing(_conn, _reportable) do
     "Reported item permanently destroyed."

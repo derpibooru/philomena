@@ -15,7 +15,7 @@
         tr
           = if same_aspect_ratio?(report) do
             td.success
-              a href=Routes.duplicate_report_path(@conn, :show, report)
+              a href=~p"/duplicate_reports/#{report}"
                 ' Visual diff
               | (Same aspect ratio)
 
@@ -139,13 +139,13 @@
         = if can?(@conn, :edit, report) do
           div
             = if report.state == "open" do
-              a href=(Routes.duplicate_report_claim_path(@conn, :create, report) <> "#report_options_#{report.id}") data-method="post"
+              a href=(~p"/duplicate_reports/#{report}/claim" <> "#report_options_#{report.id}") data-method="post"
                 button.button.button--separate-right
                   i.fa.fa-clipboard>
                   ' Claim
 
             = if report.state != "rejected" do
-              a href=Routes.duplicate_report_reject_path(@conn, :create, report) data-method="post"
+              a href=~p"/duplicate_reports/#{report}/reject" data-method="post"
                 button.button
                   i.fa.fa-times>
                   ' Reject
@@ -157,6 +157,6 @@
 
           = if report.user do
             ' by
-            =< link report.user.name, to: Routes.profile_path(@conn, :show, report.user)
+            =< link report.user.name, to: ~p"/profiles/#{report.user}"
 
         = escape_nl2br(report.reason)

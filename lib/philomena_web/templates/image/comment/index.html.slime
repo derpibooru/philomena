@@ -1,5 +1,5 @@
 elixir:
-  route = fn p -> Routes.image_comment_path(@conn, :index, @image, p) end
+  route = fn p -> ~p"/images/#{@image}/comments?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route
 
 .block

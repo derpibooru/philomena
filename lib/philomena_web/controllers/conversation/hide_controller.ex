@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Conversation.HideController do
 
     conn
     |> put_flash(:info, "Conversation hidden.")
-    |> redirect(to: Routes.conversation_path(conn, :index))
+    |> redirect(to: ~p"/conversations")
   end
 
   def delete(conn, _params) do
@@ -31,6 +31,6 @@ defmodule PhilomenaWeb.Conversation.HideController do
 
     conn
     |> put_flash(:info, "Conversation restored.")
-    |> redirect(to: Routes.conversation_path(conn, :show, conversation))
+    |> redirect(to: ~p"/conversations/#{conversation}")
   end
 end

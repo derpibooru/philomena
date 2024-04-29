@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
         conn
         |> put_flash(:info, "Tag image successfully updated.")
         |> moderation_log(details: &log_details/3, data: tag)
-        |> redirect(to: Routes.tag_path(conn, :show, tag))
+        |> redirect(to: ~p"/tags/#{tag}")
 
       {:error, :tag, changeset, _changes} ->
         render(conn, "edit.html", changeset: changeset)
@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
     conn
     |> put_flash(:info, "Tag image successfully removed.")
     |> moderation_log(details: &log_details/3, data: tag)
-    |> redirect(to: Routes.tag_path(conn, :show, conn.assigns.tag))
+    |> redirect(to: ~p"/tags/#{conn.assigns.tag}")
   end
 
   defp log_details(conn, action, tag) do
@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
 
     %{
       body: body,
-      subject_path: Routes.tag_path(conn, :show, tag)
+      subject_path: ~p"/tags/#{tag}"
     }
   end
 end

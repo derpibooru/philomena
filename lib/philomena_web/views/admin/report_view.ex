@@ -28,10 +28,10 @@ defmodule PhilomenaWeb.Admin.ReportView do
   def truncated_ip_link(conn, ip) do
     case to_string(ip) do
       <<string::binary-size(25), _rest::binary>> = ip ->
-        link(string <> "...", to: Routes.ip_profile_path(conn, :show, ip))
+        link(string <> "...", to: ~p"/ip_profiles/#{ip}")
 
       ip ->
-        link(ip, to: Routes.ip_profile_path(conn, :show, ip))
+        link(ip, to: ~p"/ip_profiles/#{ip}")
     end
   end
 

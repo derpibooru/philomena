@@ -128,7 +128,7 @@ defmodule PhilomenaWeb.ImageController do
 
         conn
         |> put_flash(:info, "Image created successfully.")
-        |> redirect(to: Routes.image_path(conn, :show, image))
+        |> redirect(to: ~p"/images/#{image}")
 
       {:error, :image, changeset, _} ->
         conn
@@ -208,7 +208,7 @@ defmodule PhilomenaWeb.ImageController do
           :info,
           "The image you were looking for has been marked a duplicate of the image below"
         )
-        |> redirect(to: Routes.image_path(conn, :show, image.duplicate_id))
+        |> redirect(to: ~p"/images/#{image.duplicate_id}")
         |> halt()
 
       true ->

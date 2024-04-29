@@ -52,7 +52,7 @@ defmodule PhilomenaWeb.ChannelController do
       {:ok, _channel} ->
         conn
         |> put_flash(:info, "Channel created successfully.")
-        |> redirect(to: Routes.channel_path(conn, :index))
+        |> redirect(to: ~p"/channels")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -69,7 +69,7 @@ defmodule PhilomenaWeb.ChannelController do
       {:ok, _channel} ->
         conn
         |> put_flash(:info, "Channel updated successfully.")
-        |> redirect(to: Routes.channel_path(conn, :index))
+        |> redirect(to: ~p"/channels")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -81,7 +81,7 @@ defmodule PhilomenaWeb.ChannelController do
 
     conn
     |> put_flash(:info, "Channel destroyed successfully.")
-    |> redirect(to: Routes.channel_path(conn, :index))
+    |> redirect(to: ~p"/channels")
   end
 
   defp maybe_search(query, %{"cq" => cq}) when is_binary(cq) and cq != "" do

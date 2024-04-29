@@ -10,6 +10,6 @@ defmodule PhilomenaWeb.Filter.ClearRecentController do
 
     conn
     |> put_flash(:info, "Cleared recent filters.")
-    |> redirect(to: Routes.filter_path(conn, :index))
+    |> redirect(to: ~p"/filters")
   end
 end

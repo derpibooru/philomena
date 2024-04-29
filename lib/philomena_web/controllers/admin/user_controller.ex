@@ -63,7 +63,7 @@ defmodule PhilomenaWeb.Admin.UserController do
         conn
         |> put_flash(:info, "User successfully updated.")
         |> moderation_log(details: &log_details/3, data: user)
-        |> redirect(to: Routes.profile_path(conn, :show, user))
+        |> redirect(to: ~p"/profiles/#{user}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -84,7 +84,7 @@ defmodule PhilomenaWeb.Admin.UserController do
   defp log_details(conn, _action, user) do
     %{
       body: "Updated user details for #{user.name}",
-      subject_path: Routes.profile_path(conn, :show, user)
+      subject_path: ~p"/profiles/#{user}"
     }
   end
 end

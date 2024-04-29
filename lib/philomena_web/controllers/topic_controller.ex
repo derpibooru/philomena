@@ -128,7 +128,7 @@ defmodule PhilomenaWeb.TopicController do
 
         conn
         |> put_flash(:info, "Successfully posted topic.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic))
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
       {:error, :topic, changeset, _} ->
         conn
@@ -137,7 +137,7 @@ defmodule PhilomenaWeb.TopicController do
       _error ->
         conn
         |> put_flash(:error, "There was an error with your submission. Please try again.")
-        |> redirect(to: Routes.forum_topic_path(conn, :new, forum))
+        |> redirect(to: ~p"/forums/#{forum}/topics/new")
     end
   end
 
@@ -146,14 +146,12 @@ defmodule PhilomenaWeb.TopicController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Successfully updated topic.")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, topic))
+        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "There was an error with your submission. Please try again.")
-        |> redirect(
-          to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, conn.assigns.topic)
-        )
+        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{conn.assigns.topic}")
     end
   end
 

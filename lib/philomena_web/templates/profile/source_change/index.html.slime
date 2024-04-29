@@ -1,9 +1,9 @@
 h1
   ' Source changes by
-  a href=Routes.profile_path(@conn, :show, @user)
+  a href=~p"/profiles/#{@user}"
     = @user.name
 
-- route = fn p -> Routes.profile_source_change_path(@conn, :index, @user, p) end
+- route = fn p -> ~p"/profiles/#{@user}/source_changes?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
 
 = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination

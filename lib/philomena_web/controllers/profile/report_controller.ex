@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Profile.ReportController do
 
   def new(conn, _params) do
     user = conn.assigns.user
-    action = Routes.profile_report_path(conn, :create, user)
+    action = ~p"/profiles/#{user}/reports"
 
     changeset =
       %Report{reportable_type: "User", reportable_id: user.id}
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Profile.ReportController do
 
   def create(conn, params) do
     user = conn.assigns.user
-    action = Routes.profile_report_path(conn, :create, user)
+    action = ~p"/profiles/#{user}/reports"
 
     ReportController.create(conn, action, user, "User", params)
   end

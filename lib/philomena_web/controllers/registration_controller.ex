@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.RegistrationController do
         {:ok, _} =
           Users.deliver_user_confirmation_instructions(
             user,
-            &Routes.confirmation_url(conn, :show, &1)
+            &url(~p"/confirmations/#{&1}")
           )
 
         conn

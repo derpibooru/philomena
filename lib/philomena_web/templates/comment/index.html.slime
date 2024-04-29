@@ -1,6 +1,6 @@
 h1 Comments
 
-= form_for :comments, Routes.comment_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+= form_for :comments, ~p"/comments", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
     = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search comments", autocapitalize: "none"
     = submit "Search", class: "hform__button button"
@@ -14,7 +14,7 @@ h2 Search Results
 
 = cond do
   - Enum.any?(@comments) ->
-    - route = fn p -> Routes.comment_path(@conn, :index, p) end
+    - route = fn p -> ~p"/comments?#{p}" end
     - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @comments, route: route, params: [cq: @conn.params["cq"]], conn: @conn
 
     = for {body, comment} <- @comments, comment.image.hidden_from_users == false do
@@ -68,35 +68,35 @@ table.table
       td Literal
       td Matches the author of this comment. Anonymous authors will never match this term.
       td
-        code = link "author:Joey", to: Routes.comment_path(@conn, :index, cq: "author:Joey")
+        code = link "author:Joey", to: ~p"/comments?#{[cq: "author:Joey"]}"
     tr
       td
         code body
       td Full Text
       td Matches the body of this comment. This is the default field.
       td
-        code = link "body:test", to: Routes.comment_path(@conn, :index, cq: "body:test")
+        code = link "body:test", to: ~p"/comments?#{[cq: "body:test"]}"
     tr
       td
         code created_at
       td Date/Time Range
       td Matches the creation time of this comment.
       td
-        code = link "created_at:2015", to: Routes.comment_path(@conn, :index, cq: "created_at:2015")
+        code = link "created_at:2015", to: ~p"/comments?#{[cq: "created_at:2015"]}"
     tr
       td
         code id
       td Numeric Range
       td Matches the numeric surrogate key for this comment.
       td
-        code = link "id:1000000", to: Routes.comment_path(@conn, :index, cq: "id:1000000")
+        code = link "id:1000000", to: ~p"/comments?#{[cq: "id:1000000"]}"
     tr
       td
         code image_id
       td Literal
       td Matches the numeric surrogate key for the image this comment belongs to.
       td
-        code = link "image_id:1000000", to: Routes.comment_path(@conn, :index, cq: "image_id:1000000")
+        code = link "image_id:1000000", to: ~p"/comments?#{[cq: "image_id:1000000"]}"
     tr
       td
         code my
@@ -105,11 +105,11 @@ table.table
         code> my:comments
         ' matches comments you have posted if you are signed in.
       td
-        code = link "my:comments", to: Routes.comment_path(@conn, :index, cq: "my:comments")
+        code = link "my:comments", to: ~p"/comments?#{[cq: "my:comments"]}"
     tr
       td
         code user_id
       td Literal
       td Matches comments with the specified user_id. Anonymous users will never match this term.
       td
-        code = link "user_id:211190", to: Routes.comment_path(@conn, :index, cq: "user_id:211190")
+        code = link "user_id:211190", to: ~p"/comments?#{[cq: "user_id:211190"]}"

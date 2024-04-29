@@ -12,13 +12,13 @@
     .block__content.alternating-color
       .approval-grid
         .approval-items--main
-          span = link ">>#{image.id}", to: Routes.image_path(@conn, :show, image)
+          span = link ">>#{image.id}", to: ~p"/images/#{image}"
           .approval-items__details class=class_for_image(image)
             span = image_thumb(@conn, image)
             span = warning_text(image)
           span
             = if image.user do
-              = link image.user.name, to: Routes.profile_path(@conn, :show, image.user)
+              = link image.user.name, to: ~p"/profiles/#{image.user}"
             - else
               em>
                 = truncated_ip_link(@conn, image.ip)
@@ -26,9 +26,9 @@
           span = pretty_time(image.created_at)
         .approval-items--footer
           = if can?(@conn, :approve, image) do
-            = button_to "Approve", Routes.image_approve_path(@conn, :create, image), method: "post", class: "button button--state-success"
+            = button_to "Approve", ~p"/images/#{image}/approve", method: "post", class: "button button--state-success"
           = if can?(@conn, :hide, image) do
-            = form_for :image, Routes.image_delete_path(@conn, :create, image), [method: "post"], fn f ->
+            = form_for :image, ~p"/images/#{image}/delete", [method: "post"], fn f ->
               .field.field--inline
                 = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
                 = submit "Delete", class: "button button--state-danger button--separate-left"

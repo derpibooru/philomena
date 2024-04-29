@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.PasswordController do
     if user = Users.get_user_by_email(email) do
       Users.deliver_user_reset_password_instructions(
         user,
-        &Routes.password_url(conn, :edit, &1)
+        &url(~p"/passwords/#{&1}/edit")
       )
     end
 
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.PasswordController do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Password reset successfully.")
-        |> redirect(to: Routes.session_path(conn, :new))
+        |> redirect(to: ~p"/sessions/new")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

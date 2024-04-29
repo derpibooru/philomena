@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.SettingController do
       {:ok, conn} ->
         conn
         |> put_flash(:info, "Settings updated successfully.")
-        |> redirect(to: Routes.setting_path(conn, :edit))
+        |> redirect(to: ~p"/settings/edit")
 
       {:error, changeset} ->
         conn

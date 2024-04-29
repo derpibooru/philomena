@@ -34,7 +34,7 @@
     .table-list__label
       .table-list__label__text Avatar
       .table-list__label__input
-        = link "Remove avatar", to: Routes.admin_user_avatar_path(@conn, :delete, @user), class: "button", data: [method: "delete", confirm: "Are you really, really sure?"]
+        = link "Remove avatar", to: ~p"/admin/users/#{@user}/avatar", class: "button", data: [method: "delete", confirm: "Are you really, really sure?"]
 
   .block
     .block__header

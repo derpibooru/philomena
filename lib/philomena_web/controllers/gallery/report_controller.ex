@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Gallery.ReportController do
 
   def new(conn, _params) do
     gallery = conn.assigns.gallery
-    action = Routes.gallery_report_path(conn, :create, gallery)
+    action = ~p"/galleries/#{gallery}/reports"
 
     changeset =
       %Report{reportable_type: "Gallery", reportable_id: gallery.id}
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Gallery.ReportController do
 
   def create(conn, params) do
     gallery = conn.assigns.gallery
-    action = Routes.gallery_report_path(conn, :create, gallery)
+    action = ~p"/galleries/#{gallery}/reports"
 
     ReportController.create(conn, action, gallery, "Gallery", params)
   end

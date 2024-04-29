@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
   describe "PUT /registrations/password" do
     test "updates the user password and resets tokens", %{conn: conn, user: user} do
       new_password_conn =
-        put(conn, Routes.registration_password_path(conn, :update), %{
+        put(conn, ~p"/registrations/password", %{
           "current_password" => valid_user_password(),
           "user" => %{
             "password" => "new valid password",
@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
           }
         })
 
-      assert redirected_to(new_password_conn) == Routes.registration_path(conn, :edit)
+      assert redirected_to(new_password_conn) == ~p"/registrations/edit"
       assert get_session(new_password_conn, :user_token) != get_session(conn, :user_token)
       assert Flash.get(new_password_conn.assigns.flash, :info) =~ "Password updated successfully"
       assert Users.get_user_by_email_and_password(user.email, "new valid password", & &1)
@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
 
     test "does not update password on invalid data", %{conn: conn} do
       old_password_conn =
-        put(conn, Routes.registration_password_path(conn, :update), %{
+        put(conn, ~p"/registrations/password", %{
           "current_password" => "invalid",
           "user" => %{
             "password" => "too short",
@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.Registration.PasswordControllerTest do
           }
         })
 
-      assert redirected_to(old_password_conn) == Routes.registration_path(conn, :edit)
+      assert redirected_to(old_password_conn) == ~p"/registrations/edit"
       assert Flash.get(old_password_conn.assigns.flash, :error) =~ "Failed to update password"
       assert get_session(old_password_conn, :user_token) == get_session(conn, :user_token)
     end

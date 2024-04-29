@@ -15,7 +15,7 @@
       p Add a new image or remove the existing one here.
       p SVG is preferred.
 
-      = form_for @changeset, Routes.tag_image_path(@conn, :update, @tag), [method: "put", multipart: true], fn f ->
+      = form_for @changeset, ~p"/tags/#{@tag}/image", [method: "put", multipart: true], fn f ->
         = if @changeset.action do
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
@@ -35,7 +35,7 @@
           => submit "Update tag image", class: "button"
 
       br
-      = button_to "Remove tag image", Routes.tag_image_path(@conn, :delete, @tag), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
+      = button_to "Remove tag image", ~p"/tags/#{@tag}/image", method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
 
     br
-    = link "Back", to: Routes.tag_path(@conn, :show, @tag)
+    = link "Back", to: ~p"/tags/#{@tag}"

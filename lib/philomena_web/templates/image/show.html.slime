@@ -24,5 +24,5 @@
 
     - true ->
 
-  #comments data-current-url=Routes.image_comment_path(@conn, :index, @image) data-loaded="true"
+  #comments data-current-url=~p"/images/#{@image}/comments" data-loaded="true"
     = render PhilomenaWeb.Image.CommentView, "index.html", image: @image, comments: @comments, conn: @conn

@@ -1,6 +1,6 @@
 h1 Reset password
 
-= form_for @changeset, Routes.password_path(@conn, :update, @token), fn f ->
+= form_for @changeset, ~p"/passwords/#{@token}", fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

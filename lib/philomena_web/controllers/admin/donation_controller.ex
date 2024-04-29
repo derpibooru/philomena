@@ -23,12 +23,12 @@ defmodule PhilomenaWeb.Admin.DonationController do
       {:ok, _donation} ->
         conn
         |> put_flash(:info, "Donation successfully created.")
-        |> redirect(to: Routes.admin_donation_path(conn, :index))
+        |> redirect(to: ~p"/admin/donations")
 
       _error ->
         conn
         |> put_flash(:error, "Error creating donation!")
-        |> redirect(to: Routes.admin_donation_path(conn, :index))
+        |> redirect(to: ~p"/admin/donations")
     end
   end
 

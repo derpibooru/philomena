@@ -2,7 +2,7 @@ h1
   ' Aliasing tag
   = @tag.name
 
-= form_for @changeset, Routes.tag_alias_path(@conn, :update, @tag), [method: "put"], fn f ->
+= form_for @changeset, ~p"/tags/#{@tag}/alias", [method: "put"], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
@@ -17,7 +17,7 @@ h1
     => submit "Alias tag", class: "button"
 
 br
-= button_to "Remove tag alias", Routes.tag_alias_path(@conn, :delete, @tag), method: "delete", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Saving&hellip;")]
+= button_to "Remove tag alias", ~p"/tags/#{@tag}/alias", method: "delete", class: "button", data: [confirm: "Are you really, really sure?", disable_with: raw("Saving&hellip;")]
 
 br
-= link "Back", to: Routes.tag_path(@conn, :show, @tag)
+= link "Back", to: ~p"/tags/#{@tag}"

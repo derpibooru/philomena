@@ -12,12 +12,12 @@ defmodule PhilomenaWeb.Filter.PublicController do
       {:ok, filter} ->
         conn
         |> put_flash(:info, "Successfully made filter public.")
-        |> redirect(to: Routes.filter_path(conn, :show, filter))
+        |> redirect(to: ~p"/filters/#{filter}")
 
       _error ->
         conn
         |> put_flash(:error, "Couldn't make filter public!")
-        |> redirect(to: Routes.filter_path(conn, :show, conn.assigns.filter))
+        |> redirect(to: ~p"/filters/#{conn.assigns.filter}")
     end
   end
 end

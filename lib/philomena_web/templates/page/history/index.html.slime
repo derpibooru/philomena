@@ -1,6 +1,6 @@
 h1
   ' Revision history for
-  = link @static_page.title, to: Routes.page_path(@conn, :show, @static_page)
+  = link @static_page.title, to: ~p"/pages/#{@static_page}"
 
 table.table
   thead
@@ -12,7 +12,7 @@ table.table
   tbody
     = for version <- @versions do
       tr
-        td = link version.user.name, to: Routes.profile_path(@conn, :show,  version.user)
+        td = link version.user.name, to: ~p"/profiles/#{version.user}"
         td = pretty_time(version.created_at)
         td.static-page__diff
           = for diff <- version.difference do
