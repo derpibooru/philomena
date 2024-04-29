@@ -41,31 +41,31 @@ defmodule PhilomenaWeb.ReportView do
   def pretty_state(%{state: "claimed"}), do: "Claimed"
   def pretty_state(_report), do: "Open"
 
-  def link_to_reported_thing(conn, %Image{} = r),
+  def link_to_reported_thing(%Image{} = r),
     do: link("Image >>#{r.id}", to: ~p"/images/#{r}")
 
-  def link_to_reported_thing(conn, %Comment{} = r),
+  def link_to_reported_thing(%Comment{} = r),
     do:
       link("Comment on image >>#{r.image.id}",
         to: ~p"/images/#{r.image}" <> "#comment_#{r.id}"
       )
 
-  def link_to_reported_thing(conn, %Conversation{} = r),
+  def link_to_reported_thing(%Conversation{} = r),
     do:
       link("Conversation between #{r.from.name} and #{r.to.name}",
         to: ~p"/conversations/#{r}"
       )
 
-  def link_to_reported_thing(conn, %Commission{} = r),
+  def link_to_reported_thing(%Commission{} = r),
     do:
       link("#{r.user.name}'s commission page",
         to: ~p"/profiles/#{r.user}/commission"
       )
 
-  def link_to_reported_thing(conn, %Gallery{} = r),
+  def link_to_reported_thing(%Gallery{} = r),
     do: link("Gallery '#{r.title}' by #{r.creator.name}", to: ~p"/galleries/#{r}")
 
-  def link_to_reported_thing(conn, %Post{} = r),
+  def link_to_reported_thing(%Post{} = r),
     do:
       link("Post in #{r.topic.title}",
         to:
@@ -73,10 +73,10 @@ defmodule PhilomenaWeb.ReportView do
             "#post_#{r.id}"
       )
 
-  def link_to_reported_thing(conn, %User{} = r),
+  def link_to_reported_thing(%User{} = r),
     do: link("User '#{r.name}'", to: ~p"/profiles/#{r}")
 
-  def link_to_reported_thing(_conn, _reportable) do
+  def link_to_reported_thing(_reportable) do
     "Reported item permanently destroyed."
   end
 end

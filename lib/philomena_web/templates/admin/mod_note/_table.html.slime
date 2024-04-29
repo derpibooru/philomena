@@ -10,7 +10,7 @@ table.table
     = for {body, note} <- @mod_notes do
       tr
         td
-          = link_to_noted_thing(@conn, note.notable)
+          = link_to_noted_thing(note.notable)
 
         td
           = body

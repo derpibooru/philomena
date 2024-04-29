@@ -7,8 +7,8 @@ defmodule PhilomenaWeb.Admin.ReportView do
   alias PhilomenaWeb.ReportView
   alias PhilomenaWeb.ProfileView
 
-  defp link_to_reported_thing(conn, reportable),
-    do: ReportView.link_to_reported_thing(conn, reportable)
+  defp link_to_reported_thing(reportable),
+    do: ReportView.link_to_reported_thing(reportable)
 
   defp report_row_class(report),
     do: ReportView.report_row_class(report)

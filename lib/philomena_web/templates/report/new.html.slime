@@ -1,7 +1,7 @@
 h2 Submit a report
 p
   strong
-    = link_to_reported_thing(@conn, @reportable)
+    = link_to_reported_thing(@reportable)
 
 .image-other
   .dnp-warning

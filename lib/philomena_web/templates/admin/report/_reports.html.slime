@@ -12,7 +12,7 @@ table.table
       tr
         td
           => reported_image @conn, report.reportable
-          = link_to_reported_thing @conn, report.reportable
+          = link_to_reported_thing report.reportable
         td
           span title=report.reason
             = truncate(report.reason)

@@ -18,6 +18,6 @@ h1 Your Reports
           tr
             td class=report_row_class(r)
               = pretty_state(r)
-            td = link_to_reported_thing(@conn, r.reportable)
+            td = link_to_reported_thing(r.reportable)
             td = r.reason
             td = pretty_time(r.created_at)
