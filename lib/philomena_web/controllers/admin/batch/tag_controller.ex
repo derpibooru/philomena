@@ -68,7 +68,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     end
   end
 
-  defp log_details(_conn, _action, data) do
+  defp log_details(conn, _action, data) do
     %{
       body: "Batch tagged '#{data.tag_list}' on #{data.image_count} images",
       subject_path: ~p"/profiles/#{conn.assigns.current_user}"
