@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.ReportController do
               :info,
               "Your report has been received and will be checked by staff shortly."
             )
-            |> redirect(to: redirect_path(conn, conn.assigns.current_user))
+            |> redirect(to: redirect_path(conn.assigns.current_user))
 
           {:error, changeset} ->
             # Note that we are depending on the controller that called
@@ -100,8 +100,8 @@ defmodule PhilomenaWeb.ReportController do
     reports_open >= max_reports()
   end
 
-  defp redirect_path(_conn, nil), do: "/"
-  defp redirect_path(conn, _user), do: ~p"/reports"
+  defp redirect_path(nil), do: "/"
+  defp redirect_path(_user), do: ~p"/reports"
 
   defp max_reports do
     5

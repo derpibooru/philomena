@@ -1,8 +1,8 @@
 defmodule PhilomenaWeb.Admin.BanView do
   alias PhilomenaWeb.ProfileView
 
-  def user_abbrv(conn, user),
-    do: ProfileView.user_abbrv(conn, user)
+  def user_abbrv(user),
+    do: ProfileView.user_abbrv(user)
 
   def ban_row_class(%{valid_until: until, enabled: enabled}) do
     now = DateTime.utc_now()

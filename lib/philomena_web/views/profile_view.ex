@@ -77,7 +77,7 @@ defmodule PhilomenaWeb.ProfileView do
   def enabled_text(true), do: "Enabled"
   def enabled_text(_else), do: "Disabled"
 
-  def user_abbrv(conn, %{name: name} = user) do
+  def user_abbrv(%{name: name} = user) do
     abbrv =
       String.upcase(initials_abbrv(name) || uppercase_abbrv(name) || first_letters_abbrv(name))
 
@@ -86,7 +86,7 @@ defmodule PhilomenaWeb.ProfileView do
     link(abbrv, to: ~p"/profiles/#{user}")
   end
 
-  def user_abbrv(_conn, _user), do: content_tag(:span, "(n/a)")
+  def user_abbrv(_user), do: content_tag(:span, "(n/a)")
 
   defp initials_abbrv(name) do
     case String.split(name, " ", parts: 4) do

@@ -16,8 +16,8 @@ defmodule PhilomenaWeb.Admin.ReportView do
   defp pretty_state(report),
     do: ReportView.pretty_state(report)
 
-  defp user_abbrv(conn, user),
-    do: ProfileView.user_abbrv(conn, user)
+  defp user_abbrv(user),
+    do: ProfileView.user_abbrv(user)
 
   defp current?(current_user, user),
     do: ProfileView.current?(current_user, user)

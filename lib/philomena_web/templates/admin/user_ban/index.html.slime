@@ -35,7 +35,7 @@ h1 User Bans
 
             td
               => pretty_time ban.created_at
-              = user_abbrv @conn, ban.banning_user
+              = user_abbrv ban.banning_user
 
             td class=ban_row_class(ban)
               = pretty_time ban.valid_until

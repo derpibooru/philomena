@@ -32,7 +32,7 @@ table.table
 
         td class=report_row_class(report)
           => pretty_state(report)
-          = user_abbrv @conn, report.admin
+          = user_abbrv report.admin
         td
           => link "Show", to: ~p"/admin/reports/#{report}"
 

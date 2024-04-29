@@ -116,7 +116,7 @@
           .flex__grow.center
             => pretty_time(award.awarded_on)
             = if manages_awards?(@conn) do
-              = user_abbrv(@conn, award.awarded_by)
+              = user_abbrv(award.awarded_by)
 
           = if manages_awards?(@conn) do
             .flex__grow.center
