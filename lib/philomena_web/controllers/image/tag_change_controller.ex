@@ -58,7 +58,7 @@ defmodule PhilomenaWeb.Image.TagChangeController do
   defp added_filter(query, _params),
     do: query
 
-  defp log_details(conn, _action, %{image: image, details: details}) do
+  defp log_details(_conn, _action, %{image: image, details: details}) do
     %{
       body: "Deleted tag change #{details} on >>#{image.id} from history",
       subject_path: ~p"/images/#{image}"

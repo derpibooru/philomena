@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Image.Comment.DeleteController do
     end
   end
 
-  defp log_details(conn, _action, comment) do
+  defp log_details(_conn, _action, comment) do
     %{
       body: "Destroyed comment on image >>#{comment.image_id}",
       subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"

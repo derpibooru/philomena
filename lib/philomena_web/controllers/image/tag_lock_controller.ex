@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(conn, action, image) do
+  defp log_details(_conn, action, image) do
     body =
       case action do
         :create -> "Locked tags on image >>#{image.id}"

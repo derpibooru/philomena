@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
     |> redirect(to: ~p"/duplicate_reports")
   end
 
-  defp log_details(conn, _action, report) do
+  defp log_details(_conn, _action, report) do
     %{
       body: "Rejected duplicate report (#{report.image.id} -> #{report.duplicate_of_image.id})",
       subject_path: ~p"/duplicate_reports"

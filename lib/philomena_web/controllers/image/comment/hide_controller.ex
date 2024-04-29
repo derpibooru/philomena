@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
     end
   end
 
-  defp log_details(conn, action, comment) do
+  defp log_details(_conn, action, comment) do
     body =
       case action do
         :create -> "Hidden comment on image >>#{comment.image_id} (#{comment.deletion_reason})"

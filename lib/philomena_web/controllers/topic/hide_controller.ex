@@ -54,7 +54,7 @@ defmodule PhilomenaWeb.Topic.HideController do
     end
   end
 
-  defp log_details(conn, action, topic) do
+  defp log_details(_conn, action, topic) do
     body =
       case action do
         :create ->

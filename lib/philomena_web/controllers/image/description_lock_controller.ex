@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Image.DescriptionLockController do
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(conn, action, image) do
+  defp log_details(_conn, action, image) do
     body =
       case action do
         :create -> "Locked description editing on image >>#{image.id}"

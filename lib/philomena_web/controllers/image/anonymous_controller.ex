@@ -33,7 +33,7 @@ defmodule PhilomenaWeb.Image.AnonymousController do
     end
   end
 
-  defp log_details(conn, _action, image) do
+  defp log_details(_conn, _action, image) do
     %{
       body: "Updated anonymity of image >>#{image.id}",
       subject_path: ~p"/images/#{image}"

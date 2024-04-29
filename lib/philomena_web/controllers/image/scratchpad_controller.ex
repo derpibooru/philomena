@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Image.ScratchpadController do
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(conn, _action, image) do
+  defp log_details(_conn, _action, image) do
     %{
       body: "Updated mod notes on image >>#{image.id} (#{image.scratchpad})",
       subject_path: ~p"/images/#{image}"

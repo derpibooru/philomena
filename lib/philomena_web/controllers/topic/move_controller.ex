@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Topic.MoveController do
     end
   end
 
-  defp log_details(conn, _action, topic) do
+  defp log_details(_conn, _action, topic) do
     %{
       body: "Topic '#{topic.title}' moved to #{topic.forum.name}",
       subject_path: ~p"/forums/#{topic.forum}/topics/#{topic}"

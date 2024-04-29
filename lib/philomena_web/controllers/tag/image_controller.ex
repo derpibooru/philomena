@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Tag.ImageController do
     |> redirect(to: ~p"/tags/#{conn.assigns.tag}")
   end
 
-  defp log_details(conn, action, tag) do
+  defp log_details(_conn, action, tag) do
     body =
       case action do
         :update -> "Updated image on tag '#{tag.name}'"

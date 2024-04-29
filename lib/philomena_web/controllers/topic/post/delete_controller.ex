@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Topic.Post.DeleteController do
     end
   end
 
-  defp log_details(conn, _action, post) do
+  defp log_details(_conn, _action, post) do
     %{
       body: "Destroyed forum post ##{post.id} in topic '#{post.topic.title}'",
       subject_path:

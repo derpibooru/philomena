@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.ApproveController do
     |> redirect(to: ~p"/admin/approvals")
   end
 
-  defp log_details(conn, _action, image) do
+  defp log_details(_conn, _action, image) do
     %{body: "Approved image #{image.id}", subject_path: ~p"/images/#{image}"}
   end
 end

@@ -172,7 +172,7 @@ defmodule PhilomenaWeb.TagController do
     end
   end
 
-  defp log_details(conn, action, tag) do
+  defp log_details(_conn, action, tag) do
     body =
       case action do
         :update -> "Updated details on tag '#{tag.name}'"

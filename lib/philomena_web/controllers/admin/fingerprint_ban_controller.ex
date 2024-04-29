@@ -110,7 +110,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
     end
   end
 
-  defp log_details(conn, action, ban) do
+  defp log_details(_conn, action, ban) do
     body =
       case action do
         :create -> "Created a fingerprint ban #{ban.generated_ban_id}"

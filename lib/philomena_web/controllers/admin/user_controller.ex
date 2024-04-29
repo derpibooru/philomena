@@ -81,7 +81,7 @@ defmodule PhilomenaWeb.Admin.UserController do
     assign(conn, :roles, Repo.all(Role))
   end
 
-  defp log_details(conn, _action, user) do
+  defp log_details(_conn, _action, user) do
     %{
       body: "Updated user details for #{user.name}",
       subject_path: ~p"/profiles/#{user}"

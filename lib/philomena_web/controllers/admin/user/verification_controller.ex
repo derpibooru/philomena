@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Admin.User.VerificationController do
     end
   end
 
-  defp log_details(conn, action, user) do
+  defp log_details(_conn, action, user) do
     body =
       case action do
         :create -> "Granted verification to #{user.name}"

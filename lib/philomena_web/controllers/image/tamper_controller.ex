@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.Image.TamperController do
     |> redirect(to: ~p"/images/#{conn.assigns.image}")
   end
 
-  defp log_details(conn, _action, data) do
+  defp log_details(_conn, _action, data) do
     image = data.image
 
     vote_type =

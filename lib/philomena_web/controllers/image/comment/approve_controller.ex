@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Image.Comment.ApproveController do
     |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
   end
 
-  defp log_details(conn, _action, comment) do
+  defp log_details(_conn, _action, comment) do
     %{
       body: "Approved comment on image >>#{comment.image_id}",
       subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"

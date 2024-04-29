@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Image.RepairController do
     |> redirect(to: ~p"/images/#{conn.assigns.image}")
   end
 
-  defp log_details(conn, _action, image) do
+  defp log_details(_conn, _action, image) do
     %{
       body: "Repaired image >>#{image.id}",
       subject_path: ~p"/images/#{image}"

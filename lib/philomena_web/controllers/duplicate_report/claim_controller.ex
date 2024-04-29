@@ -33,7 +33,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
     |> redirect(to: ~p"/duplicate_reports")
   end
 
-  defp log_details(conn, action, _) do
+  defp log_details(_conn, action, _) do
     body =
       case action do
         :create -> "Claimed a duplicate report"

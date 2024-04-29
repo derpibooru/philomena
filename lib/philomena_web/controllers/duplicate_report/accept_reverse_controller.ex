@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptReverseController do
     end
   end
 
-  defp log_details(conn, _action, report) do
+  defp log_details(_conn, _action, report) do
     %{
       body:
         "Reverse-accepted duplicate report, merged #{report.image.id} into #{report.duplicate_of_image.id}",
