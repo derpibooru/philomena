@@ -21,7 +21,7 @@
               = link image.user.name, to: ~p"/profiles/#{image.user}"
             - else
               em>
-                = truncated_ip_link(@conn, image.ip)
+                = truncated_ip_link(image.ip)
               = link_to_fingerprint(@conn, image.fingerprint)
           span = pretty_time(image.created_at)
         .approval-items--footer

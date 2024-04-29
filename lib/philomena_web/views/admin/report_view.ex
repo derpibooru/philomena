@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Admin.ReportView do
   def truncate(<<string::binary-size(50), _rest::binary>>), do: string <> "..."
   def truncate(string), do: string
 
-  def truncated_ip_link(conn, ip) do
+  def truncated_ip_link(ip) do
     case to_string(ip) do
       <<string::binary-size(25), _rest::binary>> = ip ->
         link(string <> "...", to: ~p"/ip_profiles/#{ip}")

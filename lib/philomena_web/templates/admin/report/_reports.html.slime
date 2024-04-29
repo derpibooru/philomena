@@ -21,7 +21,7 @@ table.table
             = link report.user.name, to: ~p"/profiles/#{report.user}"
           - else
             em>
-              = truncated_ip_link(@conn, report.ip)
+              = truncated_ip_link(report.ip)
             = link_to_fingerprint(@conn, report.fingerprint)
 
           = if not is_nil(report.user) and Enum.any?(report.user.linked_tags) do
