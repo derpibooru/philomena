@@ -70,7 +70,11 @@
 .tag > span {
   padding: 5px;
   display: table-cell;
-  white-space: pre;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .tag a {
