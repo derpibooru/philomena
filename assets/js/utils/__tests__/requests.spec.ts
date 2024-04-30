@@ -1,5 +1,5 @@
 import { fetchHtml, fetchJson, handleError } from '../requests';
-import fetchMock from 'jest-fetch-mock';
+import { fetchMock } from '../../../test/fetch-mock.ts';
 
 describe('Request utils', () => {
   const mockEndpoint = '/endpoint';

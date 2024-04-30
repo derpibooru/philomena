@@ -1,7 +1,7 @@
-import fetchMock from 'jest-fetch-mock';
 import { fireEvent, waitFor } from '@testing-library/dom';
 import { assertType } from '../utils/assert';
 import '../ujs';
+import { fetchMock } from '../../test/fetch-mock';
 
 const mockEndpoint = 'http://localhost/endpoint';
 const mockVerb = 'POST';
@@ -38,7 +38,7 @@ describe('Remote utilities', () => {
       }
 
       document.documentElement.insertAdjacentElement('beforeend', a);
-      a.click();
+      fireEvent.click(a, { button: 0 });
 
       return a;
     };
@@ -88,7 +88,7 @@ describe('Remote utilities', () => {
       a.dataset.method = mockVerb;
 
       document.documentElement.insertAdjacentElement('beforeend', a);
-      a.click();
+      fireEvent.click(a);
 
       return a;
     };
@@ -128,7 +128,7 @@ describe('Remote utilities', () => {
           ...Object.getOwnPropertyDescriptors(oldWindowLocation),
           reload: {
             configurable: true,
-            value: jest.fn(),
+            value: vi.fn(),
           },
         },
       );
@@ -155,7 +155,7 @@ describe('Remote utilities', () => {
     const submitForm = () => {
       const form = configureForm();
       form.method = mockVerb;
-      form.submit();
+      fireEvent.submit(form);
       return form;
     };
 
@@ -176,7 +176,7 @@ describe('Remote utilities', () => {
     it('should submit a PUT request with put data-method specified', () => {
       const form = configureForm();
       form.dataset.method = 'put';
-      form.submit();
+      fireEvent.submit(form);
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(fetch).toHaveBeenNthCalledWith(1, mockEndpoint, {
         method: 'PUT',
@@ -201,7 +201,7 @@ describe('Remote utilities', () => {
     }));
 
     it('should reload the page on 300 multiple choices response', () => {
-      jest.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 300}));
+      vi.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 300}));
 
       submitForm();
       return waitFor(() => expect(window.location.reload).toHaveBeenCalledTimes(1));
@@ -211,28 +211,29 @@ describe('Remote utilities', () => {
 
 describe('Form utilities', () => {
   beforeEach(() => {
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation(cb => {
       cb(1);
       return 1;
     });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('[data-confirm]', () => {
     const createA = () => {
       const a = document.createElement('a');
       a.dataset.confirm = 'confirm';
-      a.href = mockEndpoint;
+      // We cannot use mockEndpoint here since anything except a hash change will log an error in the test output
+      a.href = '#hash';
       document.documentElement.insertAdjacentElement('beforeend', a);
       return a;
     };
 
     it('should cancel the event on failed confirm', () => {
       const a = createA();
-      const confirm = jest.spyOn(window, 'confirm').mockImplementationOnce(() => false);
+      const confirm = vi.spyOn(window, 'confirm').mockImplementationOnce(() => false);
       const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
       expect(fireEvent(a, event)).toBe(false);
@@ -241,7 +242,7 @@ describe('Form utilities', () => {
 
     it('should allow the event on confirm', () => {
       const a = createA();
-      const confirm = jest.spyOn(window, 'confirm').mockImplementationOnce(() => true);
+      const confirm = vi.spyOn(window, 'confirm').mockImplementationOnce(() => true);
       const event = new MouseEvent('click', { bubbles: true, cancelable: true });
 
       expect(fireEvent(a, event)).toBe(true);
@@ -276,7 +277,7 @@ describe('Form utilities', () => {
 
     it('should disable submit button containing a text child on click', () => {
       const [ , button ] = createFormAndButton(submitText, loadingText);
-      button.click();
+      fireEvent.click(button);
 
       expect(button.textContent).toEqual(' Loading...');
       expect(button.dataset.enableWith).toEqual(submitText);
@@ -284,7 +285,7 @@ describe('Form utilities', () => {
 
     it('should disable submit button containing element children on click', () => {
       const [ , button ] = createFormAndButton(submitMarkup, loadingMarkup);
-      button.click();
+      fireEvent.click(button);
 
       expect(button.innerHTML).toEqual(loadingMarkup);
       expect(button.dataset.enableWith).toEqual(submitMarkup);
@@ -293,7 +294,7 @@ describe('Form utilities', () => {
     it('should not disable anything when the form is invalid', () => {
       const [ form, button ] = createFormAndButton(submitText, loadingText);
       form.insertAdjacentHTML('afterbegin', '<input type="text" name="valid" required="true" />');
-      button.click();
+      fireEvent.click(button);
 
       expect(button.textContent).toEqual(submitText);
       expect(button.dataset.enableWith).not.toBeDefined();
@@ -301,7 +302,7 @@ describe('Form utilities', () => {
 
     it('should reset submit button containing a text child on completion', () => {
       const [ form, button ] = createFormAndButton(submitText, loadingText);
-      button.click();
+      fireEvent.click(button);
       fireEvent(form, new CustomEvent('reset', { bubbles: true }));
 
       expect(button.textContent?.trim()).toEqual(submitText);
@@ -310,7 +311,7 @@ describe('Form utilities', () => {
 
     it('should reset submit button containing element children on completion', () => {
       const [ form, button ] = createFormAndButton(submitMarkup, loadingMarkup);
-      button.click();
+      fireEvent.click(button);
       fireEvent(form, new CustomEvent('reset', { bubbles: true }));
 
       expect(button.innerHTML).toEqual(submitMarkup);
@@ -319,7 +320,7 @@ describe('Form utilities', () => {
 
     it('should reset disabled form elements on pageshow', () => {
       const [ , button ] = createFormAndButton(submitText, loadingText);
-      button.click();
+      fireEvent.click(button);
       fireEvent(window, new CustomEvent('pageshow'));
 
       expect(button.textContent?.trim()).toEqual(submitText);

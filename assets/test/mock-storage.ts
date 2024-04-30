@@ -1,9 +1,11 @@
+import { MockInstance } from 'vitest';
+
 type MockStorageKeys = 'getItem' | 'setItem' | 'removeItem';
 
-export function mockStorage<Keys extends MockStorageKeys>(options: Pick<Storage, Keys>): { [k in `${Keys}Spy`]: jest.SpyInstance } {
-  const getItemSpy = 'getItem' in options ? jest.spyOn(Storage.prototype, 'getItem') : undefined;
-  const setItemSpy = 'setItem' in options ? jest.spyOn(Storage.prototype, 'setItem') : undefined;
-  const removeItemSpy = 'removeItem' in options ? jest.spyOn(Storage.prototype, 'removeItem') : undefined;
+export function mockStorage<Keys extends MockStorageKeys>(options: Pick<Storage, Keys>): { [k in `${Keys}Spy`]: MockInstance } {
+  const getItemSpy = 'getItem' in options ? vi.spyOn(Storage.prototype, 'getItem') : undefined;
+  const setItemSpy = 'setItem' in options ? vi.spyOn(Storage.prototype, 'setItem') : undefined;
+  const removeItemSpy = 'removeItem' in options ? vi.spyOn(Storage.prototype, 'removeItem') : undefined;
 
   beforeAll(() => {
     getItemSpy && getItemSpy.mockImplementation((options as Storage).getItem);
@@ -26,7 +28,7 @@ export function mockStorage<Keys extends MockStorageKeys>(options: Pick<Storage,
   return { getItemSpy, setItemSpy, removeItemSpy } as ReturnType<typeof mockStorage>;
 }
 
-type MockStorageImplApi = { [k in `${MockStorageKeys}Spy`]: jest.SpyInstance } & {
+type MockStorageImplApi = { [k in `${MockStorageKeys}Spy`]: MockInstance } & {
   /**
    * Forces the mock storage back to its default (empty) state
    * @param value

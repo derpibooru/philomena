@@ -1,6 +1,7 @@
 import { inputDuplicatorCreator } from '../input-duplicator';
 import { assertNotNull } from '../utils/assert';
 import { $, $$, removeEl } from '../utils/dom';
+import { fireEvent } from '@testing-library/dom';
 
 describe('Input duplicator functionality', () => {
   beforeEach(() => {
@@ -41,7 +42,7 @@ describe('Input duplicator functionality', () => {
 
     expect($$('input')).toHaveLength(1);
 
-    assertNotNull($<HTMLButtonElement>('.js-add-input')).click();
+    fireEvent.click(assertNotNull($<HTMLButtonElement>('.js-add-input')));
 
     expect($$('input')).toHaveLength(2);
   });
@@ -53,7 +54,7 @@ describe('Input duplicator functionality', () => {
     form.insertAdjacentElement('afterbegin', buttonDiv);
     runCreator();
 
-    assertNotNull($<HTMLButtonElement>('.js-add-input')).click();
+    fireEvent.click(assertNotNull($<HTMLButtonElement>('.js-add-input')));
 
     expect($$('input')).toHaveLength(2);
   });
@@ -62,7 +63,7 @@ describe('Input duplicator functionality', () => {
     runCreator();
 
     for (let i = 0; i < 5; i += 1) {
-      assertNotNull($<HTMLButtonElement>('.js-add-input')).click();
+      fireEvent.click(assertNotNull($<HTMLButtonElement>('.js-add-input')));
     }
 
     expect($$('input')).toHaveLength(3);
@@ -71,8 +72,8 @@ describe('Input duplicator functionality', () => {
   it('should remove duplicated input elements', () => {
     runCreator();
 
-    assertNotNull($<HTMLButtonElement>('.js-add-input')).click();
-    assertNotNull($<HTMLAnchorElement>('.js-remove-input')).click();
+    fireEvent.click(assertNotNull($<HTMLButtonElement>('.js-add-input')));
+    fireEvent.click(assertNotNull($<HTMLAnchorElement>('.js-remove-input')));
 
     expect($$('input')).toHaveLength(1);
   });
@@ -80,10 +81,10 @@ describe('Input duplicator functionality', () => {
   it('should not remove the last input element', () => {
     runCreator();
 
-    assertNotNull($<HTMLAnchorElement>('.js-remove-input')).click();
-    assertNotNull($<HTMLAnchorElement>('.js-remove-input')).click();
+    fireEvent.click(assertNotNull($<HTMLAnchorElement>('.js-remove-input')));
+    fireEvent.click(assertNotNull($<HTMLAnchorElement>('.js-remove-input')));
     for (let i = 0; i < 5; i += 1) {
-      assertNotNull($<HTMLAnchorElement>('.js-remove-input')).click();
+      fireEvent.click(assertNotNull($<HTMLAnchorElement>('.js-remove-input')));
     }
 
     expect($$('input')).toHaveLength(1);

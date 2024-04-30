@@ -4,6 +4,7 @@ import { mockStorage } from '../../../test/mock-storage';
 import { createEvent, fireEvent } from '@testing-library/dom';
 import { EventType } from '@testing-library/dom/types/events';
 import { SpoilerType } from '../../../types/booru-object';
+import { beforeEach } from 'vitest';
 
 describe('Image utils', () => {
   const hiddenClass = 'hidden';
@@ -82,6 +83,10 @@ describe('Image utils', () => {
       },
     });
 
+    beforeEach(() => {
+      mockServeHidpiValue = null;
+    });
+
     describe('video thumbnail', () => {
       type CreateMockElementsOptions = {
         extension: string;
@@ -109,7 +114,7 @@ describe('Image utils', () => {
           });
         }
         mockElement.appendChild(mockVideo);
-        const playSpy = jest.spyOn(mockVideo, 'play').mockReturnValue(Promise.resolve());
+        const playSpy = vi.spyOn(mockVideo, 'play').mockReturnValue(Promise.resolve());
 
         const mockSpoilerOverlay = createMockSpoilerOverlay();
         mockElement.appendChild(mockSpoilerOverlay);
@@ -141,7 +146,7 @@ describe('Image utils', () => {
 
         const result = showThumb(mockElement);
 
-        expect(mockImage).toHaveClass(hiddenClass);
+        expect(mockImage).to.have.class(hiddenClass);
         expect(mockVideo.children).toHaveLength(2);
 
         const webmSourceElement = mockVideo.children[0];
@@ -155,10 +160,10 @@ describe('Image utils', () => {
         expect(mp4SourceElement.getAttribute('type')).toEqual('video/mp4');
         expect(mp4SourceElement.getAttribute('src')).toEqual(webmSource.replace('webm', 'mp4'));
 
-        expect(mockVideo).not.toHaveClass(hiddenClass);
+        expect(mockVideo).not.to.have.class(hiddenClass);
         expect(playSpy).toHaveBeenCalledTimes(1);
 
-        expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+        expect(mockSpoilerOverlay).to.have.class(hiddenClass);
 
         expect(result).toBe(true);
       });
@@ -168,7 +173,7 @@ describe('Image utils', () => {
           const { mockElement } = createMockElements({
             extension: 'webm',
           });
-          const jsonParseSpy = jest.spyOn(JSON, 'parse');
+          const jsonParseSpy = vi.spyOn(JSON, 'parse');
 
           mockElement.removeAttribute(missingAttributeName);
 
@@ -233,7 +238,7 @@ describe('Image utils', () => {
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
       expect(mockSizeImage.srcset).toBe('');
 
-      expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+      expect(mockSpoilerOverlay).to.have.class(hiddenClass);
       expect(result).toBe(true);
     });
 
@@ -250,7 +255,7 @@ describe('Image utils', () => {
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
       expect(mockSizeImage.srcset).toBe('');
 
-      expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+      expect(mockSpoilerOverlay).to.have.class(hiddenClass);
       expect(result).toBe(true);
     });
 
@@ -267,8 +272,8 @@ describe('Image utils', () => {
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize].replace('webm', 'gif'));
       expect(mockSizeImage.srcset).toBe('');
 
-      expect(mockSpoilerOverlay).not.toHaveClass(hiddenClass);
-      expect(mockSpoilerOverlay).toHaveTextContent('WebM');
+      expect(mockSpoilerOverlay).not.to.have.class(hiddenClass);
+      expect(mockSpoilerOverlay).to.have.text('WebM');
 
       expect(result).toBe(true);
     });
@@ -291,7 +296,7 @@ describe('Image utils', () => {
         expect(mockSizeImage.srcset).toContain(`${mockSizeUrls[size]} 1x`);
         expect(mockSizeImage.srcset).toContain(`${mockSizeUrls[x2size]} 2x`);
 
-        expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+        expect(mockSpoilerOverlay).to.have.class(hiddenClass);
         return result;
       };
 
@@ -318,7 +323,7 @@ describe('Image utils', () => {
         expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
         expect(mockSizeImage.srcset).toBe('');
 
-        expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+        expect(mockSpoilerOverlay).to.have.class(hiddenClass);
         expect(result).toBe(true);
       });
     });
@@ -359,9 +364,9 @@ describe('Image utils', () => {
 
       showBlock(mockElement);
 
-      expect(mockFilteredImageElement).toHaveClass(hiddenClass);
-      expect(mockShowElement).not.toHaveClass(hiddenClass);
-      expect(mockShowElement).toHaveClass(spoilerPendingClass);
+      expect(mockFilteredImageElement).to.have.class(hiddenClass);
+      expect(mockShowElement).not.to.have.class(hiddenClass);
+      expect(mockShowElement).to.have.class(spoilerPendingClass);
     });
 
     it('should not throw if image-filtered element is missing', () => {
@@ -382,7 +387,7 @@ describe('Image utils', () => {
       it('should return early if picture AND video elements are missing', () => {
         const mockElement = document.createElement('div');
 
-        const querySelectorSpy = jest.spyOn(mockElement, 'querySelector');
+        const querySelectorSpy = vi.spyOn(mockElement, 'querySelector');
 
         hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
@@ -399,9 +404,9 @@ describe('Image utils', () => {
         const mockElement = document.createElement('div');
         const mockVideo = document.createElement('video');
         mockElement.appendChild(mockVideo);
-        const pauseSpy = jest.spyOn(mockVideo, 'pause').mockReturnValue(undefined);
+        const pauseSpy = vi.spyOn(mockVideo, 'pause').mockReturnValue(undefined);
 
-        const querySelectorSpy = jest.spyOn(mockElement, 'querySelector');
+        const querySelectorSpy = vi.spyOn(mockElement, 'querySelector');
 
         hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
@@ -411,7 +416,7 @@ describe('Image utils', () => {
           expect(querySelectorSpy).toHaveBeenNthCalledWith(2, 'video');
           expect(querySelectorSpy).toHaveBeenNthCalledWith(3, 'img');
           expect(querySelectorSpy).toHaveBeenNthCalledWith(4, `.${spoilerOverlayClass}`);
-          expect(mockVideo).not.toHaveClass(hiddenClass);
+          expect(mockVideo).not.to.have.class(hiddenClass);
         }
         finally {
           querySelectorSpy.mockRestore();
@@ -423,7 +428,7 @@ describe('Image utils', () => {
         const mockElement = document.createElement('div');
         const mockVideo = document.createElement('video');
         mockElement.appendChild(mockVideo);
-        const pauseSpy = jest.spyOn(mockVideo, 'pause').mockReturnValue(undefined);
+        const pauseSpy = vi.spyOn(mockVideo, 'pause').mockReturnValue(undefined);
         const mockImage = document.createElement('img');
         mockImage.classList.add(hiddenClass);
         mockElement.appendChild(mockImage);
@@ -434,11 +439,11 @@ describe('Image utils', () => {
         hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
         try {
-          expect(mockImage).not.toHaveClass(hiddenClass);
-          expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
-          expect(mockOverlay).toHaveTextContent(mockSpoilerReason);
-          expect(mockVideo).toBeEmptyDOMElement();
-          expect(mockVideo).toHaveClass(hiddenClass);
+          expect(mockImage).not.to.have.class(hiddenClass);
+          expect(mockImage).to.have.attribute('src', mockSpoilerUri);
+          expect(mockOverlay).to.have.text(mockSpoilerReason);
+          expect(mockVideo).not.to.have.descendants('*');
+          expect(mockVideo).to.have.class(hiddenClass);
           expect(pauseSpy).toHaveBeenCalled();
         }
         finally {
@@ -452,8 +457,8 @@ describe('Image utils', () => {
       const mockPicture = document.createElement('picture');
       mockElement.appendChild(mockPicture);
 
-      const imgQuerySelectorSpy = jest.spyOn(mockElement, 'querySelector');
-      const pictureQuerySelectorSpy = jest.spyOn(mockPicture, 'querySelector');
+      const imgQuerySelectorSpy = vi.spyOn(mockElement, 'querySelector');
+      const pictureQuerySelectorSpy = vi.spyOn(mockPicture, 'querySelector');
 
       hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
@@ -483,24 +488,24 @@ describe('Image utils', () => {
 
       hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
-      expect(mockImage).toHaveAttribute('srcset', '');
-      expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
-      expect(mockOverlay).toContainHTML(mockSpoilerReason);
-      expect(mockOverlay).not.toHaveClass(hiddenClass);
+      expect(mockImage).to.have.attribute('srcset', '');
+      expect(mockImage).to.have.attribute('src', mockSpoilerUri);
+      expect(mockOverlay).to.contain.html(mockSpoilerReason);
+      expect(mockOverlay).not.to.have.class(hiddenClass);
     });
   });
 
   describe('spoilerThumb', () => {
     const testSpoilerThumb = (handlers?: [EventType, EventType]) => {
       const { mockElement, mockSpoilerOverlay, mockSizeImage } = createMockElementWithPicture('jpg');
-      const addEventListenerSpy = jest.spyOn(mockElement, 'addEventListener');
+      const addEventListenerSpy = vi.spyOn(mockElement, 'addEventListener');
 
       spoilerThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
 
       // Element should be hidden by the call
-      expect(mockSizeImage).toHaveAttribute('src', mockSpoilerUri);
-      expect(mockSpoilerOverlay).not.toHaveClass(hiddenClass);
-      expect(mockSpoilerOverlay).toContainHTML(mockSpoilerReason);
+      expect(mockSizeImage).to.have.attribute('src', mockSpoilerUri);
+      expect(mockSpoilerOverlay).not.to.have.class(hiddenClass);
+      expect(mockSpoilerOverlay).to.contain.html(mockSpoilerReason);
 
       // If addEventListener calls are not expected, bail
       if (!handlers) {
@@ -521,8 +526,8 @@ describe('Image utils', () => {
       if (firstHandler === 'click') {
         expect(clickEvent.defaultPrevented).toBe(true);
       }
-      expect(mockSizeImage).not.toHaveAttribute('src', mockSpoilerUri);
-      expect(mockSpoilerOverlay).toHaveClass(hiddenClass);
+      expect(mockSizeImage).not.to.have.attribute('src', mockSpoilerUri);
+      expect(mockSpoilerOverlay).to.have.class(hiddenClass);
 
       if (firstHandler === 'click') {
         // Second attempt to click a shown spoiler should not cause default prevention
@@ -534,9 +539,9 @@ describe('Image utils', () => {
       // Moving the mouse away should hide the image and show the overlay again
       const mouseLeaveEvent = createEvent.mouseLeave(mockElement);
       fireEvent(mockElement, mouseLeaveEvent);
-      expect(mockSizeImage).toHaveAttribute('src', mockSpoilerUri);
-      expect(mockSpoilerOverlay).not.toHaveClass(hiddenClass);
-      expect(mockSpoilerOverlay).toContainHTML(mockSpoilerReason);
+      expect(mockSizeImage).to.have.attribute('src', mockSpoilerUri);
+      expect(mockSpoilerOverlay).not.to.have.class(hiddenClass);
+      expect(mockSpoilerOverlay).to.contain.html(mockSpoilerReason);
     };
     let lastSpoilerType: SpoilerType;
 
@@ -613,10 +618,10 @@ describe('Image utils', () => {
 
       spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason);
 
-      expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
-      expect(mockExplanation).toContainHTML(mockSpoilerReason);
-      expect(mockImageShow).toHaveClass(hiddenClass);
-      expect(mockImageFiltered).not.toHaveClass(hiddenClass);
+      expect(mockImage).to.have.attribute('src', mockSpoilerUri);
+      expect(mockExplanation).to.contain.html(mockSpoilerReason);
+      expect(mockImageShow).to.have.class(hiddenClass);
+      expect(mockImageFiltered).not.to.have.class(hiddenClass);
     });
 
     it('should not throw if image-filtered element is missing', () => {

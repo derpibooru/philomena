@@ -30,7 +30,7 @@ describe('Draggable Utilities', () => {
     const draggingClass = 'dragging';
     const dragContainerClass = 'drag-container';
     const dragOverClass = 'over';
-    let documentEventListenerSpy: jest.SpyInstance;
+    let documentEventListenerSpy: MockInstance;
 
     let mockDragContainer: HTMLDivElement;
     let mockDraggable: HTMLDivElement;
@@ -45,7 +45,7 @@ describe('Draggable Utilities', () => {
 
 
       // Redirect all document event listeners to this element for easier cleanup
-      documentEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation((...params) => {
+      documentEventListenerSpy = vi.spyOn(document, 'addEventListener').mockImplementation((...params) => {
         mockDragContainer.addEventListener(...params);
       });
     });
@@ -63,7 +63,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).toHaveClass(draggingClass);
+        expect(mockDraggable).to.have.class(draggingClass);
       });
 
       it('should add dummy data to the dragstart event if it\'s empty', () => {
@@ -146,7 +146,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).toHaveClass(dragOverClass);
+        expect(mockDraggable).to.have.class(dragOverClass);
       });
     });
 
@@ -159,7 +159,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).not.toHaveClass(dragOverClass);
+        expect(mockDraggable).not.to.have.class(dragOverClass);
       });
     });
 
@@ -170,13 +170,13 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockDraggable, mockStartEvent);
 
-        expect(mockDraggable).toHaveClass(draggingClass);
+        expect(mockDraggable).to.have.class(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         fireEvent(mockDraggable, mockDropEvent);
 
         expect(mockDropEvent.defaultPrevented).toBe(true);
-        expect(mockDraggable).not.toHaveClass(draggingClass);
+        expect(mockDraggable).not.to.have.class(draggingClass);
       });
 
       it('should cancel the event and insert source before target if dropped on left side', () => {
@@ -188,11 +188,11 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockSecondDraggable, mockStartEvent);
 
-        expect(mockSecondDraggable).toHaveClass(draggingClass);
+        expect(mockSecondDraggable).to.have.class(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 124 });
-        const boundingBoxSpy = jest.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
+        const boundingBoxSpy = vi.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
           left: 100,
           width: 50,
         } as unknown as DOMRect);
@@ -200,7 +200,7 @@ describe('Draggable Utilities', () => {
 
         try {
           expect(mockDropEvent.defaultPrevented).toBe(true);
-          expect(mockSecondDraggable).not.toHaveClass(draggingClass);
+          expect(mockSecondDraggable).not.to.have.class(draggingClass);
           expect(mockSecondDraggable.nextElementSibling).toBe(mockDraggable);
         }
         finally {
@@ -217,11 +217,11 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockSecondDraggable, mockStartEvent);
 
-        expect(mockSecondDraggable).toHaveClass(draggingClass);
+        expect(mockSecondDraggable).to.have.class(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 125 });
-        const boundingBoxSpy = jest.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
+        const boundingBoxSpy = vi.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
           left: 100,
           width: 50,
         } as unknown as DOMRect);
@@ -229,7 +229,7 @@ describe('Draggable Utilities', () => {
 
         try {
           expect(mockDropEvent.defaultPrevented).toBe(true);
-          expect(mockSecondDraggable).not.toHaveClass(draggingClass);
+          expect(mockSecondDraggable).not.to.have.class(draggingClass);
           expect(mockDraggable.nextElementSibling).toBe(mockSecondDraggable);
         }
         finally {
@@ -259,7 +259,7 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockDraggable, mockStartEvent);
 
-        expect(mockDraggable).toHaveClass(draggingClass);
+        expect(mockDraggable).to.have.class(draggingClass);
 
         const mockOverElement = createDraggableElement();
         mockOverElement.classList.add(dragOverClass);
@@ -270,8 +270,8 @@ describe('Draggable Utilities', () => {
         const mockDropEvent = createDragEvent('dragend');
         fireEvent(mockDraggable, mockDropEvent);
 
-        expect(mockDraggable).not.toHaveClass(draggingClass);
-        expect(mockOverElement).not.toHaveClass(dragOverClass);
+        expect(mockDraggable).not.to.have.class(draggingClass);
+        expect(mockOverElement).not.to.have.class(dragOverClass);
       });
     });
 
@@ -291,7 +291,7 @@ describe('Draggable Utilities', () => {
         initDraggables();
 
         const mockEvent = createDragEvent('dragstart');
-        const draggableClosestSpy = jest.spyOn(mockDraggable, 'closest').mockReturnValue(null);
+        const draggableClosestSpy = vi.spyOn(mockDraggable, 'closest').mockReturnValue(null);
 
         try {
           fireEvent(mockDraggable, mockEvent);
