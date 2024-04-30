@@ -1,6 +1,7 @@
 import { clearDragSource, initDraggables } from '../draggable';
 import { fireEvent } from '@testing-library/dom';
 import { getRandomArrayItem } from '../../../test/randomness';
+import { MockInstance } from 'vitest';
 
 describe('Draggable Utilities', () => {
   // jsdom lacks proper support for window.DragEvent so this is an attempt at a minimal recreation
