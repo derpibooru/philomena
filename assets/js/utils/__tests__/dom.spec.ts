@@ -83,7 +83,7 @@ describe('DOM Utilities', () => {
     it(`should remove the ${hiddenClass} class from the provided element`, () => {
       const mockElement = createHiddenElement('div');
       showEl(mockElement);
-      expect(mockElement).not.to.have.class(hiddenClass);
+      expect(mockElement).not.toHaveClass(hiddenClass);
     });
 
     it(`should remove the ${hiddenClass} class from all provided elements`, () => {
@@ -93,9 +93,9 @@ describe('DOM Utilities', () => {
         createHiddenElement('strong'),
       ];
       showEl(mockElements);
-      expect(mockElements[0]).not.to.have.class(hiddenClass);
-      expect(mockElements[1]).not.to.have.class(hiddenClass);
-      expect(mockElements[2]).not.to.have.class(hiddenClass);
+      expect(mockElements[0]).not.toHaveClass(hiddenClass);
+      expect(mockElements[1]).not.toHaveClass(hiddenClass);
+      expect(mockElements[2]).not.toHaveClass(hiddenClass);
     });
 
     it(`should remove the ${hiddenClass} class from elements provided in multiple arrays`, () => {
@@ -108,10 +108,10 @@ describe('DOM Utilities', () => {
         createHiddenElement('em'),
       ];
       showEl(mockElements1, mockElements2);
-      expect(mockElements1[0]).not.to.have.class(hiddenClass);
-      expect(mockElements1[1]).not.to.have.class(hiddenClass);
-      expect(mockElements2[0]).not.to.have.class(hiddenClass);
-      expect(mockElements2[1]).not.to.have.class(hiddenClass);
+      expect(mockElements1[0]).not.toHaveClass(hiddenClass);
+      expect(mockElements1[1]).not.toHaveClass(hiddenClass);
+      expect(mockElements2[0]).not.toHaveClass(hiddenClass);
+      expect(mockElements2[1]).not.toHaveClass(hiddenClass);
     });
   });
 
@@ -119,7 +119,7 @@ describe('DOM Utilities', () => {
     it(`should add the ${hiddenClass} class to the provided element`, () => {
       const mockElement = document.createElement('div');
       hideEl(mockElement);
-      expect(mockElement).to.have.class(hiddenClass);
+      expect(mockElement).toHaveClass(hiddenClass);
     });
 
     it(`should add the ${hiddenClass} class to all provided elements`, () => {
@@ -129,9 +129,9 @@ describe('DOM Utilities', () => {
         document.createElement('strong'),
       ];
       hideEl(mockElements);
-      expect(mockElements[0]).to.have.class(hiddenClass);
-      expect(mockElements[1]).to.have.class(hiddenClass);
-      expect(mockElements[2]).to.have.class(hiddenClass);
+      expect(mockElements[0]).toHaveClass(hiddenClass);
+      expect(mockElements[1]).toHaveClass(hiddenClass);
+      expect(mockElements[2]).toHaveClass(hiddenClass);
     });
 
     it(`should add the ${hiddenClass} class to elements provided in multiple arrays`, () => {
@@ -144,10 +144,10 @@ describe('DOM Utilities', () => {
         document.createElement('em'),
       ];
       hideEl(mockElements1, mockElements2);
-      expect(mockElements1[0]).to.have.class(hiddenClass);
-      expect(mockElements1[1]).to.have.class(hiddenClass);
-      expect(mockElements2[0]).to.have.class(hiddenClass);
-      expect(mockElements2[1]).to.have.class(hiddenClass);
+      expect(mockElements1[0]).toHaveClass(hiddenClass);
+      expect(mockElements1[1]).toHaveClass(hiddenClass);
+      expect(mockElements2[0]).toHaveClass(hiddenClass);
+      expect(mockElements2[1]).toHaveClass(hiddenClass);
     });
   });
 
@@ -155,7 +155,7 @@ describe('DOM Utilities', () => {
     it('should set the disabled attribute to true', () => {
       const mockElement = document.createElement('button');
       disableEl(mockElement);
-      expect(mockElement).to.have.property('disabled', true);
+      expect(mockElement).toBeDisabled();
     });
 
     it('should set the disabled attribute to true on all provided elements', () => {
@@ -164,8 +164,8 @@ describe('DOM Utilities', () => {
         document.createElement('button'),
       ];
       disableEl(mockElements);
-      expect(mockElements[0]).to.have.property('disabled', true);
-      expect(mockElements[1]).to.have.property('disabled', true);
+      expect(mockElements[0]).toBeDisabled();
+      expect(mockElements[1]).toBeDisabled();
     });
 
     it('should set the disabled attribute to true on elements provided in multiple arrays', () => {
@@ -178,10 +178,10 @@ describe('DOM Utilities', () => {
         document.createElement('button'),
       ];
       disableEl(mockElements1, mockElements2);
-      expect(mockElements1[0]).to.have.property('disabled', true);
-      expect(mockElements1[1]).to.have.property('disabled', true);
-      expect(mockElements2[0]).to.have.property('disabled', true);
-      expect(mockElements2[1]).to.have.property('disabled', true);
+      expect(mockElements1[0]).toBeDisabled();
+      expect(mockElements1[1]).toBeDisabled();
+      expect(mockElements2[0]).toBeDisabled();
+      expect(mockElements2[1]).toBeDisabled();
     });
   });
 
@@ -189,7 +189,7 @@ describe('DOM Utilities', () => {
     it('should set the disabled attribute to false', () => {
       const mockElement = document.createElement('button');
       enableEl(mockElement);
-      expect(mockElement).to.have.property('disabled', false);
+      expect(mockElement).toBeEnabled();
     });
 
     it('should set the disabled attribute to false on all provided elements', () => {
@@ -198,8 +198,8 @@ describe('DOM Utilities', () => {
         document.createElement('button'),
       ];
       enableEl(mockElements);
-      expect(mockElements[0]).to.have.property('disabled', false);
-      expect(mockElements[1]).to.have.property('disabled', false);
+      expect(mockElements[0]).toBeEnabled();
+      expect(mockElements[1]).toBeEnabled();
     });
 
     it('should set the disabled attribute to false on elements provided in multiple arrays', () => {
@@ -212,10 +212,10 @@ describe('DOM Utilities', () => {
         document.createElement('button'),
       ];
       enableEl(mockElements1, mockElements2);
-      expect(mockElements1[0]).to.have.property('disabled', false);
-      expect(mockElements1[1]).to.have.property('disabled', false);
-      expect(mockElements2[0]).to.have.property('disabled', false);
-      expect(mockElements2[1]).to.have.property('disabled', false);
+      expect(mockElements1[0]).toBeEnabled();
+      expect(mockElements1[1]).toBeEnabled();
+      expect(mockElements2[0]).toBeEnabled();
+      expect(mockElements2[1]).toBeEnabled();
     });
   });
 
@@ -223,11 +223,11 @@ describe('DOM Utilities', () => {
     it(`should toggle the ${hiddenClass} class on the provided element`, () => {
       const mockVisibleElement = document.createElement('div');
       toggleEl(mockVisibleElement);
-      expect(mockVisibleElement).to.have.class(hiddenClass);
+      expect(mockVisibleElement).toHaveClass(hiddenClass);
 
       const mockHiddenElement = createHiddenElement('div');
       toggleEl(mockHiddenElement);
-      expect(mockHiddenElement).not.to.have.class(hiddenClass);
+      expect(mockHiddenElement).not.toHaveClass(hiddenClass);
     });
 
     it(`should toggle the ${hiddenClass} class on all provided elements`, () => {
@@ -238,10 +238,10 @@ describe('DOM Utilities', () => {
         createHiddenElement('em'),
       ];
       toggleEl(mockElements);
-      expect(mockElements[0]).to.have.class(hiddenClass);
-      expect(mockElements[1]).not.to.have.class(hiddenClass);
-      expect(mockElements[2]).to.have.class(hiddenClass);
-      expect(mockElements[3]).not.to.have.class(hiddenClass);
+      expect(mockElements[0]).toHaveClass(hiddenClass);
+      expect(mockElements[1]).not.toHaveClass(hiddenClass);
+      expect(mockElements[2]).toHaveClass(hiddenClass);
+      expect(mockElements[3]).not.toHaveClass(hiddenClass);
     });
 
     it(`should toggle the ${hiddenClass} class on elements provided in multiple arrays`, () => {
@@ -254,10 +254,10 @@ describe('DOM Utilities', () => {
         document.createElement('em'),
       ];
       toggleEl(mockElements1, mockElements2);
-      expect(mockElements1[0]).not.to.have.class(hiddenClass);
-      expect(mockElements1[1]).to.have.class(hiddenClass);
-      expect(mockElements2[0]).not.to.have.class(hiddenClass);
-      expect(mockElements2[1]).to.have.class(hiddenClass);
+      expect(mockElements1[0]).not.toHaveClass(hiddenClass);
+      expect(mockElements1[1]).toHaveClass(hiddenClass);
+      expect(mockElements2[0]).not.toHaveClass(hiddenClass);
+      expect(mockElements2[1]).toHaveClass(hiddenClass);
     });
   });
 
@@ -361,8 +361,8 @@ describe('DOM Utilities', () => {
       const mockClassTwo = 'class-two';
       const el = makeEl('p', { className: `${mockClassOne} ${mockClassTwo}` });
       expect(el.nodeName).toEqual('P');
-      expect(el).to.have.class(mockClassOne);
-      expect(el).to.have.class(mockClassTwo);
+      expect(el).toHaveClass(mockClassOne);
+      expect(el).toHaveClass(mockClassTwo);
     });
   });
 

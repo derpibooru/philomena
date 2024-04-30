@@ -1,11 +1,8 @@
 import { matchNone } from '../js/query/boolean';
-import chai from 'chai';
-import chaiDom from 'chai-dom';
+import '@testing-library/jest-dom/vitest';
 import { URL } from 'node:url';
 import { Blob } from 'node:buffer';
 import { fireEvent } from '@testing-library/dom';
-
-chai.use(chaiDom);
 
 window.booru = {
   // eslint-disable-next-line @typescript-eslint/no-empty-function

@@ -63,7 +63,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).to.have.class(draggingClass);
+        expect(mockDraggable).toHaveClass(draggingClass);
       });
 
       it('should add dummy data to the dragstart event if it\'s empty', () => {
@@ -146,7 +146,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).to.have.class(dragOverClass);
+        expect(mockDraggable).toHaveClass(dragOverClass);
       });
     });
 
@@ -159,7 +159,7 @@ describe('Draggable Utilities', () => {
 
         fireEvent(mockDraggable, mockEvent);
 
-        expect(mockDraggable).not.to.have.class(dragOverClass);
+        expect(mockDraggable).not.toHaveClass(dragOverClass);
       });
     });
 
@@ -170,13 +170,13 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockDraggable, mockStartEvent);
 
-        expect(mockDraggable).to.have.class(draggingClass);
+        expect(mockDraggable).toHaveClass(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         fireEvent(mockDraggable, mockDropEvent);
 
         expect(mockDropEvent.defaultPrevented).toBe(true);
-        expect(mockDraggable).not.to.have.class(draggingClass);
+        expect(mockDraggable).not.toHaveClass(draggingClass);
       });
 
       it('should cancel the event and insert source before target if dropped on left side', () => {
@@ -188,7 +188,7 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockSecondDraggable, mockStartEvent);
 
-        expect(mockSecondDraggable).to.have.class(draggingClass);
+        expect(mockSecondDraggable).toHaveClass(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 124 });
@@ -200,7 +200,7 @@ describe('Draggable Utilities', () => {
 
         try {
           expect(mockDropEvent.defaultPrevented).toBe(true);
-          expect(mockSecondDraggable).not.to.have.class(draggingClass);
+          expect(mockSecondDraggable).not.toHaveClass(draggingClass);
           expect(mockSecondDraggable.nextElementSibling).toBe(mockDraggable);
         }
         finally {
@@ -217,7 +217,7 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockSecondDraggable, mockStartEvent);
 
-        expect(mockSecondDraggable).to.have.class(draggingClass);
+        expect(mockSecondDraggable).toHaveClass(draggingClass);
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 125 });
@@ -229,7 +229,7 @@ describe('Draggable Utilities', () => {
 
         try {
           expect(mockDropEvent.defaultPrevented).toBe(true);
-          expect(mockSecondDraggable).not.to.have.class(draggingClass);
+          expect(mockSecondDraggable).not.toHaveClass(draggingClass);
           expect(mockDraggable.nextElementSibling).toBe(mockSecondDraggable);
         }
         finally {
@@ -259,7 +259,7 @@ describe('Draggable Utilities', () => {
         const mockStartEvent = createDragEvent('dragstart');
         fireEvent(mockDraggable, mockStartEvent);
 
-        expect(mockDraggable).to.have.class(draggingClass);
+        expect(mockDraggable).toHaveClass(draggingClass);
 
         const mockOverElement = createDraggableElement();
         mockOverElement.classList.add(dragOverClass);
@@ -270,8 +270,8 @@ describe('Draggable Utilities', () => {
         const mockDropEvent = createDragEvent('dragend');
         fireEvent(mockDraggable, mockDropEvent);
 
-        expect(mockDraggable).not.to.have.class(draggingClass);
-        expect(mockOverElement).not.to.have.class(dragOverClass);
+        expect(mockDraggable).not.toHaveClass(draggingClass);
+        expect(mockOverElement).not.toHaveClass(dragOverClass);
       });
     });
 
