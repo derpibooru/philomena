@@ -19,9 +19,14 @@ html lang="en"
     meta name="theme-color" content="#618fc3"
     meta name="format-detection" content="telephone=no"
     = csrf_meta_tag()
-    script type="module" src=Routes.static_path(@conn, "/js/app.js") async="async"
+
+    = if vite_reload?() do
+      script type="module" src="http://localhost:5173/@vite/client"
+      script type="module" src="http://localhost:5173/js/app.js"
+    - else
+      script type="text/javascript" src=Routes.static_path(@conn, "/js/app.js") async="async"
     = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns
-  body data-theme=theme_name(@current_user)
+  body data-theme=theme_name(@current_user) data-vite-reload=to_string(vite_reload?())
     = render PhilomenaWeb.LayoutView, "_burger.html", assigns
     #container class=container_class(@current_user)
       = render PhilomenaWeb.LayoutView, "_header.html", assigns

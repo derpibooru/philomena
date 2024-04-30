@@ -22,6 +22,10 @@ defmodule PhilomenaWeb.LayoutView do
     Application.get_env(:philomena, :cdn_host)
   end
 
+  def vite_reload? do
+    Application.get_env(:philomena, :vite_reload)
+  end
+
   defp ignored_tag_list(nil), do: []
   defp ignored_tag_list([]), do: []
   defp ignored_tag_list([{tag, _body, _dnp_entries}]), do: [tag.id]

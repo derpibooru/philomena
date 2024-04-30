@@ -137,6 +137,9 @@ if config_env() == :prod do
 
   # Do not relax CSP in production
   config :philomena, csp_relaxed: false
+
+  # Disable Vite HMR in prod
+  config :philomena, vite_reload: false
 else
   # Don't send email in development
   config :philomena, Philomena.Mailer, adapter: Bamboo.LocalAdapter
@@ -146,4 +149,7 @@ else
 
   # Relax CSP rules in development and test servers
   config :philomena, csp_relaxed: true
+
+  # Enable Vite HMR
+  config :philomena, vite_reload: true
 end

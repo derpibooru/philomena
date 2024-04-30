@@ -1,4 +1,4 @@
-FROM elixir:1.16.1-alpine
+FROM elixir:1.16.2-alpine
 
 ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.1 /tmp/ffmpeg_version.json
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
@@ -24,4 +24,5 @@ COPY docker/app/run-test /usr/local/bin/run-test
 COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
 COPY docker/app/purge-cache /usr/local/bin/purge-cache
 ENV PATH=$PATH:/root/.cargo/bin
+EXPOSE 5173
 CMD run-development
