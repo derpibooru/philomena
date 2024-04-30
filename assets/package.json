@@ -20,7 +20,6 @@
     "jest-environment-jsdom": "^29.7.0",
     "normalize-scss": "^8.0.0",
     "sass": "^1.75.0",
-    "tslib": "^2.6.2",
     "typescript": "^5.4",
     "vite": "^5.2"
   },
