@@ -59,7 +59,7 @@ h3 The List
               = entry.dnp_type
 
             td
-              == body
+              = body
 
             = if @status_column do
               td

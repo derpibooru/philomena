@@ -44,7 +44,7 @@ h2 Do-Not-Post Requests
                 = request.dnp_type
 
               td
-                == body
+                = body
 
               td class=dnp_entry_row_class(request)
                 => pretty_state(request)

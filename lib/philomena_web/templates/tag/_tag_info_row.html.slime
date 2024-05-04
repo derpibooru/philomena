@@ -101,7 +101,7 @@
         = if @tag.description not in [nil, ""] do
           strong> Detailed description:
           br
-          == @body
+          = @body
 
     = if Enum.any?(@dnp_entries) do
       hr
@@ -114,7 +114,7 @@
         strong
           => entry.dnp_type
 
-        ==> body
+        => body
 
         | (
         = link "more info", to: Routes.dnp_entry_path(@conn, :show, entry)

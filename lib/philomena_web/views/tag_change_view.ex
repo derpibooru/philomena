@@ -15,4 +15,14 @@ defmodule PhilomenaWeb.TagChangeView do
 
   def reverts_tag_changes?(conn),
     do: can?(conn, :revert, Philomena.TagChanges.TagChange)
+
+  def tag_change_retained(%{image: image, added: added, tag: %{id: tag_id}}) do
+    added == Enum.any?(image.tags, &(&1.id == tag_id))
+  end
+
+  def tag_change_retained(%{image: image, added: added, tag_name_cache: tag_name}) do
+    added == Enum.any?(image.tags, &(&1.name == tag_name))
+  end
+
+  def tag_change_retained(_), do: false
 end

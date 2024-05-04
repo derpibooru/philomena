@@ -13,7 +13,7 @@ table.table
           = link_to_noted_thing(@conn, note.notable)
 
         td
-          == body
+          = body
 
         td
           = pretty_time note.created_at

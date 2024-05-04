@@ -10,7 +10,7 @@
           ' Edit
   .block__content
     p
-      = if String.length(@body) > 0 do
-        == @body
+      = if String.length(@image.description) > 0 do
+        = @body
       - else
         em No description provided.

@@ -28,10 +28,10 @@ article.block.communication id="comment_#{@comment.id}"
                 | This comment's contents have been destroyed.
             - else
               br
-              ==<> @body
+              =<> @body
 
         - else
-          ==<> @body
+          =<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out

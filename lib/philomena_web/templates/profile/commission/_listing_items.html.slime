@@ -42,13 +42,13 @@
               br
               br
 
-              == description
+              = description
             td
               | $
               = Decimal.round(item.base_price, 2)
 
             td
-              == add_ons
+              = add_ons
 
             = if can?(@conn, :edit, @commission) do
               td
