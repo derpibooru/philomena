@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
+  import PhilomenaWeb.Config
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
   alias Plug.Conn

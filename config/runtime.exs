@@ -134,22 +134,10 @@ if config_env() == :prod do
     url: [host: System.fetch_env!("APP_HOSTNAME"), scheme: "https", port: 443],
     secret_key_base: System.fetch_env!("SECRET_KEY_BASE"),
     server: not is_nil(System.get_env("START_ENDPOINT"))
-
-  # Do not relax CSP in production
-  config :philomena, csp_relaxed: false
-
-  # Disable Vite HMR in prod
-  config :philomena, vite_reload: false
 else
   # Don't send email in development
   config :philomena, Philomena.Mailer, adapter: Bamboo.LocalAdapter
 
   # Use this to debug slime templates
   # config :slime, :keep_lines, true
-
-  # Relax CSP rules in development and test servers
-  config :philomena, csp_relaxed: true
-
-  # Enable Vite HMR
-  config :philomena, vite_reload: true
 end

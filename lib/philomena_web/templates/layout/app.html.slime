@@ -20,7 +20,7 @@ html lang="en"
     meta name="format-detection" content="telephone=no"
     = csrf_meta_tag()
 
-    = if vite_reload?() do
+    = vite_hmr? do
       script type="module" src="http://localhost:5173/@vite/client"
       script type="module" src="http://localhost:5173/js/app.js"
     - else

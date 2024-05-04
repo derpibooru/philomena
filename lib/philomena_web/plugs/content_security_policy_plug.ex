@@ -1,4 +1,5 @@
 defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
+  import PhilomenaWeb.Config
   import Plug.Conn
 
   @allowed_sources [
@@ -42,11 +43,15 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         |> Enum.map(&cspify_element/1)
         |> Enum.join("; ")
 
-      if conn.status == 500 and allow_relaxed_csp() do
-        # Allow Plug.Debugger to function in this case
-        delete_resp_header(conn, "content-security-policy")
+      csp_relaxed? do
+        if conn.status == 500 do
+          # Allow Plug.Debugger to function in this case
+          delete_resp_header(conn, "content-security-policy")
+        else
+          # Enforce CSP otherwise
+          put_resp_header(conn, "content-security-policy", csp_value)
+        end
       else
-        # Enforce CSP otherwise
         put_resp_header(conn, "content-security-policy", csp_value)
       end
     end)
@@ -64,14 +69,13 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
 
   defp cdn_uri, do: Application.get_env(:philomena, :cdn_host) |> to_uri()
   defp camo_uri, do: Application.get_env(:philomena, :camo_host) |> to_uri()
-  defp vite_reload?, do: Application.get_env(:philomena, :vite_reload)
 
-  defp default_script_src, do: if(vite_reload?(), do: "'self' localhost:5173", else: "'self'")
+  defp default_script_src, do: vite_hmr?(do: "'self' localhost:5173", else: "'self'")
 
   defp default_connect_src,
-    do: if(vite_reload?(), do: "'self' localhost:5173 ws://localhost:5173", else: "'self'")
+    do: vite_hmr?(do: "'self' localhost:5173 ws://localhost:5173", else: "'self'")
 
-  defp default_style_src, do: if(vite_reload?(), do: "'self' 'unsafe-inline'", else: "'self'")
+  defp default_style_src, do: vite_hmr?(do: "'self' 'unsafe-inline'", else: "'self'")
 
   defp to_uri(host) when host in [nil, ""], do: ""
   defp to_uri(host), do: URI.to_string(%URI{scheme: "https", host: host})
@@ -84,6 +88,4 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
 
     Enum.join([key | value], " ")
   end
-
-  defp allow_relaxed_csp, do: Application.get_env(:philomena, :csp_relaxed, false)
 end
