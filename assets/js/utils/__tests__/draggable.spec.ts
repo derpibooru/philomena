@@ -1,6 +1,7 @@
 import { clearDragSource, initDraggables } from '../draggable';
 import { fireEvent } from '@testing-library/dom';
 import { getRandomArrayItem } from '../../../test/randomness';
+import { MockInstance } from 'vitest';
 
 describe('Draggable Utilities', () => {
   // jsdom lacks proper support for window.DragEvent so this is an attempt at a minimal recreation
@@ -30,7 +31,7 @@ describe('Draggable Utilities', () => {
     const draggingClass = 'dragging';
     const dragContainerClass = 'drag-container';
     const dragOverClass = 'over';
-    let documentEventListenerSpy: jest.SpyInstance;
+    let documentEventListenerSpy: MockInstance;
 
     let mockDragContainer: HTMLDivElement;
     let mockDraggable: HTMLDivElement;
@@ -45,7 +46,7 @@ describe('Draggable Utilities', () => {
 
 
       // Redirect all document event listeners to this element for easier cleanup
-      documentEventListenerSpy = jest.spyOn(document, 'addEventListener').mockImplementation((...params) => {
+      documentEventListenerSpy = vi.spyOn(document, 'addEventListener').mockImplementation((...params) => {
         mockDragContainer.addEventListener(...params);
       });
     });
@@ -192,7 +193,7 @@ describe('Draggable Utilities', () => {
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 124 });
-        const boundingBoxSpy = jest.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
+        const boundingBoxSpy = vi.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
           left: 100,
           width: 50,
         } as unknown as DOMRect);
@@ -221,7 +222,7 @@ describe('Draggable Utilities', () => {
 
         const mockDropEvent = createDragEvent('drop');
         Object.assign(mockDropEvent, { clientX: 125 });
-        const boundingBoxSpy = jest.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
+        const boundingBoxSpy = vi.spyOn(mockDraggable, 'getBoundingClientRect').mockReturnValue({
           left: 100,
           width: 50,
         } as unknown as DOMRect);
@@ -291,7 +292,7 @@ describe('Draggable Utilities', () => {
         initDraggables();
 
         const mockEvent = createDragEvent('dragstart');
-        const draggableClosestSpy = jest.spyOn(mockDraggable, 'closest').mockReturnValue(null);
+        const draggableClosestSpy = vi.spyOn(mockDraggable, 'closest').mockReturnValue(null);
 
         try {
           fireEvent(mockDraggable, mockEvent);

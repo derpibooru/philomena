@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
+  import PhilomenaWeb.Config
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
   alias Plug.Conn
@@ -21,6 +22,10 @@ defmodule PhilomenaWeb.LayoutView do
 
   def cdn_host do
     Application.get_env(:philomena, :cdn_host)
+  end
+
+  def vite_reload? do
+    Application.get_env(:philomena, :vite_reload)
   end
 
   defp ignored_tag_list(nil), do: []

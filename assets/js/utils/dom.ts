@@ -57,8 +57,8 @@ export function makeEl<Tag extends keyof HTMLElementTagNameMap>(tag: Tag, attr?:
   if (attr) {
     for (const prop in attr) {
       const newValue = attr[prop];
-      if (typeof newValue !== 'undefined') {
-        el[prop] = newValue as Exclude<typeof newValue, undefined>;
+      if (newValue) {
+        el[prop] = newValue;
       }
     }
   }

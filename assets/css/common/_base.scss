@@ -9,13 +9,13 @@
 @import "global";
 
 // Because FA is a SPECIAL SNOWFLAKE.
-$fa-font-path: '~@fortawesome/fontawesome-free/webfonts';
+$fa-font-path: '@fortawesome/fontawesome-free/webfonts';
 
-@import "~@fortawesome/fontawesome-free/scss/fontawesome.scss";
-@import "~@fortawesome/fontawesome-free/scss/solid.scss";
-@import "~@fortawesome/fontawesome-free/scss/regular.scss";
-@import "~@fortawesome/fontawesome-free/scss/brands.scss";
-@import "~normalize-scss/sass/normalize/import-now";
+@import "@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@import "@fortawesome/fontawesome-free/scss/solid.scss";
+@import "@fortawesome/fontawesome-free/scss/regular.scss";
+@import "@fortawesome/fontawesome-free/scss/brands.scss";
+@import "normalize-scss/sass/normalize/import-now";
 
 body {
   background-color: $background_color;
@@ -469,27 +469,27 @@ span.stat {
 @import "shame";
 @import "text";
 
-@import "~views/adverts";
-@import "~views/approval";
-@import "~views/badges";
-@import "~views/channels";
-@import "~views/comments";
-@import "~views/commissions";
-@import "~views/communications";
-@import "~views/duplicate_reports";
-@import "~views/filters";
-@import "~views/galleries";
-@import "~views/game";
-@import "~views/images";
-@import "~views/pages";
-@import "~views/polls";
-@import "~views/posts";
-@import "~views/profiles";
-@import "~views/pagination";
-@import "~views/search";
-@import "~views/staff";
-@import "~views/stats";
-@import "~views/tags";
+@import "views/adverts";
+@import "views/approval";
+@import "views/badges";
+@import "views/channels";
+@import "views/comments";
+@import "views/commissions";
+@import "views/communications";
+@import "views/duplicate_reports";
+@import "views/filters";
+@import "views/galleries";
+@import "view/game";
+@import "views/images";
+@import "views/pages";
+@import "views/polls";
+@import "views/posts";
+@import "views/profiles";
+@import "views/pagination";
+@import "views/search";
+@import "views/staff";
+@import "views/stats";
+@import "views/tags";
 
 .no-overflow {
   overflow: hidden;

@@ -8,7 +8,7 @@ describe('Event utils', () => {
   describe('fire', () => {
     it('should call the native dispatchEvent method on the element', () => {
       const mockElement = document.createElement('div');
-      const dispatchEventSpy = jest.spyOn(mockElement, 'dispatchEvent');
+      const dispatchEventSpy = vi.spyOn(mockElement, 'dispatchEvent');
       const mockDetail = getRandomArrayItem([0, 'test', null]);
 
       fire(mockElement, mockEvent, mockDetail);
@@ -42,7 +42,7 @@ describe('Event utils', () => {
       mockButton.classList.add('mock-button');
       mockInnerElement.appendChild(mockButton);
 
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       on(mockElement, 'click', `.${innerClass}`, mockHandler);
 
       fireEvent(mockButton, new Event('click', { bubbles: true }));
@@ -58,7 +58,7 @@ describe('Event utils', () => {
   describe('leftClick', () => {
     it('should fire on left click', () => {
       const mockButton = document.createElement('button');
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
 
       mockButton.addEventListener('click', e => leftClick(mockHandler)(e, mockButton));
 
@@ -69,7 +69,7 @@ describe('Event utils', () => {
 
     it('should NOT fire on any other click', () => {
       const mockButton = document.createElement('button');
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       const mockButtonNumber = getRandomArrayItem([1, 2, 3, 4, 5]);
 
       mockButton.addEventListener('click', e => leftClick(mockHandler)(e, mockButton));
@@ -83,7 +83,7 @@ describe('Event utils', () => {
   describe('delegate', () => {
     it('should call the native addEventListener method on the element', () => {
       const mockElement = document.createElement('div');
-      const addEventListenerSpy = jest.spyOn(mockElement, 'addEventListener');
+      const addEventListenerSpy = vi.spyOn(mockElement, 'addEventListener');
 
       delegate(mockElement, mockEvent, {});
 
@@ -102,7 +102,7 @@ describe('Event utils', () => {
       const mockButton = document.createElement('button');
       mockElement.appendChild(mockButton);
 
-      const mockHandler = jest.fn();
+      const mockHandler = vi.fn();
       delegate(mockElement, 'click', { [`.${parentClass}`]: mockHandler });
 
       fireEvent(mockButton, new Event('click', { bubbles: true }));
@@ -127,8 +127,8 @@ describe('Event utils', () => {
       const mockButton = document.createElement('button');
       mockWrapperElement.appendChild(mockButton);
 
-      const mockParentHandler = jest.fn();
-      const mockWrapperHandler = jest.fn().mockReturnValue(false);
+      const mockParentHandler = vi.fn();
+      const mockWrapperHandler = vi.fn().mockReturnValue(false);
       delegate(mockElement, 'click', {
         [`.${wrapperClass}`]: mockWrapperHandler,
         [`.${parentClass}`]: mockParentHandler,

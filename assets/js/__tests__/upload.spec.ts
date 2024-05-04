@@ -1,7 +1,7 @@
 import { $, $$, removeEl } from '../utils/dom';
 import { assertNotNull, assertNotUndefined } from '../utils/assert';
 
-import fetchMock from 'jest-fetch-mock';
+import { fetchMock } from '../../test/fetch-mock';
 import { fixEventListeners } from '../../test/fix-event-listeners';
 import { fireEvent, waitFor } from '@testing-library/dom';
 import { promises } from 'fs';
@@ -13,8 +13,8 @@ import { setupImageUpload } from '../upload';
 const scrapeResponse = {
   description: 'test',
   images: [
-    {url: 'http://localhost/images/1', camo_url: 'http://localhost/images/1'},
-    {url: 'http://localhost/images/2', camo_url: 'http://localhost/images/2'},
+    { url: 'http://localhost/images/1', camo_url: 'http://localhost/images/1' },
+    { url: 'http://localhost/images/2', camo_url: 'http://localhost/images/2' },
   ],
   source_url: 'http://localhost/images',
   author_name: 'test',
@@ -47,6 +47,7 @@ describe('Image upload form', () => {
 
   fixEventListeners(window);
 
+
   let form: HTMLFormElement;
   let imgPreviews: HTMLDivElement;
   let fileField: HTMLInputElement;
@@ -56,6 +57,10 @@ describe('Image upload form', () => {
   let tagsEl: HTMLTextAreaElement;
   let sourceEl: HTMLInputElement;
   let descrEl: HTMLTextAreaElement;
+
+  const assertFetchButtonIsDisabled = () => {
+    if (!fetchButton.hasAttribute('disabled')) throw new Error('fetchButton is not disabled');
+  };
 
   beforeEach(() => {
     document.documentElement.insertAdjacentHTML('beforeend', `
@@ -91,28 +96,37 @@ describe('Image upload form', () => {
   });
 
   it('should disable fetch button on empty source', () => {
-    fireEvent.input(remoteUrl, { target: { value: '' }});
+    fireEvent.input(remoteUrl, { target: { value: '' } });
     expect(fetchButton.disabled).toBe(true);
   });
 
   it('should enable fetch button on non-empty source', () => {
-    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' }});
+    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' } });
     expect(fetchButton.disabled).toBe(false);
   });
 
   it('should create a preview element when an image file is uploaded', () => {
-    fireEvent.change(fileField, { target: { files: [mockPng] }});
-    return waitFor(() => expect(imgPreviews.querySelectorAll('img')).toHaveLength(1));
+    fireEvent.change(fileField, { target: { files: [mockPng] } });
+    return waitFor(() => {
+      assertFetchButtonIsDisabled();
+      expect(imgPreviews.querySelectorAll('img')).toHaveLength(1);
+    });
   });
 
   it('should create a preview element when a Matroska video file is uploaded', () => {
-    fireEvent.change(fileField, { target: { files: [mockWebm] }});
-    return waitFor(() => expect(imgPreviews.querySelectorAll('video')).toHaveLength(1));
+    fireEvent.change(fileField, { target: { files: [mockWebm] } });
+    return waitFor(() => {
+      assertFetchButtonIsDisabled();
+      expect(imgPreviews.querySelectorAll('video')).toHaveLength(1);
+    });
   });
 
   it('should block navigation away after an image file is attached, but not after form submission', async() => {
-    fireEvent.change(fileField, { target: { files: [mockPng] }});
-    await waitFor(() => { expect(imgPreviews.querySelectorAll('img')).toHaveLength(1); });
+    fireEvent.change(fileField, { target: { files: [mockPng] } });
+    await waitFor(() => {
+      assertFetchButtonIsDisabled();
+      expect(imgPreviews.querySelectorAll('img')).toHaveLength(1);
+    });
 
     const failedUnloadEvent = new Event('beforeunload', { cancelable: true });
     expect(fireEvent(window, failedUnloadEvent)).toBe(false);
@@ -122,7 +136,7 @@ describe('Image upload form', () => {
         event.preventDefault();
         resolve();
       });
-      form.submit();
+      fireEvent.submit(form);
     });
 
     const succeededUnloadEvent = new Event('beforeunload', { cancelable: true });
@@ -131,11 +145,11 @@ describe('Image upload form', () => {
 
   it('should scrape images when the fetch button is clicked', async() => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify(scrapeResponse), { status: 200 }));
-    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' }});
+    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' } });
 
     await new Promise<void>(resolve => {
       tagsEl.addEventListener('addtag', (event: Event) => {
-        expect((event as CustomEvent).detail).toEqual({name: 'artist:test'});
+        expect((event as CustomEvent).detail).toEqual({ name: 'artist:test' });
         resolve();
       });
 
@@ -153,8 +167,8 @@ describe('Image upload form', () => {
   it('should show null scrape result', () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify(nullResponse), { status: 200 }));
 
-    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' }});
-    fetchButton.click();
+    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' } });
+    fireEvent.click(fetchButton);
 
     return waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);
@@ -166,8 +180,8 @@ describe('Image upload form', () => {
   it('should show error scrape result', () => {
     fetchMock.mockResolvedValue(new Response(JSON.stringify(errorResponse), { status: 200 }));
 
-    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' }});
-    fetchButton.click();
+    fireEvent.input(remoteUrl, { target: { value: 'http://localhost/images/1' } });
+    fireEvent.click(fetchButton);
 
     return waitFor(() => {
       expect(fetch).toHaveBeenCalledTimes(1);

@@ -2,8 +2,8 @@
  * Autocomplete.
  */
 
-import { LocalAutocompleter } from 'utils/local-autocompleter';
-import { handleError } from 'utils/requests';
+import { LocalAutocompleter } from './utils/local-autocompleter';
+import { handleError } from './utils/requests';
 
 const cache = {};
 let inputField, originalTerm;
