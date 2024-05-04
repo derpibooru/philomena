@@ -24,14 +24,14 @@
     br
     br
 
-    == @rendered.information
+    = @rendered.information
 
 / Contact information block
 .block
   .block__header
     span.block__header__title Contact information
   .block__content.commission__block_body
-    == @rendered.contact
+    = @rendered.contact
 
 / Categories block
 .block
@@ -48,7 +48,7 @@
     .block__header
       span.block__header__title Will draw/create
     .block__content.commission__block_body
-      == @rendered.will_create
+      = @rendered.will_create
 
 / Will not create block
 = if @commission.will_not_create not in [nil, ""] do
@@ -56,7 +56,7 @@
     .block__header
       span.block__header__title Will not draw/create
     .block__content.commission__block_body
-      == @rendered.will_not_create
+      = @rendered.will_not_create
 
 / Artist link block
 /.block

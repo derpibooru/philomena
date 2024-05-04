@@ -1,7 +1,7 @@
 .block__content.profile-about
   = cond do
     - @user.description not in [nil, ""] ->
-      == @about_me
+      = @about_me
 
     - current?(@user, @conn.assigns.current_user) ->
       em

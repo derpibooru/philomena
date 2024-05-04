@@ -10,6 +10,8 @@ defmodule PhilomenaWeb.MarkdownRenderer do
     hd(render_collection([item], conn))
   end
 
+  # This is rendered Markdown
+  # sobelow_skip ["XSS.Raw"]
   def render_collection(collection, conn) do
     representations =
       collection
@@ -19,15 +21,21 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       |> render_representations(conn)
 
     Enum.map(collection, fn %{body: text} ->
-      Markdown.to_html(text || "", representations)
+      (text || "")
+      |> Markdown.to_html(representations)
+      |> Phoenix.HTML.raw()
     end)
   end
 
+  # This is rendered Markdown for use on static pages
+  # sobelow_skip ["XSS.Raw"]
   def render_unsafe(text, conn) do
     images = find_images(text)
     representations = render_representations(images, conn)
 
-    Markdown.to_html_unsafe(text, representations)
+    text
+    |> Markdown.to_html_unsafe(representations)
+    |> Phoenix.HTML.raw()
   end
 
   defp find_images(text) do

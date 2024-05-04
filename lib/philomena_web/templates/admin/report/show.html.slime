@@ -11,7 +11,7 @@ article.block.communication
       br
       = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @report, conn: @conn
       .communication__body__text
-        ==<> @body
+        =<> @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out

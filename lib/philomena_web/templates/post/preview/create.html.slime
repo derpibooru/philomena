@@ -7,4 +7,4 @@
       = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, conn: @conn, awards: true
 
     .communication__body__text
-      == @body
+      = @body

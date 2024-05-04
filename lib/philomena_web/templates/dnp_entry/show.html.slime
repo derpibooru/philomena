@@ -28,19 +28,19 @@ h2
         tr
           td Conditions:
           td
-            == @conditions
+            = @conditions
 
         = if can?(@conn, :show_reason, @dnp_entry) do
           tr
             td Reason:
             td
-              == @reason
+              = @reason
         
         = if can?(@conn, :show_feedback, @dnp_entry) do
           tr
             td Instructions:
             td
-              == @instructions
+              = @instructions
           tr
             td Feedback:
             td

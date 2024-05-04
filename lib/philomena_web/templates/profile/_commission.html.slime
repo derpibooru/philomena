@@ -17,7 +17,7 @@
 
       / Lotta space here
       br
-      == @commission_information
+      = @commission_information
       br
       br
 

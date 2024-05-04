@@ -12,4 +12,4 @@ p
       i.fa.fa-edit>
       ' Edit
 
-== @rendered
+= @rendered
