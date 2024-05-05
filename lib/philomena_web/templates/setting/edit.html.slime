@@ -155,6 +155,10 @@ h1 Content Settings
         => checkbox f, :webm, checked: @conn.cookies["webm"] == "true"
         .fieldlabel: i Use video thumbnails for WebM videos. Does not apply to GIF images.
       .field
+        => label f, :unmute_videos, "Enable video audio by default"
+        => checkbox f, :unmute_videos, checked: @conn.cookies["unmute_videos"] == "true"
+        .fieldlabel: i Automatically enable audio on video pages when they are loaded.
+      .field
         => label f, :hide_uploader
         => checkbox f, :hide_uploader, checked: @conn.cookies["hide_uploader"] == "true"
         .fieldlabel: i Hide the uploader and date posted information on image pages.
