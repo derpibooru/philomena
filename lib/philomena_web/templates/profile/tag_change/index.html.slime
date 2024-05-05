@@ -16,4 +16,10 @@ h1
       = link "Added", to: Routes.profile_tag_change_path(@conn, :index, @user, Keyword.merge(@pagination_params, added: 1))
       = link "All", to: Routes.profile_tag_change_path(@conn, :index, @user, Keyword.delete(@pagination_params, :added))
 
+  .block__header.block__header--light
+    span.block__header__title.page__info
+      ' Listing changes for
+      => @image_count
+      = pluralize("image", "images", @image_count)
+
   = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination

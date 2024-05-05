@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
   def index(conn, params) do
     user = conn.assigns.user
 
-    tag_changes =
+    common_query =
       TagChange
       |> join(:inner, [tc], i in Image, on: tc.image_id == i.id)
       |> only_tag_join(params)
@@ -24,9 +24,17 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       )
       |> added_filter(params)
       |> only_tag_filter(params)
+
+    tag_changes =
+      common_query
       |> preload([:tag, :user, image: [:user, :sources, tags: :aliases]])
       |> order_by(desc: :id)
       |> Repo.paginate(conn.assigns.scrivener)
+
+    image_count =
+      common_query
+      |> select([_, i], count(i.id, :distinct))
+      |> Repo.one()
 
     # params.permit(:added, :only_tag) ...
     pagination_params =
@@ -37,7 +45,8 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       title: "Tag Changes for User `#{user.name}'",
       user: user,
       tag_changes: tag_changes,
-      pagination_params: pagination_params
+      pagination_params: pagination_params,
+      image_count: image_count
     )
   end
 
