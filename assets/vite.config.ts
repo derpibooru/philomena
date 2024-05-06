@@ -7,17 +7,6 @@ import { defineConfig, UserConfig, ConfigEnv } from 'vite';
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
   const isDev = command !== 'build' && mode !== 'test';
 
-  if (isDev) {
-    // Terminate the watcher when Phoenix quits
-    // @see https://moroz.dev/blog/integrating-vite-js-with-phoenix-1-6
-    process.stdin.on('close', () => {
-      // eslint-disable-next-line no-process-exit
-      process.exit(0);
-    });
-
-    process.stdin.resume();
-  }
-
   const themeNames =
     fs.readdirSync(path.resolve(__dirname, 'css/themes/')).map(name => {
       const m = name.match(/([-a-z]+).scss/);
@@ -42,7 +31,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
       }
     },
     build: {
-      target: 'es2020',
+      target: ['es2016', 'chrome67', 'firefox62', 'edge18', 'safari12'],
       outDir: path.resolve(__dirname, '../priv/static'),
       emptyOutDir: false,
       sourcemap: isDev,
