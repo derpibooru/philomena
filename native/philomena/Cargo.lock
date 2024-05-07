@@ -43,8 +43,8 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "comrak"
-version = "0.22.0"
-source = "git+https://github.com/philomena-dev/comrak?branch=main#a27d6b6487d94e040e5cdb70733d3a59cba5bab0"
+version = "0.23.0"
+source = "git+https://github.com/philomena-dev/comrak?branch=main#4c7cd1a1aa2db546ff253b69950d01e8f8aebd3a"
 dependencies = [
  "derive_builder",
  "entities",
