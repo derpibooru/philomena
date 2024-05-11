@@ -5,6 +5,7 @@ defmodule Philomena.Images.Thumbnailer do
 
   alias Philomena.DuplicateReports
   alias Philomena.ImageIntensities
+  alias Philomena.ImagePurgeWorker
   alias Philomena.Images.Image
   alias Philomena.Processors
   alias Philomena.Analyzers
@@ -103,8 +104,14 @@ defmodule Philomena.Images.Thumbnailer do
   defp apply_change(image, {:intensities, intensities}),
     do: ImageIntensities.create_image_intensity(image, intensities)
 
-  defp apply_change(image, {:replace_original, new_file}),
-    do: upload_file(image, new_file, "full.#{image.image_format}")
+  defp apply_change(image, {:replace_original, new_file}) do
+    full = "full.#{image.image_format}"
+    upload_file(image, new_file, full)
+
+    Exq.enqueue(Exq, "indexing", ImagePurgeWorker, [
+      Path.join(image_url_base(image, nil), full)
+    ])
+  end
 
   defp apply_change(image, {:thumbnails, thumbnails}),
     do: Enum.map(thumbnails, &apply_thumbnail(image, &1))
