@@ -369,6 +369,19 @@ describe('Image utils', () => {
       expect(mockShowElement).toHaveClass(spoilerPendingClass);
     });
 
+    it('should play the video if it is present', () => {
+      const mockElement = document.createElement('div');
+      const { mockShowElement } = createImageShowElement(mockElement);
+      const mockVideo = document.createElement('video');
+      mockShowElement.appendChild(mockVideo);
+
+      const playSpy = vi.spyOn(mockVideo, 'play').mockReturnValue(Promise.resolve());
+
+      showBlock(mockElement);
+
+      expect(playSpy).toHaveBeenCalledTimes(1);
+    });
+
     it('should not throw if image-filtered element is missing', () => {
       const mockElement = document.createElement('div');
       createImageShowElement(mockElement);

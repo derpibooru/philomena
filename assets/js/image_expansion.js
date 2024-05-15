@@ -87,11 +87,12 @@ function pickAndResize(elem) {
   }
 
   const muted = store.get('unmute_videos') ? '' : 'muted';
+  const autoplay = elem.classList.contains('hidden') ? '' : 'autoplay'; // Fix for spoilered image pages
 
   if (imageFormat === 'mp4') {
     elem.classList.add('full-height');
     elem.insertAdjacentHTML('afterbegin',
-      `<video controls autoplay loop ${muted} playsinline preload="auto" id="image-display"
+      `<video controls ${autoplay} loop ${muted} playsinline preload="auto" id="image-display"
            width="${imageWidth}" height="${imageHeight}">
         <source src="${uris.webm}" type="video/webm">
         <source src="${uris.mp4}" type="video/mp4">
@@ -104,7 +105,7 @@ function pickAndResize(elem) {
   }
   else if (imageFormat === 'webm') {
     elem.insertAdjacentHTML('afterbegin',
-      `<video controls autoplay loop ${muted} playsinline id="image-display">
+      `<video controls ${autoplay} loop ${muted} playsinline id="image-display">
         <source src="${uri}" type="video/webm">
         <source src="${uri.replace(/webm$/, 'mp4')}" type="video/mp4">
         <p class="block block--fixed block--warning">
