@@ -2,6 +2,10 @@ version: '3'
 volumes:
   postgres_data: {}
   elastic_data: {}
+  app_cargo_data: {}
+  app_build_data: {}
+  app_deps_data: {}
+  app_native_data: {}
 
 services:
   app:
@@ -44,6 +48,10 @@ services:
     tty: true
     volumes:
       - .:/srv/philomena
+      - app_cargo_data:/srv/philomena/.cargo
+      - app_build_data:/srv/philomena/_build
+      - app_deps_data:/srv/philomena/deps
+      - app_native_data:/srv/philomena/priv/native
     depends_on:
       - postgres
       - elasticsearch

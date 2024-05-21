@@ -64,9 +64,15 @@ export function showThumb(img: HTMLDivElement) {
 export function showBlock(img: HTMLDivElement) {
   img.querySelector('.image-filtered')?.classList.add('hidden');
   const imageShowClasses = img.querySelector('.image-show')?.classList;
+
   if (imageShowClasses) {
     imageShowClasses.remove('hidden');
     imageShowClasses.add('spoiler-pending');
+
+    const vidEl = img.querySelector('video');
+    if (vidEl) {
+      vidEl.play();
+    }
   }
 }
 
