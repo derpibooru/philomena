@@ -32,7 +32,7 @@ services:
       - BADGE_URL_ROOT=/badge-img
       - TAG_URL_ROOT=/tag-img
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - REDIS_HOST=redis
+      - REDIS_HOST=valkey
       - DATABASE_URL=ecto://postgres:postgres@postgres/philomena_dev
       - CDN_HOST=localhost
       - MAILER_ADDRESS=noreply@philomena.local
@@ -55,7 +55,7 @@ services:
     depends_on:
       - postgres
       - elasticsearch
-      - redis
+      - valkey
     ports:
       - '5173:5173'
 
@@ -81,8 +81,8 @@ services:
         soft: 65536
         hard: 65536
 
-  redis:
-    image: redis:7.2.4-alpine
+  valkey:
+    image: valkey/valkey:7.2.5-alpine
     logging:
       driver: "none"
 
