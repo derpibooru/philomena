@@ -29,6 +29,8 @@ defmodule Philomena.Search.Parser do
     __data__: nil
   ]
 
+  @max_clause_count 512
+
   def parser(options) do
     parser = struct(Parser, options)
 
@@ -305,14 +307,16 @@ defmodule Philomena.Search.Parser do
 
   # Flattens the child of a disjunction or conjunction to improve performance.
   defp flatten_disjunction_child(this_child, %{bool: %{should: next_child}} = child)
-       when child == %{bool: %{should: next_child}} and is_list(next_child),
+       when child == %{bool: %{should: next_child}} and is_list(next_child) and
+              length(next_child) <= @max_clause_count,
        do: %{bool: %{should: [this_child | next_child]}}
 
   defp flatten_disjunction_child(this_child, next_child),
     do: %{bool: %{should: [this_child, next_child]}}
 
   defp flatten_conjunction_child(this_child, %{bool: %{must: next_child}} = child)
-       when child == %{bool: %{must: next_child}} and is_list(next_child),
+       when child == %{bool: %{must: next_child}} and is_list(next_child) and
+              length(next_child) <= @max_clause_count,
        do: %{bool: %{must: [this_child | next_child]}}
 
   defp flatten_conjunction_child(this_child, next_child),
