@@ -1,0 +1,15 @@
+---
+cluster.name: docker-cluster
+
+# Bind to all interfaces because we don't know what IP address Docker will assign to us.
+network.host: 0.0.0.0
+
+# Setting network.host to a non-loopback address enables the annoying bootstrap checks. "Single-node" mode disables them again.
+discovery.type: single-node
+
+# Disable security. We don't need it for dev environment.
+# Also, whoever thought it's a GREAT IDEA TO ENFORCE SECURITY FEATURES
+# BY DEFAULT IN A FREAKING DOCKER CONTAINER should be forced to play
+# the password game every time they would like to create a new account
+# anywhere whatsoever.
+plugins.security.disabled: true

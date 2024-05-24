@@ -30,7 +30,7 @@ defmodule Philomena.Elasticsearch do
   defp index_for(Filter), do: FilterIndex
 
   defp elastic_url do
-    Application.get_env(:philomena, :elasticsearch_url)
+    Application.get_env(:philomena, :opensearch_url)
   end
 
   def create_index!(module) do

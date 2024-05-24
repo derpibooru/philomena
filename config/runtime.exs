@@ -15,7 +15,7 @@ config :philomena,
   anonymous_name_salt: System.fetch_env!("ANONYMOUS_NAME_SALT"),
   hcaptcha_secret_key: System.fetch_env!("HCAPTCHA_SECRET_KEY"),
   hcaptcha_site_key: System.fetch_env!("HCAPTCHA_SITE_KEY"),
-  elasticsearch_url: System.get_env("ELASTICSEARCH_URL", "http://localhost:9200"),
+  opensearch_url: System.get_env("OPENSEARCH_URL", "https://admin:admin@localhost:9200"),
   advert_file_root: System.fetch_env!("ADVERT_FILE_ROOT"),
   avatar_file_root: System.fetch_env!("AVATAR_FILE_ROOT"),
   badge_file_root: System.fetch_env!("BADGE_FILE_ROOT"),
@@ -90,6 +90,10 @@ config :philomena, :s3_secondary_options,
   http_opts: [timeout: 180_000, recv_timeout: 180_000]
 
 config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
+
+# Don't bail on OpenSearch's self-signed certificate
+config :elastix,
+  httpoison_options: [ssl: [verify: :verify_none]]
 
 config :ex_aws, :hackney_opts,
   timeout: 180_000,

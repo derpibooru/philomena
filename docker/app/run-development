@@ -34,11 +34,11 @@ npm install
 # Always install mix dependencies
 (cd /srv/philomena && mix deps.get)
 
-# Sleep to allow Elasticsearch to finish initializing
+# Sleep to allow OpenSearch to finish initializing
 # if it's not done doing whatever it does yet
-echo -n "Waiting for Elasticsearch"
+echo -n "Waiting for OpenSearch"
 
-until wget -qO - elasticsearch:9200; do
+until wget --no-check-certificate -qO - http://opensearch:9200; do
   echo -n "."
   sleep 2
 done
