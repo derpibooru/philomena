@@ -9,7 +9,7 @@ export MIX_ENV=test
 # if it's not done doing whatever it does yet
 echo -n "Waiting for Elasticsearch"
 
-until wget -qO - elasticsearch:9200; do
+until wget -qO - opensearch:9200; do
   echo -n "."
   sleep 2
 done
