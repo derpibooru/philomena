@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.ScraperPlug do
 
       %{"scraper_cache" => url} when not is_nil(url) and url != "" ->
         url
-        |> Philomena.Http.get()
+        |> PhilomenaProxy.Http.get()
         |> maybe_fixup_params(url, opts, conn)
 
       _ ->
