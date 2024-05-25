@@ -7,11 +7,11 @@ defmodule Philomena.Comments do
   alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Reports.Report
   alias Philomena.UserStatistics
   alias Philomena.Comments.Comment
-  alias Philomena.Comments.ElasticsearchIndex, as: CommentIndex
+  alias Philomena.Comments.SearchIndex, as: CommentIndex
   alias Philomena.IndexWorker
   alias Philomena.Images.Image
   alias Philomena.Images
@@ -265,7 +265,7 @@ defmodule Philomena.Comments do
   def user_name_reindex(old_name, new_name) do
     data = CommentIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Comment, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Comment, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_comment(%Comment{} = comment) do
@@ -288,6 +288,6 @@ defmodule Philomena.Comments do
     Comment
     |> preload(^indexing_preloads())
     |> where([c], field(c, ^column) in ^condition)
-    |> Elasticsearch.reindex(Comment)
+    |> Search.reindex(Comment)
   end
 end

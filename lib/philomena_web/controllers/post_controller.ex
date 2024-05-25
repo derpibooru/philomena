@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.PostController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.{Posts.Query, Posts.Post}
   import Ecto.Query
 
@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.PostController do
   defp render_index({:ok, query}, conn, user) do
     posts =
       Post
-      |> Elasticsearch.search_definition(
+      |> Search.search_definition(
         %{
           query: %{
             bool: %{
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.PostController do
         },
         conn.assigns.pagination
       )
-      |> Elasticsearch.search_records(
+      |> Search.search_records(
         preload(Post, [:deleted_by, topic: :forum, user: [awards: :badge]])
       )
 

@@ -7,8 +7,8 @@ defmodule Philomena.Filters do
   alias Philomena.Repo
 
   alias Philomena.Filters.Filter
-  alias Philomena.Elasticsearch
-  alias Philomena.Filters.ElasticsearchIndex, as: FilterIndex
+  alias PhilomenaQuery.Search
+  alias Philomena.Filters.SearchIndex, as: FilterIndex
   alias Philomena.IndexWorker
 
   @doc """
@@ -223,7 +223,7 @@ defmodule Philomena.Filters do
   def user_name_reindex(old_name, new_name) do
     data = FilterIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Filter, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Filter, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_filter(%Filter{} = filter) do
@@ -233,7 +233,7 @@ defmodule Philomena.Filters do
   end
 
   def unindex_filter(%Filter{} = filter) do
-    Elasticsearch.delete_document(filter.id, Filter)
+    Search.delete_document(filter.id, Filter)
 
     filter
   end
@@ -246,6 +246,6 @@ defmodule Philomena.Filters do
     Filter
     |> preload(^indexing_preloads())
     |> where([f], field(f, ^column) in ^condition)
-    |> Elasticsearch.reindex(Filter)
+    |> Search.reindex(Filter)
   end
 end

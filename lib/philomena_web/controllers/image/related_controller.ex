@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Interactions
   alias Philomena.Images.Image
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   import Ecto.Query
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
@@ -60,7 +60,7 @@ defmodule PhilomenaWeb.Image.RelatedController do
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 
-    images = Elasticsearch.search_records(images, preload(Image, [:sources, tags: :aliases]))
+    images = Search.search_records(images, preload(Image, [:sources, tags: :aliases]))
 
     interactions = Interactions.user_interactions(images, user)
 

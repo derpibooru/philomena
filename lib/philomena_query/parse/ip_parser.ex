@@ -1,4 +1,6 @@
-defmodule Philomena.Search.IpParser do
+defmodule PhilomenaQuery.Parse.IpParser do
+  @moduledoc false
+
   import NimbleParsec
 
   ipv4_octet =

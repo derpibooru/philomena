@@ -1,7 +1,7 @@
 defmodule Philomena.TagChangeRevertWorker do
   alias Philomena.TagChanges.TagChange
   alias Philomena.TagChanges
-  alias Philomena.Batch
+  alias PhilomenaQuery.Batch
   alias Philomena.Repo
   import Ecto.Query
 

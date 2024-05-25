@@ -15,7 +15,7 @@ defmodule Philomena.IndexWorker do
   #       Image
   #       |> preload(^indexing_preloads())
   #       |> where([i], field(i, ^column) in ^condition)
-  #       |> Elasticsearch.reindex(Image)
+  #       |> Search.reindex(Image)
   #     end
   #
   def perform(module, column, condition) do

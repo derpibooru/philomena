@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Api.Json.Search.FilterController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Filters.Filter
   alias Philomena.Filters.Query
   import Ecto.Query
@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Api.Json.Search.FilterController do
       {:ok, query} ->
         filters =
           Filter
-          |> Elasticsearch.search_definition(
+          |> Search.search_definition(
             %{
               query: %{
                 bool: %{
@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.Api.Json.Search.FilterController do
             },
             conn.assigns.pagination
           )
-          |> Elasticsearch.search_records(preload(Filter, [:user]))
+          |> Search.search_records(preload(Filter, [:user]))
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.FilterView)

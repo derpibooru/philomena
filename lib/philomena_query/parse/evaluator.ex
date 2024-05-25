@@ -1,6 +1,25 @@
-defmodule Philomena.Search.Evaluator do
+defmodule PhilomenaQuery.Parse.Evaluator do
+  @moduledoc """
+  Tools to evaluate whether a search query matches a document.
+  """
+
   # TODO: rethink the necessity of this module.
-  # Can we do this in elasticsearch instead?
+  # Can we do this in the search engine instead?
+
+  @doc """
+  Check whether a hit is matched by a query.
+
+  - `doc` - a document definition. This could be returned by the index's `as_json/1` function.
+  - `query` - a search query
+
+  ## Example
+
+      iex> Evaluator.hits?(def, %{term: %{tags: "safe"}})
+      true
+
+  """
+  @spec hits?(map(), map()) :: boolean()
+  def hits?(doc, query)
 
   def hits?(doc, %{bool: bool_query}) do
     must(doc, bool_query[:must]) and
@@ -101,7 +120,7 @@ defmodule Philomena.Search.Evaluator do
   defp atomify(atom) when is_atom(atom), do: atom
   defp atomify(string) when is_binary(string), do: String.to_existing_atom(string)
 
-  def levenshtein(s1, s2) do
+  defp levenshtein(s1, s2) do
     {dist, _lookup} = levenshtein_lookup(s1, s2, %{}, 0)
 
     dist

@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Autocomplete.TagController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Tags.Tag
   import Ecto.Query
 
@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
 
         term ->
           Tag
-          |> Elasticsearch.search_definition(
+          |> Search.search_definition(
             %{
               query: %{
                 bool: %{
@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
             },
             %{page_size: 10}
           )
-          |> Elasticsearch.search_records(preload(Tag, :aliased_tag))
+          |> Search.search_records(preload(Tag, :aliased_tag))
           |> Enum.map(&(&1.aliased_tag || &1))
           |> Enum.uniq_by(& &1.id)
           |> Enum.filter(&(&1.images_count > 0))

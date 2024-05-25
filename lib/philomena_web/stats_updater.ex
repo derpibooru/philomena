@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.StatsUpdater do
   alias Philomena.Config
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Images.Image
   alias Philomena.Comments.Comment
   alias Philomena.Topics.Topic
@@ -68,8 +68,8 @@ defmodule PhilomenaWeb.StatsUpdater do
     data = Config.get(:aggregation)
 
     {
-      Elasticsearch.search(Image, data["images"]),
-      Elasticsearch.search(Comment, data["comments"])
+      Search.search(Image, data["images"]),
+      Search.search(Comment, data["comments"])
     }
   end
 

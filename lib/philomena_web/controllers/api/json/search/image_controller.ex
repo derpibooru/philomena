@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Interactions
   alias Philomena.Images.Image
   import Ecto.Query
@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
 
     case ImageLoader.search_string(conn, params["q"]) do
       {:ok, {images, _tags}} ->
-        images = Elasticsearch.search_records(images, queryable)
+        images = Search.search_records(images, queryable)
         interactions = Interactions.user_interactions(images, user)
 
         conn

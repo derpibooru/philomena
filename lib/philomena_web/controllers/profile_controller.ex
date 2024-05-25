@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.ProfileController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.UserStatistics.UserStatistic
   alias Philomena.Users.User
@@ -79,7 +79,7 @@ defmodule PhilomenaWeb.ProfileController do
     recent_artwork = recent_artwork(conn, tags)
 
     recent_comments =
-      Elasticsearch.search_definition(
+      Search.search_definition(
         Comment,
         %{
           query: %{
@@ -100,7 +100,7 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     recent_posts =
-      Elasticsearch.search_definition(
+      Search.search_definition(
         Post,
         %{
           query: %{
@@ -119,7 +119,7 @@ defmodule PhilomenaWeb.ProfileController do
       )
 
     [recent_uploads, recent_faves, recent_artwork, recent_comments, recent_posts] =
-      Elasticsearch.msearch_records(
+      Search.msearch_records(
         [recent_uploads, recent_faves, recent_artwork, recent_comments, recent_posts],
         [
           preload(Image, [:sources, tags: :aliases]),
@@ -228,7 +228,7 @@ defmodule PhilomenaWeb.ProfileController do
   defp tags(links), do: Enum.map(links, & &1.tag) |> Enum.reject(&is_nil/1)
 
   defp recent_artwork(_conn, []) do
-    Elasticsearch.search_definition(Image, %{query: %{match_none: %{}}})
+    Search.search_definition(Image, %{query: %{match_none: %{}}})
   end
 
   defp recent_artwork(conn, tags) do

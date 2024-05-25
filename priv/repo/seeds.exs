@@ -26,17 +26,17 @@ alias Philomena.{
   StaticPages.StaticPage
 }
 
-alias Philomena.Elasticsearch
+alias PhilomenaQuery.Search
 alias Philomena.Users
 alias Philomena.Tags
 alias Philomena.Filters
 import Ecto.Query
 
-IO.puts("---- Creating Elasticsearch indices")
+IO.puts("---- Creating search indices")
 
 for model <- [Image, Comment, Gallery, Tag, Post, Report, Filter] do
-  Elasticsearch.delete_index!(model)
-  Elasticsearch.create_index!(model)
+  Search.delete_index!(model)
+  Search.create_index!(model)
 end
 
 resources =
@@ -112,6 +112,6 @@ for page_def <- resources["pages"] do
 end
 
 IO.puts("---- Indexing content")
-Elasticsearch.reindex(Tag |> preload(^Tags.indexing_preloads()), Tag)
+Search.reindex(Tag |> preload(^Tags.indexing_preloads()), Tag)
 
 IO.puts("---- Done.")

@@ -11,7 +11,7 @@ defmodule Mix.Tasks.UploadToS3 do
 
   alias Philomena.Images.Thumbnailer
   alias Philomena.Objects
-  alias Philomena.Batch
+  alias PhilomenaQuery.Batch
   import Ecto.Query
 
   @shortdoc "Dumps existing image files to S3 storage backend"

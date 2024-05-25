@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.ImageNavigator
   alias PhilomenaWeb.ImageScope
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Images.Image
   alias Philomena.Images.Query
 
@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
     body = %{range: %{id: %{gt: conn.assigns.image.id}}}
 
     {images, _tags} = ImageLoader.query(conn, body, pagination: pagination)
-    images = Elasticsearch.search_records(images, Image)
+    images = Search.search_records(images, Image)
 
     page_num = page_for_offset(pagination.page_size, images.total_entries)
 

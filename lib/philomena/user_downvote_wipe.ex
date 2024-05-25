@@ -1,6 +1,6 @@
 defmodule Philomena.UserDownvoteWipe do
-  alias Philomena.Batch
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Batch
+  alias PhilomenaQuery.Search
   alias Philomena.Users
   alias Philomena.Users.User
   alias Philomena.Images.Image
@@ -63,7 +63,7 @@ defmodule Philomena.UserDownvoteWipe do
     Image
     |> where([i], i.id in ^image_ids)
     |> preload(^Images.indexing_preloads())
-    |> Elasticsearch.reindex(Image)
+    |> Search.reindex(Image)
 
     # allow time for indexing to catch up
     :timer.sleep(:timer.seconds(10))

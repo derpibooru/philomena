@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.ActivityController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
 
   alias Philomena.{
     Images.Image,
@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.ActivityController do
       )
 
     comments =
-      Elasticsearch.search_definition(
+      Search.search_definition(
         Comment,
         %{
           query: %{
@@ -144,7 +144,7 @@ defmodule PhilomenaWeb.ActivityController do
 
   defp multi_search(images, top_scoring, comments, nil) do
     responses =
-      Elasticsearch.msearch_records(
+      Search.msearch_records(
         [images, top_scoring, comments],
         [
           preload(Image, [:sources, tags: :aliases]),
@@ -157,7 +157,7 @@ defmodule PhilomenaWeb.ActivityController do
   end
 
   defp multi_search(images, top_scoring, comments, watched) do
-    Elasticsearch.msearch_records(
+    Search.msearch_records(
       [images, top_scoring, comments, watched],
       [
         preload(Image, [:sources, tags: :aliases]),
