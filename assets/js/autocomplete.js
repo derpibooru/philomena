@@ -66,6 +66,13 @@ function changeSelected(firstOrLast, current, sibling) {
   }
 }
 
+function isSelectionOutsideCurrentTerm() {
+  const selectionIndex = Math.min(inputField.selectionStart, inputField.selectionEnd);
+  const [startIndex, endIndex] = selectedTerm[0];
+
+  return startIndex > selectionIndex || endIndex < selectionIndex;
+}
+
 function keydownHandler(event) {
   const selected = document.querySelector('.autocomplete__item--selected'),
         firstItem = document.querySelector('.autocomplete__item:first-of-type'),
@@ -78,10 +85,7 @@ function keydownHandler(event) {
     // Close autocompletion popup when text cursor is outside current tag
     if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) { // ArrowLeft || ArrowRight
       requestAnimationFrame(() => {
-        const selectionIndex = Math.min(inputField.selectionStart, inputField.selectionEnd);
-        const [startIndex, endIndex] = selectedTerm[0];
-
-        if (startIndex > selectionIndex || endIndex < selectionIndex) removeParent();
+        if (isSelectionOutsideCurrentTerm()) removeParent();
       })
     }
   }
@@ -247,6 +251,7 @@ function listenAutocomplete() {
   // If there's a click outside the inputField, remove autocomplete
   document.addEventListener('click', event => {
     if (event.target && event.target !== inputField) removeParent();
+    if (event.target === inputField && isSearchField() && isSelectionOutsideCurrentTerm()) removeParent();
   });
 
   function fetchLocalAutocomplete(event) {
