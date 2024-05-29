@@ -4,9 +4,19 @@
 
 import { LocalAutocompleter } from './utils/local-autocompleter';
 import { handleError } from './utils/requests';
+import { getTermContexts } from "./match_query";
 
 const cache = {};
-let inputField, originalTerm;
+/** @type {HTMLInputElement} */
+let inputField,
+  /** @type {string} */
+  originalTerm,
+  /** @type {string} */
+  originalQuery,
+  /** @type {TermContext[]} */
+  searchTokens,
+  /** @type {TermContext} */
+  selectedTerm;
 
 function removeParent() {
   const parent = document.querySelector('.autocomplete');
@@ -18,13 +28,37 @@ function removeSelected() {
   if (selected) selected.classList.remove('autocomplete__item--selected');
 }
 
+function isSearchField() {
+  return inputField && inputField.name === 'q';
+}
+
+function restoreOriginalValue() {
+  inputField.value = isSearchField() ? originalQuery : originalTerm;
+}
+
+function applySelectedValue(selection) {
+  if (!isSearchField()) {
+    inputField.value = selection;
+    return;
+  }
+
+  if (!selectedTerm) {
+    return;
+  }
+
+  const [startIndex, endIndex] = selectedTerm[0];
+  inputField.value = originalQuery.slice(0, startIndex) + selection + originalQuery.slice(endIndex);
+  inputField.setSelectionRange(startIndex + selection.length, startIndex + selection.length);
+  inputField.focus();
+}
+
 function changeSelected(firstOrLast, current, sibling) {
   if (current && sibling) { // if the currently selected item has a sibling, move selection to it
     current.classList.remove('autocomplete__item--selected');
     sibling.classList.add('autocomplete__item--selected');
   }
   else if (current) { // if the next keypress will take the user outside the list, restore the unautocompleted term
-    inputField.value = originalTerm;
+    restoreOriginalValue();
     removeSelected();
   }
   else if (firstOrLast) { // if no item in the list is selected, select the first or last
@@ -37,12 +71,15 @@ function keydownHandler(event) {
         firstItem = document.querySelector('.autocomplete__item:first-of-type'),
         lastItem = document.querySelector('.autocomplete__item:last-of-type');
 
+  // Prevent submission of the search field when Enter was hit
+  if (event.keyCode === 13 && isSearchField() && selected) event.preventDefault(); // Enter
+
   if (event.keyCode === 38) changeSelected(lastItem, selected, selected && selected.previousSibling); // ArrowUp
   if (event.keyCode === 40) changeSelected(firstItem, selected, selected && selected.nextSibling); // ArrowDown
   if (event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 188) removeParent(); // Enter || Esc || Comma
   if (event.keyCode === 38 || event.keyCode === 40) { // ArrowUp || ArrowDown
     const newSelected = document.querySelector('.autocomplete__item--selected');
-    if (newSelected) inputField.value = newSelected.dataset.value;
+    if (newSelected) applySelectedValue(newSelected.dataset.value);
     event.preventDefault();
   }
 }
@@ -64,7 +101,7 @@ function createItem(list, suggestion) {
   });
 
   item.addEventListener('click', () => {
-    inputField.value = item.dataset.value;
+    applySelectedValue(item.dataset.value);
     inputField.dispatchEvent(
       new CustomEvent('autocomplete', {
         detail: {
@@ -122,6 +159,17 @@ function getSuggestions(term) {
   return fetch(`${inputField.dataset.acSource}${term}`).then(response => response.json());
 }
 
+function getSelectedTerm() {
+  if (!inputField || !originalQuery) {
+    return null;
+  }
+
+  const selectionIndex = Math.min(inputField.selectionStart, inputField.selectionEnd);
+  const terms = getTermContexts(originalQuery);
+
+  return terms.find(([range]) => range[0] < selectionIndex && range[1] >= selectionIndex);
+}
+
 function listenAutocomplete() {
   let timeout;
 
@@ -138,7 +186,20 @@ function listenAutocomplete() {
 
     if (localAc !== null && 'ac' in event.target.dataset) {
       inputField = event.target;
-      originalTerm = `${inputField.value}`.toLowerCase();
+
+      if (isSearchField()) {
+        originalQuery = inputField.value;
+        selectedTerm = getSelectedTerm();
+
+        // We don't need to run auto-completion if user is not selecting tag at all
+        if (!selectedTerm) {
+          return;
+        }
+
+        originalTerm = selectedTerm[1];
+      } else {
+        originalTerm = `${inputField.value}`.toLowerCase();
+      }
 
       const suggestions = localAc.topK(originalTerm, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
 
