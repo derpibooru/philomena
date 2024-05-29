@@ -71,8 +71,20 @@ function keydownHandler(event) {
         firstItem = document.querySelector('.autocomplete__item:first-of-type'),
         lastItem = document.querySelector('.autocomplete__item:last-of-type');
 
-  // Prevent submission of the search field when Enter was hit
-  if (event.keyCode === 13 && isSearchField() && selected) event.preventDefault(); // Enter
+  if (isSearchField()) {
+    // Prevent submission of the search field when Enter was hit
+    if (selected && event.keyCode === 13) event.preventDefault(); // Enter
+
+    // Close autocompletion popup when text cursor is outside current tag
+    if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) { // ArrowLeft || ArrowRight
+      requestAnimationFrame(() => {
+        const selectionIndex = Math.min(inputField.selectionStart, inputField.selectionEnd);
+        const [startIndex, endIndex] = selectedTerm[0];
+
+        if (startIndex > selectionIndex || endIndex < selectionIndex) removeParent();
+      })
+    }
+  }
 
   if (event.keyCode === 38) changeSelected(lastItem, selected, selected && selected.previousSibling); // ArrowUp
   if (event.keyCode === 40) changeSelected(firstItem, selected, selected && selected.nextSibling); // ArrowDown
