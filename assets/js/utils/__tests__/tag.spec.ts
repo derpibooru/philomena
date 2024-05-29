@@ -1,7 +1,7 @@
 import { displayTags, getHiddenTags, getSpoileredTags, imageHitsComplex, imageHitsTags, TagData } from '../tag';
 import { mockStorage } from '../../../test/mock-storage';
 import { getRandomArrayItem } from '../../../test/randomness';
-import parseSearch from '../../match_query';
+import { parseSearch } from '../../match_query';
 import { SpoilerType } from '../../../types/booru-object';
 
 describe('Tag utilities', () => {
