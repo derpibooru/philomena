@@ -4,19 +4,17 @@
 
 import { LocalAutocompleter } from './utils/local-autocompleter';
 import { handleError } from './utils/requests';
-import { getTermContexts } from "./match_query";
+import { getTermContexts } from './match_query';
 
 const cache = {};
 /** @type {HTMLInputElement} */
 let inputField,
-  /** @type {string} */
-  originalTerm,
-  /** @type {string} */
-  originalQuery,
-  /** @type {TermContext[]} */
-  searchTokens,
-  /** @type {TermContext} */
-  selectedTerm;
+    /** @type {string} */
+    originalTerm,
+    /** @type {string} */
+    originalQuery,
+    /** @type {TermContext} */
+    selectedTerm;
 
 function removeParent() {
   const parent = document.querySelector('.autocomplete');
@@ -86,7 +84,7 @@ function keydownHandler(event) {
     if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) { // ArrowLeft || ArrowRight
       requestAnimationFrame(() => {
         if (isSelectionOutsideCurrentTerm()) removeParent();
-      })
+      });
     }
   }
 
@@ -213,7 +211,8 @@ function listenAutocomplete() {
         }
 
         originalTerm = selectedTerm[1];
-      } else {
+      }
+      else {
         originalTerm = `${inputField.value}`.toLowerCase();
       }
 
