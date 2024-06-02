@@ -1,7 +1,7 @@
 elixir:
   scope = scope(@conn)
-  image_url = fn image, hit -> Routes.image_path(@conn, :show, image, Keyword.put(scope, :sort, hit["sort"])) end
-  route = fn p -> Routes.gallery_path(@conn, :show, @gallery, p) end
+  image_url = fn image, hit -> ~p"/images/#{image}?#{Keyword.put(scope, :sort, hit["sort"])}" end
+  route = fn p -> ~p"/galleries/#{@gallery}?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route, params: scope
   info = render PhilomenaWeb.PaginationView, "_pagination_info.html", page: @images
 
@@ -19,12 +19,12 @@ elixir:
       .flex__right.page__options
         = render PhilomenaWeb.ImageView, "_random_button.html", conn: @conn, params: scope
 
-        a href=Routes.gallery_report_path(@conn, :new, @gallery)
+        a href=~p"/galleries/#{@gallery}/reports/new"
           i.fa.fa-exclamation-triangle>
           span.hide-mobile Report
 
         = if can?(@conn, :edit, @gallery) do
-          a href=Routes.gallery_path(@conn, :edit, @gallery)
+          a href=~p"/galleries/#{@gallery}/edit"
             i.fas.fa-edit>
             span.hide-mobile Edit
 
@@ -33,11 +33,11 @@ elixir:
             i.fa.fa-sort>
             ' Rearrange
 
-          a.rearrange-button.js-save.hidden href="#" data-click-hide=".js-save,#gallery-rearrange-info" data-click-show=".js-rearrange" data-reorder-path=Routes.gallery_order_path(@conn, :update, @gallery)
+          a.rearrange-button.js-save.hidden href="#" data-click-hide=".js-save,#gallery-rearrange-info" data-click-show=".js-rearrange" data-reorder-path=~p"/galleries/#{@gallery}/order"
             i.fa.fa-check>
             ' Save
 
-          a href=Routes.gallery_path(@conn, :delete, @gallery) data-method="delete" data-confirm="Are you really, really sure?"
+          a href=~p"/galleries/#{@gallery}" data-method="delete" data-confirm="Are you really, really sure?"
             i.fa.fa-trash>
             span.hide-mobile Delete
 
@@ -47,7 +47,7 @@ elixir:
     .block__header.block__header--light.block__header--sub
       span.block__header__title A gallery by
 
-      => link @gallery.creator.name, to: Routes.profile_path(@conn, :show, @gallery.creator)
+      => link @gallery.creator.name, to: ~p"/profiles/#{@gallery.creator}"
       ' with
       => @gallery.image_count
       = pluralize("image", "images", @gallery.image_count)

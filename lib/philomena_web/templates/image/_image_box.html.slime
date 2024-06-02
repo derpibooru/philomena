@@ -1,5 +1,5 @@
 elixir:
-  link = assigns[:link] || Routes.image_path(@conn, :show, @image)
+  link = assigns[:link] || ~p"/images/#{@image}"
   size_class =
     case @size do
       :thumb ->

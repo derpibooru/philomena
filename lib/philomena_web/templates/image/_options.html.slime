@@ -2,13 +2,13 @@
 
 #image_options_area
   .block__header.block__header--js-tabbed
-    a href="#" data-click-tab="reporting" data-load-tab=Routes.image_reporting_path(@conn, :show, @image)
+    a href="#" data-click-tab="reporting" data-load-tab=~p"/images/#{@image}/reporting"
       i.fa.fa-exclamation-triangle>
       | Report
     a href="#" data-click-tab="sharing"
       i.fa.fa-share>
       | Share
-    a href="#" data-click-tab="favoriters" data-load-tab=Routes.image_favorite_path(@conn, :index, @image)
+    a href="#" data-click-tab="favoriters" data-load-tab=~p"/images/#{@image}/favorites"
       i.fa.fa-star>
       | List favoriters
     = if display_mod_tools? and not hide_staff_tools?(@conn) do
@@ -56,7 +56,7 @@
           | Copy
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_full_tag rows="2" cols="100" readonly="readonly"
-          = "[img]#{thumb_url(@image, false, :full)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+          = "[img]#{thumb_url(@image, false, :full)}[/img]\n[url=#{url(~p"/images/#{@image}")}]View on Derpibooru[/url]#{source_link}"
       p
         strong> Thumbnailed BBcode
         a href="#" data-click-copy="#bbcode_embed_thumbnail_tag"
@@ -64,11 +64,11 @@
           | Copy
         br
         textarea.input.input--wide.input--separate-top#bbcode_embed_thumbnail_tag rows="2" cols="100" readonly="readonly"
-          = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{Routes.image_url(@conn, :show, @image)}]View on Derpibooru[/url]#{source_link}"
+          = "[img]#{thumb_url(@image, false, :medium)}[/img]\n[url=#{url(~p"/images/#{@image}")}]View on Derpibooru[/url]#{source_link}"
 
   = if display_mod_tools? do
     .block__tab.hidden data-tab="replace"
-      = form_for @changeset, Routes.image_file_path(@conn, :update, @image), [method: "put", multipart: true], fn f ->
+      = form_for @changeset, ~p"/images/#{@image}/file", [method: "put", multipart: true], fn f ->
         #js-image-upload-previews
         p Upload a file from your computer
         .field
@@ -85,7 +85,7 @@
 
     .block__tab.hidden data-tab="administration"
       .block.block--danger
-        a.button.button--link> href=Routes.image_scratchpad_path(@conn, :edit, @image)
+        a.button.button--link> href=~p"/images/#{@image}/scratchpad/edit"
           i.far.fa-edit
         = if present?(@image.scratchpad) do
           strong> Mod notes:
@@ -94,13 +94,13 @@
           em No mod notes present
 
       = if not @image.hidden_from_users do
-        = form_for @changeset, Routes.image_delete_path(@conn, :create, @image), [method: "post"], fn f ->
+        = form_for @changeset, ~p"/images/#{@image}/delete", [method: "post"], fn f ->
           = label f, :deletion_reason, "Deletion reason (cannot be empty)"
           .field.field--inline
             = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
             = submit "Delete", class: "button button--state-danger button--separate-left"
       - else
-        = form_for @changeset, Routes.image_delete_path(@conn, :update, @image), [method: "put"], fn f ->
+        = form_for @changeset, ~p"/images/#{@image}/delete", [method: "put"], fn f ->
           = label f, :deletion_reason, "Deletion reason (cannot be empty)"
           .field.field--inline
             = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
@@ -108,18 +108,18 @@
 
       .flex.flex--spaced-out.flex--wrap
         = if not @image.hidden_from_users do
-          = form_for @changeset, Routes.image_feature_path(@conn, :create, @image), [method: "post"], fn _f ->
+          = form_for @changeset, ~p"/images/#{@image}/feature", [method: "post"], fn _f ->
             .field
               p Marks the image as featured
               = submit "Feature", data: [confirm: "Are you really, really sure?"], class: "button button--state-success"
         - else
-          = button_to "Restore", Routes.image_delete_path(@conn, :delete, @image), method: "delete", class: "button button--state-success"
+          = button_to "Restore", ~p"/images/#{@image}/delete", method: "delete", class: "button button--state-success"
 
-        = form_for @changeset, Routes.image_repair_path(@conn, :create, @image), [method: "post"], fn _f ->
+        = form_for @changeset, ~p"/images/#{@image}/repair", [method: "post"], fn _f ->
           .field
             = submit "Repair", class: "button button--state-success"
 
-        = form_for @changeset, Routes.image_hash_path(@conn, :delete, @image), [method: "delete"], fn _f ->
+        = form_for @changeset, ~p"/images/#{@image}/hash", [method: "delete"], fn _f ->
           .field
             p Allows reuploading the image
             .flex.flex--end-bunched
@@ -128,24 +128,24 @@
       br
       .flex.flex--spaced-out
         = if @image.commenting_allowed do
-          = button_to "Lock commenting", Routes.image_comment_lock_path(@conn, :create, @image), method: "post", class: "button"
+          = button_to "Lock commenting", ~p"/images/#{@image}/comment_lock", method: "post", class: "button"
         - else
-          = button_to "Unlock commenting", Routes.image_comment_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+          = button_to "Unlock commenting", ~p"/images/#{@image}/comment_lock", method: "delete", class: "button"
 
         = if @image.description_editing_allowed do
-          = button_to "Lock description editing", Routes.image_description_lock_path(@conn, :create, @image), method: "post", class: "button"
+          = button_to "Lock description editing", ~p"/images/#{@image}/description_lock", method: "post", class: "button"
         - else
-          = button_to "Unlock description editing", Routes.image_description_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+          = button_to "Unlock description editing", ~p"/images/#{@image}/description_lock", method: "delete", class: "button"
 
         = if @image.tag_editing_allowed do
-          = button_to "Lock tag editing", Routes.image_tag_lock_path(@conn, :create, @image), method: "post", class: "button"
+          = button_to "Lock tag editing", ~p"/images/#{@image}/tag_lock", method: "post", class: "button"
         - else
-          = button_to "Unlock tag editing", Routes.image_tag_lock_path(@conn, :delete, @image), method: "delete", class: "button"
+          = button_to "Unlock tag editing", ~p"/images/#{@image}/tag_lock", method: "delete", class: "button"
 
       br
       .flex.flex--spaced-out
-        = link "Lock specific tags", to: Routes.image_tag_lock_path(@conn, :show, @image), class: "button"
+        = link "Lock specific tags", to: ~p"/images/#{@image}/tag_lock", class: "button"
         = if not @image.approved and can?(@conn, :approve, @image) do
-          = button_to "Approve image", Routes.image_approve_path(@conn, :create, @image), method: "post", class: "button button--state-success", data: [confirm: "Are you sure?"]
+          = button_to "Approve image", ~p"/images/#{@image}/approve", method: "post", class: "button button--state-success", data: [confirm: "Are you sure?"]
         = if @image.hidden_from_users and can?(@conn, :destroy, @image) do
-          = button_to "Destroy image", Routes.image_destroy_path(@conn, :create, @image), method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]
+          = button_to "Destroy image", ~p"/images/#{@image}/destroy", method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]

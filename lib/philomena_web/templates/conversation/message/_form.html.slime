@@ -1,4 +1,4 @@
-= form_for @changeset, Routes.conversation_message_path(@conn, :create, @conversation), fn f ->
+= form_for @changeset, ~p"/conversations/#{@conversation}/messages", fn f ->
   .block
     .communication-edit__wrap
       = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, action_icon: "pencil-alt", action_text: "Reply"

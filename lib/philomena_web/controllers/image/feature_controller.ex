@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Image.FeatureController do
     conn
     |> put_flash(:info, "Image marked as featured image.")
     |> moderation_log(details: &log_details/3, data: image)
-    |> redirect(to: Routes.image_path(conn, :show, image))
+    |> redirect(to: ~p"/images/#{image}")
   end
 
   defp verify_not_deleted(conn, _opts) do
@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.Image.FeatureController do
       true ->
         conn
         |> put_flash(:error, "Cannot feature a hidden image.")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
 
       _false ->
@@ -33,10 +33,10 @@ defmodule PhilomenaWeb.Image.FeatureController do
     end
   end
 
-  defp log_details(conn, _action, image) do
+  defp log_details(_conn, _action, image) do
     %{
       body: "Featured image >>#{image.id}",
-      subject_path: Routes.image_path(conn, :show, image)
+      subject_path: ~p"/images/#{image}"
     }
   end
 end

@@ -12,7 +12,7 @@
           ' The following tags have been restricted on this image:
           code= Enum.map_join(@image.locked_tags, ", ", & &1.name)
 
-      = form_for @changeset, Routes.image_tag_path(@conn, :update, @image), [id: "tags-form", method: "put", data: [remote: "true"]], fn f ->
+      = form_for @changeset, ~p"/images/#{@image}/tags", [id: "tags-form", method: "put", data: [remote: "true"]], fn f ->
         = if @changeset.action do
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
@@ -66,7 +66,7 @@
           i.fas.fa-edit>
           ' Edit
         = if @tag_change_count > 0 do
-          a.button.button--link.button--inline href=Routes.image_tag_change_path(@conn, :index, @image) title="Tag history"
+          a.button.button--link.button--inline href=~p"/images/#{@image}/tag_changes" title="Tag history"
             i.fa.fa-history>
             | History (
             = @tag_change_count

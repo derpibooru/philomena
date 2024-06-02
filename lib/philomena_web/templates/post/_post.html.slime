@@ -9,7 +9,7 @@ article.block.communication id="post_#{@post.id}"
           p
             ul.horizontal-list
               li
-                = link(to: Routes.forum_topic_post_approve_path(@conn, :create, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: "post", class: "button") do
+                = link(to: ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/approve", data: [confirm: "Are you sure?"], method: "post", class: "button") do
                   i.fas.fa-check>
                   ' Approve
               li
@@ -17,7 +17,7 @@ article.block.communication id="post_#{@post.id}"
                   i.fa.fa-times>
                   ' Reject
 
-            = form_for :post, Routes.forum_topic_post_hide_path(@conn, :create, @post.topic.forum, @post.topic, @post), [class: "togglable-delete-form hidden flex", id: "inline-reject-form-post-#{@post.id}"], fn f ->
+            = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "togglable-delete-form hidden flex", id: "inline-reject-form-post-#{@post.id}"], fn f ->
               = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-reject-reason-post-#{@post.id}", required: true
               = submit "Delete", class: "button"
 
@@ -57,11 +57,11 @@ article.block.communication id="post_#{@post.id}"
     = if can?(@conn, :hide, @post) and not hide_staff_tools?(@conn) do
       = cond do
         - @post.hidden_from_users and not @post.destroyed_content ->
-          = link(to: Routes.forum_topic_post_hide_path(@conn, :delete, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: "delete", class: "communication__interaction") do
+          = link(to: ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", data: [confirm: "Are you sure?"], method: "delete", class: "communication__interaction") do
             i.fas.fa-check>
             ' Restore
             = if can?(@conn, :delete, @post) do
-              = link(to: Routes.forum_topic_post_delete_path(@conn, :create, @post.topic.forum, @post.topic, @post), data: [confirm: "Are you sure?"], method: "post", class: "communication__interaction") do
+              = link(to: ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/delete", data: [confirm: "Are you sure?"], method: "post", class: "communication__interaction") do
                 i.fas.fa-times>
                 ' Delete Contents
 
@@ -78,6 +78,6 @@ article.block.communication id="post_#{@post.id}"
         .communication__info
           =<> link_to_fingerprint(@conn, @post.fingerprint)
 
-      = form_for :post, Routes.forum_topic_post_hide_path(@conn, :create, @post.topic.forum, @post.topic, @post), [class: "togglable-delete-form hidden flex", id: "inline-del-form-post-#{@post.id}"], fn f ->
+      = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "togglable-delete-form hidden flex", id: "inline-del-form-post-#{@post.id}"], fn f ->
         = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-post-#{@post.id}", required: true
         = submit "Delete", class: "button"

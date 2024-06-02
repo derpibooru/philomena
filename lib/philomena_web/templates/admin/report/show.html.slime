@@ -1,6 +1,6 @@
 h1 Showing Report
 p
-  = link_to_reported_thing @conn, @report.reportable
+  = link_to_reported_thing @report.reportable
 
 article.block.communication
   .block__content.flex.flex--no-wrap
@@ -31,18 +31,18 @@ article.block.communication
 = if assigns[:mod_notes] do
   h4 Mod Notes
   = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
-  = link "Add New Note", to: Routes.admin_mod_note_path(@conn, :new, notable_id: @report.id, notable_type: "Report")
+  = link "Add New Note", to: ~p"/admin/mod_notes/new?#{[notable_id: @report.id, notable_type: "Report"]}"
 
 p
   = if @report.user do
-    => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: @report.user.name), class: "button button--link"
+    => link "Send PM", to: ~p"/conversations/new?#{[recipient: @report.user.name]}", class: "button button--link"
 
   = if @report.open do
-    => link "Close", to: Routes.admin_report_close_path(@conn, :create, @report), class: "button", data: [method: "post"]
+    => link "Close", to: ~p"/admin/reports/#{@report}/close", class: "button", data: [method: "post"]
 
     = if current?(@report.admin, @conn.assigns.current_user) do
-      => link "Release", to: Routes.admin_report_claim_path(@conn, :delete, @report), class: "button", data: [method: "delete"]
+      => link "Release", to: ~p"/admin/reports/#{@report}/claim", class: "button", data: [method: "delete"]
     - else
-      => link "Claim", to: Routes.admin_report_claim_path(@conn, :create, @report), class: "button", data: [method: "post"]
+      => link "Claim", to: ~p"/admin/reports/#{@report}/claim", class: "button", data: [method: "post"]
 
-= link "Back", to: Routes.admin_report_path(@conn, :index), class: "button button-link"
+= link "Back", to: ~p"/admin/reports", class: "button button-link"

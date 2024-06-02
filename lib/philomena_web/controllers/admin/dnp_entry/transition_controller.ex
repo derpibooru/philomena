@@ -16,12 +16,12 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully updated DNP entry.")
-        |> redirect(to: Routes.dnp_entry_path(conn, :show, dnp_entry))
+        |> redirect(to: ~p"/dnp/#{dnp_entry}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Failed to update DNP entry!")
-        |> redirect(to: Routes.dnp_entry_path(conn, :show, conn.assigns.dnp_entry))
+        |> redirect(to: ~p"/dnp/#{conn.assigns.dnp_entry}")
     end
   end
 

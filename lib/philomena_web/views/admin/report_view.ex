@@ -7,8 +7,8 @@ defmodule PhilomenaWeb.Admin.ReportView do
   alias PhilomenaWeb.ReportView
   alias PhilomenaWeb.ProfileView
 
-  defp link_to_reported_thing(conn, reportable),
-    do: ReportView.link_to_reported_thing(conn, reportable)
+  defp link_to_reported_thing(reportable),
+    do: ReportView.link_to_reported_thing(reportable)
 
   defp report_row_class(report),
     do: ReportView.report_row_class(report)
@@ -16,8 +16,8 @@ defmodule PhilomenaWeb.Admin.ReportView do
   defp pretty_state(report),
     do: ReportView.pretty_state(report)
 
-  defp user_abbrv(conn, user),
-    do: ProfileView.user_abbrv(conn, user)
+  defp user_abbrv(user),
+    do: ProfileView.user_abbrv(user)
 
   defp current?(current_user, user),
     do: ProfileView.current?(current_user, user)
@@ -25,13 +25,13 @@ defmodule PhilomenaWeb.Admin.ReportView do
   def truncate(<<string::binary-size(50), _rest::binary>>), do: string <> "..."
   def truncate(string), do: string
 
-  def truncated_ip_link(conn, ip) do
+  def truncated_ip_link(ip) do
     case to_string(ip) do
       <<string::binary-size(25), _rest::binary>> = ip ->
-        link(string <> "...", to: Routes.ip_profile_path(conn, :show, ip))
+        link(string <> "...", to: ~p"/ip_profiles/#{ip}")
 
       ip ->
-        link(ip, to: Routes.ip_profile_path(conn, :show, ip))
+        link(ip, to: ~p"/ip_profiles/#{ip}")
     end
   end
 

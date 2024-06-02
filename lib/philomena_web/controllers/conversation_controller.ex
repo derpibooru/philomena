@@ -115,7 +115,7 @@ defmodule PhilomenaWeb.ConversationController do
 
         conn
         |> put_flash(:info, "Conversation successfully created.")
-        |> redirect(to: Routes.conversation_path(conn, :show, conversation))
+        |> redirect(to: ~p"/conversations/#{conversation}")
 
       {:error, changeset} ->
         conn

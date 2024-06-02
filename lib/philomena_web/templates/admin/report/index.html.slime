@@ -1,4 +1,4 @@
-- route = fn p -> Routes.admin_report_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/reports?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", route: route, page: @reports, conn: @conn, params: [rq: @conn.params["rq"] || "*"]
 
 h1 Reports
@@ -30,7 +30,7 @@ h1 Reports
   .block__header.block__header--light
     = pagination
 
-= form_for :report, Routes.admin_report_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+= form_for :report, ~p"/admin/reports", [method: "get", class: "hform"], fn f ->
   .field
     = text_input f, :rq, name: :rq, value: @conn.params["rq"], class: "input hform__text", placeholder: "Search reports", autocapitalize: "none"
     = submit "Search", class: "hform__button button"

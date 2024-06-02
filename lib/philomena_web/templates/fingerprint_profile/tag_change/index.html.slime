@@ -2,7 +2,7 @@ h1
   ' Tag changes by
   = @fingerprint
 
-- route = fn p -> Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, p) end
+- route = fn p -> ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes?#{p}" end
 - params = if @conn.params["added"], do: [added: @conn.params["added"]]
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: params
 
@@ -11,8 +11,8 @@ h1
     span.block__header__title
       | Display only:
 
-    = link "Removed", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, added: 0)
-    = link "Added", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint, added: 1)
-    = link "All", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint)
+    = link "Removed", to: ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes?#{[added: 0]}"
+    = link "Added", to: ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes?#{[added: 1]}"
+    = link "All", to: ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes"
 
   = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination

@@ -2,13 +2,13 @@ div
   ' Posted
   => pretty_time(@comment.created_at)
 
-  a.communication__interaction href=Routes.image_comment_report_path(@conn, :new, @comment.image, @comment)
+  a.communication__interaction href=~p"/images/#{@comment.image}/comments/#{@comment}/reports/new"
     i.fa.fa-flag>
     ' Report
 
   = if not is_nil(@comment.edited_at) and can?(@conn, :show, @comment) do
     br
-    a href=Routes.image_comment_history_path(@conn, :index, @comment.image, @comment)
+    a href=~p"/images/#{@comment.image}/comments/#{@comment}/history"
       ' Edited
       => pretty_time(@comment.edited_at)
 
@@ -17,7 +17,7 @@ div
         => @comment.edit_reason
 
 div
-  - link_path = Routes.image_path(@conn, :show, @comment.image) <> "#comment_#{@comment.id}"
+  - link_path = ~p"/images/#{@comment.image}" <> "#comment_#{@comment.id}"
   - safe_author = PhilomenaWeb.PostView.markdown_safe_author(@comment)
   - quote_body = if @comment.hidden_from_users, do: "", else: @comment.body
 
@@ -36,6 +36,6 @@ div
   = if can?(@conn, :edit, @comment) do
     span.owner-options
       strong
-        a.communication__interaction href=Routes.image_comment_path(@conn, :edit, @comment.image, @comment)
+        a.communication__interaction href=~p"/images/#{@comment.image}/comments/#{@comment}/edit"
           i.fas.fa-edit>
           ' Edit

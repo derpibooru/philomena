@@ -11,7 +11,7 @@ span.image_uploader
       i.fas.fa-eye
 
 = if can?(@conn, :show, :ip_address) do
-  = form_for @changeset, Routes.image_uploader_path(@conn, :update, @image), [class: "block__content hidden", id: "uploader-form", data: [remote: "true", method: "put"]], fn f ->
+  = form_for @changeset, ~p"/images/#{@image}/uploader", [class: "block__content hidden", id: "uploader-form", data: [remote: "true", method: "put"]], fn f ->
     => label f, :username, "Uploader"
     => text_input f, :username, value: username(@image.user), class: "input input--short input--small"
 
@@ -21,6 +21,6 @@ span.image_uploader
 
   .image-anonymous.hidden
     = if @image.anonymous do
-      = button_to "Reveal author", Routes.image_anonymous_path(@conn, :delete, @image), class: "button button--small", method: "delete", data: [confirm: "Are you really, really sure?"]
+      = button_to "Reveal author", ~p"/images/#{@image}/anonymous", class: "button button--small", method: "delete", data: [confirm: "Are you really, really sure?"]
     - else
-      = button_to "Hide author", Routes.image_anonymous_path(@conn, :create, @image), class: "button button--small", method: "create", data: [confirm: "Are you really, really sure?"]
+      = button_to "Hide author", ~p"/images/#{@image}/anonymous", class: "button button--small", method: "create", data: [confirm: "Are you really, really sure?"]

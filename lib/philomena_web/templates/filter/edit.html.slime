@@ -1,5 +1,5 @@
 h2 Editing Filter
-= render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: Routes.filter_path(@conn, :update, @filter)
+= render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: ~p"/filters/#{@filter}"
 
 = if not @filter.public and not @filter.system do
   br
@@ -19,4 +19,4 @@ h2 Editing Filter
         strong irreversible
         ' . Once you make a filter public, you cannot make it private again.
 
-      = button_to "Convert to Public Filter", Routes.filter_public_path(@conn, :create, @filter), class: "button", method: "create", data: [confirm: "Are you really, really sure?"]
+      = button_to "Convert to Public Filter", ~p"/filters/#{@filter}/public", class: "button", method: "create", data: [confirm: "Are you really, really sure?"]

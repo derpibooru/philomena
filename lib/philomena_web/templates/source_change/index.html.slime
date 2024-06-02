@@ -16,7 +16,7 @@
         = for source_change <- @source_changes do
           tr
             td.center
-              = link source_change.image_id, to: Routes.image_path(@conn, :show, source_change.image)
+              = link source_change.image_id, to: ~p"/images/#{source_change.image}"
             td.center
               = render PhilomenaWeb.ImageView, "_image_container.html", image: source_change.image, size: :thumb_tiny, conn: @conn
 

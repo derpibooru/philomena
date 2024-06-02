@@ -16,12 +16,12 @@ defmodule PhilomenaWeb.Image.FileController do
       {:ok, image} ->
         conn
         |> put_flash(:info, "Successfully updated file.")
-        |> redirect(to: Routes.image_path(conn, :show, image))
+        |> redirect(to: ~p"/images/#{image}")
 
       _error ->
         conn
         |> put_flash(:error, "Failed to update file!")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> redirect(to: ~p"/images/#{conn.assigns.image}")
     end
   end
 
@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Image.FileController do
       true ->
         conn
         |> put_flash(:error, "Cannot replace a hidden image.")
-        |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+        |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
 
       _false ->

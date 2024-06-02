@@ -1,6 +1,6 @@
 h1 Resend unlock instructions
 
-= form_for :user, Routes.unlock_path(@conn, :create), fn f ->
+= form_for :user, ~p"/unlocks", fn f ->
   .field
     = email_input f, :email, placeholder: "Email", class: "input", required: true
 

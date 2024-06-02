@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     removed_tag_names =
       tags
       |> Enum.filter(&String.starts_with?(&1, "-"))
-      |> Enum.map(&String.slice(&1, 1..-1))
+      |> Enum.map(&String.replace_leading(&1, "-", ""))
 
     added_tags =
       Tag
@@ -71,7 +71,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
   defp log_details(conn, _action, data) do
     %{
       body: "Batch tagged '#{data.tag_list}' on #{data.image_count} images",
-      subject_path: Routes.profile_path(conn, :show, conn.assigns.current_user)
+      subject_path: ~p"/profiles/#{conn.assigns.current_user}"
     }
   end
 end

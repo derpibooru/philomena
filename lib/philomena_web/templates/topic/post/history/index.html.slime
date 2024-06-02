@@ -2,7 +2,7 @@ h1
   ' Viewing last 25 versions of post by
   = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, conn: @conn
   ' in topic
-  a href=(Routes.forum_topic_path(@conn, :show, @post.topic.forum, @post.topic, post_id: @post.id) <> "#post_#{@post.id}")
+  a href=(~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}?#{[post_id: @post.id]}" <> "#post_#{@post.id}")
     = @post.topic.title
 
 = for version <- @versions do

@@ -1,7 +1,7 @@
 h1 New Conversation
 .block
   .block__header
-    => link "Conversations", to: Routes.conversation_path(@conn, :index)
+    => link "Conversations", to: ~p"/conversations"
     ' &raquo;
     span.block__header__title New Conversation
 
@@ -20,7 +20,7 @@ h1 New Conversation
   - _ ->
     / Nothing
 
-= form_for @changeset, Routes.conversation_path(@conn, :create), fn f ->
+= form_for @changeset, ~p"/conversations", fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

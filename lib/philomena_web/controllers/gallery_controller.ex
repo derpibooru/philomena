@@ -110,7 +110,7 @@ defmodule PhilomenaWeb.GalleryController do
       {:ok, gallery} ->
         conn
         |> put_flash(:info, "Gallery successfully created.")
-        |> redirect(to: Routes.gallery_path(conn, :show, gallery))
+        |> redirect(to: ~p"/galleries/#{gallery}")
 
       {:error, changeset} ->
         conn
@@ -132,7 +132,7 @@ defmodule PhilomenaWeb.GalleryController do
       {:ok, gallery} ->
         conn
         |> put_flash(:info, "Gallery successfully updated.")
-        |> redirect(to: Routes.gallery_path(conn, :show, gallery))
+        |> redirect(to: ~p"/galleries/#{gallery}")
 
       {:error, changeset} ->
         conn
@@ -147,7 +147,7 @@ defmodule PhilomenaWeb.GalleryController do
 
     conn
     |> put_flash(:info, "Gallery successfully destroyed.")
-    |> redirect(to: Routes.gallery_path(conn, :index))
+    |> redirect(to: ~p"/galleries")
   end
 
   defp prev_next_page_images(conn, query) do

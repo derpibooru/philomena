@@ -54,16 +54,16 @@ h3 Associated tag
 
 = if can?(@conn, :index, Philomena.ArtistLinks.ArtistLink) do
   p
-    => link "Edit", to: Routes.profile_artist_link_path(@conn, :edit, @user, @artist_link)
+    => link "Edit", to: ~p"/profiles/#{@user}/artist_links/#{@artist_link}/edit"
     ' &bull;
-    => link "Verify", to: Routes.admin_artist_link_verification_path(@conn, :create, @artist_link), method: :post
+    => link "Verify", to: ~p"/admin/artist_links/#{@artist_link}/verification", method: :post
     ' &bull;
-    => link "Reject", to: Routes.admin_artist_link_reject_path(@conn, :create, @artist_link), method: :post
+    => link "Reject", to: ~p"/admin/artist_links/#{@artist_link}/reject", method: :post
     = if not verified?(@artist_link) do
       ' &bull;
       = if contacted?(@artist_link) do
         ' Artist contacted
       - else
-        = link "Artist contacted", to: Routes.admin_artist_link_contact_path(@conn, :create, @artist_link), method: :post
+        = link "Artist contacted", to: ~p"/admin/artist_links/#{@artist_link}/contact", method: :post
 
-= link "Back", to: Routes.profile_artist_link_path(@conn, :index, @user)
+= link "Back", to: ~p"/profiles/#{@user}/artist_links"

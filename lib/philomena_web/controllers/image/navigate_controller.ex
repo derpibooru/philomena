@@ -21,11 +21,11 @@ defmodule PhilomenaWeb.Image.NavigateController do
     |> case do
       {next_image, hit} ->
         redirect(conn,
-          to: Routes.image_path(conn, :show, next_image, Keyword.put(scope, :sort, hit["sort"]))
+          to: ~p"/images/#{next_image}?#{Keyword.put(scope, :sort, hit["sort"])}"
         )
 
       nil ->
-        redirect(conn, to: Routes.image_path(conn, :show, image, scope))
+        redirect(conn, to: ~p"/images/#{image}?#{scope}")
     end
   end
 
@@ -41,7 +41,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
 
     page_num = page_for_offset(pagination.page_size, images.total_entries)
 
-    redirect(conn, to: Routes.search_path(conn, :index, q: "*", page: page_num))
+    redirect(conn, to: ~p"/search?#{[q: "*", page: page_num]}")
   end
 
   defp page_for_offset(per_page, offset) do

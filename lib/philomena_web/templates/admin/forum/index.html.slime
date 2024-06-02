@@ -9,9 +9,9 @@ table.table
     = for forum <- @forums do
       tr
         td
-          = link forum.name, to: Routes.forum_path(@conn, :show, forum)
+          = link forum.name, to: ~p"/forums/#{forum}"
 
         td class="text-right"
-          = link "Edit", to: Routes.admin_forum_path(@conn, :edit, forum)
+          = link "Edit", to: ~p"/admin/forums/#{forum}/edit"
 
-= link "New Forum", to: Routes.admin_forum_path(@conn, :new)
+= link "New Forum", to: ~p"/admin/forums/new"

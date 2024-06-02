@@ -4,7 +4,7 @@ h1
   | Editing locked tags on image #
   = @image.id
 
-= form_for @changeset, Routes.image_tag_lock_path(@conn, :update, @image), fn f ->
+= form_for @changeset, ~p"/images/#{@image}/tag_lock", fn f ->
   .field
     = render PhilomenaWeb.TagView, "_tag_editor.html", f: f, name: :tag_input, type: :edit, extra: [value: tag_input]
     = error_tag f, :tag_input

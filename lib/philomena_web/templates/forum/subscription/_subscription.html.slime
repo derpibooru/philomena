@@ -1,8 +1,8 @@
 elixir:
-  watch_path = Routes.forum_subscription_path(@conn, :create, @forum)
+  watch_path = ~p"/forums/#{@forum}/subscription"
   watch_class = if @watching, do: "hidden", else: ""
 
-  unwatch_path = Routes.forum_subscription_path(@conn, :delete, @forum)
+  unwatch_path = ~p"/forums/#{@forum}/subscription"
   unwatch_class = if @watching, do: "", else: "hidden"
 
 = if @conn.assigns.current_user do
@@ -17,7 +17,7 @@ elixir:
       span.hide-mobile
         ' Unsubscribe
 - else
-    a href=Routes.session_path(@conn, :new)
+    a href=~p"/sessions/new"
       i.fa.fa-bell>
       span.hide-mobile
         ' Subscribe

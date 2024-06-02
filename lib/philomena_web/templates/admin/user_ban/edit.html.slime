@@ -1,6 +1,6 @@
 h1 Editing ban
 
-= render PhilomenaWeb.Admin.UserBanView, "_form.html", changeset: @changeset, action: Routes.admin_user_ban_path(@conn, :update, @user), conn: @conn
+= render PhilomenaWeb.Admin.UserBanView, "_form.html", changeset: @changeset, action: ~p"/admin/user_bans/#{@user}", conn: @conn
 
 br
-= link "Back", to: Routes.admin_user_ban_path(@conn, :index)
+= link "Back", to: ~p"/admin/user_bans"

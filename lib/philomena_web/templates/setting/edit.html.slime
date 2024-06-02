@@ -1,5 +1,5 @@
 h1 Content Settings
-= form_for @changeset, Routes.setting_path(@conn, :update), [method: "put"], fn f ->
+= form_for @changeset, ~p"/settings", [method: "put"], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
@@ -51,7 +51,7 @@ h1 Content Settings
             code>
               = link("Click to show", to: "#", data: [click_show: "#rss-link", click_hide: "#rss-feed-button"])
           #rss-link.hidden
-            = url_input f, :subscribe_url, value: Routes.api_rss_watched_url(@conn, :index, key: @conn.assigns.current_user.authentication_token), class: "input input--wide"
+            = url_input f, :subscribe_url, value: url(~p"/api/v1/rss/watched?#{[key: @conn.assigns.current_user.authentication_token]}"), class: "input input--wide"
           br
           ' Do not share this URL with anyone, it may allow an attacker to compromise your account.
 
@@ -79,7 +79,7 @@ h1 Content Settings
                 ' For 1080p monitors, try 24.
           .field
             => label f, :theme
-            => select f, :theme, theme_options(@conn), class: "input"
+            => select f, :theme, theme_options(), class: "input"
             = error_tag f, :theme
             .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
           .field
@@ -184,7 +184,7 @@ h1 Content Settings
       .block__tab.hidden data-tab="join-the-herd"
         p
           ' Consider
-          => link "creating an account!", to: Routes.registration_path(@conn, :new)
+          => link "creating an account!", to: ~p"/registrations/new"
           br
           ' You will be able to customize the number of images and comments you get on a single page, as well as change the appearance of the site with custom themes.
 

@@ -1,4 +1,4 @@
-a href=Routes.image_report_path(@conn, :new, @image)
+a href=~p"/images/#{@image}/reports/new"
   button.button.button--link
     i.fa.fa-exclamation-triangle>
     ' General reporting
@@ -15,7 +15,7 @@ a href=Routes.image_report_path(@conn, :new, @image)
       - else
         p
           ' You must
-          a> href=Routes.session_path(@conn, :new) log in
+          a> href=~p"/sessions/new" log in
           ' to report duplicate images.
 
       - target_reports = Enum.filter(@dupe_reports, & &1.duplicate_of_image_id == @image.id)

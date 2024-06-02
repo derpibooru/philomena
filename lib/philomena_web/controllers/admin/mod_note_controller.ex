@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
       {:ok, _mod_note} ->
         conn
         |> put_flash(:info, "Successfully created mod note.")
-        |> redirect(to: Routes.admin_mod_note_path(conn, :index))
+        |> redirect(to: ~p"/admin/mod_notes")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -63,7 +63,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
       {:ok, _mod_note} ->
         conn
         |> put_flash(:info, "Successfully updated mod note.")
-        |> redirect(to: Routes.admin_mod_note_path(conn, :index))
+        |> redirect(to: ~p"/admin/mod_notes")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -75,7 +75,7 @@ defmodule PhilomenaWeb.Admin.ModNoteController do
 
     conn
     |> put_flash(:info, "Successfully deleted mod note.")
-    |> redirect(to: Routes.admin_mod_note_path(conn, :index))
+    |> redirect(to: ~p"/admin/mod_notes")
   end
 
   defp verify_authorized(conn, _opts) do

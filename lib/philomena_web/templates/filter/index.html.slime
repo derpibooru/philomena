@@ -28,7 +28,7 @@
     h2 My Filters
     = if @current_user do
       p
-        = link("Click here to make a new filter from scratch", to: Routes.filter_path(@conn, :new))
+        = link("Click here to make a new filter from scratch", to: ~p"/filters/new")
       = for filter <- @my_filters do
         = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
     - else
@@ -43,12 +43,12 @@
       h2 Recent Filters
       p
         ' Clicking this button will clear the recent filters list in the header dropdown.
-        = button_to "Clear recent filter list", Routes.filter_clear_recent_path(@conn, :delete), method: "delete", class: "button"
+        = button_to "Clear recent filter list", ~p"/filters/clear_recent", method: "delete", class: "button"
 
   h2 Search Filters
   p
     ' Some users maintain custom filters which are publicly shared; you can search these filters with the box below.
-  = form_for :filters, Routes.filter_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+  = form_for :filters, ~p"/filters", [method: "get", class: "hform", enforce_utf8: false], fn f ->
     .field
       = text_input f, :fq, name: :fq, value: @conn.params["fq"], class: "input hform__text", placeholder: "Search filters", autocapitalize: "none"
       = submit "Search", class: "hform__button button"
@@ -62,7 +62,7 @@
     h2 Search Results
     = cond do
       - Enum.any?(@filters) ->
-        - route = fn p -> Routes.filter_path(@conn, :index, p) end
+        - route = fn p -> ~p"/filters?#{p}" end
         - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @filters, route: route, params: [fq: @conn.params["fq"]], conn: @conn
 
         = for filter <- @filters do
@@ -99,49 +99,49 @@ table.table
       td Literal
       td Matches the creator of this filter.
       td
-        code = link "creator:AppleDash", to: Routes.filter_path(@conn, :index, fq: "creator:AppleDash")
+        code = link "creator:AppleDash", to: ~p"/filters?#{[fq: "creator:AppleDash"]}"
     tr
       td
         code name
       td Literal
       td Matches the name of this filter. This is the default field.
       td
-        code = link "name:default", to: Routes.filter_path(@conn, :index, fq: "name:default")
+        code = link "name:default", to: ~p"/filters?#{[fq: "name:default"]}"
     tr
       td
         code description
       td Full Text
       td Matches the description of this filter.
       td
-        code = link "description:the show's rating", to: Routes.filter_path(@conn, :index, fq: "description:the show's rating")
+        code = link "description:the show's rating", to: ~p"/filters?#{[fq: "description:the show's rating"]}"
     tr
       td
         code created_at
       td Date/Time Range
       td Matches the creation time of this filter.
       td
-        code = link "created_at:2015", to: Routes.filter_path(@conn, :index, fq: "created_at:2015")
+        code = link "created_at:2015", to: ~p"/filters?#{[fq: "created_at:2015"]}"
     tr
       td
         code id
       td Numeric Range
       td Matches the numeric surrogate key for this filter.
       td
-        code = link "id:1", to: Routes.filter_path(@conn, :index, fq: "id:1")
+        code = link "id:1", to: ~p"/filters?#{[fq: "id:1"]}"
     tr
       td
         code spoilered_count
       td Numeric Range
       td Matches the number of spoilered tags in this filter.
       td
-        code = link "spoilered_count:1", to: Routes.filter_path(@conn, :index, fq: "spoilered_count:1")
+        code = link "spoilered_count:1", to: ~p"/filters?#{[fq: "spoilered_count:1"]}"
     tr
       td
         code hidden_count
       td Numeric Range
       td Matches the number of hidden tags in this filter.
       td
-        code = link "hidden_count:1", to: Routes.filter_path(@conn, :index, fq: "hidden_count:1")
+        code = link "hidden_count:1", to: ~p"/filters?#{[fq: "hidden_count:1"]}"
     tr
       td
         code my
@@ -150,14 +150,14 @@ table.table
         code> my:filters
         ' matches filters you have published if you are signed in.
       td
-        code = link "my:filters", to: Routes.filter_path(@conn, :index, fq: "my:filters")
+        code = link "my:filters", to: ~p"/filters?#{[fq: "my:filters"]}"
     tr
       td
         code system
       td Boolean
       td Matches system filters
       td
-        code = link "system:true", to: Routes.filter_path(@conn, :index, fq: "system:true")
+        code = link "system:true", to: ~p"/filters?#{[fq: "system:true"]}"
     tr
       td
         code public
@@ -167,14 +167,14 @@ table.table
         code> public:false
         ' matches only your own private filters.
       td
-        code = link "public:false", to: Routes.filter_path(@conn, :index, fq: "public:false")
+        code = link "public:false", to: ~p"/filters?#{[fq: "public:false"]}"
     tr
       td
         code user_id
       td Literal
       td Matches filters with the specified user_id.
       td
-        code = link "user_id:307505", to: Routes.filter_path(@conn, :index, fq: "user_id:307505")
+        code = link "user_id:307505", to: ~p"/filters?#{[fq: "user_id:307505"]}"
 
 = if @conn.params["fq"] do
-  p = link("Back to filters", to: Routes.filter_path(@conn, :index))
+  p = link("Back to filters", to: ~p"/filters")

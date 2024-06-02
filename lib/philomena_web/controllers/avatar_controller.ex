@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.AvatarController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Successfully updated avatar.")
-        |> redirect(to: Routes.avatar_path(conn, :edit))
+        |> redirect(to: ~p"/avatar/edit")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -30,6 +30,6 @@ defmodule PhilomenaWeb.AvatarController do
 
     conn
     |> put_flash(:info, "Successfully removed avatar.")
-    |> redirect(to: Routes.avatar_path(conn, :edit))
+    |> redirect(to: ~p"/avatar/edit")
   end
 end

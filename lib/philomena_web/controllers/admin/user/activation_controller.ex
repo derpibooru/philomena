@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.User.ActivationController do
 
     conn
     |> put_flash(:info, "User was reactivated.")
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   def delete(conn, _params) do
@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Admin.User.ActivationController do
 
     conn
     |> put_flash(:info, "User was deactivated.")
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do

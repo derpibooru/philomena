@@ -1,7 +1,7 @@
 = for u <- @aliases do
   tr
     td
-      = link u.name, to: Routes.profile_path(@conn, :show, u)
+      = link u.name, to: ~p"/profiles/#{u}"
 
     td
       = @type

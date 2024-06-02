@@ -97,7 +97,7 @@ defmodule PhilomenaWeb.DnpEntryController do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully submitted DNP request.")
-        |> redirect(to: Routes.dnp_entry_path(conn, :show, dnp_entry))
+        |> redirect(to: ~p"/dnp/#{dnp_entry}")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -122,7 +122,7 @@ defmodule PhilomenaWeb.DnpEntryController do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully updated DNP request.")
-        |> redirect(to: Routes.dnp_entry_path(conn, :show, dnp_entry))
+        |> redirect(to: ~p"/dnp/#{dnp_entry}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

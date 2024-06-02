@@ -12,7 +12,7 @@ meta name="format-detection" content="telephone=no"
   meta name="keywords" content=tag_list(image)
   meta name="description" content=description
   meta property="og:title" content=description
-  meta property="og:url" content=Routes.image_url(@conn, :show, image)
+  meta property="og:url" content=url(~p"/images/#{image}")
 
   = for tag <- artist_tags(image.tags) do
     meta property="dc:creator" content=tag.name_in_namespace
@@ -20,9 +20,9 @@ meta name="format-detection" content="telephone=no"
   = if image_has_sources(image) do
     meta property="foaf:primaryTopic" content=image_first_source(image)
 
-  link rel="alternate" type="application/json+oembed" href=Routes.api_json_oembed_url(@conn, :index, url: Routes.image_path(@conn, :show, image)) title="oEmbed JSON Profile"
+  link rel="alternate" type="application/json+oembed" href=url(~p"/api/v1/json/oembed?#{[url: ~p"/images/#{image}"]}") title="oEmbed JSON Profile"
 
-  link rel="canonical" href=Routes.image_url(@conn, :show, image)
+  link rel="canonical" href=url(~p"/images/#{image}")
 
   = cond do
     - image.image_mime_type == "video/webm" and not filtered ->

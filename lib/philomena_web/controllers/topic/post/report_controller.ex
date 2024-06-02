@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
   def new(conn, _params) do
     topic = conn.assigns.topic
     post = conn.assigns.post
-    action = Routes.forum_topic_post_report_path(conn, :create, topic.forum, topic, post)
+    action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
 
     changeset =
       %Report{reportable_type: "Post", reportable_id: post.id}
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
   def create(conn, params) do
     topic = conn.assigns.topic
     post = conn.assigns.post
-    action = Routes.forum_topic_post_report_path(conn, :create, topic.forum, topic, post)
+    action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
 
     ReportController.create(conn, action, post, "Post", params)
   end

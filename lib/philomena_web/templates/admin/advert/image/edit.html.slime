@@ -1,6 +1,6 @@
 h2 Edit Advert
 
-= form_for @changeset, Routes.admin_advert_image_path(@conn, :update, @advert), [multipart: true], fn f ->
+= form_for @changeset, ~p"/admin/adverts/#{@advert}/image", [multipart: true], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

@@ -8,7 +8,7 @@ table.table
   tbody
     = for static_page <- @static_pages do
       tr
-        td = link static_page.title, to: Routes.page_path(@conn, :show, static_page)
+        td = link static_page.title, to: ~p"/pages/#{static_page}"
 
 br
-= link "New static page", to: Routes.page_path(@conn, :new)
+= link "New static page", to: ~p"/pages/new"

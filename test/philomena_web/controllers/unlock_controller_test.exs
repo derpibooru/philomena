@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
 
   describe "GET /unlocks/new" do
     test "renders the unlock page", %{conn: conn} do
-      conn = get(conn, Routes.unlock_path(conn, :new))
+      conn = get(conn, ~p"/unlocks/new")
       response = html_response(conn, 200)
       assert response =~ "<h1>Resend unlock instructions</h1>"
     end
@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
     @tag :capture_log
     test "sends a new unlock token", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.unlock_path(conn, :create), %{
+        post(conn, ~p"/unlocks", %{
           "user" => %{"email" => user.email}
         })
 
@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
       Repo.update!(Users.User.unlock_changeset(user))
 
       conn =
-        post(conn, Routes.unlock_path(conn, :create), %{
+        post(conn, ~p"/unlocks", %{
           "user" => %{"email" => user.email}
         })
 
@@ -46,7 +46,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
 
     test "does not send unlock token if email is invalid", %{conn: conn} do
       conn =
-        post(conn, Routes.unlock_path(conn, :create), %{
+        post(conn, ~p"/unlocks", %{
           "user" => %{"email" => "unknown@example.com"}
         })
 
@@ -63,20 +63,20 @@ defmodule PhilomenaWeb.UnlockControllerTest do
           Users.deliver_user_unlock_instructions(user, url)
         end)
 
-      conn = get(conn, Routes.unlock_path(conn, :show, token))
+      conn = get(conn, ~p"/unlocks/#{token}")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :info) =~ "Account unlocked successfully"
       refute Users.get_user!(user.id).locked_at
       refute get_session(conn, :user_token)
       assert Repo.all(Users.UserToken) == []
 
-      conn = get(conn, Routes.unlock_path(conn, :show, token))
+      conn = get(conn, ~p"/unlocks/#{token}")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :error) =~ "Unlock link is invalid or it has expired"
     end
 
     test "does not unlock with invalid token", %{conn: conn, user: user} do
-      conn = get(conn, Routes.unlock_path(conn, :show, "oops"))
+      conn = get(conn, ~p"/unlocks/oops")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :error) =~ "Unlock link is invalid or it has expired"
       assert Users.get_user!(user.id).locked_at

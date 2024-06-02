@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.Admin.BadgeController do
       {:ok, _badge} ->
         conn
         |> put_flash(:info, "Badge created successfully.")
-        |> redirect(to: Routes.admin_badge_path(conn, :index))
+        |> redirect(to: ~p"/admin/badges")
 
       {:error, :badge, changeset, _changes} ->
         render(conn, "new.html", changeset: changeset)
@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.Admin.BadgeController do
       {:ok, _badge} ->
         conn
         |> put_flash(:info, "Badge updated successfully.")
-        |> redirect(to: Routes.admin_badge_path(conn, :index))
+        |> redirect(to: ~p"/admin/badges")
 
       {:error, :badge, changeset, _changes} ->
         render(conn, "edit.html", changeset: changeset)

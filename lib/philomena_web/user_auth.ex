@@ -3,9 +3,10 @@ defmodule PhilomenaWeb.UserAuth do
   import Phoenix.Controller
 
   alias Philomena.Users
-  alias PhilomenaWeb.Router.Helpers, as: Routes
   alias PhilomenaWeb.UserIpUpdater
   alias PhilomenaWeb.UserFingerprintUpdater
+
+  use PhilomenaWeb, :verified_routes
 
   # Make the remember me cookie valid for 365 days.
   # If you want bump or reduce this value, also change
@@ -192,9 +193,10 @@ defmodule PhilomenaWeb.UserAuth do
       conn
     else
       conn
+      |> fetch_flash()
       |> put_flash(:error, "You must log in to access this page.")
       |> maybe_store_return_to()
-      |> redirect(to: Routes.session_path(conn, :new))
+      |> redirect(to: ~p"/sessions/new")
       |> halt()
     end
   end

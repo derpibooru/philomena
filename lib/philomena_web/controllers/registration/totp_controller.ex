@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
         |> Repo.update()
 
         # Redirect to have the conn pick up the changes
-        redirect(conn, to: Routes.registration_totp_path(conn, :edit))
+        redirect(conn, to: ~p"/registrations/totp/edit")
 
       _ ->
         changeset = Users.change_user(user)
@@ -48,7 +48,7 @@ defmodule PhilomenaWeb.Registration.TotpController do
       {:ok, user} ->
         conn
         |> put_flash(:totp_backup_codes, backup_codes)
-        |> put_session(:user_return_to, Routes.registration_totp_path(conn, :edit))
+        |> put_session(:user_return_to, ~p"/registrations/totp/edit")
         |> UserAuth.totp_auth_user(user, %{})
     end
   end

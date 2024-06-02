@@ -16,13 +16,13 @@ br
   .block__content
     = cond do
       - not is_nil(@current_user) and Enum.any?(@linked_tags) ->
-        = link "Create an entry", to: Routes.dnp_entry_path(@conn, :new)
+        = link "Create an entry", to: ~p"/dnp/new"
         br
-        = link "My Listings", to: Routes.dnp_entry_path(@conn, :index, mine: "1")
+        = link "My Listings", to: ~p"/dnp?#{[mine: "1"]}"
 
       - not is_nil(@current_user) ->
         ' You must have a verified artist link to create and manage DNP entries.
-        = link "Request an artist link", to: Routes.profile_artist_link_path(@conn, :new, @current_user)
+        = link "Request an artist link", to: ~p"/profiles/#{@current_user}/artist_links/new"
         | .
 
       - true ->
@@ -31,7 +31,7 @@ br
 
 h3 The List
 .block
-  - route = fn p -> Routes.dnp_entry_path(@conn, :index, p) end
+  - route = fn p -> ~p"/dnp?#{p}" end
   - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, conn: @conn
 
   .block__header.page__header
@@ -69,7 +69,7 @@ h3 The List
                 = pretty_time(entry.created_at)
 
             td
-              = link "More Info", to: Routes.dnp_entry_path(@conn, :show, entry)
+              = link "More Info", to: ~p"/dnp/#{entry}"
 
   .block__header.page__header
     .page__pagination = pagination

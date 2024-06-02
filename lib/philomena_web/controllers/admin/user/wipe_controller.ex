@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Admin.User.WipeController do
       :info,
       "PII wipe queued, please verify and then deactivate the account as necessary."
     )
-    |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
   end
 
   defp verify_authorized(conn, _opts) do

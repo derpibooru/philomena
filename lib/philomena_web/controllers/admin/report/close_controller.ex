@@ -12,6 +12,6 @@ defmodule PhilomenaWeb.Admin.Report.CloseController do
 
     conn
     |> put_flash(:info, "Successfully closed report")
-    |> redirect(to: Routes.admin_report_path(conn, :index))
+    |> redirect(to: ~p"/admin/reports")
   end
 end

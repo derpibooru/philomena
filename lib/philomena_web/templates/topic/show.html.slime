@@ -1,4 +1,4 @@
-- route = fn p -> Routes.forum_topic_path(@conn, :show, @forum, @topic, p) end
+- route = fn p -> ~p"/forums/#{@forum}/topics/#{@topic}?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, last: true
 
 h1 = @topic.title
@@ -16,22 +16,22 @@ h1 = @topic.title
         strong> Deleted by:
         em
           strong
-            = link(@topic.deleted_by.name, to: Routes.profile_path(@conn, :show, @topic.deleted_by))
+            = link(@topic.deleted_by.name, to: ~p"/profiles/#{@topic.deleted_by}")
 
       p
-        = link(to: Routes.forum_topic_hide_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
+        = link(to: ~p"/forums/#{@forum}/topics/#{@topic}/hide", method: :delete, class: "button") do
           i.fas.fa-check>
           ' Restore
 
 / Header section
 .block
   .block__header
-    => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
+    => link(@forum.name, to: ~p"/forums/#{@forum}")
     ' &raquo;
-    => link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, @topic))
+    => link(@topic.title, to: ~p"/forums/#{@forum}/topics/#{@topic}")
 
     = if not @topic.hidden_from_users or can?(@conn, :hide, @topic) do
-      a href=Routes.post_path(@conn, :index, pq: "topic_id:#{@topic.id}")
+      a href=~p"/posts?#{[pq: "topic_id:#{@topic.id}"]}"
         i.fa.fa-fw.fa-search>
         ' Search Posts
       .flex.flex--wrap.block__header.block__header--light.page__header
@@ -86,7 +86,7 @@ h1 = @topic.title
               ' Locked by:
               em
                 strong
-                  = link(@topic.locked_by.name, to: Routes.profile_path(@conn, :show, @topic.locked_by))
+                  = link(@topic.locked_by.name, to: ~p"/profiles/#{@topic.locked_by}")
 
   / Post form
   = cond do
@@ -116,43 +116,43 @@ h1 = @topic.title
           p
             = if not @topic.hidden_from_users do
               = if @topic.sticky do
-                = link(to: Routes.forum_topic_stick_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
+                = link(to: ~p"/forums/#{@forum}/topics/#{@topic}/stick", method: :delete, class: "button") do
                   i.fas.fa-thumbtack>
                   ' Unstick
 
               - else
-                = link(to: Routes.forum_topic_stick_path(@conn, :create, @forum, @topic), method: :post, class: "button") do
+                = link(to: ~p"/forums/#{@forum}/topics/#{@topic}/stick", method: :post, class: "button") do
                   i.fas.fa-thumbtack>
                   ' Stick
 
               = if @topic.locked_at do
-                = link(to: Routes.forum_topic_lock_path(@conn, :delete, @forum, @topic), method: :delete, class: "button") do
+                = link(to: ~p"/forums/#{@forum}/topics/#{@topic}/lock", method: :delete, class: "button") do
                   i.fas.fa-unlock>
                   ' Unlock
 
               - else
-                = form_for :topic, Routes.forum_topic_lock_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+                = form_for :topic, ~p"/forums/#{@forum}/topics/#{@topic}/lock", [method: :post, class: "hform"], fn f ->
                   .field
                     = text_input f, :lock_reason, class: "input hform__text", placeholder: "Lock reason", required: true
                     = submit class: "hform__button button" do
                       i.fas.fa-lock>
                       ' Lock
 
-              = form_for @topic_changeset, Routes.forum_topic_path(@conn, :update, @forum, @topic), [method: :put, class: "hform"], fn f ->
+              = form_for @topic_changeset, ~p"/forums/#{@forum}/topics/#{@topic}", [method: :put, class: "hform"], fn f ->
                 .field
                   = text_input f, :title, class: "input hform__text", placeholder: "New Title"
                   = submit class: "hform__button button" do
                     i.fas.fa-pen>
                     ' Set Title
 
-              = form_for :topic, Routes.forum_topic_move_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+              = form_for :topic, ~p"/forums/#{@forum}/topics/#{@topic}/move", [method: :post, class: "hform"], fn f ->
                 .field
                   = select f, :target_forum_id, Enum.map(@conn.assigns.forums, &{&1.name, &1.id}), class: "input hform__text"
                   = submit class: "hform__button button" do
                     i.fas.fa-truck>
                     ' Move
 
-              = form_for :topic, Routes.forum_topic_hide_path(@conn, :create, @forum, @topic), [method: :post, class: "hform"], fn f ->
+              = form_for :topic, ~p"/forums/#{@forum}/topics/#{@topic}/hide", [method: :post, class: "hform"], fn f ->
                 .field
                   = text_input f, :deletion_reason, class: "input hform__text", placeholder: "Deletion reason", required: true
                   = submit class: "hform__button button" do

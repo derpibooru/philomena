@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Conversation.ReportController do
 
   def new(conn, _params) do
     conversation = conn.assigns.conversation
-    action = Routes.conversation_report_path(conn, :create, conversation)
+    action = ~p"/conversations/#{conversation}/reports"
 
     changeset =
       %Report{reportable_type: "Conversation", reportable_id: conversation.id}
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Conversation.ReportController do
 
   def create(conn, params) do
     conversation = conn.assigns.conversation
-    action = Routes.conversation_report_path(conn, :create, conversation)
+    action = ~p"/conversations/#{conversation}/reports"
 
     ReportController.create(conn, action, conversation, "Conversation", params)
   end

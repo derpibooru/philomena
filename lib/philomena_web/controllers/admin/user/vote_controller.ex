@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.User.VoteController do
 
     conn
     |> put_flash(:info, "Vote and fave wipe started.")
-    |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
   end
 
   defp verify_authorized(conn, _opts) do

@@ -27,9 +27,7 @@ defmodule PhilomenaWeb.Topic.PollController do
       {:ok, _poll} ->
         conn
         |> put_flash(:info, "Poll successfully updated.")
-        |> redirect(
-          to: Routes.forum_topic_path(conn, :show, conn.assigns.forum, conn.assigns.topic)
-        )
+        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{conn.assigns.topic}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
