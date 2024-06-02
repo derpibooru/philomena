@@ -14,6 +14,9 @@ defmodule Philomena.Application do
       # Background queueing system
       Philomena.ExqSupervisor,
 
+      # Mailer
+      {Task.Supervisor, name: Philomena.AsyncEmailSupervisor},
+
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
       {Redix, name: :redix, host: Application.get_env(:philomena, :redis_host)},

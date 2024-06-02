@@ -6,7 +6,6 @@ import Config
 # by calling `mix release`.
 #
 # See `mix help release` for more information.
-{:ok, _} = Application.ensure_all_started(:tls_certificate_check)
 
 config :bcrypt_elixir,
   log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS", "12"))
@@ -118,17 +117,14 @@ end
 if config_env() == :prod do
   # Production mailer config
   config :philomena, Philomena.Mailer,
-    adapter: Bamboo.SMTPAdapter,
-    server: System.fetch_env!("SMTP_RELAY"),
-    hostname: System.fetch_env!("SMTP_DOMAIN"),
-    port: System.get_env("SMTP_PORT") || 587,
-    username: System.fetch_env!("SMTP_USERNAME"),
-    password: System.fetch_env!("SMTP_PASSWORD"),
-    tls: :always,
-    auth: :always,
-    tls_options:
-      [middlebox_comp_mode: false] ++
-        :tls_certificate_check.options(System.fetch_env!("SMTP_RELAY"))
+    adapter: Swoosh.Adapters.Mua,
+    relay: System.fetch_env!("SMTP_RELAY"),
+    port: String.to_integer(System.get_env("SMTP_PORT", "587")),
+    auth: [
+      username: System.fetch_env!("SMTP_USERNAME"),
+      password: System.fetch_env!("SMTP_PASSWORD")
+    ],
+    ssl: [middlebox_comp_mode: false]
 
   # Production endpoint config
   {:ok, ip} = :inet.parse_address(System.get_env("APP_IP", "127.0.0.1") |> String.to_charlist())
@@ -140,7 +136,7 @@ if config_env() == :prod do
     server: not is_nil(System.get_env("START_ENDPOINT"))
 else
   # Don't send email in development
-  config :philomena, Philomena.Mailer, adapter: Bamboo.LocalAdapter
+  config :philomena, Philomena.Mailer, adapter: Swoosh.Adapters.Local
 
   # Use this to debug slime templates
   # config :slime, :keep_lines, true
