@@ -15,35 +15,10 @@ defmodule PhilomenaQuery.Search do
   import Ecto.Query
   import Elastix.HTTP
 
-  alias Philomena.Comments.Comment
-  alias Philomena.Galleries.Gallery
-  alias Philomena.Images.Image
-  alias Philomena.Posts.Post
-  alias Philomena.Reports.Report
-  alias Philomena.Tags.Tag
-  alias Philomena.Filters.Filter
+  # todo: fetch through compile_env?
+  @policy Philomena.SearchPolicy
 
-  alias Philomena.Comments.SearchIndex, as: CommentIndex
-  alias Philomena.Galleries.SearchIndex, as: GalleryIndex
-  alias Philomena.Images.SearchIndex, as: ImageIndex
-  alias Philomena.Posts.SearchIndex, as: PostIndex
-  alias Philomena.Reports.SearchIndex, as: ReportIndex
-  alias Philomena.Tags.SearchIndex, as: TagIndex
-  alias Philomena.Filters.SearchIndex, as: FilterIndex
-
-  defp index_for(Comment), do: CommentIndex
-  defp index_for(Gallery), do: GalleryIndex
-  defp index_for(Image), do: ImageIndex
-  defp index_for(Post), do: PostIndex
-  defp index_for(Report), do: ReportIndex
-  defp index_for(Tag), do: TagIndex
-  defp index_for(Filter), do: FilterIndex
-
-  defp opensearch_url do
-    Application.get_env(:philomena, :opensearch_url)
-  end
-
-  @type index_module :: module()
+  @type schema_module :: @policy.schema_module()
   @type queryable :: any()
   @type query_body :: map()
 
@@ -54,7 +29,7 @@ defmodule PhilomenaQuery.Search do
         }
 
   @type search_definition :: %{
-          module: index_module(),
+          module: schema_module(),
           body: query_body(),
           page_number: integer(),
           page_size: integer()
@@ -80,12 +55,12 @@ defmodule PhilomenaQuery.Search do
       iex> Search.create_index!(Image)
 
   """
-  @spec create_index!(index_module()) :: any()
+  @spec create_index!(schema_module()) :: any()
   def create_index!(module) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     Elastix.Index.create(
-      opensearch_url(),
+      @policy.opensearch_url(),
       index.index_name(),
       index.mapping()
     )
@@ -104,11 +79,11 @@ defmodule PhilomenaQuery.Search do
       iex> Search.delete_index!(Image)
 
   """
-  @spec delete_index!(index_module()) :: any()
+  @spec delete_index!(schema_module()) :: any()
   def delete_index!(module) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
-    Elastix.Index.delete(opensearch_url(), index.index_name())
+    Elastix.Index.delete(@policy.opensearch_url(), index.index_name())
   end
 
   @doc ~S"""
@@ -124,14 +99,14 @@ defmodule PhilomenaQuery.Search do
       iex> Search.update_mapping!(Image)
 
   """
-  @spec update_mapping!(index_module()) :: any()
+  @spec update_mapping!(schema_module()) :: any()
   def update_mapping!(module) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     index_name = index.index_name()
     mapping = index.mapping().mappings.properties
 
-    Elastix.Mapping.put(opensearch_url(), index_name, "_doc", %{properties: mapping},
+    Elastix.Mapping.put(@policy.opensearch_url(), index_name, "_doc", %{properties: mapping},
       include_type_name: true
     )
   end
@@ -151,13 +126,13 @@ defmodule PhilomenaQuery.Search do
       iex> Search.index_document(%Image{...}, Image)
 
   """
-  @spec index_document(struct(), index_module()) :: any()
+  @spec index_document(struct(), schema_module()) :: any()
   def index_document(doc, module) do
-    index = index_for(module)
+    index = @policy.index_for(module)
     data = index.as_json(doc)
 
     Elastix.Document.index(
-      opensearch_url(),
+      @policy.opensearch_url(),
       index.index_name(),
       "_doc",
       data.id,
@@ -181,12 +156,12 @@ defmodule PhilomenaQuery.Search do
       iex> Search.delete_document(image.id, Image)
 
   """
-  @spec delete_document(term(), index_module()) :: any()
+  @spec delete_document(term(), schema_module()) :: any()
   def delete_document(id, module) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     Elastix.Document.delete(
-      opensearch_url(),
+      @policy.opensearch_url(),
       index.index_name(),
       "_doc",
       id
@@ -215,9 +190,9 @@ defmodule PhilomenaQuery.Search do
       Search.reindex(query, Image, batch_size: 5000)
 
   """
-  @spec reindex(queryable(), index_module(), Batch.batch_options()) :: []
+  @spec reindex(queryable(), schema_module(), Batch.batch_options()) :: []
   def reindex(queryable, module, opts \\ []) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     Batch.record_batches(queryable, opts, fn records ->
       lines =
@@ -231,7 +206,7 @@ defmodule PhilomenaQuery.Search do
         end)
 
       Elastix.Bulk.post(
-        opensearch_url(),
+        @policy.opensearch_url(),
         lines,
         index: index.index_name(),
         httpoison_options: [timeout: 30_000]
@@ -267,12 +242,12 @@ defmodule PhilomenaQuery.Search do
       Search.update_by_query(Post, query_body, [set_replacement], [])
 
   """
-  @spec update_by_query(index_module(), query_body(), [replacement()], [replacement()]) :: any()
+  @spec update_by_query(schema_module(), query_body(), [replacement()], [replacement()]) :: any()
   def update_by_query(module, query_body, set_replacements, replacements) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     url =
-      opensearch_url()
+      @policy.opensearch_url()
       |> prepare_url([index.index_name(), "_update_by_query"])
       |> append_query_string(%{conflicts: "proceed", wait_for_completion: "false"})
 
@@ -355,13 +330,13 @@ defmodule PhilomenaQuery.Search do
       }
 
   """
-  @spec search(index_module(), query_body()) :: map()
+  @spec search(schema_module(), query_body()) :: map()
   def search(module, query_body) do
-    index = index_for(module)
+    index = @policy.index_for(module)
 
     {:ok, %{body: results, status_code: 200}} =
       Elastix.Search.search(
-        opensearch_url(),
+        @policy.opensearch_url(),
         index.index_name(),
         [],
         query_body
@@ -395,14 +370,14 @@ defmodule PhilomenaQuery.Search do
     msearch_body =
       Enum.flat_map(definitions, fn def ->
         [
-          %{index: index_for(def.module).index_name()},
+          %{index: @policy.index_for(def.module).index_name()},
           def.body
         ]
       end)
 
     {:ok, %{body: results, status_code: 200}} =
       Elastix.Search.search(
-        opensearch_url(),
+        @policy.opensearch_url(),
         "_all",
         [],
         msearch_body
@@ -440,7 +415,7 @@ defmodule PhilomenaQuery.Search do
       }
 
   """
-  @spec search_definition(index_module(), query_body(), pagination_params()) ::
+  @spec search_definition(schema_module(), query_body(), pagination_params()) ::
           search_definition()
   def search_definition(module, search_query, pagination_params \\ %{}) do
     page_number = pagination_params[:page_number] || 1
