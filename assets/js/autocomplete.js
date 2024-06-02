@@ -5,6 +5,7 @@
 import { LocalAutocompleter } from './utils/local-autocompleter';
 import { handleError } from './utils/requests';
 import { getTermContexts } from './match_query';
+import store from './utils/store';
 
 const cache = {};
 /** @type {HTMLInputElement} */
@@ -184,6 +185,15 @@ function getSelectedTerm() {
   return terms.find(([range]) => range[0] < selectionIndex && range[1] >= selectionIndex);
 }
 
+function toggleSearchAutocomplete() {
+  if (!store.get('disable_search_ac')) return;
+
+  for (const searchField of document.querySelectorAll('input[data-ac-mode=search]')) {
+    searchField.removeAttribute('data-ac');
+    searchField.autocomplete = 'on';
+  }
+}
+
 function listenAutocomplete() {
   let timeout;
 
@@ -268,6 +278,8 @@ function listenAutocomplete() {
         .then(buf => localAc = new LocalAutocompleter(buf));
     }
   }
+
+  toggleSearchAutocomplete();
 }
 
 export { listenAutocomplete };
