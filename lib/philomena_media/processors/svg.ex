@@ -1,12 +1,21 @@
-defmodule Philomena.Processors.Svg do
-  alias Philomena.Intensities
+defmodule PhilomenaMedia.Processors.Svg do
+  @moduledoc false
 
+  alias PhilomenaMedia.Intensities
+  alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Processors.Processor
+  alias PhilomenaMedia.Processors
+
+  @behaviour Processor
+
+  @spec versions(Processors.version_list()) :: [Processors.version_filename()]
   def versions(sizes) do
     sizes
     |> Enum.map(fn {name, _} -> "#{name}.png" end)
     |> Kernel.++(["rendered.png", "full.png"])
   end
 
+  @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
     preview = preview(file)
 
@@ -15,14 +24,16 @@ defmodule Philomena.Processors.Svg do
     scaled = Enum.flat_map(versions, &scale(preview, &1))
     full = [{:copy, preview, "full.png"}]
 
-    %{
+    [
       intensities: intensities,
       thumbnails: scaled ++ full ++ [{:copy, preview, "rendered.png"}]
-    }
+    ]
   end
 
-  def post_process(_analysis, _file), do: %{}
+  @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
+  def post_process(_analysis, _file), do: []
 
+  @spec intensities(Result.t(), Path.t()) :: Intensities.t()
   def intensities(_analysis, file) do
     {:ok, intensities} = Intensities.file(preview(file))
     intensities

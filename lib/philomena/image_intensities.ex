@@ -36,9 +36,9 @@ defmodule Philomena.ImageIntensities do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_image_intensity(image, attrs \\ %{}) do
+  def create_image_intensity(image, attrs \\ %PhilomenaMedia.Intensities{}) do
     %ImageIntensity{image_id: image.id}
-    |> ImageIntensity.changeset(attrs)
+    |> ImageIntensity.changeset(Map.from_struct(attrs))
     |> Repo.insert()
   end
 
@@ -56,7 +56,7 @@ defmodule Philomena.ImageIntensities do
   """
   def update_image_intensity(%ImageIntensity{} = image_intensity, attrs) do
     image_intensity
-    |> ImageIntensity.changeset(attrs)
+    |> ImageIntensity.changeset(Map.from_struct(attrs))
     |> Repo.update()
   end
 

@@ -10,7 +10,7 @@ defmodule Mix.Tasks.UploadToS3 do
   }
 
   alias Philomena.Images.Thumbnailer
-  alias Philomena.Objects
+  alias PhilomenaMedia.Objects
   alias PhilomenaQuery.Batch
   import Ecto.Query
 
