@@ -1,7 +1,7 @@
 version: '3'
 volumes:
   postgres_data: {}
-  elastic_data: {}
+  opensearch_data: {}
   app_cargo_data: {}
   app_build_data: {}
   app_deps_data: {}
@@ -31,8 +31,8 @@ services:
       - IMAGE_URL_ROOT=/img
       - BADGE_URL_ROOT=/badge-img
       - TAG_URL_ROOT=/tag-img
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - REDIS_HOST=redis
+      - OPENSEARCH_URL=http://opensearch:9200
+      - REDIS_HOST=valkey
       - DATABASE_URL=ecto://postgres:postgres@postgres/philomena_dev
       - CDN_HOST=localhost
       - MAILER_ADDRESS=noreply@philomena.local
@@ -54,8 +54,8 @@ services:
       - app_native_data:/srv/philomena/priv/native
     depends_on:
       - postgres
-      - elasticsearch
-      - redis
+      - opensearch
+      - valkey
     ports:
       - '5173:5173'
 
@@ -68,21 +68,20 @@ services:
     logging:
       driver: "none"
 
-  elasticsearch:
-    image: elasticsearch:7.9.3
+  opensearch:
+    image: opensearchproject/opensearch:2.14.0
     volumes:
-      - elastic_data:/usr/share/elasticsearch/data
+      - opensearch_data:/usr/share/opensearch/data
+      - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
     logging:
       driver: "none"
-    environment:
-      - discovery.type=single-node
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
 
-  redis:
-    image: redis:7.2.4-alpine
+  valkey:
+    image: valkey/valkey:7.2.5-alpine
     logging:
       driver: "none"
 
