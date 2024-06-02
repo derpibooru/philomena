@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     removed_tag_names =
       tags
       |> Enum.filter(&String.starts_with?(&1, "-"))
-      |> Enum.map(&String.slice(&1, 1..-1))
+      |> Enum.map(&String.replace_leading(&1, "-", ""))
 
     added_tags =
       Tag
