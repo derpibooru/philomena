@@ -200,10 +200,12 @@ function listenAutocomplete() {
 
     if (localAc !== null && 'ac' in event.target.dataset) {
       inputField = event.target;
+      let suggestionsCount = 5;
 
       if (isSearchField()) {
         originalQuery = inputField.value;
         selectedTerm = getSelectedTerm();
+        suggestionsCount = 10;
 
         // We don't need to run auto-completion if user is not selecting tag at all
         if (!selectedTerm) {
@@ -216,7 +218,7 @@ function listenAutocomplete() {
         originalTerm = `${inputField.value}`.toLowerCase();
       }
 
-      const suggestions = localAc.topK(originalTerm, 5).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
+      const suggestions = localAc.topK(originalTerm, suggestionsCount).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
 
       if (suggestions.length) {
         return showAutocomplete(suggestions, originalTerm, event.target);
