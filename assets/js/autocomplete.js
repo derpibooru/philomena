@@ -27,7 +27,7 @@ function removeSelected() {
 }
 
 function isSearchField() {
-  return inputField && inputField.name === 'q';
+  return inputField && inputField.dataset.acMode === 'search';
 }
 
 function restoreOriginalValue() {
