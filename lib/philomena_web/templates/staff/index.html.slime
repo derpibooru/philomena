@@ -37,12 +37,12 @@ h1 Staff
             .block__content.staff-block__user
               .staff-block__user-card
                 .staff-block__avatar
-                  a.profile-block href=Routes.profile_path(@conn, :show, user)
+                  a.profile-block href=~p"/profiles/#{user}"
                     = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px"
                     p
                       b = user.name
                 .staff-block__info
-                  = link to: Routes.conversation_path(@conn, :new, recipient: user.name), class: "button" do
+                  = link to: ~p"/conversations/new?#{[recipient: user.name]}", class: "button" do
                     i.fa.fa-envelope>
                     ' Send PM
               hr.staff-block__separator

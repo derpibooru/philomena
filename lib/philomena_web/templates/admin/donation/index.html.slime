@@ -1,4 +1,4 @@
-- route = fn p -> Routes.admin_donation_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/donations?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @donations, route: route, conn: @conn
 
 h1 Donations

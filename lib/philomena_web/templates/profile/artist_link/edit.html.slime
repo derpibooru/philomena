@@ -1,2 +1,2 @@
 h1 Edit Link
-= render PhilomenaWeb.Profile.ArtistLinkView, "_form.html", conn: @conn, changeset: @changeset, tag_name: tag_name(@artist_link), action: Routes.profile_artist_link_path(@conn, :update, @artist_link.user, @artist_link)
+= render PhilomenaWeb.Profile.ArtistLinkView, "_form.html", conn: @conn, changeset: @changeset, tag_name: tag_name(@artist_link), action: ~p"/profiles/#{@artist_link.user}/artist_links/#{@artist_link}"

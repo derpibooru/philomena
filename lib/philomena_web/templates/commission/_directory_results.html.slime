@@ -1,5 +1,5 @@
 elixir:
-  route = fn p -> Routes.commission_path(@conn, :index, p) end
+  route = fn p -> ~p"/commissions?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @commissions, route: route, conn: @conn, params: [commission: @conn.params["commission"]]
 
 .block
@@ -9,10 +9,10 @@ elixir:
     .page__options
       = cond do
         - not is_nil(@conn.assigns.current_user) and not is_nil(@conn.assigns.current_user.commission) ->
-          = link "View my listing", to: Routes.profile_commission_path(@conn, :show, @conn.assigns.current_user)
+          = link "View my listing", to: ~p"/profiles/#{@conn.assigns.current_user}/commission"
 
         - not is_nil(@conn.assigns.current_user) ->
-          = link "Create my listing", to: Routes.profile_commission_path(@conn, :new, @conn.assigns.current_user)
+          = link "Create my listing", to: ~p"/profiles/#{@conn.assigns.current_user}/commission/new"
 
         - true ->
 
@@ -58,7 +58,7 @@ elixir:
 
                   p
                     strong
-                      = link "More information", to: Routes.profile_commission_path(@conn, :show, c.user)
+                      = link "More information", to: ~p"/profiles/#{c.user}/commission"
 
       - true ->
         p We couldn't find any commission listings to display. Sorry!

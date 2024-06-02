@@ -3,24 +3,24 @@ h1
   ' 's fingerprint profile
 
 ul
-  li = link "View images this fingerprint has uploaded", to: Routes.search_path(@conn, :index, q: "fingerprint:#{@fingerprint}")
-  li = link "View comments this fingerprint has posted", to: Routes.comment_path(@conn, :index, cq: "fingerprint:#{@fingerprint}")
-  li = link "View posts this fingerprint has made", to: Routes.post_path(@conn, :index, pq: "fingerprint:#{@fingerprint}")
+  li = link "View images this fingerprint has uploaded", to: ~p"/search?#{[q: "fingerprint:#{@fingerprint}"]}"
+  li = link "View comments this fingerprint has posted", to: ~p"/comments?#{[cq: "fingerprint:#{@fingerprint}"]}"
+  li = link "View posts this fingerprint has made", to: ~p"/posts?#{[pq: "fingerprint:#{@fingerprint}"]}"
 
 = render PhilomenaWeb.BanView, "_bans.html", bans: @fingerprint_bans, conn: @conn
 
 h2 Administration Options
 ul
-  li = link "View tag changes", to: Routes.fingerprint_profile_tag_change_path(@conn, :index, @fingerprint)
-  li = link "View source URL history", to: Routes.fingerprint_profile_source_change_path(@conn, :index, @fingerprint)
-  li = link "View reports this fingerprint has made", to: Routes.admin_report_path(@conn, :index, rq: "fingerprint:#{@fingerprint}")
-  li = link "View fingerprint ban history", to: Routes.admin_fingerprint_ban_path(@conn, :index, fingerprint: @fingerprint)
-  li = link "Ban this sucker", to: Routes.admin_fingerprint_ban_path(@conn, :new, fingerprint: @fingerprint)
+  li = link "View tag changes", to: ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes"
+  li = link "View source URL history", to: ~p"/fingerprint_profiles/#{@fingerprint}/source_changes"
+  li = link "View reports this fingerprint has made", to: ~p"/admin/reports?#{[rq: "fingerprint:#{@fingerprint}"]}"
+  li = link "View fingerprint ban history", to: ~p"/admin/fingerprint_bans?#{[fingerprint: @fingerprint]}"
+  li = link "Ban this sucker", to: ~p"/admin/fingerprint_bans/new?#{[fingerprint: @fingerprint]}"
 
 h2 Actions
 ul
-  li = link "Revert all tag changes", to: Routes.tag_change_full_revert_path(@conn, :create, [fingerprint: @fingerprint]), data: [confirm: "Are you really, really sure?", method: "create"]
-  li = link "...the button above didn't work (use carefully, this is resource-intensive)", to: Routes.tag_change_full_revert_path(@conn, :create, [fingerprint: @fingerprint, batch_size: 1]), data: [confirm: "Please confirm that you're aware that this may crash the site and are ready to take on the full wrath of the admins if it does so after you press this button.", method: "create"]
+  li = link "Revert all tag changes", to: ~p"/tag_changes/full_revert?#{[fingerprint: @fingerprint]}", data: [confirm: "Are you really, really sure?", method: "create"]
+  li = link "...the button above didn't work (use carefully, this is resource-intensive)", to: ~p"/tag_changes/full_revert?#{[fingerprint: @fingerprint, batch_size: 1]}", data: [confirm: "Please confirm that you're aware that this may crash the site and are ready to take on the full wrath of the admins if it does so after you press this button.", method: "create"]
 
 h4 Observed users
 table.table
@@ -34,7 +34,7 @@ table.table
     = for ufp <- @user_fps do
       tr
         td
-          = link ufp.user.name, to: Routes.profile_path(@conn, :show, ufp.user)
+          = link ufp.user.name, to: ~p"/profiles/#{ufp.user}"
         td
           => ufp.uses
           ' times

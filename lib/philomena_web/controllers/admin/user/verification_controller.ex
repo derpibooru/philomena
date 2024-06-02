@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Admin.User.VerificationController do
     conn
     |> put_flash(:info, "User verification granted.")
     |> moderation_log(details: &log_details/3, data: user)
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   def delete(conn, _params) do
@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Admin.User.VerificationController do
     conn
     |> put_flash(:info, "User verification revoked.")
     |> moderation_log(details: &log_details/3, data: user)
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
@@ -32,13 +32,13 @@ defmodule PhilomenaWeb.Admin.User.VerificationController do
     end
   end
 
-  defp log_details(conn, action, user) do
+  defp log_details(_conn, action, user) do
     body =
       case action do
         :create -> "Granted verification to #{user.name}"
         :delete -> "Revoked verification from #{user.name}"
       end
 
-    %{body: body, subject_path: Routes.profile_path(conn, :show, user)}
+    %{body: body, subject_path: ~p"/profiles/#{user}"}
   end
 end

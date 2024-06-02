@@ -2,7 +2,7 @@ h1
   ' Viewing last 25 versions of comment by
   = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, conn: @conn
   ' on image
-  a href=Routes.image_path(@conn, :show, @comment.image)
+  a href=~p"/images/#{@comment.image}"
     | #
     = @comment.image_id
 

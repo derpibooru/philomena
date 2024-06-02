@@ -98,7 +98,7 @@ defmodule PhilomenaWeb.TagController do
         conn
         |> put_flash(:info, "Tag successfully updated.")
         |> moderation_log(details: &log_details/3, data: tag)
-        |> redirect(to: Routes.tag_path(conn, :show, tag))
+        |> redirect(to: ~p"/tags/#{tag}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -167,12 +167,12 @@ defmodule PhilomenaWeb.TagController do
           :info,
           "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\"."
         )
-        |> redirect(to: Routes.tag_path(conn, :show, tag))
+        |> redirect(to: ~p"/tags/#{tag}")
         |> halt()
     end
   end
 
-  defp log_details(conn, action, tag) do
+  defp log_details(_conn, action, tag) do
     body =
       case action do
         :update -> "Updated details on tag '#{tag.name}'"
@@ -181,7 +181,7 @@ defmodule PhilomenaWeb.TagController do
 
     %{
       body: body,
-      subject_path: Routes.tag_path(conn, :show, tag)
+      subject_path: ~p"/tags/#{tag}"
     }
   end
 end

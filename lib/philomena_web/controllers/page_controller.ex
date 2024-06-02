@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.PageController do
       {:ok, %{static_page: static_page}} ->
         conn
         |> put_flash(:info, "Static page successfully created.")
-        |> redirect(to: Routes.page_path(conn, :show, static_page))
+        |> redirect(to: ~p"/pages/#{static_page}")
 
       {:error, :static_page, changeset, _changes} ->
         render(conn, "new.html", changeset: changeset)
@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.PageController do
       {:ok, %{static_page: static_page}} ->
         conn
         |> put_flash(:info, "Static page successfully updated.")
-        |> redirect(to: Routes.page_path(conn, :show, static_page))
+        |> redirect(to: ~p"/pages/#{static_page}")
 
       {:error, :static_page, changeset, _changes} ->
         render(conn, "edit.html", changeset: changeset)

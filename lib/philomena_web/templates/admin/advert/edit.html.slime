@@ -1,2 +1,2 @@
 h1 Editing advert
-= render PhilomenaWeb.Admin.AdvertView, "_form.html", changeset: @changeset, action: Routes.admin_advert_path(@conn, :update, @advert), conn: @conn
+= render PhilomenaWeb.Admin.AdvertView, "_form.html", changeset: @changeset, action: ~p"/admin/adverts/#{@advert}", conn: @conn

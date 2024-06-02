@@ -21,20 +21,20 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptController do
         conn
         |> put_flash(:info, "Successfully accepted report.")
         |> moderation_log(details: &log_details/3, data: report.duplicate_report)
-        |> redirect(to: Routes.duplicate_report_path(conn, :index))
+        |> redirect(to: ~p"/duplicate_reports")
 
       _error ->
         conn
         |> put_flash(:error, "Failed to accept report! Maybe someone else already accepted it.")
-        |> redirect(to: Routes.duplicate_report_path(conn, :index))
+        |> redirect(to: ~p"/duplicate_reports")
     end
   end
 
-  defp log_details(conn, _action, report) do
+  defp log_details(_conn, _action, report) do
     %{
       body:
         "Accepted duplicate report, merged #{report.image.id} into #{report.duplicate_of_image.id}",
-      subject_path: Routes.image_path(conn, :show, report.image)
+      subject_path: ~p"/images/#{report.image}"
     }
   end
 end

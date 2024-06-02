@@ -1,6 +1,6 @@
 h1 Updating Moderation Scratchpad
 
-= form_for @changeset, Routes.profile_scratchpad_path(@conn, :update, @user), [method: "put"], fn f ->
+= form_for @changeset, ~p"/profiles/#{@user}/scratchpad", [method: "put"], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

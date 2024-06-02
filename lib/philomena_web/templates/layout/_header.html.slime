@@ -11,7 +11,7 @@ header.header
       a.header__link.hide-mobile href="/images/new" title="Upload"
         i.fa.fa-upload
 
-    = form_for @conn, Routes.search_path(@conn, :index), [method: "get", class: "header__search flex flex--no-wrap flex--centered", enforce_utf8: false], fn f ->
+    = form_for @conn, ~p"/search", [method: "get", class: "header__search flex flex--no-wrap flex--centered", enforce_utf8: false], fn f ->
       input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=@conn.params["q"] placeholder="Search" autocapitalize="none"
 
       = if present?(@conn.params["sf"]) do
@@ -51,18 +51,18 @@ header.header
           i.fa.fa-filter
           span.hide-limited-desktop< Filters
 
-        = form_for @user_changeset, Routes.filter_current_path(@conn, :update), [class: "header__filter-form", id: "filter-quick-form"], fn f ->
+        = form_for @user_changeset, ~p"/filters/current", [class: "header__filter-form", id: "filter-quick-form"], fn f ->
           = select f, :current_filter_id, @available_filters, name: "id", id: "filter-quick-menu", class: "input header__input", data: [change_submit: "#filter-quick-form"], autocomplete: "off"
 
-        = form_for @user_changeset, Routes.filter_spoiler_type_path(@conn, :update), [class: "header__filter-form hide-mobile hide-limited-desktop", id: "spoiler-quick-form"], fn f ->
+        = form_for @user_changeset, ~p"/filters/spoiler_type", [class: "header__filter-form hide-mobile hide-limited-desktop", id: "spoiler-quick-form"], fn f ->
           = select f, :spoiler_type, @spoiler_types, id: "spoiler-quick-menu", class: "input header__input", data: [change_submit: "#spoiler-quick-form"], autocomplete: "off"
 
         .dropdown.header__dropdown
-          a.header__link.header__link-user href=Routes.profile_path(@conn, :show, @current_user)
+          a.header__link.header__link-user href=~p"/profiles/#{@current_user}"
             = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, class: "avatar--28px"
             span.header__link-user__dropdown-arrow.hide-mobile data-click-preventdefault="true"
           nav.dropdown__content.dropdown__content-right.hide-mobile.js-burger-links
-            a.header__link href=Routes.profile_path(@conn, :show, @current_user)
+            a.header__link href=~p"/profiles/#{@current_user}"
               = @current_user.name
             a.header__link href="/search?q=my:watched"
               i.fa.fa-fw.fa-eye>
@@ -73,7 +73,7 @@ header.header
             a.header__link href="/search?q=my:upvotes"
               i.fa.fa-fw.fa-arrow-up>
               | Upvotes
-            a.header__link href=Routes.gallery_path(@conn, :index, gallery: [creator: @current_user.name])
+            a.header__link href=~p"/galleries?#{[gallery: [creator: @current_user.name]]}"
               i.fa.fa-fw.fa-image>
               | Galleries
             a.header__link href="/search?q=my:uploads"
@@ -85,7 +85,7 @@ header.header
             a.header__link href="/posts?pq=my:posts"
               i.fas.fa-fw.fa-pen-square>
               | Posts
-            a.header__link href=Routes.profile_artist_link_path(@conn, :index, @current_user)
+            a.header__link href=~p"/profiles/#{@current_user}/artist_links"
               i.fa.fa-fw.fa-link>
               | Links
             a.header__link href="/settings/edit"
@@ -94,10 +94,10 @@ header.header
             a.header__link href="/conversations"
               i.fa.fa-fw.fa-envelope>
               | Messages
-            a.header__link href=Routes.registration_path(@conn, :edit)
+            a.header__link href=~p"/registrations/edit"
               i.fa.fa-fw.fa-user>
               | Account
-            a.header__link href=Routes.session_path(@conn, :delete) data-method="delete"
+            a.header__link href=~p"/sessions" data-method="delete"
               i.fa.fa-fw.fa-sign-out-alt>
               | Logout
       - else
@@ -109,9 +109,9 @@ header.header
           a.header__link href="/settings/edit"
             i.fa.fa-fw.fa-cogs.hide-desktop>
             | Settings
-        a.header__link href=Routes.registration_path(@conn, :new)
+        a.header__link href=~p"/registrations/new"
           | Register
-        a.header__link href=Routes.session_path(@conn, :new)
+        a.header__link href=~p"/sessions/new"
           | Login
 
 nav.header.header--secondary

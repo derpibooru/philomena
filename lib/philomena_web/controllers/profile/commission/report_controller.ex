@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
   def new(conn, _params) do
     user = conn.assigns.user
     commission = conn.assigns.user.commission
-    action = Routes.profile_commission_report_path(conn, :create, user)
+    action = ~p"/profiles/#{user}/commission/reports"
 
     changeset =
       %Report{reportable_type: "Commission", reportable_id: commission.id}
@@ -51,7 +51,7 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
   def create(conn, params) do
     user = conn.assigns.user
     commission = conn.assigns.user.commission
-    action = Routes.profile_commission_report_path(conn, :create, user)
+    action = ~p"/profiles/#{user}/commission/reports"
 
     ReportController.create(conn, action, commission, "Commission", params)
   end

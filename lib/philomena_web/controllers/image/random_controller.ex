@@ -20,10 +20,10 @@ defmodule PhilomenaWeb.Image.RandomController do
 
     case unwrap_random_result(search_definition) do
       nil ->
-        redirect(conn, to: Routes.image_path(conn, :index))
+        redirect(conn, to: ~p"/images")
 
       random_id ->
-        redirect(conn, to: Routes.image_path(conn, :show, random_id, scope))
+        redirect(conn, to: ~p"/images/#{random_id}?#{scope}")
     end
   end
 

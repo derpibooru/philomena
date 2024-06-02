@@ -213,12 +213,12 @@ defmodule Philomena.Users do
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, [context]))
   end
 
-  @doc """
+  @doc ~S"""
   Delivers the update email instructions to the given user.
 
   ## Examples
 
-      iex> deliver_update_email_instructions(user, current_email, &Routes.user_update_email_url(conn, :edit, &1))
+      iex> deliver_update_email_instructions(user, current_email, &url(~p"/registrations/email/#{&1})")
       {:ok, %{to: ..., body: ...}}
 
   """
@@ -263,12 +263,12 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
-  @doc """
+  @doc ~S"""
   Delivers the unlock instructions to the given user.
 
   ## Examples
 
-    iex> deliver_user_unlock_instructions(user, &Routes.unlock_url(conn, :show, &1))
+    iex> deliver_user_unlock_instructions(user, &url(~p"/unlocks/#{&1}"))
     {:ok, %{to: ..., body: ...}}
 
   """
@@ -379,15 +379,15 @@ defmodule Philomena.Users do
 
   ## Confirmation
 
-  @doc """
+  @doc ~S"""
   Delivers the confirmation email instructions to the given user.
 
   ## Examples
 
-      iex> deliver_user_confirmation_instructions(user, &Routes.user_confirmation_url(conn, :confirm, &1))
+      iex> deliver_user_confirmation_instructions(user, &url(~p"/confirmations/#{&1}"))
       {:ok, %{to: ..., body: ...}}
 
-      iex> deliver_user_confirmation_instructions(confirmed_user, &Routes.user_confirmation_url(conn, :confirm, &1))
+      iex> deliver_user_confirmation_instructions(confirmed_user, &url(~p"/confirmations/#{&1}"))
       {:error, :already_confirmed}
 
   """
@@ -426,12 +426,12 @@ defmodule Philomena.Users do
 
   ## Reset password
 
-  @doc """
+  @doc ~S"""
   Delivers the reset password email to the given user.
 
   ## Examples
 
-      iex> deliver_user_reset_password_instructions(user, &Routes.user_reset_password_url(conn, :edit, &1))
+      iex> deliver_user_reset_password_instructions(user, &url(~p"/passwords/#{&1}/edit"))
       {:ok, %{to: ..., body: ...}}
 
   """

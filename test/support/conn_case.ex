@@ -21,10 +21,11 @@ defmodule PhilomenaWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import PhilomenaWeb.ConnCase
-      alias PhilomenaWeb.Router.Helpers, as: Routes
 
       # The default endpoint for testing
       @endpoint PhilomenaWeb.Endpoint
+
+      use PhilomenaWeb, :verified_routes
     end
   end
 

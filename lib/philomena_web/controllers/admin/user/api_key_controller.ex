@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.User.ApiKeyController do
 
     conn
     |> put_flash(:info, "API token successfully reset.")
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do

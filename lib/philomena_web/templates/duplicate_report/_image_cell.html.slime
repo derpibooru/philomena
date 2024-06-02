@@ -18,12 +18,12 @@
 
   = if can?(@conn, :edit, @report) and mergeable?(@report) do
     = if @source do
-      a href=Routes.duplicate_report_accept_reverse_path(@conn, :create, @report) data-method="post"
+      a href=~p"/duplicate_reports/#{@report}/accept_reverse" data-method="post"
         button.button
           ' Keep Source
           i.fa.fa-arrow-left
     - else
-      a href=Routes.duplicate_report_accept_path(@conn, :create, @report) data-method="post"
+      a href=~p"/duplicate_reports/#{@report}/accept" data-method="post"
         button.button
           i.fa.fa-arrow-right>
           | Keep Target

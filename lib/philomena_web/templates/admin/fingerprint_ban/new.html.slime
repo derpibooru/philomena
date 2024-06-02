@@ -1,5 +1,5 @@
 h1 New Fingerprint Ban
-= render PhilomenaWeb.Admin.FingerprintBanView, "_form.html", changeset: @changeset, action: Routes.admin_fingerprint_ban_path(@conn, :create), conn: @conn
+= render PhilomenaWeb.Admin.FingerprintBanView, "_form.html", changeset: @changeset, action: ~p"/admin/fingerprint_bans", conn: @conn
 
 br
-= link "Back", to: Routes.admin_fingerprint_ban_path(@conn, :index)
+= link "Back", to: ~p"/admin/fingerprint_bans"

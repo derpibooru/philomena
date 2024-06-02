@@ -1,4 +1,4 @@
-= form_for @changeset, Routes.image_comment_path(@conn, :update, @comment.image, @comment), fn f ->
+= form_for @changeset, ~p"/images/#{@comment.image}/comments/#{@comment}", fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

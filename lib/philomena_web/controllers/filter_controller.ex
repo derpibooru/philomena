@@ -146,7 +146,7 @@ defmodule PhilomenaWeb.FilterController do
       {:ok, filter} ->
         conn
         |> put_flash(:info, "Filter created successfully.")
-        |> redirect(to: Routes.filter_path(conn, :show, filter))
+        |> redirect(to: ~p"/filters/#{filter}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -171,7 +171,7 @@ defmodule PhilomenaWeb.FilterController do
       {:ok, filter} ->
         conn
         |> put_flash(:info, "Filter updated successfully.")
-        |> redirect(to: Routes.filter_path(conn, :show, filter))
+        |> redirect(to: ~p"/filters/#{filter}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", filter: filter, changeset: changeset)
@@ -185,12 +185,12 @@ defmodule PhilomenaWeb.FilterController do
       {:ok, _filter} ->
         conn
         |> put_flash(:info, "Filter deleted successfully.")
-        |> redirect(to: Routes.filter_path(conn, :index))
+        |> redirect(to: ~p"/filters")
 
       _error ->
         conn
         |> put_flash(:error, "Filter is still in use, not deleted.")
-        |> redirect(to: Routes.filter_path(conn, :show, filter))
+        |> redirect(to: ~p"/filters/#{filter}")
     end
   end
 end

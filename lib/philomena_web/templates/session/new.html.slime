@@ -1,13 +1,13 @@
 h1 Sign in
 
-= form_for @conn, Routes.session_path(@conn, :create), [as: :user], fn f ->
+= form_for @conn, ~p"/sessions", [as: :user], fn f ->
   = if @error_message do
     .alert.alert-danger
       p = @error_message
-    p = link "Resend unlock instructions", to: Routes.unlock_path(@conn, :new)
-    p = link "Resend confirmation email", to: Routes.confirmation_path(@conn, :new)
+    p = link "Resend unlock instructions", to: ~p"/unlocks/new"
+    p = link "Resend confirmation email", to: ~p"/confirmations/new"
 
-  p = link "Forgot your password?", to: Routes.password_path(@conn, :new)
+  p = link "Forgot your password?", to: ~p"/passwords/new"
 
   .field
     = email_input f, :email, class: "input", required: true, placeholder: "Email", autofocus: true, pattern: ~S/[^\s]+@[^\s]+\.[^\s]+/

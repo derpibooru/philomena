@@ -4,7 +4,7 @@
       h1 This image has been merged into another image
       p
         ' This image was merged into image
-        => link "##{@image.duplicate_id}", to: Routes.image_path(@conn, :show, @image.duplicate_id)
+        => link "##{@image.duplicate_id}", to: ~p"/images/#{@image.duplicate_id}"
         ' because it was determined to be a duplicate of that image.
 
 - else

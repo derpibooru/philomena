@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
 
   def new(conn, _params) do
     comment = conn.assigns.comment
-    action = Routes.image_comment_report_path(conn, :create, comment.image, comment)
+    action = ~p"/images/#{comment.image}/comments/#{comment}/reports"
 
     changeset =
       %Report{reportable_type: "Comment", reportable_id: comment.id}
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
 
   def create(conn, params) do
     comment = conn.assigns.comment
-    action = Routes.image_comment_report_path(conn, :create, comment.image, comment)
+    action = ~p"/images/#{comment.image}/comments/#{comment}/reports"
 
     ReportController.create(conn, action, comment, "Comment", params)
   end

@@ -9,7 +9,7 @@ article.block.communication id="comment_#{@comment.id}"
           p
             ul.horizontal-list
               li
-                = link(to: Routes.image_comment_approve_path(@conn, :create, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: "post", class: "button") do
+                = link(to: ~p"/images/#{@comment.image_id}/comments/#{@comment}/approve", data: [confirm: "Are you sure?"], method: "post", class: "button") do
                   i.fas.fa-check>
                   ' Approve
               li
@@ -17,7 +17,7 @@ article.block.communication id="comment_#{@comment.id}"
                   i.fa.fa-times>
                   ' Reject
 
-            = form_for :comment, Routes.image_comment_hide_path(@conn, :create, @comment.image_id, @comment), [class: "togglable-delete-form hidden flex", id: "inline-reject-form-comment-#{@comment.id}"], fn f ->
+            = form_for :comment, ~p"/images/#{@comment.image_id}/comments/#{@comment}/hide", [class: "togglable-delete-form hidden flex", id: "inline-reject-form-comment-#{@comment.id}"], fn f ->
               = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-reject-reason-comment-#{@comment.id}", required: true
               = submit "Delete", class: "button"
 
@@ -58,12 +58,12 @@ article.block.communication id="comment_#{@comment.id}"
       .js-staff-action
         = cond do
           - @comment.hidden_from_users and not @comment.destroyed_content ->
-            = link(to: Routes.image_comment_hide_path(@conn, :delete, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: "delete", class: "communication__interaction") do
+            = link(to: ~p"/images/#{@comment.image_id}/comments/#{@comment}/hide", data: [confirm: "Are you sure?"], method: "delete", class: "communication__interaction") do
               i.fas.fa-check>
               ' Restore
 
             = if can?(@conn, :delete, @comment) do
-              = link(to: Routes.image_comment_delete_path(@conn, :create, @comment.image_id, @comment), data: [confirm: "Are you sure?"], method: "post", class: "communication__interaction") do
+              = link(to: ~p"/images/#{@comment.image_id}/comments/#{@comment}/delete", data: [confirm: "Are you sure?"], method: "post", class: "communication__interaction") do
                 i.fas.fa-times>
                 ' Delete Contents
 
@@ -80,6 +80,6 @@ article.block.communication id="comment_#{@comment.id}"
           .communication__info.js-staff-action
             =<> link_to_fingerprint(@conn, @comment.fingerprint)
 
-        = form_for :comment, Routes.image_comment_hide_path(@conn, :create, @comment.image_id, @comment), [class: "togglable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->
+        = form_for :comment, ~p"/images/#{@comment.image_id}/comments/#{@comment}/hide", [class: "togglable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->
           = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-comment-#{@comment.id}", required: true
           = submit "Delete", class: "button"

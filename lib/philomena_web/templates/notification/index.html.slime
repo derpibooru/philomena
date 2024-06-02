@@ -1,4 +1,4 @@
-- route = fn p -> Routes.notification_path(@conn, :index, p) end
+- route = fn p -> ~p"/notifications?#{p}" end
 
 h1 Notification Area
 .walloftext

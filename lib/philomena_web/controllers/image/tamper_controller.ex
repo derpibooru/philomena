@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.Image.TamperController do
       details: &log_details/3,
       data: %{vote: result, image: image}
     )
-    |> redirect(to: Routes.image_path(conn, :show, conn.assigns.image))
+    |> redirect(to: ~p"/images/#{conn.assigns.image}")
   end
 
   defp log_details(conn, _action, data) do
@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Image.TamperController do
 
     %{
       body: "Deleted #{vote_type} by #{conn.assigns.user.name} on image >>#{data.image.id}",
-      subject_path: Routes.image_path(conn, :show, image)
+      subject_path: ~p"/images/#{image}"
     }
   end
 end

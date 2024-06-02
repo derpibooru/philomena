@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.UnlockController do
     if user = Users.get_user_by_email(email) do
       Users.deliver_user_unlock_instructions(
         user,
-        &Routes.unlock_url(conn, :show, &1)
+        &url(~p"/unlocks/#{&1}")
       )
     end
 

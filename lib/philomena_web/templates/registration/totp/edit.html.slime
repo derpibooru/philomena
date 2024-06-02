@@ -1,6 +1,6 @@
 h1 Two Factor Authentication
 
-= form_for @changeset, Routes.registration_totp_path(@conn, :update), [as: :user], fn f ->
+= form_for @changeset, ~p"/registrations/totp", [as: :user], fn f ->
   = if @changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
@@ -133,4 +133,4 @@ h1 Two Factor Authentication
 
     = submit "Save Account", class: "button"
 
-p = link "Back", to: Routes.registration_path(@conn, :edit)
+p = link "Back", to: ~p"/registrations/edit"

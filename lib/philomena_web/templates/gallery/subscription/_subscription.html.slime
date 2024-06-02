@@ -1,8 +1,8 @@
 elixir:
-  watch_path = Routes.gallery_subscription_path(@conn, :create, @gallery)
+  watch_path = ~p"/galleries/#{@gallery}/subscription"
   watch_class = if @watching, do: "hidden", else: ""
 
-  unwatch_path = Routes.gallery_subscription_path(@conn, :delete, @gallery)
+  unwatch_path = ~p"/galleries/#{@gallery}/subscription"
   unwatch_class = if @watching, do: "", else: "hidden"
 
 = if @conn.assigns.current_user do
@@ -17,7 +17,7 @@ elixir:
       span.hide-mobile
         ' Unsubscribe
 - else
-    a href=Routes.session_path(@conn, :new)
+    a href=~p"/sessions/new"
       i.fa.fa-bell>
       span.hide-mobile
         ' Subscribe

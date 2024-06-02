@@ -12,16 +12,16 @@ table.table
       tr
         td
           => reported_image @conn, report.reportable
-          = link_to_reported_thing @conn, report.reportable
+          = link_to_reported_thing report.reportable
         td
           span title=report.reason
             = truncate(report.reason)
         td
           = if report.user do
-            = link report.user.name, to: Routes.profile_path(@conn, :show, report.user)
+            = link report.user.name, to: ~p"/profiles/#{report.user}"
           - else
             em>
-              = truncated_ip_link(@conn, report.ip)
+              = truncated_ip_link(report.ip)
             = link_to_fingerprint(@conn, report.fingerprint)
 
           = if not is_nil(report.user) and Enum.any?(report.user.linked_tags) do
@@ -32,22 +32,22 @@ table.table
 
         td class=report_row_class(report)
           => pretty_state(report)
-          = user_abbrv @conn, report.admin
+          = user_abbrv report.admin
         td
-          => link "Show", to: Routes.admin_report_path(@conn, :show, report)
+          => link "Show", to: ~p"/admin/reports/#{report}"
 
           = if report.open do
             = if report.user do
               ' &bull;
-              => link "Send PM", to: Routes.conversation_path(@conn, :new, recipient: report.user.name)
+              => link "Send PM", to: ~p"/conversations/new?#{[recipient: report.user.name]}"
 
             = if is_nil(report.admin) and not current?(report.admin, @conn.assigns.current_user) do
               ' &bull;
-              => link "Claim", to: Routes.admin_report_claim_path(@conn, :create, report), data: [method: "post"]
+              => link "Claim", to: ~p"/admin/reports/#{report}/claim", data: [method: "post"]
 
             = if current?(report.admin, @conn.assigns.current_user) do
               ' &bull;
-              => link "Release", to: Routes.admin_report_claim_path(@conn, :delete, report), data: [method: "delete"]
+              => link "Release", to: ~p"/admin/reports/#{report}/claim", data: [method: "delete"]
 
             ' &bull;
-            => link "Close", to: Routes.admin_report_close_path(@conn, :create, report), data: [method: "post", confirm: "Are you really, really sure?"]
+            => link "Close", to: ~p"/admin/reports/#{report}/close", data: [method: "post", confirm: "Are you really, really sure?"]

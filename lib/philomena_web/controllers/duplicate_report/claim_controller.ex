@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
     conn
     |> put_flash(:info, "Successfully claimed report.")
     |> moderation_log(details: &log_details/3, data: report)
-    |> redirect(to: Routes.duplicate_report_path(conn, :index))
+    |> redirect(to: ~p"/duplicate_reports")
   end
 
   def delete(conn, _params) do
@@ -30,10 +30,10 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
     conn
     |> put_flash(:info, "Successfully released report.")
     |> moderation_log(details: &log_details/3)
-    |> redirect(to: Routes.duplicate_report_path(conn, :index))
+    |> redirect(to: ~p"/duplicate_reports")
   end
 
-  defp log_details(conn, action, _) do
+  defp log_details(_conn, action, _) do
     body =
       case action do
         :create -> "Claimed a duplicate report"
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
 
     %{
       body: body,
-      subject_path: Routes.duplicate_report_path(conn, :index)
+      subject_path: ~p"/duplicate_reports"
     }
   end
 end

@@ -7,13 +7,13 @@
     => @notification.action
 
     strong>
-      = link "##{@notification.actor_id}", to: Routes.image_path(@conn, :show, @notification.actor) <> "#comments"
+      = link "##{@notification.actor_id}", to: ~p"/images/#{@notification.actor}" <> "#comments"
 
     => pretty_time @notification.updated_at
 
 .flex.flex--centered.flex--no-wrap
-  a.button.button--separate-right title="Delete" href=Routes.image_read_path(@conn, :create, @notification.actor) data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button.button--separate-right title="Delete" href=~p"/images/#{@notification.actor}/read" data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
     i.fa.fa-trash
 
-  a.button title="Unsubscribe" href=Routes.image_subscription_path(@conn, :delete, @notification.actor) data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button title="Unsubscribe" href=~p"/images/#{@notification.actor}/subscription" data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
     i.fa.fa-bell-slash

@@ -7,12 +7,12 @@
   
   .flex__grow
     = render PhilomenaWeb.TagView, "_tag.html", tag: @tag, conn: @conn
-    = link "Tag changes", to: Routes.tag_tag_change_path(@conn, :index, @tag), class: "detail-link"
+    = link "Tag changes", to: ~p"/tags/#{@tag}/tag_changes", class: "detail-link"
     = if manages_tags?(@conn) do
-      = link "Edit details", to: Routes.tag_path(@conn, :edit, @tag), class: "detail-link"
-      = link "Usage", to: Routes.tag_detail_path(@conn, :index, @tag), class: "detail-link"
+      = link "Edit details", to: ~p"/tags/#{@tag}/edit", class: "detail-link"
+      = link "Usage", to: ~p"/tags/#{@tag}/details", class: "detail-link"
     = if manages_dnp?(@conn) do
-      = link "Create new DNP entry", to: Routes.dnp_entry_path(@conn, :new, tag_id: @tag.id), class: "detail-link"
+      = link "Create new DNP entry", to: ~p"/dnp/new?#{[tag_id: @tag.id]}", class: "detail-link"
 
     br
   
@@ -29,14 +29,14 @@
     = if Enum.any?(@tag.aliases) do
       strong> Aliases:
       = if aliases_tags?(@conn) do
-        = map_join(@tag.aliases, ", ", &link(&1.name, to: Routes.tag_alias_path(@conn, :edit, &1)))
+        = map_join(@tag.aliases, ", ", &link(&1.name, to: ~p"/tags/#{&1}/alias/edit"))
       - else
         = map_join(@tag.aliases, ", ", & &1.name)
       br
 
     = if Enum.any?(@tag.implied_tags) do
       strong> Implies:
-      = map_join(@tag.implied_tags, ", ", &link(&1.name, to: Routes.tag_path(@conn, :show, &1)))
+      = map_join(@tag.implied_tags, ", ", &link(&1.name, to: ~p"/tags/#{&1}"))
       br
 
     = if Enum.any?(@tag.hidden_links) and manages_links?(@conn) do
@@ -44,7 +44,7 @@
       br
 
       = for artist_link <- @tag.hidden_links do
-        => link artist_link.user.name, to: Routes.profile_path(@conn, :show, artist_link.user)
+        => link artist_link.user.name, to: ~p"/profiles/#{artist_link.user}"
         ' &rarr;
         => link artist_link.uri, to: artist_link.uri
         br
@@ -70,18 +70,18 @@
           - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq_by(& &1.id)
 
           = for user <- users do
-            => link user.name, to: Routes.profile_path(@conn, :show, user)
+            => link user.name, to: ~p"/profiles/#{user}"
 
           br
 
         = if Enum.any?(@tag.channels) do
           strong> Associated streams:
           = for channel <- @tag.channels do
-            => link channel.title, to: Routes.channel_path(@conn, :show, channel)
+            => link channel.title, to: ~p"/channels/#{channel}"
 
             = if can?(@conn, :edit, channel) do
               | (
-              = link "Edit", to: Routes.channel_path(@conn, :edit, channel)
+              = link "Edit", to: ~p"/channels/#{channel}/edit"
               ' )
 
           br
@@ -94,7 +94,7 @@
           .toggle-box-container
             .toggle-box-container__content
               = map_join @tag.implied_by_tags, ", ", fn tag ->
-                = link tag.name, to: Routes.tag_path(@conn, :show, tag)
+                = link tag.name, to: ~p"/tags/#{tag}"
 
           br
 
@@ -117,5 +117,5 @@
         => body
 
         | (
-        = link "more info", to: Routes.dnp_entry_path(@conn, :show, entry)
+        = link "more info", to: ~p"/dnp/#{entry}"
         | )

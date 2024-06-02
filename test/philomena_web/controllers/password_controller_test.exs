@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
   describe "GET /passwords/new" do
     test "renders the reset password page", %{conn: conn} do
-      conn = get(conn, Routes.password_path(conn, :new))
+      conn = get(conn, ~p"/passwords/new")
       html_response(conn, 200)
     end
   end
@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
     @tag :capture_log
     test "sends a new reset password token", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.password_path(conn, :create), %{
+        post(conn, ~p"/passwords", %{
           "user" => %{"email" => user.email}
         })
 
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
     test "does not send reset password token if email is invalid", %{conn: conn} do
       conn =
-        post(conn, Routes.password_path(conn, :create), %{
+        post(conn, ~p"/passwords", %{
           "user" => %{"email" => "unknown@example.com"}
         })
 
@@ -53,12 +53,12 @@ defmodule PhilomenaWeb.PasswordControllerTest do
     end
 
     test "renders reset password", %{conn: conn, token: token} do
-      conn = get(conn, Routes.password_path(conn, :edit, token))
+      conn = get(conn, ~p"/passwords/#{token}/edit")
       html_response(conn, 200)
     end
 
     test "does not render reset password with invalid token", %{conn: conn} do
-      conn = get(conn, Routes.password_path(conn, :edit, "oops"))
+      conn = get(conn, ~p"/passwords/oops/edit")
       assert redirected_to(conn) == "/"
 
       assert Flash.get(conn.assigns.flash, :error) =~
@@ -78,14 +78,14 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
     test "resets password once", %{conn: conn, user: user, token: token} do
       conn =
-        put(conn, Routes.password_path(conn, :update, token), %{
+        put(conn, ~p"/passwords/#{token}", %{
           "user" => %{
             "password" => "new valid password",
             "password_confirmation" => "new valid password"
           }
         })
 
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      assert redirected_to(conn) == ~p"/sessions/new"
       refute get_session(conn, :user_token)
       assert Flash.get(conn.assigns.flash, :info) =~ "Password reset successfully"
       assert Users.get_user_by_email_and_password(user.email, "new valid password", & &1)
@@ -93,7 +93,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
     test "does not reset password on invalid data", %{conn: conn, token: token} do
       conn =
-        put(conn, Routes.password_path(conn, :update, token), %{
+        put(conn, ~p"/passwords/#{token}", %{
           "user" => %{
             "password" => "too short",
             "password_confirmation" => "does not match"
@@ -106,7 +106,7 @@ defmodule PhilomenaWeb.PasswordControllerTest do
     end
 
     test "does not reset password with invalid token", %{conn: conn} do
-      conn = put(conn, Routes.password_path(conn, :update, "oops"))
+      conn = put(conn, ~p"/passwords/oops")
       assert redirected_to(conn) == "/"
 
       assert Flash.get(conn.assigns.flash, :error) =~

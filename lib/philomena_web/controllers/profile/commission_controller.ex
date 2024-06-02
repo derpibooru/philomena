@@ -85,7 +85,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
       {:ok, _commission} ->
         conn
         |> put_flash(:info, "Commission successfully created.")
-        |> redirect(to: Routes.profile_commission_path(conn, :show, user))
+        |> redirect(to: ~p"/profiles/#{user}/commission")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -104,7 +104,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
       {:ok, _commission} ->
         conn
         |> put_flash(:info, "Commission successfully updated.")
-        |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
+        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -118,7 +118,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
 
     conn
     |> put_flash(:info, "Commission deleted successfully.")
-    |> redirect(to: Routes.commission_path(conn, :index))
+    |> redirect(to: ~p"/commissions")
   end
 
   defp ensure_commission(conn, _opts) do
@@ -156,7 +156,7 @@ defmodule PhilomenaWeb.Profile.CommissionController do
           :error,
           "You must have a verified artist link to create a commission listing."
         )
-        |> redirect(to: Routes.commission_path(conn, :index))
+        |> redirect(to: ~p"/commissions")
         |> halt()
     end
   end

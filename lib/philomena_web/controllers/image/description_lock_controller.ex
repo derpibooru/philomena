@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Image.DescriptionLockController do
     conn
     |> put_flash(:info, "Successfully locked description.")
     |> moderation_log(details: &log_details/3, data: image)
-    |> redirect(to: Routes.image_path(conn, :show, image))
+    |> redirect(to: ~p"/images/#{image}")
   end
 
   def delete(conn, _params) do
@@ -22,10 +22,10 @@ defmodule PhilomenaWeb.Image.DescriptionLockController do
     conn
     |> put_flash(:info, "Successfully unlocked description.")
     |> moderation_log(details: &log_details/3, data: image)
-    |> redirect(to: Routes.image_path(conn, :show, image))
+    |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(conn, action, image) do
+  defp log_details(_conn, action, image) do
     body =
       case action do
         :create -> "Locked description editing on image >>#{image.id}"
@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.Image.DescriptionLockController do
 
     %{
       body: body,
-      subject_path: Routes.image_path(conn, :show, image)
+      subject_path: ~p"/images/#{image}"
     }
   end
 end

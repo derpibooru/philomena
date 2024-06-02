@@ -1,9 +1,9 @@
-- route = fn p -> Routes.admin_advert_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/adverts?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @adverts, route: route
 
 .block
   .block__header
-    a href=Routes.admin_advert_path(@conn, :new)
+    a href=~p"/admin/adverts/new"
       i.fa.fa-plus>
       ' New advert
 
@@ -65,9 +65,9 @@
               = advert.clicks
 
             td
-              => link "Edit", to: Routes.admin_advert_path(@conn, :edit, advert)
+              => link "Edit", to: ~p"/admin/adverts/#{advert}/edit"
               ' &bull;
-              = link "Destroy", to: Routes.admin_advert_path(@conn, :delete, advert), data: [confirm: "Are you really, really sure?", method: "delete"]
+              = link "Destroy", to: ~p"/admin/adverts/#{advert}", data: [confirm: "Are you really, really sure?", method: "delete"]
 
   .block__header.block__header--light
     = pagination

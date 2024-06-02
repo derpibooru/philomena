@@ -1,5 +1,5 @@
 elixir:
-  route = fn p -> Routes.moderation_log_path(@conn, :index, p) end
+  route = fn p -> ~p"/moderation_logs?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @moderation_logs, route: route, conn: @conn
 
 h1 Listing Moderation Logs

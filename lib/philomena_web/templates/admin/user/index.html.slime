@@ -1,15 +1,15 @@
 h1 Users
 
-= form_for :user, Routes.admin_user_path(@conn, :index), [method: "get", class: "hform"], fn f ->
+= form_for :user, ~p"/admin/users", [method: "get", class: "hform"], fn f ->
   .field
     => text_input f, :q, name: "q", class: "hform__text input", placeholder: "Search query"
     = submit "Search", class: "button hform__button"
 
-=> link "Site staff", to: Routes.admin_user_path(@conn, :index, staff: 1)
+=> link "Site staff", to: ~p"/admin/users?#{[staff: 1]}"
 ' &bull;
-=> link "2FA users", to: Routes.admin_user_path(@conn, :index, twofactor: 1)
+=> link "2FA users", to: ~p"/admin/users?#{[twofactor: 1]}"
 
-- route = fn p -> Routes.admin_user_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/users?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: page_params(@conn.params)
 
 .block
@@ -30,7 +30,7 @@ h1 Users
       = for user <- @users do
         tr
           td
-            = link user.name, to: Routes.profile_path(@conn, :show, user)
+            = link user.name, to: ~p"/profiles/#{user}"
 
             = cond do
               - user.otp_required_for_login ->
@@ -71,7 +71,7 @@ h1 Users
 
           td
             = if can?(@conn, :edit, user) do
-              => link to: Routes.admin_user_path(@conn, :edit, user) do
+              => link to: ~p"/admin/users/#{user}/edit" do
                 i.fa.fa-fw.fa-user-edit
                 ' Edit
 
@@ -82,11 +82,11 @@ h1 Users
             /' &bull;
 
             = if can?(@conn, :index, Philomena.Bans.User) do
-              => link to: Routes.admin_user_ban_path(@conn, :new, username: user.name) do
+              => link to: ~p"/admin/user_bans/new?#{[username: user.name]}" do
                 i.fa.fa-fw.fa-ban
                 ' Ban
             = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do
-              => link to: Routes.profile_artist_link_path(@conn, :new, user) do
+              => link to: ~p"/profiles/#{user}/artist_links/new" do
                 i.fa.fa-fw.fa-link
                 ' Add link
 

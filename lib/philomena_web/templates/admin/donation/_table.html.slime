@@ -12,7 +12,7 @@ table.table
       tr
         td
           = if donation.user do
-            = link donation.user.name, to: Routes.profile_path(@conn, :show, donation.user)
+            = link donation.user.name, to: ~p"/profiles/#{donation.user}"
 
         td
           = donation.email

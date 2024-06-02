@@ -9,17 +9,17 @@
     ' titled
 
     strong>
-      = link topic.title, to: Routes.forum_topic_path(@conn, :show, forum, topic)
+      = link topic.title, to: ~p"/forums/#{forum}/topics/#{topic}"
 
     ' in
 
-    => link forum.name, to: Routes.forum_path(@conn, :show, forum)
+    => link forum.name, to: ~p"/forums/#{forum}"
 
     => pretty_time @notification.updated_at
 
 .flex.flex--centered.flex--no-wrap
-  a.button.button--separate-right title="Delete" href=Routes.forum_read_path(@conn, :create, forum) data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button.button--separate-right title="Delete" href=~p"/forums/#{forum}/read" data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
     i.fa.fa-trash
 
-  a.button title="Unsubscribe" href=Routes.forum_subscription_path(@conn, :delete, forum) data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button title="Unsubscribe" href=~p"/forums/#{forum}/subscription" data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
     i.fa.fa-bell-slash

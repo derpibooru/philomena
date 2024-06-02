@@ -1,4 +1,4 @@
-= form_for @changeset, Routes.image_path(@conn, :create), [multipart: true], fn f ->
+= form_for @changeset, ~p"/images", [multipart: true], fn f ->
   .dnp-warning
     h4
       ' Read the

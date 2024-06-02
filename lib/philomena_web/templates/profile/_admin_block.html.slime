@@ -7,7 +7,7 @@
   i.fa.fa-fw.fa-filter>
   ' Current Filter:
   = if @filter do
-    = link @filter.name, to: Routes.filter_path(@conn, :show, @filter)
+    = link @filter.name, to: ~p"/filters/#{@filter}"
   - else
     em
       ' (none)
@@ -52,127 +52,127 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
 .profile-top__options.js-admin__options__toggle.hidden
   ul.profile-admin__options__column
     li
-      = link to: Routes.profile_detail_path(@conn, :index, @user) do
+      = link to: ~p"/profiles/#{@user}/details" do
         i.fa.fa-fw.fa-eye
         span.admin__button View Details
     li
-      = link to: Routes.search_path(@conn, :index, q: "upvoted_by_id:#{@user.id}") do
+      = link to: ~p"/search?#{[q: "upvoted_by_id:#{@user.id}"]}" do
         i.fa.fa-fw.fa-arrow-up
         span.admin__button Upvotes
     li
-      = link to: Routes.search_path(@conn, :index, q: "downvoted_by_id:#{@user.id}") do
+      = link to: ~p"/search?#{[q: "downvoted_by_id:#{@user.id}"]}" do
         i.fa.fa-fw.fa-arrow-down
         span.admin__button Downvotes
     li
-      = link to: Routes.search_path(@conn, :index, q: "hidden_by_id:#{@user.id}") do
+      = link to: ~p"/search?#{[q: "hidden_by_id:#{@user.id}"]}" do
         i.fa.fa-fw.fa-eye-slash
         span.admin__button Hidden Images
     li
-      = link to: Routes.admin_report_path(@conn, :index, rq: "user_id:#{@user.id}") do
+      = link to: ~p"/admin/reports?#{[rq: "user_id:#{@user.id}"]}" do
         i.fa.fa-fw.fa-exclamation
         span.admin__button Reports
     li
-      = link to: Routes.profile_ip_history_path(@conn, :index, @user) do
+      = link to: ~p"/profiles/#{@user}/ip_history" do
         i.fab.fa-fw.fa-internet-explorer
         span.admin__button IP History
     li
-      = link to: Routes.profile_fp_history_path(@conn, :index, @user) do
+      = link to: ~p"/profiles/#{@user}/fp_history" do
         i.fa.fa-fw.fa-desktop
         span.admin__button FP History
     li
-      = link to: Routes.profile_alias_path(@conn, :index, @user) do
+      = link to: ~p"/profiles/#{@user}/aliases" do
         i.fa.fa-fw.fa-users
         span.admin__button Potential Aliases
 
     = if can?(@conn, :index, %Philomena.Donations.Donation{}) do
       li
-        = link to: Routes.admin_donation_user_path(@conn, :show, @user) do
+        = link to: ~p"/admin/donations/user/#{@user}" do
           i.fas.fa-fw.fa-dollar-sign
           span.admin__button Donations
 
   ul.profile-admin__options__column
     = if can?(@conn, :edit, @user) do
       li
-        = link to: Routes.admin_user_path(@conn, :edit, @user) do
+        = link to: ~p"/admin/users/#{@user}/edit" do
           i.fas.fa-fw.fa-edit
           span.admin__button Edit User
 
       li
-        = link to: Routes.admin_user_force_filter_path(@conn, :new, @user) do
+        = link to: ~p"/admin/users/#{@user}/force_filter/new" do
           i.fas.faw-fw.fa-filter
           span.admin__button Force Filter
 
       = if @forced do
         li
-          = link to: Routes.admin_user_force_filter_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+          = link to: ~p"/admin/users/#{@user}/force_filter", data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fas.fa-fw.fa-filter
             span.admin__button Remove Force Filter
 
       = if @user.deleted_at do
         li
-          = link to: Routes.admin_user_activation_path(@conn, :create, @user), data: [confirm: "Are you really, really sure?", method: "post"] do
+          = link to: ~p"/admin/users/#{@user}/activation", data: [confirm: "Are you really, really sure?", method: "post"] do
             i.fa.fa-fw.fa-check
             span.admin__button Reactivate Account
       - else
         li
-          = link to: Routes.admin_user_activation_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+          = link to: ~p"/admin/users/#{@user}/activation", data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fa.fa-fw.fa-times
             span.admin__button Deactivate Account
 
       = if @user.locked_at do
         li
-          = link to: Routes.admin_user_unlock_path(@conn, :create, @user), data: [method: "post"] do
+          = link to: ~p"/admin/users/#{@user}/unlock", data: [method: "post"] do
             i.fas.fa-fw.fa-unlock
             span.admin__button Unlock Account
 
       li
-        = link to: Routes.admin_user_wipe_path(@conn, :create, @user), data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do
+        = link to: ~p"/admin/users/#{@user}/wipe", data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do
           i.fas.fa-fw.fa-eraser
           span.admin__button Wipe PII
 
     = if can?(@conn, :edit, %Philomena.ArtistLinks.ArtistLink{}) do
       li
-        = link to: Routes.profile_artist_link_path(@conn, :new, @user) do
+        = link to: ~p"/profiles/#{@user}/artist_links/new" do
           i.fa.fa-fw.fa-link
           span.admin__button Add Artist Link
 
     = if can?(@conn, :create, Philomena.Bans.User) do
       li
-        = link to: Routes.admin_user_ban_path(@conn, :new, username: @user.name) do
+        = link to: ~p"/admin/user_bans/new?#{[username: @user.name]}" do
           i.fa.fa-fw.fa-ban
           span.admin__button Ban this sucker
 
   ul.profile-admin__options__column
     = if can?(@conn, :index, Philomena.Users.User) do
       li
-        = link to: Routes.admin_user_api_key_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        = link to: ~p"/admin/users/#{@user}/api_key", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fas.fa-fw.fa-key
           span.admin__button Reset API key
 
       li
         = if @user.verified do
-          = link to: Routes.admin_user_verification_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+          = link to: ~p"/admin/users/#{@user}/verification", data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fas.fa-fw.fa-user-times
             span.admin__button Revoke Verification
         - else
-          = link to: Routes.admin_user_verification_path(@conn, :create, @user), data: [confirm: "Are you really, really sure?", method: "create"] do
+          = link to: ~p"/admin/users/#{@user}/verification", data: [confirm: "Are you really, really sure?", method: "create"] do
             i.fas.fa-fw.fa-user-check
             span.admin__button Grant Verification
 
   ul.profile-admin__options__column
     = if can?(@conn, :index, Philomena.Users.User) do
       li
-        = link to: Routes.admin_user_vote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        = link to: ~p"/admin/users/#{@user}/votes", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.far.fa-fw.fa-file-excel
           span.admin__button Remove All Votes/Faves
 
       li
-        = link to: Routes.admin_user_downvote_path(@conn, :delete, @user), data: [confirm: "Are you really, really sure?", method: "delete"] do
+        = link to: ~p"/admin/users/#{@user}/downvotes", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fa.fa-fw.fa-arrow-down
           span.admin__button Remove All Downvotes
 
     = if @user.role == "user" and can?(@conn, :revert, Philomena.TagChanges.TagChange) do
       li
-        = link to: Routes.tag_change_full_revert_path(@conn, :create, [user_id: @user.id]), data: [confirm: "Are you really, really sure?", method: "create"] do
+        = link to: ~p"/tag_changes/full_revert?#{[user_id: @user.id]}", data: [confirm: "Are you really, really sure?", method: "create"] do
           i.fa.fa-fw.fa-tag
           span.admin__button Revert All Tag Changes

@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.SessionController do
       Users.get_user_by_email_and_password(
         email,
         password,
-        &Routes.unlock_url(conn, :show, &1)
+        &url(~p"/unlocks/#{&1}")
       )
 
     cond do

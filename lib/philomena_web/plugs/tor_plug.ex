@@ -6,7 +6,8 @@ defmodule PhilomenaWeb.TorPlug do
 
       plug PhilomenaWeb.TorPlug
   """
-  alias PhilomenaWeb.Router.Helpers, as: Routes
+  use PhilomenaWeb, :verified_routes
+
   alias Phoenix.Controller
   alias Plug.Conn
 
@@ -25,7 +26,7 @@ defmodule PhilomenaWeb.TorPlug do
 
   def maybe_redirect(conn, nil, true) do
     conn
-    |> Controller.redirect(to: Routes.session_path(conn, :new))
+    |> Controller.redirect(to: ~p"/sessions/new")
     |> Conn.halt()
   end
 

@@ -2,7 +2,7 @@
   .block__header
     span.block__header__title Search
   .block__content
-    = form_for @conn, Routes.commission_path(@conn, :index), [as: :commission, method: "get", class: "hform"], fn f ->
+    = form_for @conn, ~p"/commissions", [as: :commission, method: "get", class: "hform"], fn f ->
       .field = label f, :categories, "Art Categories:"
 
       = for {name, value} <- categories() do
