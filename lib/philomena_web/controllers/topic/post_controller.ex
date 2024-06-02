@@ -58,14 +58,14 @@ defmodule PhilomenaWeb.Topic.PostController do
         |> put_flash(:info, "Post created successfully.")
         |> redirect(
           to:
-            Routes.forum_topic_path(conn, :show, forum, topic, post_id: post.id) <>
+            ~p"/forums/#{forum}/topics/#{topic}?#{[post_id: post.id]}" <>
               "#post_#{post.id}"
         )
 
       _error ->
         conn
         |> put_flash(:error, "There was an error creating the post")
-        |> redirect(to: Routes.forum_topic_path(conn, :show, forum, topic))
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
     end
   end
 
@@ -88,7 +88,7 @@ defmodule PhilomenaWeb.Topic.PostController do
         |> put_flash(:info, "Post successfully edited.")
         |> redirect(
           to:
-            Routes.forum_topic_path(conn, :show, post.topic.forum, post.topic, post_id: post.id) <>
+            ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
               "#post_#{post.id}"
         )
 

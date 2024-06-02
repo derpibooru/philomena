@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
       {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum created successfully.")
-        |> redirect(to: Routes.admin_forum_path(conn, :index))
+        |> redirect(to: ~p"/admin/forums")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -38,7 +38,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
       {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum updated successfully.")
-        |> redirect(to: Routes.admin_forum_path(conn, :index))
+        |> redirect(to: ~p"/admin/forums")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

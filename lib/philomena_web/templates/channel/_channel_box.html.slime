@@ -1,7 +1,7 @@
 - link_class = "media-box__header media-box__header--channel media-box__header--link"
 
 .media-box
-  a.media-box__header.media-box__header--channel.media-box__header--link href=Routes.channel_path(@conn, :show, @channel) title=@channel.title
+  a.media-box__header.media-box__header--channel.media-box__header--link href=~p"/channels/#{@channel}" title=@channel.title
     = @channel.title || @channel.short_name
 
   .media-box__header.media-box__header--channel
@@ -17,22 +17,22 @@
       | NSFW
 
   .media-box__content.media-box__content--channel
-    a href=Routes.channel_path(@conn, :show, @channel)
+    a href=~p"/channels/#{@channel}"
       .image-constrained.media-box__content--channel
         img src=channel_image(@channel) alt="#{@channel.title}"
 
   = if @channel.associated_artist_tag do
-    a href=Routes.tag_path(@conn, :show, @channel.associated_artist_tag) class=link_class
+    a href=~p"/tags/#{@channel.associated_artist_tag}" class=link_class
       i.fa.fa-fw.fa-tags>
       = @channel.associated_artist_tag.name
   - else
     .media-box__header.media-box__header--channel No artist tag
 
   = if can?(@conn, :edit, @channel) do
-    a href=Routes.channel_path(@conn, :edit, @channel) class=link_class
+    a href=~p"/channels/#{@channel}/edit" class=link_class
       i.fas.fa-fw.fa-edit>
       ' Edit
-    a href=Routes.channel_path(@conn, :delete, @channel) class=link_class data-method="delete" data-confirm="Are you really, really sure?"
+    a href=~p"/channels/#{@channel}" class=link_class data-method="delete" data-confirm="Are you really, really sure?"
       i.fas.fa-fw.fa-trash>
       ' Delete
 

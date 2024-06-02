@@ -1,6 +1,6 @@
 h1 Reverse Search
 
-= form_for :image, Routes.search_reverse_path(@conn, :create), [multipart: true], fn f ->
+= form_for :image, ~p"/search/reverse", [multipart: true], fn f ->
   p
     ' Basic image similarity search. Finds uploaded images similar to the one
     ' provided based on simple intensities and uses the median frame of
@@ -46,7 +46,7 @@ h1 Reverse Search
       = for match <- @images do
         tr
           th
-            h3 = link "##{match.id}", to: Routes.image_path(@conn, :show, match)
+            h3 = link "##{match.id}", to: ~p"/images/#{match}"
             p
               = if image_has_sources(match) do
                 span.source_url

@@ -11,19 +11,19 @@ defmodule PhilomenaWeb.Registration.EmailControllerTest do
     @tag :capture_log
     test "updates the user email", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.registration_email_path(conn, :create), %{
+        post(conn, ~p"/registrations/email", %{
           "current_password" => valid_user_password(),
           "user" => %{"email" => unique_user_email()}
         })
 
-      assert redirected_to(conn) == Routes.registration_path(conn, :edit)
+      assert redirected_to(conn) == ~p"/registrations/edit"
       assert Flash.get(conn.assigns.flash, :info) =~ "A link to confirm your email"
       assert Users.get_user_by_email(user.email)
     end
 
     test "does not update email on invalid data", %{conn: conn} do
       conn =
-        post(conn, Routes.registration_email_path(conn, :create), %{
+        post(conn, ~p"/registrations/email", %{
           "current_password" => "invalid",
           "user" => %{"email" => "with spaces"}
         })
@@ -45,22 +45,22 @@ defmodule PhilomenaWeb.Registration.EmailControllerTest do
     end
 
     test "updates the user email once", %{conn: conn, user: user, token: token, email: email} do
-      conn = get(conn, Routes.registration_email_path(conn, :show, token))
-      assert redirected_to(conn) == Routes.registration_path(conn, :edit)
+      conn = get(conn, ~p"/registrations/email/#{token}")
+      assert redirected_to(conn) == ~p"/registrations/edit"
       assert Flash.get(conn.assigns.flash, :info) =~ "Email changed successfully"
       refute Users.get_user_by_email(user.email)
       assert Users.get_user_by_email(email)
 
-      conn = get(conn, Routes.registration_email_path(conn, :show, token))
-      assert redirected_to(conn) == Routes.registration_path(conn, :edit)
+      conn = get(conn, ~p"/registrations/email/#{token}")
+      assert redirected_to(conn) == ~p"/registrations/edit"
 
       assert Flash.get(conn.assigns.flash, :error) =~
                "Email change link is invalid or it has expired"
     end
 
     test "does not update email with invalid token", %{conn: conn, user: user} do
-      conn = get(conn, Routes.registration_email_path(conn, :show, "oops"))
-      assert redirected_to(conn) == Routes.registration_path(conn, :edit)
+      conn = get(conn, ~p"/registrations/email/oops")
+      assert redirected_to(conn) == ~p"/registrations/edit"
 
       assert Flash.get(conn.assigns.flash, :error) =~
                "Email change link is invalid or it has expired"
@@ -70,8 +70,8 @@ defmodule PhilomenaWeb.Registration.EmailControllerTest do
 
     test "redirects if user is not logged in", %{token: token} do
       conn = build_conn()
-      conn = get(conn, Routes.registration_email_path(conn, :show, token))
-      assert redirected_to(conn) == Routes.session_path(conn, :new)
+      conn = get(conn, ~p"/registrations/email/#{token}")
+      assert redirected_to(conn) == ~p"/sessions/new"
     end
   end
 end

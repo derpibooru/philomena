@@ -1,4 +1,4 @@
-- route = fn p -> Routes.admin_mod_note_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/mod_notes?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @mod_notes, route: route, conn: @conn
 
 h2 Mod Notes

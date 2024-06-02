@@ -18,14 +18,14 @@ h1
           strong Your current filter
       - else
         li
-          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, id: @filter), method: "put", class: "button"
+          = button_to "Use this filter", ~p"/filters/current?#{[id: @filter]}", method: "put", class: "button"
 
       = if can?(@conn, :edit, @filter) do
         li
-          = link "Edit this filter", to: Routes.filter_path(@conn, :edit, @filter), class: "button"
+          = link "Edit this filter", to: ~p"/filters/#{@filter}/edit", class: "button"
 
       = if can?(@conn, :delete, @filter) do
-        = button_to "Destroy this filter", Routes.filter_path(@conn, :delete, @filter), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
+        = button_to "Destroy this filter", ~p"/filters/#{@filter}", method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
 
   = if @filter.user do
     p.filter-maintainer
@@ -61,4 +61,4 @@ h1
 
 
 /p = link("Report filter to moderators", new_report_path(reportable_class: 'filter', reportable_id: @filter.id)
-p = link("Back to filters", to: Routes.filter_path(@conn, :index))
+p = link("Back to filters", to: ~p"/filters")

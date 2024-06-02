@@ -2,6 +2,8 @@ defmodule Philomena.Autocomplete.Autocomplete do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   @primary_key false
   schema "autocomplete" do
     field :content, :binary

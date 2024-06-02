@@ -18,6 +18,6 @@ defmodule PhilomenaWeb.Tag.ReindexController do
 
     conn
     |> put_flash(:info, "Tag reindex started.")
-    |> redirect(to: Routes.tag_path(conn, :edit, tag))
+    |> redirect(to: ~p"/tags/#{tag}/edit")
   end
 end

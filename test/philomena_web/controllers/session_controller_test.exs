@@ -9,12 +9,12 @@ defmodule PhilomenaWeb.SessionControllerTest do
 
   describe "GET /sessions/new" do
     test "renders log in page", %{conn: conn} do
-      conn = get(conn, Routes.session_path(conn, :new))
+      conn = get(conn, ~p"/sessions/new")
       html_response(conn, 200)
     end
 
     test "redirects if already logged in", %{conn: conn, user: user} do
-      conn = conn |> log_in_user(user) |> get(Routes.session_path(conn, :new))
+      conn = conn |> log_in_user(user) |> get(~p"/sessions/new")
       assert redirected_to(conn) == "/"
     end
   end
@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.SessionControllerTest do
   describe "POST /sessions" do
     test "logs the user in", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.session_path(conn, :create), %{
+        post(conn, ~p"/sessions", %{
           "user" => %{"email" => user.email, "password" => valid_user_password()}
         })
 
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.SessionControllerTest do
 
     test "logs the user in with remember me", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.session_path(conn, :create), %{
+        post(conn, ~p"/sessions", %{
           "user" => %{
             "email" => user.email,
             "password" => valid_user_password(),
@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.SessionControllerTest do
 
     test "emits error message with invalid credentials", %{conn: conn, user: user} do
       conn =
-        post(conn, Routes.session_path(conn, :create), %{
+        post(conn, ~p"/sessions", %{
           "user" => %{"email" => user.email, "password" => "invalid_password"}
         })
 
@@ -64,7 +64,7 @@ defmodule PhilomenaWeb.SessionControllerTest do
 
   describe "DELETE /sessions" do
     test "logs the user out", %{conn: conn, user: user} do
-      conn = conn |> log_in_user(user) |> delete(Routes.session_path(conn, :delete))
+      conn = conn |> log_in_user(user) |> delete(~p"/sessions")
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"

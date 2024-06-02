@@ -1,2 +1,2 @@
 h2 Edit DNP Request
-= render PhilomenaWeb.DnpEntryView, "_form.html", changeset: @changeset, action: Routes.dnp_entry_path(@conn, :update, @dnp_entry, tag_id: @dnp_entry.tag_id), conn: @conn, selectable_tags: @selectable_tags
+= render PhilomenaWeb.DnpEntryView, "_form.html", changeset: @changeset, action: ~p"/dnp/#{@dnp_entry}?#{[tag_id: @dnp_entry.tag_id]}", conn: @conn, selectable_tags: @selectable_tags

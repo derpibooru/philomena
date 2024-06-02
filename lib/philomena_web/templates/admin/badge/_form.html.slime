@@ -30,6 +30,6 @@
       = error_tag f, :image_mime_type
   - else
     .field
-      = link "Change image", to: Routes.admin_badge_image_path(@conn, :edit, @changeset.data), class: "button"
+      = link "Change image", to: ~p"/admin/badges/#{@changeset.data}/image/edit", class: "button"
 
   = submit "Save Badge", class: "button", data: [disable_with: raw("Saving&hellip;")]

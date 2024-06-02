@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
       {:ok, _advert} ->
         conn
         |> put_flash(:info, "Advert was successfully created.")
-        |> redirect(to: Routes.admin_advert_path(conn, :index))
+        |> redirect(to: ~p"/admin/adverts")
 
       {:error, :advert, changeset, _changes} ->
         render(conn, "new.html", changeset: changeset)
@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
       {:ok, _advert} ->
         conn
         |> put_flash(:info, "Advert was successfully updated.")
-        |> redirect(to: Routes.admin_advert_path(conn, :index))
+        |> redirect(to: ~p"/admin/adverts")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -61,7 +61,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
 
     conn
     |> put_flash(:info, "Advert was successfully deleted.")
-    |> redirect(to: Routes.admin_advert_path(conn, :index))
+    |> redirect(to: ~p"/admin/adverts")
   end
 
   defp verify_authorized(conn, _opts) do

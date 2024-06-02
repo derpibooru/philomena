@@ -1,5 +1,5 @@
 elixir:
-  route = fn p -> Routes.conversation_path(@conn, :index, p) end
+  route = fn p -> ~p"/conversations?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @conversations, route: route, conn: @conn
 
 h1 My Conversations
@@ -8,7 +8,7 @@ h1 My Conversations
     .page__pagination = pagination
 
     .page__info
-      a href=Routes.conversation_path(@conn, :new)
+      a href=~p"/conversations/new"
         i.fa.fa-paper-plane>
         ' Create New Conversation
 
@@ -23,7 +23,7 @@ h1 My Conversations
         = for {c, count} <- @conversations do
           tr class=conversation_class(@conn.assigns.current_user, c)
             td.table--communication-list__name
-              => link c.title, to: Routes.conversation_path(@conn, :show, c)
+              => link c.title, to: ~p"/conversations/#{c}"
 
               .small-text.hide-mobile
                 => count
@@ -36,9 +36,9 @@ h1 My Conversations
             td.table--communication-list__stats
               = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user, c)}, conn: @conn
             td.table--communication-list__options
-              => link "Last message", to: last_message_path(@conn, c, count)
+              => link "Last message", to: last_message_path(c, count)
               ' &bull;
-              => link "Hide", to: Routes.conversation_hide_path(@conn, :create, c), data: [method: "post"], data: [confirm: "Are you really, really sure?"]
+              => link "Hide", to: ~p"/conversations/#{c}/hide", data: [method: "post"], data: [confirm: "Are you really, really sure?"]
 
   .block__header.block__header--light.page__header
     .page__pagination = pagination

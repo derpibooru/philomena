@@ -6,16 +6,16 @@ p
 
 p
   ' Looking for two factor authentication?
-  = link "Click here!", to: Routes.registration_totp_path(@conn, :edit)
+  = link "Click here!", to: ~p"/registrations/totp/edit"
 
 p
   ' Looking to change your avatar?
-  = link "Click here!", to: Routes.avatar_path(@conn, :edit)
+  = link "Click here!", to: ~p"/avatar/edit"
 
 = if can?(@conn, :change_username, @current_user) do
   p
     ' Looking to change your username?
-    = link "Click here!", to: Routes.registration_name_path(@conn, :edit)
+    = link "Click here!", to: ~p"/registrations/name/edit"
 
 h3 API Key
 p
@@ -33,7 +33,7 @@ p
 
 h3 Change email
 
-= form_for @email_changeset, Routes.registration_email_path(@conn, :create), [method: :post], fn f ->
+= form_for @email_changeset, ~p"/registrations/email", [method: :post], fn f ->
   = if @email_changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
@@ -51,7 +51,7 @@ h3 Change email
 
 h3 Change password
 
-= form_for @password_changeset, Routes.registration_password_path(@conn, :update), fn f ->
+= form_for @password_changeset, ~p"/registrations/password", fn f ->
   = if @password_changeset.action do
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.

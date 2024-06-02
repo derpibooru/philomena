@@ -9,7 +9,7 @@ table.table
   tbody
     = for filter <- @filters do
       tr
-        td = link filter.name, to: Routes.filter_path(@conn, :show, filter)
+        td = link filter.name, to: ~p"/filters/#{filter}"
         td
           = cond do
             - filter.system ->
@@ -23,7 +23,7 @@ table.table
 
         td
           = if filter.user do
-            = link filter.user.name, to: Routes.profile_path(@conn, :show, filter.user)
+            = link filter.user.name, to: ~p"/profiles/#{filter.user}"
           - else
             ' No user associated
 

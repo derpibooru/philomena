@@ -1,5 +1,5 @@
 h1 Edit Item on Listing
 p
-  = link "Back to listing", to: Routes.profile_commission_path(@conn, :show, @user)
+  = link "Back to listing", to: ~p"/profiles/#{@user}/commission"
 
-= render PhilomenaWeb.Profile.Commission.ItemView, "_form.html", conn: @conn, changeset: @changeset, action: Routes.profile_commission_item_path(@conn, :update, @user, @item)
+= render PhilomenaWeb.Profile.Commission.ItemView, "_form.html", conn: @conn, changeset: @changeset, action: ~p"/profiles/#{@user}/commission/items/#{@item}"

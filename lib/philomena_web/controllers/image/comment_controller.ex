@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.CommentController do
   def index(conn, %{"comment_id" => comment_id}) do
     page = CommentLoader.find_page(conn, conn.assigns.image, comment_id)
 
-    redirect(conn, to: Routes.image_comment_path(conn, :index, conn.assigns.image, page: page))
+    redirect(conn, to: ~p"/images/#{conn.assigns.image}/comments?#{[page: page]}")
   end
 
   def index(conn, _params) do
@@ -93,7 +93,7 @@ defmodule PhilomenaWeb.Image.CommentController do
       _error ->
         conn
         |> put_flash(:error, "There was an error posting your comment")
-        |> redirect(to: Routes.image_path(conn, :show, image))
+        |> redirect(to: ~p"/images/#{image}")
     end
   end
 
@@ -126,9 +126,7 @@ defmodule PhilomenaWeb.Image.CommentController do
 
         conn
         |> put_flash(:info, "Comment updated successfully.")
-        |> redirect(
-          to: Routes.image_path(conn, :show, conn.assigns.image) <> "#comment_#{comment.id}"
-        )
+        |> redirect(to: ~p"/images/#{conn.assigns.image}" <> "#comment_#{comment.id}")
 
       {:error, :comment, changeset, _changes} ->
         render(conn, "edit.html", comment: conn.assigns.comment, changeset: changeset)

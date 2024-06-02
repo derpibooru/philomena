@@ -1,14 +1,14 @@
 elixir:
-  route = fn p -> Routes.conversation_path(@conn, :show, @conversation, p) end
+  route = fn p -> ~p"/conversations/#{@conversation}?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @messages, route: route, conn: @conn
   other = other_party(@current_user, @conversation)
 
 h1 = @conversation.title
 .block
   .block__header
-    => link "Message Center", to: Routes.conversation_path(@conn, :index)
+    => link "Message Center", to: ~p"/conversations"
     ' &raquo;
-    => link @conversation.title, to: Routes.conversation_path(@conn, :show, @conversation)
+    => link @conversation.title, to: ~p"/conversations/#{@conversation}"
     ' Conversation with
     => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other}, conn: @conn
   .block__header--sub.block__header--light.page__header
@@ -18,11 +18,11 @@ h1 = @conversation.title
     .page__pagination = pagination
     .page__info
       = if hidden_by?(@current_user, @conversation) do
-        = link "Restore conversation", to: Routes.conversation_hide_path(@conn, :delete, @conversation), data: [method: "delete"]
+        = link "Restore conversation", to: ~p"/conversations/#{@conversation}/hide", data: [method: "delete"]
       - else
-        = link "Remove conversation", to: Routes.conversation_hide_path(@conn, :create, @conversation), data: [method: "post", confirm: "Are you really, really sure?"]
-      = link "Report conversation", to: Routes.conversation_report_path(@conn, :new, @conversation)
-      = link "Mark as unread", to: Routes.conversation_read_path(@conn, :delete, @conversation), data: [method: "delete"]
+        = link "Remove conversation", to: ~p"/conversations/#{@conversation}/hide", data: [method: "post", confirm: "Are you really, really sure?"]
+      = link "Report conversation", to: ~p"/conversations/#{@conversation}/reports/new"
+      = link "Mark as unread", to: ~p"/conversations/#{@conversation}/read", data: [method: "delete"]
 
 = for {message, body} <- @messages do
   = render PhilomenaWeb.MessageView, "_message.html", message: message, body: body, conn: @conn
@@ -59,5 +59,5 @@ h1 = @conversation.title
       p You've managed to send over 1,000 messages in this conversation!
       p We'd like to ask you to make a new conversation. Don't worry, this one won't go anywhere if you need to refer back to it.
       p
-        => link "Click here", to: Routes.conversation_path(@conn, :new, receipient: other.name)
+        => link "Click here", to: ~p"/conversations/new?#{[receipient: other.name]}"
         ' to make a new conversation with this user.

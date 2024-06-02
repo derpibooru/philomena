@@ -6,7 +6,7 @@
   = render PhilomenaWeb.Admin.DonationView, "_table.html", donations: @donations, conn: @conn
 
   h1 Add Donation
-  = form_for @changeset, Routes.admin_donation_path(@conn, :create), fn f ->
+  = form_for @changeset, ~p"/admin/donations", fn f ->
     .field
       => label f, :user_id, "User ID:"
       = number_input f, :user_id, class: "input input--short", value: @user.id

@@ -1,4 +1,4 @@
-= form_for @changeset, Routes.duplicate_report_path(@conn, :create), fn f ->
+= form_for @changeset, ~p"/duplicate_reports", fn f ->
   = hidden_input f, :image_id, value: @image.id
   .field
     ' Delete this image and redirect to

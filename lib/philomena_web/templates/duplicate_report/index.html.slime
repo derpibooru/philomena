@@ -1,6 +1,6 @@
 h1 Duplicate Reports
 
-- route = fn p -> Routes.duplicate_report_path(@conn, :index, p) end
+- route = fn p -> ~p"/duplicate_reports?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn, params: [states: @conn.params["states"] || ["open", "claimed"]]
 
 .block
@@ -8,14 +8,14 @@ h1 Duplicate Reports
     .page__pagination = pagination
     .page__info
       span.block__header__title Display only:
-      => link "Open (All)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open claimed))
-      => link "Open (Unclaimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open))
-      => link "Open (Claimed)", to: Routes.duplicate_report_path(@conn, :index, states: ~W(claimed))
-      => link "Open + Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected))
-      => link "Rejected", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected))
-      => link "Rejected + Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(rejected accepted))
-      => link "Accepted", to: Routes.duplicate_report_path(@conn, :index, states: ~W(accepted))
-      = link "All", to: Routes.duplicate_report_path(@conn, :index, states: ~W(open rejected accepted claimed))
+      => link "Open (All)", to: ~p"/duplicate_reports?#{[states: ~W(open claimed)]}"
+      => link "Open (Unclaimed)", to: ~p"/duplicate_reports?#{[states: ~W(open)]}"
+      => link "Open (Claimed)", to: ~p"/duplicate_reports?#{[states: ~W(claimed)]}"
+      => link "Open + Rejected", to: ~p"/duplicate_reports?#{[states: ~W(open rejected)]}"
+      => link "Rejected", to: ~p"/duplicate_reports?#{[states: ~W(rejected)]}"
+      => link "Rejected + Accepted", to: ~p"/duplicate_reports?#{[states: ~W(rejected accepted)]}"
+      => link "Accepted", to: ~p"/duplicate_reports?#{[states: ~W(accepted)]}"
+      = link "All", to: ~p"/duplicate_reports?#{[states: ~W(open rejected accepted claimed)]}"
 
   = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: @duplicate_reports, conn: @conn
 

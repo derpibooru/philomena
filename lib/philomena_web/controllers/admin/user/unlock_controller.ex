@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Admin.User.UnlockController do
 
     conn
     |> put_flash(:info, "User was unlocked.")
-    |> redirect(to: Routes.profile_path(conn, :show, user))
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do

@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Profile.DescriptionController do
       {:ok, _user} ->
         conn
         |> put_flash(:info, "Description successfully updated.")
-        |> redirect(to: Routes.profile_path(conn, :show, user))
+        |> redirect(to: ~p"/profiles/#{user}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

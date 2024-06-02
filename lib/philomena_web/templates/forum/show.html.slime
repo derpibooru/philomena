@@ -1,16 +1,16 @@
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @topics, route: fn p -> Routes.forum_path(@conn, :show, @forum, p) end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @topics, route: fn p -> ~p"/forums/#{@forum}?#{p}" end
 
 h1 = @forum.name
 .block
   .block__header
-    => link("Forums", to: Routes.forum_path(@conn, :index))
+    => link("Forums", to: ~p"/forums")
     ' &raquo;
-    => link(@forum.name, to: Routes.forum_path(@conn, :show, @forum))
-    a href=Routes.forum_topic_path(@conn, :new, @forum)
+    => link(@forum.name, to: ~p"/forums/#{@forum}")
+    a href=~p"/forums/#{@forum}/topics/new"
       i.fa.fa-fw.fa-edit>
       ' New Topic
 
-    a href=Routes.post_path(@conn, :index, pq: "forum:#{@forum.short_name}")
+    a href=~p"/posts?#{[pq: "forum:#{@forum.short_name}"]}"
       i.fa.fa-fw.fa-search>
       ' Search Posts
     span.spacing-left
@@ -38,7 +38,7 @@ h1 = @forum.name
                 i.fa.fa-lock
               = if topic.poll do
                 i.fas.fa-poll-h
-              =< link(topic.title, to: Routes.forum_topic_path(@conn, :show, @forum, topic))
+              =< link(topic.title, to: ~p"/forums/#{@forum}/topics/#{topic}")
               .small-text
                 ' Posted
                 => pretty_time(topic.created_at)
@@ -47,7 +47,7 @@ h1 = @forum.name
             td.table--communication-list__stats.hide-mobile = topic.post_count
             td.table--communication-list__last-post
               = if topic.last_post do
-                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, topic.forum, topic, post_id: topic.last_post) <> "#post_#{topic.last_post.id}")
+                => link("Go to post", to: ~p"/forums/#{topic.forum}/topics/#{topic}?#{[post_id: topic.last_post]}" <> "#post_#{topic.last_post.id}")
                 ' by
                 = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: topic.last_post, conn: @conn
                 br

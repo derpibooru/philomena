@@ -7,14 +7,14 @@ defmodule PhilomenaWeb.Channel.NsfwController do
     conn
     |> set_cookie("chan_nsfw", "true")
     |> put_flash(:info, "Successfully updated channel visibility.")
-    |> redirect(to: Routes.channel_path(conn, :index))
+    |> redirect(to: ~p"/channels")
   end
 
   def delete(conn, _params) do
     conn
     |> set_cookie("chan_nsfw", "false")
     |> put_flash(:info, "Successfully updated channel visibility.")
-    |> redirect(to: Routes.channel_path(conn, :index))
+    |> redirect(to: ~p"/channels")
   end
 
   # Duplicated from setting controller

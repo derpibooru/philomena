@@ -8,7 +8,7 @@
       p Add a new avatar or remove your existing one here.
       p Avatars must be less than 1000px tall and wide, and smaller than 300 kilobytes in size. PNG, JPEG, and GIF are acceptable.
 
-      = form_for @changeset, Routes.avatar_path(@conn, :update), [method: "put", multipart: true], fn f ->
+      = form_for @changeset, ~p"/avatar", [method: "put", multipart: true], fn f ->
         = if @changeset.action do
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
@@ -37,10 +37,10 @@
           => submit "Update my avatar", class: "button"
 
       br
-      = button_to "Remove my avatar", Routes.avatar_path(@conn, :delete), method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
+      = button_to "Remove my avatar", ~p"/avatar", method: "delete", class: "button", data: [confirm: "Are you really, really sure?"]
 
     br
     = if blank?(@conn.params["profile"]) do
-        = link "Back", to: Routes.registration_path(@conn, :edit)
+        = link "Back", to: ~p"/registrations/edit"
     - else
-        = link "Back", to: Routes.profile_path(@conn, :show, @current_user)
+        = link "Back", to: ~p"/profiles/#{@current_user}"

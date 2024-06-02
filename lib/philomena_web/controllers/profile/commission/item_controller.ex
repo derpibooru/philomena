@@ -47,7 +47,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
       {:ok, _multi} ->
         conn
         |> put_flash(:info, "Item successfully created.")
-        |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
+        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
 
       {:error, changeset} ->
         render(conn, "new.html", user: user, commission: commission, changeset: changeset)
@@ -79,7 +79,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
       {:ok, _commission} ->
         conn
         |> put_flash(:info, "Item successfully updated.")
-        |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
+        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
 
       {:error, changeset} ->
         render(conn, "edit.html",
@@ -100,7 +100,7 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
 
     conn
     |> put_flash(:info, "Item deleted successfully.")
-    |> redirect(to: Routes.profile_commission_path(conn, :show, conn.assigns.user))
+    |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
   end
 
   defp ensure_commission(conn, _opts) do

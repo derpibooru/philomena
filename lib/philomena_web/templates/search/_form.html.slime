@@ -1,6 +1,6 @@
 h1 Search
 
-= form_for :search, Routes.search_path(@conn, :index), [id: "searchform", method: "get", class: "js-search-form", enforce_utf8: false], fn f ->
+= form_for :search, ~p"/search", [id: "searchform", method: "get", class: "js-search-form", enforce_utf8: false], fn f ->
   = text_input f, :q, class: "input input--wide js-search-field", placeholder: "Search terms are chained with commas", autocapitalize: "none", name: "q", value: @conn.params["q"]
 
   .block

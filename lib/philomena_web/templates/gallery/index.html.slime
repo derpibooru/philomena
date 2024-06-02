@@ -1,5 +1,5 @@
 elixir:
-  route = fn p -> Routes.gallery_path(@conn, :index, p) end
+  route = fn p -> ~p"/galleries?#{p}" end
   pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route, params: [gallery: @conn.params["gallery"]]
 
 .column-layout
@@ -8,7 +8,7 @@ elixir:
       .block__content
         h3 Search Galleries
 
-        = form_for @conn, Routes.gallery_path(@conn, :index), [as: :gallery, method: "get", class: "hform"], fn f ->
+        = form_for @conn, ~p"/galleries", [as: :gallery, method: "get", class: "hform"], fn f ->
           .field = label f, :title, "Title"
           .field = text_input f, :title, class: "input hform__text", placeholder: "Gallery title (* as wildcard)"
 

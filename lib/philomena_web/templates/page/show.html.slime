@@ -4,11 +4,11 @@ p
   => pretty_time(@static_page.updated_at)
 
 p
-  => link to: Routes.page_history_path(@conn, :index, @static_page) do
+  => link to: ~p"/pages/#{@static_page}/history" do
     i.fa.fa-history>
     ' Revision history
   = if can?(@conn, :edit, Philomena.StaticPages.StaticPage) do
-    =< link to: Routes.page_path(@conn, :edit, @static_page) do
+    =< link to: ~p"/pages/#{@static_page}/edit" do
       i.fa.fa-edit>
       ' Edit
 

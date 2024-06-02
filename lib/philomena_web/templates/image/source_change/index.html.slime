@@ -1,10 +1,10 @@
 h1
   ' Source changes for
-  a href=Routes.image_path(@conn, :show, @image)
+  a href=~p"/images/#{@image}"
     | image #
     = @image.id
 
-- route = fn p -> Routes.image_source_change_path(@conn, :index, @image, p) end
+- route = fn p -> ~p"/images/#{@image}/source_changes?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
 
 = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination

@@ -2,13 +2,13 @@
   .block
     .block__header
       span.block__header__title Recent Forum Posts
-      = link "View all", to: Routes.post_path(@conn, :index, pq: "user_id:#{@user.id}")
+      = link "View all", to: ~p"/posts?#{[pq: "user_id:#{@user.id}"]}"
 
     .block__content
       .block
         = for post <- @posts do
           .block__content.alternating-color
             ' Post
-            => link pretty_time(post.created_at), to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic, post_id: post) <> "#post_#{post.id}"
+            => link pretty_time(post.created_at), to: ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post]}" <> "#post_#{post.id}"
             ' in topic
-            => link post.topic.title, to: Routes.forum_topic_path(@conn, :show, post.topic.forum, post.topic)
+            => link post.topic.title, to: ~p"/forums/#{post.topic.forum}/topics/#{post.topic}"

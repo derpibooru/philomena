@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.Tag.AliasController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag alias queued.")
-        |> redirect(to: Routes.tag_alias_path(conn, :edit, tag))
+        |> redirect(to: ~p"/tags/#{tag}/alias/edit")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -35,6 +35,6 @@ defmodule PhilomenaWeb.Tag.AliasController do
 
     conn
     |> put_flash(:info, "Tag dealias queued.")
-    |> redirect(to: Routes.tag_path(conn, :show, tag))
+    |> redirect(to: ~p"/tags/#{tag}")
   end
 end

@@ -1,9 +1,9 @@
 h1 Livestreams
 
-- route = fn p -> Routes.channel_path(@conn, :index, p) end
+- route = fn p -> ~p"/channels?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn, params: [cq: @conn.params["cq"]]
 
-= form_for :channels, Routes.channel_path(@conn, :index), [method: "get", class: "hform", enforce_utf8: false], fn f ->
+= form_for :channels, ~p"/channels", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
     = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search channels", autocapitalize: "none"
     = submit "Search", class: "hform__button button"
@@ -13,11 +13,11 @@ h1 Livestreams
     .page__pagination = pagination
 
     = if @conn.cookies["chan_nsfw"] == "true" do
-      a href=Routes.channel_nsfw_path(@conn, :delete) data-method="delete"
+      a href=~p"/channels/nsfw" data-method="delete"
         i.fa.fa-eye-slash>
         ' Hide NSFW streams
     - else
-      a href=Routes.channel_nsfw_path(@conn, :create) data-method="create"
+      a href=~p"/channels/nsfw" data-method="create"
         i.fa.fa-eye>
         ' Show NSFW streams
 
@@ -30,7 +30,7 @@ h1 Livestreams
 
 br
 = if can?(@conn, :create, Philomena.Channels.Channel) do
-  = link "New Channel", to: Routes.channel_path(@conn, :new)
+  = link "New Channel", to: ~p"/channels/new"
 
 h2 FAQ
 p

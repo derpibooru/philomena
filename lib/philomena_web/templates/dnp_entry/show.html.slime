@@ -6,9 +6,9 @@ h2
   .block__header
     span.block__header__title DNP Information
     = if can?(@conn, :edit, @dnp_entry) do
-      = link "Edit listing", to: Routes.dnp_entry_path(@conn, :edit, @dnp_entry, tag_id: @dnp_entry.tag_id)
+      = link "Edit listing", to: ~p"/dnp/#{@dnp_entry}/edit?#{[tag_id: @dnp_entry.tag_id]}"
 
-    = link "Back to DNP List", to: Routes.dnp_entry_path(@conn, :index)
+    = link "Back to DNP List", to: ~p"/dnp"
 
   .block__content
     table.table
@@ -53,26 +53,26 @@ h2
 = if can?(@conn, :index, Philomena.DnpEntries.DnpEntry) do
   = case @dnp_entry.aasm_state do
       - s when s in ["requested", "claimed"] ->
-      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Claim", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
       ' &bull;
-      => link "Approve", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "listed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Approve", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "listed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
       ' &bull;
-      => link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Close", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
       - "listed" ->
-      => link "Rescind", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "rescinded"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Rescind", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "rescinded"]}", data: [method: "post", confirm: "Are you really, really sure?"]
       ' &bull;
-      = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      = link "Close", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
       - s when s in ["rescinded", "acknowledged"] ->
-      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "acknowledged"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Claim", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "acknowledged"]}", data: [method: "post", confirm: "Are you really, really sure?"]
       ' &bull;
-      = link "Close", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "closed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      = link "Close", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
       - _state ->
-      => link "Claim", to: Routes.admin_dnp_entry_transition_path(@conn, :create, @dnp_entry, state: "claimed"), data: [method: "post", confirm: "Are you really, really sure?"]
+      => link "Claim", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
 = if assigns[:mod_notes] do
   h4 Mod Notes
   = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
-  = link "Add New Note", to: Routes.admin_mod_note_path(@conn, :new, notable_id: @dnp_entry.id, notable_type: "DnpEntry")
+  = link "Add New Note", to: ~p"/admin/mod_notes/new?#{[notable_id: @dnp_entry.id, notable_type: "DnpEntry"]}"

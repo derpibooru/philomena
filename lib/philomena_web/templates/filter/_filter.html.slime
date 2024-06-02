@@ -20,20 +20,20 @@
         = length(@filter.hidden_tag_ids)
 
       li
-        = link "View this filter", to: Routes.filter_path(@conn, :show, @filter), class: "button"
+        = link "View this filter", to: ~p"/filters/#{@filter}", class: "button"
       li
-        = link "Copy and Customize", to: Routes.filter_path(@conn, :new, based_on: @filter), class: "button"
+        = link "Copy and Customize", to: ~p"/filters/new?#{[based_on: @filter]}", class: "button"
 
       = if can?(@conn, :edit, @filter) do
         li
-          = link "Edit this filter", to: Routes.filter_path(@conn, :edit, @filter), class: "button"
+          = link "Edit this filter", to: ~p"/filters/#{@filter}/edit", class: "button"
 
       = if @filter.id == @conn.assigns.current_filter.id do
         li
           strong Your current filter
       - else
         li
-          = button_to "Use this filter", Routes.filter_current_path(@conn, :update, id: @filter), method: "put", class: "button"
+          = button_to "Use this filter", ~p"/filters/current?#{[id: @filter]}", method: "put", class: "button"
     p
       em
         = @filter.description

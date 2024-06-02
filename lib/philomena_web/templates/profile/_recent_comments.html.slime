@@ -2,7 +2,7 @@
   .block
     .block__header
       span.block__header__title Recent Comments
-      = link "View all", to: Routes.comment_path(@conn, :index, cq: "user_id:#{@user.id}")
+      = link "View all", to: ~p"/comments?#{[cq: "user_id:#{@user.id}"]}"
 
     .block__content
       = for {body, comment} <- @comments, can?(@conn, :show, comment.image) do

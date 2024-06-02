@@ -57,7 +57,7 @@ defmodule Philomena.Conversations.Conversation do
     |> put_recipient()
     |> set_slug()
     |> set_last_message()
-    |> cast_assoc(:messages, with: {Message, :creation_changeset, [from]})
+    |> cast_assoc(:messages, with: &Message.creation_changeset(&1, &2, from))
     |> validate_length(:messages, is: 1)
   end
 

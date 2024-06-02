@@ -36,12 +36,12 @@ defmodule PhilomenaWeb.Conversation.MessageController do
 
         conn
         |> put_flash(:info, "Message successfully sent.")
-        |> redirect(to: Routes.conversation_path(conn, :show, conversation, page: page))
+        |> redirect(to: ~p"/conversations/#{conversation}?#{[page: page]}")
 
       _error ->
         conn
         |> put_flash(:error, "There was an error posting your message")
-        |> redirect(to: Routes.conversation_path(conn, :show, conversation))
+        |> redirect(to: ~p"/conversations/#{conversation}")
     end
   end
 end

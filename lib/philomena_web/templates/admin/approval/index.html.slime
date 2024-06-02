@@ -1,4 +1,4 @@
-- route = fn p -> Routes.admin_approval_path(@conn, :index, p) end
+- route = fn p -> ~p"/admin/approvals?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @images, route: route
 
 h1 Approval Queue

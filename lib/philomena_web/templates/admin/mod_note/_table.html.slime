@@ -10,7 +10,7 @@ table.table
     = for {body, note} <- @mod_notes do
       tr
         td
-          = link_to_noted_thing(@conn, note.notable)
+          = link_to_noted_thing(note.notable)
 
         td
           = body
@@ -19,9 +19,9 @@ table.table
           = pretty_time note.created_at
 
         td
-          = link note.moderator.name, to: Routes.profile_path(@conn, :show, note.moderator)
+          = link note.moderator.name, to: ~p"/profiles/#{note.moderator}"
 
         td
-          => link "Edit", to: Routes.admin_mod_note_path(@conn, :edit, note)
+          => link "Edit", to: ~p"/admin/mod_notes/#{note}/edit"
           ' &bull;
-          => link "Delete", to: Routes.admin_mod_note_path(@conn, :delete, note), data: [confirm: "Are you really, really sure?", method: "delete"]
+          => link "Delete", to: ~p"/admin/mod_notes/#{note}", data: [confirm: "Are you really, really sure?", method: "delete"]

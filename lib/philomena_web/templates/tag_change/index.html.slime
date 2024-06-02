@@ -7,7 +7,7 @@
       i.fa.fa-check>
       ' Toggle all
 
-= form_for :tag_changes, Routes.tag_change_revert_path(@conn, :create), [class: "tag-changes-form"], fn _f ->
+= form_for :tag_changes, ~p"/tag_changes/revert", [class: "tag-changes-form"], fn _f ->
   .block__content
     table.table
       thead
@@ -31,7 +31,7 @@
                 input type="checkbox" name="ids[]" value=tag_change.id
 
             td.center
-              = link tag_change.image_id, to: Routes.image_path(@conn, :show, tag_change.image)
+              = link tag_change.image_id, to: ~p"/images/#{tag_change.image}"
             td.center
               = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
 
@@ -69,7 +69,7 @@
               td.danger No
             = if reverts_tag_changes?(@conn) do
               td
-                a href=Routes.image_tag_change_path(@conn, :delete, tag_change.image, tag_change) data-method="delete" data-confirm="Are you really, really sure?"
+                a href=~p"/images/#{tag_change.image}/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
                   ' Delete from history
 
   .block__header

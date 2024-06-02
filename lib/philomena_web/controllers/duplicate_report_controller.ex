@@ -56,12 +56,12 @@ defmodule PhilomenaWeb.DuplicateReportController do
       {:ok, duplicate_report} ->
         conn
         |> put_flash(:info, "Duplicate report created successfully.")
-        |> redirect(to: Routes.image_path(conn, :show, duplicate_report.image_id))
+        |> redirect(to: ~p"/images/#{duplicate_report.image_id}")
 
       {:error, _changeset} ->
         conn
         |> put_flash(:error, "Failed to submit duplicate report")
-        |> redirect(to: Routes.image_path(conn, :show, source))
+        |> redirect(to: ~p"/images/#{source}")
     end
   end
 

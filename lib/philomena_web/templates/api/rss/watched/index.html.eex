@@ -3,7 +3,7 @@
   <channel>
     <title>Derpibooru Watchlist</title>
     <description>Your watched tags feed from Derpibooru</description>
-    <link><%= Routes.api_rss_watched_url(@conn, :index) %></link>
+    <link><%= url(~p"/api/v1/rss/watched") %></link>
     <lastBuildDate><%= last_build_date() %></lastBuildDate>
 
     <%= for image <- @images do %>
@@ -12,14 +12,14 @@
           <description>
             <![CDATA[
               <% mouseovertext = "Size: #{image.image_width}x#{image.image_height} | Tagged: #{tag_list(image)}" %>
-              <a href="<%= Routes.image_url(@conn, :show, image) %>">
+              <a href="<%= url(~p"/images/#{image}") %>">
                 <img src="<%= medium_url(image) %>" alt="<%= mouseovertext %>" title="<%= mouseovertext %>"/>
               </a>
             ]]>
           </description>
           <pubDate><%= DateTime.to_iso8601(image.created_at) %></pubDate>
-          <link><%= Routes.image_url(@conn, :show, image) %></link>
-          <guid><%= Routes.image_url(@conn, :show, image) %></guid>
+          <link><%= url(~p"/images/#{image}") %></link>
+          <guid><%= url(~p"/images/#{image}") %></guid>
         </item>
     <% end %>
   </channel>

@@ -1,7 +1,7 @@
 h1 Discussion Forums
 .block
   .block__header
-    a href=Routes.post_path(@conn, :index)
+    a href=~p"/posts"
       i.fa.fa-fw.fa-search>
       ' Search Posts
     span.block__header__item
@@ -19,16 +19,16 @@ h1 Discussion Forums
         = for forum <- @forums do
           tr
             td.table--communication-list__name
-              => link(forum.name, to: Routes.forum_path(@conn, :show, forum))
+              => link(forum.name, to: ~p"/forums/#{forum}")
               .small-text = forum.description
             td.table--communication-list__stats.hide-mobile = forum.topic_count
             td.table--communication-list__stats.hide-mobile = forum.post_count
             td.table--communication-list__last-post
               = if forum.last_post do
                 strong
-                  => link(forum.last_post.topic.title, to: Routes.forum_topic_path(@conn, :show, forum.last_post.topic.forum, forum.last_post.topic))
+                  => link(forum.last_post.topic.title, to: ~p"/forums/#{forum.last_post.topic.forum}/topics/#{forum.last_post.topic}")
                 br
-                => link("Go to post", to: Routes.forum_topic_path(@conn, :show, forum.last_post.topic.forum, forum.last_post.topic, post_id: forum.last_post.id) <> "#post_#{forum.last_post.id}")
+                => link("Go to post", to: ~p"/forums/#{forum.last_post.topic.forum}/topics/#{forum.last_post.topic}?#{[post_id: forum.last_post.id]}" <> "#post_#{forum.last_post.id}")
                 ' by
                 => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: forum.last_post, conn: @conn
                 br

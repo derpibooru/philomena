@@ -4,8 +4,8 @@
 
     = for vote <- option.poll_votes do
       span.interaction-user-list-item
-        => link vote.user.name, to: Routes.profile_path(@conn, :show, vote.user)
-        /= link "(x)", to: Routes.forum_topic_poll_vote_path(@conn, :delete, @forum, @topic, vote)
+        => link vote.user.name, to: ~p"/profiles/#{vote.user}"
+        /= link "(x)", to: ~p"/forums/#{@forum}/topics/#{@topic}/poll/votes/#{vote}"
 
 - else
   p

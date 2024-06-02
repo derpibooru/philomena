@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.ConfirmationController do
     if user = Users.get_user_by_email(email) do
       Users.deliver_user_confirmation_instructions(
         user,
-        &Routes.confirmation_url(conn, :show, &1)
+        &url(~p"/confirmations/#{&1}")
       )
     end
 

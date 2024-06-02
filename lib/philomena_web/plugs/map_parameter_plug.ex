@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.MapParameterPlug do
   # symphony of failure:
   #
   # 1.) Router helpers do not strip nil query parameters.
-  #     iex> Routes.gallery_path(conn, :index, gallery: nil)
+  #     iex> ~p"/galleries?#{[gallery: nil]}"
   #     "/galleries?gallery="
   #
   # 2.) Pagination always sets the parameter in the route in order

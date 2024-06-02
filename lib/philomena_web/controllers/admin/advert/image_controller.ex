@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.Admin.Advert.ImageController do
       {:ok, _advert} ->
         conn
         |> put_flash(:info, "Advert was successfully updated.")
-        |> redirect(to: Routes.admin_advert_path(conn, :index))
+        |> redirect(to: ~p"/admin/adverts")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)

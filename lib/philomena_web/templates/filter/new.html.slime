@@ -1,2 +1,2 @@
 h2 Creating New Filter
-= render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: Routes.filter_path(@conn, :create)
+= render PhilomenaWeb.FilterView, "_form.html", filter: @changeset, route: ~p"/filters"

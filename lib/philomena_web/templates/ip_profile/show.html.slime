@@ -3,24 +3,24 @@ h1
   ' 's IP profile
 
 ul
-  li = link "View images this IP has uploaded", to: Routes.search_path(@conn, :index, q: "ip:#{@ip}")
-  li = link "View comments this IP has posted", to: Routes.comment_path(@conn, :index, cq: "ip:#{@ip}")
-  li = link "View posts this IP has made", to: Routes.post_path(@conn, :index, pq: "ip:#{@ip}")
+  li = link "View images this IP has uploaded", to: ~p"/search?#{[q: "ip:#{@ip}"]}"
+  li = link "View comments this IP has posted", to: ~p"/comments?#{[cq: "ip:#{@ip}"]}"
+  li = link "View posts this IP has made", to: ~p"/posts?#{[pq: "ip:#{@ip}"]}"
 
 = render PhilomenaWeb.BanView, "_bans.html", bans: @subnet_bans, conn: @conn
 
 h2 Administration Options
 ul
-  li = link "View tag changes", to: Routes.ip_profile_tag_change_path(@conn, :index, to_string(@ip))
-  li = link "View source URL history", to: Routes.ip_profile_source_change_path(@conn, :index, to_string(@ip))
-  li = link "View reports this IP has made", to: Routes.admin_report_path(@conn, :index, rq: "ip:#{@ip}")
-  li = link "View IP ban history", to: Routes.admin_subnet_ban_path(@conn, :index, ip: to_string(@ip))
-  li = link "Ban this sucker", to: Routes.admin_subnet_ban_path(@conn, :new, specification: to_string(@ip))
+  li = link "View tag changes", to: ~p"/ip_profiles/#{to_string(@ip)}/tag_changes"
+  li = link "View source URL history", to: ~p"/ip_profiles/#{to_string(@ip)}/source_changes"
+  li = link "View reports this IP has made", to: ~p"/admin/reports?#{[rq: "ip:#{@ip}"]}"
+  li = link "View IP ban history", to: ~p"/admin/subnet_bans?#{[ip: to_string(@ip)]}"
+  li = link "Ban this sucker", to: ~p"/admin/subnet_bans/new?#{[specification: to_string(@ip)]}"
 
 h2 Actions
 ul
-  li = link "Revert all tag changes", to: Routes.tag_change_full_revert_path(@conn, :create, [ip: to_string(@ip)]), data: [confirm: "Are you really, really sure?", method: "create"]
-  li = link "...the button above didn't work (use carefully, this is resource-intensive)", to: Routes.tag_change_full_revert_path(@conn, :create, [ip: to_string(@ip), batch_size: 1]), data: [confirm: "Please confirm that you're aware that this may crash the site and are ready to take on the full wrath of the admins if it does so after you press this button.", method: "create"]
+  li = link "Revert all tag changes", to: ~p"/tag_changes/full_revert?#{[ip: to_string(@ip)]}", data: [confirm: "Are you really, really sure?", method: "create"]
+  li = link "...the button above didn't work (use carefully, this is resource-intensive)", to: ~p"/tag_changes/full_revert?#{[ip: to_string(@ip), batch_size: 1]}", data: [confirm: "Please confirm that you're aware that this may crash the site and are ready to take on the full wrath of the admins if it does so after you press this button.", method: "create"]
 
 h4 Observed users
 table.table
@@ -34,7 +34,7 @@ table.table
     = for uip <- @user_ips do
       tr
         td
-          = link uip.user.name, to: Routes.profile_path(@conn, :show, uip.user)
+          = link uip.user.name, to: ~p"/profiles/#{uip.user}"
         td
           => uip.uses
           ' times

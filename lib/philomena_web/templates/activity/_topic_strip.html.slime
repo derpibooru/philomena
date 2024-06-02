@@ -4,7 +4,7 @@
   = if @topic.last_post do
     span.hyphenate-breaks
       = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @topic.last_post, conn: @conn
-    = link("replied to", to: Routes.forum_topic_path(@conn, :show, @topic.forum, @topic, post_id: @topic.last_post) <> "#post_#{@topic.last_post.id}")
-  =<> link(@topic.title, to: Routes.forum_topic_path(@conn, :show, @topic.forum, @topic))
+    = link("replied to", to: ~p"/forums/#{@topic.forum}/topics/#{@topic}?#{[post_id: @topic.last_post]}" <> "#post_#{@topic.last_post.id}")
+  =<> link(@topic.title, to: ~p"/forums/#{@topic.forum}/topics/#{@topic}")
   ' in
-  => link(@topic.forum.name, to: Routes.forum_path(@conn, :show, @topic.forum))
+  => link(@topic.forum.name, to: ~p"/forums/#{@topic.forum}")

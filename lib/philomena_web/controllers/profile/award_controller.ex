@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.Profile.AwardController do
       {:ok, _award} ->
         conn
         |> put_flash(:info, "Award successfully created.")
-        |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+        |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Profile.AwardController do
       {:ok, _award} ->
         conn
         |> put_flash(:info, "Award successfully updated.")
-        |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+        |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -52,7 +52,7 @@ defmodule PhilomenaWeb.Profile.AwardController do
 
     conn
     |> put_flash(:info, "Award successfully destroyed. By cruel and unusual means.")
-    |> redirect(to: Routes.profile_path(conn, :show, conn.assigns.user))
+    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
   end
 
   defp verify_authorized(conn, _opts) do
