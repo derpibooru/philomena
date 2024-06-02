@@ -1,4 +1,11 @@
-defmodule Philomena.Scrapers.Deviantart do
+defmodule PhilomenaProxy.Scrapers.Deviantart do
+  @moduledoc false
+
+  alias PhilomenaProxy.Scrapers.Scraper
+  alias PhilomenaProxy.Scrapers
+
+  @behaviour Scraper
+
   @image_regex ~r|data-rh="true" rel="preload" href="([^"]*)" as="image"|
   @source_regex ~r|rel="canonical" href="([^"]*)"|
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
@@ -7,7 +14,7 @@ defmodule Philomena.Scrapers.Deviantart do
   @png_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.png/v1/fill/[0-9a-z_,]+/[0-9a-z_\-]+)(\.png)(.*)|
   @jpg_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.jpg/v1/fill/w_[0-9]+,h_[0-9]+,q_)([0-9]+)(,[a-z]+\/[a-z0-6_\-]+\.jpe?g.*)|
 
-  @spec can_handle?(URI.t(), String.t()) :: true | false
+  @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(uri, _url) do
     String.ends_with?(uri.host, "deviantart.com")
   end
@@ -21,6 +28,7 @@ defmodule Philomena.Scrapers.Deviantart do
   #
   # So, regex it is. Eat dirt, deviantart. You don't deserve the respect
   # artists give you.
+  @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
     url
     |> follow_redirect(2)
@@ -38,10 +46,11 @@ defmodule Philomena.Scrapers.Deviantart do
     %{
       source_url: source,
       author_name: artist,
+      description: "",
       images: [
         %{
           url: image,
-          camo_url: Camo.Image.image_url(image)
+          camo_url: PhilomenaProxy.Camo.image_url(image)
         }
       ]
     }
@@ -51,7 +60,7 @@ defmodule Philomena.Scrapers.Deviantart do
     with [domain, object_uuid, object_name] <-
            Regex.run(@cdnint_regex, image.url, capture: :all_but_first),
          built_url <- "#{domain}/intermediary/f/#{object_uuid}/#{object_name}",
-         {:ok, %Tesla.Env{status: 200}} <- Philomena.Http.head(built_url) do
+         {:ok, %Tesla.Env{status: 200}} <- PhilomenaProxy.Http.head(built_url) do
       # This is the high resolution URL.
       %{
         data
@@ -110,7 +119,7 @@ defmodule Philomena.Scrapers.Deviantart do
 
     built_url = "http://orig01.deviantart.net/x_by_x-d#{base36}.png"
 
-    case Philomena.Http.get(built_url) do
+    case PhilomenaProxy.Http.get(built_url) do
       {:ok, %Tesla.Env{status: 301, headers: headers}} ->
         # Location header provides URL of high res image.
         {_location, link} = Enum.find(headers, fn {header, _val} -> header == "location" end)
@@ -135,7 +144,7 @@ defmodule Philomena.Scrapers.Deviantart do
   defp follow_redirect(_url, 0), do: nil
 
   defp follow_redirect(url, max_times) do
-    case Philomena.Http.get(url) do
+    case PhilomenaProxy.Http.get(url) do
       {:ok, %Tesla.Env{headers: headers, status: code}} when code in [301, 302] ->
         location = Enum.find_value(headers, &location_header/1)
         follow_redirect(location, max_times - 1)
