@@ -1,9 +1,9 @@
 defmodule Philomena.Users.UserNotifier do
-  alias Bamboo.Email
+  alias Swoosh.Email
   alias Philomena.Mailer
 
   defp deliver(to, subject, body) do
-    Email.new_email(
+    Email.new(
       to: to,
       from: mailer_address(),
       subject: subject,

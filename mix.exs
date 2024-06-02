@@ -62,7 +62,6 @@ defmodule Philomena.MixProject do
        github: "basho/erlang-pbkdf2", ref: "7e9bd5fcd3cc3062159e4c9214bb628aa6feb5ca"},
       {:qrcode, "~> 0.1"},
       {:redix, "~> 1.2"},
-      {:bamboo, "~> 2.2"},
       {:remote_ip, "~> 1.1"},
       {:briefly, "~> 0.4"},
       {:tesla, "~> 1.5"},
@@ -76,11 +75,9 @@ defmodule Philomena.MixProject do
       {:inet_cidr, "~> 1.0"},
 
       # SMTP
-      {:tls_certificate_check, "~> 1.21"},
-      {:bamboo_smtp, "~> 4.2",
-       github: "botsquad/bamboo_smtp",
-       ref: "c630ccde40070deffc7d78ee6e4a08c9199f145b",
-       override: true},
+      {:swoosh, "~> 1.16"},
+      {:mua, "~> 0.2.0"},
+      {:mail, "~> 0.3.0"},
 
       # Markdown
       {:rustler, "~> 0.27"},
