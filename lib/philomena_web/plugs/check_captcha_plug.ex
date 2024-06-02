@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
 
   defp valid_solution?(%{"h-captcha-response" => captcha_token}) do
     {:ok, %{body: body, status: 200}} =
-      Philomena.Http.post(
+      PhilomenaProxy.Http.post(
         "https://hcaptcha.com/siteverify",
         URI.encode_query(%{"response" => captcha_token, "secret" => hcaptcha_secret_key()}),
         [{"Content-Type", "application/x-www-form-urlencoded"}]

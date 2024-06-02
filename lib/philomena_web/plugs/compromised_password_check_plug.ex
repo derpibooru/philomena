@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
       :crypto.hash(:sha, password)
       |> Base.encode16()
 
-    case Philomena.Http.get(make_api_url(prefix)) do
+    case PhilomenaProxy.Http.get(make_api_url(prefix)) do
       {:ok, %Tesla.Env{body: body, status: 200}} -> String.contains?(body, rest)
       _ -> false
     end

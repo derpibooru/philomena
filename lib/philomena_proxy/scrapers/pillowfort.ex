@@ -1,4 +1,11 @@
-defmodule Philomena.Scrapers.Pillowfort do
+defmodule PhilomenaProxy.Scrapers.Pillowfort do
+  @moduledoc false
+
+  alias PhilomenaProxy.Scrapers.Scraper
+  alias PhilomenaProxy.Scrapers
+
+  @behaviour Scraper
+
   @url_regex ~r|\Ahttps?://www\.pillowfort\.social/posts/([0-9]+)|
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
@@ -6,12 +13,13 @@ defmodule Philomena.Scrapers.Pillowfort do
     String.match?(url, @url_regex)
   end
 
+  @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
     [post_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     api_url = "https://www.pillowfort.social/posts/#{post_id}/json"
 
-    Philomena.Http.get(api_url)
+    PhilomenaProxy.Http.get(api_url)
     |> json!()
     |> process_response!(url)
   end
@@ -25,7 +33,7 @@ defmodule Philomena.Scrapers.Pillowfort do
       |> Enum.map(
         &%{
           url: &1["url"],
-          camo_url: Camo.Image.image_url(&1["small_image_url"])
+          camo_url: PhilomenaProxy.Camo.image_url(&1["small_image_url"])
         }
       )
 

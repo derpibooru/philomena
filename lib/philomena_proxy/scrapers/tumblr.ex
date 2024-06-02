@@ -1,4 +1,11 @@
-defmodule Philomena.Scrapers.Tumblr do
+defmodule PhilomenaProxy.Scrapers.Tumblr do
+  @moduledoc false
+
+  alias PhilomenaProxy.Scrapers.Scraper
+  alias PhilomenaProxy.Scrapers
+
+  @behaviour Scraper
+
   @url_regex ~r|\Ahttps?://(?:.*)/(?:image\|post)/(\d+)(?:\z\|[/?#])|
   @media_regex ~r|https?://(?:\d+\.)?media\.tumblr\.com/[a-f\d]+/[a-f\d]+-[a-f\d]+/s\d+x\d+/[a-f\d]+\.(?:png\|jpe?g\|gif)|i
   @size_regex ~r|_(\d+)(\..+)\z|
@@ -18,13 +25,14 @@ defmodule Philomena.Scrapers.Tumblr do
     String.match?(url, @url_regex) and tumblr_domain?(uri.host)
   end
 
+  @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(uri, url) do
     [post_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     api_url =
       "https://api.tumblr.com/v2/blog/#{uri.host}/posts/photo?id=#{post_id}&api_key=#{tumblr_api_key()}"
 
-    Philomena.Http.get(api_url)
+    PhilomenaProxy.Http.get(api_url)
     |> json!()
     |> process_response!()
   end
@@ -44,7 +52,7 @@ defmodule Philomena.Scrapers.Tumblr do
         %{"url" => preview} =
           Enum.find(photo["alt_sizes"], &(&1["width"] == 400)) || %{"url" => image}
 
-        %{url: image, camo_url: Camo.Image.image_url(preview)}
+        %{url: image, camo_url: PhilomenaProxy.Camo.image_url(preview)}
       end)
 
     add_meta(post, images)
@@ -55,7 +63,7 @@ defmodule Philomena.Scrapers.Tumblr do
       @media_regex
       |> Regex.scan(post["body"])
       |> Enum.map(fn [url | _captures] ->
-        %{url: url, camo_url: Camo.Image.image_url(url)}
+        %{url: url, camo_url: PhilomenaProxy.Camo.image_url(url)}
       end)
 
     add_meta(post, images)
@@ -68,7 +76,7 @@ defmodule Philomena.Scrapers.Tumblr do
   end
 
   defp url_ok?(url) do
-    match?({:ok, %Tesla.Env{status: 200}}, Philomena.Http.head(url))
+    match?({:ok, %Tesla.Env{status: 200}}, PhilomenaProxy.Http.head(url))
   end
 
   defp add_meta(post, images) do
