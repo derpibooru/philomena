@@ -4,9 +4,11 @@ import { AstMatcher, ParseError, TokenList } from './types';
 export function parseTokens(lexicalArray: TokenList): AstMatcher {
   const operandStack: AstMatcher[] = [];
 
-  lexicalArray.forEach((token, i) => {
+  for (let i = 0; i < lexicalArray.length; i += 1) {
+    const token = lexicalArray[i];
+
     if (token === 'not_op') {
-      return;
+      continue;
     }
 
     let intermediate: AstMatcher;
@@ -36,7 +38,7 @@ export function parseTokens(lexicalArray: TokenList): AstMatcher {
     else {
       operandStack.push(intermediate);
     }
-  });
+  }
 
   if (operandStack.length > 1) {
     throw new ParseError('Missing operator.');

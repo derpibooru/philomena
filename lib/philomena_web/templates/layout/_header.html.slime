@@ -12,7 +12,7 @@ header.header
         i.fa.fa-upload
 
     = form_for @conn, ~p"/search", [method: "get", class: "header__search flex flex--no-wrap flex--centered", enforce_utf8: false], fn f ->
-      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=@conn.params["q"] placeholder="Search" autocapitalize="none"
+      input.input.header__input.header__input--search#q name="q" title="For terms all required, separate with ',' or 'AND'; also supports 'OR' for optional terms and '-' or 'NOT' for negation. Search with a blank query for more options or click the ? for syntax help." value=@conn.params["q"] placeholder="Search" autocapitalize="none" autocomplete="off" data-ac="true" data-ac-min-length="3" data-ac-mode="search"
 
       = if present?(@conn.params["sf"]) do
         input type="hidden" name="sf" value=@conn.params["sf"]

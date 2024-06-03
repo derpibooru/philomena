@@ -22,10 +22,18 @@ const tokenList: Token[] = [
 
 export type ParseTerm = (term: string, fuzz: number, boost: number) => AstMatcher;
 
-export function generateLexArray(searchStr: string, parseTerm: ParseTerm): TokenList {
+export type Range = [number, number];
+export type TermContext = [Range, string];
+
+export interface LexResult {
+  tokenList: TokenList,
+  termContexts: TermContext[],
+  error: ParseError | null
+}
+
+export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexResult {
   const opQueue: string[] = [],
-        groupNegate: boolean[] = [],
-        tokenStack: TokenList = [];
+        groupNegate: boolean[] = [];
 
   let searchTerm: string | null = null;
   let boostFuzzStr = '';
@@ -35,10 +43,25 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
   let fuzz = 0;
   let lparenCtr = 0;
 
-  const pushTerm = () => {
+  let termIndex = 0;
+  let index = 0;
+
+  const ret: LexResult = {
+    tokenList: [],
+    termContexts: [],
+    error: null
+  };
+
+  const beginTerm = (token: string) => {
+    searchTerm = token;
+    termIndex = index;
+  };
+
+  const endTerm = () => {
     if (searchTerm !== null) {
       // Push to stack.
-      tokenStack.push(parseTerm(searchTerm, fuzz, boost));
+      ret.tokenList.push(parseTerm(searchTerm, fuzz, boost));
+      ret.termContexts.push([[termIndex, termIndex + searchTerm.length], searchTerm]);
       // Reset term and options data.
       boost = 1;
       fuzz = 0;
@@ -48,7 +71,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
     }
 
     if (negate) {
-      tokenStack.push('not_op');
+      ret.tokenList.push('not_op');
       negate = false;
     }
   };
@@ -64,19 +87,19 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
       const token = match[0];
 
       if (searchTerm !== null && (['and_op', 'or_op'].indexOf(tokenName) !== -1 || tokenName === 'rparen' && lparenCtr === 0)) {
-        pushTerm();
+        endTerm();
       }
 
       switch (tokenName) {
         case 'and_op':
           while (opQueue[0] === 'and_op') {
-            tokenStack.push(assertNotUndefined(opQueue.shift()));
+            ret.tokenList.push(assertNotUndefined(opQueue.shift()));
           }
           opQueue.unshift('and_op');
           break;
         case 'or_op':
           while (opQueue[0] === 'and_op' || opQueue[0] === 'or_op') {
-            tokenStack.push(assertNotUndefined(opQueue.shift()));
+            ret.tokenList.push(assertNotUndefined(opQueue.shift()));
           }
           opQueue.unshift('or_op');
           break;
@@ -113,10 +136,10 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
               if (op === 'lparen') {
                 break;
               }
-              tokenStack.push(op);
+              ret.tokenList.push(op);
             }
             if (groupNegate.length > 0 && groupNegate.pop()) {
-              tokenStack.push('not_op');
+              ret.tokenList.push('not_op');
             }
           }
           break;
@@ -128,7 +151,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
             boostFuzzStr += token;
           }
           else {
-            searchTerm = token;
+            beginTerm(token);
           }
           break;
         case 'boost':
@@ -137,7 +160,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
             boostFuzzStr += token;
           }
           else {
-            searchTerm = token;
+            beginTerm(token);
           }
           break;
         case 'quoted_lit':
@@ -145,7 +168,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
             searchTerm += token;
           }
           else {
-            searchTerm = token;
+            beginTerm(token);
           }
           break;
         case 'word':
@@ -159,7 +182,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
             searchTerm += token;
           }
           else {
-            searchTerm = token;
+            beginTerm(token);
           }
           break;
         default:
@@ -171,6 +194,7 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
 
       // Truncate string and restart the token tests.
       localSearchStr = localSearchStr.substring(token.length);
+      index += token.length;
 
       // Break since we have found a match.
       break;
@@ -178,14 +202,24 @@ export function generateLexArray(searchStr: string, parseTerm: ParseTerm): Token
   }
 
   // Append final tokens to the stack.
-  pushTerm();
+  endTerm();
 
   if (opQueue.indexOf('rparen') !== -1 || opQueue.indexOf('lparen') !== -1) {
-    throw new ParseError('Mismatched parentheses.');
+    ret.error = new ParseError('Mismatched parentheses.');
   }
 
-  // Concatenatte remaining operators to the token stack.
-  tokenStack.push(...opQueue);
+  // Concatenate remaining operators to the token stack.
+  ret.tokenList.push(...opQueue);
 
-  return tokenStack;
+  return ret;
+}
+
+export function generateLexArray(searchStr: string, parseTerm: ParseTerm): TokenList {
+  const ret = generateLexResult(searchStr, parseTerm);
+
+  if (ret.error) {
+    throw ret.error;
+  }
+
+  return ret.tokenList;
 }
