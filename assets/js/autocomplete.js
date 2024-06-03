@@ -188,11 +188,16 @@ function getSelectedTerm() {
 }
 
 function toggleSearchAutocomplete() {
-  if (!store.get('disable_search_ac')) return;
+  const enable = store.get('enable_search_ac');
 
   for (const searchField of document.querySelectorAll('input[data-ac-mode=search]')) {
-    searchField.removeAttribute('data-ac');
-    searchField.autocomplete = 'on';
+    if (enable) {
+      searchField.autocomplete = 'off';
+    }
+    else {
+      searchField.removeAttribute('data-ac');
+      searchField.autocomplete = 'on';
+    }
   }
 }
 
