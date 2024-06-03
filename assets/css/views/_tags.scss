@@ -43,6 +43,7 @@
   position: absolute;
   user-select: none;
   white-space: nowrap;
+  z-index: 999;
 }
 
 .autocomplete__item {
