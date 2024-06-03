@@ -58,6 +58,9 @@ defmodule Philomena.ArtistLinks.ArtistLink do
     |> parse_uri()
     |> put_verification_code()
     |> put_next_check_at()
+    |> unique_constraint([:uri, :tag_id, :user_id],
+      name: :index_artist_links_on_uri_tag_id_user_id
+    )
   end
 
   def validate_category(changeset) do

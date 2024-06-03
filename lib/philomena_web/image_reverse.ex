@@ -44,10 +44,20 @@ defmodule PhilomenaWeb.ImageReverse do
   # because this is more efficient to index.
   defp normalize_dist(%{"distance" => distance}) do
     distance
-    |> String.to_float()
+    |> parse_dist()
     |> max(0.01)
     |> min(1.0)
   end
 
   defp normalize_dist(_dist), do: 0.25
+
+  defp parse_dist(dist) do
+    case Decimal.parse(dist) do
+      {value, _rest} ->
+        Decimal.to_float(value)
+
+      _ ->
+        0.0
+    end
+  end
 end

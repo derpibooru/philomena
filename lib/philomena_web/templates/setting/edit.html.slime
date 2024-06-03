@@ -174,6 +174,10 @@ h1 Content Settings
         => label f, :chan_nsfw, "Show NSFW channels"
         => checkbox f, :chan_nsfw, checked: @conn.cookies["chan_nsfw"] == "true"
         .fieldlabel: i Show streams marked as NSFW on the channels page.
+      .field
+        => label f, :disable_search_ac, "Disable search auto-completion"
+        => checkbox f, :disable_search_ac, checked: @conn.cookies["disable_search_ac"] === "true"
+        .fieldlabel: i Disable the auto-completion of tags in the search fields. This will bring back default browser's behaviour.
       = if staff?(@conn.assigns.current_user) do
         .field
           => label f, :hide_staff_tools

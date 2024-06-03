@@ -17,7 +17,7 @@ defmodule PhilomenaWeb do
   and import those modules here.
   """
 
-  def static_paths, do: ~w(assets favicon.ico favicon.svg robots.txt opensearch.xml)
+  def static_paths, do: ~w(assets css js favicon.ico favicon.svg robots.txt opensearch.xml)
 
   def controller do
     quote do

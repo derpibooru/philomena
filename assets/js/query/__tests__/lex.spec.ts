@@ -170,8 +170,8 @@ describe('Lexical analysis', () => {
     expect(array).toEqual([noMatch, noMatch, 'or_op', noMatch, 'or_op', noMatch, 'or_op']);
   });
 
-  it('should throw exception on mismatched parentheses', () => {
+  it('should mark error on mismatched parentheses', () => {
     expect(() => generateLexArray('(safe OR solo AND fluttershy', parseTerm)).toThrow('Mismatched parentheses.');
-    // expect(() => generateLexArray(')bad', parseTerm)).toThrow('Mismatched parentheses.');
+    // expect(() => generateLexArray(')bad', parseTerm).error).toThrow('Mismatched parentheses.');
   });
 });
