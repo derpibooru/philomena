@@ -171,6 +171,8 @@ function showAutocomplete(suggestions, fetchedTerm, targetInput) {
 }
 
 function getSuggestions(term) {
+  // In case source URL was not given at all, do not try sending the request.
+  if (!inputField.dataset.acSource) return [];
   return fetch(`${inputField.dataset.acSource}${term}`).then(response => response.json());
 }
 
@@ -241,9 +243,9 @@ function listenAutocomplete() {
       originalTerm = inputField.value;
 
       const fetchedTerm = inputField.value;
-      const {ac, acMinLength} = inputField.dataset;
+      const {ac, acMinLength, acSource} = inputField.dataset;
 
-      if (ac && (fetchedTerm.length >= acMinLength)) {
+      if (ac && acSource && (fetchedTerm.length >= acMinLength)) {
         if (cache[fetchedTerm]) {
           showAutocomplete(cache[fetchedTerm], fetchedTerm, event.target);
         }
