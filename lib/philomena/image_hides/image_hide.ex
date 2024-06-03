@@ -18,5 +18,6 @@ defmodule Philomena.ImageHides.ImageHide do
     image_hide
     |> cast(attrs, [])
     |> validate_required([])
+    |> unique_constraint([:image_id, :user_id], name: :index_image_hides_on_image_id_and_user_id)
   end
 end

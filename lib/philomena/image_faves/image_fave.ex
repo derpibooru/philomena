@@ -18,5 +18,6 @@ defmodule Philomena.ImageFaves.ImageFave do
     image_fave
     |> cast(attrs, [])
     |> validate_required([])
+    |> unique_constraint([:image_id, :user_id], name: :index_image_faves_on_image_id_and_user_id)
   end
 end
