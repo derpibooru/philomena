@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.ImageLoader do
   alias PhilomenaWeb.ImageSorter
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Images.{Image, Query}
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Tags.Tag
@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.ImageLoader do
     %{query: query, sorts: sort} = sorts.(body)
 
     definition =
-      Elasticsearch.search_definition(
+      Search.search_definition(
         Image,
         %{
           query: %{

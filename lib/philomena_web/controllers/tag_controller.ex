@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.{Tags, Tags.Tag}
   alias Philomena.{Images, Images.Image}
   alias PhilomenaWeb.MarkdownRenderer
@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.TagController do
     with {:ok, query} <- Tags.Query.compile(query_string) do
       tags =
         Tag
-        |> Elasticsearch.search_definition(
+        |> Search.search_definition(
           %{
             query: query,
             size: 250,
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.TagController do
           },
           %{conn.assigns.pagination | page_size: 250}
         )
-        |> Elasticsearch.search_records(Tag)
+        |> Search.search_records(Tag)
 
       render(conn, "index.html", title: "Tags", tags: tags)
     else
@@ -57,7 +57,7 @@ defmodule PhilomenaWeb.TagController do
 
     {images, _tags} = ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
 
-    images = Elasticsearch.search_records(images, preload(Image, [:sources, tags: :aliases]))
+    images = Search.search_records(images, preload(Image, [:sources, tags: :aliases]))
 
     interactions = Interactions.user_interactions(images, user)
 

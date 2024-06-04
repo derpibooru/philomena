@@ -1,4 +1,8 @@
-defmodule Philomena.RelativeDate do
+defmodule PhilomenaQuery.RelativeDate do
+  @moduledoc """
+  Relative date parsing, for strings like "a week ago" or "5 years from now".
+  """
+
   import NimbleParsec
 
   number_words =
@@ -72,6 +76,13 @@ defmodule Philomena.RelativeDate do
 
   defparsecp(:relative_date, relative_date)
 
+  @doc """
+  Parse an absolute date in valid ISO 8601 format, or an English-language relative date.
+
+  See `parse_absolute/1` and `parse_relative/1` for examples of what may be accepted
+  by this function.
+  """
+  @spec parse_absolute(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
   def parse(input) do
     input =
       input
@@ -87,6 +98,22 @@ defmodule Philomena.RelativeDate do
     end
   end
 
+  @doc """
+  Parse an absolute date, given in a valid ISO 8601 format.
+
+  ## Example
+
+      iex> PhilomenaQuery.RelativeDate.parse_absolute("2024-01-01T00:00:00Z")
+      {:ok, ~U[2024-01-01 00:00:00Z]}
+
+      iex> PhilomenaQuery.RelativeDate.parse_absolute("2024-01-01T00:00:00-01:00")
+      {:ok, ~U[2024-01-01 01:00:00Z]
+
+      iex> PhilomenaQuery.RelativeDate.parse_absolute("2024")
+      {:error, "Parse error"}
+
+  """
+  @spec parse_absolute(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
   def parse_absolute(input) do
     case DateTime.from_iso8601(input) do
       {:ok, datetime, _offset} ->
@@ -97,6 +124,25 @@ defmodule Philomena.RelativeDate do
     end
   end
 
+  @doc """
+  Parse an English-language relative date. Accepts "moon" to mean 1000 years from now.
+
+  ## Example
+
+      iex> PhilomenaQuery.RelativeDate.parse_relative("a year ago")
+      {:ok, ~U[2023-01-01 00:00:00Z]
+
+      iex> PhilomenaQuery.RelativeDate.parse_relative("three days from now")
+      {:ok, ~U[2024-01-04 00:00:00Z]}
+
+      iex> PhilomenaQuery.RelativeDate.parse_relative("moon")
+      {:ok, ~U[3024-01-01 00:00:00Z]}
+
+      iex> PhilomenaQuery.RelativeDate.parse_relative("2024")
+      {:error, "Parse error"}
+
+  """
+  @spec parse_relative(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
   def parse_relative(input) do
     case relative_date(input) do
       {:ok, [moon: _moon], _1, _2, _3, _4} ->

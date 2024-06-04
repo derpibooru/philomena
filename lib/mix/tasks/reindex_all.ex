@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.ReindexAll do
   use Mix.Task
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
 
   alias Philomena.{
     Comments.Comment,
@@ -27,7 +27,7 @@ defmodule Mix.Tasks.ReindexAll do
     {Filters, Filter}
   ]
 
-  @shortdoc "Destroys and recreates all Elasticsearch indices."
+  @shortdoc "Destroys and recreates all OpenSearch indices."
   @requirements ["app.start"]
   @impl Mix.Task
   def run(args) do
@@ -38,23 +38,23 @@ defmodule Mix.Tasks.ReindexAll do
     @indices
     |> Enum.map(fn {context, schema} ->
       Task.async(fn ->
-        Elasticsearch.delete_index!(schema)
-        Elasticsearch.create_index!(schema)
+        Search.delete_index!(schema)
+        Search.create_index!(schema)
 
-        Elasticsearch.reindex(preload(schema, ^context.indexing_preloads()), schema)
+        Search.reindex(preload(schema, ^context.indexing_preloads()), schema)
       end)
     end)
     |> Task.await_many(:infinity)
 
     # Reports are a bit special
 
-    Elasticsearch.delete_index!(Report)
-    Elasticsearch.create_index!(Report)
+    Search.delete_index!(Report)
+    Search.create_index!(Report)
 
     Report
     |> preload([:user, :admin])
     |> Repo.all()
     |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
-    |> Enum.map(&Elasticsearch.index_document(&1, Report))
+    |> Enum.map(&Search.index_document(&1, Report))
   end
 end

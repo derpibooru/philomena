@@ -71,7 +71,7 @@ defmodule PhilomenaWeb.Api.Json.ImageView do
       tag_ids: Enum.map(image.tags, & &1.id),
       uploader: if(!!image.user and !image.anonymous, do: image.user.name),
       uploader_id: if(!!image.user and !image.anonymous, do: image.user.id),
-      wilson_score: Philomena.Images.ElasticsearchIndex.wilson_score(image),
+      wilson_score: Philomena.Images.SearchIndex.wilson_score(image),
       intensities: intensities(image),
       score: image.score,
       upvotes: image.upvotes_count,

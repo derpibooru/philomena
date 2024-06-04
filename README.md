@@ -22,7 +22,7 @@ Once the application has started, navigate to http://localhost:8080 and login wi
 
 If you are running Docker on Windows and the application crashes immediately upon startup, please ensure that `autocrlf` is set to `false` in your Git config, and then re-clone the repository. Additionally, it is recommended that you allocate at least 4GB of RAM to your Docker VM.
 
-If you run into an Elasticsearch bootstrap error, you may need to increase your `max_map_count` on the host as follows:
+If you run into an OpenSearch bootstrap error, you may need to increase your `max_map_count` on the host as follows:
 ```
 sudo sysctl -w vm.max_map_count=262144
 ```

@@ -1,4 +1,6 @@
-defmodule Philomena.Search.BoolParser do
+defmodule PhilomenaQuery.Parse.BoolParser do
+  @moduledoc false
+
   import NimbleParsec
 
   space =

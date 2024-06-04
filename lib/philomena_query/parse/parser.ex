@@ -1,5 +1,34 @@
-defmodule Philomena.Search.Parser do
-  alias Philomena.Search.{
+defmodule PhilomenaQuery.Parse.Parser do
+  @moduledoc """
+  A search language for safely evaluating user-input queries.
+
+  The query language supports the following features:
+  - Disjunction (OR/||)
+  - Conjunction (AND/&&/,)
+  - Negation (NOT/-/!)
+  - Expression boosting
+  - Parenthetical grouping
+
+  Several types of terms are supported:
+  - Booleans
+  - Dates (absolute and relative, time points and ranges)
+  - Floats
+  - Integers
+  - IP Addresses
+  - Literal text
+  - Stemmed text
+
+  Specific terms can support the following features:
+  - Range queries (.lte/.lt/.gte/.gt)
+  - Fuzzing (~0.5)
+  - Wildcarding (*?)
+  - CIDR masks (/27)
+
+  The rich search expression grammar is arguably a defining feature of Philomena, and its
+  feature set makes it stand out in comparison to traditional boorus.
+  """
+
+  alias PhilomenaQuery.Parse.{
     BoolParser,
     DateParser,
     FloatParser,
@@ -11,6 +40,31 @@ defmodule Philomena.Search.Parser do
     Parser,
     TermRangeParser
   }
+
+  @type context :: any()
+  @type query :: map()
+
+  @type default_field_type :: :term | :ngram
+
+  @type transform_result :: {:ok, query()} | {:error, String.t()}
+  @type transform :: (context, String.t() -> transform_result())
+
+  @type t :: %__MODULE__{
+          default_field: {String.t(), default_field_type()},
+          bool_fields: [String.t()],
+          date_fields: [String.t()],
+          float_fields: [String.t()],
+          int_fields: [String.t()],
+          ip_fields: [String.t()],
+          literal_fields: [String.t()],
+          ngram_fields: [String.t()],
+          custom_fields: [String.t()],
+          transforms: %{String.t() => transform()},
+          aliases: %{String.t() => String.t()},
+          no_downcase_fields: [String.t()],
+          __fields__: map(),
+          __data__: context()
+        }
 
   defstruct [
     :default_field,
@@ -31,6 +85,37 @@ defmodule Philomena.Search.Parser do
 
   @max_clause_count 512
 
+  @doc """
+  Creates a `Parser` suitable for safely parsing user-input queries.
+
+  Fields refer to attributes of the indexed document which will be searchable with
+  `m:PhilomenaQuery.Search`.
+
+  Available options:
+  - `bool_fields` - a list of field names parsed as booleans
+  - `float_fields` - a list of field names parsed as floats
+  - `int_fields` - a list of field names parsed as integers
+  - `ip_fields` - a list of field names parsed as IP CIDR masks
+  - `literal_fields` - wildcardable fields which are searched as the exact value
+  - `ngram_fields` - wildcardable fields which are searched as stemmed values
+  - `custom_fields` - fields which do not exist on the document and are created by a callback
+  - `transforms` - a map of custom field names to transform functions
+  - `aliases` - a map of field names to the names they should have in the search engine
+  - `no_downcase_fields` - a list of field names which do not have string downcasing applied
+
+  ## Example
+
+      options = [
+        bool_fields: ["hidden"],
+        custom_fields: ["example"],
+        transforms: %{"example" => fn _ctx, term -> %{term: %{term => "example"}} end},
+        aliases: %{"hidden" => "hidden_from_users"}
+      ]
+
+      Parser.parser(options)
+
+  """
+  @spec parser(keyword()) :: t()
   def parser(options) do
     parser = struct(Parser, options)
 
@@ -47,6 +132,34 @@ defmodule Philomena.Search.Parser do
     %{parser | __fields__: Map.new(fields)}
   end
 
+  @doc """
+  Parse the query into a definition suitable for the search engine.
+
+  The parser argument should have been created with a previous call to `parser/1`. When the
+  `context` argument is passed, it becomes the first argument to any transform functions defined
+  in the `transform` option.
+
+  ## Example
+
+      iex> Parser.parse(parser, "safe")
+      {:ok, %{term: %{"namespaced_tags.name" => "safe"}}}
+
+      iex> Parser.parse(nil, "safe OR solo")
+      {:ok,
+       %{
+         bool: %{
+           should: [
+             %{term: %{"namespaced_tags.name" => "safe"}},
+             %{term: %{"namespaced_tags.name" => "solo"}}
+           ]
+         }
+       }}
+
+      iex> Parser.parse(parser, ")")
+      {:error, "Imbalanced parentheses."}
+
+  """
+  @spec parse(t(), String.t(), context()) :: {:ok, query()} | {:error, String.t()}
   def parse(parser, input, context \\ nil)
 
   # Empty search should emit a match_none.

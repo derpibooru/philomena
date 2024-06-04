@@ -2,7 +2,7 @@ defmodule PhilomenaWeb.CommentController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.{Comments.Query, Comments.Comment}
   import Ecto.Query
 
@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.CommentController do
   defp render_index({:ok, query}, conn, user) do
     comments =
       Comment
-      |> Elasticsearch.search_definition(
+      |> Search.search_definition(
         %{
           query: %{
             bool: %{
@@ -35,7 +35,7 @@ defmodule PhilomenaWeb.CommentController do
         },
         conn.assigns.pagination
       )
-      |> Elasticsearch.search_records(
+      |> Search.search_records(
         preload(Comment, [:deleted_by, image: [:sources, tags: :aliases], user: [awards: :badge]])
       )
 

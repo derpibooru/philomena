@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.ImageNavigator do
   alias PhilomenaWeb.ImageSorter
   alias Philomena.Images.Image
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
 
   @order_for_dir %{
     "next" => %{"asc" => "asc", "desc" => "desc"},
@@ -54,8 +54,8 @@ defmodule PhilomenaWeb.ImageNavigator do
 
   defp maybe_search_after(module, body, options, queryable, true) do
     module
-    |> Elasticsearch.search_definition(body, options)
-    |> Elasticsearch.search_records_with_hits(queryable)
+    |> Search.search_definition(body, options)
+    |> Search.search_records_with_hits(queryable)
   end
 
   defp maybe_search_after(_module, _body, _options, _queryable, _false) do

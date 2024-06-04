@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Admin.ReportController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
@@ -94,14 +94,14 @@ defmodule PhilomenaWeb.Admin.ReportController do
   defp load_reports(conn, query) do
     reports =
       Report
-      |> Elasticsearch.search_definition(
+      |> Search.search_definition(
         %{
           query: query,
           sort: sorts()
         },
         conn.assigns.pagination
       )
-      |> Elasticsearch.search_records(preload(Report, [:admin, user: :linked_tags]))
+      |> Search.search_records(preload(Report, [:admin, user: :linked_tags]))
 
     entries = Polymorphic.load_polymorphic(reports, reportable: [reportable_id: :reportable_type])
 

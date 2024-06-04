@@ -291,7 +291,7 @@ defmodule PhilomenaWeb.ImageView do
       }
     }
 
-    Philomena.Search.Evaluator.hits?(doc, query)
+    PhilomenaQuery.Parse.Evaluator.hits?(doc, query)
   end
 
   def image_source_icon(nil), do: "fa fa-link"

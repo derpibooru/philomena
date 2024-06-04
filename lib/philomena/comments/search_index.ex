@@ -1,5 +1,5 @@
-defmodule Philomena.Comments.ElasticsearchIndex do
-  @behaviour Philomena.ElasticsearchIndex
+defmodule Philomena.Comments.SearchIndex do
+  @behaviour PhilomenaQuery.SearchIndex
 
   @impl true
   def index_name do

@@ -6,7 +6,7 @@ defmodule Philomena.Tags do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.IndexWorker
   alias Philomena.TagAliasWorker
   alias Philomena.TagUnaliasWorker
@@ -194,12 +194,12 @@ defmodule Philomena.Tags do
 
     {:ok, tag} = Repo.delete(tag)
 
-    Elasticsearch.delete_document(tag.id, Tag)
+    Search.delete_document(tag.id, Tag)
 
     Image
     |> where([i], i.id in ^image_ids)
     |> preload(^Images.indexing_preloads())
-    |> Elasticsearch.reindex(Image)
+    |> Search.reindex(Image)
   end
 
   def alias_tag(%Tag{} = tag, attrs) do
@@ -301,13 +301,13 @@ defmodule Philomena.Tags do
     |> join(:inner, [i], _ in assoc(i, :tags))
     |> where([_i, t], t.id == ^tag.id)
     |> preload(^Images.indexing_preloads())
-    |> Elasticsearch.reindex(Image)
+    |> Search.reindex(Image)
 
     Filter
     |> where([f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
     |> or_where([f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
     |> preload(^Filters.indexing_preloads())
-    |> Elasticsearch.reindex(Filter)
+    |> Search.reindex(Filter)
   end
 
   def unalias_tag(%Tag{} = tag) do
@@ -416,7 +416,7 @@ defmodule Philomena.Tags do
     Tag
     |> preload(^indexing_preloads())
     |> where([t], field(t, ^column) in ^condition)
-    |> Elasticsearch.reindex(Tag)
+    |> Search.reindex(Tag)
   end
 
   alias Philomena.Tags.Implication

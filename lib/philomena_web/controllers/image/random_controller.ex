@@ -4,7 +4,7 @@ defmodule PhilomenaWeb.Image.RandomController do
   alias PhilomenaWeb.ImageSorter
   alias PhilomenaWeb.ImageScope
   alias PhilomenaWeb.ImageLoader
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Images.Image
 
   def index(conn, params) do
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Image.RandomController do
 
   defp unwrap_random_result({:ok, {definition, _tags}}) do
     definition
-    |> Elasticsearch.search_records(Image)
+    |> Search.search_records(Image)
     |> Enum.to_list()
     |> unwrap()
   end
