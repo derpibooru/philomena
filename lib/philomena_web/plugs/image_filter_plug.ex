@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.ImageFilterPlug do
   import Plug.Conn
-  import Philomena.Search.String
+  import PhilomenaQuery.Parse.String
 
   alias Philomena.Images.Query
 

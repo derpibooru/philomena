@@ -5,9 +5,9 @@ export MIX_ENV=test
 # Always install mix dependencies
 (cd /srv/philomena && mix deps.get)
 
-# Sleep to allow Elasticsearch to finish initializing
+# Sleep to allow OpenSearch to finish initializing
 # if it's not done doing whatever it does yet
-echo -n "Waiting for Elasticsearch"
+echo -n "Waiting for OpenSearch"
 
 until wget -qO - opensearch:9200; do
   echo -n "."

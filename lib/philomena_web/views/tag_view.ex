@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.TagView do
 
   # this is bad practice, don't copy this.
   alias Philomena.Config
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   alias PhilomenaWeb.ImageScope
@@ -143,7 +143,7 @@ defmodule PhilomenaWeb.TagView do
 
   defp implied_by_multitag(tag_names, ignore_tag_names) do
     Tag
-    |> Elasticsearch.search_definition(
+    |> Search.search_definition(
       %{
         query: %{
           bool: %{
@@ -155,7 +155,7 @@ defmodule PhilomenaWeb.TagView do
       },
       %{page_size: 40}
     )
-    |> Elasticsearch.search_records(preload(Tag, :implied_tags))
+    |> Search.search_records(preload(Tag, :implied_tags))
   end
 
   defp manages_links?(conn),

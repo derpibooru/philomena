@@ -7,10 +7,10 @@ defmodule Philomena.Galleries do
   alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
-  alias Philomena.Galleries.ElasticsearchIndex, as: GalleryIndex
+  alias Philomena.Galleries.SearchIndex, as: GalleryIndex
   alias Philomena.IndexWorker
   alias Philomena.GalleryReorderWorker
   alias Philomena.Notifications
@@ -135,7 +135,7 @@ defmodule Philomena.Galleries do
   def user_name_reindex(old_name, new_name) do
     data = GalleryIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Gallery, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Gallery, data.query, data.set_replacements, data.replacements)
   end
 
   defp reindex_after_update({:ok, gallery}) do
@@ -155,7 +155,7 @@ defmodule Philomena.Galleries do
   end
 
   def unindex_gallery(%Gallery{} = gallery) do
-    Elasticsearch.delete_document(gallery.id, Gallery)
+    Search.delete_document(gallery.id, Gallery)
 
     gallery
   end
@@ -168,7 +168,7 @@ defmodule Philomena.Galleries do
     Gallery
     |> preload(^indexing_preloads())
     |> where([g], field(g, ^column) in ^condition)
-    |> Elasticsearch.reindex(Gallery)
+    |> Search.reindex(Gallery)
   end
 
   def add_image_to_gallery(gallery, image) do

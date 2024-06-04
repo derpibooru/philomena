@@ -1,5 +1,5 @@
 defmodule Philomena.Filters.Query do
-  alias Philomena.Search.Parser
+  alias PhilomenaQuery.Parse.Parser
 
   defp user_my_transform(%{user: %{id: id}}, "filters"),
     do: {:ok, %{term: %{user_id: id}}}

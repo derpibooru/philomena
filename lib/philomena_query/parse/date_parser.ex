@@ -1,4 +1,6 @@
-defmodule Philomena.Search.DateParser do
+defmodule PhilomenaQuery.Parse.DateParser do
+  @moduledoc false
+
   import NimbleParsec
   @dialyzer [:no_match, :no_unused]
 
@@ -100,9 +102,9 @@ defmodule Philomena.Search.DateParser do
   end
 
   defp relative_datetime(_rest, [count, scale], context, _line, _offset) do
-    millenium_seconds = 31_536_000_000
+    millennium_seconds = 31_536_000_000
 
-    case count * scale <= millenium_seconds do
+    case count * scale <= millennium_seconds do
       true ->
         now = DateTime.utc_now()
 
@@ -113,7 +115,7 @@ defmodule Philomena.Search.DateParser do
 
       _false ->
         {:error,
-         "invalid date format in input; requested time #{count * scale} seconds is over a millenium ago"}
+         "invalid date format in input; requested time #{count * scale} seconds is over a millennium ago"}
     end
   end
 

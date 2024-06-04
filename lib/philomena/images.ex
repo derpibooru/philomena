@@ -9,7 +9,7 @@ defmodule Philomena.Images do
   alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.ThumbnailWorker
   alias Philomena.ImagePurgeWorker
   alias Philomena.DuplicateReports.DuplicateReport
@@ -18,7 +18,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.Tagging
   alias Philomena.Images.Thumbnailer
   alias Philomena.Images.Source
-  alias Philomena.Images.ElasticsearchIndex, as: ImageIndex
+  alias Philomena.Images.SearchIndex, as: ImageIndex
   alias Philomena.IndexWorker
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
@@ -841,7 +841,7 @@ defmodule Philomena.Images do
   def user_name_reindex(old_name, new_name) do
     data = ImageIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Image, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Image, data.query, data.set_replacements, data.replacements)
   end
 
   def reindex_image(%Image{} = image) do
@@ -874,7 +874,7 @@ defmodule Philomena.Images do
     Image
     |> preload(^indexing_preloads())
     |> where([i], field(i, ^column) in ^condition)
-    |> Elasticsearch.reindex(Image)
+    |> Search.reindex(Image)
   end
 
   def purge_files(image, hidden_key) do

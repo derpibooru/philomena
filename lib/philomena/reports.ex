@@ -6,9 +6,9 @@ defmodule Philomena.Reports do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Reports.Report
-  alias Philomena.Reports.ElasticsearchIndex, as: ReportIndex
+  alias Philomena.Reports.SearchIndex, as: ReportIndex
   alias Philomena.IndexWorker
   alias Philomena.Polymorphic
 
@@ -152,7 +152,7 @@ defmodule Philomena.Reports do
   def user_name_reindex(old_name, new_name) do
     data = ReportIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Report, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Report, data.query, data.set_replacements, data.replacements)
   end
 
   defp reindex_after_update({:ok, report}) do
@@ -183,7 +183,7 @@ defmodule Philomena.Reports do
     |> preload([:user, :admin])
     |> Repo.all()
     |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
-    |> Enum.map(&Elasticsearch.index_document(&1, Report))
+    |> Enum.map(&Search.index_document(&1, Report))
   end
 
   def count_reports(user) do

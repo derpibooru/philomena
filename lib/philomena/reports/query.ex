@@ -1,5 +1,5 @@
 defmodule Philomena.Reports.Query do
-  alias Philomena.Search.Parser
+  alias PhilomenaQuery.Parse.Parser
 
   defp fields do
     [

@@ -7,12 +7,12 @@ defmodule Philomena.Posts do
   alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Topics.Topic
   alias Philomena.Topics
   alias Philomena.UserStatistics
   alias Philomena.Posts.Post
-  alias Philomena.Posts.ElasticsearchIndex, as: PostIndex
+  alias Philomena.Posts.SearchIndex, as: PostIndex
   alias Philomena.IndexWorker
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
@@ -340,7 +340,7 @@ defmodule Philomena.Posts do
   def user_name_reindex(old_name, new_name) do
     data = PostIndex.user_name_update_by_query(old_name, new_name)
 
-    Elasticsearch.update_by_query(Post, data.query, data.set_replacements, data.replacements)
+    Search.update_by_query(Post, data.query, data.set_replacements, data.replacements)
   end
 
   defp reindex_after_update({:ok, post}) do
@@ -367,6 +367,6 @@ defmodule Philomena.Posts do
     Post
     |> preload(^indexing_preloads())
     |> where([p], field(p, ^column) in ^condition)
-    |> Elasticsearch.reindex(Post)
+    |> Search.reindex(Post)
   end
 end

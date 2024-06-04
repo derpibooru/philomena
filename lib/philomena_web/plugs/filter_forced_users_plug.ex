@@ -6,8 +6,8 @@ defmodule PhilomenaWeb.FilterForcedUsersPlug do
 
   import Phoenix.Controller
   import Plug.Conn
-  alias Philomena.Search.String, as: SearchString
-  alias Philomena.Search.Evaluator
+  alias PhilomenaQuery.Parse.String, as: SearchString
+  alias PhilomenaQuery.Parse.Evaluator
   alias Philomena.Images.Query
   alias PhilomenaWeb.ImageView
 

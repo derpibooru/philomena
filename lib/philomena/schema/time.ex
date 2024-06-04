@@ -1,5 +1,5 @@
 defmodule Philomena.Schema.Time do
-  alias Philomena.RelativeDate
+  alias PhilomenaQuery.RelativeDate
   import Ecto.Changeset
 
   def assign_time(changeset, field, target_field) do

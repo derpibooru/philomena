@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.SearchController do
 
   alias PhilomenaWeb.ImageLoader
   alias Philomena.Images.Image
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Interactions
   import Ecto.Query
 
@@ -41,8 +41,8 @@ defmodule PhilomenaWeb.SearchController do
     end
   end
 
-  defp search_function(true), do: &Elasticsearch.search_records_with_hits/2
-  defp search_function(_custom), do: &Elasticsearch.search_records/2
+  defp search_function(true), do: &Search.search_records_with_hits/2
+  defp search_function(_custom), do: &Search.search_records/2
 
   defp custom_ordering?(%{params: %{"sf" => sf}}) when sf != "id", do: true
   defp custom_ordering?(_conn), do: false

@@ -1,6 +1,8 @@
-defmodule Philomena.Search.TermRangeParser do
-  alias Philomena.Search.LiteralParser
-  alias Philomena.Search.NgramParser
+defmodule PhilomenaQuery.Parse.TermRangeParser do
+  @moduledoc false
+
+  alias PhilomenaQuery.Parse.LiteralParser
+  alias PhilomenaQuery.Parse.NgramParser
 
   # Unfortunately, we can't use NimbleParsec here. It requires
   # the compiler, and we're not in a macro environment.

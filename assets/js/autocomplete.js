@@ -229,7 +229,7 @@ function listenAutocomplete() {
           return;
         }
 
-        originalTerm = selectedTerm[1];
+        originalTerm = selectedTerm[1].toLowerCase();
       }
       else {
         originalTerm = `${inputField.value}`.toLowerCase();

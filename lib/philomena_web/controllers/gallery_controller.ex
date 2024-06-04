@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.GalleryController do
 
   alias PhilomenaWeb.ImageLoader
   alias PhilomenaWeb.NotificationCountPlug
-  alias Philomena.Elasticsearch
+  alias PhilomenaQuery.Search
   alias Philomena.Interactions
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries
@@ -21,7 +21,7 @@ defmodule PhilomenaWeb.GalleryController do
   def index(conn, params) do
     galleries =
       Gallery
-      |> Elasticsearch.search_definition(
+      |> Search.search_definition(
         %{
           query: %{
             bool: %{
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.GalleryController do
         },
         conn.assigns.pagination
       )
-      |> Elasticsearch.search_records(
+      |> Search.search_records(
         preload(Gallery, [:creator, thumbnail: [:sources, tags: :aliases]])
       )
 
@@ -62,7 +62,7 @@ defmodule PhilomenaWeb.GalleryController do
     {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
 
     [images, gallery_prev, gallery_next] =
-      Elasticsearch.msearch_records_with_hits(
+      Search.msearch_records_with_hits(
         [images, gallery_prev, gallery_next],
         [
           preload(Image, [:sources, tags: :aliases]),
@@ -154,7 +154,7 @@ defmodule PhilomenaWeb.GalleryController do
     limit = conn.assigns.image_pagination.page_size
     offset = (conn.assigns.image_pagination.page_number - 1) * limit
 
-    # Inconsistency: Elasticsearch doesn't allow requesting offsets which are less than 0,
+    # Inconsistency: OpenSearch doesn't allow requesting offsets which are less than 0,
     # but it does allow requesting offsets which are beyond the total number of results.
 
     prev_image = gallery_image(offset - 1, conn, query)
@@ -164,7 +164,7 @@ defmodule PhilomenaWeb.GalleryController do
   end
 
   defp gallery_image(offset, _conn, _query) when offset < 0 do
-    Elasticsearch.search_definition(Image, %{query: %{match_none: %{}}})
+    Search.search_definition(Image, %{query: %{match_none: %{}}})
   end
 
   defp gallery_image(offset, conn, query) do

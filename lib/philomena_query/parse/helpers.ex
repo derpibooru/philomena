@@ -1,4 +1,6 @@
-defmodule Philomena.Search.Helpers do
+defmodule PhilomenaQuery.Parse.Helpers do
+  @moduledoc false
+
   # Apparently, it's too hard for the standard library to to parse a number
   # as a float if it doesn't contain a decimal point. WTF
   def to_number(term) do

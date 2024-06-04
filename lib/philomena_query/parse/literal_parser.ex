@@ -1,8 +1,10 @@
-defmodule Philomena.Search.LiteralParser do
+defmodule PhilomenaQuery.Parse.LiteralParser do
+  @moduledoc false
+
   import NimbleParsec
   @dialyzer [:no_match, :no_unused]
 
-  defp to_number(input), do: Philomena.Search.Helpers.to_number(input)
+  defp to_number(input), do: PhilomenaQuery.Parse.Helpers.to_number(input)
 
   float =
     ascii_string([?0..?9], min: 1)
