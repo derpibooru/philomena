@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.ImageReverse do
-  alias Philomena.Analyzers
-  alias Philomena.Processors
+  alias PhilomenaMedia.Analyzers
+  alias PhilomenaMedia.Processors
   alias Philomena.DuplicateReports
   alias Philomena.Repo
   import Ecto.Query

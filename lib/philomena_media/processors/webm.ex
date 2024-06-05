@@ -1,7 +1,15 @@
-defmodule Philomena.Processors.Webm do
-  alias Philomena.Intensities
+defmodule PhilomenaMedia.Processors.Webm do
+  @moduledoc false
+
+  alias PhilomenaMedia.Intensities
+  alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Processors.Processor
+  alias PhilomenaMedia.Processors
   import Bitwise
 
+  @behaviour Processor
+
+  @spec versions(Processors.version_list()) :: [Processors.version_filename()]
   def versions(sizes) do
     webm_versions = Enum.map(sizes, fn {name, _} -> "#{name}.webm" end)
     mp4_versions = Enum.map(sizes, fn {name, _} -> "#{name}.mp4" end)
@@ -14,6 +22,7 @@ defmodule Philomena.Processors.Webm do
     ["full.mp4", "rendered.png"] ++ webm_versions ++ mp4_versions ++ gif_versions
   end
 
+  @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(analysis, file, versions) do
     dimensions = analysis.dimensions
     duration = analysis.duration
@@ -27,15 +36,17 @@ defmodule Philomena.Processors.Webm do
     scaled = Enum.flat_map(versions, &scale(stripped, palette, duration, dimensions, &1))
     mp4 = [{:copy, mp4, "full.mp4"}]
 
-    %{
+    [
       replace_original: stripped,
       intensities: intensities,
       thumbnails: scaled ++ mp4 ++ [{:copy, preview, "rendered.png"}]
-    }
+    ]
   end
 
-  def post_process(_analysis, _file), do: %{}
+  @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
+  def post_process(_analysis, _file), do: []
 
+  @spec intensities(Result.t(), Path.t()) :: Intensities.t()
   def intensities(analysis, file) do
     {:ok, intensities} = Intensities.file(preview(analysis.duration, file))
     intensities

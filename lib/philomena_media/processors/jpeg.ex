@@ -1,10 +1,19 @@
-defmodule Philomena.Processors.Jpeg do
-  alias Philomena.Intensities
+defmodule PhilomenaMedia.Processors.Jpeg do
+  @moduledoc false
 
+  alias PhilomenaMedia.Intensities
+  alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Processors.Processor
+  alias PhilomenaMedia.Processors
+
+  @behaviour Processor
+
+  @spec versions(Processors.version_list()) :: [Processors.version_filename()]
   def versions(sizes) do
     Enum.map(sizes, fn {name, _} -> "#{name}.jpg" end)
   end
 
+  @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
     stripped = optimize(strip(file))
 
@@ -12,15 +21,17 @@ defmodule Philomena.Processors.Jpeg do
 
     scaled = Enum.flat_map(versions, &scale(stripped, &1))
 
-    %{
+    [
       replace_original: stripped,
       intensities: intensities,
       thumbnails: scaled
-    }
+    ]
   end
 
-  def post_process(_analysis, _file), do: %{}
+  @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
+  def post_process(_analysis, _file), do: []
 
+  @spec intensities(Result.t(), Path.t()) :: Intensities.t()
   def intensities(_analysis, file) do
     {:ok, intensities} = Intensities.file(file)
     intensities

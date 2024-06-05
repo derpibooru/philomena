@@ -3,15 +3,16 @@ defmodule Philomena.Images.Thumbnailer do
   Prevewing and thumbnailing logic for Images.
   """
 
+  alias PhilomenaMedia.Processors
+  alias PhilomenaMedia.Analyzers
+  alias PhilomenaMedia.Uploader
+  alias PhilomenaMedia.Objects
+  alias PhilomenaMedia.Sha512
+
   alias Philomena.DuplicateReports
   alias Philomena.ImageIntensities
   alias Philomena.ImagePurgeWorker
   alias Philomena.Images.Image
-  alias Philomena.Processors
-  alias Philomena.Analyzers
-  alias Philomena.Uploader
-  alias Philomena.Objects
-  alias Philomena.Sha512
   alias Philomena.Repo
 
   @versions [

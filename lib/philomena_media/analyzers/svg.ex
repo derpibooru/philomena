@@ -1,8 +1,16 @@
-defmodule Philomena.Analyzers.Svg do
+defmodule PhilomenaMedia.Analyzers.Svg do
+  @moduledoc false
+
+  alias PhilomenaMedia.Analyzers.Analyzer
+  alias PhilomenaMedia.Analyzers.Result
+
+  @behaviour Analyzer
+
+  @spec analyze(Path.t()) :: Result.t()
   def analyze(file) do
     stats = stats(file)
 
-    %{
+    %Result{
       extension: "svg",
       mime_type: "image/svg+xml",
       animated?: false,

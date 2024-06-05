@@ -1,8 +1,16 @@
-defmodule Philomena.Analyzers.Jpeg do
+defmodule PhilomenaMedia.Analyzers.Jpeg do
+  @moduledoc false
+
+  alias PhilomenaMedia.Analyzers.Analyzer
+  alias PhilomenaMedia.Analyzers.Result
+
+  @behaviour Analyzer
+
+  @spec analyze(Path.t()) :: Result.t()
   def analyze(file) do
     stats = stats(file)
 
-    %{
+    %Result{
       extension: "jpg",
       mime_type: "image/jpeg",
       animated?: false,
