@@ -1,10 +1,18 @@
-defmodule Philomena.Analyzers.Png do
+defmodule PhilomenaMedia.Analyzers.Webm do
+  @moduledoc false
+
+  alias PhilomenaMedia.Analyzers.Analyzer
+  alias PhilomenaMedia.Analyzers.Result
+
+  @behaviour Analyzer
+
+  @spec analyze(Path.t()) :: Result.t()
   def analyze(file) do
     stats = stats(file)
 
-    %{
-      extension: "png",
-      mime_type: "image/png",
+    %Result{
+      extension: "webm",
+      mime_type: "video/webm",
       animated?: stats.animated?,
       duration: stats.duration,
       dimensions: stats.dimensions

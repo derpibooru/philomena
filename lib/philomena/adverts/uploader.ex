@@ -4,7 +4,7 @@ defmodule Philomena.Adverts.Uploader do
   """
 
   alias Philomena.Adverts.Advert
-  alias Philomena.Uploader
+  alias PhilomenaMedia.Uploader
 
   def analyze_upload(advert, params) do
     Uploader.analyze_upload(advert, "image", params["image"], &Advert.image_changeset/2)

@@ -4,7 +4,7 @@ defmodule Philomena.Users.Uploader do
   """
 
   alias Philomena.Users.User
-  alias Philomena.Uploader
+  alias PhilomenaMedia.Uploader
 
   def analyze_upload(user, params) do
     Uploader.analyze_upload(user, "avatar", params["avatar"], &User.avatar_changeset/2)

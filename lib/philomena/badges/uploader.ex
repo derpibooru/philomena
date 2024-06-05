@@ -4,7 +4,7 @@ defmodule Philomena.Badges.Uploader do
   """
 
   alias Philomena.Badges.Badge
-  alias Philomena.Uploader
+  alias PhilomenaMedia.Uploader
 
   def analyze_upload(badge, params) do
     Uploader.analyze_upload(badge, "image", params["image"], &Badge.image_changeset/2)
