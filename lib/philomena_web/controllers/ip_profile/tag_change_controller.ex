@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.IpProfile.TagChangeController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaQuery.IpMask
   alias Philomena.TagChanges.TagChange
   alias Philomena.Repo
   import Ecto.Query
@@ -9,10 +10,11 @@ defmodule PhilomenaWeb.IpProfile.TagChangeController do
 
   def index(conn, %{"ip_profile_id" => ip} = params) do
     {:ok, ip} = EctoNetwork.INET.cast(ip)
+    range = IpMask.parse_mask(ip, params)
 
     tag_changes =
       TagChange
-      |> where(ip: ^ip)
+      |> where(fragment("? >>= ip", ^range))
       |> added_filter(params)
       |> preload([:tag, :user, image: [:user, :sources, tags: :aliases]])
       |> order_by(desc: :id)
@@ -20,7 +22,7 @@ defmodule PhilomenaWeb.IpProfile.TagChangeController do
 
     render(conn, "index.html",
       title: "Tag Changes for IP `#{ip}'",
-      ip: ip,
+      ip: range,
       tag_changes: tag_changes
     )
   end
