@@ -4,9 +4,6 @@
 
 import { whenReady }            from './utils/dom';
 
-import { showOwnedComments }    from './communications/comment';
-import { showOwnedPosts }       from './communications/post';
-
 import { listenAutocomplete }   from './autocomplete';
 import { loadBooruData }        from './booru';
 import { registerEvents }       from './boorujs';
@@ -39,8 +36,6 @@ import { imageSourcesCreator }  from './sources';
 
 whenReady(() => {
 
-  showOwnedComments();
-  showOwnedPosts();
   loadBooruData();
   listenAutocomplete();
   registerEvents();

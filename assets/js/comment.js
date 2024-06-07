@@ -3,7 +3,6 @@
  */
 
 import { $ } from './utils/dom';
-import { showOwnedComments } from './communications/comment';
 import { filterNode } from './imagesclientside';
 import { fetchHtml } from './utils/requests';
 import { timeAgo } from './timeago';
@@ -131,9 +130,6 @@ function displayComments(container, commentsHtml) {
   // Filter images in the comments
   filterNode(container);
 
-  // Show options on own comments
-  showOwnedComments();
-
 }
 
 function loadComments(event) {
@@ -175,7 +171,6 @@ function setupComments() {
     }
     else {
       filterNode(comments);
-      showOwnedComments();
     }
   }
 
