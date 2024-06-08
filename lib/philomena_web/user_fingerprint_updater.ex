@@ -3,6 +3,8 @@ defmodule PhilomenaWeb.UserFingerprintUpdater do
   alias Philomena.Repo
   import Ecto.Query
 
+  alias PhilomenaWeb.Fingerprint
+
   def child_spec([]) do
     %{
       id: PhilomenaWeb.UserFingerprintUpdater,
@@ -14,13 +16,12 @@ defmodule PhilomenaWeb.UserFingerprintUpdater do
     {:ok, spawn_link(&init/0)}
   end
 
-  def cast(user_id, <<"c", _rest::binary>> = fingerprint, updated_at)
-      when byte_size(fingerprint) <= 12 do
-    pid = Process.whereis(:fingerprint_updater)
-    if pid, do: send(pid, {user_id, fingerprint, updated_at})
+  def cast(user_id, fingerprint, updated_at) do
+    if Fingerprint.valid_format?(fingerprint) do
+      pid = Process.whereis(:fingerprint_updater)
+      if pid, do: send(pid, {user_id, fingerprint, updated_at})
+    end
   end
-
-  def cast(_user_id, _fingerprint, _updated_at), do: nil
 
   defp init do
     Process.register(self(), :fingerprint_updater)

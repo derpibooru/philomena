@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.Router do
   use PhilomenaWeb, :router
 
   import PhilomenaWeb.UserAuth
+  import PhilomenaWeb.Fingerprint
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -9,6 +10,7 @@ defmodule PhilomenaWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_fingerprint
     plug :fetch_current_user
     plug PhilomenaWeb.ContentSecurityPolicyPlug
     plug PhilomenaWeb.CurrentFilterPlug

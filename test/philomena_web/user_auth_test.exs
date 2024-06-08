@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.UserAuthTest do
     conn =
       conn
       |> Map.replace!(:secret_key_base, PhilomenaWeb.Endpoint.config(:secret_key_base))
+      |> assign(:fingerprint, "d015c342859dde3")
       |> init_test_session(%{})
 
     %{user: user_fixture(), conn: conn}

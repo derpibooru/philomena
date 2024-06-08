@@ -37,9 +37,7 @@ defmodule PhilomenaWeb.FilterBannedUsersPlug do
   defp maybe_halt_no_fingerprint(%{method: "GET"} = conn), do: conn
 
   defp maybe_halt_no_fingerprint(conn) do
-    conn = Conn.fetch_cookies(conn)
-
-    case conn.cookies["_ses"] do
+    case conn.assigns.fingerprint do
       nil ->
         PhilomenaWeb.NotAuthorizedPlug.call(conn)
 
