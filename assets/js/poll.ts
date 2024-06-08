@@ -1,6 +1,6 @@
 import { inputDuplicatorCreator } from './input-duplicator';
 
-function pollOptionCreator() {
+export function pollOptionCreator() {
   inputDuplicatorCreator({
     addButtonSelector: '.js-poll-add-option',
     fieldSelector: '.js-poll-option',
@@ -8,5 +8,3 @@ function pollOptionCreator() {
     removeButtonSelector: '.js-option-remove',
   });
 }
-
-export { pollOptionCreator };
