@@ -69,6 +69,10 @@ interface BooruObject {
    * Indicates whether sensitive staff-only info should be hidden or not.
    */
   hideStaffTools: string;
+  /**
+   * List of image IDs in the current gallery.
+   */
+  galleryImages?: number[];
 }
 
 declare global {
