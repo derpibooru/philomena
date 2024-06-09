@@ -96,7 +96,7 @@ defmodule PhilomenaQuery.IpMask do
 
   defp apply_mask(ip, mask) when is_binary(ip) do
     # Truncate bit size of ip to mask length and zero-fill the remainder
-    <<ip::bits-size(mask), 0::integer-size(bit_size(ip)-mask)>>
+    <<ip::bits-size(mask), 0::integer-size(bit_size(ip) - mask)>>
   end
 
   defp list_to_bits(list, unit_length) do
