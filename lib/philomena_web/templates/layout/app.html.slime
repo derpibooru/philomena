@@ -23,7 +23,7 @@ html lang="en"
 
     = vite_hmr? do
       script type="module" src="http://localhost:5173/@vite/client"
-      script type="module" src="http://localhost:5173/js/app.js"
+      script type="module" src="http://localhost:5173/js/app.ts"
     - else
       script type="text/javascript" src=~p"/js/app.js" async="async"
     = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns
