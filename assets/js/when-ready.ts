@@ -67,7 +67,7 @@ whenReady(() => {
   warnAboutPMs();
   imageSourcesCreator();
 
-  const ticker = $('.game__progress_ticker');
+  const ticker = $<HTMLElement>('.game__progress_ticker');
   if (ticker) {
     ticker.style.left = `${ticker.dataset.percentage}%`;
   }
