@@ -65,6 +65,10 @@ interface BooruObject {
   spoileredFilter: AstMatcher;
   tagsVersion: number;
   interactions: Interaction[];
+  /**
+   * Indicates whether sensitive staff-only info should be hidden or not.
+   */
+  hideStaffTools: string;
 }
 
 declare global {

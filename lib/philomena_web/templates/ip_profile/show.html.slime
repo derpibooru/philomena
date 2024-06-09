@@ -11,8 +11,17 @@ ul
 
 h2 Administration Options
 ul
-  li = link "View tag changes", to: ~p"/ip_profiles/#{to_string(@ip)}/tag_changes"
-  li = link "View source URL history", to: ~p"/ip_profiles/#{to_string(@ip)}/source_changes"
+  li
+    => link "View tag changes", to: ~p"/ip_profiles/#{to_string(@ip)}/tag_changes"
+    = if ipv6?(@ip) do
+      ' &hellip;
+      = link "(/64)", to: ~p"/ip_profiles/#{to_string(@ip)}/tag_changes?mask=64"
+  li
+    => link "View source URL history", to: ~p"/ip_profiles/#{to_string(@ip)}/source_changes"
+    = if ipv6?(@ip) do
+      ' &hellip;
+      = link "(/64)", to: ~p"/ip_profiles/#{to_string(@ip)}/source_changes?mask=64"
+
   li = link "View reports this IP has made", to: ~p"/admin/reports?#{[rq: "ip:#{@ip}"]}"
   li = link "View IP ban history", to: ~p"/admin/subnet_bans?#{[ip: to_string(@ip)]}"
   li = link "Ban this sucker", to: ~p"/admin/subnet_bans/new?#{[specification: to_string(@ip)]}"
