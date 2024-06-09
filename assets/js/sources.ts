@@ -1,4 +1,7 @@
+import { assertNotNull } from './utils/assert';
+import { $ } from './utils/dom';
 import { inputDuplicatorCreator } from './input-duplicator';
+import '../types/ujs';
 
 function setupInputs() {
   inputDuplicatorCreator({
@@ -9,12 +12,13 @@ function setupInputs() {
   });
 }
 
-function imageSourcesCreator() {
+export function imageSourcesCreator() {
   setupInputs();
-  document.addEventListener('fetchcomplete', ({ target, detail }) => {
-    const sourceSauce = document.querySelector('.js-sourcesauce');
 
+  document.addEventListener('fetchcomplete', ({ target, detail }) => {
     if (target.matches('#source-form')) {
+      const sourceSauce = assertNotNull($<HTMLElement>('.js-sourcesauce'));
+
       detail.text().then(text => {
         sourceSauce.outerHTML = text;
         setupInputs();
@@ -22,5 +26,3 @@ function imageSourcesCreator() {
     }
   });
 }
-
-export { imageSourcesCreator };
