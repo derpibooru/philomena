@@ -937,7 +937,7 @@ defmodule Philomena.Images do
       (source.sources ++ target.sources)
       |> Enum.map(fn s -> %Source{image_id: target.id, source: s.source} end)
       |> Enum.uniq()
-      |> Enum.take(10)
+      |> Enum.take(15)
 
     target
     |> Image.sources_changeset(sources)
