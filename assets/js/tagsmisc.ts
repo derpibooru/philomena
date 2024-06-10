@@ -36,7 +36,7 @@ function tagInputButtons(event: MouseEvent) {
 
   for (const [ name, action ] of Object.entries(actions)) {
     if (target && target.matches(`#tagsinput-${name}`)) {
-      action($<HTMLTextAreaElement>('image_tag_input'));
+      action($<HTMLTextAreaElement>('#image_tag_input'));
     }
   }
 }
