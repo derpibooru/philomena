@@ -8,7 +8,7 @@
 
       p
         'The page(s) you found this image on. Images may have a maximum of
-        span.js-max-source-count> 10
+        span.js-max-source-count> 15
         ' source URLs. Leave any sources you don't want to use blank.
 
       = inputs_for f, :sources, [as: "image[old_sources]", skip_hidden: true], fn fs ->
