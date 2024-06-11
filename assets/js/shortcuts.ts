@@ -4,9 +4,7 @@
 
 import { $ } from './utils/dom';
 
-interface ShortcutKeycodes {
-  [key: string]: () => void
-}
+type ShortcutKeyMap = Record<string, () => void>;
 
 function getHover(): string | null {
   const thumbBoxHover = $<HTMLDivElement>('.media-box:hover');
@@ -45,7 +43,7 @@ function isOK(event: KeyboardEvent): boolean {
          document.activeElement.tagName !== 'TEXTAREA';
 }
 
-const keyCodes: ShortcutKeycodes = {
+const keyCodes: ShortcutKeyMap = {
   KeyJ() { click('.js-prev'); },             // J - go to previous image
   KeyI() { click('.js-up'); },               // I - go to index page
   KeyK() { click('.js-next'); },             // K - go to next image
