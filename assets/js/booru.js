@@ -122,7 +122,7 @@ function initializeFilters() {
 
 function unmarshal(data) {
   try { return JSON.parse(data); }
-  catch (_) { return data; }
+  catch { return data; }
 }
 
 function loadBooruData() {

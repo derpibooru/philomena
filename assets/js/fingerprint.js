@@ -41,7 +41,7 @@ function setFingerprintCookie() {
     fingerprint = `c${createFingerprint()}`;
   }
   // If fingerprinting fails, use fakeprint "c1836832948" as a last resort.
-  catch (err) {
+  catch {
     fingerprint = 'c1836832948';
   }
 

@@ -5,7 +5,6 @@ import { Blob } from 'node:buffer';
 import { fireEvent } from '@testing-library/dom';
 
 window.booru = {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
   timeAgo: () => {},
   csrfToken: 'mockCsrfToken',
   hiddenTag: '/mock-tagblocked.svg',
