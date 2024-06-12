@@ -1,5 +1,5 @@
 span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" data-tag-name="#{@tag.name}" data-tag-slug="#{@tag.slug}"
-  / The order of tag states and dropdown links is important for tags.js
+  / The order of tag states and dropdown links is important for tags.ts
   span
     span.tag__state.hidden title="Unwatched"
       | +
