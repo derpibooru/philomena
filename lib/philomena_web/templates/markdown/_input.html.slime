@@ -1,6 +1,6 @@
 - form = assigns[:f]
-- action_text = assigns[:action_text] || 'Edit'
-- action_icon = assigns[:action_icon] || 'edit'
+- action_text = assigns[:action_text] || "Edit"
+- action_icon = assigns[:action_icon] || "edit"
 - field_name = assigns[:name] || :body
 - field_placeholder = assigns[:placeholder] || "Your message"
 - is_required = assigns[:required]
@@ -11,7 +11,7 @@
     = action_text
 
   a href="#" data-click-tab="preview"
-    i.fa.fa-cog.fa-fw.fa-spin.js-preview-loading.hidden> title=raw('Loading preview&hellip;')
+    i.fa.fa-cog.fa-fw.fa-spin.js-preview-loading.hidden> title=raw("Loading preview&hellip;")
     i.fa.fa-eye.fa-fw.js-preview-idle>
     | Preview
 
