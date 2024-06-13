@@ -9,26 +9,22 @@ import { initTagDropdown } from './tags';
 import { setupTagsInput, reloadTagsInput } from './tagsinput';
 import '../types/ujs';
 
-type TagInputActionFunction = (tagInput: HTMLTextAreaElement | null) => void;
+type TagInputActionFunction = (tagInput: HTMLTextAreaElement) => void;
 type TagInputActionList = Record<string, TagInputActionFunction>;
 
 function tagInputButtons(event: MouseEvent) {
   const target = assertType(event.target, HTMLElement);
 
   const actions: TagInputActionList = {
-    save(tagInput: HTMLTextAreaElement | null) {
-      tagInput && store.set('tag_input', tagInput.value);
+    save(tagInput: HTMLTextAreaElement) {
+      store.set('tag_input', tagInput.value);
     },
-    load(tagInput: HTMLTextAreaElement | null) {
-      if (!tagInput) { return; }
-
+    load(tagInput: HTMLTextAreaElement) {
       // If entry 'tag_input' does not exist, try to use the current list
       tagInput.value = store.get('tag_input') || tagInput.value;
       reloadTagsInput(tagInput);
     },
-    clear(tagInput: HTMLTextAreaElement | null) {
-      if (!tagInput) { return; }
-
+    clear(tagInput: HTMLTextAreaElement) {
       tagInput.value = '';
       reloadTagsInput(tagInput);
     },
@@ -36,7 +32,7 @@ function tagInputButtons(event: MouseEvent) {
 
   for (const [ name, action ] of Object.entries(actions)) {
     if (target && target.matches(`#tagsinput-${name}`)) {
-      action($<HTMLTextAreaElement>('#image_tag_input'));
+      action(assertNotNull($<HTMLTextAreaElement>('#image_tag_input')));
     }
   }
 }

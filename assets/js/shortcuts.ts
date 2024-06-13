@@ -53,12 +53,12 @@ const keyCodes: ShortcutKeyMap = {
   KeyO() { openFullView(); },                // O - open original
   KeyV() { openFullViewNewTab(); },          // V - open original in a new tab
   KeyF() {                                   // F - favourite image
-    getHover() ? click(`a.interaction--fave[data-image-id="${getHover()}"]`)
-      : click('.block__header a.interaction--fave');
+    click(getHover() ? `a.interaction--fave[data-image-id="${getHover()}"]`
+      : '.block__header a.interaction--fave');
   },
   KeyU() {                                   // U - upvote image
-    getHover() ? click(`a.interaction--upvote[data-image-id="${getHover()}"]`)
-      : click('.block__header a.interaction--upvote');
+    click(getHover() ? `a.interaction--upvote[data-image-id="${getHover()}"]`
+      : '.block__header a.interaction--upvote');
   },
 };
 

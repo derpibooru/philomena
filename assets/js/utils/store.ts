@@ -11,7 +11,7 @@ export default {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
     }
-    catch (err) {
+    catch {
       return false;
     }
   },
@@ -22,7 +22,7 @@ export default {
     try {
       return JSON.parse(value);
     }
-    catch (err) {
+    catch {
       return value as unknown as Value;
     }
   },
@@ -32,7 +32,7 @@ export default {
       localStorage.removeItem(key);
       return true;
     }
-    catch (err) {
+    catch {
       return false;
     }
   },
@@ -51,7 +51,7 @@ export default {
     const lastUpdatedKey = key + lastUpdatedSuffix;
     const lastUpdatedTime = Date.now() + maxAge;
 
-    this.set(key, value) && this.set(lastUpdatedKey, lastUpdatedTime);
+    return this.set(key, value) && this.set(lastUpdatedKey, lastUpdatedTime);
   },
 
   // Whether the value of a key set with setWithExpireTime() has expired
