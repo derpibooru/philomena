@@ -54,7 +54,8 @@ defmodule PhilomenaMedia.Analyzers do
       :error = Analyzers.analyze(file)
 
   """
-  @spec analyze(Plug.Upload.t() | Path.t()) :: {:ok, Result.t()} | :error
+  @spec analyze(Plug.Upload.t() | Path.t()) ::
+          {:ok, Result.t()} | {:unsupported_mime, Mime.t()} | :error
   def analyze(%Plug.Upload{path: path}), do: analyze(path)
 
   def analyze(path) when is_binary(path) do
