@@ -212,7 +212,7 @@ defmodule PhilomenaWeb.ProfileController do
   end
 
   defp individual_stat(mapping, stat_name) do
-    Enum.map(89..0, &(map_fetch(mapping[&1], stat_name) || 0))
+    Enum.map(89..0//-1, &(map_fetch(mapping[&1], stat_name) || 0))
   end
 
   defp map_fetch(nil, _field_name), do: nil
