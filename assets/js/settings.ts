@@ -22,8 +22,9 @@ export function setupSettings() {
   });
 
   // Theme preview
-  themeSelect && themeSelect.addEventListener('change', () => {
-    styleSheet.href = assertNotUndefined(themeSelect.options[themeSelect.selectedIndex].dataset.themePath);
-  });
-
+  if (themeSelect) {
+    themeSelect.addEventListener('change', () => {
+      styleSheet.href = assertNotUndefined(themeSelect.options[themeSelect.selectedIndex].dataset.themePath);
+    });
+  }
 }

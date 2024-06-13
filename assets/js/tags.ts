@@ -2,23 +2,28 @@
  * Tags Dropdown
  */
 
-import { showEl, hideEl } from './utils/dom';
+import { $$, showEl, hideEl } from './utils/dom';
+import { assertNotUndefined } from './utils/assert';
+import '../types/ujs';
 
-function addTag(tagId, list) {
+type TagDropdownActionFunction = () => void;
+type TagDropdownActionList = Record<string, TagDropdownActionFunction>;
+
+function addTag(tagId: number, list: number[]) {
   list.push(tagId);
 }
 
-function removeTag(tagId, list) {
+function removeTag(tagId: number, list: number[]) {
   list.splice(list.indexOf(tagId), 1);
 }
 
-function createTagDropdown(tag) {
+function createTagDropdown(tag: HTMLSpanElement) {
   const { userIsSignedIn, userCanEditFilter, watchedTagList, spoileredTagList, hiddenTagList } = window.booru;
-  const [ unwatch, watch, unspoiler, spoiler, unhide, hide, signIn, filter ] = [].slice.call(tag.querySelectorAll('.tag__dropdown__link'));
-  const [ unwatched, watched, spoilered, hidden ] = [].slice.call(tag.querySelectorAll('.tag__state'));
-  const tagId = parseInt(tag.dataset.tagId, 10);
+  const [ unwatch, watch, unspoiler, spoiler, unhide, hide, signIn, filter ] = $$<HTMLElement>('.tag__dropdown__link', tag);
+  const [ unwatched, watched, spoilered, hidden ] = $$<HTMLSpanElement>('.tag__state', tag);
+  const tagId = parseInt(assertNotUndefined(tag.dataset.tagId), 10);
 
-  const actions = {
+  const actions: TagDropdownActionList = {
     unwatch()   { hideEl(unwatch, watched);     showEl(watch, unwatched);     removeTag(tagId, watchedTagList);   },
     watch()     { hideEl(watch, unwatched);     showEl(unwatch, watched);     addTag(tagId, watchedTagList);      },
 
@@ -51,11 +56,14 @@ function createTagDropdown(tag) {
   if (userIsSignedIn &&
      !userCanEditFilter) showEl(filter);
 
-  tag.addEventListener('fetchcomplete', event => actions[event.target.dataset.tagAction]());
+  tag.addEventListener('fetchcomplete', event => {
+    const act = assertNotUndefined(event.target.dataset.tagAction);
+    actions[act]();
+  });
 }
 
-function initTagDropdown() {
-  [].forEach.call(document.querySelectorAll('.tag.dropdown'), createTagDropdown);
+export function initTagDropdown() {
+  for (const tagSpan of $$<HTMLSpanElement>('.tag.dropdown')) {
+    createTagDropdown(tagSpan);
+  }
 }
-
-export { initTagDropdown };
