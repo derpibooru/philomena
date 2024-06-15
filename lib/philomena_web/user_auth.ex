@@ -211,9 +211,8 @@ defmodule PhilomenaWeb.UserAuth do
 
   defp update_usages(conn, user) do
     now = DateTime.utc_now() |> DateTime.truncate(:second)
-    conn = fetch_cookies(conn)
 
     UserIpUpdater.cast(user.id, conn.remote_ip, now)
-    UserFingerprintUpdater.cast(user.id, conn.cookies["_ses"], now)
+    UserFingerprintUpdater.cast(user.id, conn.assigns.fingerprint, now)
   end
 end

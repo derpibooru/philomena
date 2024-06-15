@@ -12,7 +12,7 @@ import { setupBurgerMenu }      from './burger';
 import { bindCaptchaLinks }     from './captcha';
 import { setupComments }        from './comment';
 import { setupDupeReports }     from './duplicate_reports';
-import { setFingerprintCookie } from './fingerprint';
+import { setSesCookie }         from './fp';
 import { setupGalleryEditing }  from './galleries';
 import { initImagesClientside } from './imagesclientside';
 import { bindImageTarget }      from './image_expansion';
@@ -45,7 +45,7 @@ whenReady(() => {
   initImagesClientside();
   setupComments();
   setupDupeReports();
-  setFingerprintCookie();
+  setSesCookie();
   setupGalleryEditing();
   bindImageTarget();
   setupEvents();
