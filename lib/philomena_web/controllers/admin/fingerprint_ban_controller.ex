@@ -7,7 +7,12 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
   import Ecto.Query
 
   plug :verify_authorized
-  plug :load_resource, model: FingerprintBan, only: [:edit, :update, :delete]
+
+  plug :load_resource,
+    model: FingerprintBan,
+    as: :fingerprint_ban,
+    only: [:edit, :update, :delete]
+
   plug :check_can_delete when action in [:delete]
 
   def index(conn, %{"q" => q}) when is_binary(q) do
@@ -56,12 +61,12 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
   end
 
   def edit(conn, _params) do
-    changeset = Bans.change_fingerprint(conn.assigns.fingerprint)
+    changeset = Bans.change_fingerprint(conn.assigns.fingerprint_ban)
     render(conn, "edit.html", title: "Editing Fingerprint Ban", changeset: changeset)
   end
 
   def update(conn, %{"fingerprint" => fingerprint_ban_params}) do
-    case Bans.update_fingerprint(conn.assigns.fingerprint, fingerprint_ban_params) do
+    case Bans.update_fingerprint(conn.assigns.fingerprint_ban, fingerprint_ban_params) do
       {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint ban successfully updated.")
@@ -74,7 +79,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
   end
 
   def delete(conn, _params) do
-    {:ok, fingerprint_ban} = Bans.delete_fingerprint(conn.assigns.fingerprint)
+    {:ok, fingerprint_ban} = Bans.delete_fingerprint(conn.assigns.fingerprint_ban)
 
     conn
     |> put_flash(:info, "Fingerprint ban successfully deleted.")
