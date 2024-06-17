@@ -2,6 +2,7 @@
  * Client-side image filtering/spoilering.
  */
 
+import { assertNotUndefined } from './utils/assert';
 import { $$, escapeHtml } from './utils/dom';
 import { setupInteractions } from './interactions';
 import { showThumb, showBlock, spoilerThumb, spoilerBlock, hideThumb } from './utils/image';
@@ -15,20 +16,20 @@ function run(
   img: HTMLDivElement,
   tags: TagData[],
   complex: AstMatcher,
-  callback: RunCallback,
+  runCallback: RunCallback
 ): boolean {
   const hit = (() => {
     // Check tags array first to provide more precise filter explanations
     const hitTags = imageHitsTags(img, tags);
     if (hitTags.length !== 0) {
-      callback(img, hitTags, 'tags');
+      runCallback(img, hitTags, 'tags');
       return true;
     }
 
     // No tags matched, try complex filter AST
     const hitComplex = imageHitsComplex(img, complex);
     if (hitComplex) {
-      callback(img, hitTags, 'complex');
+      runCallback(img, hitTags, 'complex');
       return true;
     }
 
@@ -36,9 +37,9 @@ function run(
     return false;
   })();
 
-  if (hit && img.dataset.imageId) {
+  if (hit) {
     // Disallow negative interaction on image which is not visible
-    window.booru.imagesWithDownvotingDisabled.push(img.dataset.imageId);
+    window.booru.imagesWithDownvotingDisabled.push(assertNotUndefined(img.dataset.imageId));
   }
 
   return hit;
