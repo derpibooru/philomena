@@ -41,12 +41,34 @@ defmodule PhilomenaQuery.Parse.Parser do
     TermRangeParser
   }
 
+  @typedoc """
+  User-supplied context argument.
+
+  Provided to `parse/3` and passed to the transform callback.
+  """
   @type context :: any()
+
+  @typedoc "Query in the search engine JSON query language."
   @type query :: map()
 
+  @typedoc "Whether the default field is `:term` (not analyzed) or `:ngram` (analyzed)."
   @type default_field_type :: :term | :ngram
 
+  @typedoc """
+  Return value of the transform callback.
+
+  On `{:ok, query}`, the query is incorporated into the parse tree at the current location.
+  On `{:error, error}`, parsing immediately stops and the error is returned from the parser.
+  """
   @type transform_result :: {:ok, query()} | {:error, String.t()}
+
+  @typedoc """
+  Type of the transform callback.
+
+  The transform callback receives the context argument passed to `parse/3` and the remainder of
+  the term. For instance `my:example` would match a transform rule with the key `"my"`, and
+  the remainder passed to the callback would be `"example"`.
+  """
   @type transform :: (context, String.t() -> transform_result())
 
   @type t :: %__MODULE__{
@@ -112,11 +134,11 @@ defmodule PhilomenaQuery.Parse.Parser do
         aliases: %{"hidden" => "hidden_from_users"}
       ]
 
-      Parser.parser(options)
+      Parser.new(options)
 
   """
-  @spec parser(keyword()) :: t()
-  def parser(options) do
+  @spec new(keyword()) :: t()
+  def new(options) do
     parser = struct(Parser, options)
 
     fields =
