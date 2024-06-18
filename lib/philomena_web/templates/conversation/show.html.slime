@@ -59,5 +59,5 @@ h1 = @conversation.title
       p You've managed to send over 1,000 messages in this conversation!
       p We'd like to ask you to make a new conversation. Don't worry, this one won't go anywhere if you need to refer back to it.
       p
-        => link "Click here", to: ~p"/conversations/new?#{[receipient: other.name]}"
+        => link "Click here", to: ~p"/conversations/new?#{[recipient: other.name]}"
         ' to make a new conversation with this user.
