@@ -28,13 +28,13 @@ function sortTags(hidden: boolean, a: TagData, b: TagData): number {
   return a.spoiler_image_uri ? -1 : 1;
 }
 
-export function getHiddenTags() {
+export function getHiddenTags(): TagData[] {
   return unique(window.booru.hiddenTagList)
     .map(tagId => getTag(tagId))
     .sort(sortTags.bind(null, true));
 }
 
-export function getSpoileredTags() {
+export function getSpoileredTags(): TagData[] {
   if (window.booru.spoilerType === 'off') return [];
 
   return unique(window.booru.spoileredTagList)
