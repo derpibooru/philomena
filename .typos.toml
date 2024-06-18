@@ -1,0 +1,10 @@
+[default]
+extend-ignore-re = [
+  # Ignore development secret key. Production secret key should
+  # be in environment files and not checked into source control.
+  ".*secret_key_base.*",
+
+  # Key constraints with encoded names
+  "fk_rails_[a-f0-9]+"
+]
+
