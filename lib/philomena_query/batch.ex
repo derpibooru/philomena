@@ -35,7 +35,7 @@ defmodule PhilomenaQuery.Batch do
   @typedoc """
   The callback for `query_batches/3`.
 
-  Takes an `m:Ecto.Query` that can be processed with `m:Philomena.Repo` query commmands, such
+  Takes an `m:Ecto.Query` that can be processed with `m:Philomena.Repo` query commands, such
   as `Philomena.Repo.update_all/3` or `Philomena.Repo.delete_all/2`. Return value is ignored.
   """
   @type query_batch_callback :: ([Ecto.Query.t()] -> any())
