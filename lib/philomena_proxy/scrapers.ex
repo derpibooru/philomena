@@ -3,16 +3,16 @@ defmodule PhilomenaProxy.Scrapers do
   Scrape utilities to facilitate uploading media from other websites.
   """
 
-  # The URL to fetch, as a string.
+  @typedoc "The URL to fetch, as a string."
   @type url :: String.t()
 
-  # An individual image in a list associated with a scrape result.
+  @typedoc "An individual image in a list associated with a scrape result."
   @type image_result :: %{
           url: url(),
           camo_url: url()
         }
 
-  # Result of a successful scrape.
+  @typedoc "Result of a successful scrape."
   @type scrape_result :: %{
           source_url: url(),
           description: String.t() | nil,

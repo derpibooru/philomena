@@ -251,7 +251,7 @@ defmodule Philomena.Tags do
     |> where(tag_id: ^tag.id)
     |> Repo.delete_all()
 
-    # Update other assocations
+    # Update other associations
     ArtistLink
     |> where(tag_id: ^tag.id)
     |> Repo.update_all(set: [tag_id: target_tag.id])

@@ -18,10 +18,36 @@ defmodule PhilomenaQuery.Search do
   # todo: fetch through compile_env?
   @policy Philomena.SearchPolicy
 
+  @typedoc """
+  Any schema module which has an associated search index. See the policy module
+  for more information.
+  """
   @type schema_module :: @policy.schema_module()
+
+  @typedoc """
+  Represents an object which may be operated on via `m:Ecto.Query`.
+
+  This could be a schema object (e.g. `m:Philomena.Images.Image`) or a fully formed query
+  `from i in Image, where: i.hidden_from_users == false`.
+  """
   @type queryable :: any()
+
+  @typedoc """
+  A query body, as deliverable to any index's `_search` endpoint.
+
+  See the query DSL documentation for additional information:
+  https://opensearch.org/docs/latest/query-dsl/
+  """
   @type query_body :: map()
 
+  @typedoc """
+  Given a term at the given path, replace the old term with the new term.
+
+  `path` is a list of names to be followed to find the old term. For example,
+  a document containing `{"condiments": "dijon"}` would permit `["condiments"]`
+  as the path, and a document containing `{"namespaced_tags": {"name": ["old"]}}`
+  would permit `["namespaced_tags", "name"]` as the path.
+  """
   @type replacement :: %{
           path: [String.t()],
           old: term(),

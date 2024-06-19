@@ -29,7 +29,7 @@ defmodule Philomena.Filters.Query do
 
   defp parse(fields, context, query_string) do
     fields
-    |> Parser.parser()
+    |> Parser.new()
     |> Parser.parse(query_string, context)
   end
 

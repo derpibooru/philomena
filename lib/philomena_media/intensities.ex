@@ -36,7 +36,7 @@ defmodule PhilomenaMedia.Intensities do
 
   > #### Info {: .info}
   >
-  > Clients should prefer to use `m:PhilomenaMedia.Processors.intensities/2`, as it handles
+  > Clients should prefer to use `PhilomenaMedia.Processors.intensities/2`, as it handles
   > media files of any type supported by this library, not just PNG or JPEG.
 
   ## Examples
