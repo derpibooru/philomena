@@ -11,7 +11,8 @@ defmodule Philomena.MixProject do
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      dialyzer: [plt_add_apps: [:mix]]
+      dialyzer: [plt_add_apps: [:mix]],
+      docs: [formatters: ["html"]]
     ]
   end
 
@@ -85,6 +86,7 @@ defmodule Philomena.MixProject do
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
       {:credo_envvar, "~> 0.1", only: [:dev, :test], runtime: false},
       {:credo_naming, "~> 2.0", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.30", only: [:dev], runtime: false},
 
       # Security checks
       {:sobelow, "~> 0.11", only: [:dev, :test], runtime: true},

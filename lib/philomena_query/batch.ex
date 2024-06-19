@@ -13,13 +13,31 @@ defmodule PhilomenaQuery.Batch do
   alias Philomena.Repo
   import Ecto.Query
 
+  @typedoc """
+  Represents an object which may be operated on via `m:Ecto.Query`.
+
+  This could be a schema object (e.g. `m:Philomena.Images.Image`) or a fully formed query
+  `from i in Image, where: i.hidden_from_users == false`.
+  """
   @type queryable :: any()
 
   @type batch_size :: {:batch_size, integer()}
   @type id_field :: {:id_field, atom()}
   @type batch_options :: [batch_size() | id_field()]
 
+  @typedoc """
+  The callback for `record_batches/3`.
+
+  Takes a list of schema structs which were returned in the batch. Return value is ignored.
+  """
   @type record_batch_callback :: ([struct()] -> any())
+
+  @typedoc """
+  The callback for `query_batches/3`.
+
+  Takes an `m:Ecto.Query` that can be processed with `m:Philomena.Repo` query commmands, such
+  as `Philomena.Repo.update_all/3` or `Philomena.Repo.delete_all/2`. Return value is ignored.
+  """
   @type query_batch_callback :: ([Ecto.Query.t()] -> any())
 
   @doc """

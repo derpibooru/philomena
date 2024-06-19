@@ -62,29 +62,31 @@ defmodule PhilomenaMedia.Processors do
   alias PhilomenaMedia.Processors.{Gif, Jpeg, Png, Svg, Webm}
   alias PhilomenaMedia.Mime
 
-  # The name of a version, like :large
+  @typedoc "The name of a version, like `:large`."
   @type version_name :: atom()
 
   @type dimensions :: {integer(), integer()}
   @type version_list :: [{version_name(), dimensions()}]
 
-  # The file name of a processed version, like "large.png"
+  @typedoc "The file name of a processed version, like `large.png`."
   @type version_filename :: String.t()
 
-  # A single file to be copied to satisfy a request for a version name
+  @typedoc "A single file to be copied to satisfy a request for a version name."
   @type copy_request :: {:copy, Path.t(), version_filename()}
 
-  # A list of thumbnail versions to copy into place
+  @typedoc "A list of thumbnail versions to copy into place."
   @type thumbnails :: {:thumbnails, [copy_request()]}
 
-  # Replace the original file to strip metadata or losslessly optimize
+  @typedoc "Replace the original file to strip metadata or losslessly optimize."
   @type replace_original :: {:replace_original, Path.t()}
 
-  # Apply the computed corner intensities
+  @typedoc "Apply the computed corner intensities."
   @type intensities :: {:intensities, Intensities.t()}
 
-  # An edit script, representing the changes to apply to the storage backend
-  # after successful processing
+  @typedoc """
+  An edit script, representing the changes to apply to the storage backend
+  after successful processing.
+  """
   @type edit_script :: [thumbnails() | replace_original() | intensities()]
 
   @doc """
