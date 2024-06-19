@@ -14,8 +14,19 @@ jobs:
         with:
           path: |
             _build
+            .cargo
             deps
-          key: ${{ runner.os }}-build-deps-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-deps-2-${{ hashFiles('mix.lock') }}
+
+      - name: Enable caching
+        run: |
+          # Disable volumes so caching can take effect
+          sed -i -Ee 's/- app_[a-z]+_data:.*$//g' docker-compose.yml
+
+          # Make ourselves the owner
+          echo "RUN addgroup -g $(id -g) -S appgroup && adduser -u $(id -u) -S appuser -G appgroup" >> docker/app/Dockerfile
+          echo "USER appuser" >> docker/app/Dockerfile
+          echo "RUN mix local.hex --force && mix local.rebar --force" >> docker/app/Dockerfile
 
       - run: docker compose pull
       - run: docker compose build
@@ -27,6 +38,18 @@ jobs:
         run: |
           docker compose run app mix sobelow --config
           docker compose run app mix deps.audit
+
+      - name: Dialyzer
+        run: |
+          docker compose run app mix dialyzer
+
+  typos:
+    name: 'Check for spelling errors'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: crate-ci/typos@master
+
   lint-and-test:
     name: 'JavaScript Linting and Unit Tests'
     runs-on: ubuntu-latest

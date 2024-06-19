@@ -29,10 +29,10 @@ p.fieldlabel
   = select @f, :vote_method, ["-": "", "Single option": :single, "Multiple options": :multiple], class: "input"
   = error_tag @f, :vote_method
 
-= inputs_for @f, :options, fn fo ->
+= inputs_for @f, :options, fn opt ->
   .field.js-poll-option.field--inline.flex--no-wrap.flex--centered
-    = text_input fo, :label, class: "input flex__grow js-option-label", placeholder: "Option"
-    = error_tag fo, :label
+    = text_input opt, :label, class: "input flex__grow js-option-label", placeholder: "Option"
+    = error_tag opt, :label
 
     label.input--separate-left.flex__fixed.flex--centered
       a.js-option-remove href="#"

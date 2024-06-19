@@ -88,7 +88,7 @@ defmodule Philomena.Users.UserNotifier do
 
     Your account has been automatically locked due to too many attempts to sign in.
 
-    You can unlock your account by visting the URL below:
+    You can unlock your account by visiting the URL below:
 
     #{url}
 

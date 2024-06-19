@@ -28,12 +28,12 @@ describe('Local Autocompleter', () => {
   });
 
   describe('instantiation', () => {
-    it('should be constructable with compatible data', () => {
+    it('should be constructible with compatible data', () => {
       const result = new LocalAutocompleter(mockData);
       expect(result).toBeInstanceOf(LocalAutocompleter);
     });
 
-    it('should NOT be constructable with incompatible data', () => {
+    it('should NOT be constructible with incompatible data', () => {
       const versionDataOffset = 12;
       const mockIncompatibleDataArray = new Array(versionDataOffset).fill(0);
       // Set data version to 1
@@ -45,6 +45,8 @@ describe('Local Autocompleter', () => {
   });
 
   describe('topK', () => {
+    const termStem = ['f', 'o'].join('');
+
     let localAc: LocalAutocompleter;
 
     beforeAll(() => {
@@ -66,7 +68,7 @@ describe('Local Autocompleter', () => {
     });
 
     it('should return suggestions sorted by image count', () => {
-      const result = localAc.topK('fo', defaultK);
+      const result = localAc.topK(termStem, defaultK);
       expect(result).toEqual([
         expect.objectContaining({ name: 'forest', imageCount: 3 }),
         expect.objectContaining({ name: 'fog', imageCount: 1 }),
@@ -82,13 +84,13 @@ describe('Local Autocompleter', () => {
     });
 
     it('should return only the required number of suggestions', () => {
-      const result = localAc.topK('fo', 1);
+      const result = localAc.topK(termStem, 1);
       expect(result).toEqual([expect.objectContaining({ name: 'forest', imageCount: 3 })]);
     });
 
     it('should NOT return suggestions associated with hidden tags', () => {
       window.booru.hiddenTagList = [1];
-      const result = localAc.topK('fo', defaultK);
+      const result = localAc.topK(termStem, defaultK);
       expect(result).toEqual([]);
     });
 
