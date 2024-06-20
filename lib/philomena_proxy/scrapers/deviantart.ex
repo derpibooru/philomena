@@ -31,7 +31,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
   @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
     url
-    |> follow_redirect(2)
+    |> PhilomenaProxy.Http.get()
     |> extract_data!()
     |> try_intermediary_hires!()
     |> try_new_hires!()
@@ -139,22 +139,4 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
         data
     end
   end
-
-  # Workaround for benoitc/hackney#273
-  defp follow_redirect(_url, 0), do: nil
-
-  defp follow_redirect(url, max_times) do
-    case PhilomenaProxy.Http.get(url) do
-      {:ok, %{headers: headers, status: code}} when code in [301, 302] ->
-        location = Enum.find_value(headers, &location_header/1)
-        follow_redirect(location, max_times - 1)
-
-      response ->
-        response
-    end
-  end
-
-  defp location_header({"Location", location}), do: location
-  defp location_header({"location", location}), do: location
-  defp location_header(_), do: nil
 end
