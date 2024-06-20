@@ -10,14 +10,10 @@ defmodule PhilomenaProxy.Scrapers.Raw do
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(_uri, url) do
-    PhilomenaProxy.Http.head(url)
-    |> case do
-      {:ok, %{status: 200, headers: headers}} ->
-        headers
-        |> Enum.any?(fn {k, v} ->
-          String.downcase(k) == "content-type" and String.downcase(v) in @mime_types
-        end)
-
+    with {:ok, %{status: 200, headers: headers}} <- PhilomenaProxy.Http.head(url),
+         [type | _] <- headers["content-type"] do
+      String.downcase(type) in @mime_types
+    else
       _ ->
         false
     end
