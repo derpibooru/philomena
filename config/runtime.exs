@@ -88,10 +88,6 @@ config :philomena, :s3_secondary_options,
 
 config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
 
-# Don't bail on OpenSearch's self-signed certificate
-config :elastix,
-  httpoison_options: [ssl: [verify: :verify_none]]
-
 config :ex_aws, http_client: PhilomenaMedia.Req
 
 config :ex_aws, :retries,
