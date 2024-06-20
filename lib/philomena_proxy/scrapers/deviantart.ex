@@ -38,7 +38,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
     |> try_old_hires!()
   end
 
-  defp extract_data!({:ok, %Tesla.Env{body: body, status: 200}}) do
+  defp extract_data!({:ok, %{body: body, status: 200}}) do
     [image] = Regex.run(@image_regex, body, capture: :all_but_first)
     [source] = Regex.run(@source_regex, body, capture: :all_but_first)
     [artist] = Regex.run(@artist_regex, source, capture: :all_but_first)
@@ -60,7 +60,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
     with [domain, object_uuid, object_name] <-
            Regex.run(@cdnint_regex, image.url, capture: :all_but_first),
          built_url <- "#{domain}/intermediary/f/#{object_uuid}/#{object_name}",
-         {:ok, %Tesla.Env{status: 200}} <- PhilomenaProxy.Http.head(built_url) do
+         {:ok, %{status: 200}} <- PhilomenaProxy.Http.head(built_url) do
       # This is the high resolution URL.
       %{
         data
@@ -120,7 +120,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
     built_url = "http://orig01.deviantart.net/x_by_x-d#{base36}.png"
 
     case PhilomenaProxy.Http.get(built_url) do
-      {:ok, %Tesla.Env{status: 301, headers: headers}} ->
+      {:ok, %{status: 301, headers: headers}} ->
         # Location header provides URL of high res image.
         {_location, link} = Enum.find(headers, fn {header, _val} -> header == "location" end)
 
@@ -145,7 +145,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
 
   defp follow_redirect(url, max_times) do
     case PhilomenaProxy.Http.get(url) do
-      {:ok, %Tesla.Env{headers: headers, status: code}} when code in [301, 302] ->
+      {:ok, %{headers: headers, status: code}} when code in [301, 302] ->
         location = Enum.find_value(headers, &location_header/1)
         follow_redirect(location, max_times - 1)
 

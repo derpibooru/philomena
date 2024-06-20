@@ -24,7 +24,7 @@ defmodule PhilomenaProxy.Scrapers.Pillowfort do
     |> process_response!(url)
   end
 
-  defp json!({:ok, %Tesla.Env{body: body, status: 200}}),
+  defp json!({:ok, %{body: body, status: 200}}),
     do: Jason.decode!(body)
 
   defp process_response!(post_json, url) do

@@ -12,7 +12,7 @@ defmodule PhilomenaProxy.Scrapers.Raw do
   def can_handle?(_uri, url) do
     PhilomenaProxy.Http.head(url)
     |> case do
-      {:ok, %Tesla.Env{status: 200, headers: headers}} ->
+      {:ok, %{status: 200, headers: headers}} ->
         headers
         |> Enum.any?(fn {k, v} ->
           String.downcase(k) == "content-type" and String.downcase(v) in @mime_types

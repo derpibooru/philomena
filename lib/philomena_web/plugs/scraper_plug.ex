@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.ScraperPlug do
   # Writing the tempfile doesn't allow traversal
   # sobelow_skip ["Traversal.FileModule"]
   defp maybe_fixup_params(
-         {:ok, %Tesla.Env{body: body, status: 200, headers: headers}},
+         {:ok, %{body: body, status: 200, headers: headers}},
          url,
          opts,
          conn
