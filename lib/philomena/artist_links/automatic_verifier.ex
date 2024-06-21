@@ -12,7 +12,7 @@ defmodule Philomena.ArtistLinks.AutomaticVerifier do
     end
   end
 
-  defp contains_verification_code?({:ok, %Tesla.Env{body: body, status: 200}}, code) do
+  defp contains_verification_code?({:ok, %{body: body, status: 200}}, code) do
     String.contains?(body, code)
   end
 

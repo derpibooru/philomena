@@ -31,6 +31,7 @@ config :canary,
 
 # Configures the endpoint
 config :philomena, PhilomenaWeb.Endpoint,
+  adapter: Bandit.PhoenixAdapter,
   url: [host: "localhost"],
   secret_key_base: "xZYTon09JNRrj8snd7KL31wya4x71jmo5aaSSRmw1dGjWLRmEwWMTccwxgsGFGjM",
   render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
@@ -45,8 +46,6 @@ config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,
   slime: PhoenixSlime.Engine,
   slimleex: PhoenixSlime.LiveViewEngine
-
-config :tesla, adapter: Tesla.Adapter.Mint
 
 # Configures Elixir's Logger
 config :logger, :console,

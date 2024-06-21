@@ -6,7 +6,7 @@ defmodule Philomena.Channels.PicartoChannel do
     @api_online
     |> PhilomenaProxy.Http.get()
     |> case do
-      {:ok, %Tesla.Env{body: body, status: 200}} ->
+      {:ok, %{body: body, status: 200}} ->
         body
         |> Jason.decode!()
         |> Map.new(&{&1["name"], fetch(&1, now)})

@@ -9,7 +9,6 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
   @image_regex ~r|data-rh="true" rel="preload" href="([^"]*)" as="image"|
   @source_regex ~r|rel="canonical" href="([^"]*)"|
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
-  @serial_regex ~r|https://www.deviantart.com/(?:.*?)-(\d+)\z|
   @cdnint_regex ~r|(https://images-wixmp-[0-9a-f]+.wixmp.com)(?:/intermediary)?/f/([^/]*)/([^/?]*)|
   @png_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.png/v1/fill/[0-9a-z_,]+/[0-9a-z_\-]+)(\.png)(.*)|
   @jpg_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.jpg/v1/fill/w_[0-9]+,h_[0-9]+,q_)([0-9]+)(,[a-z]+\/[a-z0-6_\-]+\.jpe?g.*)|
@@ -31,14 +30,13 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
   @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
     url
-    |> follow_redirect(2)
+    |> PhilomenaProxy.Http.get()
     |> extract_data!()
     |> try_intermediary_hires!()
     |> try_new_hires!()
-    |> try_old_hires!()
   end
 
-  defp extract_data!({:ok, %Tesla.Env{body: body, status: 200}}) do
+  defp extract_data!({:ok, %{body: body, status: 200}}) do
     [image] = Regex.run(@image_regex, body, capture: :all_but_first)
     [source] = Regex.run(@source_regex, body, capture: :all_but_first)
     [artist] = Regex.run(@artist_regex, source, capture: :all_but_first)
@@ -60,7 +58,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
     with [domain, object_uuid, object_name] <-
            Regex.run(@cdnint_regex, image.url, capture: :all_but_first),
          built_url <- "#{domain}/intermediary/f/#{object_uuid}/#{object_name}",
-         {:ok, %Tesla.Env{status: 200}} <- PhilomenaProxy.Http.head(built_url) do
+         {:ok, %{status: 200}} <- PhilomenaProxy.Http.head(built_url) do
       # This is the high resolution URL.
       %{
         data
@@ -107,54 +105,4 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
         data
     end
   end
-
-  defp try_old_hires!(%{source_url: source, images: [image]} = data) do
-    [serial] = Regex.run(@serial_regex, source, capture: :all_but_first)
-
-    base36 =
-      serial
-      |> String.to_integer()
-      |> Integer.to_string(36)
-      |> String.downcase()
-
-    built_url = "http://orig01.deviantart.net/x_by_x-d#{base36}.png"
-
-    case PhilomenaProxy.Http.get(built_url) do
-      {:ok, %Tesla.Env{status: 301, headers: headers}} ->
-        # Location header provides URL of high res image.
-        {_location, link} = Enum.find(headers, fn {header, _val} -> header == "location" end)
-
-        %{
-          data
-          | images: [
-              %{
-                url: link,
-                camo_url: image.camo_url
-              }
-            ]
-        }
-
-      _ ->
-        # Nothing to be found here, move along...
-        data
-    end
-  end
-
-  # Workaround for benoitc/hackney#273
-  defp follow_redirect(_url, 0), do: nil
-
-  defp follow_redirect(url, max_times) do
-    case PhilomenaProxy.Http.get(url) do
-      {:ok, %Tesla.Env{headers: headers, status: code}} when code in [301, 302] ->
-        location = Enum.find_value(headers, &location_header/1)
-        follow_redirect(location, max_times - 1)
-
-      response ->
-        response
-    end
-  end
-
-  defp location_header({"Location", location}), do: location
-  defp location_header({"location", location}), do: location
-  defp location_header(_), do: nil
 end

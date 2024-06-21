@@ -32,10 +32,7 @@ defmodule Philomena.Application do
       PhilomenaWeb.AdvertUpdater,
       PhilomenaWeb.UserFingerprintUpdater,
       PhilomenaWeb.UserIpUpdater,
-      PhilomenaWeb.Endpoint,
-
-      # Connection drainer for SIGTERM
-      {Plug.Cowboy.Drainer, refs: [PhilomenaWeb.Endpoint.HTTP]}
+      PhilomenaWeb.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
