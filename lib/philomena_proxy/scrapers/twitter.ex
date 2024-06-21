@@ -18,7 +18,7 @@ defmodule PhilomenaProxy.Scrapers.Twitter do
     [user, status_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     api_url = "https://api.fxtwitter.com/#{user}/status/#{status_id}"
-    {:ok, %Tesla.Env{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
+    {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
     json = Jason.decode!(body)
     tweet = json["tweet"]

@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
       |> Base.encode16()
 
     case PhilomenaProxy.Http.get(make_api_url(prefix)) do
-      {:ok, %Tesla.Env{body: body, status: 200}} -> String.contains?(body, rest)
+      {:ok, %{body: body, status: 200}} -> String.contains?(body, rest)
       _ -> false
     end
   end
