@@ -3,6 +3,7 @@ defmodule PhilomenaMedia.Processors.Webm do
 
   alias PhilomenaMedia.Intensities
   alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.GifPreview
   alias PhilomenaMedia.Processors.Processor
   alias PhilomenaMedia.Processors
   import Bitwise
@@ -28,12 +29,11 @@ defmodule PhilomenaMedia.Processors.Webm do
     duration = analysis.duration
     stripped = strip(file)
     preview = preview(duration, stripped)
-    palette = gif_palette(stripped, duration)
     mp4 = scale_mp4_only(stripped, dimensions, dimensions)
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled = Enum.flat_map(versions, &scale(stripped, palette, duration, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(stripped, duration, dimensions, &1))
     mp4 = [{:copy, mp4, "full.mp4"}]
 
     [
@@ -82,12 +82,12 @@ defmodule PhilomenaMedia.Processors.Webm do
     stripped
   end
 
-  defp scale(file, palette, duration, dimensions, {thumb_name, target_dimensions}) do
+  defp scale(file, duration, dimensions, {thumb_name, target_dimensions}) do
     {webm, mp4} = scale_videos(file, dimensions, target_dimensions)
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(file, palette, duration, target_dimensions)
+        gif = scale_gif(file, duration, target_dimensions)
 
         [
           {:copy, webm, "#{thumb_name}.webm"},
@@ -199,51 +199,12 @@ defmodule PhilomenaMedia.Processors.Webm do
     mp4
   end
 
-  defp scale_gif(file, palette, duration, {width, height}) do
+  defp scale_gif(file, duration, dimensions) do
     gif = Briefly.create!(extname: ".gif")
-    scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
-    palette_filter = "paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle"
-    rate_filter = rate_filter(duration)
-    filter_graph = "[0:v]#{scale_filter},#{rate_filter}[x];[x][1:v]#{palette_filter}"
 
-    {_output, 0} =
-      System.cmd("ffmpeg", [
-        "-loglevel",
-        "0",
-        "-y",
-        "-i",
-        file,
-        "-i",
-        palette,
-        "-lavfi",
-        filter_graph,
-        "-r",
-        "2",
-        gif
-      ])
+    GifPreview.preview(file, gif, duration, dimensions)
 
     gif
-  end
-
-  defp gif_palette(file, duration) do
-    palette = Briefly.create!(extname: ".png")
-    palette_filter = "palettegen=stats_mode=diff"
-    rate_filter = rate_filter(duration)
-    filter_graph = "#{rate_filter},#{palette_filter}"
-
-    {_output, 0} =
-      System.cmd("ffmpeg", [
-        "-loglevel",
-        "0",
-        "-y",
-        "-i",
-        file,
-        "-vf",
-        filter_graph,
-        palette
-      ])
-
-    palette
   end
 
   # x264 requires image dimensions to be a multiple of 2
@@ -255,8 +216,4 @@ defmodule PhilomenaMedia.Processors.Webm do
 
     {new_width, new_height}
   end
-
-  # Avoid division by zero
-  def rate_filter(duration) when duration > 0.5, do: "fps=1/#{duration / 10},settb=1/2,setpts=N"
-  def rate_filter(_duration), do: "setpts=N/TB/2"
 end
