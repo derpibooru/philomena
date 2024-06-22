@@ -14,30 +14,11 @@ defmodule Philomena.ArtistLinks do
   alias Philomena.Tags.Tag
 
   @doc """
-  Check links pending verification to see if the user placed
-  the appropriate code on the page.
+  Updates all links pending verification to transition to link verified or reset
+  next update time.
   """
   def automatic_verify! do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    # Automatically retry in an hour if we don't manage to
-    # successfully verify any given link
-    recheck_time = DateTime.add(now, 3600, :second)
-
-    recheck_query =
-      from ul in ArtistLink,
-        where: ul.aasm_state == "unverified",
-        where: ul.next_check_at < ^now
-
-    recheck_query
-    |> Repo.all()
-    |> Enum.map(fn link ->
-      ArtistLink.automatic_verify_changeset(
-        link,
-        AutomaticVerifier.check_link(link, recheck_time)
-      )
-    end)
-    |> Enum.map(&Repo.update!/1)
+    Enum.each(AutomaticVerifier.generate_updates(), &Repo.update!/1)
   end
 
   @doc """
