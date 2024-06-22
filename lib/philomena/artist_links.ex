@@ -9,8 +9,7 @@ defmodule Philomena.ArtistLinks do
 
   alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.ArtistLinks.AutomaticVerifier
-  alias Philomena.Badges.Badge
-  alias Philomena.Badges.Award
+  alias Philomena.ArtistLinks.BadgeAwarder
   alias Philomena.Tags.Tag
 
   @doc """
@@ -77,32 +76,32 @@ defmodule Philomena.ArtistLinks do
     |> Repo.update()
   end
 
-  def verify_artist_link(%ArtistLink{} = artist_link, user) do
-    artist_link_changeset =
-      artist_link
-      |> ArtistLink.verify_changeset(user)
+  @doc """
+  Transitions an artist_link to the verified state.
+
+  ## Examples
+
+      iex> verify_artist_link(artist_link, verifying_user)
+      {:ok, %ArtistLink{}}
+
+      iex> verify_artist_link(artist_link, verifying_user)
+      :error
+
+  """
+  def verify_artist_link(%ArtistLink{} = artist_link, verifying_user) do
+    artist_link_changeset = ArtistLink.verify_changeset(artist_link, verifying_user)
 
     Multi.new()
     |> Multi.update(:artist_link, artist_link_changeset)
-    |> Multi.run(:add_award, fn repo, _changes ->
-      now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-      with badge when not is_nil(badge) <- repo.get_by(limit(Badge, 1), title: "Artist"),
-           nil <- repo.get_by(limit(Award, 1), badge_id: badge.id, user_id: artist_link.user_id) do
-        %Award{
-          badge_id: badge.id,
-          user_id: artist_link.user_id,
-          awarded_by_id: user.id,
-          awarded_on: now
-        }
-        |> Award.changeset(%{})
-        |> repo.insert()
-      else
-        _ ->
-          {:ok, nil}
-      end
-    end)
+    |> Multi.run(:add_award, fn _repo, _changes -> BadgeAwarder.award_badge(artist_link) end)
     |> Repo.transaction()
+    |> case do
+      {:ok, %{artist_link: artist_link}} ->
+        {:ok, artist_link}
+
+      {:error, _operation, _value, _changes} ->
+        :error
+    end
   end
 
   def reject_artist_link(%ArtistLink{} = artist_link) do
