@@ -28,8 +28,10 @@ defmodule Philomena.Application do
          node_name: valid_node_name(node())
        ]},
 
+      # Advert update batching
+      Philomena.Adverts.Server,
+
       # Start the endpoint when the application starts
-      PhilomenaWeb.AdvertUpdater,
       PhilomenaWeb.UserFingerprintUpdater,
       PhilomenaWeb.UserIpUpdater,
       PhilomenaWeb.Endpoint

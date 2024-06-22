@@ -8,6 +8,7 @@ defmodule Philomena.Adverts do
 
   alias Philomena.Adverts.Advert
   alias Philomena.Adverts.Restrictions
+  alias Philomena.Adverts.Server
   alias Philomena.Adverts.Uploader
 
   @doc """
@@ -62,6 +63,32 @@ defmodule Philomena.Adverts do
         limit: 1
 
     Repo.one(query)
+  end
+
+  @doc """
+  Asynchronously records a new impression.
+
+  ## Example
+
+      iex> record_impression(%Advert{})
+      :ok
+
+  """
+  def record_impression(%Advert{id: id}) do
+    Server.record_impression(id)
+  end
+
+  @doc """
+  Asynchronously records a new click.
+
+  ## Example
+
+      iex> record_click(%Advert{})
+      :ok
+
+  """
+  def record_click(%Advert{id: id}) do
+    Server.record_click(id)
   end
 
   @doc """
