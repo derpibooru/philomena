@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.AdvertPlug do
     do: Conn.assign(conn, :advert, record_impression(Adverts.random_live()))
 
   defp maybe_assign_ad(conn, image, true),
-    do: Conn.assign(conn, :advert, record_impression(Adverts.random_live_for(image)))
+    do: Conn.assign(conn, :advert, record_impression(Adverts.random_live(image)))
 
   defp maybe_assign_ad(conn, _image, _false),
     do: Conn.assign(conn, :advert, nil)

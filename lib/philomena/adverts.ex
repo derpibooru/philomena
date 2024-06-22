@@ -7,53 +7,61 @@ defmodule Philomena.Adverts do
   alias Philomena.Repo
 
   alias Philomena.Adverts.Advert
+  alias Philomena.Adverts.Restrictions
   alias Philomena.Adverts.Uploader
 
+  @doc """
+  Gets an advert that is currently live.
+
+  Returns the advert, or nil if nothing was live.
+
+      iex> random_live()
+      nil
+
+      iex> random_live()
+      %Advert{}
+
+  """
   def random_live do
+    random_live_for_tags([])
+  end
+
+  @doc """
+  Gets an advert that is currently live, matching any tagging restrictions
+  for the given image.
+
+  Returns the advert, or nil if nothing was live.
+
+  ## Examples
+
+      iex> random_live(%Image{})
+      nil
+
+      iex> random_live(%Image{})
+      %Advert{}
+
+  """
+  def random_live(image) do
+    image
+    |> Repo.preload(:tags)
+    |> Map.get(:tags)
+    |> Enum.map(& &1.name)
+    |> random_live_for_tags()
+  end
+
+  defp random_live_for_tags(tags) do
     now = DateTime.utc_now()
+    restrictions = Restrictions.tags(tags)
 
-    Advert
-    |> where(live: true, restrictions: "none")
-    |> where([a], a.start_date < ^now and a.finish_date > ^now)
-    |> order_by(asc: fragment("random()"))
-    |> limit(1)
-    |> Repo.one()
-  end
+    query =
+      from a in Advert,
+        where: a.live == true,
+        where: a.restrictions in ^restrictions,
+        where: a.start_date < ^now and a.finish_date > ^now,
+        order_by: [asc: fragment("random()")],
+        limit: 1
 
-  def random_live_for(image) do
-    image = Repo.preload(image, :tags)
-    now = DateTime.utc_now()
-
-    Advert
-    |> where(live: true)
-    |> where([a], a.restrictions in ^restrictions(image))
-    |> where([a], a.start_date < ^now and a.finish_date > ^now)
-    |> order_by(asc: fragment("random()"))
-    |> limit(1)
-    |> Repo.one()
-  end
-
-  defp sfw?(image) do
-    image_tags = MapSet.new(image.tags |> Enum.map(& &1.name))
-    sfw_tags = MapSet.new(["safe", "suggestive"])
-    intersect = MapSet.intersection(image_tags, sfw_tags)
-
-    MapSet.size(intersect) > 0
-  end
-
-  defp nsfw?(image) do
-    image_tags = MapSet.new(image.tags |> Enum.map(& &1.name))
-    nsfw_tags = MapSet.new(["questionable", "explicit"])
-    intersect = MapSet.intersection(image_tags, nsfw_tags)
-
-    MapSet.size(intersect) > 0
-  end
-
-  defp restrictions(image) do
-    restrictions = ["none"]
-    restrictions = if nsfw?(image), do: ["nsfw" | restrictions], else: restrictions
-    restrictions = if sfw?(image), do: ["sfw" | restrictions], else: restrictions
-    restrictions
+    Repo.one(query)
   end
 
   @doc """
@@ -102,7 +110,7 @@ defmodule Philomena.Adverts do
   end
 
   @doc """
-  Updates an advert.
+  Updates an Advert without updating its image.
 
   ## Examples
 
@@ -119,6 +127,18 @@ defmodule Philomena.Adverts do
     |> Repo.update()
   end
 
+  @doc """
+  Updates the image for an Advert.
+
+  ## Examples
+
+      iex> update_advert_image(advert, %{image: new_value})
+      {:ok, %Advert{}}
+
+      iex> update_advert(advert, %{image: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def update_advert_image(%Advert{} = advert, attrs) do
     advert
     |> Advert.changeset(attrs)
