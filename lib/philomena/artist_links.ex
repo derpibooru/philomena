@@ -10,18 +10,18 @@ defmodule Philomena.ArtistLinks do
   alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.ArtistLinks.AutomaticVerifier
   alias Philomena.ArtistLinks.BadgeAwarder
-  alias Philomena.Tags.Tag
+  alias Philomena.Tags
 
   @doc """
-  Updates all links pending verification to transition to link verified or reset
-  next update time.
+  Updates all artist links pending verification, by transitioning to link verified state
+  or resetting next update time.
   """
   def automatic_verify! do
     Enum.each(AutomaticVerifier.generate_updates(), &Repo.update!/1)
   end
 
   @doc """
-  Gets a single artist_link.
+  Gets a single artist link.
 
   Raises `Ecto.NoResultsError` if the Artist link does not exist.
 
@@ -37,7 +37,7 @@ defmodule Philomena.ArtistLinks do
   def get_artist_link!(id), do: Repo.get!(ArtistLink, id)
 
   @doc """
-  Creates a artist_link.
+  Creates an artist link.
 
   ## Examples
 
@@ -49,7 +49,7 @@ defmodule Philomena.ArtistLinks do
 
   """
   def create_artist_link(user, attrs \\ %{}) do
-    tag = fetch_tag(attrs["tag_name"])
+    tag = Tags.get_tag_or_alias_by_name(attrs["tag_name"])
 
     %ArtistLink{}
     |> ArtistLink.creation_changeset(attrs, user, tag)
@@ -57,7 +57,7 @@ defmodule Philomena.ArtistLinks do
   end
 
   @doc """
-  Updates a artist_link.
+  Updates an artist link.
 
   ## Examples
 
@@ -69,7 +69,7 @@ defmodule Philomena.ArtistLinks do
 
   """
   def update_artist_link(%ArtistLink{} = artist_link, attrs) do
-    tag = fetch_tag(attrs["tag_name"])
+    tag = Tags.get_tag_or_alias_by_name(attrs["tag_name"])
 
     artist_link
     |> ArtistLink.edit_changeset(attrs, tag)
@@ -77,7 +77,7 @@ defmodule Philomena.ArtistLinks do
   end
 
   @doc """
-  Transitions an artist_link to the verified state.
+  Transitions an artist link to the verified state.
 
   ## Examples
 
@@ -104,12 +104,36 @@ defmodule Philomena.ArtistLinks do
     end
   end
 
+  @doc """
+  Transitions an artist link to the rejected state.
+
+  ## Examples
+
+      iex> reject_artist_link(artist_link)
+      {:ok, %ArtistLink{}}
+
+      iex> reject_artist_link(artist_link)
+      {:error, %Ecto.Changeset{}}
+
+  """
   def reject_artist_link(%ArtistLink{} = artist_link) do
     artist_link
     |> ArtistLink.reject_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Transitions an artist link to the contacted state.
+
+  ## Examples
+
+      iex> contact_artist_link(artist_link)
+      {:ok, %ArtistLink{}}
+
+      iex> contact_artist_link(artist_link)
+      {:error, %Ecto.Changeset{}}
+
+  """
   def contact_artist_link(%ArtistLink{} = artist_link, user) do
     artist_link
     |> ArtistLink.contact_changeset(user)
@@ -117,7 +141,7 @@ defmodule Philomena.ArtistLinks do
   end
 
   @doc """
-  Deletes a ArtistLink.
+  Deletes an artist link.
 
   ## Examples
 
@@ -133,7 +157,7 @@ defmodule Philomena.ArtistLinks do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking artist_link changes.
+  Returns an `%Ecto.Changeset{}` for tracking artist link changes.
 
   ## Examples
 
@@ -145,24 +169,26 @@ defmodule Philomena.ArtistLinks do
     ArtistLink.changeset(artist_link, %{})
   end
 
+  @doc """
+  Counts the number of artist links which are pending moderation action, or
+  nil if the user is not permitted to moderate artist links.
+
+  ## Examples
+
+      iex> count_artist_links(normal_user)
+      nil
+
+      iex> count_artist_links(admin_user)
+      0
+
+  """
   def count_artist_links(user) do
     if Canada.Can.can?(user, :index, %ArtistLink{}) do
       ArtistLink
       |> where([ul], ul.aasm_state in ^["unverified", "link_verified"])
-      |> Repo.aggregate(:count, :id)
+      |> Repo.aggregate(:count)
     else
       nil
-    end
-  end
-
-  defp fetch_tag(name) do
-    Tag
-    |> preload(:aliased_tag)
-    |> where(name: ^name)
-    |> Repo.one()
-    |> case do
-      nil -> nil
-      tag -> tag.aliased_tag || tag
     end
   end
 end

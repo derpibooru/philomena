@@ -82,6 +82,31 @@ defmodule Philomena.Tags do
   def get_tag!(id), do: Repo.get!(Tag, id)
 
   @doc """
+  Gets a single tag by its name, or the tag it is aliased to, if it is aliased.
+
+  Returns nil if the tag does not exist.
+
+  ## Examples
+
+      iex> get_tag_or_alias_by_name("safe")
+      %Tag{}
+
+      iex> get_tag_or_alias_by_name("nonexistent")
+      nil
+
+  """
+  def get_tag_or_alias_by_name(name) do
+    Tag
+    |> where(name: ^name)
+    |> preload(:aliased_tag)
+    |> Repo.one()
+    |> case do
+      nil -> nil
+      tag -> tag.aliased_tag || tag
+    end
+  end
+
+  @doc """
   Creates a tag.
 
   ## Examples
