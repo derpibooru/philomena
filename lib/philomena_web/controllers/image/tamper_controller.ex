@@ -26,12 +26,12 @@ defmodule PhilomenaWeb.Image.TamperController do
     |> put_flash(:info, "Vote removed.")
     |> moderation_log(
       details: &log_details/3,
-      data: %{vote: result, image: image}
+      data: %{vote: result, image: image, username: conn.assigns.user.name}
     )
     |> redirect(to: ~p"/images/#{conn.assigns.image}")
   end
 
-  defp log_details(conn, _action, data) do
+  defp log_details(_conn, _action, data) do
     image = data.image
 
     vote_type =
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.TamperController do
       end
 
     %{
-      body: "Deleted #{vote_type} by #{conn.assigns.user.name} on image >>#{data.image.id}",
+      body: "Deleted #{vote_type} by #{data.username} on image >>#{data.image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

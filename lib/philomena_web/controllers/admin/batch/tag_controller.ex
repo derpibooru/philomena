@@ -51,7 +51,8 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
           details: &log_details/3,
           data: %{
             tag_list: tag_list,
-            image_count: Enum.count(image_ids)
+            image_count: Enum.count(image_ids),
+            user: conn.assigns.current_user
           }
         )
         |> json(%{succeeded: image_ids, failed: []})
@@ -68,10 +69,10 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     end
   end
 
-  defp log_details(conn, _action, data) do
+  defp log_details(_conn, _action, data) do
     %{
       body: "Batch tagged '#{data.tag_list}' on #{data.image_count} images",
-      subject_path: ~p"/profiles/#{conn.assigns.current_user}"
+      subject_path: ~p"/profiles/#{data.user}"
     }
   end
 end
