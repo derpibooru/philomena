@@ -41,6 +41,8 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
 
     case Images.create_image(attributes, image_params) do
       {:ok, %{image: image}} ->
+        image = Repo.preload(image, tags: :aliases)
+
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
           "image:create",
