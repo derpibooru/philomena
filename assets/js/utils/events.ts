@@ -1,5 +1,7 @@
 // DOM events
 
+import '../../types/ujs';
+
 export interface PhilomenaAvailableEventsMap {
   dragstart: DragEvent,
   dragover: DragEvent,
@@ -9,7 +11,8 @@ export interface PhilomenaAvailableEventsMap {
   drop: DragEvent,
   click: MouseEvent,
   submit: Event,
-  reset: Event
+  reset: Event,
+  fetchcomplete: FetchcompleteEvent
 }
 
 export interface PhilomenaEventElement {

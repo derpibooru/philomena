@@ -38,9 +38,9 @@ export default {
   },
 
   // Watch changes to a specified key - returns value on change
-  watch(key: string, callback: (value: unknown) => void) {
+  watch<Value = unknown>(key: string, callback: (value: Value | null) => void) {
     const handler = (event: StorageEvent) => {
-      if (event.key === key) callback(this.get(key));
+      if (event.key === key) callback(this.get<Value>(key));
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
