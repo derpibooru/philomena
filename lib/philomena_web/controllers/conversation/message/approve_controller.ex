@@ -20,11 +20,11 @@ defmodule PhilomenaWeb.Conversation.Message.ApproveController do
 
     conn
     |> put_flash(:info, "Conversation message approved.")
-    |> moderation_log(details: &log_details/3, data: message)
+    |> moderation_log(details: &log_details/2, data: message)
     |> redirect(to: "/")
   end
 
-  defp log_details(_conn, _action, message) do
+  defp log_details(_action, message) do
     %{
       body: "Approved private message in conversation ##{message.conversation_id}",
       subject_path: "/"

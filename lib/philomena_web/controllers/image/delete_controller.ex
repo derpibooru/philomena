@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
       {:ok, result} ->
         conn
         |> put_flash(:info, "Image successfully hidden.")
-        |> moderation_log(details: &log_details/3, data: result.image)
+        |> moderation_log(details: &log_details/2, data: result.image)
         |> redirect(to: ~p"/images/#{image}")
 
       _error ->
@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
       {:ok, image} ->
         conn
         |> put_flash(:info, "Hide reason updated.")
-        |> moderation_log(details: &log_details/3, data: image)
+        |> moderation_log(details: &log_details/2, data: image)
         |> redirect(to: ~p"/images/#{image}")
 
       {:error, _changeset} ->
@@ -66,11 +66,11 @@ defmodule PhilomenaWeb.Image.DeleteController do
 
     conn
     |> put_flash(:info, "Image successfully unhidden.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(_conn, action, image) do
+  defp log_details(action, image) do
     body =
       case action do
         :create -> "Hidden image >>#{image.id} (#{image.deletion_reason})"

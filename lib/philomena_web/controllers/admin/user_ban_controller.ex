@@ -50,7 +50,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User was successfully banned.")
-        |> moderation_log(details: &log_details/3, data: user_ban)
+        |> moderation_log(details: &log_details/2, data: user_ban)
         |> redirect(to: ~p"/admin/user_bans")
 
       {:error, :user_ban, changeset, _changes} ->
@@ -71,7 +71,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
       {:ok, user_ban} ->
         conn
         |> put_flash(:info, "User ban successfully updated.")
-        |> moderation_log(details: &log_details/3, data: user_ban)
+        |> moderation_log(details: &log_details/2, data: user_ban)
         |> redirect(to: ~p"/admin/user_bans")
 
       {:error, changeset} ->
@@ -84,7 +84,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
 
     conn
     |> put_flash(:info, "User ban successfully deleted.")
-    |> moderation_log(details: &log_details/3, data: user_ban)
+    |> moderation_log(details: &log_details/2, data: user_ban)
     |> redirect(to: ~p"/admin/user_bans")
   end
 
@@ -116,7 +116,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
     end
   end
 
-  defp log_details(_conn, action, ban) do
+  defp log_details(action, ban) do
     body =
       case action do
         :create -> "Created a user ban #{ban.generated_ban_id}"

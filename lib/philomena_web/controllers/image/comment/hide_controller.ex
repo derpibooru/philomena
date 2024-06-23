@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully hidden!")
-        |> moderation_log(details: &log_details/3, data: comment)
+        |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
       _error ->
@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully unhidden!")
-        |> moderation_log(details: &log_details/3, data: comment)
+        |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
       {:error, _changeset} ->
@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
     end
   end
 
-  defp log_details(_conn, action, comment) do
+  defp log_details(action, comment) do
     body =
       case action do
         :create -> "Hidden comment on image >>#{comment.image_id} (#{comment.deletion_reason})"

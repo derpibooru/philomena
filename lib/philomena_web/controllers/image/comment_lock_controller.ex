@@ -12,7 +12,7 @@ defmodule PhilomenaWeb.Image.CommentLockController do
 
     conn
     |> put_flash(:info, "Successfully locked comments.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
 
@@ -21,11 +21,11 @@ defmodule PhilomenaWeb.Image.CommentLockController do
 
     conn
     |> put_flash(:info, "Successfully unlocked comments.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(_conn, action, image) do
+  defp log_details(action, image) do
     body =
       case action do
         :create -> "Locked comments on image >>#{image.id}"
