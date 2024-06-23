@@ -3,32 +3,34 @@
  */
 
 import store from './utils/store';
-import { $, $$ } from './utils/dom';
-import { assertNotNull } from './utils/assert';
+import { $, $$, hideEl, showEl } from './utils/dom';
+import { assertNotNull, assertType } from './utils/assert';
 import '../types/ujs';
 
 let touchMoved = false;
 
 function formResult({target, detail}: FetchcompleteEvent) {
-  const elements: {[key: string]: string} = {
+  const elements: Record<string, string> = {
     '#description-form': '.image-description',
     '#uploader-form': '.image_uploader'
   };
 
-  function showResult(resultEl: HTMLElement, formEl: HTMLFormElement, response: string) {
+  function showResult(formEl: HTMLFormElement, resultEl: HTMLElement, response: string) {
     resultEl.innerHTML = response;
-    resultEl.classList.remove('hidden');
-    formEl.classList.add('hidden');
-    const inputEl = $<HTMLInputElement>('input[type="submit"]', formEl);
-    const buttonEl = $<HTMLButtonElement>('button', formEl);
+    hideEl(formEl);
+    showEl(resultEl);
 
-    if (inputEl) inputEl.disabled = false;
-    if (buttonEl) buttonEl.disabled = false;
+    $$<HTMLInputElement | HTMLButtonElement>('input[type="submit"],button', formEl).forEach(button => {
+      button.disabled = false;
+    });
   }
 
-  for (const element in elements) {
-    if (target.matches(element)) {
-      detail.text().then(text => showResult(assertNotNull($<HTMLElement>(elements[element])), target as HTMLFormElement, text));
+  for (const [ formSelector, resultSelector ] of Object.entries(elements)) {
+    if (target.matches(formSelector)) {
+      const form = assertType(target, HTMLFormElement);
+      const result = assertNotNull($<HTMLElement>(resultSelector));
+
+      detail.text().then(text => showResult(form, result, text));
     }
   }
 }
@@ -79,11 +81,11 @@ export function setupEvents() {
   const extrameta = $<HTMLElement>('#extrameta');
 
   if (extrameta && store.get('hide_uploader')) {
-    extrameta.classList.add('hidden');
+    hideEl(extrameta);
   }
 
   if (store.get('hide_score')) {
-    $$<HTMLElement>('.upvotes,.score,.downvotes').forEach(s => s.classList.add('hidden'));
+    $$<HTMLElement>('.upvotes,.score,.downvotes').forEach(s => hideEl(s));
   }
 
   document.addEventListener('fetchcomplete', formResult);
