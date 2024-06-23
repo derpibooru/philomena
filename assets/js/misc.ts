@@ -4,35 +4,40 @@
 
 import store from './utils/store';
 import { $, $$ } from './utils/dom';
+import { assertNotNull } from './utils/assert';
+import '../types/ujs';
 
 let touchMoved = false;
 
-function formResult({target, detail}) {
-
-  const elements = {
+function formResult({target, detail}: FetchcompleteEvent) {
+  const elements: {[key: string]: string} = {
     '#description-form': '.image-description',
     '#uploader-form': '.image_uploader'
   };
 
-  function showResult(resultEl, formEl, response) {
+  function showResult(resultEl: HTMLElement, formEl: HTMLFormElement, response: string) {
     resultEl.innerHTML = response;
     resultEl.classList.remove('hidden');
     formEl.classList.add('hidden');
-    formEl.querySelector('input[type="submit"],button').disabled = false;
+    const inputEl = $<HTMLInputElement>('input[type="submit"]', formEl);
+    const buttonEl = $<HTMLButtonElement>('button', formEl);
+
+    if (inputEl) inputEl.disabled = false;
+    if (buttonEl) buttonEl.disabled = false;
   }
 
   for (const element in elements) {
-    if (target.matches(element)) detail.text().then(text => showResult($(elements[element]), target, text));
+    if (target.matches(element)) {
+      detail.text().then(text => showResult(assertNotNull($<HTMLElement>(elements[element])), target as HTMLFormElement, text));
+    }
   }
-
 }
 
-function revealSpoiler(event) {
-
-  const { target } = event;
+function revealSpoiler(event: MouseEvent | TouchEvent) {
+  const target = assertNotNull(event.target) as HTMLElement;
   const spoiler = target.closest('.spoiler');
-  let imgspoiler = target.closest('.spoiler .imgspoiler, .spoiler-revealed .imgspoiler');
   const showContainer = target.closest('.image-show-container');
+  let imgspoiler = target.closest('.spoiler .imgspoiler, .spoiler-revealed .imgspoiler');
 
   // Prevent reveal if touchend came after touchmove event
   if (touchMoved) {
@@ -42,7 +47,8 @@ function revealSpoiler(event) {
 
   if (spoiler) {
     if (showContainer) {
-      const imageShow = showContainer.querySelector('.image-show');
+      const imageShow = assertNotNull(showContainer.querySelector('.image-show'));
+
       if (!imageShow.classList.contains('hidden') && imageShow.classList.contains('spoiler-pending')) {
         imageShow.classList.remove('spoiler-pending');
         return;
@@ -62,19 +68,22 @@ function revealSpoiler(event) {
   if (imgspoiler) {
     imgspoiler.classList.remove('imgspoiler');
     imgspoiler.classList.add('imgspoiler-revealed');
+
     if (event.type === 'touchend' && !event.defaultPrevented) {
       event.preventDefault();
     }
   }
-
 }
 
-function setupEvents() {
-  const extrameta = $('#extrameta');
+export function setupEvents() {
+  const extrameta = $<HTMLElement>('#extrameta');
 
-  if (store.get('hide_uploader') && extrameta) extrameta.classList.add('hidden');
+  if (extrameta && store.get('hide_uploader')) {
+    extrameta.classList.add('hidden');
+  }
+
   if (store.get('hide_score')) {
-    $$('.upvotes,.score,.downvotes').forEach(s => s.classList.add('hidden'));
+    $$<HTMLElement>('.upvotes,.score,.downvotes').forEach(s => s.classList.add('hidden'));
   }
 
   document.addEventListener('fetchcomplete', formResult);
@@ -82,5 +91,3 @@ function setupEvents() {
   document.addEventListener('touchend', revealSpoiler);
   document.addEventListener('touchmove', () => touchMoved = true);
 }
-
-export { setupEvents };
