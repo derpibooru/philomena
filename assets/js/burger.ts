@@ -2,12 +2,15 @@
  * Hamburger menu.
  */
 
-function switchClasses(element, oldClass, newClass) {
+import { $, $$ } from './utils/dom';
+import { assertNotNull } from './utils/assert';
+
+function switchClasses(element: HTMLElement, oldClass: string, newClass: string) {
   element.classList.remove(oldClass);
   element.classList.add(newClass);
 }
 
-function open(burger, content, body, root) {
+function open(burger: HTMLElement, content: HTMLElement, body: HTMLElement, root: HTMLElement) {
   switchClasses(content, 'close', 'open');
   switchClasses(burger, 'close', 'open');
 
@@ -15,7 +18,7 @@ function open(burger, content, body, root) {
   body.classList.add('no-overflow');
 }
 
-function close(burger, content, body, root) {
+function close(burger: HTMLElement, content: HTMLElement, body: HTMLElement, root: HTMLElement) {
   switchClasses(content, 'open', 'close');
   switchClasses(burger, 'open', 'close');
 
@@ -26,27 +29,25 @@ function close(burger, content, body, root) {
   }, 300);
 }
 
-function copyArtistLinksTo(burger) {
-  const copy = links => {
+function copyArtistLinksTo(burger: HTMLElement) {
+  const copy = (links: HTMLCollection) => {
     burger.appendChild(document.createElement('hr'));
 
-    [].slice.call(links).forEach(link => {
-      const burgerLink = link.cloneNode(true);
-
+    for (const link of links) {
+      const burgerLink = link.cloneNode(true) as HTMLElement;
       burgerLink.className = '';
       burger.appendChild(burgerLink);
-    });
+    }
   };
 
-  const linksContainers = document.querySelectorAll('.js-burger-links');
-
-  [].slice.call(linksContainers).forEach(container => copy(container.children));
+  $$<HTMLElement>('.js-burger-links').forEach(container => copy(container.children));
 }
 
-function setupBurgerMenu() {
-  const burger = document.getElementById('burger');
-  const toggle = document.getElementById('js-burger-toggle');
-  const content = document.getElementById('container');
+export function setupBurgerMenu() {
+  // Burger menu should exist on all pages.
+  const burger = assertNotNull($<HTMLElement>('#burger'));
+  const toggle = assertNotNull($<HTMLElement>('#js-burger-toggle'));
+  const content = assertNotNull($<HTMLElement>('#container'));
   const body = document.body;
   const root = document.documentElement;
 
@@ -63,11 +64,10 @@ function setupBurgerMenu() {
       open(burger, content, body, root);
     }
   });
+
   content.addEventListener('click', () => {
     if (content.classList.contains('open')) {
       close(burger, content, body, root);
     }
   });
 }
-
-export { setupBurgerMenu };
