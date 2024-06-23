@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully locked!")
-        |> moderation_log(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/2, data: topic)
         |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
@@ -43,7 +43,7 @@ defmodule PhilomenaWeb.Topic.LockController do
       {:ok, topic} ->
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
-        |> moderation_log(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/2, data: topic)
         |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.Topic.LockController do
     end
   end
 
-  defp log_details(_conn, action, topic) do
+  defp log_details(action, topic) do
     body =
       case action do
         :create -> "Locked topic '#{topic.title}' (#{topic.lock_reason}) in #{topic.forum.name}"

@@ -48,7 +48,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
       {:ok, _} ->
         conn
         |> moderation_log(
-          details: &log_details/3,
+          details: &log_details/2,
           data: %{
             tag_list: tag_list,
             image_count: Enum.count(image_ids),
@@ -69,7 +69,7 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     end
   end
 
-  defp log_details(_conn, _action, data) do
+  defp log_details(_action, data) do
     %{
       body: "Batch tagged '#{data.tag_list}' on #{data.image_count} images",
       subject_path: ~p"/profiles/#{data.user}"

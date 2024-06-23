@@ -52,7 +52,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint was successfully banned.")
-        |> moderation_log(details: &log_details/3, data: fingerprint_ban)
+        |> moderation_log(details: &log_details/2, data: fingerprint_ban)
         |> redirect(to: ~p"/admin/fingerprint_bans")
 
       {:error, changeset} ->
@@ -70,7 +70,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
       {:ok, fingerprint_ban} ->
         conn
         |> put_flash(:info, "Fingerprint ban successfully updated.")
-        |> moderation_log(details: &log_details/3, data: fingerprint_ban)
+        |> moderation_log(details: &log_details/2, data: fingerprint_ban)
         |> redirect(to: ~p"/admin/fingerprint_bans")
 
       {:error, changeset} ->
@@ -83,7 +83,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
     conn
     |> put_flash(:info, "Fingerprint ban successfully deleted.")
-    |> moderation_log(details: &log_details/3, data: fingerprint_ban)
+    |> moderation_log(details: &log_details/2, data: fingerprint_ban)
     |> redirect(to: ~p"/admin/fingerprint_bans")
   end
 
@@ -115,7 +115,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
     end
   end
 
-  defp log_details(_conn, action, ban) do
+  defp log_details(action, ban) do
     body =
       case action do
         :create -> "Created a fingerprint ban #{ban.generated_ban_id}"

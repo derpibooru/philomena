@@ -13,11 +13,11 @@ defmodule PhilomenaWeb.Image.RepairController do
 
     conn
     |> put_flash(:info, "Repair job enqueued.")
-    |> moderation_log(details: &log_details/3, data: conn.assigns.image)
+    |> moderation_log(details: &log_details/2, data: conn.assigns.image)
     |> redirect(to: ~p"/images/#{conn.assigns.image}")
   end
 
-  defp log_details(_conn, _action, image) do
+  defp log_details(_action, image) do
     %{
       body: "Repaired image >>#{image.id}",
       subject_path: ~p"/images/#{image}"
