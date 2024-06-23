@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet was successfully banned.")
-        |> moderation_log(details: &log_details/3, data: subnet_ban)
+        |> moderation_log(details: &log_details/2, data: subnet_ban)
         |> redirect(to: ~p"/admin/subnet_bans")
 
       {:error, changeset} ->
@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
       {:ok, subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet ban successfully updated.")
-        |> moderation_log(details: &log_details/3, data: subnet_ban)
+        |> moderation_log(details: &log_details/2, data: subnet_ban)
         |> redirect(to: ~p"/admin/subnet_bans")
 
       {:error, changeset} ->
@@ -80,7 +80,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
 
     conn
     |> put_flash(:info, "Subnet ban successfully deleted.")
-    |> moderation_log(details: &log_details/3, data: subnet_ban)
+    |> moderation_log(details: &log_details/2, data: subnet_ban)
     |> redirect(to: ~p"/admin/subnet_bans")
   end
 
@@ -112,7 +112,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
     end
   end
 
-  defp log_details(_conn, action, ban) do
+  defp log_details(action, ban) do
     body =
       case action do
         :create -> "Created a subnet ban #{ban.generated_ban_id}"

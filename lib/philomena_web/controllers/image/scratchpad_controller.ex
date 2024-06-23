@@ -17,11 +17,11 @@ defmodule PhilomenaWeb.Image.ScratchpadController do
 
     conn
     |> put_flash(:info, "Successfully updated moderation notes.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(_conn, _action, image) do
+  defp log_details(_action, image) do
     %{
       body: "Updated mod notes on image >>#{image.id} (#{image.scratchpad})",
       subject_path: ~p"/images/#{image}"

@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.ModerationLogPlug do
   def init(opts), do: opts
 
   @type log_details :: %{subject_path: String.t(), body: String.t()}
-  @type details_func :: (Plug.Conn.t(), atom(), any() -> log_details())
+  @type details_func :: (atom(), any() -> log_details())
   @type call_opts :: [details: details_func, data: any()]
 
   @doc false
@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.ModerationLogPlug do
     user = conn.assigns.current_user
     action = Controller.action_name(conn)
 
-    %{subject_path: subject_path, body: body} = details_func.(conn, action, userdata)
+    %{subject_path: subject_path, body: body} = details_func.(action, userdata)
 
     mod = Controller.controller_module(conn)
     [mod_name] = Regex.run(@controller_regex, to_string(mod), capture: :all_but_first)

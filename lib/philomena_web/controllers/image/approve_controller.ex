@@ -14,11 +14,11 @@ defmodule PhilomenaWeb.Image.ApproveController do
 
     conn
     |> put_flash(:info, "Image has been approved.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/admin/approvals")
   end
 
-  defp log_details(_conn, _action, image) do
+  defp log_details(_action, image) do
     %{body: "Approved image #{image.id}", subject_path: ~p"/images/#{image}"}
   end
 end

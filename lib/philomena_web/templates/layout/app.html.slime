@@ -10,6 +10,7 @@ html lang="en"
         ' - Derpibooru
       - else
         ' Derpibooru
+    link rel="preconnect" href="https://#{cdn_host()}"
     link rel="stylesheet" href=stylesheet_path(@current_user)
     = if is_nil(@current_user) do
       link rel="stylesheet" href=dark_stylesheet_path() media="(prefers-color-scheme: dark)"

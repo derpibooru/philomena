@@ -12,11 +12,11 @@ defmodule PhilomenaWeb.Image.HashController do
 
     conn
     |> put_flash(:info, "Successfully cleared hash.")
-    |> moderation_log(details: &log_details/3, data: image)
+    |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
 
-  defp log_details(_conn, _action, image) do
+  defp log_details(_action, image) do
     %{
       body: "Cleared hash of image >>#{image.id}",
       subject_path: ~p"/images/#{image}"

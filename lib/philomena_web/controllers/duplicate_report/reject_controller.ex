@@ -21,11 +21,11 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
 
     conn
     |> put_flash(:info, "Successfully rejected report.")
-    |> moderation_log(details: &log_details/3, data: report)
+    |> moderation_log(details: &log_details/2, data: report)
     |> redirect(to: ~p"/duplicate_reports")
   end
 
-  defp log_details(_conn, _action, report) do
+  defp log_details(_action, report) do
     %{
       body: "Rejected duplicate report (#{report.image.id} -> #{report.duplicate_of_image.id})",
       subject_path: ~p"/duplicate_reports"

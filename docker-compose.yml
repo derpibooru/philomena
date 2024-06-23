@@ -1,4 +1,3 @@
-version: '3'
 volumes:
   postgres_data: {}
   opensearch_data: {}

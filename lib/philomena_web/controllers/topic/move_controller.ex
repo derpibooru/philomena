@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Topic.MoveController do
 
         conn
         |> put_flash(:info, "Topic successfully moved!")
-        |> moderation_log(details: &log_details/3, data: topic)
+        |> moderation_log(details: &log_details/2, data: topic)
         |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Topic.MoveController do
     end
   end
 
-  defp log_details(_conn, _action, topic) do
+  defp log_details(_action, topic) do
     %{
       body: "Topic '#{topic.title}' moved to #{topic.forum.name}",
       subject_path: ~p"/forums/#{topic.forum}/topics/#{topic}"

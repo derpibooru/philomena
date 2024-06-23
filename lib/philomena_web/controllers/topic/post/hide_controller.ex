@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully hidden.")
-        |> moderation_log(details: &log_details/3, data: post)
+        |> moderation_log(details: &log_details/2, data: post)
         |> redirect(
           to:
             ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
@@ -45,7 +45,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully unhidden.")
-        |> moderation_log(details: &log_details/3, data: post)
+        |> moderation_log(details: &log_details/2, data: post)
         |> redirect(
           to:
             ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
@@ -63,7 +63,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
     end
   end
 
-  defp log_details(_conn, action, post) do
+  defp log_details(action, post) do
     body =
       case action do
         :create ->
