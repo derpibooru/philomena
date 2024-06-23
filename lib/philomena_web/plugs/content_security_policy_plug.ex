@@ -34,8 +34,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         {:form_action, ["'self'"]},
         {:manifest_src, ["'self'"]},
         {:img_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]},
-        {:media_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]},
-        {:block_all_mixed_content, []}
+        {:media_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]}
       ]
 
       csp_value =
