@@ -19,7 +19,7 @@ defmodule Philomena.ArtistLinks.BadgeAwarder do
   def award_badge(artist_link) do
     with badge when not is_nil(badge) <- Badges.get_badge_by_title(@badge_title),
          award when is_nil(award) <- Badges.get_badge_award_for(badge, artist_link.user) do
-      Badges.create_badge_award(artist_link.user, artist_link.user)
+      Badges.create_badge_award(artist_link.user, artist_link.user, %{badge_id: badge.id})
     else
       _ ->
         {:ok, nil}
