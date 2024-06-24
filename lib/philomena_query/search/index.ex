@@ -1,4 +1,4 @@
-defmodule PhilomenaQuery.SearchIndex do
+defmodule PhilomenaQuery.Search.Index do
   @moduledoc """
   Behaviour module for schemas with search indexing.
   """
