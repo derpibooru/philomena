@@ -39,6 +39,22 @@ defmodule Philomena.Badges do
   def get_badge!(id), do: Repo.get!(Badge, id)
 
   @doc """
+  Gets a single badge by its title.
+
+  Returns nil if the Badge does not exist.
+
+  ## Examples
+
+      iex> get_badge_by_title("Artist")
+      %Badge{}
+
+      iex> get_badge_by_title("Nonexistent")
+      nil
+
+  """
+  def get_badge_by_title(title), do: Repo.get_by(Badge, title: title)
+
+  @doc """
   Creates a badge.
 
   ## Examples
@@ -161,6 +177,24 @@ defmodule Philomena.Badges do
 
   """
   def get_badge_award!(id), do: Repo.get!(Award, id)
+
+  @doc """
+  Gets a the badge_award with the given badge type belonging to the user.
+
+  Raises nil if the Badge award does not exist.
+
+  ## Examples
+
+      iex> get_badge_award_for(badge, user)
+      %Award{}
+
+      iex> get_badge_award_for(badge, user)
+      nil
+
+  """
+  def get_badge_award_for(badge, user) do
+    Repo.get_by(Award, badge_id: badge.id, user_id: user.id)
+  end
 
   @doc """
   Creates a badge_award.
