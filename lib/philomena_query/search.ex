@@ -10,10 +10,10 @@ defmodule PhilomenaQuery.Search do
   """
 
   alias PhilomenaQuery.Batch
+  alias PhilomenaQuery.Search.Api
   alias Philomena.Repo
   require Logger
   import Ecto.Query
-  import Elastix.HTTP
 
   # todo: fetch through compile_env?
   @policy Philomena.SearchPolicy
@@ -85,11 +85,7 @@ defmodule PhilomenaQuery.Search do
   def create_index!(module) do
     index = @policy.index_for(module)
 
-    Elastix.Index.create(
-      @policy.opensearch_url(),
-      index.index_name(),
-      index.mapping()
-    )
+    Api.create_index(@policy.opensearch_url(), index.index_name(), index.mapping())
   end
 
   @doc ~S"""
@@ -109,7 +105,7 @@ defmodule PhilomenaQuery.Search do
   def delete_index!(module) do
     index = @policy.index_for(module)
 
-    Elastix.Index.delete(@policy.opensearch_url(), index.index_name())
+    Api.delete_index(@policy.opensearch_url(), index.index_name())
   end
 
   @doc ~S"""
@@ -132,9 +128,7 @@ defmodule PhilomenaQuery.Search do
     index_name = index.index_name()
     mapping = index.mapping().mappings.properties
 
-    Elastix.Mapping.put(@policy.opensearch_url(), index_name, "_doc", %{properties: mapping},
-      include_type_name: true
-    )
+    Api.update_index_mapping(@policy.opensearch_url(), index_name, %{properties: mapping})
   end
 
   @doc ~S"""
@@ -157,13 +151,7 @@ defmodule PhilomenaQuery.Search do
     index = @policy.index_for(module)
     data = index.as_json(doc)
 
-    Elastix.Document.index(
-      @policy.opensearch_url(),
-      index.index_name(),
-      "_doc",
-      data.id,
-      data
-    )
+    Api.index_document(@policy.opensearch_url(), index.index_name(), data, data.id)
   end
 
   @doc ~S"""
@@ -186,12 +174,7 @@ defmodule PhilomenaQuery.Search do
   def delete_document(id, module) do
     index = @policy.index_for(module)
 
-    Elastix.Document.delete(
-      @policy.opensearch_url(),
-      index.index_name(),
-      "_doc",
-      id
-    )
+    Api.delete_document(@policy.opensearch_url(), index.index_name(), id)
   end
 
   @doc """
@@ -231,12 +214,7 @@ defmodule PhilomenaQuery.Search do
           ]
         end)
 
-      Elastix.Bulk.post(
-        @policy.opensearch_url(),
-        lines,
-        index: index.index_name(),
-        httpoison_options: [timeout: 30_000]
-      )
+      Api.bulk(@policy.opensearch_url(), lines)
     end)
   end
 
@@ -271,11 +249,6 @@ defmodule PhilomenaQuery.Search do
   @spec update_by_query(schema_module(), query_body(), [replacement()], [replacement()]) :: any()
   def update_by_query(module, query_body, set_replacements, replacements) do
     index = @policy.index_for(module)
-
-    url =
-      @policy.opensearch_url()
-      |> prepare_url([index.index_name(), "_update_by_query"])
-      |> append_query_string(%{conflicts: "proceed", wait_for_completion: "false"})
 
     # "Painless" scripting language
     script = """
@@ -320,7 +293,7 @@ defmodule PhilomenaQuery.Search do
     """
 
     body =
-      Jason.encode!(%{
+      %{
         script: %{
           source: script,
           params: %{
@@ -329,9 +302,9 @@ defmodule PhilomenaQuery.Search do
           }
         },
         query: query_body
-      })
+      }
 
-    {:ok, %{status_code: 200}} = Elastix.HTTP.post(url, body)
+    Api.update_by_query(@policy.opensearch_url(), index.index_name(), body)
   end
 
   @doc ~S"""
@@ -360,13 +333,8 @@ defmodule PhilomenaQuery.Search do
   def search(module, query_body) do
     index = @policy.index_for(module)
 
-    {:ok, %{body: results, status_code: 200}} =
-      Elastix.Search.search(
-        @policy.opensearch_url(),
-        index.index_name(),
-        [],
-        query_body
-      )
+    {:ok, %{body: results, status: 200}} =
+      Api.search(@policy.opensearch_url(), index.index_name(), query_body)
 
     results
   end
@@ -401,13 +369,8 @@ defmodule PhilomenaQuery.Search do
         ]
       end)
 
-    {:ok, %{body: results, status_code: 200}} =
-      Elastix.Search.search(
-        @policy.opensearch_url(),
-        "_all",
-        [],
-        msearch_body
-      )
+    {:ok, %{body: results, status: 200}} =
+      Api.msearch(@policy.opensearch_url(), msearch_body)
 
     results["responses"]
   end

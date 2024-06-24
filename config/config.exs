@@ -16,9 +16,6 @@ config :logger,
 config :philomena,
   ecto_repos: [Philomena.Repo]
 
-config :elastix,
-  json_codec: Jason
-
 config :exq,
   max_retries: 5,
   scheduler_enable: true,
@@ -36,6 +33,9 @@ config :philomena, PhilomenaWeb.Endpoint,
   secret_key_base: "xZYTon09JNRrj8snd7KL31wya4x71jmo5aaSSRmw1dGjWLRmEwWMTccwxgsGFGjM",
   render_errors: [view: PhilomenaWeb.ErrorView, accepts: ~w(html json)],
   pubsub_server: Philomena.PubSub
+
+# Configure only SMTP for mailing, not HTTP
+config :swoosh, :api_client, false
 
 # Markdown
 config :philomena, Philomena.Native,

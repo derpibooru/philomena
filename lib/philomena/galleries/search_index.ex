@@ -1,5 +1,5 @@
 defmodule Philomena.Galleries.SearchIndex do
-  @behaviour PhilomenaQuery.SearchIndex
+  @behaviour PhilomenaQuery.Search.Index
 
   @impl true
   def index_name do
