@@ -20,7 +20,7 @@ defmodule Philomena.Autocomplete do
 
   ## Examples
 
-      iex> get_artist_link()
+      iex> get_autocomplete()
       nil
 
       iex> get_autocomplete()

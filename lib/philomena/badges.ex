@@ -84,7 +84,7 @@ defmodule Philomena.Badges do
   end
 
   @doc """
-  Updates a badge.
+  Updates a badge without updating its image.
 
   ## Examples
 
@@ -101,6 +101,18 @@ defmodule Philomena.Badges do
     |> Repo.update()
   end
 
+  @doc """
+  Updates the image for a badge.
+
+  ## Examples
+
+      iex> update_badge_image(badge, %{image: new_value})
+      {:ok, %Badge{}}
+
+      iex> update_badge_image(badge, %{image: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def update_badge_image(%Badge{} = badge, attrs) do
     badge
     |> Badge.changeset(attrs)
