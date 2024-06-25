@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.CurrentBanPlug do
     user = conn.assigns.current_user
     ip = conn.remote_ip
 
-    ban = Bans.exists_for?(user, ip, fingerprint)
+    ban = Bans.find(user, ip, fingerprint)
 
     Conn.assign(conn, :current_ban, ban)
   end

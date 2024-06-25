@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.ApiRequireAuthorizationPlug do
 
     conn
     |> maybe_unauthorized(user)
-    |> maybe_forbidden(Bans.exists_for?(user, conn.remote_ip, "NOTAPI"))
+    |> maybe_forbidden(Bans.find(user, conn.remote_ip, "NOTAPI"))
   end
 
   defp maybe_unauthorized(conn, nil) do
