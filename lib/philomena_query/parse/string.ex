@@ -26,7 +26,6 @@ defmodule PhilomenaQuery.Parse.String do
     str
     |> String.replace("\r", "")
     |> String.split("\n", trim: true)
-    |> Enum.map(fn s -> "(#{s})" end)
-    |> Enum.join(" || ")
+    |> Enum.map_join(" || ", &"(#{&1})")
   end
 end

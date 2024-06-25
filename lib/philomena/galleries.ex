@@ -333,7 +333,7 @@ defmodule Philomena.Galleries do
       end)
 
     changes
-    |> Enum.map(fn change ->
+    |> Enum.each(fn change ->
       id = Keyword.fetch!(change, :id)
       change = Keyword.delete(change, :id)
 

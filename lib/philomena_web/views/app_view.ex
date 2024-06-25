@@ -117,9 +117,7 @@ defmodule PhilomenaWeb.AppView do
   def escape_nl2br(text) do
     text
     |> String.split("\n")
-    |> Enum.map(&html_escape/1)
-    |> Enum.map(&safe_to_string/1)
-    |> Enum.join("<br/>")
+    |> Enum.map_intersperse("<br />", &safe_to_string(html_escape(&1)))
     |> raw()
   end
 
