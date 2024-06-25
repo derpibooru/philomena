@@ -4,13 +4,17 @@ defmodule Philomena.Bans do
   """
 
   import Ecto.Query, warn: false
+  alias Ecto.Multi
   alias Philomena.Repo
 
-  alias Philomena.UserIps
+  alias Philomena.Bans.Finder
   alias Philomena.Bans.Fingerprint
+  alias Philomena.Bans.SubnetCreator
+  alias Philomena.Bans.Subnet
+  alias Philomena.Bans.User
 
   @doc """
-  Returns the list of fingerprint_bans.
+  Returns the list of fingerprint bans.
 
   ## Examples
 
@@ -23,9 +27,9 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Gets a single fingerprint.
+  Gets a single fingerprint ban.
 
-  Raises `Ecto.NoResultsError` if the Fingerprint does not exist.
+  Raises `Ecto.NoResultsError` if the fingerprint ban does not exist.
 
   ## Examples
 
@@ -39,7 +43,7 @@ defmodule Philomena.Bans do
   def get_fingerprint!(id), do: Repo.get!(Fingerprint, id)
 
   @doc """
-  Creates a fingerprint.
+  Creates a fingerprint ban.
 
   ## Examples
 
@@ -57,7 +61,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Updates a fingerprint.
+  Updates a fingerprint ban.
 
   ## Examples
 
@@ -75,7 +79,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Deletes a Fingerprint.
+  Deletes a fingerprint ban.
 
   ## Examples
 
@@ -91,7 +95,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking fingerprint changes.
+  Returns an `%Ecto.Changeset{}` for tracking fingerprint ban changes.
 
   ## Examples
 
@@ -103,10 +107,8 @@ defmodule Philomena.Bans do
     Fingerprint.changeset(fingerprint, %{})
   end
 
-  alias Philomena.Bans.Subnet
-
   @doc """
-  Returns the list of subnet_bans.
+  Returns the list of subnet bans.
 
   ## Examples
 
@@ -119,9 +121,9 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Gets a single subnet.
+  Gets a single subnet ban.
 
-  Raises `Ecto.NoResultsError` if the Subnet does not exist.
+  Raises `Ecto.NoResultsError` if the subnet ban does not exist.
 
   ## Examples
 
@@ -135,7 +137,7 @@ defmodule Philomena.Bans do
   def get_subnet!(id), do: Repo.get!(Subnet, id)
 
   @doc """
-  Creates a subnet.
+  Creates a subnet ban.
 
   ## Examples
 
@@ -153,7 +155,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Updates a subnet.
+  Updates a subnet ban.
 
   ## Examples
 
@@ -171,7 +173,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Deletes a Subnet.
+  Deletes a subnet ban.
 
   ## Examples
 
@@ -187,7 +189,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking subnet changes.
+  Returns an `%Ecto.Changeset{}` for tracking subnet ban changes.
 
   ## Examples
 
@@ -199,10 +201,8 @@ defmodule Philomena.Bans do
     Subnet.changeset(subnet, %{})
   end
 
-  alias Philomena.Bans.User
-
   @doc """
-  Returns the list of user_bans.
+  Returns the list of user bans.
 
   ## Examples
 
@@ -215,9 +215,9 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Gets a single user.
+  Gets a single user ban.
 
-  Raises `Ecto.NoResultsError` if the User does not exist.
+  Raises `Ecto.NoResultsError` if the user ban does not exist.
 
   ## Examples
 
@@ -231,7 +231,7 @@ defmodule Philomena.Bans do
   def get_user!(id), do: Repo.get!(User, id)
 
   @doc """
-  Creates a user.
+  Creates a user ban.
 
   ## Examples
 
@@ -243,31 +243,27 @@ defmodule Philomena.Bans do
 
   """
   def create_user(creator, attrs \\ %{}) do
-    %User{banning_user_id: creator.id}
-    |> User.save_changeset(attrs)
-    |> Repo.insert()
+    changeset =
+      %User{banning_user_id: creator.id}
+      |> User.save_changeset(attrs)
+
+    Multi.new()
+    |> Multi.insert(:user_ban, changeset)
+    |> Multi.run(:subnet_ban, fn _repo, %{user_ban: %{user_id: user_id}} ->
+      SubnetCreator.create_for_user(creator, user_id, attrs)
+    end)
+    |> Repo.transaction()
     |> case do
-      {:ok, user_ban} ->
-        ip = UserIps.get_ip_for_user(user_ban.user_id)
-
-        if ip do
-          # Automatically create associated IP ban.
-          ip = UserIps.masked_ip(ip)
-
-          %Subnet{banning_user_id: creator.id, specification: ip}
-          |> Subnet.save_changeset(attrs)
-          |> Repo.insert()
-        end
-
+      {:ok, %{user_ban: user_ban}} ->
         {:ok, user_ban}
 
-      error ->
-        error
+      {:error, :user_ban, changeset, _changes} ->
+        {:error, changeset}
     end
   end
 
   @doc """
-  Updates a user.
+  Updates a user ban.
 
   ## Examples
 
@@ -285,7 +281,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Deletes a User.
+  Deletes a user ban.
 
   ## Examples
 
@@ -301,7 +297,7 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking user changes.
+  Returns an `%Ecto.Changeset{}` for tracking user ban changes.
 
   ## Examples
 
@@ -314,88 +310,9 @@ defmodule Philomena.Bans do
   end
 
   @doc """
-  Returns the first ban, if any, that matches the specified request
-  attributes.
+  Returns the first ban, if any, that matches the specified request attributes.
   """
-  def exists_for?(user, ip, fingerprint) do
-    now = DateTime.utc_now()
-
-    queries =
-      subnet_query(ip, now) ++
-        fingerprint_query(fingerprint, now) ++
-        user_query(user, now)
-
-    bans =
-      queries
-      |> union_all_queries()
-      |> Repo.all()
-
-    # Don't return a ban if the user is currently signed in.
-    case is_nil(user) do
-      true -> Enum.at(bans, 0)
-      false -> user_ban(bans)
-    end
-  end
-
-  defp fingerprint_query(nil, _now), do: []
-
-  defp fingerprint_query(fingerprint, now) do
-    [
-      Fingerprint
-      |> select([f], %{
-        reason: f.reason,
-        valid_until: f.valid_until,
-        generated_ban_id: f.generated_ban_id,
-        type: ^"FingerprintBan"
-      })
-      |> where([f], f.enabled and f.valid_until > ^now)
-      |> where([f], f.fingerprint == ^fingerprint)
-    ]
-  end
-
-  defp subnet_query(nil, _now), do: []
-
-  defp subnet_query(ip, now) do
-    {:ok, inet} = EctoNetwork.INET.cast(ip)
-
-    [
-      Subnet
-      |> select([s], %{
-        reason: s.reason,
-        valid_until: s.valid_until,
-        generated_ban_id: s.generated_ban_id,
-        type: ^"SubnetBan"
-      })
-      |> where([s], s.enabled and s.valid_until > ^now)
-      |> where(fragment("specification >>= ?", ^inet))
-    ]
-  end
-
-  defp user_query(nil, _now), do: []
-
-  defp user_query(user, now) do
-    [
-      User
-      |> select([u], %{
-        reason: u.reason,
-        valid_until: u.valid_until,
-        generated_ban_id: u.generated_ban_id,
-        type: ^"UserBan"
-      })
-      |> where([u], u.enabled and u.valid_until > ^now)
-      |> where([u], u.user_id == ^user.id)
-    ]
-  end
-
-  defp union_all_queries([query]),
-    do: query
-
-  defp union_all_queries([query | rest]),
-    do: query |> union_all(^union_all_queries(rest))
-
-  defp user_ban(bans) do
-    bans
-    |> Enum.filter(&(&1.type == "UserBan"))
-    |> Enum.at(0)
+  def find(user, ip, fingerprint) do
+    Finder.find(user, ip, fingerprint)
   end
 end
