@@ -212,9 +212,7 @@ defmodule PhilomenaQuery.Parse.Parser do
   end
 
   defp debug_tokens(tokens) do
-    tokens
-    |> Enum.map(fn {_k, v} -> v end)
-    |> Enum.join("")
+    Enum.map_join(tokens, fn {_k, v} -> v end)
   end
 
   #

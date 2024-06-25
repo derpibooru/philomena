@@ -535,7 +535,6 @@ defmodule Philomena.Users.User do
     "data:image/png;base64," <> png
   end
 
-  @spec totp_secret(%Philomena.Users.User{}) :: binary()
   def totp_secret(user) do
     Philomena.Users.Encryptor.decrypt_model(
       user.encrypted_otp_secret,

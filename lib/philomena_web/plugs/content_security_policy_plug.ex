@@ -37,10 +37,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
         {:media_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]}
       ]
 
-      csp_value =
-        csp_config
-        |> Enum.map(&cspify_element/1)
-        |> Enum.join("; ")
+      csp_value = Enum.map_join(csp_config, "; ", &cspify_element/1)
 
       csp_relaxed? do
         if conn.status == 500 do
