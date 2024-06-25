@@ -53,9 +53,6 @@ defmodule PhilomenaWeb.Admin.UserBanController do
         |> moderation_log(details: &log_details/2, data: user_ban)
         |> redirect(to: ~p"/admin/user_bans")
 
-      {:error, :user_ban, changeset, _changes} ->
-        render(conn, "new.html", changeset: changeset)
-
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end

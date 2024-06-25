@@ -162,7 +162,7 @@ defmodule Philomena.Adverts do
       iex> update_advert_image(advert, %{image: new_value})
       {:ok, %Advert{}}
 
-      iex> update_advert(advert, %{image: bad_value})
+      iex> update_advert_image(advert, %{image: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
