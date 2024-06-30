@@ -1,19 +1,16 @@
 DATABASE ?= philomena
-ELASTICSEARCH_URL ?= http://localhost:9200/
+OPENSEARCH_URL ?= http://localhost:9200/
 ELASTICDUMP ?= elasticdump
-# uncomment if getting "redirection unexpected" error on dump_jsonl
-#SHELL=/bin/bash
-
 .ONESHELL:
 
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=filters.jsonl --output=$(ELASTICSEARCH_URL) --output-index=filters --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
+	$(ELASTICDUMP) --input=filters.jsonl --output=$OPENSEARCH_URL --output-index=filters --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata creators
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_filters.jsonb_object_agg(object) from temp_filters.filter_search_json group by filter_id) to stdout;' > filters.jsonl
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'drop schema temp_filters cascade;'
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'copy (select temp_filters.jsonb_object_agg(object) from temp_filters.filter_search_json group by filter_id) to stdout;' > filters.jsonl
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'drop schema temp_filters cascade;'
 	sed -i filters.jsonl -e 's/\\\\/\\/g'
 
 metadata: filter_search_json

@@ -1,15 +1,16 @@
 DATABASE ?= philomena
+OPENSEARCH_URL ?= http://localhost:9200/
 ELASTICDUMP ?= elasticdump
 .ONESHELL:
 
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=images.jsonl --output=http://localhost:9200/ --output-index=images --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
+	$(ELASTICDUMP) --input=images.jsonl --output=$OPENSEARCH_URL --output-index=images --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata true_uploaders uploaders deleters galleries tags sources hides upvotes downvotes faves tag_names
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_images.jsonb_object_agg(object) from temp_images.image_search_json group by image_id) to stdout;' > images.jsonl
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'drop schema temp_images cascade;'
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'copy (select temp_images.jsonb_object_agg(object) from temp_images.image_search_json group by image_id) to stdout;' > images.jsonl
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'drop schema temp_images cascade;'
 	sed -i images.jsonl -e 's/\\\\/\\/g'
 
 metadata: image_search_json
@@ -84,7 +85,7 @@ tags: image_search_json
 			'body_type_tag_count', count(case when t.category = 'body-type' then t.category else null end),
 			'content_fanmade_tag_count', count(case when t.category = 'content-fanmade' then t.category else null end),
 			'content_official_tag_count', count(case when t.category = 'content-official' then t.category else null end),
-			'spoiler_tag_count', count(case when t.category = 'spoiler' then t.category else null end),
+			'spoiler_tag_count', count(case when t.category = 'spoiler' then t.category else null end)
 		) from image_taggings it inner join tags t on t.id = it.tag_id group by image_id;
 	SQL
 

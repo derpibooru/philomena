@@ -1,15 +1,16 @@
 DATABASE ?= philomena
+OPENSEARCH_URL ?= http://localhost:9200/
 ELASTICDUMP ?= elasticdump
 .ONESHELL:
 
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=comments.jsonl --output=http://localhost:9200/ --output-index=comments --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
+	$(ELASTICDUMP) --input=comments.jsonl --output=$OPENSEARCH_URL --output-index=comments --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata authors tags
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_comments.jsonb_object_agg(object) from temp_comments.comment_search_json group by comment_id) to stdout;' > comments.jsonl
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'drop schema temp_comments cascade;'
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'copy (select temp_comments.jsonb_object_agg(object) from temp_comments.comment_search_json group by comment_id) to stdout;' > comments.jsonl
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'drop schema temp_comments cascade;'
 	sed -i comments.jsonl -e 's/\\\\/\\/g'
 
 metadata: comment_search_json

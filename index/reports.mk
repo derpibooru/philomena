@@ -1,15 +1,16 @@
 DATABASE ?= philomena
+OPENSEARCH_URL ?= http://localhost:9200/
 ELASTICDUMP ?= elasticdump
 .ONESHELL:
 
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=reports.jsonl --output=http://localhost:9200/ --output-index=reports --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
+	$(ELASTICDUMP) --input=reports.jsonl --output=$OPENSEARCH_URL --output-index=reports --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata image_ids comment_image_ids
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_reports.jsonb_object_agg(object) from temp_reports.report_search_json group by report_id) to stdout;' > reports.jsonl
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'drop schema temp_reports cascade;'
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'copy (select temp_reports.jsonb_object_agg(object) from temp_reports.report_search_json group by report_id) to stdout;' > reports.jsonl
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'drop schema temp_reports cascade;'
 	sed -i reports.jsonl -e 's/\\\\/\\/g'
 
 metadata: report_search_json
