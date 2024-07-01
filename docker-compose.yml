@@ -68,7 +68,7 @@ services:
       driver: "none"
 
   opensearch:
-    image: opensearchproject/opensearch:2.14.0
+    image: opensearchproject/opensearch:2.15.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml

@@ -1,15 +1,16 @@
 DATABASE ?= philomena
+OPENSEARCH_URL ?= http://localhost:9200/
 ELASTICDUMP ?= elasticdump
 .ONESHELL:
 
 all: import_es
 
 import_es: dump_jsonl
-	$(ELASTICDUMP) --input=galleries.jsonl --output=http://localhost:9200/ --output-index=galleries --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
+	$(ELASTICDUMP) --input=galleries.jsonl --output=$OPENSEARCH_URL --output-index=galleries --limit 10000 --retryAttempts=5 --type=data --transform="doc._source = Object.assign({},doc); doc._id = doc.id"
 
 dump_jsonl: metadata subscribers images
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'copy (select temp_galleries.jsonb_object_agg(object) from temp_galleries.gallery_search_json group by gallery_id) to stdout;' > galleries.jsonl
-	psql $(DATABASE) -v ON_ERROR_STOP=1 <<< 'drop schema temp_galleries cascade;'
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'copy (select temp_galleries.jsonb_object_agg(object) from temp_galleries.gallery_search_json group by gallery_id) to stdout;' > galleries.jsonl
+	psql $(DATABASE) -v ON_ERROR_STOP=1 -c 'drop schema temp_galleries cascade;'
 	sed -i galleries.jsonl -e 's/\\\\/\\/g'
 
 metadata: gallery_search_json
