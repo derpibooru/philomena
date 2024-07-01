@@ -6,49 +6,15 @@ defmodule Philomena.Channels do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
+  alias Philomena.Channels.AutomaticUpdater
   alias Philomena.Channels.Channel
-  alias Philomena.Channels.PicartoChannel
-  alias Philomena.Channels.PiczelChannel
   alias Philomena.Notifications
 
   @doc """
-  Updates all the tracked channels for which an update
-  scheme is known.
+  Updates all the tracked channels for which an update scheme is known.
   """
   def update_tracked_channels! do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    picarto_channels = PicartoChannel.live_channels(now)
-    live_picarto_channels = Map.keys(picarto_channels)
-
-    piczel_channels = PiczelChannel.live_channels(now)
-    live_piczel_channels = Map.keys(piczel_channels)
-
-    # Update all channels which are offline to reflect offline status
-    offline_query =
-      from c in Channel,
-        where: c.type == "PicartoChannel" and c.short_name not in ^live_picarto_channels,
-        or_where: c.type == "PiczelChannel" and c.short_name not in ^live_piczel_channels
-
-    Repo.update_all(offline_query, set: [is_live: false, updated_at: now])
-
-    # Update all channels which are online to reflect online status using
-    # changeset functions
-    online_query =
-      from c in Channel,
-        where: c.type == "PicartoChannel" and c.short_name in ^live_picarto_channels,
-        or_where: c.type == "PiczelChannel" and c.short_name in ^live_picarto_channels
-
-    online_query
-    |> Repo.all()
-    |> Enum.map(fn
-      %{type: "PicartoChannel", short_name: name} = channel ->
-        Channel.update_changeset(channel, Map.get(picarto_channels, name, []))
-
-      %{type: "PiczelChannel", short_name: name} = channel ->
-        Channel.update_changeset(channel, Map.get(piczel_channels, name, []))
-    end)
-    |> Enum.map(&Repo.update!/1)
+    AutomaticUpdater.update_tracked_channels!()
   end
 
   @doc """
@@ -100,6 +66,24 @@ defmodule Philomena.Channels do
   def update_channel(%Channel{} = channel, attrs) do
     channel
     |> Channel.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Updates a channel's state when it goes live.
+
+  ## Examples
+
+      iex> update_channel_state(channel, %{field: new_value})
+      {:ok, %Channel{}}
+
+      iex> update_channel_state(channel, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_channel_state(%Channel{} = channel, attrs) do
+    channel
+    |> Channel.update_changeset(attrs)
     |> Repo.update()
   end
 
