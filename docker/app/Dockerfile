@@ -4,7 +4,7 @@ ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/6.1
 RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /etc/apk/repositories) > /tmp/repositories \
     && cp /tmp/repositories /etc/apk/repositories \
     && apk update --allow-untrusted \
-    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg rsvg-convert imagemagick postgresql16-client wget rust cargo --allow-untrusted \
+    && apk add inotify-tools build-base git ffmpeg ffmpeg-dev npm nodejs file-dev libjpeg-turbo-dev libpng-dev gifsicle optipng libjpeg-turbo-utils librsvg rsvg-convert imagemagick postgresql16-client wget rust cargo --allow-untrusted \
     && mix local.hex --force \
     && mix local.rebar --force
 
