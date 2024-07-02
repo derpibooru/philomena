@@ -87,7 +87,7 @@ defmodule PhilomenaMedia.Processors.Webm do
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(file, duration, target_dimensions)
+        gif = scale_gif(file, duration, dimensions, target_dimensions)
 
         [
           {:copy, webm, "#{thumb_name}.webm"},
@@ -104,10 +104,9 @@ defmodule PhilomenaMedia.Processors.Webm do
   end
 
   defp scale_videos(file, dimensions, target_dimensions) do
-    {width, height} = box_dimensions(dimensions, target_dimensions)
+    filter = scale_filter(dimensions, target_dimensions)
     webm = Briefly.create!(extname: ".webm")
     mp4 = Briefly.create!(extname: ".mp4")
-    scale_filter = "scale=w=#{width}:h=#{height}"
 
     {_output, 0} =
       System.cmd("ffmpeg", [
@@ -131,7 +130,7 @@ defmodule PhilomenaMedia.Processors.Webm do
         "-crf",
         "31",
         "-vf",
-        scale_filter,
+        filter,
         "-threads",
         "4",
         "-max_muxing_queue_size",
@@ -152,7 +151,7 @@ defmodule PhilomenaMedia.Processors.Webm do
         "-b:v",
         "5M",
         "-vf",
-        scale_filter,
+        filter,
         "-threads",
         "4",
         "-max_muxing_queue_size",
@@ -164,9 +163,8 @@ defmodule PhilomenaMedia.Processors.Webm do
   end
 
   defp scale_mp4_only(file, dimensions, target_dimensions) do
-    {width, height} = box_dimensions(dimensions, target_dimensions)
+    filter = scale_filter(dimensions, target_dimensions)
     mp4 = Briefly.create!(extname: ".mp4")
-    scale_filter = "scale=w=#{width}:h=#{height}"
 
     {_output, 0} =
       System.cmd("ffmpeg", [
@@ -188,7 +186,7 @@ defmodule PhilomenaMedia.Processors.Webm do
         "-b:v",
         "5M",
         "-vf",
-        scale_filter,
+        filter,
         "-threads",
         "4",
         "-max_muxing_queue_size",
@@ -199,17 +197,23 @@ defmodule PhilomenaMedia.Processors.Webm do
     mp4
   end
 
-  defp scale_gif(file, duration, dimensions) do
+  defp scale_gif(file, duration, dimensions, target_dimensions) do
+    {width, height} = box_dimensions(dimensions, target_dimensions)
     gif = Briefly.create!(extname: ".gif")
 
-    GifPreview.preview(file, gif, duration, dimensions)
+    GifPreview.preview(file, gif, duration, {width, height})
 
     gif
   end
 
+  defp scale_filter(dimensions, target_dimensions) do
+    {width, height} = box_dimensions(dimensions, target_dimensions)
+    "scale=w=#{width}:h=#{height},setsar=1"
+  end
+
   # x264 requires image dimensions to be a multiple of 2
   # -2 = ~1
-  def box_dimensions({width, height}, {target_width, target_height}) do
+  defp box_dimensions({width, height}, {target_width, target_height}) do
     ratio = min(target_width / width, target_height / height)
     new_width = min(max(trunc(width * ratio) &&& -2, 2), target_width)
     new_height = min(max(trunc(height * ratio) &&& -2, 2), target_height)
