@@ -17,9 +17,7 @@ defmodule PhilomenaMedia.GifPreview do
   Generate a GIF preview of the given video input with evenly-spaced sample points.
 
   The input should have pre-computed duration `duration`. The `dimensions`
-  are a `{target_width, target_height}` tuple of the largest dimensions desired,
-  and the image will be resized to fit inside the box of those dimensions,
-  preserving aspect ratio.
+  are a `{target_width, target_height}` tuple.
 
   Depending on the input file, this may take a long time to process.
 
@@ -81,8 +79,7 @@ defmodule PhilomenaMedia.GifPreview do
       "#{concat_input_pads} concat=n=#{num_images}, settb=1/#{target_framerate}, setpts=N [concat]"
 
     scale_filter =
-      "[concat] scale=width=#{target_width}:height=#{target_height}:" <>
-        "force_original_aspect_ratio=decrease [scale]"
+      "[concat] scale=width=#{target_width}:height=#{target_height},setsar=1 [scale]"
 
     split_filter = "[scale] split [s0][s1]"
 
