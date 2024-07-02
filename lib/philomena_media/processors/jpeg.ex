@@ -8,6 +8,9 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   @behaviour Processor
 
+  @exit_success 0
+  @exit_warning 2
+
   @spec versions(Processors.version_list()) :: [Processors.version_filename()]
   def versions(sizes) do
     Enum.map(sizes, fn {name, _} -> "#{name}.jpg" end)
@@ -68,7 +71,7 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
       _ ->
         # Transmux only: Strip EXIF without touching orientation
-        {_output, 0} = System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file])
+        validate_return(System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
     end
 
     stripped
@@ -77,7 +80,7 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".jpg")
 
-    {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", optimized, file])
+    validate_return(System.cmd("jpegtran", ["-optimize", "-outfile", optimized, file]))
 
     optimized
   end
@@ -107,5 +110,9 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   defp srgb_profile do
     Path.join(File.cwd!(), "priv/icc/sRGB.icc")
+  end
+
+  defp validate_return({_output, ret}) when ret in [@exit_success, @exit_warning] do
+    :ok
   end
 end
