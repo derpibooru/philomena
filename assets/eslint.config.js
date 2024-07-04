@@ -1,9 +1,11 @@
 import tsEslint from 'typescript-eslint';
 import vitestPlugin from 'eslint-plugin-vitest';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 
 export default tsEslint.config(
   ...tsEslint.configs.recommended,
+  eslintPluginPrettierRecommended,
   {
     name: 'PhilomenaConfig',
     files: ['**/*.js', '**/*.ts'],
