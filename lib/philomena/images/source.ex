@@ -13,7 +13,9 @@ defmodule Philomena.Images.Source do
   @doc false
   def changeset(source, attrs) do
     source
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:source])
+    |> validate_required([:source])
+    |> validate_format(:source, ~r/\Ahttps?:\/\//)
+    |> validate_length(:source, max: 255)
   end
 end
