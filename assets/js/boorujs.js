@@ -9,42 +9,44 @@ import { fetchHtml, handleError } from './utils/requests';
 import { showBlock } from './utils/image';
 import { addTag } from './tagsinput';
 
+/* eslint-disable prettier/prettier */
+
 // Event types and any qualifying conditions - return true to not run action
 const types = {
-  click(event) { return event.button !== 0; /* Left-click only */ },
-
-  change() { /* No qualifier */ },
-
+  click(event)    { return event.button !== 0; /* Left-click only */ },
+  change()        { /* No qualifier */ },
   fetchcomplete() { /* No qualifier */ },
 };
 
 const actions = {
-  hide(data) { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
-
-  tabHide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
-
-  show(data) { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
-
-  toggle(data) { selectorCb(data.base, data.value, el => el.classList.toggle('hidden')); },
-
-  submit(data) { selectorCb(data.base, data.value, el => el.submit()); },
-
-  disable(data) { selectorCb(data.base, data.value, el => el.disabled = true); },
+  hide(data)       { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
+  show(data)       { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
+  toggle(data)     { selectorCb(data.base, data.value, el => el.classList.toggle('hidden')); },
+  submit(data)     { selectorCb(data.base, data.value, el => el.submit()); },
+  disable(data)    { selectorCb(data.base, data.value, el => el.disabled = true); },
+  focus(data)      { document.querySelector(data.value).focus(); },
+  unfilter(data)   { showBlock(data.el.closest('.image-show-container')); },
+  tabHide(data)    { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
+  preventdefault() { /* The existence of this entry is enough */ },
 
   copy(data) {
     document.querySelector(data.value).select();
     document.execCommand('copy');
   },
 
-  inputvalue(data) { document.querySelector(data.value).value = data.el.dataset.setValue; },
+  inputvalue(data) {
+    document.querySelector(data.value).value = data.el.dataset.setValue;
+  },
 
-  selectvalue(data) { document.querySelector(data.value).value = data.el.querySelector(':checked').dataset.setValue; },
+  selectvalue(data) {
+    document.querySelector(data.value).value = data.el.querySelector(':checked').dataset.setValue;
+  },
 
-  checkall(data) { $$(`${data.value} input[type=checkbox]`).forEach(c => { c.checked = !c.checked; }); },
-
-  focus(data) { document.querySelector(data.value).focus(); },
-
-  preventdefault() { /* The existence of this entry is enough */ },
+  checkall(data) {
+    $$(`${data.value} input[type=checkbox]`).forEach(c => {
+      c.checked = !c.checked;
+    });
+  },
 
   addtag(data) {
     addTag(document.querySelector(data.el.closest('[data-target]').dataset.target), data.el.dataset.tagName);
@@ -75,12 +77,10 @@ const actions = {
         .then(() => newTab.dataset.loaded = true)
         .catch(() => newTab.textContent = 'Error!');
     }
-
   },
-
-  unfilter(data) { showBlock(data.el.closest('.image-show-container')); },
-
 };
+
+/* eslint-enable prettier/prettier */
 
 // Use this function to apply a callback to elements matching the selectors
 function selectorCb(base = document, selector, cb) {
@@ -100,16 +100,14 @@ function selectorCbChildren(base = document, selector, cb) {
 function matchAttributes(event) {
   if (!types[event.type](event)) {
     for (const action in actions) {
-
       const attr = `data-${event.type}-${action.toLowerCase()}`,
-            el = event.target && event.target.closest(`[${attr}]`),
-            value = el && el.getAttribute(attr);
+        el = event.target && event.target.closest(`[${attr}]`),
+        value = el && el.getAttribute(attr);
 
       if (el) {
         // Return true if you don't want to preventDefault
         actions[action]({ attr, el, value }) || event.preventDefault();
       }
-
     }
   }
 }

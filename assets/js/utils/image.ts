@@ -53,8 +53,7 @@ export function showThumb(img: HTMLDivElement) {
   if (uris[size].indexOf('.webm') !== -1) {
     overlay.classList.remove('hidden');
     overlay.innerHTML = 'WebM';
-  }
-  else {
+  } else {
     overlay.classList.add('hidden');
   }
 
@@ -118,7 +117,9 @@ export function spoilerThumb(img: HTMLDivElement, spoilerUri: string, reason: st
 
   switch (window.booru.spoilerType) {
     case 'click':
-      img.addEventListener('click', event => { if (showThumb(img)) event.preventDefault(); });
+      img.addEventListener('click', event => {
+        if (showThumb(img)) event.preventDefault();
+      });
       img.addEventListener('mouseleave', () => hideThumb(img, spoilerUri, reason));
       break;
     case 'hover':

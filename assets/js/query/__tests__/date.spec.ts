@@ -97,7 +97,9 @@ describe('Date parsing', () => {
   });
 
   it('should not match malformed absolute date expressions', () => {
-    expect(() => makeDateMatcher('2024-06-21T06:21:30+01:3020', 'eq')).toThrow('Cannot parse date string: 2024-06-21T06:21:30+01:3020');
+    expect(() => makeDateMatcher('2024-06-21T06:21:30+01:3020', 'eq')).toThrow(
+      'Cannot parse date string: 2024-06-21T06:21:30+01:3020',
+    );
   });
 
   it('should not match malformed relative date expressions', () => {

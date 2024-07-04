@@ -12,12 +12,7 @@ import { AstMatcher } from './query/types';
 type CallbackType = 'tags' | 'complex';
 type RunCallback = (img: HTMLDivElement, tags: TagData[], type: CallbackType) => void;
 
-function run(
-  img: HTMLDivElement,
-  tags: TagData[],
-  complex: AstMatcher,
-  runCallback: RunCallback
-): boolean {
+function run(img: HTMLDivElement, tags: TagData[], complex: AstMatcher, runCallback: RunCallback): boolean {
   const hit = (() => {
     // Check tags array first to provide more precise filter explanations
     const hitTags = imageHitsTags(img, tags);
@@ -56,47 +51,46 @@ function bannerImage(tagsHit: TagData[]) {
 // TODO: this approach is not suitable for translations because it depends on
 // markup embedded in the page adjacent to this text
 
-/* eslint-disable indent */
-
 function hideThumbTyped(img: HTMLDivElement, tagsHit: TagData[], type: CallbackType) {
-  const bannerText = type === 'tags' ? `[HIDDEN] ${displayTags(tagsHit)}`
-                                     : '[HIDDEN] <i>(Complex Filter)</i>';
+  const bannerText = type === 'tags' ? `[HIDDEN] ${displayTags(tagsHit)}` : '[HIDDEN] <i>(Complex Filter)</i>';
   hideThumb(img, bannerImage(tagsHit), bannerText);
 }
 
 function spoilerThumbTyped(img: HTMLDivElement, tagsHit: TagData[], type: CallbackType) {
-  const bannerText = type === 'tags' ? displayTags(tagsHit)
-                                     : '<i>(Complex Filter)</i>';
+  const bannerText = type === 'tags' ? displayTags(tagsHit) : '<i>(Complex Filter)</i>';
   spoilerThumb(img, bannerImage(tagsHit), bannerText);
 }
 
 function hideBlockTyped(img: HTMLDivElement, tagsHit: TagData[], type: CallbackType) {
-  const bannerText = type === 'tags' ? `This image is tagged <code>${escapeHtml(tagsHit[0].name)}</code>, which is hidden by `
-                                     : 'This image was hidden by a complex tag expression in ';
+  const bannerText =
+    type === 'tags'
+      ? `This image is tagged <code>${escapeHtml(tagsHit[0].name)}</code>, which is hidden by `
+      : 'This image was hidden by a complex tag expression in ';
   spoilerBlock(img, bannerImage(tagsHit), bannerText);
 }
 
 function spoilerBlockTyped(img: HTMLDivElement, tagsHit: TagData[], type: CallbackType) {
-  const bannerText = type === 'tags' ? `This image is tagged <code>${escapeHtml(tagsHit[0].name)}</code>, which is spoilered by `
-                                     : 'This image was spoilered by a complex tag expression in ';
+  const bannerText =
+    type === 'tags'
+      ? `This image is tagged <code>${escapeHtml(tagsHit[0].name)}</code>, which is spoilered by `
+      : 'This image was spoilered by a complex tag expression in ';
   spoilerBlock(img, bannerImage(tagsHit), bannerText);
 }
 
-/* eslint-enable indent */
-
 export function filterNode(node: Pick<Document, 'querySelectorAll'>) {
-  const hiddenTags = getHiddenTags(), spoileredTags = getSpoileredTags();
+  const hiddenTags = getHiddenTags(),
+    spoileredTags = getSpoileredTags();
   const { hiddenFilter, spoileredFilter } = window.booru;
 
   // Image thumb boxes with vote and fave buttons on them
   $$<HTMLDivElement>('.image-container', node)
-    .filter(img => !run(img, hiddenTags,    hiddenFilter,    hideThumbTyped))
+    .filter(img => !run(img, hiddenTags, hiddenFilter, hideThumbTyped))
     .filter(img => !run(img, spoileredTags, spoileredFilter, spoilerThumbTyped))
     .forEach(img => showThumb(img));
 
   // Individual image pages and images in posts/comments
   $$<HTMLDivElement>('.image-show-container', node)
-    .filter(img => !run(img, hiddenTags,    hiddenFilter,    hideBlockTyped))
+    .filter(img => !run(img, hiddenTags, hiddenFilter, hideBlockTyped))
     .filter(img => !run(img, spoileredTags, spoileredFilter, spoilerBlockTyped))
     .forEach(img => showBlock(img));
 }

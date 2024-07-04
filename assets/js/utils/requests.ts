@@ -9,7 +9,7 @@ export function fetchJson(verb: HttpMethod, endpoint: string, body?: Record<stri
     headers: {
       'Content-Type': 'application/json',
       'x-csrf-token': window.booru.csrfToken,
-      'x-requested-with': 'xmlhttprequest'
+      'x-requested-with': 'xmlhttprequest',
     },
   };
 
@@ -26,7 +26,7 @@ export function fetchHtml(endpoint: string): Promise<Response> {
     credentials: 'same-origin',
     headers: {
       'x-csrf-token': window.booru.csrfToken,
-      'x-requested-with': 'xmlhttprequest'
+      'x-requested-with': 'xmlhttprequest',
     },
   });
 }

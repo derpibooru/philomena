@@ -3,14 +3,17 @@ let mediaContainers;
 /* Hardcoded dimensions of thumb boxes; at mediaLargeMinSize, large box becomes a small one (font size gets diminished).
  * At minimum width, the large box still has four digit fave/score numbers and five digit comment number fitting in a single row
  * (small box may lose the number of comments in a hidden overflow) */
-const mediaLargeMaxSize = 250, mediaLargeMinSize = 190, mediaSmallMaxSize = 156, mediaSmallMinSize = 140;
+const mediaLargeMaxSize = 250,
+  mediaLargeMinSize = 190,
+  mediaSmallMaxSize = 156,
+  mediaSmallMinSize = 140;
 /* Margin between thumbs (6) + borders (2) + 1 extra px to correct rounding errors */
 const mediaBoxOffset = 9;
 
 export function processResizableMedia() {
   [].slice.call(mediaContainers).forEach(container => {
     const containerHasLargeBoxes = container.querySelector('.media-box__content--large') !== null,
-          containerWidth = container.offsetWidth - 14; /* subtract container padding */
+      containerWidth = container.offsetWidth - 14; /* subtract container padding */
 
     /* If at least three large boxes fit in a single row, we do not downsize them to small ones.
      * This ensures that desktop users get less boxes in a row, but with bigger images inside. */
@@ -21,9 +24,8 @@ export function processResizableMedia() {
         /* Larger boxes are preferred to more items in a row */
         setMediaSize(container, containerWidth, mediaLargeMinSize, mediaLargeMaxSize);
       }
-    }
-    /* Mobile users, on the other hand, should get as many boxes in a row as possible */
-    else {
+    } else {
+      /* Mobile users, on the other hand, should get as many boxes in a row as possible */
       setMediaSize(container, containerWidth, mediaSmallMinSize, mediaSmallMaxSize);
     }
   });
@@ -43,8 +45,7 @@ function applyMediaSize(container, size) {
      * To prevent that, we add a class that diminishes its padding and font size. */
     if (size < mediaLargeMinSize) {
       header.classList.add('media-box__header--small');
-    }
-    else {
+    } else {
       header.classList.remove('media-box__header--small');
     }
   });
@@ -52,9 +53,9 @@ function applyMediaSize(container, size) {
 
 function setMediaSize(container, containerWidth, minMediaSize, maxMediaSize) {
   const maxThumbsFitting = Math.floor(containerWidth / (minMediaSize + mediaBoxOffset)),
-        minThumbsFitting = Math.floor(containerWidth / (maxMediaSize + mediaBoxOffset)),
-        fitThumbs = Math.round((maxThumbsFitting + minThumbsFitting) / 2),
-        thumbSize = Math.max(Math.floor(containerWidth / fitThumbs) - 9, minMediaSize);
+    minThumbsFitting = Math.floor(containerWidth / (maxMediaSize + mediaBoxOffset)),
+    fitThumbs = Math.round((maxThumbsFitting + minThumbsFitting) / 2),
+    thumbSize = Math.max(Math.floor(containerWidth / fitThumbs) - 9, minMediaSize);
 
   applyMediaSize(container, thumbSize);
 }

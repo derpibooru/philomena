@@ -1,8 +1,15 @@
 import { Interaction, InteractionType, InteractionValue } from '../../types/booru-object';
 import { FieldMatcher } from './types';
 
-function interactionMatch(imageId: number, type: InteractionType, value: InteractionValue, interactions: Interaction[]): boolean {
-  return interactions.some(v => v.image_id === imageId && v.interaction_type === type && (value === null || v.value === value));
+function interactionMatch(
+  imageId: number,
+  type: InteractionType,
+  value: InteractionValue,
+  interactions: Interaction[],
+): boolean {
+  return interactions.some(
+    v => v.image_id === imageId && v.interaction_type === type && (value === null || v.value === value),
+  );
 }
 
 export function makeUserMatcher(term: string): FieldMatcher {

@@ -5,7 +5,7 @@
 import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
 
 function setupTagsInput(tagBlock) {
-  const [ textarea, container ] = $$('.js-taginput', tagBlock);
+  const [textarea, container] = $$('.js-taginput', tagBlock);
   const setup = $('.js-tag-block ~ button', tagBlock.parentNode);
   const inputField = $('input', container);
 
@@ -41,7 +41,6 @@ function setupTagsInput(tagBlock) {
     hideEl($$('.js-taginput-show'));
     importTags();
   }
-
 
   function handleAutocomplete(event) {
     insertTag(event.detail.value);
@@ -85,7 +84,6 @@ function setupTagsInput(tagBlock) {
       inputField.value.split(',').forEach(t => insertTag(t));
       inputField.value = '';
     }
-
   }
 
   function handleCtrlEnter(event) {
@@ -138,8 +136,10 @@ function setupTagsInput(tagBlock) {
 
 function fancyEditorRequested(tagBlock) {
   // Check whether the user made the fancy editor the default for each type of tag block.
-  return window.booru.fancyTagUpload && tagBlock.classList.contains('fancy-tag-upload') ||
-         window.booru.fancyTagEdit   && tagBlock.classList.contains('fancy-tag-edit');
+  return (
+    (window.booru.fancyTagUpload && tagBlock.classList.contains('fancy-tag-upload')) ||
+    (window.booru.fancyTagEdit && tagBlock.classList.contains('fancy-tag-edit'))
+  );
 }
 
 function setupTagListener() {

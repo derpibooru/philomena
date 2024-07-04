@@ -4,7 +4,7 @@ import { fire, delegate, leftClick } from './utils/events';
 
 const headers = () => ({
   'x-csrf-token': window.booru.csrfToken,
-  'x-requested-with': 'XMLHttpRequest'
+  'x-requested-with': 'XMLHttpRequest',
 });
 
 function confirm(event: Event, target: HTMLElement) {
@@ -25,8 +25,7 @@ function disable(event: Event, target: HTMLAnchorElement | HTMLButtonElement | H
   if (label) {
     target.dataset.enableWith = assertNotNull(label.nodeValue);
     label.nodeValue = ` ${target.dataset.disableWith}`;
-  }
-  else {
+  } else {
     target.dataset.enableWith = target.innerHTML;
     target.innerHTML = assertNotUndefined(target.dataset.disableWith);
   }
@@ -39,8 +38,8 @@ function disable(event: Event, target: HTMLAnchorElement | HTMLButtonElement | H
 function linkMethod(event: Event, target: HTMLAnchorElement) {
   event.preventDefault();
 
-  const form   = makeEl('form',  { action: target.href, method: 'POST' });
-  const csrf   = makeEl('input', { type: 'hidden', name: '_csrf_token', value: window.booru.csrfToken });
+  const form = makeEl('form', { action: target.href, method: 'POST' });
+  const csrf = makeEl('input', { type: 'hidden', name: '_csrf_token', value: window.booru.csrfToken });
   const method = makeEl('input', { type: 'hidden', name: '_method', value: target.dataset.method });
 
   document.body.appendChild(form);
@@ -57,7 +56,7 @@ function formRemote(event: Event, target: HTMLFormElement) {
     credentials: 'same-origin',
     method: (target.dataset.method || target.method).toUpperCase(),
     headers: headers(),
-    body: new FormData(target)
+    body: new FormData(target),
   }).then(response => {
     fire(target, 'fetchcomplete', response);
     if (response && response.status === 300) {
@@ -71,8 +70,7 @@ function formReset(_event: Event | null, target: HTMLElement) {
     const label = findFirstTextNode(input);
     if (label) {
       label.nodeValue = ` ${input.dataset.enableWith}`;
-    }
-    else {
+    } else {
       input.innerHTML = assertNotUndefined(input.dataset.enableWith);
     }
     delete input.dataset.enableWith;
@@ -86,10 +84,8 @@ function linkRemote(event: Event, target: HTMLAnchorElement) {
   fetch(target.href, {
     credentials: 'same-origin',
     method: (target.dataset.method || 'get').toUpperCase(),
-    headers: headers()
-  }).then(response =>
-    fire(target, 'fetchcomplete', response)
-  );
+    headers: headers(),
+  }).then(response => fire(target, 'fetchcomplete', response));
 }
 
 delegate(document, 'click', {
@@ -100,11 +96,11 @@ delegate(document, 'click', {
 });
 
 delegate(document, 'submit', {
-  'form[data-remote]': formRemote
+  'form[data-remote]': formRemote,
 });
 
 delegate(document, 'reset', {
-  form: formReset
+  form: formReset,
 });
 
 window.addEventListener('pageshow', () => {
