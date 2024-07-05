@@ -38,6 +38,10 @@ defmodule Philomena.Images do
   alias Philomena.Users.User
   alias Philomena.Games.{Player, Team}
 
+  use Philomena.Subscriptions,
+    actor_types: ~w(Image),
+    id_name: :image_id
+
   @doc """
   Gets a single image.
 
@@ -104,7 +108,7 @@ defmodule Philomena.Images do
 
       {:ok, count}
     end)
-    |> maybe_create_subscription_on_upload(attribution[:user])
+    |> maybe_subscribe_on(:image, attribution[:user], :watch_on_upload)
     |> Repo.transaction()
     |> case do
       {:ok, %{image: image}} = result ->
@@ -156,17 +160,6 @@ defmodule Philomena.Images do
 
   defp try_upload(image, retry_count) do
     Logger.error("Aborting upload of #{image.id} after #{retry_count} retries")
-  end
-
-  defp maybe_create_subscription_on_upload(multi, %User{watch_on_upload: true} = user) do
-    multi
-    |> Multi.run(:subscribe, fn _repo, %{image: image} ->
-      create_subscription(image, user)
-    end)
-  end
-
-  defp maybe_create_subscription_on_upload(multi, _user) do
-    multi
   end
 
   def approve_image(image) do
@@ -897,53 +890,6 @@ defmodule Philomena.Images do
 
   alias Philomena.Images.Subscription
 
-  def subscribed?(_image, nil), do: false
-
-  def subscribed?(image, user) do
-    Subscription
-    |> where(image_id: ^image.id, user_id: ^user.id)
-    |> Repo.exists?()
-  end
-
-  @doc """
-  Creates a subscription.
-
-  ## Examples
-
-      iex> create_subscription(%{field: value})
-      {:ok, %Subscription{}}
-
-      iex> create_subscription(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_subscription(_image, nil), do: {:ok, nil}
-
-  def create_subscription(image, user) do
-    %Subscription{image_id: image.id, user_id: user.id}
-    |> Subscription.changeset(%{})
-    |> Repo.insert(on_conflict: :nothing)
-  end
-
-  @doc """
-  Deletes a subscription.
-
-  ## Examples
-
-      iex> delete_subscription(subscription)
-      {:ok, %Subscription{}}
-
-      iex> delete_subscription(subscription)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_subscription(image, user) do
-    clear_notification(image, user)
-
-    %Subscription{image_id: image.id, user_id: user.id}
-    |> Repo.delete()
-  end
-
   def migrate_subscriptions(source, target) do
     subscriptions =
       Subscription
@@ -996,11 +942,5 @@ defmodule Philomena.Images do
         action: "merged ##{source_id} into"
       }
     )
-  end
-
-  def clear_notification(_image, nil), do: nil
-
-  def clear_notification(image, user) do
-    Notifications.delete_unread_notification("Image", image.id, user)
   end
 end

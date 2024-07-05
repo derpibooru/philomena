@@ -15,11 +15,11 @@ export CARGO_HOME=/srv/philomena/.cargo
 
 background() {
   while :; do
-    mix run -e 'Philomena.Release.update_channels()'
-    mix run -e 'Philomena.Release.verify_artist_links()'
-    mix run -e 'Philomena.Release.update_stats()'
-    mix run -e 'Philomena.Release.clean_moderation_logs()'
-    mix run -e 'Philomena.Release.generate_autocomplete()'
+    mix run -e 'Philomena.Release.update_channels()' > /dev/null
+    mix run -e 'Philomena.Release.verify_artist_links()' > /dev/null
+    mix run -e 'Philomena.Release.update_stats()' > /dev/null
+    mix run -e 'Philomena.Release.clean_moderation_logs()' > /dev/null
+    mix run -e 'Philomena.Release.generate_autocomplete()' > /dev/null
 
     sleep 300
   done
