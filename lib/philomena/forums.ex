@@ -7,8 +7,10 @@ defmodule Philomena.Forums do
   alias Philomena.Repo
 
   alias Philomena.Forums.Forum
-  alias Philomena.Forums.Subscription
-  alias Philomena.Notifications
+
+  use Philomena.Subscriptions,
+    actor_types: ~w(Forum),
+    id_name: :forum_id
 
   @doc """
   Returns the list of forums.
@@ -102,46 +104,5 @@ defmodule Philomena.Forums do
   """
   def change_forum(%Forum{} = forum) do
     Forum.changeset(forum, %{})
-  end
-
-  def subscribed?(_forum, nil), do: false
-
-  def subscribed?(forum, user) do
-    Subscription
-    |> where(forum_id: ^forum.id, user_id: ^user.id)
-    |> Repo.exists?()
-  end
-
-  def create_subscription(_forum, nil), do: {:ok, nil}
-
-  def create_subscription(forum, user) do
-    %Subscription{forum_id: forum.id, user_id: user.id}
-    |> Subscription.changeset(%{})
-    |> Repo.insert(on_conflict: :nothing)
-  end
-
-  @doc """
-  Deletes a Subscription.
-
-  ## Examples
-
-      iex> delete_subscription(subscription)
-      {:ok, %Subscription{}}
-
-      iex> delete_subscription(subscription)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_subscription(forum, user) do
-    clear_notification(forum, user)
-
-    %Subscription{forum_id: forum.id, user_id: user.id}
-    |> Repo.delete()
-  end
-
-  def clear_notification(_forum, nil), do: nil
-
-  def clear_notification(forum, user) do
-    Notifications.delete_unread_notification("Forum", forum.id, user)
   end
 end

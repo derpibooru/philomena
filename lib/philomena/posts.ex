@@ -20,7 +20,6 @@ defmodule Philomena.Posts do
   alias Philomena.Versions
   alias Philomena.Reports
   alias Philomena.Reports.Report
-  alias Philomena.Users.User
 
   @doc """
   Gets a single post.
@@ -66,7 +65,7 @@ defmodule Philomena.Posts do
       |> where(id: ^topic.forum_id)
 
     Multi.new()
-    |> Multi.all(:topic_lock, topic_lock_query)
+    |> Multi.one(:topic, topic_lock_query)
     |> Multi.run(:post, fn repo, _ ->
       last_position =
         Post
@@ -95,7 +94,7 @@ defmodule Philomena.Posts do
 
       {:ok, count}
     end)
-    |> maybe_create_subscription_on_reply(topic, attributes[:user])
+    |> Topics.maybe_subscribe_on(:topic, attributes[:user], :watch_on_reply)
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post}} = result ->
@@ -106,17 +105,6 @@ defmodule Philomena.Posts do
       error ->
         error
     end
-  end
-
-  defp maybe_create_subscription_on_reply(multi, topic, %User{watch_on_reply: true} = user) do
-    multi
-    |> Multi.run(:subscribe, fn _repo, _changes ->
-      Topics.create_subscription(topic, user)
-    end)
-  end
-
-  defp maybe_create_subscription_on_reply(multi, _topic, _user) do
-    multi
   end
 
   def notify_post(post) do

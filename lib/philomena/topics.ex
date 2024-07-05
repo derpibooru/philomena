@@ -12,7 +12,10 @@ defmodule Philomena.Topics do
   alias Philomena.Posts
   alias Philomena.Notifications
   alias Philomena.NotificationWorker
-  alias Philomena.Users.User
+
+  use Philomena.Subscriptions,
+    actor_types: ~w(Topic),
+    id_name: :topic_id
 
   @doc """
   Gets a single topic.
@@ -70,7 +73,7 @@ defmodule Philomena.Topics do
 
       {:ok, count}
     end)
-    |> maybe_create_subscription_on_new_topic(attribution[:user])
+    |> maybe_subscribe_on(:topic, attribution[:user], :watch_on_new_topic)
     |> Repo.transaction()
     |> case do
       {:ok, %{topic: topic}} = result ->
@@ -82,17 +85,6 @@ defmodule Philomena.Topics do
       error ->
         error
     end
-  end
-
-  defp maybe_create_subscription_on_new_topic(multi, %User{watch_on_new_topic: true} = user) do
-    multi
-    |> Multi.run(:subscribe, fn _repo, %{topic: topic} ->
-      create_subscription(topic, user)
-    end)
-  end
-
-  defp maybe_create_subscription_on_new_topic(multi, _user) do
-    multi
   end
 
   def notify_topic(topic, post) do
@@ -173,55 +165,6 @@ defmodule Philomena.Topics do
     Topic.changeset(topic, %{})
   end
 
-  alias Philomena.Topics.Subscription
-
-  def subscribed?(_topic, nil), do: false
-
-  def subscribed?(topic, user) do
-    Subscription
-    |> where(topic_id: ^topic.id, user_id: ^user.id)
-    |> Repo.exists?()
-  end
-
-  @doc """
-  Creates a subscription.
-
-  ## Examples
-
-      iex> create_subscription(%{field: value})
-      {:ok, %Subscription{}}
-
-      iex> create_subscription(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_subscription(_topic, nil), do: {:ok, nil}
-
-  def create_subscription(topic, user) do
-    %Subscription{topic_id: topic.id, user_id: user.id}
-    |> Subscription.changeset(%{})
-    |> Repo.insert(on_conflict: :nothing)
-  end
-
-  @doc """
-  Deletes a Subscription.
-
-  ## Examples
-
-      iex> delete_subscription(subscription)
-      {:ok, %Subscription{}}
-
-      iex> delete_subscription(subscription)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_subscription(topic, user) do
-    clear_notification(topic, user)
-
-    %Subscription{topic_id: topic.id, user_id: user.id}
-    |> Repo.delete()
-  end
-
   def stick_topic(topic) do
     Topic.stick_changeset(topic)
     |> Repo.update()
@@ -298,11 +241,5 @@ defmodule Philomena.Topics do
     topic
     |> Topic.title_changeset(attrs)
     |> Repo.update()
-  end
-
-  def clear_notification(_topic, nil), do: nil
-
-  def clear_notification(topic, user) do
-    Notifications.delete_unread_notification("Topic", topic.id, user)
   end
 end

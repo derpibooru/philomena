@@ -19,7 +19,6 @@ defmodule Philomena.Comments do
   alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
-  alias Philomena.Users.User
 
   @doc """
   Gets a single comment.
@@ -58,22 +57,15 @@ defmodule Philomena.Comments do
       Image
       |> where(id: ^image.id)
 
+    image_lock_query =
+      lock(image_query, "FOR UPDATE")
+
     Multi.new()
+    |> Multi.one(:image, image_lock_query)
     |> Multi.insert(:comment, comment)
-    |> Multi.update_all(:image, image_query, inc: [comments_count: 1])
-    |> maybe_create_subscription_on_reply(image, attribution[:user])
+    |> Multi.update_all(:update_image, image_query, inc: [comments_count: 1])
+    |> Images.maybe_subscribe_on(:image, attribution[:user], :watch_on_reply)
     |> Repo.transaction()
-  end
-
-  defp maybe_create_subscription_on_reply(multi, image, %User{watch_on_reply: true} = user) do
-    multi
-    |> Multi.run(:subscribe, fn _repo, _changes ->
-      Images.create_subscription(image, user)
-    end)
-  end
-
-  defp maybe_create_subscription_on_reply(multi, _image, _user) do
-    multi
   end
 
   def notify_comment(comment) do

@@ -18,6 +18,10 @@ defmodule Philomena.Galleries do
   alias Philomena.Notifications.{Notification, UnreadNotification}
   alias Philomena.Images
 
+  use Philomena.Subscriptions,
+    actor_types: ~w(Gallery),
+    id_name: :gallery_id
+
   @doc """
   Gets a single gallery.
 
@@ -356,55 +360,4 @@ defmodule Philomena.Galleries do
 
   defp position_order(%{order_position_asc: true}), do: [asc: :position]
   defp position_order(_gallery), do: [desc: :position]
-
-  alias Philomena.Galleries.Subscription
-
-  def subscribed?(_gallery, nil), do: false
-
-  def subscribed?(gallery, user) do
-    Subscription
-    |> where(gallery_id: ^gallery.id, user_id: ^user.id)
-    |> Repo.exists?()
-  end
-
-  @doc """
-  Creates a subscription.
-
-  ## Examples
-
-      iex> create_subscription(%{field: value})
-      {:ok, %Subscription{}}
-
-      iex> create_subscription(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_subscription(gallery, user) do
-    %Subscription{gallery_id: gallery.id, user_id: user.id}
-    |> Subscription.changeset(%{})
-    |> Repo.insert(on_conflict: :nothing)
-  end
-
-  @doc """
-  Deletes a Subscription.
-
-  ## Examples
-
-      iex> delete_subscription(subscription)
-      {:ok, %Subscription{}}
-
-      iex> delete_subscription(subscription)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_subscription(gallery, user) do
-    %Subscription{gallery_id: gallery.id, user_id: user.id}
-    |> Repo.delete()
-  end
-
-  def clear_notification(_gallery, nil), do: nil
-
-  def clear_notification(gallery, user) do
-    Notifications.delete_unread_notification("Gallery", gallery.id, user)
-  end
 end
