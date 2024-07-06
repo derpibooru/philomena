@@ -7,7 +7,7 @@ describe('Local Autocompleter', () => {
   let mockData: ArrayBuffer;
   const defaultK = 5;
 
-  beforeAll(async() => {
+  beforeAll(async () => {
     const mockDataPath = join(__dirname, 'autocomplete-compiled-v2.bin');
     /**
      * Read pre-generated binary autocomplete data
@@ -78,9 +78,7 @@ describe('Local Autocompleter', () => {
 
     it('should return namespaced suggestions without including namespace', () => {
       const result = localAc.topK('test', defaultK);
-      expect(result).toEqual([
-        expect.objectContaining({ name: 'artist:test', imageCount: 1 }),
-      ]);
+      expect(result).toEqual([expect.objectContaining({ name: 'artist:test', imageCount: 1 })]);
     });
 
     it('should return only the required number of suggestions', () => {

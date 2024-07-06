@@ -6,8 +6,7 @@ function showHelp(subject, type) {
     if (helpBox.getAttribute('data-search-help') === type) {
       $('.js-search-help-subject', helpBox).textContent = subject;
       helpBox.classList.remove('hidden');
-    }
-    else {
+    } else {
       helpBox.classList.add('hidden');
     }
   });
@@ -16,7 +15,8 @@ function showHelp(subject, type) {
 function prependToLast(field, value) {
   const separatorIndex = field.value.lastIndexOf(',');
   const advanceBy = field.value[separatorIndex + 1] === ' ' ? 2 : 1;
-  field.value = field.value.slice(0, separatorIndex + advanceBy) + value + field.value.slice(separatorIndex + advanceBy);
+  field.value =
+    field.value.slice(0, separatorIndex + advanceBy) + value + field.value.slice(separatorIndex + advanceBy);
 }
 
 function selectLast(field, characterCount) {

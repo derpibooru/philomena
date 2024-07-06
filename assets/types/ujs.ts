@@ -2,7 +2,7 @@ export {};
 
 declare global {
   interface FetchcompleteEvent extends CustomEvent<Response> {
-    target: HTMLElement,
+    target: HTMLElement;
   }
 
   interface GlobalEventHandlersEventMap {

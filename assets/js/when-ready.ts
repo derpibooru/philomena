@@ -3,40 +3,39 @@
  */
 
 
-import { whenReady, $ }            from './utils/dom';
+import { whenReady, $ } from './utils/dom';
 
-import { listenAutocomplete }   from './autocomplete';
-import { loadBooruData }        from './booru';
-import { registerEvents }       from './boorujs';
-import { setupBurgerMenu }      from './burger';
-import { bindCaptchaLinks }     from './captcha';
-import { setupComments }        from './comment';
-import { setupDupeReports }     from './duplicate_reports';
-import { setSesCookie }         from './fp';
-import { setupGalleryEditing }  from './galleries';
+import { listenAutocomplete } from './autocomplete';
+import { loadBooruData } from './booru';
+import { registerEvents } from './boorujs';
+import { setupBurgerMenu } from './burger';
+import { bindCaptchaLinks } from './captcha';
+import { setupComments } from './comment';
+import { setupDupeReports } from './duplicate_reports';
+import { setSesCookie } from './fp';
+import { setupGalleryEditing } from './galleries';
 import { initImagesClientside } from './imagesclientside';
-import { bindImageTarget }      from './image_expansion';
-import { setupEvents }          from './misc';
-import { setupNotifications }   from './notifications';
-import { setupPreviews }        from './preview';
-import { setupQuickTag }        from './quick-tag';
-import { initializeListener }   from './resizablemedia';
-import { setupSettings }        from './settings';
-import { listenForKeys }        from './shortcuts';
-import { initTagDropdown }      from './tags';
-import { setupTagListener }     from './tagsinput';
-import { setupTagEvents }       from './tagsmisc';
-import { setupTimestamps }      from './timeago';
-import { setupImageUpload }     from './upload';
-import { setupSearch }          from './search';
-import { setupToolbar }         from './markdowntoolbar';
-import { hideStaffTools }       from './staffhider';
-import { pollOptionCreator }    from './poll';
-import { warnAboutPMs }         from './pmwarning';
-import { imageSourcesCreator }  from './sources';
+import { bindImageTarget } from './image_expansion';
+import { setupEvents } from './misc';
+import { setupNotifications } from './notifications';
+import { setupPreviews } from './preview';
+import { setupQuickTag } from './quick-tag';
+import { initializeListener } from './resizablemedia';
+import { setupSettings } from './settings';
+import { listenForKeys } from './shortcuts';
+import { initTagDropdown } from './tags';
+import { setupTagListener } from './tagsinput';
+import { setupTagEvents } from './tagsmisc';
+import { setupTimestamps } from './timeago';
+import { setupImageUpload } from './upload';
+import { setupSearch } from './search';
+import { setupToolbar } from './markdowntoolbar';
+import { hideStaffTools } from './staffhider';
+import { pollOptionCreator } from './poll';
+import { warnAboutPMs } from './pmwarning';
+import { imageSourcesCreator } from './sources';
 
 whenReady(() => {
-
   loadBooruData();
   listenAutocomplete();
   registerEvents();

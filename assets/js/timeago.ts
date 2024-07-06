@@ -35,25 +35,25 @@ function setTimeAgo(el: HTMLTimeElement) {
   const date = new Date(datetime);
   const distMillis = distance(date);
 
-  const seconds = Math.abs(distMillis) / 1000,
-        minutes = seconds / 60,
-        hours   = minutes / 60,
-        days    = hours / 24,
-        months  = days / 30,
-        years   = days / 365;
+  const seconds = Math.abs(distMillis) / 1000;
+  const minutes = seconds / 60;
+  const hours = minutes / 60;
+  const days = hours / 24;
+  const months = days / 30;
+  const years = days / 365;
 
   const words =
-    seconds < 45  && substitute('seconds', seconds) ||
-    seconds < 90  && substitute('minute', 1)        ||
-    minutes < 45  && substitute('minutes', minutes) ||
-    minutes < 90  && substitute('hour', 1)          ||
-    hours   < 24  && substitute('hours', hours)     ||
-    hours   < 42  && substitute('day', 1)           ||
-    days    < 30  && substitute('days', days)       ||
-    days    < 45  && substitute('month', 1)         ||
-    days    < 365 && substitute('months', months)   ||
-    years   < 1.5 && substitute('year', 1)          ||
-                     substitute('years', years);
+    (seconds < 45 && substitute('seconds', seconds)) ||
+    (seconds < 90 && substitute('minute', 1)) ||
+    (minutes < 45 && substitute('minutes', minutes)) ||
+    (minutes < 90 && substitute('hour', 1)) ||
+    (hours < 24 && substitute('hours', hours)) ||
+    (hours < 42 && substitute('day', 1)) ||
+    (days < 30 && substitute('days', days)) ||
+    (days < 45 && substitute('month', 1)) ||
+    (days < 365 && substitute('months', months)) ||
+    (years < 1.5 && substitute('year', 1)) ||
+    substitute('years', years);
 
   if (!el.getAttribute('title')) {
     el.setAttribute('title', assertNotNull(el.textContent));

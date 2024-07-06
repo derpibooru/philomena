@@ -57,8 +57,10 @@ export function imageHitsComplex(img: HTMLElement, matchComplex: AstMatcher) {
 }
 
 export function displayTags(tags: TagData[]): string {
-  const mainTag = tags[0], otherTags = tags.slice(1);
-  let list = escapeHtml(mainTag.name), extras;
+  const mainTag = tags[0];
+  const otherTags = tags.slice(1);
+  let list = escapeHtml(mainTag.name);
+  let extras;
 
   if (otherTags.length > 0) {
     extras = otherTags.map(tag => escapeHtml(tag.name)).join(', ');

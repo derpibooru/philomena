@@ -70,7 +70,7 @@ export class LocalAutocompleter {
       associations.push(this.view.getUint32(location + 1 + nameLength + 1 + i * 4, true));
     }
 
-    return [ name, associations ];
+    return [name, associations];
   }
 
   /**
@@ -79,14 +79,14 @@ export class LocalAutocompleter {
   getResultAt(i: number): [string, Result] {
     const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
     const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
-    const [ name, associations ] = this.getTagFromLocation(nameLocation);
+    const [name, associations] = this.getTagFromLocation(nameLocation);
 
     if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return [ name, this.getResultAt(-imageCount - 1)[1] ];
+      return [name, this.getResultAt(-imageCount - 1)[1]];
     }
 
-    return [ name, { name, imageCount, associations } ];
+    return [name, { name, imageCount, associations }];
   }
 
   /**
@@ -100,7 +100,11 @@ export class LocalAutocompleter {
   /**
    * Perform a binary search to fetch all results matching a condition.
    */
-  scanResults(getResult: (i: number) => [string, Result], compare: (name: string) => number, results: Record<string, Result>) {
+  scanResults(
+    getResult: (i: number) => [string, Result],
+    compare: (name: string) => number,
+    results: Record<string, Result>,
+  ) {
     const unfilter = store.get('unfilter_tag_suggestions');
 
     let min = 0;
@@ -109,14 +113,13 @@ export class LocalAutocompleter {
     const hiddenTags = window.booru.hiddenTagList;
 
     while (min < max - 1) {
-      const med = min + (max - min) / 2 | 0;
+      const med = (min + (max - min) / 2) | 0;
       const sortKey = getResult(med)[0];
 
       if (compare(sortKey) >= 0) {
         // too large, go left
         max = med;
-      }
-      else {
+      } else {
         // too small, go right
         min = med;
       }
@@ -124,7 +127,7 @@ export class LocalAutocompleter {
 
     // Scan forward until no more matches occur
     while (min < this.numTags - 1) {
-      const [ sortKey, result ] = getResult(++min);
+      const [sortKey, result] = getResult(++min);
       if (compare(sortKey) !== 0) {
         break;
       }

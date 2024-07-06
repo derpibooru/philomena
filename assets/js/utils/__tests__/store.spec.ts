@@ -60,9 +60,11 @@ describe('Store utilities', () => {
         },
       };
       const initialValueKeys = Object.keys(initialValues) as (keyof typeof initialValues)[];
-      setStorageValue(initialValueKeys.reduce((acc, key) => {
-        return { ...acc, [key]: JSON.stringify(initialValues[key]) };
-      }, {}));
+      setStorageValue(
+        initialValueKeys.reduce((acc, key) => {
+          return { ...acc, [key]: JSON.stringify(initialValues[key]) };
+        }, {}),
+      );
 
       initialValueKeys.forEach((key, i) => {
         const result = store.get(key);
@@ -166,7 +168,11 @@ describe('Store utilities', () => {
 
       expect(setItemSpy).toHaveBeenCalledTimes(2);
       expect(setItemSpy).toHaveBeenNthCalledWith(1, mockKey, JSON.stringify(mockValue));
-      expect(setItemSpy).toHaveBeenNthCalledWith(2, mockKey + lastUpdatedSuffix, JSON.stringify(initialDateNow + mockMaxAge));
+      expect(setItemSpy).toHaveBeenNthCalledWith(
+        2,
+        mockKey + lastUpdatedSuffix,
+        JSON.stringify(initialDateNow + mockMaxAge),
+      );
     });
   });
 

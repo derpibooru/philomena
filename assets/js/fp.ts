@@ -11,19 +11,19 @@ const storageKey = 'cached_ses_value';
 
 declare global {
   interface Keyboard {
-    getLayoutMap: () => Promise<Map<string, string>>
+    getLayoutMap: () => Promise<Map<string, string>>;
   }
 
   interface UserAgentData {
-    brands: [{brand: string, version: string}],
-    mobile: boolean,
-    platform: string,
+    brands: [{ brand: string; version: string }];
+    mobile: boolean;
+    platform: string;
   }
 
   interface Navigator {
-    deviceMemory: number | undefined,
-    keyboard: Keyboard | undefined,
-    userAgentData: UserAgentData | undefined,
+    deviceMemory: number | undefined;
+    keyboard: Keyboard | undefined;
+    userAgentData: UserAgentData | undefined;
   }
 }
 
@@ -45,10 +45,10 @@ function cyrb53(str: string, seed: number = 0x16fe7b0a): number {
     h2 = Math.imul(h2 ^ ch, 1597334677);
   }
 
-  h1  = Math.imul(h1 ^ h1 >>> 16, 2246822507);
-  h1 ^= Math.imul(h2 ^ h2 >>> 13, 3266489909);
-  h2  = Math.imul(h2 ^ h2 >>> 16, 2246822507);
-  h2 ^= Math.imul(h1 ^ h1 >>> 13, 3266489909);
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
 
   return 4294967296 * (2097151 & h2) + (h1 >>> 0);
 }
@@ -161,9 +161,7 @@ async function createFp(): Promise<string> {
     new Date().getTimezoneOffset().toString(),
   ];
 
-  return cyrb53(prints.join(''))
-    .toString(16)
-    .padStart(14, '0');
+  return cyrb53(prints.join('')).toString(16).padStart(14, '0');
 }
 
 /**

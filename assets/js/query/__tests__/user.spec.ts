@@ -4,10 +4,10 @@ describe('User field parsing', () => {
   beforeEach(() => {
     /* eslint-disable camelcase */
     window.booru.interactions = [
-      {image_id: 0, user_id: 0, interaction_type: 'faved', value: null},
-      {image_id: 0, user_id: 0, interaction_type: 'voted', value: 'up'},
-      {image_id: 1, user_id: 0, interaction_type: 'voted', value: 'down'},
-      {image_id: 2, user_id: 0, interaction_type: 'hidden', value: null},
+      { image_id: 0, user_id: 0, interaction_type: 'faved', value: null },
+      { image_id: 0, user_id: 0, interaction_type: 'voted', value: 'up' },
+      { image_id: 1, user_id: 0, interaction_type: 'voted', value: 'down' },
+      { image_id: 2, user_id: 0, interaction_type: 'hidden', value: null },
     ];
     /* eslint-enable camelcase */
   });

@@ -7,13 +7,14 @@ import { defineConfig, UserConfig, ConfigEnv } from 'vite';
 export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
   const isDev = command !== 'build' && mode !== 'test';
 
-  const themeNames =
-    fs.readdirSync(path.resolve(__dirname, 'css/themes/')).map(name => {
-      const m = name.match(/([-a-z]+).scss/);
+  const themeNames = fs.readdirSync(path.resolve(__dirname, 'css/themes/')).map(name => {
+    const m = name.match(/([-a-z]+).scss/);
 
-      if (m) { return m[1]; }
-      return null;
-    });
+    if (m) {
+      return m[1];
+    }
+    return null;
+  });
 
   const themes = new Map();
 
@@ -31,8 +32,8 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
     resolve: {
       alias: {
         common: path.resolve(__dirname, 'css/common/'),
-        views: path.resolve(__dirname, 'css/views/')
-      }
+        views: path.resolve(__dirname, 'css/views/'),
+      },
     },
     build: {
       target: ['es2016', 'chrome67', 'firefox62', 'edge18', 'safari12'],
@@ -44,19 +45,19 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
       rollupOptions: {
         input: {
           'js/app': './js/app.ts',
-          ...Object.fromEntries(themes)
+          ...Object.fromEntries(themes),
         },
         output: {
           entryFileNames: '[name].js',
           chunkFileNames: '[name].js',
-          assetFileNames: '[name][extname]'
-        }
-      }
+          assetFileNames: '[name][extname]',
+        },
+      },
     },
     css: {
-      postcss:  {
-        plugins: [autoprefixer]
-      }
+      postcss: {
+        plugins: [autoprefixer],
+      },
     },
     test: {
       globals: true,
@@ -67,11 +68,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
       coverage: {
         reporter: ['text', 'html'],
         include: ['js/**/*.{js,ts}'],
-        exclude: [
-          'node_modules/',
-          '.*\\.test\\.ts$',
-          '.*\\.d\\.ts$',
-        ],
+        exclude: ['node_modules/', '.*\\.test\\.ts$', '.*\\.d\\.ts$'],
         thresholds: {
           statements: 0,
           branches: 0,
@@ -83,8 +80,8 @@ export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
             functions: 100,
             lines: 100,
           },
-        }
-      }
-    }
+        },
+      },
+    },
   };
 });

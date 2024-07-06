@@ -9,10 +9,10 @@ import '../types/ujs';
 
 let touchMoved = false;
 
-function formResult({target, detail}: FetchcompleteEvent) {
+function formResult({ target, detail }: FetchcompleteEvent) {
   const elements: Record<string, string> = {
     '#description-form': '.image-description',
-    '#uploader-form': '.image_uploader'
+    '#uploader-form': '.image_uploader',
   };
 
   function showResult(formEl: HTMLFormElement, resultEl: HTMLElement, response: string) {
@@ -25,7 +25,7 @@ function formResult({target, detail}: FetchcompleteEvent) {
     });
   }
 
-  for (const [ formSelector, resultSelector ] of Object.entries(elements)) {
+  for (const [formSelector, resultSelector] of Object.entries(elements)) {
     if (target.matches(formSelector)) {
       const form = assertType(target, HTMLFormElement);
       const result = assertNotNull($<HTMLElement>(resultSelector));
@@ -91,5 +91,7 @@ export function setupEvents() {
   document.addEventListener('fetchcomplete', formResult);
   document.addEventListener('click', revealSpoiler);
   document.addEventListener('touchend', revealSpoiler);
-  document.addEventListener('touchmove', () => touchMoved = true);
+  document.addEventListener('touchmove', () => {
+    touchMoved = true;
+  });
 }

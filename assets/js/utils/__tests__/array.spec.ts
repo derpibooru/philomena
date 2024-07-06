@@ -84,15 +84,17 @@ describe('Array Utilities', () => {
 
         // Mixed parameters
         const mockObject = { value: Math.random() };
-        expect(arraysEqual(
-          ['', null, false, uniqueValue, mockObject, Infinity, undefined],
-          ['', null, false, uniqueValue, mockObject, Infinity, undefined]
-        )).toBe(true);
+        expect(
+          arraysEqual(
+            ['', null, false, uniqueValue, mockObject, Infinity, undefined],
+            ['', null, false, uniqueValue, mockObject, Infinity, undefined],
+          ),
+        ).toBe(true);
       });
     });
 
     describe('negative cases', () => {
-      it('should NOT return true for matching only up to the first array\'s length', () => {
+      it("should NOT return true for matching only up to the first array's length", () => {
         // Numbers
         expect(arraysEqual([0], [0, 1])).toBe(false);
         expect(arraysEqual([0, 1], [0, 1, 2])).toBe(false);
@@ -108,26 +110,15 @@ describe('Array Utilities', () => {
 
         // Mixed parameters
         const mockObject = { value: Math.random() };
-        expect(arraysEqual(
-          [''],
-          ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['', null],
-          ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['', null, false],
-          ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['', null, false, mockObject],
-          ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['', null, false, mockObject, Infinity],
-          ['', null, false, mockObject, Infinity, undefined]
-        )).toBe(false);
+        expect(arraysEqual([''], ['', null, false, mockObject, Infinity, undefined])).toBe(false);
+        expect(arraysEqual(['', null], ['', null, false, mockObject, Infinity, undefined])).toBe(false);
+        expect(arraysEqual(['', null, false], ['', null, false, mockObject, Infinity, undefined])).toBe(false);
+        expect(arraysEqual(['', null, false, mockObject], ['', null, false, mockObject, Infinity, undefined])).toBe(
+          false,
+        );
+        expect(
+          arraysEqual(['', null, false, mockObject, Infinity], ['', null, false, mockObject, Infinity, undefined]),
+        ).toBe(false);
       });
 
       it('should return false for arrays of different length', () => {
@@ -151,7 +142,7 @@ describe('Array Utilities', () => {
         expect(arraysEqual([mockObject], [mockObject, mockObject])).toBe(false);
       });
 
-      it('should return false if items up to the first array\'s length differ', () => {
+      it("should return false if items up to the first array's length differ", () => {
         // Numbers
         expect(arraysEqual([0], [1])).toBe(false);
         expect(arraysEqual([0, 1], [1, 2])).toBe(false);
@@ -168,22 +159,12 @@ describe('Array Utilities', () => {
         expect(arraysEqual([mockObject1], [mockObject2])).toBe(false);
 
         // Mixed parameters
-        expect(arraysEqual(
-          ['a'],
-          ['b', null, false, mockObject2, Infinity]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['a', null, true],
-          ['b', null, false, mockObject2, Infinity]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['a', null, true, mockObject1],
-          ['b', null, false, mockObject2, Infinity]
-        )).toBe(false);
-        expect(arraysEqual(
-          ['a', null, true, mockObject1, -Infinity],
-          ['b', null, false, mockObject2, Infinity]
-        )).toBe(false);
+        expect(arraysEqual(['a'], ['b', null, false, mockObject2, Infinity])).toBe(false);
+        expect(arraysEqual(['a', null, true], ['b', null, false, mockObject2, Infinity])).toBe(false);
+        expect(arraysEqual(['a', null, true, mockObject1], ['b', null, false, mockObject2, Infinity])).toBe(false);
+        expect(arraysEqual(['a', null, true, mockObject1, -Infinity], ['b', null, false, mockObject2, Infinity])).toBe(
+          false,
+        );
       });
     });
   });

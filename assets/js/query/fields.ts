@@ -2,16 +2,23 @@ import { FieldName } from './types';
 
 type AttributeName = string;
 
-export const numberFields: FieldName[] =
-  ['id', 'width', 'height', 'aspect_ratio',
-    'comment_count', 'score', 'upvotes', 'downvotes',
-    'faves', 'tag_count', 'score'];
+export const numberFields: FieldName[] = [
+  'id',
+  'width',
+  'height',
+  'aspect_ratio',
+  'comment_count',
+  'score',
+  'upvotes',
+  'downvotes',
+  'faves',
+  'tag_count',
+  'score',
+];
 
 export const dateFields: FieldName[] = ['created_at'];
 
-export const literalFields =
-  ['tags', 'orig_sha512_hash', 'sha512_hash',
-    'uploader', 'source_url', 'description'];
+export const literalFields = ['tags', 'orig_sha512_hash', 'sha512_hash', 'uploader', 'source_url', 'description'];
 
 export const termSpaceToImageField: Record<FieldName, AttributeName> = {
   tags: 'data-image-tag-aliases',
@@ -32,7 +39,7 @@ export const termSpaceToImageField: Record<FieldName, AttributeName> = {
   faves: 'data-faves',
   sha512_hash: 'data-sha512',
   orig_sha512_hash: 'data-orig-sha512',
-  created_at: 'data-created-at'
+  created_at: 'data-created-at',
   /* eslint-enable camelcase */
 };
 

@@ -23,11 +23,11 @@ describe('filterNode', () => {
         <picture><img src=""/></picture>
       </div>
     `;
-    return [ element, assertNotNull($<HTMLDivElement>('.js-spoiler-info-overlay', element)) ];
+    return [element, assertNotNull($<HTMLDivElement>('.js-spoiler-info-overlay', element))];
   }
 
   it('should show image media boxes not matching any filter', () => {
-    const [ container, spoilerOverlay ] = makeMediaContainer();
+    const [container, spoilerOverlay] = makeMediaContainer();
 
     filterNode(container);
     expect(spoilerOverlay).not.toContainHTML('(Complex Filter)');
@@ -36,7 +36,7 @@ describe('filterNode', () => {
   });
 
   it('should spoiler media boxes spoilered by a tag filter', () => {
-    const [ container, spoilerOverlay ] = makeMediaContainer();
+    const [container, spoilerOverlay] = makeMediaContainer();
     window.booru.spoileredTagList = [1];
 
     filterNode(container);
@@ -45,7 +45,7 @@ describe('filterNode', () => {
   });
 
   it('should spoiler media boxes spoilered by a complex filter', () => {
-    const [ container, spoilerOverlay ] = makeMediaContainer();
+    const [container, spoilerOverlay] = makeMediaContainer();
     window.booru.spoileredFilter = parseSearch('id:1');
 
     filterNode(container);
@@ -54,7 +54,7 @@ describe('filterNode', () => {
   });
 
   it('should hide media boxes hidden by a tag filter', () => {
-    const [ container, spoilerOverlay ] = makeMediaContainer();
+    const [container, spoilerOverlay] = makeMediaContainer();
     window.booru.hiddenTagList = [1];
 
     filterNode(container);
@@ -64,7 +64,7 @@ describe('filterNode', () => {
   });
 
   it('should hide media boxes hidden by a complex filter', () => {
-    const [ container, spoilerOverlay ] = makeMediaContainer();
+    const [container, spoilerOverlay] = makeMediaContainer();
     window.booru.hiddenFilter = parseSearch('id:1');
 
     filterNode(container);
@@ -90,12 +90,12 @@ describe('filterNode', () => {
       element,
       assertNotNull($<HTMLDivElement>('.image-filtered', element)),
       assertNotNull($<HTMLDivElement>('.image-show', element)),
-      assertNotNull($<HTMLSpanElement>('.filter-explanation', element))
+      assertNotNull($<HTMLSpanElement>('.filter-explanation', element)),
     ];
   }
 
   it('should show image blocks not matching any filter', () => {
-    const [ container, imageFiltered, imageShow ] = makeImageBlock();
+    const [container, imageFiltered, imageShow] = makeImageBlock();
 
     filterNode(container);
     expect(imageFiltered).toHaveClass('hidden');
@@ -104,7 +104,7 @@ describe('filterNode', () => {
   });
 
   it('should spoiler image blocks spoilered by a tag filter', () => {
-    const [ container, imageFiltered, imageShow, filterExplanation ] = makeImageBlock();
+    const [container, imageFiltered, imageShow, filterExplanation] = makeImageBlock();
     window.booru.spoileredTagList = [1];
 
     filterNode(container);
@@ -116,7 +116,7 @@ describe('filterNode', () => {
   });
 
   it('should spoiler image blocks spoilered by a complex filter', () => {
-    const [ container, imageFiltered, imageShow, filterExplanation ] = makeImageBlock();
+    const [container, imageFiltered, imageShow, filterExplanation] = makeImageBlock();
     window.booru.spoileredFilter = parseSearch('id:1');
 
     filterNode(container);
@@ -128,7 +128,7 @@ describe('filterNode', () => {
   });
 
   it('should hide image blocks hidden by a tag filter', () => {
-    const [ container, imageFiltered, imageShow, filterExplanation ] = makeImageBlock();
+    const [container, imageFiltered, imageShow, filterExplanation] = makeImageBlock();
     window.booru.hiddenTagList = [1];
 
     filterNode(container);
@@ -140,7 +140,7 @@ describe('filterNode', () => {
   });
 
   it('should hide image blocks hidden by a complex filter', () => {
-    const [ container, imageFiltered, imageShow, filterExplanation ] = makeImageBlock();
+    const [container, imageFiltered, imageShow, filterExplanation] = makeImageBlock();
     window.booru.hiddenFilter = parseSearch('id:1');
 
     filterNode(container);
@@ -150,7 +150,6 @@ describe('filterNode', () => {
     expect(filterExplanation).toContainHTML('complex tag expression');
     expect(window.booru.imagesWithDownvotingDisabled).toContain('1');
   });
-
 });
 
 describe('initImagesClientside', () => {

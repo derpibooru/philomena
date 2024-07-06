@@ -8,7 +8,7 @@ export function fixEventListeners(t: EventTarget) {
     eventListeners = {};
     const oldAddEventListener = t.addEventListener;
 
-    t.addEventListener = function(type: string, listener: any, options: any): void {
+    t.addEventListener = function (type: string, listener: any, options: any): void {
       eventListeners[type] = eventListeners[type] || [];
       eventListeners[type].push(listener);
       return oldAddEventListener(type, listener, options);

@@ -59,8 +59,7 @@ export function setupBurgerMenu() {
 
     if (content.classList.contains('open')) {
       close(burger, content, body, root);
-    }
-    else {
+    } else {
       open(burger, content, body, root);
     }
   });

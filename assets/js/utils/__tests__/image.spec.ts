@@ -92,7 +92,7 @@ describe('Image utils', () => {
         extension: string;
         videoClasses?: string[];
         imgClasses?: string[];
-      }
+      };
 
       const createMockElements = ({ videoClasses, imgClasses, extension }: CreateMockElementsOptions) => {
         const mockElement = document.createElement('div');
@@ -131,18 +131,11 @@ describe('Image utils', () => {
       };
 
       it('should hide the img element and show the video instead if no picture element is present', () => {
-        const {
-          mockElement,
-          mockImage,
-          playSpy,
-          mockVideo,
-          mockSize,
-          mockSizeUrls,
-          mockSpoilerOverlay,
-        } = createMockElements({
-          extension: 'webm',
-          videoClasses: ['hidden'],
-        });
+        const { mockElement, mockImage, playSpy, mockVideo, mockSize, mockSizeUrls, mockSpoilerOverlay } =
+          createMockElements({
+            extension: 'webm',
+            videoClasses: ['hidden'],
+          });
 
         const result = showThumb(mockElement);
 
@@ -181,8 +174,7 @@ describe('Image utils', () => {
             const result = showThumb(mockElement);
             expect(result).toBe(false);
             expect(jsonParseSpy).not.toHaveBeenCalled();
-          }
-          finally {
+          } finally {
             jsonParseSpy.mockRestore();
           }
         });
@@ -226,13 +218,8 @@ describe('Image utils', () => {
     });
 
     it('should show the correct thumbnail image for jpg extension', () => {
-      const {
-        mockElement,
-        mockSizeImage,
-        mockSizeUrls,
-        mockSize,
-        mockSpoilerOverlay,
-      } = createMockElementWithPicture('jpg');
+      const { mockElement, mockSizeImage, mockSizeUrls, mockSize, mockSpoilerOverlay } =
+        createMockElementWithPicture('jpg');
       const result = showThumb(mockElement);
 
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
@@ -243,13 +230,8 @@ describe('Image utils', () => {
     });
 
     it('should show the correct thumbnail image for gif extension', () => {
-      const {
-        mockElement,
-        mockSizeImage,
-        mockSizeUrls,
-        mockSize,
-        mockSpoilerOverlay,
-      } = createMockElementWithPicture('gif');
+      const { mockElement, mockSizeImage, mockSizeUrls, mockSize, mockSpoilerOverlay } =
+        createMockElementWithPicture('gif');
       const result = showThumb(mockElement);
 
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
@@ -260,13 +242,8 @@ describe('Image utils', () => {
     });
 
     it('should show the correct thumbnail image for webm extension', () => {
-      const {
-        mockElement,
-        mockSpoilerOverlay,
-        mockSizeImage,
-        mockSizeUrls,
-        mockSize,
-      } = createMockElementWithPicture('webm');
+      const { mockElement, mockSpoilerOverlay, mockSizeImage, mockSizeUrls, mockSize } =
+        createMockElementWithPicture('webm');
       const result = showThumb(mockElement);
 
       expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize].replace('webm', 'gif'));
@@ -284,12 +261,10 @@ describe('Image utils', () => {
       });
 
       const checkSrcsetAttribute = (size: ImageSize, x2size: ImageSize) => {
-        const {
-          mockElement,
-          mockSizeImage,
-          mockSizeUrls,
-          mockSpoilerOverlay,
-        } = createMockElementWithPicture('jpg', size);
+        const { mockElement, mockSizeImage, mockSizeUrls, mockSpoilerOverlay } = createMockElementWithPicture(
+          'jpg',
+          size,
+        );
         const result = showThumb(mockElement);
 
         expect(mockSizeImage.src).toBe(mockSizeUrls[size]);
@@ -312,12 +287,10 @@ describe('Image utils', () => {
 
       it('should NOT set srcset on img if thumbUri is a gif at small size', () => {
         const mockSize = 'small';
-        const {
-          mockElement,
-          mockSizeImage,
-          mockSizeUrls,
-          mockSpoilerOverlay,
-        } = createMockElementWithPicture('gif', mockSize);
+        const { mockElement, mockSizeImage, mockSizeUrls, mockSpoilerOverlay } = createMockElementWithPicture(
+          'gif',
+          mockSize,
+        );
         const result = showThumb(mockElement);
 
         expect(mockSizeImage.src).toBe(mockSizeUrls[mockSize]);
@@ -336,12 +309,7 @@ describe('Image utils', () => {
     });
 
     it('should return false if img source already matches thumbUri', () => {
-      const {
-        mockElement,
-        mockSizeImage,
-        mockSizeUrls,
-        mockSize,
-      } = createMockElementWithPicture('jpg');
+      const { mockElement, mockSizeImage, mockSizeUrls, mockSize } = createMockElementWithPicture('jpg');
       mockSizeImage.src = mockSizeUrls[mockSize];
       const result = showThumb(mockElement);
       expect(result).toBe(false);
@@ -408,8 +376,7 @@ describe('Image utils', () => {
           expect(querySelectorSpy).toHaveBeenCalledTimes(2);
           expect(querySelectorSpy).toHaveBeenNthCalledWith(1, 'picture');
           expect(querySelectorSpy).toHaveBeenNthCalledWith(2, 'video');
-        }
-        finally {
+        } finally {
           querySelectorSpy.mockRestore();
         }
       });
@@ -430,8 +397,7 @@ describe('Image utils', () => {
           expect(querySelectorSpy).toHaveBeenNthCalledWith(3, 'img');
           expect(querySelectorSpy).toHaveBeenNthCalledWith(4, `.${spoilerOverlayClass}`);
           expect(mockVideo).not.toHaveClass(hiddenClass);
-        }
-        finally {
+        } finally {
           querySelectorSpy.mockRestore();
           pauseSpy.mockRestore();
         }
@@ -458,8 +424,7 @@ describe('Image utils', () => {
           expect(mockVideo).toBeEmptyDOMElement();
           expect(mockVideo).toHaveClass(hiddenClass);
           expect(pauseSpy).toHaveBeenCalled();
-        }
-        finally {
+        } finally {
           pauseSpy.mockRestore();
         }
       });
@@ -482,8 +447,7 @@ describe('Image utils', () => {
         expect(imgQuerySelectorSpy).toHaveBeenNthCalledWith(1, 'picture');
         expect(pictureQuerySelectorSpy).toHaveBeenNthCalledWith(1, 'img');
         expect(imgQuerySelectorSpy).toHaveBeenNthCalledWith(2, `.${spoilerOverlayClass}`);
-      }
-      finally {
+      } finally {
         imgQuerySelectorSpy.mockRestore();
         pictureQuerySelectorSpy.mockRestore();
       }

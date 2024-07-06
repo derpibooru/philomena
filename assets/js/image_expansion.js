@@ -5,7 +5,7 @@ const imageVersions = {
   // [width, height]
   small: [320, 240],
   medium: [800, 600],
-  large: [1280, 1024]
+  large: [1280, 1024],
 };
 
 /**
@@ -14,7 +14,7 @@ const imageVersions = {
  */
 function selectVersion(imageWidth, imageHeight, imageSize, imageMime) {
   let viewWidth = document.documentElement.clientWidth,
-      viewHeight = document.documentElement.clientHeight;
+    viewHeight = document.documentElement.clientHeight;
 
   // load hires if that's what you asked for
   if (store.get('serve_hidpi')) {
@@ -31,9 +31,9 @@ function selectVersion(imageWidth, imageHeight, imageSize, imageMime) {
   // .find() is not supported in older browsers, using a loop
   for (let i = 0, versions = Object.keys(imageVersions); i < versions.length; ++i) {
     const version = versions[i],
-          dimensions = imageVersions[version],
-          versionWidth = Math.min(imageWidth, dimensions[0]),
-          versionHeight = Math.min(imageHeight, dimensions[1]);
+      dimensions = imageVersions[version],
+      versionWidth = Math.min(imageWidth, dimensions[0]),
+      versionHeight = Math.min(imageHeight, dimensions[1]);
     if (versionWidth > viewWidth || versionHeight > viewHeight) {
       return version;
     }
@@ -57,11 +57,11 @@ function selectVersion(imageWidth, imageHeight, imageSize, imageMime) {
  */
 function pickAndResize(elem) {
   const imageWidth = parseInt(elem.dataset.width, 10),
-        imageHeight = parseInt(elem.dataset.height, 10),
-        imageSize = parseInt(elem.dataset.imageSize, 10),
-        imageMime = elem.dataset.mimeType,
-        scaled = elem.dataset.scaled,
-        uris = JSON.parse(elem.dataset.uris);
+    imageHeight = parseInt(elem.dataset.height, 10),
+    imageSize = parseInt(elem.dataset.imageSize, 10),
+    imageMime = elem.dataset.mimeType,
+    scaled = elem.dataset.scaled,
+    uris = JSON.parse(elem.dataset.uris);
 
   let version = 'full';
 
@@ -91,7 +91,8 @@ function pickAndResize(elem) {
 
   if (imageFormat === 'mp4') {
     elem.classList.add('full-height');
-    elem.insertAdjacentHTML('afterbegin',
+    elem.insertAdjacentHTML(
+      'afterbegin',
       `<video controls ${autoplay} loop ${muted} playsinline preload="auto" id="image-display"
            width="${imageWidth}" height="${imageHeight}">
         <source src="${uris.webm}" type="video/webm">
@@ -100,11 +101,11 @@ function pickAndResize(elem) {
           Your browser supports neither MP4/H264 nor
           WebM/VP8! Please update it to the latest version.
         </p>
-       </video>`
+       </video>`,
     );
-  }
-  else if (imageFormat === 'webm') {
-    elem.insertAdjacentHTML('afterbegin',
+  } else if (imageFormat === 'webm') {
+    elem.insertAdjacentHTML(
+      'afterbegin',
       `<video controls ${autoplay} loop ${muted} playsinline id="image-display">
         <source src="${uri}" type="video/webm">
         <source src="${uri.replace(/webm$/, 'mp4')}" type="video/mp4">
@@ -112,25 +113,21 @@ function pickAndResize(elem) {
           Your browser supports neither MP4/H264 nor
           WebM/VP8! Please update it to the latest version.
         </p>
-       </video>`
+       </video>`,
     );
     const video = elem.querySelector('video');
     if (scaled === 'true') {
       video.className = 'image-scaled';
-    }
-    else if (scaled === 'partscaled') {
+    } else if (scaled === 'partscaled') {
       video.className = 'image-partscaled';
     }
-  }
-  else {
+  } else {
     let image;
     if (scaled === 'true') {
       image = `<picture><img id="image-display" src="${uri}" class="image-scaled"></picture>`;
-    }
-    else if (scaled === 'partscaled') {
+    } else if (scaled === 'partscaled') {
       image = `<picture><img id="image-display" src="${uri}" class="image-partscaled"></picture>`;
-    }
-    else {
+    } else {
       image = `<picture><img id="image-display" src="${uri}" width="${imageWidth}" height="${imageHeight}"></picture>`;
     }
     if (elem.innerHTML === image) return;
@@ -148,11 +145,9 @@ function bindImageForClick(target) {
   target.addEventListener('click', () => {
     if (target.getAttribute('data-scaled') === 'true') {
       target.setAttribute('data-scaled', 'partscaled');
-    }
-    else if (target.getAttribute('data-scaled') === 'partscaled') {
+    } else if (target.getAttribute('data-scaled') === 'partscaled') {
       target.setAttribute('data-scaled', 'false');
-    }
-    else {
+    } else {
       target.setAttribute('data-scaled', 'true');
     }
 

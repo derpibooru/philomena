@@ -44,7 +44,7 @@ function makeRelativeDateMatcher(dateVal: string, qual: RangeEqualQualifier): Fi
     day: 86400000,
     week: 604800000,
     month: 2592000000,
-    year: 31536000000
+    year: 31536000000,
   };
 
   const amount = parseInt(match[1], 10);
@@ -57,15 +57,22 @@ function makeRelativeDateMatcher(dateVal: string, qual: RangeEqualQualifier): Fi
   return makeMatcher(bottomDate, topDate, qual);
 }
 
+const parseRes: RegExp[] = [
+  // year
+  /^(\d{4})/,
+  // month
+  /^-(\d{2})/,
+  // day
+  /^-(\d{2})/,
+  // hour
+  /^(?:\s+|T|t)(\d{2})/,
+  // minute
+  /^:(\d{2})/,
+  // second
+  /^:(\d{2})/,
+];
+
 function makeAbsoluteDateMatcher(dateVal: string, qual: RangeEqualQualifier): FieldMatcher {
-  const parseRes: RegExp[] = [
-    /^(\d{4})/,
-    /^-(\d{2})/,
-    /^-(\d{2})/,
-    /^(?:\s+|T|t)(\d{2})/,
-    /^:(\d{2})/,
-    /^:(\d{2})/
-  ];
   const timeZoneOffset: TimeZoneOffset = [0, 0];
   const timeData: AbsoluteDate = [0, 0, 1, 0, 0, 0];
 
@@ -81,8 +88,7 @@ function makeAbsoluteDateMatcher(dateVal: string, qual: RangeEqualQualifier): Fi
       timeZoneOffset[1] *= -1;
     }
     localDateVal = localDateVal.substring(0, localDateVal.length - 6);
-  }
-  else {
+  } else {
     localDateVal = localDateVal.replace(/[Zz]$/, '');
   }
 
@@ -97,16 +103,14 @@ function makeAbsoluteDateMatcher(dateVal: string, qual: RangeEqualQualifier): Fi
       if (matchIndex === 1) {
         // Months are offset by 1.
         timeData[matchIndex] = parseInt(componentMatch[1], 10) - 1;
-      }
-      else {
+      } else {
         // All other components are not offset.
         timeData[matchIndex] = parseInt(componentMatch[1], 10);
       }
 
       // Truncate string.
       localDateVal = localDateVal.substring(componentMatch[0].length);
-    }
-    else {
+    } else {
       throw new ParseError(`Cannot parse date string: ${origDateVal}`);
     }
   }
