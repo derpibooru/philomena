@@ -6,19 +6,82 @@ defmodule Philomena.Notifications do
   import Ecto.Query, warn: false
   alias Philomena.Repo
 
+  alias Philomena.Notifications.Category
   alias Philomena.Notifications.Notification
+  alias Philomena.Notifications.UnreadNotification
+  alias Philomena.Polymorphic
 
   @doc """
-  Returns the list of notifications.
+  Returns the list of unread notifications of the given type.
+
+  The set of valid types is `t:Philomena.Notifications.Category.t/0`.
 
   ## Examples
 
-      iex> list_notifications()
+      iex> unread_notifications_for_user_and_type(user, :image_comment, ...)
       [%Notification{}, ...]
 
   """
-  def list_notifications do
-    Repo.all(Notification)
+  def unread_notifications_for_user_and_type(user, type, pagination) do
+    notifications =
+      user
+      |> unread_query_for_type(type)
+      |> Repo.paginate(pagination)
+
+    put_in(notifications.entries, load_associations(notifications.entries))
+  end
+
+  @doc """
+  Gather up and return the top N notifications for the user, for each type of
+  unread notification currently existing.
+
+  ## Examples
+
+      iex> unread_notifications_for_user(user)
+      [
+        forum_topic: [%Notification{...}, ...],
+        forum_post: [%Notification{...}, ...],
+        image_comment: [%Notification{...}, ...]
+      ]
+
+  """
+  def unread_notifications_for_user(user, n) do
+    Category.types()
+    |> Enum.map(fn type ->
+      q =
+        user
+        |> unread_query_for_type(type)
+        |> limit(^n)
+
+      # Use a subquery to ensure the order by is applied to the
+      # subquery results only, and not the main query results
+      from(n in subquery(q))
+    end)
+    |> union_all_queries()
+    |> Repo.all()
+    |> load_associations()
+    |> Enum.group_by(&Category.notification_type/1)
+    |> Enum.sort_by(fn {k, _v} -> k end)
+  end
+
+  defp unread_query_for_type(user, type) do
+    from n in Category.query_for_type(type),
+      join: un in UnreadNotification,
+      on: un.notification_id == n.id,
+      where: un.user_id == ^user.id,
+      order_by: [desc: :updated_at]
+  end
+
+  defp union_all_queries([query | rest]) do
+    Enum.reduce(rest, query, fn q, acc -> union_all(acc, ^q) end)
+  end
+
+  defp load_associations(notifications) do
+    Polymorphic.load_polymorphic(
+      notifications,
+      actor: [actor_id: :actor_type],
+      actor_child: [actor_child_id: :actor_child_type]
+    )
   end
 
   @doc """
@@ -101,8 +164,6 @@ defmodule Philomena.Notifications do
   def change_notification(%Notification{} = notification) do
     Notification.changeset(notification, %{})
   end
-
-  alias Philomena.Notifications.UnreadNotification
 
   def count_unread_notifications(user) do
     UnreadNotification

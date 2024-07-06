@@ -173,6 +173,7 @@ defmodule PhilomenaWeb.Router do
 
     scope "/notifications", Notification, as: :notification do
       resources "/unread", UnreadController, only: [:index]
+      resources "/categories", CategoryController, only: [:show]
     end
 
     resources "/notifications", NotificationController, only: [:index, :delete]

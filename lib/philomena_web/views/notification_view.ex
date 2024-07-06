@@ -13,4 +13,26 @@ defmodule PhilomenaWeb.NotificationView do
   def notification_template_path(actor_type) do
     @template_paths[actor_type]
   end
+
+  def name_of_type(notification_type) do
+    case notification_type do
+      :channel_live ->
+        "Live channels"
+
+      :forum_post ->
+        "New replies in topics"
+
+      :forum_topic ->
+        "New topics"
+
+      :gallery_image ->
+        "Updated galleries"
+
+      :image_comment ->
+        "New replies on images"
+
+      :image_merge ->
+        "Image merges"
+    end
+  end
 end
