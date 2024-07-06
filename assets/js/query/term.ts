@@ -67,11 +67,9 @@ function makeTermMatcher(term: string, fuzz: number, factory: MatcherFactory): [
       }
 
       return [fieldName, factory.makeNumberMatcher(parseFloat(termCandidate), fuzz, rangeType)];
-    }
-    else if (literalFields.indexOf(candidateTermSpace) !== -1) {
+    } else if (literalFields.indexOf(candidateTermSpace) !== -1) {
       return [candidateTermSpace, factory.makeLiteralMatcher(termCandidate, fuzz, wildcardable)];
-    }
-    else if (candidateTermSpace === 'my') {
+    } else if (candidateTermSpace === 'my') {
       return [candidateTermSpace, factory.makeUserMatcher(termCandidate)];
     }
   }

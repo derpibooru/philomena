@@ -8,8 +8,8 @@ import { delegate } from './utils/events';
 import { assertNotNull, assertNotUndefined } from './utils/assert';
 import store from './utils/store';
 
-const NOTIFICATION_INTERVAL = 600000,
-      NOTIFICATION_EXPIRES = 300000;
+const NOTIFICATION_INTERVAL = 600000;
+const NOTIFICATION_EXPIRES = 300000;
 
 function bindSubscriptionLinks() {
   delegate(document, 'fetchcomplete', {
@@ -19,7 +19,7 @@ function bindSubscriptionLinks() {
       event.detail.text().then(text => {
         target.outerHTML = text;
       });
-    }
+    },
   });
 }
 

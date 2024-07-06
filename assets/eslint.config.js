@@ -1,9 +1,11 @@
 import tsEslint from 'typescript-eslint';
 import vitestPlugin from 'eslint-plugin-vitest';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 import globals from 'globals';
 
 export default tsEslint.config(
   ...tsEslint.configs.recommended,
+  eslintPluginPrettierRecommended,
   {
     name: 'PhilomenaConfig',
     files: ['**/*.js', '**/*.ts'],
@@ -12,24 +14,22 @@ export default tsEslint.config(
       sourceType: 'module',
       parserOptions: {
         ecmaVersion: 6,
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
-        ...globals.browser
-      }
+        ...globals.browser,
+      },
     },
     rules: {
       'accessor-pairs': 2,
       'array-bracket-spacing': 0,
       'array-callback-return': 2,
       'arrow-body-style': 0,
-      'arrow-parens': [2, 'as-needed'],
       'arrow-spacing': 2,
       'block-scoped-var': 2,
       'block-spacing': 2,
-      'brace-style': [2, 'stroustrup', {allowSingleLine: true}],
       'callback-return': 0,
-      camelcase: [2, {allow: ['camo_url', 'spoiler_image_uri', 'image_ids']}],
+      camelcase: [2, { allow: ['camo_url', 'spoiler_image_uri', 'image_ids'] }],
       'class-methods-use-this': 0,
       'comma-dangle': [2, 'only-multiline'],
       'comma-spacing': 2,
@@ -42,7 +42,7 @@ export default tsEslint.config(
       curly: [2, 'multi-line', 'consistent'],
       'default-case': 2,
       'dot-location': [2, 'property'],
-      'dot-notation': [2, {allowKeywords: true}],
+      'dot-notation': [2, { allowKeywords: true }],
       'eol-last': 2,
       eqeqeq: 2,
       'func-call-spacing': 0,
@@ -56,7 +56,6 @@ export default tsEslint.config(
       'id-blacklist': 0,
       'id-length': 0,
       'id-match': 2,
-      indent: [2, 2, {SwitchCase: 1, VariableDeclarator: {var: 2, let: 2, const: 3}}],
       'init-declarations': 0,
       'jsx-quotes': 0,
       'key-spacing': 0,
@@ -110,7 +109,7 @@ export default tsEslint.config(
       'no-extra-bind': 2,
       'no-extra-boolean-cast': 2,
       'no-extra-label': 2,
-      'no-extra-parens': [2, 'all', {nestedBinaryExpressions: false}],
+      'no-extra-parens': [2, 'all', { nestedBinaryExpressions: false }],
       'no-extra-semi': 2,
       'no-fallthrough': 2,
       'no-floating-decimal': 2,
@@ -136,7 +135,7 @@ export default tsEslint.config(
       'no-mixed-spaces-and-tabs': 2,
       'no-multi-spaces': 0,
       'no-multi-str': 2,
-      'no-multiple-empty-lines': [2, {max: 3, maxBOF: 0, maxEOF: 1}],
+      'no-multiple-empty-lines': [2, { max: 3, maxBOF: 0, maxEOF: 1 }],
       'no-native-reassign': 2,
       'no-negated-condition': 0,
       'no-negated-in-lhs': 2,
@@ -190,9 +189,9 @@ export default tsEslint.config(
       'no-unreachable': 2,
       'no-unsafe-finally': 2,
       'no-unsafe-negation': 2,
-      'no-unused-expressions': [2, {allowShortCircuit: true, allowTernary: true}],
+      'no-unused-expressions': [2, { allowShortCircuit: true, allowTernary: true }],
       'no-unused-labels': 2,
-      'no-unused-vars': [2, {vars: 'all', args: 'after-used', varsIgnorePattern: '^_', argsIgnorePattern: '^_'}],
+      'no-unused-vars': [2, { vars: 'all', args: 'after-used', varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
       'no-use-before-define': [2, 'nofunc'],
       'no-useless-call': 2,
       'no-useless-computed-key': 2,
@@ -222,21 +221,19 @@ export default tsEslint.config(
       'prefer-spread': 0,
       'prefer-template': 2,
       'quote-props': [2, 'as-needed'],
-      quotes: [2, 'single'],
       radix: 2,
       'require-jsdoc': 0,
       'require-yield': 2,
       'rest-spread-spacing': 2,
-      'semi-spacing': [2, {before: false, after: true}],
+      'semi-spacing': [2, { before: false, after: true }],
       semi: 2,
       'sort-imports': 0,
       'sort-keys': 0,
       'sort-vars': 0,
       'space-before-blocks': [2, 'always'],
-      'space-before-function-paren': [2, 'never'],
       'space-in-parens': [2, 'never'],
       'space-infix-ops': 2,
-      'space-unary-ops': [2, {words: true, nonwords: false}],
+      'space-unary-ops': [2, { words: true, nonwords: false }],
       'spaced-comment': 0,
       strict: [2, 'function'],
       'symbol-description': 2,
@@ -251,18 +248,15 @@ export default tsEslint.config(
       'yield-star-spacing': 2,
       yoda: [2, 'never'],
     },
-    ignores: [
-      'js/vendor/*',
-      'vite.config.ts'
-    ]
+    ignores: ['js/vendor/*', 'vite.config.ts'],
   },
   {
     files: ['**/*.js'],
     rules: {
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-unused-vars': 'off'
-    }
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
   },
   {
     files: ['**/*.ts'],
@@ -271,15 +265,18 @@ export default tsEslint.config(
       'no-unused-vars': 'off',
       'no-redeclare': 'off',
       'no-shadow': 'off',
-      '@typescript-eslint/no-unused-vars': [2, {vars: 'all', args: 'after-used', varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*'}],
+      '@typescript-eslint/no-unused-vars': [
+        2,
+        { vars: 'all', args: 'after-used', varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*' },
+      ],
       '@typescript-eslint/no-redeclare': 2,
-      '@typescript-eslint/no-shadow': 2
-    }
+      '@typescript-eslint/no-shadow': 2,
+    },
   },
   {
     files: ['**/*.spec.ts', '**/test/*.ts'],
     plugins: {
-      vitest: vitestPlugin
+      vitest: vitestPlugin,
     },
     rules: {
       ...vitestPlugin.configs.recommended.rules,
@@ -287,7 +284,7 @@ export default tsEslint.config(
       'no-undefined': 'off',
       'no-unused-expressions': 0,
       'vitest/valid-expect': 0,
-      '@typescript-eslint/no-unused-expressions': 0
-    }
-  }
+      '@typescript-eslint/no-unused-expressions': 0,
+    },
+  },
 );

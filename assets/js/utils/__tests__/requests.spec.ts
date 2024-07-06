@@ -29,7 +29,7 @@ describe('Request utils', () => {
         headers: {
           'Content-Type': 'application/json',
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'xmlhttprequest'
+          'x-requested-with': 'xmlhttprequest',
         },
       });
     });
@@ -46,12 +46,12 @@ describe('Request utils', () => {
         headers: {
           'Content-Type': 'application/json',
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'xmlhttprequest'
+          'x-requested-with': 'xmlhttprequest',
         },
         body: JSON.stringify({
           ...mockBody,
-          _method: mockVerb
-        })
+          _method: mockVerb,
+        }),
       });
     });
   });
@@ -64,7 +64,7 @@ describe('Request utils', () => {
         credentials: 'same-origin',
         headers: {
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'xmlhttprequest'
+          'x-requested-with': 'xmlhttprequest',
         },
       });
     });

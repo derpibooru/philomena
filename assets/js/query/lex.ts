@@ -17,7 +17,7 @@ const tokenList: Token[] = [
   ['not_op', /^\s*[!-]\s*/],
   ['space', /^\s+/],
   ['word', /^(?:\\[\s,()^~]|[^\s,()^~])+/],
-  ['word', /^(?:\\[\s,()]|[^\s,()])+/]
+  ['word', /^(?:\\[\s,()]|[^\s,()])+/],
 ];
 
 export type ParseTerm = (term: string, fuzz: number, boost: number) => AstMatcher;
@@ -26,14 +26,14 @@ export type Range = [number, number];
 export type TermContext = [Range, string];
 
 export interface LexResult {
-  tokenList: TokenList,
-  termContexts: TermContext[],
-  error: ParseError | null
+  tokenList: TokenList;
+  termContexts: TermContext[];
+  error: ParseError | null;
 }
 
 export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexResult {
-  const opQueue: string[] = [],
-        groupNegate: boolean[] = [];
+  const opQueue: string[] = [];
+  const groupNegate: boolean[] = [];
 
   let searchTerm: string | null = null;
   let boostFuzzStr = '';
@@ -49,7 +49,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
   const ret: LexResult = {
     tokenList: [],
     termContexts: [],
-    error: null
+    error: null,
   };
 
   const beginTerm = (token: string) => {
@@ -85,8 +85,10 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
       }
 
       const token = match[0];
+      const tokenIsBinaryOp = ['and_op', 'or_op'].indexOf(tokenName) !== -1;
+      const tokenIsGroupStart = tokenName === 'rparen' && lparenCtr === 0;
 
-      if (searchTerm !== null && (['and_op', 'or_op'].indexOf(tokenName) !== -1 || tokenName === 'rparen' && lparenCtr === 0)) {
+      if (searchTerm !== null && (tokenIsBinaryOp || tokenIsGroupStart)) {
         endTerm();
       }
 
@@ -107,8 +109,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
           if (searchTerm) {
             // We're already inside a search term, so it does not apply, obv.
             searchTerm += token;
-          }
-          else {
+          } else {
             negate = !negate;
           }
           break;
@@ -118,8 +119,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
             // instead, consider it as part of the search term, as a user convenience.
             searchTerm += token;
             lparenCtr += 1;
-          }
-          else {
+          } else {
             opQueue.unshift('lparen');
             groupNegate.push(negate);
             negate = false;
@@ -129,8 +129,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
           if (lparenCtr > 0) {
             searchTerm = assertNotNull(searchTerm) + token;
             lparenCtr -= 1;
-          }
-          else {
+          } else {
             while (opQueue.length > 0) {
               const op = assertNotUndefined(opQueue.shift());
               if (op === 'lparen') {
@@ -149,8 +148,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
             // to a temporary string in case this is actually inside the term.
             fuzz = parseFloat(token.substring(1));
             boostFuzzStr += token;
-          }
-          else {
+          } else {
             beginTerm(token);
           }
           break;
@@ -158,16 +156,14 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
           if (searchTerm) {
             boost = parseFloat(token.substring(1));
             boostFuzzStr += token;
-          }
-          else {
+          } else {
             beginTerm(token);
           }
           break;
         case 'quoted_lit':
           if (searchTerm) {
             searchTerm += token;
-          }
-          else {
+          } else {
             beginTerm(token);
           }
           break;
@@ -180,8 +176,7 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
               boostFuzzStr = '';
             }
             searchTerm += token;
-          }
-          else {
+          } else {
             beginTerm(token);
           }
           break;

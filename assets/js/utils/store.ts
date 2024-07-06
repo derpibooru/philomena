@@ -5,13 +5,11 @@
 export const lastUpdatedSuffix = '__lastUpdated';
 
 export default {
-
   set(key: string, value: unknown) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
       return true;
-    }
-    catch {
+    } catch {
       return false;
     }
   },
@@ -21,8 +19,7 @@ export default {
     if (value === null) return null;
     try {
       return JSON.parse(value);
-    }
-    catch {
+    } catch {
       return value as unknown as Value;
     }
   },
@@ -31,8 +28,7 @@ export default {
     try {
       localStorage.removeItem(key);
       return true;
-    }
-    catch {
+    } catch {
       return false;
     }
   },
@@ -61,5 +57,4 @@ export default {
 
     return lastUpdatedTime === null || Date.now() > lastUpdatedTime;
   },
-
 };

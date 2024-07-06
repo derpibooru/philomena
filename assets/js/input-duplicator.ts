@@ -13,7 +13,7 @@ export function inputDuplicatorCreator({
   addButtonSelector,
   fieldSelector,
   maxInputCountSelector,
-  removeButtonSelector
+  removeButtonSelector,
 }: InputDuplicatorOptions) {
   const addButton = $<HTMLButtonElement>(addButtonSelector);
   if (!addButton) {
@@ -35,9 +35,8 @@ export function inputDuplicatorCreator({
   };
 
   delegate(form, 'click', {
-    [removeButtonSelector]: leftClick(fieldRemover)
+    [removeButtonSelector]: leftClick(fieldRemover),
   });
-
 
   const maxOptionCountElement = assertNotNull($(maxInputCountSelector, form));
   const maxOptionCount = parseInt(maxOptionCountElement.innerHTML, 10);

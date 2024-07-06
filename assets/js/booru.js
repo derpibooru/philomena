@@ -23,7 +23,7 @@ function persistTag(tagData) {
  */
 function isStale(tag) {
   const now = new Date().getTime() / 1000;
-  return tag.fetchedAt === null || tag.fetchedAt < (now - 604800);
+  return tag.fetchedAt === null || tag.fetchedAt < now - 604800;
 }
 
 function clearTags() {
@@ -40,11 +40,13 @@ function clearTags() {
  */
 function isValidStoredTag(value) {
   if (value !== null && 'id' in value && 'name' in value && 'images' in value && 'spoiler_image_uri' in value) {
-    return typeof value.id === 'number'
-      && typeof value.name === 'string'
-      && typeof value.images === 'number'
-      && (value.spoiler_image_uri === null || typeof value.spoiler_image_uri === 'string')
-      && (value.fetchedAt === null || typeof value.fetchedAt === 'number');
+    return (
+      typeof value.id === 'number' &&
+      typeof value.name === 'string' &&
+      typeof value.images === 'number' &&
+      (value.spoiler_image_uri === null || typeof value.spoiler_image_uri === 'string') &&
+      (value.fetchedAt === null || typeof value.fetchedAt === 'number')
+    );
   }
 
   return false;
@@ -112,17 +114,18 @@ function verifyTagsVersion(latest) {
 }
 
 function initializeFilters() {
-  const tags = window.booru.spoileredTagList
-    .concat(window.booru.hiddenTagList)
-    .filter((a, b, c) => c.indexOf(a) === b);
+  const tags = window.booru.spoileredTagList.concat(window.booru.hiddenTagList).filter((a, b, c) => c.indexOf(a) === b);
 
   verifyTagsVersion(window.booru.tagsVersion);
   fetchNewOrStaleTags(tags);
 }
 
 function unmarshal(data) {
-  try { return JSON.parse(data); }
-  catch { return data; }
+  try {
+    return JSON.parse(data);
+  } catch {
+    return data;
+  }
 }
 
 function loadBooruData() {

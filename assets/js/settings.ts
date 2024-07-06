@@ -7,7 +7,6 @@ import { $, $$ } from './utils/dom';
 import store from './utils/store';
 
 export function setupSettings() {
-
   if (!$('#js-setting-table')) return;
 
   const localCheckboxes = $$<HTMLInputElement>('[data-tab="local"] input[type="checkbox"]');

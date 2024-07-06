@@ -10,12 +10,12 @@ import store from './utils/store';
 const cache = {};
 /** @type {HTMLInputElement} */
 let inputField,
-    /** @type {string} */
-    originalTerm,
-    /** @type {string} */
-    originalQuery,
-    /** @type {TermContext} */
-    selectedTerm;
+  /** @type {string} */
+  originalTerm,
+  /** @type {string} */
+  originalQuery,
+  /** @type {TermContext} */
+  selectedTerm;
 
 function removeParent() {
   const parent = document.querySelector('.autocomplete');
@@ -52,15 +52,16 @@ function applySelectedValue(selection) {
 }
 
 function changeSelected(firstOrLast, current, sibling) {
-  if (current && sibling) { // if the currently selected item has a sibling, move selection to it
+  if (current && sibling) {
+    // if the currently selected item has a sibling, move selection to it
     current.classList.remove('autocomplete__item--selected');
     sibling.classList.add('autocomplete__item--selected');
-  }
-  else if (current) { // if the next keypress will take the user outside the list, restore the unautocompleted term
+  } else if (current) {
+    // if the next keypress will take the user outside the list, restore the unautocompleted term
     restoreOriginalValue();
     removeSelected();
-  }
-  else if (firstOrLast) { // if no item in the list is selected, select the first or last
+  } else if (firstOrLast) {
+    // if no item in the list is selected, select the first or last
     firstOrLast.classList.add('autocomplete__item--selected');
   }
 }
@@ -74,15 +75,16 @@ function isSelectionOutsideCurrentTerm() {
 
 function keydownHandler(event) {
   const selected = document.querySelector('.autocomplete__item--selected'),
-        firstItem = document.querySelector('.autocomplete__item:first-of-type'),
-        lastItem = document.querySelector('.autocomplete__item:last-of-type');
+    firstItem = document.querySelector('.autocomplete__item:first-of-type'),
+    lastItem = document.querySelector('.autocomplete__item:last-of-type');
 
   if (isSearchField()) {
     // Prevent submission of the search field when Enter was hit
     if (selected && event.keyCode === 13) event.preventDefault(); // Enter
 
     // Close autocompletion popup when text cursor is outside current tag
-    if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) { // ArrowLeft || ArrowRight
+    if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) {
+      // ArrowLeft || ArrowRight
       requestAnimationFrame(() => {
         if (isSelectionOutsideCurrentTerm()) removeParent();
       });
@@ -92,7 +94,8 @@ function keydownHandler(event) {
   if (event.keyCode === 38) changeSelected(lastItem, selected, selected && selected.previousSibling); // ArrowUp
   if (event.keyCode === 40) changeSelected(firstItem, selected, selected && selected.nextSibling); // ArrowDown
   if (event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 188) removeParent(); // Enter || Esc || Comma
-  if (event.keyCode === 38 || event.keyCode === 40) { // ArrowUp || ArrowDown
+  if (event.keyCode === 38 || event.keyCode === 40) {
+    // ArrowUp || ArrowDown
     const newSelected = document.querySelector('.autocomplete__item--selected');
     if (newSelected) applySelectedValue(newSelected.dataset.value);
     event.preventDefault();
@@ -123,8 +126,8 @@ function createItem(list, suggestion) {
           type: 'click',
           label: suggestion.label,
           value: suggestion.value,
-        }
-      })
+        },
+      }),
     );
   });
 
@@ -133,7 +136,7 @@ function createItem(list, suggestion) {
 
 function createList(suggestions) {
   const parent = document.querySelector('.autocomplete'),
-        list = document.createElement('ul');
+    list = document.createElement('ul');
   list.className = 'autocomplete__list';
 
   suggestions.forEach(suggestion => createItem(list, suggestion));
@@ -193,8 +196,7 @@ function toggleSearchAutocomplete() {
   for (const searchField of document.querySelectorAll('input[data-ac-mode=search]')) {
     if (enable) {
       searchField.autocomplete = 'off';
-    }
-    else {
+    } else {
       searchField.removeAttribute('data-ac');
       searchField.autocomplete = 'on';
     }
@@ -230,12 +232,13 @@ function listenAutocomplete() {
         }
 
         originalTerm = selectedTerm[1].toLowerCase();
-      }
-      else {
+      } else {
         originalTerm = `${inputField.value}`.toLowerCase();
       }
 
-      const suggestions = localAc.topK(originalTerm, suggestionsCount).map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
+      const suggestions = localAc
+        .topK(originalTerm, suggestionsCount)
+        .map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
 
       if (suggestions.length) {
         return showAutocomplete(suggestions, originalTerm, event.target);
@@ -248,13 +251,12 @@ function listenAutocomplete() {
       originalTerm = inputField.value;
 
       const fetchedTerm = inputField.value;
-      const {ac, acMinLength, acSource} = inputField.dataset;
+      const { ac, acMinLength, acSource } = inputField.dataset;
 
-      if (ac && acSource && (fetchedTerm.length >= acMinLength)) {
+      if (ac && acSource && fetchedTerm.length >= acMinLength) {
         if (cache[fetchedTerm]) {
           showAutocomplete(cache[fetchedTerm], fetchedTerm, event.target);
-        }
-        else {
+        } else {
           // inputField could get overwritten while the suggestions are being fetched - use event.target
           getSuggestions(fetchedTerm).then(suggestions => {
             if (fetchedTerm === event.target.value) {
@@ -282,7 +284,9 @@ function listenAutocomplete() {
       fetch(`/autocomplete/compiled?vsn=2&key=${cacheKey}`, { credentials: 'omit', cache: 'force-cache' })
         .then(handleError)
         .then(resp => resp.arrayBuffer())
-        .then(buf => localAc = new LocalAutocompleter(buf));
+        .then(buf => {
+          localAc = new LocalAutocompleter(buf);
+        });
     }
   }
 

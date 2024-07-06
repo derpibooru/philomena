@@ -20,7 +20,7 @@ window.booru = {
   hiddenFilter: matchNone(),
   spoileredFilter: matchNone(),
   interactions: [],
-  tagsVersion: 5
+  tagsVersion: 5,
 };
 
 // https://github.com/jsdom/jsdom/issues/1721#issuecomment-1484202038
@@ -30,6 +30,6 @@ Object.assign(globalThis, { URL, Blob });
 
 // Prevents an error when calling `form.submit()` directly in
 // the code that is being tested
-HTMLFormElement.prototype.submit = function() {
+HTMLFormElement.prototype.submit = function () {
   fireEvent.submit(this);
 };

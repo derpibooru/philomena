@@ -7,19 +7,19 @@ import { $, $$ } from './utils/dom';
 const markdownSyntax = {
   bold: {
     action: wrapSelection,
-    options: { prefix: '**', shortcutKey: 'b' }
+    options: { prefix: '**', shortcutKey: 'b' },
   },
   italics: {
     action: wrapSelection,
-    options: { prefix: '*', shortcutKey: 'i' }
+    options: { prefix: '*', shortcutKey: 'i' },
   },
   under: {
     action: wrapSelection,
-    options: { prefix: '__', shortcutKey: 'u' }
+    options: { prefix: '__', shortcutKey: 'u' },
   },
   spoiler: {
     action: wrapSelection,
-    options: { prefix: '||', shortcutKey: 's' }
+    options: { prefix: '||', shortcutKey: 's' },
   },
   code: {
     action: wrapSelectionOrLines,
@@ -29,57 +29,56 @@ const markdownSyntax = {
       prefixMultiline: '```\n',
       suffixMultiline: '\n```',
       singleWrap: true,
-      shortcutKey: 'e'
-    }
+      shortcutKey: 'e',
+    },
   },
   strike: {
     action: wrapSelection,
-    options: { prefix: '~~' }
+    options: { prefix: '~~' },
   },
   superscript: {
     action: wrapSelection,
-    options: { prefix: '^' }
+    options: { prefix: '^' },
   },
   subscript: {
     action: wrapSelection,
-    options: { prefix: '%' }
+    options: { prefix: '%' },
   },
   quote: {
     action: wrapLines,
-    options: { prefix: '> ' }
+    options: { prefix: '> ' },
   },
   link: {
     action: insertLink,
-    options: { shortcutKey: 'l' }
+    options: { shortcutKey: 'l' },
   },
   image: {
     action: insertLink,
-    options: { image: true, shortcutKey: 'k' }
+    options: { image: true, shortcutKey: 'k' },
   },
   escape: {
     action: escapeSelection,
-    options: { escapeChar: '\\' }
-  }
+    options: { escapeChar: '\\' },
+  },
 };
 
 function getSelections(textarea, linesOnly = false) {
   let { selectionStart, selectionEnd } = textarea,
-      selection = textarea.value.substring(selectionStart, selectionEnd),
-      leadingSpace = '',
-      trailingSpace =  '',
-      caret;
+    selection = textarea.value.substring(selectionStart, selectionEnd),
+    leadingSpace = '',
+    trailingSpace = '',
+    caret;
 
   const processLinesOnly = linesOnly instanceof RegExp ? linesOnly.test(selection) : linesOnly;
   if (processLinesOnly) {
     const explorer = /\n/g;
     let startNewlineIndex = 0,
-        endNewlineIndex = textarea.value.length;
+      endNewlineIndex = textarea.value.length;
     while (explorer.exec(textarea.value)) {
       const { lastIndex } = explorer;
       if (lastIndex <= selectionStart) {
         startNewlineIndex = lastIndex;
-      }
-      else if (lastIndex > selectionEnd) {
+      } else if (lastIndex > selectionEnd) {
         endNewlineIndex = lastIndex - 1;
         break;
       }
@@ -96,8 +95,7 @@ function getSelections(textarea, linesOnly = false) {
     }
     selectionEnd = endNewlineIndex;
     selection = textarea.value.substring(selectionStart, selectionEnd);
-  }
-  else {
+  } else {
     // Deselect trailing space and line break
     for (caret = selection.length - 1; caret > 0; caret--) {
       if (selection[caret] !== ' ' && selection[caret] !== '\n') break;
@@ -117,22 +115,23 @@ function getSelections(textarea, linesOnly = false) {
     processLinesOnly,
     selectedText: selection,
     beforeSelection: textarea.value.substring(0, selectionStart) + leadingSpace,
-    afterSelection: trailingSpace + textarea.value.substring(selectionEnd)
+    afterSelection: trailingSpace + textarea.value.substring(selectionEnd),
   };
 }
 
 function transformSelection(textarea, transformer, eachLine) {
   const { selectedText, beforeSelection, afterSelection, processLinesOnly } = getSelections(textarea, eachLine),
-        // For long comments, record scrollbar position to restore it later
-        { scrollTop } = textarea;
+    // For long comments, record scrollbar position to restore it later
+    { scrollTop } = textarea;
 
   const { newText, caretOffset } = transformer(selectedText, processLinesOnly);
 
   textarea.value = beforeSelection + newText + afterSelection;
 
-  const newSelectionStart = caretOffset >= 1
-    ? beforeSelection.length + caretOffset
-    : textarea.value.length - afterSelection.length - caretOffset;
+  const newSelectionStart =
+    caretOffset >= 1
+      ? beforeSelection.length + caretOffset
+      : textarea.value.length - afterSelection.length - caretOffset;
 
   textarea.selectionStart = newSelectionStart;
   textarea.selectionEnd = newSelectionStart;
@@ -151,7 +150,7 @@ function insertLink(textarea, options) {
   }
 
   const prefix = options.image ? '![' : '[',
-        suffix = `](${hyperlink})`;
+    suffix = `](${hyperlink})`;
 
   wrapSelection(textarea, { prefix, suffix });
 }
@@ -159,7 +158,7 @@ function insertLink(textarea, options) {
 function wrapSelection(textarea, options) {
   transformSelection(textarea, selectedText => {
     const { text = selectedText, prefix = '', suffix = options.prefix } = options,
-          emptyText = text === '';
+      emptyText = text === '';
     let newText = text;
 
     if (!emptyText) {
@@ -172,26 +171,33 @@ function wrapSelection(textarea, options) {
 
     return {
       newText,
-      caretOffset: emptyText ? prefix.length : newText.length
+      caretOffset: emptyText ? prefix.length : newText.length,
     };
   });
 }
 
 function wrapLines(textarea, options, eachLine = true) {
-  transformSelection(textarea, (selectedText, processLinesOnly) => {
-    const { text = selectedText, singleWrap = false } = options,
-          prefix = (processLinesOnly && options.prefixMultiline) || options.prefix || '',
-          suffix = (processLinesOnly && options.suffixMultiline) || options.suffix || '',
-          emptyText = text === '';
-    let newText = singleWrap
-      ? prefix + text.trim() + suffix
-      : text.split(/\n/g).map(line => prefix + line.trim() + suffix).join('\n');
+  transformSelection(
+    textarea,
+    (selectedText, processLinesOnly) => {
+      const { text = selectedText, singleWrap = false } = options,
+        prefix = (processLinesOnly && options.prefixMultiline) || options.prefix || '',
+        suffix = (processLinesOnly && options.suffixMultiline) || options.suffix || '',
+        emptyText = text === '';
+      let newText = singleWrap
+        ? prefix + text.trim() + suffix
+        : text
+            .split(/\n/g)
+            .map(line => prefix + line.trim() + suffix)
+            .join('\n');
 
-    // Force a space at the end of lines with only blockquote markers
-    newText = newText.replace(/^((?:>\s+)*)>$/gm, '$1> ');
+      // Force a space at the end of lines with only blockquote markers
+      newText = newText.replace(/^((?:>\s+)*)>$/gm, '$1> ');
 
-    return { newText, caretOffset: emptyText ? prefix.length : newText.length };
-  }, eachLine);
+      return { newText, caretOffset: emptyText ? prefix.length : newText.length };
+    },
+    eachLine,
+  );
 }
 
 function wrapSelectionOrLines(textarea, options) {
@@ -201,7 +207,7 @@ function wrapSelectionOrLines(textarea, options) {
 function escapeSelection(textarea, options) {
   transformSelection(textarea, selectedText => {
     const { text = selectedText } = options,
-          emptyText = text === '';
+      emptyText = text === '';
 
     if (emptyText) return;
 
@@ -209,7 +215,7 @@ function escapeSelection(textarea, options) {
 
     return {
       newText,
-      caretOffset: newText.length
+      caretOffset: newText.length,
     };
   });
 }
@@ -218,20 +224,40 @@ function clickHandler(event) {
   const button = event.target.closest('.communication__toolbar__button');
   if (!button) return;
   const toolbar = button.closest('.communication__toolbar'),
-        // There may be multiple toolbars present on the page,
-        // in the case of image pages with description edit active
-        // we target the textarea that shares the same parent as the toolbar
-        textarea = $('.js-toolbar-input', toolbar.parentNode),
-        id = button.dataset.syntaxId;
+    // There may be multiple toolbars present on the page,
+    // in the case of image pages with description edit active
+    // we target the textarea that shares the same parent as the toolbar
+    textarea = $('.js-toolbar-input', toolbar.parentNode),
+    id = button.dataset.syntaxId;
 
   markdownSyntax[id].action(textarea, markdownSyntax[id].options);
   textarea.focus();
 }
 
+function canAcceptShortcut(event) {
+  let ctrl, otherModifier;
+
+  switch (window.navigator.platform) {
+    case 'MacIntel':
+      ctrl = event.metaKey;
+      otherModifier = event.ctrlKey || event.shiftKey || event.altKey;
+      break;
+    default:
+      ctrl = event.ctrlKey;
+      otherModifier = event.metaKey || event.shiftKey || event.altKey;
+      break;
+  }
+
+  return ctrl && !otherModifier;
+}
+
 function shortcutHandler(event) {
-  if (!event.ctrlKey || (window.navigator.platform === 'MacIntel' && !event.metaKey) || event.shiftKey || event.altKey) return;
+  if (!canAcceptShortcut(event)) {
+    return;
+  }
+
   const textarea = event.target,
-        key = event.key.toLowerCase();
+    key = event.key.toLowerCase();
 
   for (const id in markdownSyntax) {
     if (key === markdownSyntax[id].options.shortcutKey) {

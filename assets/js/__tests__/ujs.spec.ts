@@ -29,7 +29,7 @@ describe('Remote utilities', () => {
   }
 
   describe('a[data-remote]', () => {
-    const submitA = ({ setMethod }: { setMethod: boolean; }) => {
+    const submitA = ({ setMethod }: { setMethod: boolean }) => {
       const a = document.createElement('a');
       a.href = mockEndpoint;
       a.dataset.remote = 'remote';
@@ -51,8 +51,8 @@ describe('Remote utilities', () => {
         credentials: 'same-origin',
         headers: {
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'XMLHttpRequest'
-        }
+          'x-requested-with': 'XMLHttpRequest',
+        },
       });
     });
 
@@ -64,21 +64,22 @@ describe('Remote utilities', () => {
         credentials: 'same-origin',
         headers: {
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'XMLHttpRequest'
-        }
+          'x-requested-with': 'XMLHttpRequest',
+        },
       });
     });
 
-    it('should emit fetchcomplete event', () => new Promise<void>(resolve => {
-      let a: HTMLAnchorElement | null = null;
+    it('should emit fetchcomplete event', () =>
+      new Promise<void>(resolve => {
+        let a: HTMLAnchorElement | null = null;
 
-      addOneShotEventListener('fetchcomplete', event => {
-        expect(event.target).toBe(a);
-        resolve();
-      });
+        addOneShotEventListener('fetchcomplete', event => {
+          expect(event.target).toBe(a);
+          resolve();
+        });
 
-      a = submitA({ setMethod: true });
-    }));
+        a = submitA({ setMethod: true });
+      }));
   });
 
   describe('a[data-method]', () => {
@@ -93,24 +94,25 @@ describe('Remote utilities', () => {
       return a;
     };
 
-    it('should submit a form with the given action', () => new Promise<void>(resolve => {
-      addOneShotEventListener('submit', event => {
-        event.preventDefault();
+    it('should submit a form with the given action', () =>
+      new Promise<void>(resolve => {
+        addOneShotEventListener('submit', event => {
+          event.preventDefault();
 
-        const target = assertType(event.target, HTMLFormElement);
-        const [ csrf, method ] = target.querySelectorAll('input');
+          const target = assertType(event.target, HTMLFormElement);
+          const [csrf, method] = target.querySelectorAll('input');
 
-        expect(csrf.name).toBe('_csrf_token');
-        expect(csrf.value).toBe(window.booru.csrfToken);
+          expect(csrf.name).toBe('_csrf_token');
+          expect(csrf.value).toBe(window.booru.csrfToken);
 
-        expect(method.name).toBe('_method');
-        expect(method.value).toBe(mockVerb);
+          expect(method.name).toBe('_method');
+          expect(method.value).toBe(mockVerb);
 
-        resolve();
-      });
+          resolve();
+        });
 
-      submitA();
-    }));
+        submitA();
+      }));
   });
 
   describe('form[data-remote]', () => {
@@ -167,7 +169,7 @@ describe('Remote utilities', () => {
         credentials: 'same-origin',
         headers: {
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'XMLHttpRequest'
+          'x-requested-with': 'XMLHttpRequest',
         },
         body: new FormData(),
       });
@@ -183,25 +185,26 @@ describe('Remote utilities', () => {
         credentials: 'same-origin',
         headers: {
           'x-csrf-token': window.booru.csrfToken,
-          'x-requested-with': 'XMLHttpRequest'
+          'x-requested-with': 'XMLHttpRequest',
         },
         body: new FormData(),
       });
     });
 
-    it('should emit fetchcomplete event', () => new Promise<void>(resolve => {
-      let form: HTMLFormElement | null = null;
+    it('should emit fetchcomplete event', () =>
+      new Promise<void>(resolve => {
+        let form: HTMLFormElement | null = null;
 
-      addOneShotEventListener('fetchcomplete', event => {
-        expect(event.target).toBe(form);
-        resolve();
-      });
+        addOneShotEventListener('fetchcomplete', event => {
+          expect(event.target).toBe(form);
+          resolve();
+        });
 
-      form = submitForm();
-    }));
+        form = submitForm();
+      }));
 
     it('should reload the page on 300 multiple choices response', () => {
-      vi.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 300}));
+      vi.spyOn(global, 'fetch').mockResolvedValue(new Response('', { status: 300 }));
 
       submitForm();
       return waitFor(() => expect(window.location.reload).toHaveBeenCalledTimes(1));
@@ -267,7 +270,7 @@ describe('Form utilities', () => {
       form.insertAdjacentElement('beforeend', button);
       document.documentElement.insertAdjacentElement('beforeend', form);
 
-      return [ form, button ];
+      return [form, button];
     };
 
     const submitText = 'Submit';
@@ -276,7 +279,7 @@ describe('Form utilities', () => {
     const loadingMarkup = '<em>Loading...</em>';
 
     it('should disable submit button containing a text child on click', () => {
-      const [ , button ] = createFormAndButton(submitText, loadingText);
+      const [, button] = createFormAndButton(submitText, loadingText);
       fireEvent.click(button);
 
       expect(button.textContent).toEqual(' Loading...');
@@ -284,7 +287,7 @@ describe('Form utilities', () => {
     });
 
     it('should disable submit button containing element children on click', () => {
-      const [ , button ] = createFormAndButton(submitMarkup, loadingMarkup);
+      const [, button] = createFormAndButton(submitMarkup, loadingMarkup);
       fireEvent.click(button);
 
       expect(button.innerHTML).toEqual(loadingMarkup);
@@ -292,7 +295,7 @@ describe('Form utilities', () => {
     });
 
     it('should not disable anything when the form is invalid', () => {
-      const [ form, button ] = createFormAndButton(submitText, loadingText);
+      const [form, button] = createFormAndButton(submitText, loadingText);
       form.insertAdjacentHTML('afterbegin', '<input type="text" name="valid" required="true" />');
       fireEvent.click(button);
 
@@ -301,7 +304,7 @@ describe('Form utilities', () => {
     });
 
     it('should reset submit button containing a text child on completion', () => {
-      const [ form, button ] = createFormAndButton(submitText, loadingText);
+      const [form, button] = createFormAndButton(submitText, loadingText);
       fireEvent.click(button);
       fireEvent(form, new CustomEvent('reset', { bubbles: true }));
 
@@ -310,7 +313,7 @@ describe('Form utilities', () => {
     });
 
     it('should reset submit button containing element children on completion', () => {
-      const [ form, button ] = createFormAndButton(submitMarkup, loadingMarkup);
+      const [form, button] = createFormAndButton(submitMarkup, loadingMarkup);
       fireEvent.click(button);
       fireEvent(form, new CustomEvent('reset', { bubbles: true }));
 
@@ -319,7 +322,7 @@ describe('Form utilities', () => {
     });
 
     it('should reset disabled form elements on pageshow', () => {
-      const [ , button ] = createFormAndButton(submitText, loadingText);
+      const [, button] = createFormAndButton(submitText, loadingText);
       fireEvent.click(button);
       fireEvent(window, new CustomEvent('pageshow'));
 

@@ -15,7 +15,7 @@ export function setupDupeReports() {
 }
 
 function setupSwipe(swipe: SVGSVGElement) {
-  const [ clip, divider ] = $$<SVGRectElement>('#clip rect, #divider', swipe);
+  const [clip, divider] = $$<SVGRectElement>('#clip rect, #divider', swipe);
   const { width } = swipe.viewBox.baseVal;
 
   function moveDivider({ clientX }: MouseEvent) {

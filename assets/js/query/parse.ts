@@ -23,19 +23,16 @@ export function parseTokens(lexicalArray: TokenList): AstMatcher {
 
       if (token === 'and_op') {
         intermediate = matchAll(op1, op2);
-      }
-      else {
+      } else {
         intermediate = matchAny(op1, op2);
       }
-    }
-    else {
+    } else {
       intermediate = token;
     }
 
     if (lexicalArray[i + 1] === 'not_op') {
       operandStack.push(matchNot(intermediate));
-    }
-    else {
+    } else {
       operandStack.push(intermediate);
     }
   }

@@ -87,11 +87,7 @@ describe('DOM Utilities', () => {
     });
 
     it(`should remove the ${hiddenClass} class from all provided elements`, () => {
-      const mockElements = [
-        createHiddenElement('div'),
-        createHiddenElement('a'),
-        createHiddenElement('strong'),
-      ];
+      const mockElements = [createHiddenElement('div'), createHiddenElement('a'), createHiddenElement('strong')];
       showEl(mockElements);
       expect(mockElements[0]).not.toHaveClass(hiddenClass);
       expect(mockElements[1]).not.toHaveClass(hiddenClass);
@@ -99,14 +95,8 @@ describe('DOM Utilities', () => {
     });
 
     it(`should remove the ${hiddenClass} class from elements provided in multiple arrays`, () => {
-      const mockElements1 = [
-        createHiddenElement('div'),
-        createHiddenElement('a'),
-      ];
-      const mockElements2 = [
-        createHiddenElement('strong'),
-        createHiddenElement('em'),
-      ];
+      const mockElements1 = [createHiddenElement('div'), createHiddenElement('a')];
+      const mockElements2 = [createHiddenElement('strong'), createHiddenElement('em')];
       showEl(mockElements1, mockElements2);
       expect(mockElements1[0]).not.toHaveClass(hiddenClass);
       expect(mockElements1[1]).not.toHaveClass(hiddenClass);
@@ -135,14 +125,8 @@ describe('DOM Utilities', () => {
     });
 
     it(`should add the ${hiddenClass} class to elements provided in multiple arrays`, () => {
-      const mockElements1 = [
-        document.createElement('div'),
-        document.createElement('a'),
-      ];
-      const mockElements2 = [
-        document.createElement('strong'),
-        document.createElement('em'),
-      ];
+      const mockElements1 = [document.createElement('div'), document.createElement('a')];
+      const mockElements2 = [document.createElement('strong'), document.createElement('em')];
       hideEl(mockElements1, mockElements2);
       expect(mockElements1[0]).toHaveClass(hiddenClass);
       expect(mockElements1[1]).toHaveClass(hiddenClass);
@@ -159,24 +143,15 @@ describe('DOM Utilities', () => {
     });
 
     it('should set the disabled attribute to true on all provided elements', () => {
-      const mockElements = [
-        document.createElement('input'),
-        document.createElement('button'),
-      ];
+      const mockElements = [document.createElement('input'), document.createElement('button')];
       disableEl(mockElements);
       expect(mockElements[0]).toBeDisabled();
       expect(mockElements[1]).toBeDisabled();
     });
 
     it('should set the disabled attribute to true on elements provided in multiple arrays', () => {
-      const mockElements1 = [
-        document.createElement('input'),
-        document.createElement('button'),
-      ];
-      const mockElements2 = [
-        document.createElement('textarea'),
-        document.createElement('button'),
-      ];
+      const mockElements1 = [document.createElement('input'), document.createElement('button')];
+      const mockElements2 = [document.createElement('textarea'), document.createElement('button')];
       disableEl(mockElements1, mockElements2);
       expect(mockElements1[0]).toBeDisabled();
       expect(mockElements1[1]).toBeDisabled();
@@ -193,24 +168,15 @@ describe('DOM Utilities', () => {
     });
 
     it('should set the disabled attribute to false on all provided elements', () => {
-      const mockElements = [
-        document.createElement('input'),
-        document.createElement('button'),
-      ];
+      const mockElements = [document.createElement('input'), document.createElement('button')];
       enableEl(mockElements);
       expect(mockElements[0]).toBeEnabled();
       expect(mockElements[1]).toBeEnabled();
     });
 
     it('should set the disabled attribute to false on elements provided in multiple arrays', () => {
-      const mockElements1 = [
-        document.createElement('input'),
-        document.createElement('button'),
-      ];
-      const mockElements2 = [
-        document.createElement('textarea'),
-        document.createElement('button'),
-      ];
+      const mockElements1 = [document.createElement('input'), document.createElement('button')];
+      const mockElements2 = [document.createElement('textarea'), document.createElement('button')];
       enableEl(mockElements1, mockElements2);
       expect(mockElements1[0]).toBeEnabled();
       expect(mockElements1[1]).toBeEnabled();
@@ -245,14 +211,8 @@ describe('DOM Utilities', () => {
     });
 
     it(`should toggle the ${hiddenClass} class on elements provided in multiple arrays`, () => {
-      const mockElements1 = [
-        createHiddenElement('div'),
-        document.createElement('a'),
-      ];
-      const mockElements2 = [
-        createHiddenElement('strong'),
-        document.createElement('em'),
-      ];
+      const mockElements1 = [createHiddenElement('div'), document.createElement('a')];
+      const mockElements2 = [createHiddenElement('strong'), document.createElement('em')];
       toggleEl(mockElements1, mockElements2);
       expect(mockElements1[0]).not.toHaveClass(hiddenClass);
       expect(mockElements1[1]).toHaveClass(hiddenClass);
@@ -430,8 +390,7 @@ describe('DOM Utilities', () => {
       try {
         whenReady(mockCallback);
         expect(mockCallback).toHaveBeenCalledTimes(1);
-      }
-      finally {
+      } finally {
         readyStateSpy.mockRestore();
       }
     });
@@ -446,8 +405,7 @@ describe('DOM Utilities', () => {
         expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
         expect(addEventListenerSpy).toHaveBeenNthCalledWith(1, 'DOMContentLoaded', mockCallback);
         expect(mockCallback).not.toHaveBeenCalled();
-      }
-      finally {
+      } finally {
         readyStateSpy.mockRestore();
         addEventListenerSpy.mockRestore();
       }
@@ -456,7 +414,9 @@ describe('DOM Utilities', () => {
 
   describe('escapeHtml', () => {
     it('should replace only the expected characters with their HTML entity equivalents', () => {
-      expect(escapeHtml('<script src="http://example.com/?a=1&b=2"></script>')).toBe('&lt;script src=&quot;http://example.com/?a=1&amp;b=2&quot;&gt;&lt;/script&gt;');
+      expect(escapeHtml('<script src="http://example.com/?a=1&b=2"></script>')).toBe(
+        '&lt;script src=&quot;http://example.com/?a=1&amp;b=2&quot;&gt;&lt;/script&gt;',
+      );
     });
   });
 

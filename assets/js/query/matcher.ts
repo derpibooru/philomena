@@ -6,10 +6,10 @@ import { makeUserMatcher } from './user';
 import { FieldMatcher, RangeEqualQualifier } from './types';
 
 export interface MatcherFactory {
-  makeDateMatcher: (dateVal: string, qual: RangeEqualQualifier) => FieldMatcher,
-  makeLiteralMatcher: (term: string, fuzz: number, wildcardable: boolean) => FieldMatcher,
-  makeNumberMatcher: (term: number, fuzz: number, qual: RangeEqualQualifier) => FieldMatcher,
-  makeUserMatcher: (term: string) => FieldMatcher
+  makeDateMatcher: (dateVal: string, qual: RangeEqualQualifier) => FieldMatcher;
+  makeLiteralMatcher: (term: string, fuzz: number, wildcardable: boolean) => FieldMatcher;
+  makeNumberMatcher: (term: number, fuzz: number, qual: RangeEqualQualifier) => FieldMatcher;
+  makeUserMatcher: (term: string) => FieldMatcher;
 }
 
 export const defaultMatcher: MatcherFactory = {
