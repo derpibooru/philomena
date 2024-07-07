@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Gallery.ReadController do
     gallery = conn.assigns.gallery
     user = conn.assigns.current_user
 
-    Galleries.clear_notification(gallery, user)
+    Galleries.clear_gallery_notification(gallery, user)
 
     send_resp(conn, :ok, "")
   end

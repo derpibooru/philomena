@@ -4,19 +4,19 @@ defmodule PhilomenaWeb.Notification.CategoryController do
   alias Philomena.Notifications
 
   def show(conn, params) do
-    type = category(params)
+    category_param = category(params)
 
     notifications =
-      Notifications.unread_notifications_for_user_and_type(
+      Notifications.unread_notifications_for_user_and_category(
         conn.assigns.current_user,
-        type,
+        category_param,
         conn.assigns.scrivener
       )
 
     render(conn, "show.html",
       title: "Notification Area",
       notifications: notifications,
-      type: type
+      category: category_param
     )
   end
 

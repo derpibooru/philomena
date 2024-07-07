@@ -12,7 +12,6 @@ defmodule Philomena.Users.User do
   alias Philomena.Filters.Filter
   alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.Badges
-  alias Philomena.Notifications.UnreadNotification
   alias Philomena.Galleries.Gallery
   alias Philomena.Users.User
   alias Philomena.Commissions.Commission
@@ -30,8 +29,6 @@ defmodule Philomena.Users.User do
     has_many :public_links, ArtistLink, where: [public: true, aasm_state: "verified"]
     has_many :galleries, Gallery, foreign_key: :creator_id
     has_many :awards, Badges.Award
-    has_many :unread_notifications, UnreadNotification
-    has_many :notifications, through: [:unread_notifications, :notification]
     has_many :linked_tags, through: [:verified_links, :tag]
     has_many :user_ips, UserIp
     has_many :user_fingerprints, UserFingerprint

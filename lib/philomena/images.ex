@@ -22,7 +22,8 @@ defmodule Philomena.Images do
   alias Philomena.IndexWorker
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.SourceChanges.SourceChange
-  alias Philomena.Notifications.Notification
+  alias Philomena.Notifications.ImageCommentNotification
+  alias Philomena.Notifications.ImageMergeNotification
   alias Philomena.NotificationWorker
   alias Philomena.TagChanges.Limits
   alias Philomena.TagChanges.TagChange
@@ -38,7 +39,6 @@ defmodule Philomena.Images do
   alias Philomena.Users.User
 
   use Philomena.Subscriptions,
-    actor_types: ~w(Image),
     id_name: :image_id
 
   @doc """
@@ -905,12 +905,17 @@ defmodule Philomena.Images do
 
     Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
 
-    {count, nil} =
-      Notification
-      |> where(actor_type: "Image", actor_id: ^source.id)
-      |> Repo.delete_all()
+    {comment_notification_count, nil} =
+      ImageCommentNotification
+      |> where(image_id: ^source.id)
+      |> Repo.update_all(set: [image_id: target.id])
 
-    {:ok, count}
+    {merge_notification_count, nil} =
+      ImageMergeNotification
+      |> where(image_id: ^source.id)
+      |> Repo.update_all(set: [image_id: target.id])
+
+    {:ok, {comment_notification_count, merge_notification_count}}
   end
 
   def migrate_sources(source, target) do
@@ -930,23 +935,24 @@ defmodule Philomena.Images do
   end
 
   def perform_notify([source_id, target_id]) do
+    source = get_image!(source_id)
     target = get_image!(target_id)
 
-    subscriptions =
-      target
-      |> Repo.preload(:subscriptions)
-      |> Map.fetch!(:subscriptions)
+    Notifications.create_image_merge_notification(target, source)
+  end
 
-    Notifications.notify(
-      nil,
-      subscriptions,
-      %{
-        actor_id: target.id,
-        actor_type: "Image",
-        actor_child_id: nil,
-        actor_child_type: nil,
-        action: "merged ##{source_id} into"
-      }
-    )
+  @doc """
+  Removes all image notifications for a given image and user.
+
+  ## Examples
+
+      iex> clear_image_notification(image, user)
+      :ok
+
+  """
+  def clear_image_notification(%Image{} = image, user) do
+    Notifications.clear_image_comment_notification(image, user)
+    Notifications.clear_image_merge_notification(image, user)
+    :ok
   end
 end

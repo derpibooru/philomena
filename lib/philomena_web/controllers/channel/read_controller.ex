@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Channel.ReadController do
     channel = conn.assigns.channel
     user = conn.assigns.current_user
 
-    Channels.clear_notification(channel, user)
+    Channels.clear_channel_notification(channel, user)
 
     send_resp(conn, :ok, "")
   end

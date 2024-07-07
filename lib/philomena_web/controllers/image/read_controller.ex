@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Image.ReadController do
     image = conn.assigns.image
     user = conn.assigns.current_user
 
-    Images.clear_notification(image, user)
+    Images.clear_image_notification(image, user)
 
     send_resp(conn, :ok, "")
   end
