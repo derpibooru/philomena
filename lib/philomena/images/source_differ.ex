@@ -1,6 +1,5 @@
 defmodule Philomena.Images.SourceDiffer do
   import Ecto.Changeset
-  alias Philomena.Images.Source
 
   def diff_input(changeset, old_sources, new_sources) do
     old_set = MapSet.new(flatten_input(old_sources))
@@ -13,12 +12,11 @@ defmodule Philomena.Images.SourceDiffer do
     {sources, actually_added, actually_removed} =
       apply_changes(source_set, added_sources, removed_sources)
 
-    image_id = fetch_field!(changeset, :id)
-
     changeset
+    |> cast(source_params(sources), [])
     |> put_change(:added_sources, actually_added)
     |> put_change(:removed_sources, actually_removed)
-    |> put_assoc(:sources, source_structs(image_id, sources))
+    |> cast_assoc(:sources)
   end
 
   defp apply_changes(source_set, added_set, removed_set) do
@@ -44,8 +42,8 @@ defmodule Philomena.Images.SourceDiffer do
     {sources, actually_added, actually_removed}
   end
 
-  defp source_structs(image_id, sources) do
-    Enum.map(sources, &%Source{image_id: image_id, source: &1})
+  defp source_params(sources) do
+    %{sources: Enum.map(sources, &%{source: &1})}
   end
 
   defp flatten_input(input) when is_map(input) do
