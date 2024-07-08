@@ -2,7 +2,6 @@
  * Functions to execute when the DOM is ready
  */
 
-
 import { whenReady, $ } from './utils/dom';
 
 import { listenAutocomplete } from './autocomplete';
