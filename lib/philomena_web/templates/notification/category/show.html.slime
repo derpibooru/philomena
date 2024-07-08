@@ -1,0 +1,28 @@
+h1 Notification Area
+.walloftext
+  = cond do
+    - Enum.any?(@notifications) ->
+      - route = fn p -> ~p"/notifications/categories/#{@type}?#{p}" end
+      - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @notifications, route: route, conn: @conn
+
+      .block.notification-type-block
+        .block__header
+          span.block__header__title = name_of_type(@type)
+        .block__header.block__header__sub
+          = pagination
+
+        div
+          = for notification <- @notifications do
+            = render PhilomenaWeb.NotificationView, "_notification.html", notification: notification, conn: @conn
+
+        .block__header.block__header--light
+          = pagination
+
+    - true ->
+      p You currently have no notifications of this category.
+      p
+        ' To get notifications on new comments and forum posts, click the
+        ' 'Subscribe' button in the bar at the top of an image or forum topic.
+
+  a.button href=~p"/notifications"
+    ' View all notifications

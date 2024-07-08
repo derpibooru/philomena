@@ -1,0 +1,11 @@
+.notification-type-block:not(:last-child) {
+  margin-bottom: 20px;
+}
+
+.notification {
+  margin-bottom: 0;
+}
+
+.notification:not(:last-child) {
+  border-bottom: 0;
+}
