@@ -12,8 +12,7 @@ p.fieldlabel
   ' End date
 
 .field.field--block
-  = text_input @f, :until, class: "input input--wide", placeholder: "2 weeks from now", maxlength: 255
-  = error_tag @f, :until
+  = text_input @f, :active_until, class: "input input--wide", placeholder: "2 weeks from now", maxlength: 255
   = error_tag @f, :active_until
 
 p.fieldlabel

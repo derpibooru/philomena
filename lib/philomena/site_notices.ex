@@ -57,7 +57,7 @@ defmodule Philomena.SiteNotices do
   """
   def create_site_notice(creator, attrs \\ %{}) do
     %SiteNotice{user_id: creator.id}
-    |> SiteNotice.save_changeset(attrs)
+    |> SiteNotice.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -75,7 +75,7 @@ defmodule Philomena.SiteNotices do
   """
   def update_site_notice(%SiteNotice{} = site_notice, attrs) do
     site_notice
-    |> SiteNotice.save_changeset(attrs)
+    |> SiteNotice.changeset(attrs)
     |> Repo.update()
   end
 

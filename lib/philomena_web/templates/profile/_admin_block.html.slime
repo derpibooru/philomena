@@ -138,7 +138,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
 
     = if can?(@conn, :create, Philomena.Bans.User) do
       li
-        = link to: ~p"/admin/user_bans/new?#{[username: @user.name]}" do
+        = link to: ~p"/admin/user_bans/new?#{[user_id: @user.id]}" do
           i.fa.fa-fw.fa-ban
           span.admin__button Ban this sucker
 

@@ -42,12 +42,22 @@ defmodule PhilomenaQuery.RelativeDate do
 
   space = ignore(repeat(string(" ")))
 
-  moon =
+  permanent_specifier =
+    choice([
+      string("moon"),
+      string("forever"),
+      string("permanent"),
+      string("permanently"),
+      string("indefinite"),
+      string("indefinitely")
+    ])
+
+  permanent =
     space
-    |> string("moon")
+    |> concat(permanent_specifier)
     |> concat(space)
     |> eos()
-    |> unwrap_and_tag(:moon)
+    |> unwrap_and_tag(:permanent)
 
   now =
     space
@@ -69,7 +79,7 @@ defmodule PhilomenaQuery.RelativeDate do
 
   relative_date =
     choice([
-      moon,
+      permanent,
       now,
       date
     ])
@@ -147,7 +157,7 @@ defmodule PhilomenaQuery.RelativeDate do
     now = DateTime.utc_now(:second)
 
     case relative_date(input) do
-      {:ok, [moon: _moon], _1, _2, _3, _4} ->
+      {:ok, [permanent: _permanent], _1, _2, _3, _4} ->
         {:ok, DateTime.add(now, 31_536_000_000, :second)}
 
       {:ok, [now: _now], _1, _2, _3, _4} ->

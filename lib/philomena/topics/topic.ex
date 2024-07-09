@@ -58,7 +58,7 @@ defmodule Philomena.Topics.Topic do
     |> put_slug()
     |> change(forum: forum, user: attribution[:user])
     |> validate_required(:forum)
-    |> cast_assoc(:poll, with: &Poll.update_changeset/2)
+    |> cast_assoc(:poll, with: &Poll.changeset/2)
     |> cast_assoc(:posts, with: &Post.topic_creation_changeset(&1, &2, attribution, anonymous?))
     |> validate_length(:posts, is: 1)
     |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)

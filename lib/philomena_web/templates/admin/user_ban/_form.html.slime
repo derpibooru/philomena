@@ -3,9 +3,7 @@
     .alert.alert-danger
       p Oops, something went wrong! Please check the errors below.
 
-  .field
-    => label f, :username, "Username:"
-    = text_input f, :username, class: "input", placeholder: "Username", required: true
+  = hidden_input f, :user_id
 
   .field
     => label f, :reason, "Reason (shown to the banned user, and to staff on the user's profile page):"
@@ -17,9 +15,9 @@
     = text_input f, :note, class: "input input--wide", placeholder: "Note"
 
   .field
-    => label f, :until, "End time relative to now, in simple English (e.g. \"1 week from now\"):"
-    = text_input f, :until, class: "input input--wide", placeholder: "Until", required: true
-    = error_tag f, :until
+    => label f, :valid_until, "End time relative to now, in simple English (e.g. \"1 week from now\"):"
+    = text_input f, :valid_until, class: "input input--wide", placeholder: "Until", required: true
+    = error_tag f, :valid_until
 
   br
   .field

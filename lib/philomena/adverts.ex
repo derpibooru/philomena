@@ -121,7 +121,7 @@ defmodule Philomena.Adverts do
   """
   def create_advert(attrs \\ %{}) do
     %Advert{}
-    |> Advert.save_changeset(attrs)
+    |> Advert.changeset(attrs)
     |> Uploader.analyze_upload(attrs)
     |> Repo.insert()
     |> case do
@@ -150,7 +150,7 @@ defmodule Philomena.Adverts do
   """
   def update_advert(%Advert{} = advert, attrs) do
     advert
-    |> Advert.save_changeset(attrs)
+    |> Advert.changeset(attrs)
     |> Repo.update()
   end
 

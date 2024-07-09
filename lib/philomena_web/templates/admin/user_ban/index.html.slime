@@ -10,10 +10,6 @@ h1 User Bans
 
 .block
   .block__header
-    a href=~p"/admin/user_bans/new"
-      i.fa.fa-plus>
-      ' New user ban
-
     = pagination
 
   .block__content

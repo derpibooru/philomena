@@ -3,7 +3,6 @@ defmodule Philomena.Bans.Subnet do
   import Ecto.Changeset
 
   alias Philomena.Users.User
-  alias Philomena.Schema.Time
   alias Philomena.Schema.BanId
 
   schema "subnet_bans" do
@@ -12,11 +11,9 @@ defmodule Philomena.Bans.Subnet do
     field :reason, :string
     field :note, :string
     field :enabled, :boolean, default: true
-    field :valid_until, :utc_datetime
+    field :valid_until, PhilomenaQuery.Ecto.RelativeDate
     field :specification, EctoNetwork.INET
     field :generated_ban_id, :string
-
-    field :until, :string, virtual: true
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
@@ -24,14 +21,7 @@ defmodule Philomena.Bans.Subnet do
   @doc false
   def changeset(subnet_ban, attrs) do
     subnet_ban
-    |> cast(attrs, [])
-    |> Time.propagate_time(:valid_until, :until)
-  end
-
-  def save_changeset(subnet_ban, attrs) do
-    subnet_ban
-    |> cast(attrs, [:reason, :note, :enabled, :specification, :until])
-    |> Time.assign_time(:until, :valid_until)
+    |> cast(attrs, [:reason, :note, :enabled, :specification, :valid_until])
     |> BanId.put_ban_id("S")
     |> validate_required([:reason, :enabled, :specification, :valid_until])
     |> check_constraint(:valid_until, name: :subnet_ban_duration_must_be_valid)

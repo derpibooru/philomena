@@ -30,14 +30,14 @@
 
   h3 Run Time
   .field
-    => label f, :start_time, "Start time for the site notice (usually \"now\"):"
-    = text_input f, :start_time, class: "input input--wide", required: true
-    = error_tag f, :start_time
+    => label f, :start_date, "Start time for the site notice (usually \"now\"):"
+    = text_input f, :start_date, class: "input input--wide", required: true
+    = error_tag f, :start_date
 
   .field
-    => label f, :finish_time, "Finish time for the site notice (e.g. \"2 weeks from now\"):"
-    = text_input f, :finish_time, class: "input input--wide", required: true
-    = error_tag f, :finish_time
+    => label f, :finish_date, "Finish time for the site notice (e.g. \"2 weeks from now\"):"
+    = text_input f, :finish_date, class: "input input--wide", required: true
+    = error_tag f, :finish_date
 
   h3 Enable
   .field
