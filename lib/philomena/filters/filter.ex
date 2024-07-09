@@ -1,9 +1,10 @@
 defmodule Philomena.Filters.Filter do
   use Ecto.Schema
   import Ecto.Changeset
+  import PhilomenaQuery.Ecto.QueryValidator
 
   alias Philomena.Schema.TagList
-  alias Philomena.Schema.Search
+  alias Philomena.Images.Query
   alias Philomena.Users.User
   alias Philomena.Repo
 
@@ -48,8 +49,8 @@ defmodule Philomena.Filters.Filter do
     |> validate_required([:name])
     |> validate_my_downvotes(:spoilered_complex_str)
     |> validate_my_downvotes(:hidden_complex_str)
-    |> Search.validate_search(:spoilered_complex_str, user)
-    |> Search.validate_search(:hidden_complex_str, user)
+    |> validate_query(:spoilered_complex_str, &Query.compile(&1, user: user))
+    |> validate_query(:hidden_complex_str, &Query.compile(&1, user: user))
     |> unsafe_validate_unique([:user_id, :name], Repo)
   end
 
