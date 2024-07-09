@@ -1,9 +1,9 @@
 defmodule Philomena.Bans.Subnet do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.Bans.IdGenerator
 
   alias Philomena.Users.User
-  alias Philomena.Schema.BanId
 
   schema "subnet_bans" do
     belongs_to :banning_user, User
@@ -22,7 +22,7 @@ defmodule Philomena.Bans.Subnet do
   def changeset(subnet_ban, attrs) do
     subnet_ban
     |> cast(attrs, [:reason, :note, :enabled, :specification, :valid_until])
-    |> BanId.put_ban_id("S")
+    |> put_ban_id("S")
     |> validate_required([:reason, :enabled, :specification, :valid_until])
     |> check_constraint(:valid_until, name: :subnet_ban_duration_must_be_valid)
     |> mask_specification()

@@ -1,9 +1,9 @@
 defmodule Philomena.Bans.User do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.Bans.IdGenerator
 
   alias Philomena.Users.User
-  alias Philomena.Schema.BanId
 
   schema "user_bans" do
     belongs_to :user, User
@@ -23,7 +23,7 @@ defmodule Philomena.Bans.User do
   def changeset(user_ban, attrs) do
     user_ban
     |> cast(attrs, [:reason, :note, :enabled, :override_ip_ban, :user_id, :valid_until])
-    |> BanId.put_ban_id("U")
+    |> put_ban_id("U")
     |> validate_required([:reason, :enabled, :user_id, :valid_until])
     |> check_constraint(:valid_until, name: :user_ban_duration_must_be_valid)
   end

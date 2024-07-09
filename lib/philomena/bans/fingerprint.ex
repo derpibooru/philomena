@@ -1,9 +1,9 @@
 defmodule Philomena.Bans.Fingerprint do
   use Ecto.Schema
   import Ecto.Changeset
+  import Philomena.Bans.IdGenerator
 
   alias Philomena.Users.User
-  alias Philomena.Schema.BanId
 
   schema "fingerprint_bans" do
     belongs_to :banning_user, User
@@ -22,7 +22,7 @@ defmodule Philomena.Bans.Fingerprint do
   def changeset(fingerprint_ban, attrs) do
     fingerprint_ban
     |> cast(attrs, [:reason, :note, :enabled, :fingerprint, :valid_until])
-    |> BanId.put_ban_id("F")
+    |> put_ban_id("F")
     |> validate_required([:reason, :enabled, :fingerprint, :valid_until])
     |> check_constraint(:valid_until, name: :fingerprint_ban_duration_must_be_valid)
   end
