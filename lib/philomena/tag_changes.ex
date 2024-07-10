@@ -15,7 +15,7 @@ defmodule Philomena.TagChanges do
   # TODO: this is substantially similar to Images.batch_update/4.
   # Perhaps it should be extracted.
   def mass_revert(ids, attributes) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
     tag_change_attributes = Map.merge(attributes, %{created_at: now, updated_at: now})
     tag_attributes = %{name: "", slug: "", created_at: now, updated_at: now}
 

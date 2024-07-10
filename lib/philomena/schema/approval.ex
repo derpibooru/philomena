@@ -15,7 +15,7 @@ defmodule Philomena.Schema.Approval do
         %{changes: %{body: body}, valid?: true} = changeset,
         %User{} = user
       ) do
-    now = now_time()
+    now = DateTime.utc_now(:second)
     # 14 * 24 * 60 * 60
     two_weeks = 1_209_600
 
@@ -40,6 +40,4 @@ defmodule Philomena.Schema.Approval do
       do: change(changeset, body: Regex.replace(@image_embed_regex, body, "["))
 
   def maybe_strip_images(changeset, _user), do: changeset
-
-  defp now_time(), do: DateTime.truncate(DateTime.utc_now(), :second)
 end

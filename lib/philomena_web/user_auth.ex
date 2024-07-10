@@ -210,7 +210,7 @@ defmodule PhilomenaWeb.UserAuth do
   defp signed_in_path(_conn), do: "/"
 
   defp update_usages(conn, user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     UserIpUpdater.cast(user.id, conn.remote_ip, now)
     UserFingerprintUpdater.cast(user.id, conn.assigns.fingerprint, now)

@@ -4,7 +4,7 @@ defmodule Philomena.Adverts.Recorder do
   import Ecto.Query
 
   def run(%{impressions: impressions, clicks: clicks}) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     # Create insert statements for Ecto
     impressions = Enum.map(impressions, &impressions_insert_all(&1, now))

@@ -215,8 +215,7 @@ defmodule Philomena.Users.User do
   Confirms the account by setting `confirmed_at`.
   """
   def confirm_changeset(user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-    change(user, confirmed_at: now)
+    change(user, confirmed_at: DateTime.utc_now(:second))
   end
 
   @doc """
@@ -259,9 +258,7 @@ defmodule Philomena.Users.User do
   end
 
   def lock_changeset(user) do
-    locked_at = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    change(user, locked_at: locked_at)
+    change(user, locked_at: DateTime.utc_now(:second))
   end
 
   def unlock_changeset(user) do
@@ -378,14 +375,12 @@ defmodule Philomena.Users.User do
   end
 
   def name_changeset(user, attrs) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
     user
     |> cast(attrs, [:name])
     |> validate_name()
     |> put_slug()
     |> unique_constraints()
-    |> put_change(:last_renamed_at, now)
+    |> put_change(:last_renamed_at, DateTime.utc_now(:second))
   end
 
   def avatar_changeset(user, attrs) do
@@ -428,7 +423,7 @@ defmodule Philomena.Users.User do
   end
 
   def deactivate_changeset(user, moderator) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     change(user, deleted_at: now, deleted_by_user_id: moderator.id)
   end

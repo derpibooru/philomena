@@ -111,7 +111,7 @@ defmodule Philomena.Comments do
 
   """
   def update_comment(%Comment{} = comment, editor, attrs) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
     current_body = comment.body
     current_reason = comment.edit_reason
 

@@ -67,8 +67,7 @@ defmodule Philomena.Conversations.Conversation do
   end
 
   defp set_last_message(changeset) do
-    changeset
-    |> change(last_message_at: DateTime.utc_now() |> DateTime.truncate(:second))
+    change(changeset, last_message_at: DateTime.utc_now(:second))
   end
 
   defp put_recipient(changeset) do

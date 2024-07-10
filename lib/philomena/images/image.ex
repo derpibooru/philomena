@@ -120,11 +120,9 @@ defmodule Philomena.Images.Image do
   end
 
   def creation_changeset(image, attrs, attribution) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
     image
     |> cast(attrs, [:anonymous, :source_url, :description])
-    |> change(first_seen_at: now)
+    |> change(first_seen_at: DateTime.utc_now(:second))
     |> change(attribution)
     |> validate_length(:description, max: 50_000, count: :bytes)
     |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
@@ -340,7 +338,7 @@ defmodule Philomena.Images.Image do
   def approve_changeset(image) do
     change(image)
     |> put_change(:approved, true)
-    |> put_change(:first_seen_at, DateTime.truncate(DateTime.utc_now(), :second))
+    |> put_change(:first_seen_at, DateTime.utc_now(:second))
   end
 
   def cache_changeset(image) do

@@ -26,9 +26,7 @@ defmodule Philomena.Badges.Award do
   end
 
   defp put_awarded_on(%{data: %{awarded_on: nil}} = changeset) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    put_change(changeset, :awarded_on, now)
+    put_change(changeset, :awarded_on, DateTime.utc_now(:second))
   end
 
   defp put_awarded_on(changeset), do: changeset
