@@ -90,7 +90,8 @@ defmodule Philomena.Posts.Query do
     |> Parser.parse(query_string, context)
   end
 
-  def compile(user, query_string) do
+  def compile(query_string, opts \\ []) do
+    user = Keyword.get(opts, :user)
     query_string = query_string || ""
 
     case user do
