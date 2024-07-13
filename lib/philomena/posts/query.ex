@@ -92,7 +92,6 @@ defmodule Philomena.Posts.Query do
 
   def compile(query_string, opts \\ []) do
     user = Keyword.get(opts, :user)
-    query_string = query_string || ""
 
     case user do
       nil ->
