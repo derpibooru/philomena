@@ -144,7 +144,9 @@ defmodule Philomena.Images.Query do
     |> Parser.parse(query_string, context)
   end
 
-  def compile(user, query_string, watch \\ false) do
+  def compile(query_string, opts \\ []) do
+    user = Keyword.get(opts, :user)
+    watch = Keyword.get(opts, :watch, false)
     query_string = query_string || ""
 
     case user do

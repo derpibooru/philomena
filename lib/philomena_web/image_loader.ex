@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.ImageLoader do
   def search_string(conn, search_string, options \\ []) do
     user = conn.assigns.current_user
 
-    with {:ok, tree} <- Query.compile(user, search_string) do
+    with {:ok, tree} <- Query.compile(search_string, user: user) do
       {:ok, query(conn, tree, options)}
     else
       error ->
