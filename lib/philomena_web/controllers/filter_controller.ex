@@ -13,8 +13,8 @@ defmodule PhilomenaWeb.FilterController do
   def index(conn, %{"fq" => fq}) do
     user = conn.assigns.current_user
 
-    user
-    |> Query.compile(fq)
+    fq
+    |> Query.compile(user: user)
     |> render_index(conn, user)
   end
 
