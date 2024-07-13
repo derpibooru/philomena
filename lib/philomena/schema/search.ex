@@ -5,7 +5,7 @@ defmodule Philomena.Schema.Search do
 
   def validate_search(changeset, field, user, watched \\ false) do
     query = changeset |> get_field(field) |> String.normalize()
-    output = Query.compile(user, query, watched)
+    output = Query.compile(query, user: user, watch: watched)
 
     case output do
       {:ok, _} ->

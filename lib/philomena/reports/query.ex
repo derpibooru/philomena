@@ -17,6 +17,6 @@ defmodule Philomena.Reports.Query do
   def compile(query_string) do
     fields()
     |> Parser.new()
-    |> Parser.parse(query_string || "", %{})
+    |> Parser.parse(query_string, %{})
   end
 end

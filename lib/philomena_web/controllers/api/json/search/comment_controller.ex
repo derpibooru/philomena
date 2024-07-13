@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Api.Json.Search.CommentController do
     user = conn.assigns.current_user
     filter = conn.assigns.current_filter
 
-    case Query.compile(user, params["q"] || "") do
+    case Query.compile(params["q"], user: user) do
       {:ok, query} ->
         comments =
           Comment

@@ -54,7 +54,10 @@ defmodule PhilomenaWeb.Image.NavigateController do
   defp compile_query(conn) do
     user = conn.assigns.current_user
 
-    {:ok, query} = Query.compile(user, match_all_if_blank(conn.params["q"]))
+    {:ok, query} =
+      conn.params["q"]
+      |> match_all_if_blank()
+      |> Query.compile(user: user)
 
     query
   end

@@ -15,8 +15,6 @@ defmodule Philomena.Galleries.Query do
   end
 
   def compile(query_string) do
-    query_string = query_string || ""
-
     fields()
     |> Parser.new()
     |> Parser.parse(query_string)

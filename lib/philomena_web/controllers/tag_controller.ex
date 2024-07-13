@@ -121,7 +121,7 @@ defmodule PhilomenaWeb.TagController do
       |> String.trim()
       |> String.downcase()
 
-    case Images.Query.compile(nil, name) do
+    case Images.Query.compile(name) do
       {:ok, %{term: %{"namespaced_tags.name" => ^name}}} ->
         name
 
