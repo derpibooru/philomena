@@ -17,9 +17,9 @@
     = text_input f, :note, class: "input input--wide", placeholder: "Note"
 
   .field
-    => label f, :until, "End time relative to now, in simple English (e.g. \"1 week from now\"):"
-    = text_input f, :until, class: "input input--wide", placeholder: "Until", required: true
-    = error_tag f, :until
+    => label f, :valid_until, "End time relative to now, in simple English (e.g. \"1 week from now\"):"
+    = text_input f, :valid_until, class: "input input--wide", placeholder: "Until", required: true
+    = error_tag f, :valid_until
 
   br
   .field

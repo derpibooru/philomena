@@ -56,7 +56,7 @@ defmodule Philomena.Bans do
   """
   def create_fingerprint(creator, attrs \\ %{}) do
     %Fingerprint{banning_user_id: creator.id}
-    |> Fingerprint.save_changeset(attrs)
+    |> Fingerprint.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -74,7 +74,7 @@ defmodule Philomena.Bans do
   """
   def update_fingerprint(%Fingerprint{} = fingerprint, attrs) do
     fingerprint
-    |> Fingerprint.save_changeset(attrs)
+    |> Fingerprint.changeset(attrs)
     |> Repo.update()
   end
 
@@ -150,7 +150,7 @@ defmodule Philomena.Bans do
   """
   def create_subnet(creator, attrs \\ %{}) do
     %Subnet{banning_user_id: creator.id}
-    |> Subnet.save_changeset(attrs)
+    |> Subnet.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -168,7 +168,7 @@ defmodule Philomena.Bans do
   """
   def update_subnet(%Subnet{} = subnet, attrs) do
     subnet
-    |> Subnet.save_changeset(attrs)
+    |> Subnet.changeset(attrs)
     |> Repo.update()
   end
 
@@ -245,7 +245,7 @@ defmodule Philomena.Bans do
   def create_user(creator, attrs \\ %{}) do
     changeset =
       %User{banning_user_id: creator.id}
-      |> User.save_changeset(attrs)
+      |> User.changeset(attrs)
 
     Multi.new()
     |> Multi.insert(:user_ban, changeset)
@@ -276,7 +276,7 @@ defmodule Philomena.Bans do
   """
   def update_user(%User{} = user, attrs) do
     user
-    |> User.save_changeset(attrs)
+    |> User.changeset(attrs)
     |> Repo.update()
   end
 

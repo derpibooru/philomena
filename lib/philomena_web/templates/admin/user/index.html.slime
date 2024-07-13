@@ -82,7 +82,7 @@ h1 Users
             /' &bull;
 
             = if can?(@conn, :index, Philomena.Bans.User) do
-              => link to: ~p"/admin/user_bans/new?#{[username: user.name]}" do
+              => link to: ~p"/admin/user_bans/new?#{[user_id: user.id]}" do
                 i.fa.fa-fw.fa-ban
                 ' Ban
             = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do

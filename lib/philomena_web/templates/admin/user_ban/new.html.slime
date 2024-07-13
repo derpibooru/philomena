@@ -1,4 +1,7 @@
-h1 New User Ban
+h1
+  ' New User Ban for user
+  = @target_user.name
+
 = render PhilomenaWeb.Admin.UserBanView, "_form.html", changeset: @changeset, action: ~p"/admin/user_bans", conn: @conn
 
 br

@@ -51,7 +51,7 @@ defmodule Philomena.Polls do
   """
   def create_poll(attrs \\ %{}) do
     %Poll{}
-    |> Poll.update_changeset(attrs)
+    |> Poll.changeset(attrs)
     |> Repo.insert()
   end
 
@@ -69,7 +69,7 @@ defmodule Philomena.Polls do
   """
   def update_poll(%Poll{} = poll, attrs) do
     poll
-    |> Poll.update_changeset(attrs)
+    |> Poll.changeset(attrs)
     |> Repo.update()
   end
 
