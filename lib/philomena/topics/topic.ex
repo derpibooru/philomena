@@ -75,11 +75,10 @@ defmodule Philomena.Topics.Topic do
   end
 
   def lock_changeset(topic, attrs, user) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
-
-    change(topic)
+    topic
+    |> change()
     |> cast(attrs, [:lock_reason])
-    |> put_change(:locked_at, now)
+    |> put_change(:locked_at, DateTime.utc_now(:second))
     |> put_change(:locked_by_id, user.id)
     |> validate_required([:lock_reason])
   end

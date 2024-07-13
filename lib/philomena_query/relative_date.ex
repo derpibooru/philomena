@@ -117,7 +117,7 @@ defmodule PhilomenaQuery.RelativeDate do
   def parse_absolute(input) do
     case DateTime.from_iso8601(input) do
       {:ok, datetime, _offset} ->
-        {:ok, datetime |> DateTime.truncate(:second)}
+        {:ok, DateTime.truncate(datetime, :second)}
 
       _error ->
         {:error, "Parse error"}
@@ -144,19 +144,17 @@ defmodule PhilomenaQuery.RelativeDate do
   """
   @spec parse_relative(String.t()) :: {:ok, DateTime.t()} | {:error, any()}
   def parse_relative(input) do
+    now = DateTime.utc_now(:second)
+
     case relative_date(input) do
       {:ok, [moon: _moon], _1, _2, _3, _4} ->
-        {:ok,
-         DateTime.utc_now() |> DateTime.add(31_536_000_000, :second) |> DateTime.truncate(:second)}
+        {:ok, DateTime.add(now, 31_536_000_000, :second)}
 
       {:ok, [now: _now], _1, _2, _3, _4} ->
-        {:ok, DateTime.utc_now() |> DateTime.truncate(:second)}
+        {:ok, now}
 
       {:ok, [relative_date: [amount, scale, direction]], _1, _2, _3, _4} ->
-        {:ok,
-         DateTime.utc_now()
-         |> DateTime.add(amount * scale * direction, :second)
-         |> DateTime.truncate(:second)}
+        {:ok, DateTime.add(now, amount * scale * direction, :second)}
 
       _error ->
         {:error, "Parse error"}

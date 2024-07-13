@@ -48,7 +48,7 @@ defmodule PhilomenaWeb.StatsUpdater do
       |> Phoenix.HTML.Safe.to_iodata()
       |> IO.iodata_to_binary()
 
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     static_page = %{
       title: "Statistics",
