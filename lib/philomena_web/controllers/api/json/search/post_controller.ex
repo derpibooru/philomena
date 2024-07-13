@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.Api.Json.Search.PostController do
   def index(conn, params) do
     user = conn.assigns.current_user
 
-    case Query.compile(user, params["q"] || "") do
+    case Query.compile(params["q"], user: user) do
       {:ok, query} ->
         posts =
           Post

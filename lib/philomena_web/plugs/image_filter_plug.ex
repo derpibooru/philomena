@@ -1,7 +1,6 @@
 defmodule PhilomenaWeb.ImageFilterPlug do
   import Plug.Conn
-  import PhilomenaQuery.Parse.String
-
+  alias PhilomenaQuery.Parse.String
   alias Philomena.Images.Query
 
   # No options
@@ -50,7 +49,10 @@ defmodule PhilomenaWeb.ImageFilterPlug do
   end
 
   defp invalid_filter_guard(user, search_string) do
-    case Query.compile(user, normalize(search_string)) do
+    search_string
+    |> String.normalize()
+    |> Query.compile(user: user)
+    |> case do
       {:ok, query} -> query
       _error -> %{match_all: %{}}
     end

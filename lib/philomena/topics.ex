@@ -46,7 +46,7 @@ defmodule Philomena.Topics do
 
   """
   def create_topic(forum, attribution, attrs \\ %{}) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
 
     topic =
       %Topic{}

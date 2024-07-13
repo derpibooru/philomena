@@ -13,8 +13,8 @@ defmodule PhilomenaWeb.CommentController do
     conn = Map.put(conn, :params, params)
     user = conn.assigns.current_user
 
-    user
-    |> Query.compile(cq)
+    cq
+    |> Query.compile(user: user)
     |> render_index(conn, user)
   end
 

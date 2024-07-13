@@ -1,4 +1,6 @@
-h1 Editing ban
+h1
+  ' Editing user ban for user
+  = @user.user.name
 
 = render PhilomenaWeb.Admin.UserBanView, "_form.html", changeset: @changeset, action: ~p"/admin/user_bans/#{@user}", conn: @conn
 

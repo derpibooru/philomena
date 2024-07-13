@@ -7,7 +7,7 @@ defmodule PhilomenaWeb.Api.Json.Search.TagController do
   import Ecto.Query
 
   def index(conn, params) do
-    case Query.compile(params["q"] || "") do
+    case Query.compile(params["q"]) do
       {:ok, query} ->
         tags =
           Tag

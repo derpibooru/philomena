@@ -184,18 +184,18 @@ defmodule PhilomenaQuery.Parse.Parser do
   @spec parse(t(), String.t(), context()) :: {:ok, query()} | {:error, String.t()}
   def parse(parser, input, context \\ nil)
 
-  # Empty search should emit a match_none.
-  def parse(_parser, "", _context) do
-    {:ok, %{match_none: %{}}}
-  end
-
   def parse(%Parser{} = parser, input, context) do
     parser = %{parser | __data__: context}
 
-    with {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
+    with {:ok, input} <- coerce_string(input),
+         {:ok, tokens, _1, _2, _3, _4} <- Lexer.lex(input),
+         {:ok, tokens} <- convert_empty_token_list(tokens),
          {:ok, {tree, []}} <- search_top(parser, tokens) do
       {:ok, tree}
     else
+      {:error, :empty_query} ->
+        {:ok, %{match_none: %{}}}
+
       {:ok, {_tree, tokens}} ->
         {:error, "junk at end of expression: " <> debug_tokens(tokens)}
 
@@ -210,6 +210,13 @@ defmodule PhilomenaQuery.Parse.Parser do
         # {:error, "unknown parsing error"}
     end
   end
+
+  defp coerce_string(term) when is_binary(term), do: {:ok, term}
+  defp coerce_string(nil), do: {:ok, ""}
+  defp coerce_string(_), do: {:error, "search query is not a string"}
+
+  defp convert_empty_token_list([]), do: {:error, :empty_query}
+  defp convert_empty_token_list(tokens), do: {:ok, tokens}
 
   defp debug_tokens(tokens) do
     Enum.map_join(tokens, fn {_k, v} -> v end)

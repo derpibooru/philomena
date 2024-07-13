@@ -52,7 +52,7 @@ defmodule Philomena.Posts do
 
   """
   def create_post(topic, attributes, params \\ %{}) do
-    now = DateTime.utc_now()
+    now = DateTime.utc_now(:second)
 
     topic_query =
       Topic
@@ -163,7 +163,7 @@ defmodule Philomena.Posts do
 
   """
   def update_post(%Post{} = post, editor, attrs) do
-    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    now = DateTime.utc_now(:second)
     current_body = post.body
     current_reason = post.edit_reason
 

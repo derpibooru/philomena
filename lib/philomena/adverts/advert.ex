@@ -2,8 +2,6 @@ defmodule Philomena.Adverts.Advert do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Philomena.Schema.Time
-
   schema "adverts" do
     field :image, :string
     field :link, :string
@@ -11,8 +9,8 @@ defmodule Philomena.Adverts.Advert do
     field :clicks, :integer, default: 0
     field :impressions, :integer, default: 0
     field :live, :boolean, default: false
-    field :start_date, :utc_datetime
-    field :finish_date, :utc_datetime
+    field :start_date, PhilomenaQuery.Ecto.RelativeDate
+    field :finish_date, PhilomenaQuery.Ecto.RelativeDate
     field :restrictions, :string
     field :notes, :string
 
@@ -24,29 +22,18 @@ defmodule Philomena.Adverts.Advert do
     field :uploaded_image, :string, virtual: true
     field :removed_image, :string, virtual: true
 
-    field :start_time, :string, virtual: true
-    field :finish_time, :string, virtual: true
-
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
   def changeset(advert, attrs) do
     advert
-    |> cast(attrs, [])
-    |> Time.propagate_time(:start_date, :start_time)
-    |> Time.propagate_time(:finish_date, :finish_time)
-  end
-
-  def save_changeset(advert, attrs) do
-    advert
-    |> cast(attrs, [:title, :link, :start_time, :finish_time, :live, :restrictions, :notes])
-    |> Time.assign_time(:start_time, :start_date)
-    |> Time.assign_time(:finish_time, :finish_date)
+    |> cast(attrs, [:title, :link, :start_date, :finish_date, :live, :restrictions, :notes])
     |> validate_required([:title, :link, :start_date, :finish_date])
     |> validate_inclusion(:restrictions, ["none", "nsfw", "sfw"])
   end
 
+  @doc false
   def image_changeset(advert, attrs) do
     advert
     |> cast(attrs, [

@@ -1,13 +1,14 @@
 defmodule PhilomenaWeb.Admin.UserBanController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Users
   alias Philomena.Bans.User, as: UserBan
   alias Philomena.Bans
   alias Philomena.Repo
   import Ecto.Query
 
   plug :verify_authorized
-  plug :load_resource, model: UserBan, only: [:edit, :update, :delete]
+  plug :load_resource, model: UserBan, only: [:edit, :update, :delete], preload: :user
   plug :check_can_delete when action in [:delete]
 
   def index(conn, %{"q" => q}) when is_binary(q) do
@@ -35,14 +36,21 @@ defmodule PhilomenaWeb.Admin.UserBanController do
     load_bans(UserBan, conn)
   end
 
-  def new(conn, %{"username" => username}) do
-    changeset = Bans.change_user(%UserBan{username: username})
-    render(conn, "new.html", title: "New User Ban", changeset: changeset)
+  def new(conn, %{"user_id" => id}) do
+    target_user = Users.get_user!(id)
+    changeset = Bans.change_user(Ecto.build_assoc(target_user, :bans))
+
+    render(conn, "new.html",
+      title: "New User Ban",
+      target_user: target_user,
+      changeset: changeset
+    )
   end
 
   def new(conn, _params) do
-    changeset = Bans.change_user(%UserBan{})
-    render(conn, "new.html", title: "New User Ban", changeset: changeset)
+    conn
+    |> put_flash(:error, "Must create ban on user.")
+    |> redirect(to: ~p"/admin/user_bans")
   end
 
   def create(conn, %{"user" => user_ban_params}) do

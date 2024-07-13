@@ -13,8 +13,8 @@ defmodule PhilomenaWeb.PostController do
     conn = Map.put(conn, :params, params)
     user = conn.assigns.current_user
 
-    user
-    |> Query.compile(pq)
+    pq
+    |> Query.compile(user: user)
     |> render_index(conn, user)
   end
 

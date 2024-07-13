@@ -33,8 +33,8 @@ defmodule Philomena.Filters.Query do
     |> Parser.parse(query_string, context)
   end
 
-  def compile(user, query_string) do
-    query_string = query_string || ""
+  def compile(query_string, opts \\ []) do
+    user = Keyword.get(opts, :user)
 
     case user do
       nil ->
