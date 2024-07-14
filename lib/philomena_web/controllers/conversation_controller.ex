@@ -4,8 +4,6 @@ defmodule PhilomenaWeb.ConversationController do
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Conversations, Conversations.Conversation, Conversations.Message}
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Repo
-  import Ecto.Query
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
 
@@ -19,42 +17,17 @@ defmodule PhilomenaWeb.ConversationController do
     only: :show,
     preload: [:to, :from]
 
-  def index(conn, %{"with" => partner}) do
+  def index(conn, params) do
     user = conn.assigns.current_user
 
-    Conversation
-    |> where(
-      [c],
-      (c.from_id == ^user.id and c.to_id == ^partner and not c.from_hidden) or
-        (c.to_id == ^user.id and c.from_id == ^partner and not c.to_hidden)
-    )
-    |> load_conversations(conn)
-  end
-
-  def index(conn, _params) do
-    user = conn.assigns.current_user
-
-    Conversation
-    |> where(
-      [c],
-      (c.from_id == ^user.id and not c.from_hidden) or (c.to_id == ^user.id and not c.to_hidden)
-    )
-    |> load_conversations(conn)
-  end
-
-  defp load_conversations(queryable, conn) do
     conversations =
-      queryable
-      |> join(
-        :inner_lateral,
-        [c],
-        _ in fragment("SELECT COUNT(*) FROM messages m WHERE m.conversation_id = ?", c.id),
-        on: true
-      )
-      |> order_by(desc: :last_message_at)
-      |> preload([:to, :from])
-      |> select([c, cnt], {c, cnt.count})
-      |> Repo.paginate(conn.assigns.scrivener)
+      case params do
+        %{"with" => partner_id} ->
+          Conversations.list_conversations_with(partner_id, user, conn.assigns.scrivener)
+
+        _ ->
+          Conversations.list_conversations(user, conn.assigns.scrivener)
+      end
 
     render(conn, "index.html", title: "Conversations", conversations: conversations)
   end
@@ -62,27 +35,17 @@ defmodule PhilomenaWeb.ConversationController do
   def show(conn, _params) do
     conversation = conn.assigns.conversation
     user = conn.assigns.current_user
-    pref = load_direction(user)
 
     messages =
-      Message
-      |> where(conversation_id: ^conversation.id)
-      |> order_by([{^pref, :created_at}])
-      |> preload([:from])
-      |> Repo.paginate(conn.assigns.scrivener)
+      Conversations.list_messages(
+        conversation,
+        user,
+        &MarkdownRenderer.render_collection(&1, conn),
+        conn.assigns.scrivener
+      )
 
-    rendered =
-      messages.entries
-      |> MarkdownRenderer.render_collection(conn)
-
-    messages = %{messages | entries: Enum.zip(messages.entries, rendered)}
-
-    changeset =
-      %Message{}
-      |> Conversations.change_message()
-
-    conversation
-    |> Conversations.mark_conversation_read(user)
+    changeset = Conversations.change_message(%Message{})
+    Conversations.mark_conversation_read(conversation, user)
 
     # Update the conversation ticker in the header
     conn = NotificationCountPlug.call(conn)
@@ -96,9 +59,10 @@ defmodule PhilomenaWeb.ConversationController do
   end
 
   def new(conn, params) do
-    changeset =
+    conversation =
       %Conversation{recipient: params["recipient"], messages: [%Message{}]}
-      |> Conversations.change_conversation()
+
+    changeset = Conversations.change_conversation(conversation)
 
     render(conn, "new.html", title: "New Conversation", changeset: changeset)
   end
@@ -116,7 +80,4 @@ defmodule PhilomenaWeb.ConversationController do
         render(conn, "new.html", changeset: changeset)
     end
   end
-
-  defp load_direction(%{messages_newest_first: false}), do: :asc
-  defp load_direction(_user), do: :desc
 end

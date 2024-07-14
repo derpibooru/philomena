@@ -9,45 +9,7 @@ defmodule Philomena.Conversations do
   alias Philomena.Conversations.Conversation
   alias Philomena.Conversations.Message
   alias Philomena.Reports
-
-  @doc """
-  Creates a conversation.
-
-  ## Examples
-
-      iex> create_conversation(%{field: value})
-      {:ok, %Conversation{}}
-
-      iex> create_conversation(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_conversation(from, attrs \\ %{}) do
-    %Conversation{}
-    |> Conversation.creation_changeset(from, attrs)
-    |> Repo.insert()
-    |> case do
-      {:ok, conversation} ->
-        report_non_approved_message(hd(conversation.messages))
-        {:ok, conversation}
-
-      error ->
-        error
-    end
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking conversation changes.
-
-  ## Examples
-
-      iex> change_conversation(conversation)
-      %Ecto.Changeset{source: %Conversation{}}
-
-  """
-  def change_conversation(%Conversation{} = conversation) do
-    Conversation.changeset(conversation, %{})
-  end
+  alias Philomena.Users
 
   @doc """
   Returns the number of unread conversations for the given user.
@@ -73,6 +35,96 @@ defmodule Philomena.Conversations do
                (c.from_id == ^user.id and c.from_hidden == true))
     )
     |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Returns a `m:Scrivener.Page` of conversations between the partner and the user.
+
+  ## Examples
+
+      iex> list_conversations_with("123", %User{}, page_size: 10)
+      %Scrivener.Page{}
+
+  """
+  def list_conversations_with(partner_id, user, pagination) do
+    query =
+      from c in Conversation,
+        where:
+          (c.from_id == ^partner_id and c.to_id == ^user.id) or
+            (c.to_id == ^partner_id and c.from_id == ^user.id)
+
+    list_conversations(query, user, pagination)
+  end
+
+  @doc """
+  Returns a `m:Scrivener.Page` of conversations sent by or received from the user.
+
+  ## Examples
+
+      iex> list_conversations_with("123", %User{}, page_size: 10)
+      %Scrivener.Page{}
+
+  """
+  def list_conversations(queryable \\ Conversation, user, pagination) do
+    query =
+      from c in queryable,
+        as: :conversations,
+        where:
+          (c.from_id == ^user.id and not c.from_hidden) or
+            (c.to_id == ^user.id and not c.to_hidden),
+        inner_lateral_join:
+          cnt in subquery(
+            from m in Message,
+              where: m.conversation_id == parent_as(:conversations).id,
+              select: %{count: count()}
+          ),
+        on: true,
+        order_by: [desc: :last_message_at],
+        preload: [:to, :from],
+        select: %{c | message_count: cnt.count}
+
+    Repo.paginate(query, pagination)
+  end
+
+  @doc """
+  Creates a conversation.
+
+  ## Examples
+
+      iex> create_conversation(from, to, %{field: value})
+      {:ok, %Conversation{}}
+
+      iex> create_conversation(from, to, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_conversation(from, attrs \\ %{}) do
+    to = Users.get_user_by_name(attrs["recipient"])
+
+    %Conversation{}
+    |> Conversation.creation_changeset(from, to, attrs)
+    |> Repo.insert()
+    |> case do
+      {:ok, conversation} ->
+        report_non_approved_message(hd(conversation.messages))
+        {:ok, conversation}
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking conversation changes.
+
+  ## Examples
+
+      iex> change_conversation(conversation)
+      %Ecto.Changeset{source: %Conversation{}}
+
+  """
+  def change_conversation(%Conversation{} = conversation) do
+    Conversation.changeset(conversation, %{})
   end
 
   @doc """
@@ -136,6 +188,59 @@ defmodule Philomena.Conversations do
     else
       map
     end
+  end
+
+  @doc """
+  Returns the number of messages in the given conversation.
+
+  ## Example
+
+      iex> count_messages(%Conversation{})
+      3
+
+  """
+  def count_messages(conversation) do
+    Message
+    |> where(conversation_id: ^conversation.id)
+    |> Repo.aggregate(:count)
+  end
+
+  @doc """
+  Returns a `m:Scrivener.Page` of 2-tuples of messages and rendered output
+  within a conversation.
+
+  Messages are ordered by user message preference (`messages_newest_first`).
+
+  When coerced to a list and rendered as Markdown, the result may look like:
+
+      [
+        {%Message{body: "hello *world*"}, "hello <strong>world</strong>"}
+      ]
+
+  ## Example
+
+      iex> list_messages(%Conversation{}, %User{}, & &1.body, page_size: 10)
+      %Scrivener.Page{}
+
+  """
+  def list_messages(conversation, user, collection_renderer, pagination) do
+    direction =
+      if user.messages_newest_first do
+        :desc
+      else
+        :asc
+      end
+
+    query =
+      from m in Message,
+        where: m.conversation_id == ^conversation.id,
+        order_by: [{^direction, :created_at}],
+        preload: :from
+
+    messages = Repo.paginate(query, pagination)
+    rendered = collection_renderer.(messages)
+
+    put_in(messages.entries, Enum.zip(messages.entries, rendered))
   end
 
   @doc """
