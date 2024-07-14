@@ -6,24 +6,9 @@ defmodule Philomena.Conversations do
   import Ecto.Query, warn: false
   alias Ecto.Multi
   alias Philomena.Repo
-  alias Philomena.Reports
   alias Philomena.Conversations.Conversation
-
-  @doc """
-  Gets a single conversation.
-
-  Raises `Ecto.NoResultsError` if the Conversation does not exist.
-
-  ## Examples
-
-      iex> get_conversation!(123)
-      %Conversation{}
-
-      iex> get_conversation!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_conversation!(id), do: Repo.get!(Conversation, id)
+  alias Philomena.Conversations.Message
+  alias Philomena.Reports
 
   @doc """
   Creates a conversation.
@@ -41,40 +26,14 @@ defmodule Philomena.Conversations do
     %Conversation{}
     |> Conversation.creation_changeset(from, attrs)
     |> Repo.insert()
-  end
+    |> case do
+      {:ok, conversation} ->
+        report_non_approved_message(hd(conversation.messages))
+        {:ok, conversation}
 
-  @doc """
-  Updates a conversation.
-
-  ## Examples
-
-      iex> update_conversation(conversation, %{field: new_value})
-      {:ok, %Conversation{}}
-
-      iex> update_conversation(conversation, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_conversation(%Conversation{} = conversation, attrs) do
-    conversation
-    |> Conversation.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a Conversation.
-
-  ## Examples
-
-      iex> delete_conversation(conversation)
-      {:ok, %Conversation{}}
-
-      iex> delete_conversation(conversation)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_conversation(%Conversation{} = conversation) do
-    Repo.delete(conversation)
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -90,6 +49,20 @@ defmodule Philomena.Conversations do
     Conversation.changeset(conversation, %{})
   end
 
+  @doc """
+  Returns the number of unread conversations for the given user.
+
+  Conversations hidden by the given user are not counted.
+
+  ## Examples
+
+      iex> count_unread_conversations(user1)
+      0
+
+      iex> count_unread_conversations(user2)
+      7
+
+  """
   def count_unread_conversations(user) do
     Conversation
     |> where(
@@ -99,187 +72,171 @@ defmodule Philomena.Conversations do
         not ((c.to_id == ^user.id and c.to_hidden == true) or
                (c.from_id == ^user.id and c.from_hidden == true))
     )
-    |> Repo.aggregate(:count, :id)
+    |> Repo.aggregate(:count)
   end
-
-  def mark_conversation_read(conversation, user, read \\ true)
-
-  def mark_conversation_read(
-        %Conversation{to_id: user_id, from_id: user_id} = conversation,
-        %{id: user_id},
-        read
-      ) do
-    conversation
-    |> Conversation.read_changeset(%{to_read: read, from_read: read})
-    |> Repo.update()
-  end
-
-  def mark_conversation_read(%Conversation{to_id: user_id} = conversation, %{id: user_id}, read) do
-    conversation
-    |> Conversation.read_changeset(%{to_read: read})
-    |> Repo.update()
-  end
-
-  def mark_conversation_read(%Conversation{from_id: user_id} = conversation, %{id: user_id}, read) do
-    conversation
-    |> Conversation.read_changeset(%{from_read: read})
-    |> Repo.update()
-  end
-
-  def mark_conversation_read(_conversation, _user, _read), do: {:ok, nil}
-
-  def mark_conversation_hidden(conversation, user, hidden \\ true)
-
-  def mark_conversation_hidden(
-        %Conversation{to_id: user_id} = conversation,
-        %{id: user_id},
-        hidden
-      ) do
-    conversation
-    |> Conversation.hidden_changeset(%{to_hidden: hidden})
-    |> Repo.update()
-  end
-
-  def mark_conversation_hidden(
-        %Conversation{from_id: user_id} = conversation,
-        %{id: user_id},
-        hidden
-      ) do
-    conversation
-    |> Conversation.hidden_changeset(%{from_hidden: hidden})
-    |> Repo.update()
-  end
-
-  def mark_conversation_hidden(_conversation, _user, _read), do: {:ok, nil}
-
-  alias Philomena.Conversations.Message
 
   @doc """
-  Gets a single message.
-
-  Raises `Ecto.NoResultsError` if the Message does not exist.
+  Marks a conversation as read or unread from the perspective of the given user.
 
   ## Examples
 
-      iex> get_message!(123)
-      %Message{}
+      iex> mark_conversation_read(conversation, user, true)
+      {:ok, %Conversation{}}
 
-      iex> get_message!(456)
-      ** (Ecto.NoResultsError)
+      iex> mark_conversation_read(conversation, user, false)
+      {:ok, %Conversation{}}
+
+      iex> mark_conversation_read(conversation, %User{}, true)
+      {:error, %Ecto.Changeset{}}
 
   """
-  def get_message!(id), do: Repo.get!(Message, id)
+  def mark_conversation_read(%Conversation{} = conversation, user, read \\ true) do
+    changes =
+      %{}
+      |> put_conditional(:to_read, read, conversation.to_id == user.id)
+      |> put_conditional(:from_read, read, conversation.from_id == user.id)
+
+    conversation
+    |> Conversation.read_changeset(changes)
+    |> Repo.update()
+  end
 
   @doc """
-  Creates a message.
+  Marks a conversation as hidden or visible from the perspective of the given user.
+
+  Hidden conversations are not shown in the list of conversations for the user, and
+  are not counted when retrieving the number of unread conversations.
 
   ## Examples
 
-      iex> create_message(%{field: value})
+      iex> mark_conversation_hidden(conversation, user, true)
+      {:ok, %Conversation{}}
+
+      iex> mark_conversation_hidden(conversation, user, false)
+      {:ok, %Conversation{}}
+
+      iex> mark_conversation_hidden(conversation, %User{}, true)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def mark_conversation_hidden(%Conversation{} = conversation, user, hidden \\ true) do
+    changes =
+      %{}
+      |> put_conditional(:to_hidden, hidden, conversation.to_id == user.id)
+      |> put_conditional(:from_hidden, hidden, conversation.from_id == user.id)
+
+    conversation
+    |> Conversation.hidden_changeset(changes)
+    |> Repo.update()
+  end
+
+  defp put_conditional(map, key, value, condition) do
+    if condition do
+      Map.put(map, key, value)
+    else
+      map
+    end
+  end
+
+  @doc """
+  Creates a message within a conversation.
+
+  ## Examples
+
+      iex> create_message(%Conversation{}, %User{}, %{field: value})
       {:ok, %Message{}}
 
-      iex> create_message(%{field: bad_value})
+      iex> create_message(%Conversation{}, %User{}, %{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
   def create_message(conversation, user, attrs \\ %{}) do
-    message =
-      Ecto.build_assoc(conversation, :messages)
+    message_changeset =
+      conversation
+      |> Ecto.build_assoc(:messages)
       |> Message.creation_changeset(attrs, user)
 
-    show_as_read =
-      case message do
-        %{changes: %{approved: true}} -> false
-        _ -> true
-      end
-
-    conversation_query =
-      Conversation
-      |> where(id: ^conversation.id)
-
-    now = DateTime.utc_now()
+    conversation_changeset =
+      Conversation.new_message_changeset(conversation)
 
     Multi.new()
-    |> Multi.insert(:message, message)
-    |> Multi.update_all(:conversation, conversation_query,
-      set: [from_read: show_as_read, to_read: show_as_read, last_message_at: now]
-    )
-    |> Repo.transaction()
-  end
-
-  def approve_conversation_message(message, user) do
-    reports_query = Reports.close_report_query({"Conversation", message.conversation_id}, user)
-
-    message_query =
-      message
-      |> Message.approve_changeset()
-
-    conversation_query =
-      Conversation
-      |> where(id: ^message.conversation_id)
-
-    Multi.new()
-    |> Multi.update(:message, message_query)
-    |> Multi.update_all(:conversation, conversation_query, set: [to_read: false])
-    |> Multi.update_all(:reports, reports_query, [])
+    |> Multi.insert(:message, message_changeset)
+    |> Multi.update(:conversation, conversation_changeset)
     |> Repo.transaction()
     |> case do
-      {:ok, %{reports: {_count, reports}} = result} ->
-        Reports.reindex_reports(reports)
+      {:ok, %{message: message}} ->
+        report_non_approved_message(message)
+        {:ok, message}
 
-        {:ok, result}
-
-      error ->
-        error
+      _error ->
+        {:error, message_changeset}
     end
   end
 
-  def report_non_approved(id) do
-    Reports.create_system_report(
-      {"Conversation", id},
-      "Approval",
-      "PM contains externally-embedded images and has been flagged for review."
-    )
-  end
-
-  def set_as_read(conversation) do
-    conversation
-    |> Conversation.to_read_changeset()
-    |> Repo.update()
-  end
-
   @doc """
-  Updates a message.
+  Approves a previously-posted message which was not approved at post time.
 
   ## Examples
 
-      iex> update_message(message, %{field: new_value})
+      iex> approve_message(%Message{}, %User{})
       {:ok, %Message{}}
 
-      iex> update_message(message, %{field: bad_value})
+      iex> approve_message(%Message{}, %User{})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_message(%Message{} = message, attrs) do
-    message
-    |> Message.changeset(attrs)
-    |> Repo.update()
+  def approve_message(message, approving_user) do
+    message_changeset = Message.approve_changeset(message)
+
+    conversation_update_query =
+      from c in Conversation,
+        where: c.id == ^message.conversation_id,
+        update: [set: [from_read: false, to_read: false]]
+
+    reports_query =
+      Reports.close_report_query({"Conversation", message.conversation_id}, approving_user)
+
+    Multi.new()
+    |> Multi.update(:message, message_changeset)
+    |> Multi.update_all(:conversation, conversation_update_query, [])
+    |> Multi.update_all(:reports, reports_query, [])
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{reports: {_count, reports}, message: message}} ->
+        Reports.reindex_reports(reports)
+
+        message
+
+      _error ->
+        {:error, message_changeset}
+    end
   end
 
   @doc """
-  Deletes a Message.
+  Generates a system report for an unapproved message.
+
+  This is called by `create_conversation/2` and `create_message/3`, so it normally does not
+  need to be called explicitly.
 
   ## Examples
 
-      iex> delete_message(message)
-      {:ok, %Message{}}
+      iex> report_non_approved_message(%Message{approved: false})
+      {:ok, %Report{}}
 
-      iex> delete_message(message)
-      {:error, %Ecto.Changeset{}}
+      iex> report_non_approved_message(%Message{approved: true})
+      {:ok, nil}
 
   """
-  def delete_message(%Message{} = message) do
-    Repo.delete(message)
+  def report_non_approved_message(message) do
+    if message.approved do
+      {:ok, nil}
+    else
+      Reports.create_system_report(
+        {"Conversation", message.conversation_id},
+        "Approval",
+        "PM contains externally-embedded images and has been flagged for review."
+      )
+    end
   end
 
   @doc """

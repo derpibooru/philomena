@@ -20,11 +20,7 @@ defmodule PhilomenaWeb.Conversation.MessageController do
     user = conn.assigns.current_user
 
     case Conversations.create_message(conversation, user, message_params) do
-      {:ok, %{message: message}} ->
-        if not message.approved do
-          Conversations.report_non_approved(message.conversation_id)
-        end
-
+      {:ok, _message} ->
         count =
           Message
           |> where(conversation_id: ^conversation.id)

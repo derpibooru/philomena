@@ -32,19 +32,14 @@ defmodule Philomena.Conversations.Conversation do
     |> validate_required([])
   end
 
+  @doc false
   def read_changeset(conversation, attrs) do
-    conversation
-    |> cast(attrs, [:from_read, :to_read])
+    cast(conversation, attrs, [:from_read, :to_read])
   end
 
-  def to_read_changeset(conversation) do
-    change(conversation)
-    |> put_change(:to_read, true)
-  end
-
+  @doc false
   def hidden_changeset(conversation, attrs) do
-    conversation
-    |> cast(attrs, [:from_hidden, :to_hidden])
+    cast(conversation, attrs, [:from_hidden, :to_hidden])
   end
 
   @doc false
@@ -59,6 +54,14 @@ defmodule Philomena.Conversations.Conversation do
     |> set_last_message()
     |> cast_assoc(:messages, with: &Message.creation_changeset(&1, &2, from))
     |> validate_length(:messages, is: 1)
+  end
+
+  @doc false
+  def new_message_changeset(conversation) do
+    conversation
+    |> change(from_read: false)
+    |> change(to_read: false)
+    |> set_last_message()
   end
 
   defp set_slug(changeset) do

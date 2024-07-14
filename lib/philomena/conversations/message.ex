@@ -33,6 +33,7 @@ defmodule Philomena.Conversations.Message do
     |> Approval.maybe_put_approval(user)
   end
 
+  @doc false
   def approve_changeset(message) do
     change(message, approved: true)
   end

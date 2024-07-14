@@ -108,18 +108,12 @@ defmodule PhilomenaWeb.ConversationController do
 
     case Conversations.create_conversation(user, conversation_params) do
       {:ok, conversation} ->
-        if not hd(conversation.messages).approved do
-          Conversations.report_non_approved(conversation.id)
-          Conversations.set_as_read(conversation)
-        end
-
         conn
         |> put_flash(:info, "Conversation successfully created.")
         |> redirect(to: ~p"/conversations/#{conversation}")
 
       {:error, changeset} ->
-        conn
-        |> render("new.html", changeset: changeset)
+        render(conn, "new.html", changeset: changeset)
     end
   end
 
