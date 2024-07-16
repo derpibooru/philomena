@@ -10,8 +10,30 @@ defmodule Philomena.ModNotes do
   alias Philomena.Polymorphic
 
   @doc """
-  Returns a `m:Scrivener.Page` of 2-tuples of messages and rendered output
-  for the query string current pagination.
+  Returns a list of 2-tuples of mod notes and rendered output for the notable type and id.
+
+  See `list_mod_notes/3` for more information about collection rendering.
+
+  ## Examples
+
+      iex> list_all_mod_notes_by_type_and_id("User", "1", & &1.body)
+      [
+        {%ModNote{body: "hello *world*"}, "hello *world*"}
+      ]
+
+  """
+  def list_all_mod_notes_by_type_and_id(notable_type, notable_id, collection_renderer) do
+    ModNote
+    |> where(notable_type: ^notable_type, notable_id: ^notable_id)
+    |> preload(:moderator)
+    |> order_by(desc: :id)
+    |> Repo.all()
+    |> preload_and_render(collection_renderer)
+  end
+
+  @doc """
+  Returns a `m:Scrivener.Page` of 2-tuples of mod notes and rendered output
+  for the query string and current pagination.
 
   All mod notes containing the substring `query_string` are matched and returned
   case-insensitively.
@@ -31,13 +53,13 @@ defmodule Philomena.ModNotes do
   end
 
   @doc """
-  Returns a `m:Scrivener.Page` of 2-tuples of messages and rendered output
+  Returns a `m:Scrivener.Page` of 2-tuples of mod notes and rendered output
   for the current pagination.
 
   When coerced to a list and rendered as Markdown, the result may look like:
 
       [
-        {%ModNote{body: "hello *world*"}, "hello <strong>world</strong>"}
+        {%ModNote{body: "hello *world*"}, "hello <em>world</em>"}
       ]
 
   ## Examples
@@ -53,10 +75,14 @@ defmodule Philomena.ModNotes do
       |> order_by(desc: :id)
       |> Repo.paginate(pagination)
 
+    put_in(mod_notes.entries, preload_and_render(mod_notes, collection_renderer))
+  end
+
+  defp preload_and_render(mod_notes, collection_renderer) do
     bodies = collection_renderer.(mod_notes)
     preloaded = Polymorphic.load_polymorphic(mod_notes, notable: [notable_id: :notable_type])
 
-    put_in(mod_notes.entries, Enum.zip(bodies, preloaded))
+    Enum.zip(preloaded, bodies)
   end
 
   @doc """

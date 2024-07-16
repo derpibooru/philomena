@@ -5,8 +5,7 @@ defmodule PhilomenaWeb.DnpEntryController do
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.DnpEntries
   alias Philomena.Tags.Tag
-  alias Philomena.ModNotes.ModNote
-  alias Philomena.Polymorphic
+  alias Philomena.ModNotes
   alias Philomena.Repo
   import Ecto.Query
 
@@ -154,19 +153,8 @@ defmodule PhilomenaWeb.DnpEntryController do
       true ->
         dnp_entry = conn.assigns.dnp_entry
 
-        mod_notes =
-          ModNote
-          |> where(notable_type: "DnpEntry", notable_id: ^dnp_entry.id)
-          |> order_by(desc: :id)
-          |> preload(:moderator)
-          |> Repo.all()
-          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
-
-        mod_notes =
-          mod_notes
-          |> MarkdownRenderer.render_collection(conn)
-          |> Enum.zip(mod_notes)
-
+        renderer = &MarkdownRenderer.render_collection(&1, conn)
+        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("DnpEntry", dnp_entry.id, renderer)
         assign(conn, :mod_notes, mod_notes)
 
       _false ->

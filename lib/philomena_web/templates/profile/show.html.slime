@@ -144,7 +144,7 @@
               th Note
               th Created
           tbody
-            = for {body, mod_note} <- @mod_notes do
+            = for {mod_note, body} <- @mod_notes do
               tr
                 td = body
                 td = pretty_time(mod_note.created_at)

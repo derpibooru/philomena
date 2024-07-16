@@ -14,8 +14,7 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Tags.Tag
   alias Philomena.UserIps.UserIp
   alias Philomena.UserFingerprints.UserFingerprint
-  alias Philomena.ModNotes.ModNote
-  alias Philomena.Polymorphic
+  alias Philomena.ModNotes
   alias Philomena.Images.Image
   alias Philomena.Repo
   import Ecto.Query
@@ -275,21 +274,10 @@ defmodule PhilomenaWeb.ProfileController do
   defp set_mod_notes(conn, _opts) do
     case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
       true ->
+        renderer = &MarkdownRenderer.render_collection(&1, conn)
         user = conn.assigns.user
 
-        mod_notes =
-          ModNote
-          |> where(notable_type: "User", notable_id: ^user.id)
-          |> order_by(desc: :id)
-          |> preload(:moderator)
-          |> Repo.all()
-          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
-
-        mod_notes =
-          mod_notes
-          |> MarkdownRenderer.render_collection(conn)
-          |> Enum.zip(mod_notes)
-
+        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", user.id, renderer)
         assign(conn, :mod_notes, mod_notes)
 
       _false ->

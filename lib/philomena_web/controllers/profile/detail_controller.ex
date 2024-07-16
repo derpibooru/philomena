@@ -2,9 +2,8 @@ defmodule PhilomenaWeb.Profile.DetailController do
   use PhilomenaWeb, :controller
 
   alias Philomena.UserNameChanges.UserNameChange
-  alias Philomena.ModNotes.ModNote
+  alias Philomena.ModNotes
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Polymorphic
   alias Philomena.Users.User
   alias Philomena.Repo
   import Ecto.Query
@@ -20,18 +19,8 @@ defmodule PhilomenaWeb.Profile.DetailController do
   def index(conn, _params) do
     user = conn.assigns.user
 
-    mod_notes =
-      ModNote
-      |> where(notable_type: "User", notable_id: ^user.id)
-      |> order_by(desc: :id)
-      |> preload(:moderator)
-      |> Repo.all()
-      |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
-
-    mod_notes =
-      mod_notes
-      |> MarkdownRenderer.render_collection(conn)
-      |> Enum.zip(mod_notes)
+    renderer = &MarkdownRenderer.render_collection(&1, conn)
+    mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", 1, renderer)
 
     name_changes =
       UserNameChange
