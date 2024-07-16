@@ -3,7 +3,6 @@ defmodule Philomena.Channels.Channel do
   import Ecto.Changeset
 
   alias Philomena.Tags.Tag
-  alias Philomena.Repo
 
   schema "channels" do
     belongs_to :associated_artist_tag, Tag
@@ -36,19 +35,13 @@ defmodule Philomena.Channels.Channel do
 
   @doc false
   def changeset(channel, attrs) do
-    tag_id =
-      case Repo.get_by(Tag, name: attrs["artist_tag"] || "") do
-        %{id: id} -> id
-        _ -> nil
-      end
-
     channel
     |> cast(attrs, [:type, :short_name])
     |> validate_required([:type, :short_name])
     |> validate_inclusion(:type, ["PicartoChannel", "PiczelChannel"])
-    |> put_change(:associated_artist_tag_id, tag_id)
   end
 
+  @doc false
   def update_changeset(channel, attrs) do
     cast(channel, attrs, [
       :title,
@@ -59,5 +52,12 @@ defmodule Philomena.Channels.Channel do
       :last_fetched_at,
       :last_live_at
     ])
+  end
+
+  @doc false
+  def artist_tag_changeset(channel, tag) do
+    tag_id = Map.get(tag || %{}, :id)
+
+    change(channel, associated_artist_tag_id: tag_id)
   end
 end
