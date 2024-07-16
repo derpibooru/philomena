@@ -20,7 +20,7 @@ defmodule PhilomenaWeb.Profile.DetailController do
     user = conn.assigns.user
 
     renderer = &MarkdownRenderer.render_collection(&1, conn)
-    mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", 1, renderer)
+    mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", user.id, renderer)
 
     name_changes =
       UserNameChange
