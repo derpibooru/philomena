@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.ProfileController do
   alias Philomena.Tags.Tag
   alias Philomena.UserIps.UserIp
   alias Philomena.UserFingerprints.UserFingerprint
+  alias Philomena.ModNotes.ModNote
   alias Philomena.ModNotes
   alias Philomena.Images.Image
   alias Philomena.Repo
