@@ -9,40 +9,24 @@ defmodule Philomena.ModerationLogs do
   alias Philomena.ModerationLogs.ModerationLog
 
   @doc """
-  Returns the list of moderation_logs.
+  Returns a paginated list of moderation logs as a `m:Scrivener.Page`.
 
   ## Examples
 
-      iex> list_moderation_logs()
+      iex> list_moderation_logs(page_size: 15)
       [%ModerationLog{}, ...]
 
   """
-  def list_moderation_logs(conn) do
+  def list_moderation_logs(pagination) do
     ModerationLog
-    |> where([ml], ml.created_at > ago(2, "week"))
+    |> where([ml], ml.created_at >= ago(2, "week"))
     |> preload(:user)
     |> order_by(desc: :created_at)
-    |> Repo.paginate(conn.assigns.scrivener)
+    |> Repo.paginate(pagination)
   end
 
   @doc """
-  Gets a single moderation_log.
-
-  Raises `Ecto.NoResultsError` if the Moderation log does not exist.
-
-  ## Examples
-
-      iex> get_moderation_log!(123)
-      %ModerationLog{}
-
-      iex> get_moderation_log!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_moderation_log!(id), do: Repo.get!(ModerationLog, id)
-
-  @doc """
-  Creates a moderation_log.
+  Creates a moderation log.
 
   ## Examples
 
@@ -60,21 +44,14 @@ defmodule Philomena.ModerationLogs do
   end
 
   @doc """
-  Deletes a moderation_log.
+  Removes moderation logs created more than 2 weeks ago.
 
   ## Examples
 
-      iex> delete_moderation_log(moderation_log)
-      {:ok, %ModerationLog{}}
-
-      iex> delete_moderation_log(moderation_log)
-      {:error, %Ecto.Changeset{}}
+      iex> cleanup!()
+      {31, nil}
 
   """
-  def delete_moderation_log(%ModerationLog{} = moderation_log) do
-    Repo.delete(moderation_log)
-  end
-
   def cleanup! do
     ModerationLog
     |> where([ml], ml.created_at < ago(2, "week"))

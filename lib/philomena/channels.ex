@@ -8,6 +8,7 @@ defmodule Philomena.Channels do
 
   alias Philomena.Channels.AutomaticUpdater
   alias Philomena.Channels.Channel
+  alias Philomena.Tags
 
   use Philomena.Subscriptions,
     actor_types: ~w(Channel LivestreamChannel),
@@ -50,6 +51,7 @@ defmodule Philomena.Channels do
   """
   def create_channel(attrs \\ %{}) do
     %Channel{}
+    |> update_artist_tag(attrs)
     |> Channel.changeset(attrs)
     |> Repo.insert()
   end
@@ -68,8 +70,27 @@ defmodule Philomena.Channels do
   """
   def update_channel(%Channel{} = channel, attrs) do
     channel
+    |> update_artist_tag(attrs)
     |> Channel.changeset(attrs)
     |> Repo.update()
+  end
+
+  @doc """
+  Adds the artist tag from the `"artist_tag"` tag name attribute.
+
+  ## Examples
+
+      iex> update_artist_tag(%Channel{}, %{"artist_tag" => "artist:nighty"})
+      %Ecto.Changeset{}
+
+  """
+  def update_artist_tag(%Channel{} = channel, attrs) do
+    tag =
+      attrs
+      |> Map.get("artist_tag", "")
+      |> Tags.get_tag_by_name()
+
+    Channel.artist_tag_changeset(channel, tag)
   end
 
   @doc """

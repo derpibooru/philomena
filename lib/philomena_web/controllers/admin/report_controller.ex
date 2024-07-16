@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
   alias Philomena.Polymorphic
-  alias Philomena.ModNotes.ModNote
+  alias Philomena.ModNotes
   alias Philomena.Repo
   import Ecto.Query
 
@@ -128,19 +128,8 @@ defmodule PhilomenaWeb.Admin.ReportController do
       true ->
         report = conn.assigns.report
 
-        mod_notes =
-          ModNote
-          |> where(notable_type: "Report", notable_id: ^report.id)
-          |> order_by(desc: :id)
-          |> preload(:moderator)
-          |> Repo.all()
-          |> Polymorphic.load_polymorphic(notable: [notable_id: :notable_type])
-
-        mod_notes =
-          mod_notes
-          |> MarkdownRenderer.render_collection(conn)
-          |> Enum.zip(mod_notes)
-
+        renderer = &MarkdownRenderer.render_collection(&1, conn)
+        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("Report", report.id, renderer)
         assign(conn, :mod_notes, mod_notes)
 
       _false ->

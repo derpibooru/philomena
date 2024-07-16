@@ -7,7 +7,7 @@ table.table
       td Moderator
       td Actions
   tbody
-    = for {body, note} <- @mod_notes do
+    = for {note, body} <- @mod_notes do
       tr
         td
           = link_to_noted_thing(note.notable)
