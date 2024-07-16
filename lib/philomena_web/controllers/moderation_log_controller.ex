@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.ModerationLogController do
     preload: [:user]
 
   def index(conn, _params) do
-    moderation_logs = ModerationLogs.list_moderation_logs(conn)
+    moderation_logs = ModerationLogs.list_moderation_logs(conn.assigns.scrivener)
     render(conn, "index.html", title: "Moderation Logs", moderation_logs: moderation_logs)
   end
 end
