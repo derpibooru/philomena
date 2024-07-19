@@ -1,7 +1,8 @@
 defmodule PhilomenaWeb.Search.ReverseController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageReverse
+  alias Philomena.DuplicateReports.SearchQuery
+  alias Philomena.DuplicateReports
 
   plug PhilomenaWeb.ScraperCachePlug
   plug PhilomenaWeb.ScraperPlug, params_key: "image", params_name: "image"
@@ -12,12 +13,18 @@ defmodule PhilomenaWeb.Search.ReverseController do
 
   def create(conn, %{"image" => image_params})
       when is_map(image_params) and image_params != %{} do
-    images = ImageReverse.images(image_params)
+    case DuplicateReports.execute_search_query(image_params) do
+      {:ok, images} ->
+        changeset = DuplicateReports.change_search_query(%SearchQuery{})
+        render(conn, "index.html", title: "Reverse Search", images: images, changeset: changeset)
 
-    render(conn, "index.html", title: "Reverse Search", images: images)
+      {:error, changeset} ->
+        render(conn, "index.html", title: "Reverse Search", images: nil, changeset: changeset)
+    end
   end
 
   def create(conn, _params) do
-    render(conn, "index.html", title: "Reverse Search", images: nil)
+    changeset = DuplicateReports.change_search_query(%SearchQuery{})
+    render(conn, "index.html", title: "Reverse Search", images: nil, changeset: changeset)
   end
 end

@@ -1,6 +1,6 @@
 h1 Reverse Search
 
-= form_for :image, ~p"/search/reverse", [multipart: true], fn f ->
+= form_for @changeset, ~p"/search/reverse", [multipart: true, as: :image], fn f ->
   p
     ' Basic image similarity search. Finds uploaded images similar to the one
     ' provided based on simple intensities and uses the median frame of
@@ -13,6 +13,10 @@ h1 Reverse Search
     p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
     .field
       = file_input f, :image, class: "input js-scraper"
+      = error_tag f, :image
+      = error_tag f, :image_width
+      = error_tag f, :image_height
+      = error_tag f, :image_mime_type
 
     .field.field--inline
       = url_input f, :url, name: "url", class: "input input--wide js-scraper", placeholder: "Link a deviantART page, a Tumblr post, or the image directly"
@@ -26,9 +30,10 @@ h1 Reverse Search
   .field
     = label f, :distance, "Match distance (suggested values: between 0.2 and 0.5)"
     br
-    = number_input f, :distance, value: 0.25, min: 0, max: 1, step: 0.01, class: "input"
+    = number_input f, :distance, min: 0, max: 1, step: 0.01, class: "input"
+    = error_tag f, :distance
 
-  = hidden_input f, :limit, value: 10
+  = error_tag f, :limit
 
   .field
     = submit "Reverse Search", class: "button"
