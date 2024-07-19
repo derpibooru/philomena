@@ -15,7 +15,6 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
 
   plug :prevent_deleting_privileged_users
   plug :prevent_deleting_verified_users
-  plug :prevent_deleting_old_users
 
   def new(conn, _params) do
     render(conn, "new.html", title: "Erase user")
@@ -51,20 +50,6 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
     if conn.assigns.user.verified do
       conn
       |> put_flash(:error, "Cannot erase a verified user")
-      |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
-      |> Plug.Conn.halt()
-    else
-      conn
-    end
-  end
-
-  defp prevent_deleting_old_users(conn, _opts) do
-    now = DateTime.utc_now(:second)
-    two_weeks = 1_209_600
-
-    if DateTime.compare(now, DateTime.add(conn.assigns.user.created_at, two_weeks)) == :gt do
-      conn
-      |> put_flash(:error, "Cannot erase a user older than two weeks")
       |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
       |> Plug.Conn.halt()
     else
