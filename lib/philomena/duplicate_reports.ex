@@ -25,7 +25,7 @@ defmodule Philomena.DuplicateReports do
     end)
   end
 
-  def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05) do
+  def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05, limit \\ 10) do
     # for each color channel
     dist = dist * 3
 
@@ -39,7 +39,7 @@ defmodule Philomena.DuplicateReports do
       where:
         i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and
           i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
-      limit: 10
+      limit: ^limit
   end
 
   @doc """

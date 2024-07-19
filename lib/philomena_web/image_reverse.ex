@@ -18,8 +18,9 @@ defmodule PhilomenaWeb.ImageReverse do
         {width, height} = analysis.dimensions
         aspect = width / height
         dist = normalize_dist(image_params)
+        limit = parse_limit(image_params)
 
-        DuplicateReports.duplicates_of(intensities, aspect, dist, dist)
+        DuplicateReports.duplicates_of(intensities, aspect, dist, dist, limit)
         |> preload([:user, :intensity, [:sources, tags: :aliases]])
         |> Repo.all()
     end
@@ -60,4 +61,17 @@ defmodule PhilomenaWeb.ImageReverse do
         0.0
     end
   end
+
+  defp parse_limit(%{"limit" => limit}) do
+    limit
+    |> Integer.parse()
+    |> case do
+      {limit, _rest} -> limit
+      _ -> 10
+    end
+    |> max(1)
+    |> min(50)
+  end
+
+  defp parse_limit(_), do: 10
 end
