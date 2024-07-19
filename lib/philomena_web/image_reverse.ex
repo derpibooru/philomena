@@ -17,10 +17,11 @@ defmodule PhilomenaWeb.ImageReverse do
       {analysis, intensities} ->
         {width, height} = analysis.dimensions
         aspect = width / height
-        dist = normalize_dist(image_params)
+        dist = parse_dist(image_params)
         limit = parse_limit(image_params)
 
-        DuplicateReports.duplicates_of(intensities, aspect, dist, dist, limit)
+        {intensities, aspect}
+        |> DuplicateReports.find_duplicates(dist: dist, aspect_dist: dist, limit: limit)
         |> preload([:user, :intensity, [:sources, tags: :aliases]])
         |> Repo.all()
     end
@@ -43,24 +44,17 @@ defmodule PhilomenaWeb.ImageReverse do
 
   # The distance metric is taxicab distance, not Euclidean,
   # because this is more efficient to index.
-  defp normalize_dist(%{"distance" => distance}) do
+  defp parse_dist(%{"distance" => distance}) do
     distance
-    |> parse_dist()
-    |> max(0.01)
-    |> min(1.0)
-  end
-
-  defp normalize_dist(_dist), do: 0.25
-
-  defp parse_dist(dist) do
-    case Decimal.parse(dist) do
-      {value, _rest} ->
-        Decimal.to_float(value)
-
-      _ ->
-        0.0
+    |> Decimal.parse()
+    |> case do
+      {value, _rest} -> Decimal.to_float(value)
+      _ -> 0.25
     end
+    |> clamp(0.01, 1.0)
   end
+
+  defp parse_dist(_params), do: 0.25
 
   defp parse_limit(%{"limit" => limit}) do
     limit
@@ -69,9 +63,12 @@ defmodule PhilomenaWeb.ImageReverse do
       {limit, _rest} -> limit
       _ -> 10
     end
-    |> max(1)
-    |> min(50)
+    |> clamp(1, 50)
   end
 
-  defp parse_limit(_), do: 10
+  defp parse_limit(_params), do: 10
+
+  defp clamp(n, min, _max) when n < min, do: min
+  defp clamp(n, _min, max) when n > max, do: max
+  defp clamp(n, _min, _max), do: n
 end

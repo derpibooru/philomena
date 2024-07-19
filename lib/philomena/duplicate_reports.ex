@@ -15,7 +15,8 @@ defmodule Philomena.DuplicateReports do
   def generate_reports(source) do
     source = Repo.preload(source, :intensity)
 
-    duplicates_of(source.intensity, source.image_aspect_ratio, 0.2, 0.05)
+    {source.intensity, source.image_aspect_ratio}
+    |> find_duplicates(dist: 0.2)
     |> where([i, _it], i.id != ^source.id)
     |> Repo.all()
     |> Enum.map(fn target ->
@@ -25,7 +26,11 @@ defmodule Philomena.DuplicateReports do
     end)
   end
 
-  def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05, limit \\ 10) do
+  def find_duplicates({intensities, aspect_ratio}, opts \\ []) do
+    aspect_dist = Keyword.get(opts, :aspect_dist, 0.05)
+    limit = Keyword.get(opts, :limit, 10)
+    dist = Keyword.get(opts, :dist, 0.25)
+
     # for each color channel
     dist = dist * 3
 
