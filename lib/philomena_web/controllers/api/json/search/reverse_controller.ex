@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
     images =
       image_params
       |> Map.put("distance", conn.params["distance"])
+      |> Map.put("limit", conn.params["limit"])
       |> ImageReverse.images()
 
     interactions = Interactions.user_interactions(images, user)
