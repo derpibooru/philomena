@@ -1,0 +1,16 @@
+h1
+  ' Deleting all changes for user
+  = @user.name
+
+.block.block--fixed.block--warning
+  p This is IRREVERSIBLE.
+  p All user details will be destroyed.
+  p Are you really sure?
+
+.field
+  => button_to "Abort", ~p"/profiles/#{@user}", class: "button"
+  => button_to "Erase user", ~p"/admin/users/#{@user}/erase", method: "post", class: "button button--state-danger", data: [confirm: "Are you really, really sure?"]
+
+p
+  ' This automatically creates user and IP bans but does not create a fingerprint ban.
+  ' Check to see if one is necessary after erasing.

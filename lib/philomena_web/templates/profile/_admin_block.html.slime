@@ -171,6 +171,12 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
           i.fa.fa-fw.fa-arrow-down
           span.admin__button Remove All Downvotes
 
+      = if @user.role == "user" do
+        li
+          = link to: ~p"/admin/users/#{@user}/erase/new", data: [confirm: "Are you really, really sure?"] do
+            i.fa.fa-fw.fa-warning
+            span.admin__button Erase for spam
+
     = if @user.role == "user" and can?(@conn, :revert, Philomena.TagChanges.TagChange) do
       li
         = link to: ~p"/tag_changes/full_revert?#{[user_id: @user.id]}", data: [confirm: "Are you really, really sure?", method: "create"] do
