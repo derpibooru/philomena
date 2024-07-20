@@ -8,6 +8,8 @@ defmodule Philomena.DuplicateReports do
   alias Philomena.Repo
 
   alias Philomena.DuplicateReports.DuplicateReport
+  alias Philomena.DuplicateReports.SearchQuery
+  alias Philomena.DuplicateReports.Uploader
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.Images.Image
   alias Philomena.Images
@@ -15,7 +17,8 @@ defmodule Philomena.DuplicateReports do
   def generate_reports(source) do
     source = Repo.preload(source, :intensity)
 
-    duplicates_of(source.intensity, source.image_aspect_ratio, 0.2, 0.05)
+    {source.intensity, source.image_aspect_ratio}
+    |> find_duplicates(dist: 0.2)
     |> where([i, _it], i.id != ^source.id)
     |> Repo.all()
     |> Enum.map(fn target ->
@@ -25,7 +28,11 @@ defmodule Philomena.DuplicateReports do
     end)
   end
 
-  def duplicates_of(intensities, aspect_ratio, dist \\ 0.25, aspect_dist \\ 0.05) do
+  def find_duplicates({intensities, aspect_ratio}, opts \\ []) do
+    aspect_dist = Keyword.get(opts, :aspect_dist, 0.05)
+    limit = Keyword.get(opts, :limit, 10)
+    dist = Keyword.get(opts, :dist, 0.25)
+
     # for each color channel
     dist = dist * 3
 
@@ -39,7 +46,64 @@ defmodule Philomena.DuplicateReports do
       where:
         i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and
           i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
-      limit: 10
+      limit: ^limit
+  end
+
+  @doc """
+  Executes the reverse image search query from parameters.
+
+  ## Examples
+
+      iex> execute_search_query(%{"image" => ..., "distance" => "0.25"})
+      {:ok, [%Image{...}, ....]}
+
+      iex> execute_search_query(%{"image" => ..., "distance" => "asdf"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def execute_search_query(attrs \\ %{}) do
+    %SearchQuery{}
+    |> SearchQuery.changeset(attrs)
+    |> Uploader.analyze_upload(attrs)
+    |> Ecto.Changeset.apply_action(:create)
+    |> case do
+      {:ok, search_query} ->
+        intensities = generate_intensities(search_query)
+        aspect = search_query.image_aspect_ratio
+        limit = search_query.limit
+        dist = search_query.distance
+
+        images =
+          {intensities, aspect}
+          |> find_duplicates(dist: dist, aspect_dist: dist, limit: limit)
+          |> preload([:user, :intensity, [:sources, tags: :aliases]])
+          |> Repo.all()
+
+        {:ok, images}
+
+      error ->
+        error
+    end
+  end
+
+  defp generate_intensities(search_query) do
+    analysis = SearchQuery.to_analysis(search_query)
+    file = search_query.uploaded_image
+
+    PhilomenaMedia.Processors.intensities(analysis, file)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking search query changes.
+
+  ## Examples
+
+      iex> change_search_query(search_query)
+      %Ecto.Changeset{source: %SearchQuery{}}
+
+  """
+  def change_search_query(%SearchQuery{} = search_query) do
+    SearchQuery.changeset(search_query)
   end
 
   @doc """
