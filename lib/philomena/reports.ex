@@ -60,6 +60,41 @@ defmodule Philomena.Reports do
     |> reindex_after_update()
   end
 
+  @doc """
+  Returns an `m:Ecto.Query` which updates all reports for the given `reportable_type`
+  and `reportable_id` to close them.
+
+  Because this is only a query due to the limitations of `m:Ecto.Multi`, this must be
+  coupled with an associated call to `reindex_reports/1` to operate correctly, e.g.:
+
+      report_query = Reports.close_system_report_query("Image", image.id, user)
+
+      Multi.new()
+      |> Multi.update_all(:reports, report_query, [])
+      |> Repo.transaction()
+      |> case do
+        {:ok, %{reports: {_count, reports}} = result} ->
+          Reports.reindex_reports(reports)
+
+          {:ok, result}
+
+        error ->
+          error
+      end
+
+  ## Examples
+
+      iex> close_system_report_query("Image", 1, %User{})
+      #Ecto.Query<...>
+
+  """
+  def close_report_query(reportable_type, reportable_id, closing_user) do
+    from r in Report,
+      where: r.reportable_type == ^reportable_type and r.reportable_id == ^reportable_id,
+      select: r.id,
+      update: [set: [open: false, state: "closed", admin_id: ^closing_user.id]]
+  end
+
   def create_system_report(reportable_id, reportable_type, category, reason) do
     attrs = %{
       reason: reason,
