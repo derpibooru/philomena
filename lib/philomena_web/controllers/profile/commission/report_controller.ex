@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
     commission = conn.assigns.user.commission
     action = ~p"/profiles/#{user}/commission/reports"
 
-    ReportController.create(conn, action, commission, "Commission", params)
+    ReportController.create(conn, action, "Commission", commission, params)
   end
 
   defp ensure_commission(conn, _opts) do
