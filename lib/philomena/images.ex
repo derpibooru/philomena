@@ -193,8 +193,8 @@ defmodule Philomena.Images do
 
   defp maybe_suggest_user_verification(%User{id: id, uploads_count: 5, verified: false}) do
     Reports.create_system_report(
-      id,
       "User",
+      id,
       "Verification",
       "User has uploaded enough approved images to be considered for verification."
     )

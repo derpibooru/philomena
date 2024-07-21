@@ -114,8 +114,8 @@ defmodule Philomena.Posts do
 
   def report_non_approved(post) do
     Reports.create_system_report(
-      post.id,
       "Post",
+      post.id,
       "Approval",
       "Post contains externally-embedded images and has been flagged for review."
     )

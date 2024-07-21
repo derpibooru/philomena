@@ -236,8 +236,8 @@ defmodule Philomena.Conversations do
 
   def report_non_approved(id) do
     Reports.create_system_report(
-      id,
       "Conversation",
+      id,
       "Approval",
       "PM contains externally-embedded images and has been flagged for review."
     )

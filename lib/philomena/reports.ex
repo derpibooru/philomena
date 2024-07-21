@@ -95,7 +95,17 @@ defmodule Philomena.Reports do
       update: [set: [open: false, state: "closed", admin_id: ^closing_user.id]]
   end
 
-  def create_system_report(reportable_id, reportable_type, category, reason) do
+  @doc """
+  Automatically create a report with the given category and reason on the given
+  `reportable_id` and `reportable_type`.
+
+  ## Examples
+
+      iex> create_system_report("Comment", 1, "Other", "Custom report reason")
+      {:ok, %Report{}}
+
+  """
+  def create_system_report(reportable_type, reportable_id, category, reason) do
     attrs = %{
       reason: reason,
       category: category
@@ -109,7 +119,7 @@ defmodule Philomena.Reports do
         "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0"
     }
 
-    %Report{reportable_id: reportable_id, reportable_type: reportable_type}
+    %Report{reportable_type: reportable_type, reportable_id: reportable_id}
     |> Report.creation_changeset(attrs, attributes)
     |> Repo.insert()
     |> reindex_after_update()

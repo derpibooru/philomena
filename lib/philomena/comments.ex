@@ -210,8 +210,8 @@ defmodule Philomena.Comments do
 
   def report_non_approved(comment) do
     Reports.create_system_report(
-      comment.id,
       "Comment",
+      comment.id,
       "Approval",
       "Comment contains externally-embedded images and has been flagged for review."
     )
