@@ -78,8 +78,8 @@ defmodule Philomena.Reports do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_report(reportable_id, reportable_type, attribution, attrs \\ %{}) do
-    %Report{reportable_id: reportable_id, reportable_type: reportable_type}
+  def create_report({reportable_type, reportable_id} = _type_and_id, attribution, attrs \\ %{}) do
+    %Report{reportable_type: reportable_type, reportable_id: reportable_id}
     |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
     |> reindex_after_update()
@@ -92,7 +92,7 @@ defmodule Philomena.Reports do
   Because this is only a query due to the limitations of `m:Ecto.Multi`, this must be
   coupled with an associated call to `reindex_reports/1` to operate correctly, e.g.:
 
-      report_query = Reports.close_system_report_query("Image", image.id, user)
+      report_query = Reports.close_system_report_query({"Image", image.id}, user)
 
       Multi.new()
       |> Multi.update_all(:reports, report_query, [])
@@ -113,7 +113,7 @@ defmodule Philomena.Reports do
       #Ecto.Query<...>
 
   """
-  def close_report_query(reportable_type, reportable_id, closing_user) do
+  def close_report_query({reportable_type, reportable_id} = _type_and_id, closing_user) do
     from r in Report,
       where: r.reportable_type == ^reportable_type and r.reportable_id == ^reportable_id,
       select: r.id,
@@ -126,11 +126,11 @@ defmodule Philomena.Reports do
 
   ## Examples
 
-      iex> create_system_report("Comment", 1, "Other", "Custom report reason")
+      iex> create_system_report({"Comment", 1}, "Other", "Custom report reason")
       {:ok, %Report{}}
 
   """
-  def create_system_report(reportable_type, reportable_id, category, reason) do
+  def create_system_report({reportable_type, reportable_id} = _type_and_id, category, reason) do
     attrs = %{
       reason: reason,
       category: category

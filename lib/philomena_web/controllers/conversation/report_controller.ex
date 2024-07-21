@@ -42,6 +42,6 @@ defmodule PhilomenaWeb.Conversation.ReportController do
     conversation = conn.assigns.conversation
     action = ~p"/conversations/#{conversation}/reports"
 
-    ReportController.create(conn, action, conversation, "Conversation", params)
+    ReportController.create(conn, action, "Conversation", conversation, params)
   end
 end

@@ -114,8 +114,7 @@ defmodule Philomena.Posts do
 
   def report_non_approved(post) do
     Reports.create_system_report(
-      "Post",
-      post.id,
+      {"Post", post.id},
       "Approval",
       "Post contains externally-embedded images and has been flagged for review."
     )
@@ -203,7 +202,7 @@ defmodule Philomena.Posts do
   end
 
   def hide_post(%Post{} = post, attrs, user) do
-    report_query = Reports.close_report_query("Post", post.id, user)
+    report_query = Reports.close_report_query({"Post", post.id}, user)
 
     topics =
       Topic
@@ -250,7 +249,7 @@ defmodule Philomena.Posts do
   end
 
   def approve_post(%Post{} = post, user) do
-    report_query = Reports.close_report_query("Post", post.id, user)
+    report_query = Reports.close_report_query({"Post", post.id}, user)
     post = Post.approve_changeset(post)
 
     Multi.new()

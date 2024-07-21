@@ -42,6 +42,6 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
     post = conn.assigns.post
     action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
 
-    ReportController.create(conn, action, post, "Post", params)
+    ReportController.create(conn, action, "Post", post, params)
   end
 end
