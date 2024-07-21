@@ -147,6 +147,7 @@ defmodule Philomena.Comments do
 
   def hide_comment(%Comment{} = comment, attrs, user) do
     report_query = Reports.close_report_query({"Comment", comment.id}, user)
+    comment = Repo.preload(comment, :user)
     comment_changeset = Comment.hide_changeset(comment, attrs, user)
 
     Multi.new()

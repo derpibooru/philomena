@@ -205,7 +205,6 @@ defmodule Philomena.Posts do
 
   def hide_post(%Post{} = post, attrs, user) do
     report_query = Reports.close_report_query({"Post", post.id}, user)
-
     original_post = Repo.preload(post, :user)
 
     topics =

@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.ActivityController do
               range: %{first_seen_at: %{gt: "now-3d"}}
             },
             must_not: [
-              %{terms: %{tag_ids: [589483]}}
+              %{terms: %{tag_ids: [589_483]}}
             ]
           }
         },
