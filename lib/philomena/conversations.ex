@@ -7,7 +7,6 @@ defmodule Philomena.Conversations do
   alias Ecto.Multi
   alias Philomena.Repo
   alias Philomena.Reports
-  alias Philomena.Reports.Report
   alias Philomena.Conversations.Conversation
 
   @doc """
@@ -209,11 +208,7 @@ defmodule Philomena.Conversations do
   end
 
   def approve_conversation_message(message, user) do
-    reports_query =
-      Report
-      |> where(reportable_type: "Conversation", reportable_id: ^message.conversation_id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+    reports_query = Reports.close_report_query("Conversation", message.conversation_id, user)
 
     message_query =
       message

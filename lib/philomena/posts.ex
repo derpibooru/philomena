@@ -19,7 +19,6 @@ defmodule Philomena.Posts do
   alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
-  alias Philomena.Reports.Report
 
   @doc """
   Gets a single post.
@@ -204,11 +203,7 @@ defmodule Philomena.Posts do
   end
 
   def hide_post(%Post{} = post, attrs, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Post", reportable_id: ^post.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+    report_query = Reports.close_report_query("Post", post.id, user)
 
     topics =
       Topic
@@ -224,7 +219,7 @@ defmodule Philomena.Posts do
 
     Multi.new()
     |> Multi.update(:post, post)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Multi.update_all(:topics, topics, [])
     |> Multi.update_all(:forums, forums, [])
     |> Repo.transaction()
@@ -255,17 +250,12 @@ defmodule Philomena.Posts do
   end
 
   def approve_post(%Post{} = post, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Post", reportable_id: ^post.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
-
+    report_query = Reports.close_report_query("Post", post.id, user)
     post = Post.approve_changeset(post)
 
     Multi.new()
     |> Multi.update(:post, post)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->

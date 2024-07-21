@@ -31,7 +31,6 @@ defmodule Philomena.Images do
   alias Philomena.Notifications
   alias Philomena.Interactions
   alias Philomena.Reports
-  alias Philomena.Reports.Report
   alias Philomena.Comments
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
@@ -578,11 +577,7 @@ defmodule Philomena.Images do
   end
 
   defp hide_image_multi(changeset, image, user, multi) do
-    reports =
-      Report
-      |> where(reportable_type: "Image", reportable_id: ^image.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+    report_query = Reports.close_report_query("Image", image.id, user)
 
     galleries =
       Gallery
@@ -593,7 +588,7 @@ defmodule Philomena.Images do
 
     multi
     |> Multi.update(:image, changeset)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Multi.update_all(:galleries, galleries, [])
     |> Multi.delete_all(:gallery_interactions, gallery_interactions, [])
     |> Multi.run(:tags, fn repo, %{image: image} ->

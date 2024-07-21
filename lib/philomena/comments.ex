@@ -8,7 +8,6 @@ defmodule Philomena.Comments do
   alias Philomena.Repo
 
   alias PhilomenaQuery.Search
-  alias Philomena.Reports.Report
   alias Philomena.UserStatistics
   alias Philomena.Comments.Comment
   alias Philomena.Comments.SearchIndex, as: CommentIndex
@@ -145,17 +144,12 @@ defmodule Philomena.Comments do
   end
 
   def hide_comment(%Comment{} = comment, attrs, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Comment", reportable_id: ^comment.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
-
+    report_query = Reports.close_report_query("Comment", comment.id, user)
     comment = Comment.hide_changeset(comment, attrs, user)
 
     Multi.new()
     |> Multi.update(:comment, comment)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Repo.transaction()
     |> case do
       {:ok, %{comment: comment, reports: {_count, reports}}} ->
@@ -191,17 +185,12 @@ defmodule Philomena.Comments do
   end
 
   def approve_comment(%Comment{} = comment, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Comment", reportable_id: ^comment.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
-
+    report_query = Reports.close_report_query("Comment", comment.id, user)
     comment = Comment.approve_changeset(comment)
 
     Multi.new()
     |> Multi.update(:comment, comment)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Repo.transaction()
     |> case do
       {:ok, %{comment: comment, reports: {_count, reports}}} ->
