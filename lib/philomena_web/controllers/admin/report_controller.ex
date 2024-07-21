@@ -6,6 +6,7 @@ defmodule PhilomenaWeb.Admin.ReportController do
   alias Philomena.Reports.Report
   alias Philomena.Reports.Query
   alias Philomena.Polymorphic
+  alias Philomena.ModNotes.ModNote
   alias Philomena.ModNotes
   alias Philomena.Repo
   import Ecto.Query

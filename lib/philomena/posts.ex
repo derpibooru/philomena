@@ -19,7 +19,6 @@ defmodule Philomena.Posts do
   alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
-  alias Philomena.Reports.Report
   alias Philomena.Users.User
   alias Philomena.Games.{Player, Team}
 
@@ -117,8 +116,7 @@ defmodule Philomena.Posts do
 
   def report_non_approved(post) do
     Reports.create_system_report(
-      post.id,
-      "Post",
+      {"Post", post.id},
       "Approval",
       "Post contains externally-embedded images and has been flagged for review."
     )
@@ -206,11 +204,7 @@ defmodule Philomena.Posts do
   end
 
   def hide_post(%Post{} = post, attrs, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Post", reportable_id: ^post.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
+    report_query = Reports.close_report_query({"Post", post.id}, user)
 
     original_post = Repo.preload(post, :user)
 
@@ -228,7 +222,7 @@ defmodule Philomena.Posts do
 
     Multi.new()
     |> Multi.update(:post, post)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Multi.update_all(:topics, topics, [])
     |> Multi.update_all(:forums, forums, [])
     |> maybe_remove_points_for_post(original_post.user)
@@ -287,17 +281,12 @@ defmodule Philomena.Posts do
   end
 
   def approve_post(%Post{} = post, user) do
-    reports =
-      Report
-      |> where(reportable_type: "Post", reportable_id: ^post.id)
-      |> select([r], r.id)
-      |> update(set: [open: false, state: "closed", admin_id: ^user.id])
-
+    report_query = Reports.close_report_query({"Post", post.id}, user)
     post = Post.approve_changeset(post)
 
     Multi.new()
     |> Multi.update(:post, post)
-    |> Multi.update_all(:reports, reports, [])
+    |> Multi.update_all(:reports, report_query, [])
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->
