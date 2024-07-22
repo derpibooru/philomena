@@ -37,6 +37,16 @@ defmodule Philomena.DuplicateReports.SearchQuery do
       :image_aspect_ratio,
       :uploaded_image
     ])
+    |> validate_required([
+      :image_width,
+      :image_height,
+      :image_format,
+      :image_duration,
+      :image_mime_type,
+      :image_is_animated,
+      :image_aspect_ratio,
+      :uploaded_image
+    ])
     |> validate_number(:image_width, greater_than: 0)
     |> validate_number(:image_height, greater_than: 0)
     |> validate_inclusion(
