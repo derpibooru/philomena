@@ -7,19 +7,19 @@ import { $, $$ } from './utils/dom';
 const markdownSyntax = {
   bold: {
     action: wrapSelection,
-    options: { prefix: '**', shortcutKey: 'b' },
+    options: { prefix: '**', shortcutKeyCode: 66 },
   },
   italics: {
     action: wrapSelection,
-    options: { prefix: '*', shortcutKey: 'i' },
+    options: { prefix: '*', shortcutKeyCode: 73 },
   },
   under: {
     action: wrapSelection,
-    options: { prefix: '__', shortcutKey: 'u' },
+    options: { prefix: '__', shortcutKeyCode: 85 },
   },
   spoiler: {
     action: wrapSelection,
-    options: { prefix: '||', shortcutKey: 's' },
+    options: { prefix: '||', shortcutKeyCode: 83 },
   },
   code: {
     action: wrapSelectionOrLines,
@@ -29,7 +29,7 @@ const markdownSyntax = {
       prefixMultiline: '```\n',
       suffixMultiline: '\n```',
       singleWrap: true,
-      shortcutKey: 'e',
+      shortcutKeyCode: 69,
     },
   },
   strike: {
@@ -50,11 +50,11 @@ const markdownSyntax = {
   },
   link: {
     action: insertLink,
-    options: { shortcutKey: 'l' },
+    options: { shortcutKeyCode: 76 },
   },
   image: {
     action: insertLink,
-    options: { image: true, shortcutKey: 'k' },
+    options: { image: true, shortcutKeyCode: 75 },
   },
   escape: {
     action: escapeSelection,
@@ -257,10 +257,10 @@ function shortcutHandler(event) {
   }
 
   const textarea = event.target,
-    key = event.key.toLowerCase();
+    keyCode = event.keyCode;
 
   for (const id in markdownSyntax) {
-    if (key === markdownSyntax[id].options.shortcutKey) {
+    if (keyCode === markdownSyntax[id].options.shortcutKeyCode) {
       markdownSyntax[id].action(textarea, markdownSyntax[id].options);
       event.preventDefault();
     }
