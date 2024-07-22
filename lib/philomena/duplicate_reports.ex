@@ -3,7 +3,9 @@ defmodule Philomena.DuplicateReports do
   The DuplicateReports context.
   """
 
+  import Philomena.DuplicateReports.Power
   import Ecto.Query, warn: false
+
   alias Ecto.Multi
   alias Philomena.Repo
 
@@ -46,6 +48,14 @@ defmodule Philomena.DuplicateReports do
       where:
         i.image_aspect_ratio >= ^(aspect_ratio - aspect_dist) and
           i.image_aspect_ratio <= ^(aspect_ratio + aspect_dist),
+      order_by: [
+        asc:
+          power(it.nw - ^intensities.nw, 2) +
+            power(it.ne - ^intensities.ne, 2) +
+            power(it.sw - ^intensities.sw, 2) +
+            power(it.se - ^intensities.se, 2) +
+            power(i.image_aspect_ratio - ^aspect_ratio, 2)
+      ],
       limit: ^limit
   end
 
