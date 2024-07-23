@@ -42,6 +42,7 @@ metadata: image_search_json
 			'processed', processed,
 			'score', score,
 			'size', image_size,
+			'orig_size', image_orig_size,
 			'sha512_hash', image_sha512_hash,
 			'thumbnails_generated', thumbnails_generated,
 			'updated_at', updated_at,
