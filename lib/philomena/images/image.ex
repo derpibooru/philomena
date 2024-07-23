@@ -96,6 +96,7 @@ defmodule Philomena.Images.Image do
     field :added_tags, {:array, :any}, default: [], virtual: true
     field :removed_sources, {:array, :any}, default: [], virtual: true
     field :added_sources, {:array, :any}, default: [], virtual: true
+    field :ratings_changed, :boolean, default: false, virtual: true
 
     field :uploaded_image, :string, virtual: true
     field :removed_image, :string, virtual: true
