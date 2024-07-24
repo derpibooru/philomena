@@ -4,7 +4,7 @@
 
 import { $ } from './utils/dom';
 
-type ShortcutKeyMap = Record<string, () => void>;
+type ShortcutKeyMap = Record<number, () => void>;
 
 function getHover(): string | null {
   const thumbBoxHover = $<HTMLDivElement>('.media-box:hover');
@@ -50,19 +50,19 @@ function isOK(event: KeyboardEvent): boolean {
 /* eslint-disable prettier/prettier */
 
 const keyCodes: ShortcutKeyMap = {
-  j() { click('.js-prev');             }, // J - go to previous image
-  i() { click('.js-up');               }, // I - go to index page
-  k() { click('.js-next');             }, // K - go to next image
-  r() { click('.js-rand');             }, // R - go to random image
-  s() { click('.js-source-link');      }, // S - go to image source
-  l() { click('.js-tag-sauce-toggle'); }, // L - edit tags
-  o() { openFullView();                }, // O - open original
-  v() { openFullViewNewTab();          }, // V - open original in a new tab
-  f() {
+  74() { click('.js-prev');             }, // J - go to previous image
+  73() { click('.js-up');               }, // I - go to index page
+  75() { click('.js-next');             }, // K - go to next image
+  82() { click('.js-rand');             }, // R - go to random image
+  83() { click('.js-source-link');      }, // S - go to image source
+  76() { click('.js-tag-sauce-toggle'); }, // L - edit tags
+  79() { openFullView();                }, // O - open original
+  86() { openFullViewNewTab();          }, // V - open original in a new tab
+  70() {
     // F - favourite image
     click(getHover() ? `a.interaction--fave[data-image-id="${getHover()}"]` : '.block__header a.interaction--fave');
   },
-  u() {
+  85() {
     // U - upvote image
     click(getHover() ? `a.interaction--upvote[data-image-id="${getHover()}"]` : '.block__header a.interaction--upvote');
   },
@@ -72,8 +72,8 @@ const keyCodes: ShortcutKeyMap = {
 
 export function listenForKeys() {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (isOK(event) && keyCodes[event.key]) {
-      keyCodes[event.key]();
+    if (isOK(event) && keyCodes[event.keyCode]) {
+      keyCodes[event.keyCode]();
       event.preventDefault();
     }
   });

@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Image.TagController do
   alias Philomena.Images
   alias Philomena.Tags
   alias Philomena.Repo
+  alias Plug.Conn
   import Ecto.Query
 
   plug PhilomenaWeb.LimitPlug,
@@ -88,6 +89,18 @@ defmodule PhilomenaWeb.Image.TagController do
           image: image,
           changeset: changeset
         )
+
+      {:error, :check_limits, _error, _} ->
+        conn
+        |> put_flash(:error, "Too many tags changed. Change fewer tags or try again later.")
+        |> Conn.send_resp(:multiple_choices, "")
+        |> Conn.halt()
+
+      _err ->
+        conn
+        |> put_flash(:error, "Failed to update tags!")
+        |> Conn.send_resp(:multiple_choices, "")
+        |> Conn.halt()
     end
   end
 end

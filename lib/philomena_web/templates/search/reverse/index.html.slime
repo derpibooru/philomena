@@ -13,7 +13,7 @@ h1 Reverse Search
     p Upload a file from your computer, or provide a link to the page containing the image and click Fetch.
     .field
       = file_input f, :image, class: "input js-scraper"
-      = error_tag f, :image
+      = error_tag f, :uploaded_image
       = error_tag f, :image_width
       = error_tag f, :image_height
       = error_tag f, :image_mime_type
@@ -40,7 +40,7 @@ h1 Reverse Search
 
 = cond do
   - is_nil(@images) ->
-  
+
   - Enum.any?(@images) ->
     h2 Results
 
@@ -49,7 +49,7 @@ h1 Reverse Search
         th &nbsp;
         th Image
         th &nbsp;
-      
+
       = for match <- @images do
         tr
           th
