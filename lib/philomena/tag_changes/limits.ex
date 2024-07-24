@@ -77,7 +77,7 @@ defmodule Philomena.TagChanges.Limits do
 
   defp check_limit(user, key, limit, additional) do
     if considered_for_limit?(user) do
-      amt = Redix.command!(:redix, ["GET", key]) || 0
+      amt = String.to_integer(Redix.command!(:redix, ["GET", key]) || "0")
       amt + additional >= limit
     else
       false
