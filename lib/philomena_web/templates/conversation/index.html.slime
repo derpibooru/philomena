@@ -20,14 +20,14 @@ h1 My Conversations
           th.table--communication-list__stats With
           th.table--communication-list__options Options
       tbody
-        = for {c, count} <- @conversations do
+        = for c <- @conversations do
           tr class=conversation_class(@conn.assigns.current_user, c)
             td.table--communication-list__name
               => link c.title, to: ~p"/conversations/#{c}"
 
               .small-text.hide-mobile
-                => count
-                = pluralize("message", "messages", count)
+                => c.message_count
+                = pluralize("message", "messages", c.message_count)
                 ' ; started
                 = pretty_time(c.created_at)
                 ' , last message
@@ -36,7 +36,7 @@ h1 My Conversations
             td.table--communication-list__stats
               = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user, c)}, conn: @conn
             td.table--communication-list__options
-              => link "Last message", to: last_message_path(c, count)
+              => link "Last message", to: last_message_path(c, c.message_count)
               ' &bull;
               => link "Hide", to: ~p"/conversations/#{c}/hide", data: [method: "post"], data: [confirm: "Are you really, really sure?"]
 

@@ -4,7 +4,6 @@ defmodule Philomena.Conversations.Conversation do
 
   alias Philomena.Users.User
   alias Philomena.Conversations.Message
-  alias Philomena.Repo
 
   @derive {Phoenix.Param, key: :slug}
 
@@ -20,6 +19,8 @@ defmodule Philomena.Conversations.Conversation do
     field :from_hidden, :boolean, default: false
     field :slug, :string
     field :last_message_at, :utc_datetime
+
+    field :message_count, :integer, virtual: true
     field :recipient, :string, virtual: true
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
@@ -32,50 +33,39 @@ defmodule Philomena.Conversations.Conversation do
     |> validate_required([])
   end
 
+  @doc false
   def read_changeset(conversation, attrs) do
-    conversation
-    |> cast(attrs, [:from_read, :to_read])
-  end
-
-  def to_read_changeset(conversation) do
-    change(conversation)
-    |> put_change(:to_read, true)
-  end
-
-  def hidden_changeset(conversation, attrs) do
-    conversation
-    |> cast(attrs, [:from_hidden, :to_hidden])
+    cast(conversation, attrs, [:from_read, :to_read])
   end
 
   @doc false
-  def creation_changeset(conversation, from, attrs) do
-    conversation
-    |> cast(attrs, [:title, :recipient])
-    |> validate_required([:title, :recipient])
-    |> validate_length(:title, max: 300, count: :bytes)
-    |> put_assoc(:from, from)
-    |> put_recipient()
-    |> set_slug()
-    |> set_last_message()
-    |> cast_assoc(:messages, with: &Message.creation_changeset(&1, &2, from))
-    |> validate_length(:messages, is: 1)
+  def hidden_changeset(conversation, attrs) do
+    cast(conversation, attrs, [:from_hidden, :to_hidden])
   end
 
-  defp set_slug(changeset) do
-    changeset
-    |> change(slug: Ecto.UUID.generate())
+  @doc false
+  def creation_changeset(conversation, from, to, attrs) do
+    conversation
+    |> cast(attrs, [:title])
+    |> put_assoc(:from, from)
+    |> put_assoc(:to, to)
+    |> put_change(:slug, Ecto.UUID.generate())
+    |> cast_assoc(:messages, with: &Message.creation_changeset(&1, &2, from))
+    |> set_last_message()
+    |> validate_length(:messages, is: 1)
+    |> validate_length(:title, max: 300, count: :bytes)
+    |> validate_required([:title, :from, :to])
+  end
+
+  @doc false
+  def new_message_changeset(conversation) do
+    conversation
+    |> change(from_read: false)
+    |> change(to_read: false)
+    |> set_last_message()
   end
 
   defp set_last_message(changeset) do
     change(changeset, last_message_at: DateTime.utc_now(:second))
-  end
-
-  defp put_recipient(changeset) do
-    recipient = changeset |> get_field(:recipient)
-    user = Repo.get_by(User, name: recipient)
-
-    changeset
-    |> put_change(:to, user)
-    |> validate_required(:to)
   end
 end
