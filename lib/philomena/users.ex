@@ -56,6 +56,22 @@ defmodule Philomena.Users do
   end
 
   @doc """
+  Gets a user by name.
+
+  ## Examples
+
+      iex> get_user_by_name("Administrator")
+      %User{}
+
+      iex> get_user_by_name("nonexistent")
+      nil
+
+  """
+  def get_user_by_name(name) when is_binary(name) do
+    Repo.get_by(User, name: name)
+  end
+
+  @doc """
   Gets a user by email and password.
 
   ## Examples
