@@ -47,6 +47,7 @@ p
     .block
       = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Provide anything else we should know here.", name: :reason, required: false
 
+    = hidden_input f, :user_agent, value: get_user_agent(@conn)
     = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "report", conn: @conn
 
     = submit "Send Report", class: "button"

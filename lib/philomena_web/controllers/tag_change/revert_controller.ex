@@ -13,8 +13,6 @@ defmodule PhilomenaWeb.TagChange.RevertController do
     attributes = %{
       ip: attributes[:ip],
       fingerprint: attributes[:fingerprint],
-      referrer: attributes[:referrer],
-      user_agent: attributes[:referrer],
       user_id: attributes[:user].id
     }
 

@@ -14,15 +14,12 @@ defmodule Philomena.Comments.Comment do
     field :body, :string
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
-    field :user_agent, :string, default: ""
-    field :referrer, :string, default: ""
     field :anonymous, :boolean, default: false
     field :hidden_from_users, :boolean, default: false
     field :edit_reason, :string
     field :edited_at, :utc_datetime
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
-    field :name_at_post_time, :string
     field :approved, :boolean
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
@@ -35,7 +32,6 @@ defmodule Philomena.Comments.Comment do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
-    |> put_name_at_post_time(attribution[:user])
     |> Approval.maybe_put_approval(attribution[:user])
     |> Approval.maybe_strip_images(attribution[:user])
   end
@@ -74,7 +70,4 @@ defmodule Philomena.Comments.Comment do
     change(comment)
     |> put_change(:approved, true)
   end
-
-  defp put_name_at_post_time(changeset, nil), do: changeset
-  defp put_name_at_post_time(changeset, user), do: change(changeset, name_at_post_time: user.name)
 end

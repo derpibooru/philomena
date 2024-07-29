@@ -109,7 +109,6 @@ defmodule Philomena.Users.User do
     field :watched_tag_list, :string, virtual: true
 
     # Other stuff
-    field :last_donation_at, :utc_datetime
     field :last_renamed_at, :utc_datetime
     field :deleted_at, :utc_datetime
     field :scratchpad, :string

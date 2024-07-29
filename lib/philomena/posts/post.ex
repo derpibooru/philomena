@@ -15,15 +15,12 @@ defmodule Philomena.Posts.Post do
     field :edit_reason, :string
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
-    field :user_agent, :string, default: ""
-    field :referrer, :string, default: ""
     field :topic_position, :integer
     field :hidden_from_users, :boolean, default: false
     field :anonymous, :boolean, default: false
     field :edited_at, :utc_datetime
     field :deletion_reason, :string, default: ""
     field :destroyed_content, :boolean, default: false
-    field :name_at_post_time, :string
     field :approved, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
@@ -47,7 +44,6 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
-    |> put_name_at_post_time(attribution[:user])
     |> Approval.maybe_put_approval(attribution[:user])
     |> Approval.maybe_strip_images(attribution[:user])
   end
@@ -61,7 +57,6 @@ defmodule Philomena.Posts.Post do
     |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> change(topic_position: 0)
-    |> put_name_at_post_time(attribution[:user])
     |> Approval.maybe_put_approval(attribution[:user])
     |> Approval.maybe_strip_images(attribution[:user])
   end
@@ -90,7 +85,4 @@ defmodule Philomena.Posts.Post do
     change(post)
     |> put_change(:approved, true)
   end
-
-  defp put_name_at_post_time(changeset, nil), do: changeset
-  defp put_name_at_post_time(changeset, user), do: change(changeset, name_at_post_time: user.name)
 end

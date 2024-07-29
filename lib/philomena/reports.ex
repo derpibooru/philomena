@@ -139,9 +139,7 @@ defmodule Philomena.Reports do
     attributes = %{
       system: true,
       ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32},
-      fingerprint: "ffff",
-      user_agent:
-        "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0"
+      fingerprint: "ffff"
     }
 
     %Report{reportable_type: reportable_type, reportable_id: reportable_id}

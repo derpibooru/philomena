@@ -11,7 +11,6 @@ defmodule Philomena.Reports.Report do
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
     field :user_agent, :string, default: ""
-    field :referrer, :string, default: ""
     field :reason, :string
     field :state, :string, default: "open"
     field :open, :boolean, default: true
@@ -61,8 +60,9 @@ defmodule Philomena.Reports.Report do
   @doc false
   def creation_changeset(report, attrs, attribution) do
     report
-    |> cast(attrs, [:category, :reason])
+    |> cast(attrs, [:category, :reason, :user_agent])
     |> validate_length(:reason, max: 10_000, count: :bytes)
+    |> validate_length(:user_agent, max: 1000, count: :bytes)
     |> merge_category()
     |> change(attribution)
     |> validate_required([

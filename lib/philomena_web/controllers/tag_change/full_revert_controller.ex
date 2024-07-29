@@ -11,8 +11,6 @@ defmodule PhilomenaWeb.TagChange.FullRevertController do
     attributes = %{
       ip: to_string(attributes[:ip]),
       fingerprint: attributes[:fingerprint],
-      referrer: attributes[:referrer],
-      user_agent: attributes[:referrer],
       user_id: attributes[:user].id,
       batch_size: attributes[:batch_size] || 100
     }

@@ -6,26 +6,12 @@
     = link "Administrate", to: "#", data: [click_tab: "administration"]
 
 .block__tab data-tab="voting"
-  = cond do
-    - @poll.hidden_from_users ->
-      .walloftext
-      .block.block--fixed.block--warning
-        h1 This poll has been deleted
-        p
-          ' Reason:
-          strong
-            = @poll.deletion_reason || "Unknown (likely deleted in error). Please contact a moderator."
-
-    - @poll_active and not @voted and not is_nil(@conn.assigns.current_user) ->
-      .poll
-        .poll-area
-          = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns
-
-    - true ->
-      .poll
-        .poll-area
-          = render PhilomenaWeb.Topic.PollView, "_results.html", assigns
-
+  .poll
+    .poll-area
+      = if @poll_active and not @voted and not is_nil(@conn.assigns.current_user) do
+        = render PhilomenaWeb.Topic.PollView, "_vote_form.html", assigns
+      - else
+        = render PhilomenaWeb.Topic.PollView, "_results.html", assigns
 
 = if can?(@conn, :hide, @topic) do
   .block__tab.hidden data-tab="voters"

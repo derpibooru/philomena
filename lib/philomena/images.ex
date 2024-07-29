@@ -94,11 +94,6 @@ defmodule Philomena.Images do
 
     Multi.new()
     |> Multi.insert(:image, image)
-    |> Multi.run(:name_caches, fn repo, %{image: image} ->
-      image
-      |> Image.cache_changeset()
-      |> repo.update()
-    end)
     |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
       tag_ids = image.added_tags |> Enum.map(& &1.id)
       tags = Tag |> where([t], t.id in ^tag_ids)
@@ -384,8 +379,6 @@ defmodule Philomena.Images do
       updated_at: now,
       ip: attribution[:ip],
       fingerprint: attribution[:fingerprint],
-      user_agent: attribution[:user_agent],
-      referrer: attribution[:referrer],
       added: added
     }
   end
@@ -521,8 +514,6 @@ defmodule Philomena.Images do
       tag_name_cache: tag.name,
       ip: attribution[:ip],
       fingerprint: attribution[:fingerprint],
-      user_agent: attribution[:user_agent],
-      referrer: attribution[:referrer],
       added: added
     }
   end

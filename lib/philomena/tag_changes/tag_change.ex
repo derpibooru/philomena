@@ -9,8 +9,6 @@ defmodule Philomena.TagChanges.TagChange do
 
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
-    field :user_agent, :string, default: ""
-    field :referrer, :string, default: ""
     field :added, :boolean
     field :tag_name_cache, :string, default: ""
 
