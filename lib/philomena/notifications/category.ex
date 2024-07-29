@@ -67,18 +67,18 @@ defmodule Philomena.Notifications.Category do
   ## Examples
 
       iex> unread_notifications_for_user(user, page_size: 10)
-      %{
+      [
         channel_live: [],
         forum_post: [%ForumPostNotification{...}, ...],
         forum_topic: [%ForumTopicNotification{...}, ...],
         gallery_image: [],
         image_comment: [%ImageCommentNotification{...}, ...],
         image_merge: []
-      }
+      ]
 
   """
   def unread_notifications_for_user(user, pagination) do
-    Map.new(categories(), fn category ->
+    Enum.map(categories(), fn category ->
       results =
         category
         |> query_for_category_and_user(user)

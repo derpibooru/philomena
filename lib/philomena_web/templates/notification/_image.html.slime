@@ -8,7 +8,7 @@
   div
     ' Someone
     | merged #
-    = source.id
+    => source.id
     ' into
 
     strong>

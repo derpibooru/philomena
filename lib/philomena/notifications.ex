@@ -41,14 +41,14 @@ defmodule Philomena.Notifications do
   ## Examples
 
       iex> unread_notifications_for_user(user, page_size: 10)
-      %{
+      [
         channel_live: [],
         forum_post: [%ForumPostNotification{...}, ...],
         forum_topic: [%ForumTopicNotification{...}, ...],
         gallery_image: [],
         image_comment: [%ImageCommentNotification{...}, ...],
         image_merge: []
-      }
+      ]
 
   """
   def unread_notifications_for_user(user, pagination) do
