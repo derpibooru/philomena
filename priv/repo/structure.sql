@@ -199,6 +199,19 @@ ALTER SEQUENCE public.badges_id_seq OWNED BY public.badges.id;
 
 
 --
+-- Name: channel_live_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.channel_live_notifications (
+    channel_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
+);
+
+
+--
 -- Name: channel_subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -621,12 +634,39 @@ ALTER SEQUENCE public.fingerprint_bans_id_seq OWNED BY public.fingerprint_bans.i
 
 
 --
+-- Name: forum_post_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.forum_post_notifications (
+    topic_id bigint NOT NULL,
+    post_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
+);
+
+
+--
 -- Name: forum_subscriptions; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.forum_subscriptions (
     forum_id integer NOT NULL,
     user_id integer NOT NULL
+);
+
+
+--
+-- Name: forum_topic_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.forum_topic_notifications (
+    topic_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
 );
 
 
@@ -710,6 +750,19 @@ ALTER SEQUENCE public.galleries_id_seq OWNED BY public.galleries.id;
 
 
 --
+-- Name: gallery_image_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.gallery_image_notifications (
+    gallery_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
+);
+
+
+--
 -- Name: gallery_interactions; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -764,7 +817,6 @@ CREATE TABLE public.game_players (
     updated_at timestamp(0) without time zone NOT NULL,
     rank_override character varying
 );
-
 
 --
 -- Name: game_players_id_seq; Type: SEQUENCE; Schema: public; Owner: -
@@ -846,6 +898,20 @@ CREATE SEQUENCE public.games_id_seq
 --
 
 ALTER SEQUENCE public.games_id_seq OWNED BY public.games.id;
+
+
+--
+-- Name: image_comment_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_comment_notifications (
+    image_id bigint NOT NULL,
+    comment_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
+);
 
 
 --
@@ -933,6 +999,20 @@ CREATE SEQUENCE public.image_intensities_id_seq
 --
 
 ALTER SEQUENCE public.image_intensities_id_seq OWNED BY public.image_intensities.id;
+
+
+--
+-- Name: image_merge_notifications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.image_merge_notifications (
+    target_id bigint NOT NULL,
+    source_id bigint NOT NULL,
+    user_id bigint NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL,
+    read boolean DEFAULT false NOT NULL
+);
 
 
 --
@@ -3038,10 +3118,199 @@ ALTER TABLE ONLY public.versions
 
 
 --
+-- Name: channel_live_notifications_channel_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX channel_live_notifications_channel_id_index ON public.channel_live_notifications USING btree (channel_id);
+
+
+--
+-- Name: channel_live_notifications_user_id_channel_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX channel_live_notifications_user_id_channel_id_index ON public.channel_live_notifications USING btree (user_id, channel_id);
+
+
+--
+-- Name: channel_live_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX channel_live_notifications_user_id_read_index ON public.channel_live_notifications USING btree (user_id, read);
+
+
+--
+-- Name: channel_live_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX channel_live_notifications_user_id_updated_at_desc_index ON public.channel_live_notifications USING btree (user_id, updated_at DESC);
+
+
+--
+-- Name: forum_post_notifications_post_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_post_notifications_post_id_index ON public.forum_post_notifications USING btree (post_id);
+
+
+--
+-- Name: forum_post_notifications_topic_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_post_notifications_topic_id_index ON public.forum_post_notifications USING btree (topic_id);
+
+
+--
+-- Name: forum_post_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_post_notifications_user_id_read_index ON public.forum_post_notifications USING btree (user_id, read);
+
+
+--
+-- Name: forum_post_notifications_user_id_topic_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX forum_post_notifications_user_id_topic_id_index ON public.forum_post_notifications USING btree (user_id, topic_id);
+
+
+--
+-- Name: forum_post_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_post_notifications_user_id_updated_at_desc_index ON public.forum_post_notifications USING btree (user_id, updated_at DESC);
+
+
+--
+-- Name: forum_topic_notifications_topic_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_topic_notifications_topic_id_index ON public.forum_topic_notifications USING btree (topic_id);
+
+
+--
+-- Name: forum_topic_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_topic_notifications_user_id_read_index ON public.forum_topic_notifications USING btree (user_id, read);
+
+
+--
+-- Name: forum_topic_notifications_user_id_topic_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX forum_topic_notifications_user_id_topic_id_index ON public.forum_topic_notifications USING btree (user_id, topic_id);
+
+
+--
+-- Name: forum_topic_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX forum_topic_notifications_user_id_updated_at_desc_index ON public.forum_topic_notifications USING btree (user_id, updated_at DESC);
+
+
+--
+-- Name: gallery_image_notifications_gallery_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX gallery_image_notifications_gallery_id_index ON public.gallery_image_notifications USING btree (gallery_id);
+
+
+--
+-- Name: gallery_image_notifications_user_id_gallery_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX gallery_image_notifications_user_id_gallery_id_index ON public.gallery_image_notifications USING btree (user_id, gallery_id);
+
+
+--
+-- Name: gallery_image_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX gallery_image_notifications_user_id_read_index ON public.gallery_image_notifications USING btree (user_id, read);
+
+
+--
+-- Name: gallery_image_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX gallery_image_notifications_user_id_updated_at_desc_index ON public.gallery_image_notifications USING btree (user_id, updated_at DESC);
+
+
+--
+-- Name: image_comment_notifications_comment_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_comment_notifications_comment_id_index ON public.image_comment_notifications USING btree (comment_id);
+
+
+--
+-- Name: image_comment_notifications_image_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_comment_notifications_image_id_index ON public.image_comment_notifications USING btree (image_id);
+
+
+--
+-- Name: image_comment_notifications_user_id_image_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX image_comment_notifications_user_id_image_id_index ON public.image_comment_notifications USING btree (user_id, image_id);
+
+
+--
+-- Name: image_comment_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_comment_notifications_user_id_read_index ON public.image_comment_notifications USING btree (user_id, read);
+
+
+--
+-- Name: image_comment_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_comment_notifications_user_id_updated_at_desc_index ON public.image_comment_notifications USING btree (user_id, updated_at DESC);
+
+
+--
 -- Name: image_intensities_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX image_intensities_index ON public.image_intensities USING btree (nw, ne, sw, se);
+
+
+--
+-- Name: image_merge_notifications_source_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_merge_notifications_source_id_index ON public.image_merge_notifications USING btree (source_id);
+
+
+--
+-- Name: image_merge_notifications_target_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_merge_notifications_target_id_index ON public.image_merge_notifications USING btree (target_id);
+
+
+--
+-- Name: image_merge_notifications_user_id_read_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_merge_notifications_user_id_read_index ON public.image_merge_notifications USING btree (user_id, read);
+
+
+--
+-- Name: image_merge_notifications_user_id_target_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX image_merge_notifications_user_id_target_id_index ON public.image_merge_notifications USING btree (user_id, target_id);
+
+
+--
+-- Name: image_merge_notifications_user_id_updated_at_desc_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX image_merge_notifications_user_id_updated_at_desc_index ON public.image_merge_notifications USING btree (user_id, updated_at DESC);
 
 
 --
@@ -4319,6 +4588,22 @@ CREATE INDEX user_tokens_user_id_index ON public.user_tokens USING btree (user_i
 
 
 --
+-- Name: channel_live_notifications channel_live_notifications_channel_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.channel_live_notifications
+    ADD CONSTRAINT channel_live_notifications_channel_id_fkey FOREIGN KEY (channel_id) REFERENCES public.channels(id) ON DELETE CASCADE;
+
+
+--
+-- Name: channel_live_notifications channel_live_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.channel_live_notifications
+    ADD CONSTRAINT channel_live_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: channels fk_rails_021c624081; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5111,6 +5396,62 @@ ALTER TABLE ONLY public.gallery_subscriptions
 
 
 --
+-- Name: forum_post_notifications forum_post_notifications_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.forum_post_notifications
+    ADD CONSTRAINT forum_post_notifications_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE CASCADE;
+
+
+--
+-- Name: forum_post_notifications forum_post_notifications_topic_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.forum_post_notifications
+    ADD CONSTRAINT forum_post_notifications_topic_id_fkey FOREIGN KEY (topic_id) REFERENCES public.topics(id) ON DELETE CASCADE;
+
+
+--
+-- Name: forum_post_notifications forum_post_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.forum_post_notifications
+    ADD CONSTRAINT forum_post_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: forum_topic_notifications forum_topic_notifications_topic_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.forum_topic_notifications
+    ADD CONSTRAINT forum_topic_notifications_topic_id_fkey FOREIGN KEY (topic_id) REFERENCES public.topics(id) ON DELETE CASCADE;
+
+
+--
+-- Name: forum_topic_notifications forum_topic_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.forum_topic_notifications
+    ADD CONSTRAINT forum_topic_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: gallery_image_notifications gallery_image_notifications_gallery_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gallery_image_notifications
+    ADD CONSTRAINT gallery_image_notifications_gallery_id_fkey FOREIGN KEY (gallery_id) REFERENCES public.galleries(id) ON DELETE CASCADE;
+
+
+--
+-- Name: gallery_image_notifications gallery_image_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.gallery_image_notifications
+    ADD CONSTRAINT gallery_image_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
 -- Name: game_players game_players_game_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5140,6 +5481,53 @@ ALTER TABLE ONLY public.game_players
 
 ALTER TABLE ONLY public.game_teams
     ADD CONSTRAINT game_teams_game_id_fkey FOREIGN KEY (game_id) REFERENCES public.games(id) ON DELETE CASCADE;
+
+--
+-- Name: image_comment_notifications image_comment_notifications_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_comment_notifications
+    ADD CONSTRAINT image_comment_notifications_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_comment_notifications image_comment_notifications_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_comment_notifications
+    ADD CONSTRAINT image_comment_notifications_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_comment_notifications image_comment_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_comment_notifications
+    ADD CONSTRAINT image_comment_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_merge_notifications image_merge_notifications_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_merge_notifications
+    ADD CONSTRAINT image_merge_notifications_source_id_fkey FOREIGN KEY (source_id) REFERENCES public.images(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_merge_notifications image_merge_notifications_target_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_merge_notifications
+    ADD CONSTRAINT image_merge_notifications_target_id_fkey FOREIGN KEY (target_id) REFERENCES public.images(id) ON DELETE CASCADE;
+
+
+--
+-- Name: image_merge_notifications image_merge_notifications_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.image_merge_notifications
+    ADD CONSTRAINT image_merge_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
@@ -5233,3 +5621,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20220321173359);
 INSERT INTO public."schema_migrations" (version) VALUES (20230330155026);
 INSERT INTO public."schema_migrations" (version) VALUES (20230402170921);
 INSERT INTO public."schema_migrations" (version) VALUES (20240723122759);
+INSERT INTO public."schema_migrations" (version) VALUES (20240728191353);

@@ -1,16 +1,18 @@
+- gallery = @notification.gallery
+
 .flex.flex--centered.flex__grow
   div
-    => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @notification.actor.creator}, conn: @conn
-    => @notification.action
+    => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: gallery.creator}, conn: @conn
+    ' added images to
 
     strong>
-      = link @notification.actor.title, to: ~p"/galleries/#{@notification.actor}"
+      = link gallery.title, to: ~p"/galleries/#{gallery}"
 
     => pretty_time @notification.updated_at
 
 .flex.flex--centered.flex--no-wrap
-  a.button.button--separate-right title="Delete" href=~p"/galleries/#{@notification.actor}/read" data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button.button--separate-right title="Delete" href=~p"/galleries/#{gallery}/read" data-method="post" data-remote="true"
     i.fa.fa-trash
 
-  a.button title="Unsubscribe" href=~p"/galleries/#{@notification.actor}/subscription" data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button title="Unsubscribe" href=~p"/galleries/#{gallery}/subscription" data-method="delete" data-remote="true"
     i.fa.fa-bell-slash

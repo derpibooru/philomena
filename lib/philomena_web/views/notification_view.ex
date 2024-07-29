@@ -2,20 +2,20 @@ defmodule PhilomenaWeb.NotificationView do
   use PhilomenaWeb, :view
 
   @template_paths %{
-    "Channel" => "_channel.html",
-    "Forum" => "_forum.html",
-    "Gallery" => "_gallery.html",
-    "Image" => "_image.html",
-    "LivestreamChannel" => "_channel.html",
-    "Topic" => "_topic.html"
+    "channel_live" => "_channel.html",
+    "forum_post" => "_post.html",
+    "forum_topic" => "_topic.html",
+    "gallery_image" => "_gallery.html",
+    "image_comment" => "_comment.html",
+    "image_merge" => "_image.html"
   }
 
-  def notification_template_path(actor_type) do
-    @template_paths[actor_type]
+  def notification_template_path(category) do
+    @template_paths[to_string(category)]
   end
 
-  def name_of_type(notification_type) do
-    case notification_type do
+  def name_of_category(category) do
+    case category do
       :channel_live ->
         "Live channels"
 

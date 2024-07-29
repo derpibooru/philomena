@@ -80,7 +80,7 @@ defmodule PhilomenaWeb.GalleryController do
 
     gallery_json = Jason.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
 
-    Galleries.clear_notification(gallery, user)
+    Galleries.clear_gallery_notification(gallery, user)
 
     conn
     |> NotificationCountPlug.call([])

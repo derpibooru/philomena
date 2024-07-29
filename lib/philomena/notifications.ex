@@ -4,277 +4,262 @@ defmodule Philomena.Notifications do
   """
 
   import Ecto.Query, warn: false
-  alias Philomena.Repo
+
+  alias Philomena.Channels.Subscription, as: ChannelSubscription
+  alias Philomena.Forums.Subscription, as: ForumSubscription
+  alias Philomena.Galleries.Subscription, as: GallerySubscription
+  alias Philomena.Images.Subscription, as: ImageSubscription
+  alias Philomena.Topics.Subscription, as: TopicSubscription
+
+  alias Philomena.Notifications.ChannelLiveNotification
+  alias Philomena.Notifications.ForumPostNotification
+  alias Philomena.Notifications.ForumTopicNotification
+  alias Philomena.Notifications.GalleryImageNotification
+  alias Philomena.Notifications.ImageCommentNotification
+  alias Philomena.Notifications.ImageMergeNotification
 
   alias Philomena.Notifications.Category
-  alias Philomena.Notifications.Notification
-  alias Philomena.Notifications.UnreadNotification
-  alias Philomena.Polymorphic
+  alias Philomena.Notifications.Creator
 
   @doc """
-  Returns the list of unread notifications of the given type.
-
-  The set of valid types is `t:Philomena.Notifications.Category.t/0`.
+  Return the count of all currently unread notifications for the user in all categories.
 
   ## Examples
 
-      iex> unread_notifications_for_user_and_type(user, :image_comment, ...)
-      [%Notification{}, ...]
+      iex> total_unread_notification_count(user)
+      15
 
   """
-  def unread_notifications_for_user_and_type(user, type, pagination) do
-    notifications =
-      user
-      |> unread_query_for_type(type)
-      |> Repo.paginate(pagination)
-
-    put_in(notifications.entries, load_associations(notifications.entries))
+  def total_unread_notification_count(user) do
+    Category.total_unread_notification_count(user)
   end
 
   @doc """
-  Gather up and return the top N notifications for the user, for each type of
+  Gather up and return the top N notifications for the user, for each category of
   unread notification currently existing.
 
   ## Examples
 
-      iex> unread_notifications_for_user(user)
-      [
-        forum_topic: [%Notification{...}, ...],
-        forum_post: [%Notification{...}, ...],
-        image_comment: [%Notification{...}, ...]
-      ]
+      iex> unread_notifications_for_user(user, page_size: 10)
+      %{
+        channel_live: [],
+        forum_post: [%ForumPostNotification{...}, ...],
+        forum_topic: [%ForumTopicNotification{...}, ...],
+        gallery_image: [],
+        image_comment: [%ImageCommentNotification{...}, ...],
+        image_merge: []
+      }
 
   """
-  def unread_notifications_for_user(user, n) do
-    Category.types()
-    |> Enum.map(fn type ->
-      q =
-        user
-        |> unread_query_for_type(type)
-        |> limit(^n)
-
-      # Use a subquery to ensure the order by is applied to the
-      # subquery results only, and not the main query results
-      from(n in subquery(q))
-    end)
-    |> union_all_queries()
-    |> Repo.all()
-    |> load_associations()
-    |> Enum.group_by(&Category.notification_type/1)
-    |> Enum.sort_by(fn {k, _v} -> k end)
+  def unread_notifications_for_user(user, pagination) do
+    Category.unread_notifications_for_user(user, pagination)
   end
 
-  defp unread_query_for_type(user, type) do
-    from n in Category.query_for_type(type),
-      join: un in UnreadNotification,
-      on: un.notification_id == n.id,
-      where: un.user_id == ^user.id,
-      order_by: [desc: :updated_at]
+  @doc """
+  Returns paginated unread notifications for the user, given the category.
+
+  ## Examples
+
+      iex> unread_notifications_for_user_and_category(user, :image_comment)
+      [%ImageCommentNotification{...}]
+
+  """
+  def unread_notifications_for_user_and_category(user, category, pagination) do
+    Category.unread_notifications_for_user_and_category(user, category, pagination)
   end
 
-  defp union_all_queries([query | rest]) do
-    Enum.reduce(rest, query, fn q, acc -> union_all(acc, ^q) end)
+  @doc """
+  Creates a channel live notification, returning the number of affected users.
+
+  ## Examples
+
+      iex> create_channel_live_notification(channel)
+      {:ok, 2}
+
+  """
+  def create_channel_live_notification(channel) do
+    Creator.create_single(ChannelSubscription, ChannelLiveNotification, :channel_id, channel)
   end
 
-  defp load_associations(notifications) do
-    Polymorphic.load_polymorphic(
-      notifications,
-      actor: [actor_id: :actor_type],
-      actor_child: [actor_child_id: :actor_child_type]
+  @doc """
+  Creates a forum post notification, returning the number of affected users.
+
+  ## Examples
+
+      iex> create_forum_post_notification(topic, post)
+      {:ok, 2}
+
+  """
+  def create_forum_post_notification(topic, post) do
+    Creator.create_double(
+      TopicSubscription,
+      ForumPostNotification,
+      :topic_id,
+      topic,
+      :post_id,
+      post
     )
   end
 
   @doc """
-  Gets a single notification.
-
-  Raises `Ecto.NoResultsError` if the Notification does not exist.
+  Creates a forum topic notification, returning the number of affected users.
 
   ## Examples
 
-      iex> get_notification!(123)
-      %Notification{}
-
-      iex> get_notification!(456)
-      ** (Ecto.NoResultsError)
+      iex> create_forum_topic_notification(topic)
+      {:ok, 2}
 
   """
-  def get_notification!(id), do: Repo.get!(Notification, id)
-
-  @doc """
-  Creates a notification.
-
-  ## Examples
-
-      iex> create_notification(%{field: value})
-      {:ok, %Notification{}}
-
-      iex> create_notification(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_notification(attrs \\ %{}) do
-    %Notification{}
-    |> Notification.changeset(attrs)
-    |> Repo.insert()
+  def create_forum_topic_notification(topic) do
+    Creator.create_single(ForumSubscription, ForumTopicNotification, :topic_id, topic)
   end
 
   @doc """
-  Updates a notification.
+  Creates a gallery image notification, returning the number of affected users.
 
   ## Examples
 
-      iex> update_notification(notification, %{field: new_value})
-      {:ok, %Notification{}}
-
-      iex> update_notification(notification, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> create_gallery_image_notification(gallery)
+      {:ok, 2}
 
   """
-  def update_notification(%Notification{} = notification, attrs) do
-    notification
-    |> Notification.changeset(attrs)
-    |> Repo.insert_or_update()
+  def create_gallery_image_notification(gallery) do
+    Creator.create_single(GallerySubscription, GalleryImageNotification, :gallery_id, gallery)
   end
 
   @doc """
-  Deletes a Notification.
+  Creates an image comment notification, returning the number of affected users.
 
   ## Examples
 
-      iex> delete_notification(notification)
-      {:ok, %Notification{}}
-
-      iex> delete_notification(notification)
-      {:error, %Ecto.Changeset{}}
+      iex> create_image_comment_notification(image, comment)
+      {:ok, 2}
 
   """
-  def delete_notification(%Notification{} = notification) do
-    Repo.delete(notification)
+  def create_image_comment_notification(image, comment) do
+    Creator.create_double(
+      ImageSubscription,
+      ImageCommentNotification,
+      :image_id,
+      image,
+      :comment_id,
+      comment
+    )
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking notification changes.
+  Creates an image merge notification, returning the number of affected users.
 
   ## Examples
 
-      iex> change_notification(notification)
-      %Ecto.Changeset{source: %Notification{}}
+      iex> create_image_merge_notification(target, source)
+      {:ok, 2}
 
   """
-  def change_notification(%Notification{} = notification) do
-    Notification.changeset(notification, %{})
-  end
-
-  def count_unread_notifications(user) do
-    UnreadNotification
-    |> where(user_id: ^user.id)
-    |> Repo.aggregate(:count, :notification_id)
+  def create_image_merge_notification(target, source) do
+    Creator.create_double(
+      ImageSubscription,
+      ImageMergeNotification,
+      :target_id,
+      target,
+      :source_id,
+      source
+    )
   end
 
   @doc """
-  Creates a unread_notification.
+  Removes the channel live notification for a given channel and user, returning
+  the number of affected users.
 
   ## Examples
 
-      iex> create_unread_notification(%{field: value})
-      {:ok, %UnreadNotification{}}
-
-      iex> create_unread_notification(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> clear_channel_live_notification(channel, user)
+      {:ok, 2}
 
   """
-  def create_unread_notification(attrs \\ %{}) do
-    %UnreadNotification{}
-    |> UnreadNotification.changeset(attrs)
-    |> Repo.insert()
+  def clear_channel_live_notification(channel, user) do
+    ChannelLiveNotification
+    |> where(channel_id: ^channel.id)
+    |> Creator.clear(user)
   end
 
   @doc """
-  Updates a unread_notification.
+  Removes the forum post notification for a given topic and user, returning
+  the number of affected notifications.
 
   ## Examples
 
-      iex> update_unread_notification(unread_notification, %{field: new_value})
-      {:ok, %UnreadNotification{}}
-
-      iex> update_unread_notification(unread_notification, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> clear_forum_post_notification(topic, user)
+      {:ok, 2}
 
   """
-  def update_unread_notification(%UnreadNotification{} = unread_notification, attrs) do
-    unread_notification
-    |> UnreadNotification.changeset(attrs)
-    |> Repo.update()
+  def clear_forum_post_notification(topic, user) do
+    ForumPostNotification
+    |> where(topic_id: ^topic.id)
+    |> Creator.clear(user)
   end
 
   @doc """
-  Deletes a UnreadNotification.
+  Removes the forum topic notification for a given topic and user, returning
+  the number of affected notifications.
 
   ## Examples
 
-      iex> delete_unread_notification(unread_notification)
-      {:ok, %UnreadNotification{}}
-
-      iex> delete_unread_notification(unread_notification)
-      {:error, %Ecto.Changeset{}}
+      iex> clear_forum_topic_notification(topic, user)
+      {:ok, 2}
 
   """
-  def delete_unread_notification(actor_type, actor_id, user) do
-    notification =
-      Notification
-      |> where(actor_type: ^actor_type, actor_id: ^actor_id)
-      |> Repo.one()
-
-    if notification do
-      UnreadNotification
-      |> where(notification_id: ^notification.id, user_id: ^user.id)
-      |> Repo.delete_all()
-    end
+  def clear_forum_topic_notification(topic, user) do
+    ForumTopicNotification
+    |> where(topic_id: ^topic.id)
+    |> Creator.clear(user)
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking unread_notification changes.
+  Removes the gallery image notification for a given gallery and user, returning
+  the number of affected notifications.
 
   ## Examples
 
-      iex> change_unread_notification(unread_notification)
-      %Ecto.Changeset{source: %UnreadNotification{}}
+      iex> clear_gallery_image_notification(topic, user)
+      {:ok, 2}
 
   """
-  def change_unread_notification(%UnreadNotification{} = unread_notification) do
-    UnreadNotification.changeset(unread_notification, %{})
+  def clear_gallery_image_notification(gallery, user) do
+    GalleryImageNotification
+    |> where(gallery_id: ^gallery.id)
+    |> Creator.clear(user)
   end
 
-  def notify(_actor_child, [], _params), do: nil
+  @doc """
+  Removes the image comment notification for a given image and user, returning
+  the number of affected notifications.
 
-  def notify(actor_child, subscriptions, params) do
-    # Don't push to the user that created the notification
-    subscriptions =
-      case actor_child do
-        %{user_id: id} ->
-          subscriptions
-          |> Enum.reject(&(&1.user_id == id))
+  ## Examples
 
-        _ ->
-          subscriptions
-      end
+      iex> clear_gallery_image_notification(topic, user)
+      {:ok, 2}
 
-    Repo.transaction(fn ->
-      notification =
-        Notification
-        |> Repo.get_by(actor_id: params.actor_id, actor_type: params.actor_type)
+  """
+  def clear_image_comment_notification(image, user) do
+    ImageCommentNotification
+    |> where(image_id: ^image.id)
+    |> Creator.clear(user)
+  end
 
-      {:ok, notification} =
-        (notification || %Notification{})
-        |> update_notification(params)
+  @doc """
+  Removes the image merge notification for a given image and user, returning
+  the number of affected notifications.
 
-      # Insert the notification to any watchers who do not have it
-      unreads =
-        subscriptions
-        |> Enum.map(&%{user_id: &1.user_id, notification_id: notification.id})
+  ## Examples
 
-      UnreadNotification
-      |> Repo.insert_all(unreads, on_conflict: :nothing)
-    end)
+      iex> clear_image_merge_notification(topic, user)
+      {:ok, 2}
+
+  """
+  def clear_image_merge_notification(image, user) do
+    ImageMergeNotification
+    |> where(target_id: ^image.id)
+    |> Creator.clear(user)
   end
 end

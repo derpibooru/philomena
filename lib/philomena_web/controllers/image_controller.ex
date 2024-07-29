@@ -56,7 +56,7 @@ defmodule PhilomenaWeb.ImageController do
     image = conn.assigns.image
     user = conn.assigns.current_user
 
-    Images.clear_notification(image, user)
+    Images.clear_image_notification(image, user)
 
     # Update the notification ticker in the header
     conn = NotificationCountPlug.call(conn)
