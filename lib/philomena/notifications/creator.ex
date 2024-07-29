@@ -22,7 +22,13 @@ defmodule Philomena.Notifications.Creator do
 
   ## Example
 
-      iex> create_single(GallerySubscription, GalleryImageNotification, nil, :gallery_id, gallery)
+      iex> create_single(
+      ...>   where(GallerySubscription, gallery_id: ^gallery.id),
+      ...>   GalleryImageNotification,
+      ...>   nil,
+      ...>   :gallery_id,
+      ...>   gallery
+      ...> )
       {:ok, 2}
 
   """
@@ -43,7 +49,7 @@ defmodule Philomena.Notifications.Creator do
   ## Example
 
       iex> create_double(
-      ...>   ImageSubscription,
+      ...>   where(ImageSubscription, image_id: ^image.id),
       ...>   ImageCommentNotification,
       ...>   user,
       ...>   :image_id,
@@ -85,7 +91,6 @@ defmodule Philomena.Notifications.Creator do
     now = DateTime.utc_now(:second)
 
     from s in subscription_query(subscription, user),
-      where: field(s, ^name) == ^object.id,
       select: %{
         ^name => type(^object.id, :integer),
         user_id: s.user_id,
@@ -99,7 +104,6 @@ defmodule Philomena.Notifications.Creator do
     now = DateTime.utc_now(:second)
 
     from s in subscription_query(subscription, user),
-      where: field(s, ^name1) == ^object1.id,
       select: %{
         ^name1 => type(^object1.id, :integer),
         ^name2 => type(^object2.id, :integer),

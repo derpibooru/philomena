@@ -78,7 +78,13 @@ defmodule Philomena.Notifications do
 
   """
   def create_channel_live_notification(channel) do
-    Creator.create_single(ChannelSubscription, ChannelLiveNotification, nil, :channel_id, channel)
+    Creator.create_single(
+      where(ChannelSubscription, channel_id: ^channel.id),
+      ChannelLiveNotification,
+      nil,
+      :channel_id,
+      channel
+    )
   end
 
   @doc """
@@ -92,7 +98,7 @@ defmodule Philomena.Notifications do
   """
   def create_forum_post_notification(user, topic, post) do
     Creator.create_double(
-      TopicSubscription,
+      where(TopicSubscription, topic_id: ^topic.id),
       ForumPostNotification,
       user,
       :topic_id,
@@ -112,7 +118,13 @@ defmodule Philomena.Notifications do
 
   """
   def create_forum_topic_notification(user, topic) do
-    Creator.create_single(ForumSubscription, ForumTopicNotification, user, :topic_id, topic)
+    Creator.create_single(
+      where(ForumSubscription, forum_id: ^topic.forum_id),
+      ForumTopicNotification,
+      user,
+      :topic_id,
+      topic
+    )
   end
 
   @doc """
@@ -126,7 +138,7 @@ defmodule Philomena.Notifications do
   """
   def create_gallery_image_notification(gallery) do
     Creator.create_single(
-      GallerySubscription,
+      where(GallerySubscription, gallery_id: ^gallery.id),
       GalleryImageNotification,
       nil,
       :gallery_id,
@@ -145,7 +157,7 @@ defmodule Philomena.Notifications do
   """
   def create_image_comment_notification(user, image, comment) do
     Creator.create_double(
-      ImageSubscription,
+      where(ImageSubscription, image_id: ^image.id),
       ImageCommentNotification,
       user,
       :image_id,
@@ -166,7 +178,7 @@ defmodule Philomena.Notifications do
   """
   def create_image_merge_notification(target, source) do
     Creator.create_double(
-      ImageSubscription,
+      where(ImageSubscription, image_id: ^target.id),
       ImageMergeNotification,
       nil,
       :target_id,
