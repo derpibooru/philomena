@@ -91,9 +91,12 @@ defmodule Philomena.Topics do
   end
 
   def perform_notify([topic_id, _post_id]) do
-    topic = get_topic!(topic_id)
+    topic =
+      topic_id
+      |> get_topic!()
+      |> Repo.preload(:user)
 
-    Notifications.create_forum_topic_notification(topic)
+    Notifications.create_forum_topic_notification(topic.user, topic)
   end
 
   @doc """

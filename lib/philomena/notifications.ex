@@ -78,7 +78,7 @@ defmodule Philomena.Notifications do
 
   """
   def create_channel_live_notification(channel) do
-    Creator.create_single(ChannelSubscription, ChannelLiveNotification, :channel_id, channel)
+    Creator.create_single(ChannelSubscription, ChannelLiveNotification, nil, :channel_id, channel)
   end
 
   @doc """
@@ -86,14 +86,15 @@ defmodule Philomena.Notifications do
 
   ## Examples
 
-      iex> create_forum_post_notification(topic, post)
+      iex> create_forum_post_notification(user, topic, post)
       {:ok, 2}
 
   """
-  def create_forum_post_notification(topic, post) do
+  def create_forum_post_notification(user, topic, post) do
     Creator.create_double(
       TopicSubscription,
       ForumPostNotification,
+      user,
       :topic_id,
       topic,
       :post_id,
@@ -106,12 +107,12 @@ defmodule Philomena.Notifications do
 
   ## Examples
 
-      iex> create_forum_topic_notification(topic)
+      iex> create_forum_topic_notification(user, topic)
       {:ok, 2}
 
   """
-  def create_forum_topic_notification(topic) do
-    Creator.create_single(ForumSubscription, ForumTopicNotification, :topic_id, topic)
+  def create_forum_topic_notification(user, topic) do
+    Creator.create_single(ForumSubscription, ForumTopicNotification, user, :topic_id, topic)
   end
 
   @doc """
@@ -124,7 +125,13 @@ defmodule Philomena.Notifications do
 
   """
   def create_gallery_image_notification(gallery) do
-    Creator.create_single(GallerySubscription, GalleryImageNotification, :gallery_id, gallery)
+    Creator.create_single(
+      GallerySubscription,
+      GalleryImageNotification,
+      nil,
+      :gallery_id,
+      gallery
+    )
   end
 
   @doc """
@@ -132,14 +139,15 @@ defmodule Philomena.Notifications do
 
   ## Examples
 
-      iex> create_image_comment_notification(image, comment)
+      iex> create_image_comment_notification(user, image, comment)
       {:ok, 2}
 
   """
-  def create_image_comment_notification(image, comment) do
+  def create_image_comment_notification(user, image, comment) do
     Creator.create_double(
       ImageSubscription,
       ImageCommentNotification,
+      user,
       :image_id,
       image,
       :comment_id,
@@ -160,6 +168,7 @@ defmodule Philomena.Notifications do
     Creator.create_double(
       ImageSubscription,
       ImageMergeNotification,
+      nil,
       :target_id,
       target,
       :source_id,

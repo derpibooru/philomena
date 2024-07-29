@@ -22,13 +22,13 @@ defmodule Philomena.Notifications.Creator do
 
   ## Example
 
-      iex> create_single(GallerySubscription, GalleryImageNotification, :gallery_id, gallery)
+      iex> create_single(GallerySubscription, GalleryImageNotification, nil, :gallery_id, gallery)
       {:ok, 2}
 
   """
-  def create_single(subscription, notification, name, object) do
+  def create_single(subscription, notification, user, name, object) do
     subscription
-    |> create_notification_query(name, object)
+    |> create_notification_query(user, name, object)
     |> create_notification(notification, name)
   end
 
@@ -45,6 +45,7 @@ defmodule Philomena.Notifications.Creator do
       iex> create_double(
       ...>   ImageSubscription,
       ...>   ImageCommentNotification,
+      ...>   user,
       ...>   :image_id,
       ...>   image,
       ...>   :comment_id,
@@ -53,9 +54,9 @@ defmodule Philomena.Notifications.Creator do
       {:ok, 2}
 
   """
-  def create_double(subscription, notification, name1, object1, name2, object2) do
+  def create_double(subscription, notification, user, name1, object1, name2, object2) do
     subscription
-    |> create_notification_query(name1, object1, name2, object2)
+    |> create_notification_query(user, name1, object1, name2, object2)
     |> create_notification(notification, name1)
   end
 
@@ -80,10 +81,10 @@ defmodule Philomena.Notifications.Creator do
   # TODO: the following cannot be accomplished with a single query expression
   # due to this Ecto bug: https://github.com/elixir-ecto/ecto/issues/4430
 
-  defp create_notification_query(subscription, name, object) do
+  defp create_notification_query(subscription, user, name, object) do
     now = DateTime.utc_now(:second)
 
-    from s in subscription,
+    from s in subscription_query(subscription, user),
       where: field(s, ^name) == ^object.id,
       select: %{
         ^name => type(^object.id, :integer),
@@ -94,10 +95,10 @@ defmodule Philomena.Notifications.Creator do
       }
   end
 
-  defp create_notification_query(subscription, name1, object1, name2, object2) do
+  defp create_notification_query(subscription, user, name1, object1, name2, object2) do
     now = DateTime.utc_now(:second)
 
-    from s in subscription,
+    from s in subscription_query(subscription, user),
       where: field(s, ^name1) == ^object1.id,
       select: %{
         ^name1 => type(^object1.id, :integer),
@@ -107,6 +108,19 @@ defmodule Philomena.Notifications.Creator do
         updated_at: ^now,
         read: false
       }
+  end
+
+  defp subscription_query(subscription, user) do
+    case user do
+      %{id: user_id} ->
+        # Avoid sending notifications to the user which performed the action.
+        from s in subscription,
+          where: s.user_id != ^user_id
+
+      _ ->
+        # When not created by a user, send notifications to all subscribers.
+        subscription
+    end
   end
 
   defp create_notification(query, notification, name) do
