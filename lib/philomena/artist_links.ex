@@ -93,7 +93,7 @@ defmodule Philomena.ArtistLinks do
 
     Multi.new()
     |> Multi.update(:artist_link, artist_link_changeset)
-    |> Multi.run(:add_award, fn _repo, _changes -> BadgeAwarder.award_badge(artist_link) end)
+    |> Multi.run(:add_award, BadgeAwarder.award_callback(artist_link, verifying_user))
     |> Repo.transaction()
     |> case do
       {:ok, %{artist_link: artist_link}} ->
