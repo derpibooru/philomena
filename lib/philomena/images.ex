@@ -941,8 +941,8 @@ defmodule Philomena.Images do
 
     {merge_notification_count, nil} =
       ImageMergeNotification
-      |> where(image_id: ^source.id)
-      |> Repo.update_all(set: [image_id: target.id])
+      |> where(target_id: ^source.id)
+      |> Repo.update_all(set: [target_id: target.id])
 
     {:ok, {comment_notification_count, merge_notification_count}}
   end
