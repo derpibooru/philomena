@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.DnpEntryController do
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.DnpEntries
   alias Philomena.Tags.Tag
+  alias Philomena.ModNotes.ModNote
   alias Philomena.ModNotes
   alias Philomena.Repo
   import Ecto.Query
