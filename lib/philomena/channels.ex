@@ -8,10 +8,10 @@ defmodule Philomena.Channels do
 
   alias Philomena.Channels.AutomaticUpdater
   alias Philomena.Channels.Channel
+  alias Philomena.Notifications
   alias Philomena.Tags
 
   use Philomena.Subscriptions,
-    actor_types: ~w(Channel LivestreamChannel),
     id_name: :channel_id
 
   @doc """
@@ -138,5 +138,19 @@ defmodule Philomena.Channels do
   """
   def change_channel(%Channel{} = channel) do
     Channel.changeset(channel, %{})
+  end
+
+  @doc """
+  Removes all channel notifications for a given channel and user.
+
+  ## Examples
+
+      iex> clear_channel_notification(channel, user)
+      :ok
+
+  """
+  def clear_channel_notification(%Channel{} = channel, user) do
+    Notifications.clear_channel_live_notification(channel, user)
+    :ok
   end
 end

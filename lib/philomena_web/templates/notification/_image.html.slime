@@ -1,19 +1,24 @@
+- target = @notification.target
+- source = @notification.source
+
+.flex.flex--centered.flex__fixed.thumb-tiny-container.spacing-right
+  = render PhilomenaWeb.ImageView, "_image_container.html", image: target, size: :thumb_tiny, conn: @conn
+
 .flex.flex--centered.flex__grow
   div
-    = if @notification.actor_child do
-      => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @notification.actor_child, conn: @conn
-    - else
-      ' Someone
-    => @notification.action
+    ' Someone
+    | merged #
+    = source.id
+    ' into
 
     strong>
-      = link "##{@notification.actor_id}", to: ~p"/images/#{@notification.actor}" <> "#comments"
+      = link "##{target.id}", to: ~p"/images/#{target}" <> "#comments"
 
     => pretty_time @notification.updated_at
 
 .flex.flex--centered.flex--no-wrap
-  a.button.button--separate-right title="Delete" href=~p"/images/#{@notification.actor}/read" data-method="post" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button.button--separate-right title="Delete" href=~p"/images/#{target}/read" data-method="post" data-remote="true"
     i.fa.fa-trash
 
-  a.button title="Unsubscribe" href=~p"/images/#{@notification.actor}/subscription" data-method="delete" data-remote="true" data-fetchcomplete-hide="#notification-#{@notification.id}"
+  a.button title="Unsubscribe" href=~p"/images/#{target}/subscription" data-method="delete" data-remote="true"
     i.fa.fa-bell-slash

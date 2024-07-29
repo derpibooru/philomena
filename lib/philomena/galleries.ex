@@ -19,7 +19,6 @@ defmodule Philomena.Galleries do
   alias Philomena.Images
 
   use Philomena.Subscriptions,
-    actor_types: ~w(Gallery),
     id_name: :gallery_id
 
   @doc """
@@ -269,25 +268,10 @@ defmodule Philomena.Galleries do
     Exq.enqueue(Exq, "notifications", NotificationWorker, ["Galleries", [gallery.id, image.id]])
   end
 
-  def perform_notify([gallery_id, image_id]) do
+  def perform_notify([gallery_id, _image_id]) do
     gallery = get_gallery!(gallery_id)
 
-    subscriptions =
-      gallery
-      |> Repo.preload(:subscriptions)
-      |> Map.fetch!(:subscriptions)
-
-    Notifications.notify(
-      gallery,
-      subscriptions,
-      %{
-        actor_id: gallery.id,
-        actor_type: "Gallery",
-        actor_child_id: image_id,
-        actor_child_type: "Image",
-        action: "added images to"
-      }
-    )
+    Notifications.create_gallery_image_notification(gallery)
   end
 
   def reorder_gallery(gallery, image_ids) do
@@ -360,4 +344,18 @@ defmodule Philomena.Galleries do
 
   defp position_order(%{order_position_asc: true}), do: [asc: :position]
   defp position_order(_gallery), do: [desc: :position]
+
+  @doc """
+  Removes all gallery notifications for a given gallery and user.
+
+  ## Examples
+
+      iex> clear_gallery_notification(gallery, user)
+      :ok
+
+  """
+  def clear_gallery_notification(%Gallery{} = gallery, user) do
+    Notifications.clear_gallery_image_notification(gallery, user)
+    :ok
+  end
 end

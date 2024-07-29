@@ -1,0 +1,22 @@
+- comment = @notification.comment
+- image = @notification.image
+
+.flex.flex--centered.flex__fixed.thumb-tiny-container.spacing-right
+  = render PhilomenaWeb.ImageView, "_image_container.html", image: image, size: :thumb_tiny, conn: @conn
+
+.flex.flex--centered.flex__grow
+  div
+    => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: comment, conn: @conn
+    ' commented on
+
+    strong>
+      = link "##{image.id}", to: ~p"/images/#{image}" <> "#comments"
+
+    => pretty_time @notification.updated_at
+
+.flex.flex--centered.flex--no-wrap
+  a.button.button--separate-right title="Delete" href=~p"/images/#{image}/read" data-method="post" data-remote="true"
+    i.fa.fa-trash
+
+  a.button title="Unsubscribe" href=~p"/images/#{image}/subscription" data-method="delete" data-remote="true"
+    i.fa.fa-bell-slash

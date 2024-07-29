@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Topic.ReadController do
   def create(conn, _params) do
     user = conn.assigns.current_user
 
-    Topics.clear_notification(conn.assigns.topic, user)
+    Topics.clear_topic_notification(conn.assigns.topic, user)
 
     send_resp(conn, :ok, "")
   end

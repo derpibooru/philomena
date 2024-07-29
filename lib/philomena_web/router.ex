@@ -263,8 +263,6 @@ defmodule PhilomenaWeb.Router do
       resources "/subscription", Forum.SubscriptionController,
         only: [:create, :delete],
         singleton: true
-
-      resources "/read", Forum.ReadController, only: [:create], singleton: true
     end
 
     resources "/profiles", ProfileController, only: [] do

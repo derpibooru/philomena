@@ -79,22 +79,7 @@ defmodule Philomena.Comments do
       |> Repo.preload(:image)
       |> Map.fetch!(:image)
 
-    subscriptions =
-      image
-      |> Repo.preload(:subscriptions)
-      |> Map.fetch!(:subscriptions)
-
-    Notifications.notify(
-      comment,
-      subscriptions,
-      %{
-        actor_id: image.id,
-        actor_type: "Image",
-        actor_child_id: comment.id,
-        actor_child_type: "Comment",
-        action: "commented on"
-      }
-    )
+    Notifications.create_image_comment_notification(image, comment)
   end
 
   @doc """

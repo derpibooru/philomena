@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.TopicController do
 
   alias PhilomenaWeb.NotificationCountPlug
   alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
-  alias Philomena.{Forums, Topics, Polls, Posts}
+  alias Philomena.{Topics, Polls, Posts}
   alias Philomena.PollVotes
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Repo
@@ -34,8 +34,7 @@ defmodule PhilomenaWeb.TopicController do
 
     user = conn.assigns.current_user
 
-    Topics.clear_notification(topic, user)
-    Forums.clear_notification(forum, user)
+    Topics.clear_topic_notification(topic, user)
 
     # Update the notification ticker in the header
     conn = NotificationCountPlug.call(conn)

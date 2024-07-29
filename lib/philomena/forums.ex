@@ -9,7 +9,6 @@ defmodule Philomena.Forums do
   alias Philomena.Forums.Forum
 
   use Philomena.Subscriptions,
-    actor_types: ~w(Forum),
     id_name: :forum_id
 
   @doc """

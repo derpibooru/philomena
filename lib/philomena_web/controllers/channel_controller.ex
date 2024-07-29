@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.ChannelController do
     channel = conn.assigns.channel
     user = conn.assigns.current_user
 
-    if user, do: Channels.clear_notification(channel, user)
+    Channels.clear_channel_notification(channel, user)
 
     redirect(conn, external: channel_url(channel))
   end
