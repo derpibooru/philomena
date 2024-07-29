@@ -12,8 +12,8 @@
     => pretty_time @notification.updated_at
 
 .flex.flex--centered.flex--no-wrap
-  a.button.button--separate-right title="Delete" href=~p"/forums/#{topic.forum}/topics/#{topic}/read" data-method="post" data-remote="true"
+  a.button.button--separate-right title="Delete" href=~p"/forums/#{topic.forum}/topics/#{topic}/read" data-method="post" data-remote="true" data-click-hideparent=".notification"
     i.fa.fa-trash
 
-  a.button title="Unsubscribe" href=~p"/forums/#{topic.forum}/topics/#{topic}/subscription" data-method="delete" data-remote="true"
+  a.button title="Unsubscribe" href=~p"/forums/#{topic.forum}/topics/#{topic}/subscription" data-method="delete" data-remote="true" data-click-hideparent=".notification"
     i.fa.fa-bell-slash

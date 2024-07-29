@@ -52,6 +52,13 @@ const actions = {
     addTag(document.querySelector(data.el.closest('[data-target]').dataset.target), data.el.dataset.tagName);
   },
 
+  hideParent(data) {
+    const base = data.el.closest(data.value);
+    if (base) {
+      base.classList.add('hidden');
+    }
+  },
+
   tab(data) {
     const block = data.el.parentNode.parentNode,
           newTab = $(`.block__tab[data-tab="${data.value}"]`),
