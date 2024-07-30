@@ -1,6 +1,5 @@
 defmodule Philomena.Notifications.ForumTopicNotification do
   use Ecto.Schema
-  import Ecto.Changeset
 
   alias Philomena.Users.User
   alias Philomena.Topics.Topic
@@ -14,12 +13,5 @@ defmodule Philomena.Notifications.ForumTopicNotification do
     field :read, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
-  end
-
-  @doc false
-  def changeset(forum_topic_notification, attrs) do
-    forum_topic_notification
-    |> cast(attrs, [])
-    |> validate_required([])
   end
 end

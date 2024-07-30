@@ -1,6 +1,5 @@
 defmodule Philomena.Notifications.GalleryImageNotification do
   use Ecto.Schema
-  import Ecto.Changeset
 
   alias Philomena.Users.User
   alias Philomena.Galleries.Gallery
@@ -14,12 +13,5 @@ defmodule Philomena.Notifications.GalleryImageNotification do
     field :read, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
-  end
-
-  @doc false
-  def changeset(gallery_image_notification, attrs) do
-    gallery_image_notification
-    |> cast(attrs, [])
-    |> validate_required([])
   end
 end

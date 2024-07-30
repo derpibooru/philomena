@@ -1,6 +1,5 @@
 defmodule Philomena.Notifications.ChannelLiveNotification do
   use Ecto.Schema
-  import Ecto.Changeset
 
   alias Philomena.Users.User
   alias Philomena.Channels.Channel
@@ -14,12 +13,5 @@ defmodule Philomena.Notifications.ChannelLiveNotification do
     field :read, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
-  end
-
-  @doc false
-  def changeset(channel_live_notification, attrs) do
-    channel_live_notification
-    |> cast(attrs, [])
-    |> validate_required([])
   end
 end
