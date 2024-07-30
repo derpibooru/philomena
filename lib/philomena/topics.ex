@@ -11,7 +11,6 @@ defmodule Philomena.Topics do
   alias Philomena.Forums.Forum
   alias Philomena.Posts
   alias Philomena.Notifications
-  alias Philomena.NotificationWorker
 
   use Philomena.Subscriptions,
     on_delete: :clear_topic_notification,
@@ -73,6 +72,7 @@ defmodule Philomena.Topics do
 
       {:ok, count}
     end)
+    |> Multi.run(:notification, &notify_topic/2)
     |> maybe_subscribe_on(:topic, attribution[:user], :watch_on_new_topic)
     |> Repo.transaction()
     |> case do
@@ -87,16 +87,7 @@ defmodule Philomena.Topics do
     end
   end
 
-  def notify_topic(topic, post) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Topics", [topic.id, post.id]])
-  end
-
-  def perform_notify([topic_id, _post_id]) do
-    topic =
-      topic_id
-      |> get_topic!()
-      |> Repo.preload(:user)
-
+  defp notify_topic(_repo, %{topic: topic}) do
     Notifications.create_forum_topic_notification(topic.user, topic)
   end
 

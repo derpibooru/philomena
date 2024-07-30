@@ -111,7 +111,6 @@ defmodule PhilomenaWeb.TopicController do
     case Topics.create_topic(forum, attributes, topic_params) do
       {:ok, %{topic: topic}} ->
         post = hd(topic.posts)
-        Topics.notify_topic(topic, post)
 
         if forum.access_level == "normal" do
           PhilomenaWeb.Endpoint.broadcast!(

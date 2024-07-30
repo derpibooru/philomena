@@ -24,7 +24,6 @@ defmodule Philomena.Images do
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.Notifications.ImageCommentNotification
   alias Philomena.Notifications.ImageMergeNotification
-  alias Philomena.NotificationWorker
   alias Philomena.TagChanges.Limits
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
@@ -602,13 +601,13 @@ defmodule Philomena.Images do
     |> Multi.run(:migrate_interactions, fn _, %{} ->
       {:ok, Interactions.migrate_interactions(image, duplicate_of_image)}
     end)
+    |> Multi.run(:notification, &notify_merge(&1, &2, image, duplicate_of_image))
     |> Repo.transaction()
     |> process_after_hide()
     |> case do
       {:ok, result} ->
         reindex_image(duplicate_of_image)
         Comments.reindex_comments(duplicate_of_image)
-        notify_merge(image, duplicate_of_image)
 
         {:ok, result}
 
@@ -954,14 +953,7 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
-  def notify_merge(source, target) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Images", [source.id, target.id]])
-  end
-
-  def perform_notify([source_id, target_id]) do
-    source = get_image!(source_id)
-    target = get_image!(target_id)
-
+  defp notify_merge(_repo, _changes, source, target) do
     Notifications.create_image_merge_notification(target, source)
   end
 

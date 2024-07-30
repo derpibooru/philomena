@@ -16,7 +16,6 @@ defmodule Philomena.Posts do
   alias Philomena.IndexWorker
   alias Philomena.Forums.Forum
   alias Philomena.Notifications
-  alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
 
@@ -93,6 +92,7 @@ defmodule Philomena.Posts do
 
       {:ok, count}
     end)
+    |> Multi.run(:notification, &notify_post/2)
     |> Topics.maybe_subscribe_on(:topic, attributes[:user], :watch_on_reply)
     |> Repo.transaction()
     |> case do
@@ -106,8 +106,8 @@ defmodule Philomena.Posts do
     end
   end
 
-  def notify_post(post) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Posts", post.id])
+  defp notify_post(_repo, %{post: post, topic: topic}) do
+    Notifications.create_forum_post_notification(post.user, topic, post)
   end
 
   def report_non_approved(%Post{approved: true}), do: false
@@ -118,15 +118,6 @@ defmodule Philomena.Posts do
       "Approval",
       "Post contains externally-embedded images and has been flagged for review."
     )
-  end
-
-  def perform_notify(post_id) do
-    post =
-      post_id
-      |> get_post!()
-      |> Repo.preload([:user, :topic])
-
-    Notifications.create_forum_post_notification(post.user, post.topic, post)
   end
 
   @doc """
@@ -241,7 +232,6 @@ defmodule Philomena.Posts do
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->
-        notify_post(post)
         UserStatistics.inc_stat(post.user, :forum_posts)
         Reports.reindex_reports(reports)
         reindex_post(post)
