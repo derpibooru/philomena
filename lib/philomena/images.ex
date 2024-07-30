@@ -906,15 +906,38 @@ defmodule Philomena.Images do
 
     Repo.insert_all(Subscription, subscriptions, on_conflict: :nothing)
 
+    comment_notifications =
+      from cn in ImageCommentNotification,
+        where: cn.image_id == ^source.id,
+        select: %{
+          user_id: cn.user_id,
+          image_id: ^target.id,
+          comment_id: cn.comment_id,
+          read: cn.read,
+          created_at: cn.created_at,
+          updated_at: cn.updated_at
+        }
+
+    merge_notifications =
+      from mn in ImageMergeNotification,
+        where: mn.target_id == ^source.id,
+        select: %{
+          user_id: mn.user_id,
+          target_id: ^target.id,
+          source_id: mn.source_id,
+          read: mn.read,
+          created_at: mn.created_at,
+          updated_at: mn.updated_at
+        }
+
     {comment_notification_count, nil} =
-      ImageCommentNotification
-      |> where(image_id: ^source.id)
-      |> Repo.update_all(set: [image_id: target.id])
+      Repo.insert_all(ImageCommentNotification, comment_notifications, on_conflict: :nothing)
 
     {merge_notification_count, nil} =
-      ImageMergeNotification
-      |> where(target_id: ^source.id)
-      |> Repo.update_all(set: [target_id: target.id])
+      Repo.insert_all(ImageMergeNotification, merge_notifications, on_conflict: :nothing)
+
+    Repo.delete_all(exclude(comment_notifications, :select))
+    Repo.delete_all(exclude(merge_notifications, :select))
 
     {:ok, {comment_notification_count, merge_notification_count}}
   end
