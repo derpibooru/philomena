@@ -39,6 +39,7 @@ defmodule Philomena.Images do
   alias Philomena.Users.User
 
   use Philomena.Subscriptions,
+    on_delete: :clear_image_notification,
     id_name: :image_id
 
   @doc """

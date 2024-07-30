@@ -14,6 +14,7 @@ defmodule Philomena.Topics do
   alias Philomena.NotificationWorker
 
   use Philomena.Subscriptions,
+    on_delete: :clear_topic_notification,
     id_name: :topic_id
 
   @doc """

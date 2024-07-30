@@ -18,6 +18,3 @@
 .flex.flex--centered.flex--no-wrap
   a.button.button--separate-right title="Delete" href=~p"/forums/#{forum}/topics/#{topic}/read" data-method="post" data-remote="true" data-click-hideparent=".notification"
     i.fa.fa-trash
-
-  a.button title="Unsubscribe" href=~p"/forums/#{forum}/subscription" data-method="delete" data-remote="true" data-click-hideparent=".notification"
-    i.fa.fa-bell-slash

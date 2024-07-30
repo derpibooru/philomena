@@ -12,6 +12,7 @@ defmodule Philomena.Channels do
   alias Philomena.Tags
 
   use Philomena.Subscriptions,
+    on_delete: :clear_channel_notification,
     id_name: :channel_id
 
   @doc """
