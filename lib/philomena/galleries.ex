@@ -19,6 +19,7 @@ defmodule Philomena.Galleries do
   alias Philomena.Images
 
   use Philomena.Subscriptions,
+    on_delete: :clear_gallery_notification,
     id_name: :gallery_id
 
   @doc """

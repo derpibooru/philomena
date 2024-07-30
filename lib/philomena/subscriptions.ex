@@ -25,6 +25,18 @@ defmodule Philomena.Subscriptions do
     # For Philomena.Images, this yields :image_id
     field_name = Keyword.fetch!(opts, :id_name)
 
+    # Deletion callback
+    on_delete =
+      case Keyword.get(opts, :on_delete) do
+        nil ->
+          []
+
+        callback when is_atom(callback) ->
+          quote do
+            apply(__MODULE__, unquote(callback), [object, user])
+          end
+      end
+
     # For Philomena.Images, this yields Philomena.Images.Subscription
     subscription_module = Module.concat(__CALLER__.module, Subscription)
 
@@ -100,6 +112,8 @@ defmodule Philomena.Subscriptions do
 
       """
       def delete_subscription(object, user) do
+        unquote(on_delete)
+
         Philomena.Subscriptions.delete_subscription(
           unquote(subscription_module),
           unquote(field_name),

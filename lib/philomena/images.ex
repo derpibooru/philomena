@@ -40,6 +40,7 @@ defmodule Philomena.Images do
   alias Philomena.Games.{Player, Team}
 
   use Philomena.Subscriptions,
+    on_delete: :clear_image_notification,
     id_name: :image_id
 
   @doc """

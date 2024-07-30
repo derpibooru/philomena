@@ -74,14 +74,12 @@ defmodule Philomena.Comments do
   end
 
   def perform_notify(comment_id) do
-    comment = get_comment!(comment_id)
+    comment =
+      comment_id
+      |> get_comment!()
+      |> Repo.preload([:user, :image])
 
-    image =
-      comment
-      |> Repo.preload(:image)
-      |> Map.fetch!(:image)
-
-    Notifications.create_image_comment_notification(image, comment)
+    Notifications.create_image_comment_notification(comment.user, comment.image, comment)
   end
 
   @doc """

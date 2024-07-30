@@ -123,14 +123,12 @@ defmodule Philomena.Posts do
   end
 
   def perform_notify(post_id) do
-    post = get_post!(post_id)
+    post =
+      post_id
+      |> get_post!()
+      |> Repo.preload([:user, :topic])
 
-    topic =
-      post
-      |> Repo.preload(:topic)
-      |> Map.fetch!(:topic)
-
-    Notifications.create_forum_post_notification(topic, post)
+    Notifications.create_forum_post_notification(post.user, post.topic, post)
   end
 
   @doc """
