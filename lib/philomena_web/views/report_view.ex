@@ -79,4 +79,11 @@ defmodule PhilomenaWeb.ReportView do
   def link_to_reported_thing(_reportable) do
     "Reported item permanently destroyed."
   end
+
+  def get_user_agent(conn) do
+    case Plug.Conn.get_req_header(conn, "user-agent") do
+      [ua] -> ua
+      _ -> ""
+    end
+  end
 end

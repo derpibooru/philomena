@@ -1,6 +1,5 @@
 defmodule Philomena.Notifications.ImageMergeNotification do
   use Ecto.Schema
-  import Ecto.Changeset
 
   alias Philomena.Users.User
   alias Philomena.Images.Image
@@ -15,12 +14,5 @@ defmodule Philomena.Notifications.ImageMergeNotification do
     field :read, :boolean, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
-  end
-
-  @doc false
-  def changeset(image_merge_notification, attrs) do
-    image_merge_notification
-    |> cast(attrs, [])
-    |> validate_required([])
   end
 end

@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Topic.PollView do
   end
 
   def active?(poll) do
-    not poll.hidden_from_users and DateTime.diff(poll.active_until, DateTime.utc_now()) > 0
+    DateTime.diff(poll.active_until, DateTime.utc_now()) > 0
   end
 
   def require_answer?(%{vote_method: vote_method}), do: vote_method == "single"

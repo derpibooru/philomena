@@ -12,23 +12,12 @@ defmodule Philomena.Channels.Channel do
 
     field :short_name, :string
     field :title, :string, default: ""
-    field :tags, :string
     field :viewers, :integer, default: 0
     field :nsfw, :boolean, default: false
     field :is_live, :boolean, default: false
     field :last_fetched_at, :utc_datetime
     field :next_check_at, :utc_datetime
     field :last_live_at, :utc_datetime
-
-    field :viewer_minutes_today, :integer, default: 0
-    field :viewer_minutes_thisweek, :integer, default: 0
-    field :viewer_minutes_thismonth, :integer, default: 0
-    field :total_viewer_minutes, :integer, default: 0
-
-    field :banner_image, :string
-    field :channel_image, :string
-    field :remote_stream_id, :integer
-    field :thumbnail_url, :string, default: ""
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
