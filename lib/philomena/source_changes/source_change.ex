@@ -8,8 +8,6 @@ defmodule Philomena.SourceChanges.SourceChange do
 
     field :ip, EctoNetwork.INET
     field :fingerprint, :string
-    field :user_agent, :string, default: ""
-    field :referrer, :string, default: ""
     field :value, :string
     field :added, :boolean
 

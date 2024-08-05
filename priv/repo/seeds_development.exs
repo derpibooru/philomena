@@ -40,8 +40,6 @@ pleb = Repo.get_by!(User, name: "Pleb")
 request_attributes = [
   fingerprint: "c1836832948",
   ip: ip,
-  user_agent: "Hopefully not IE",
-  referrer: "localhost",
   user_id: pleb.id,
   user: pleb
 ]

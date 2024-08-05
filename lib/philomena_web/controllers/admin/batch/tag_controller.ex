@@ -37,8 +37,6 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
     attributes = %{
       ip: attributes[:ip],
       fingerprint: attributes[:fingerprint],
-      user_agent: attributes[:user_agent],
-      referrer: attributes[:referrer],
       user_id: attributes[:user].id
     }
 

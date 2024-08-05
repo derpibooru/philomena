@@ -24,9 +24,7 @@ defmodule PhilomenaWeb.UserAttributionPlug do
     attributes = [
       ip: remote_ip,
       fingerprint: fingerprint(conn, conn.path_info),
-      referrer: referrer(conn.assigns.referrer),
-      user: user,
-      user_agent: user_agent(conn)
+      user: user
     ]
 
     conn
@@ -47,7 +45,4 @@ defmodule PhilomenaWeb.UserAttributionPlug do
   defp fingerprint(conn, _) do
     conn.cookies["_ses"]
   end
-
-  defp referrer(nil), do: nil
-  defp referrer(r), do: String.slice(r, 0, 255)
 end

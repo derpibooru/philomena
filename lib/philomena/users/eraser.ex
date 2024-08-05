@@ -115,9 +115,7 @@ defmodule Philomena.Users.Eraser do
     attribution = [
       user: user,
       ip: @wipe_ip,
-      fingerprint: @wipe_fp,
-      user_agent: "",
-      referrer: ""
+      fingerprint: @wipe_fp
     ]
 
     {:ok, _} = Images.update_sources(source_change.image, attribution, attrs)
