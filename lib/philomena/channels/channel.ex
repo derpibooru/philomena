@@ -18,6 +18,7 @@ defmodule Philomena.Channels.Channel do
     field :last_fetched_at, :utc_datetime
     field :next_check_at, :utc_datetime
     field :last_live_at, :utc_datetime
+    field :thumbnail_url, :string, default: ""
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
