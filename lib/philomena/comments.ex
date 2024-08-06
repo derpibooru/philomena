@@ -15,7 +15,6 @@ defmodule Philomena.Comments do
   alias Philomena.Images.Image
   alias Philomena.Images
   alias Philomena.Notifications
-  alias Philomena.NotificationWorker
   alias Philomena.Versions
   alias Philomena.Reports
 
@@ -63,21 +62,13 @@ defmodule Philomena.Comments do
     |> Multi.one(:image, image_lock_query)
     |> Multi.insert(:comment, comment)
     |> Multi.update_all(:update_image, image_query, inc: [comments_count: 1])
+    |> Multi.run(:notification, &notify_comment/2)
     |> Images.maybe_subscribe_on(:image, attribution[:user], :watch_on_reply)
     |> Repo.transaction()
   end
 
-  def notify_comment(comment) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Comments", comment.id])
-  end
-
-  def perform_notify(comment_id) do
-    comment =
-      comment_id
-      |> get_comment!()
-      |> Repo.preload([:user, :image])
-
-    Notifications.create_image_comment_notification(comment.user, comment.image, comment)
+  defp notify_comment(_repo, %{image: image, comment: comment}) do
+    Notifications.create_image_comment_notification(comment.user, image, comment)
   end
 
   @doc """
@@ -177,7 +168,6 @@ defmodule Philomena.Comments do
     |> Repo.transaction()
     |> case do
       {:ok, %{comment: comment, reports: {_count, reports}}} ->
-        notify_comment(comment)
         UserStatistics.inc_stat(comment.user, :comments_posted)
         Reports.reindex_reports(reports)
         reindex_comment(comment)
