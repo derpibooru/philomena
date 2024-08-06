@@ -82,7 +82,6 @@ defmodule PhilomenaWeb.Image.CommentController do
         Images.reindex_image(conn.assigns.image)
 
         if comment.approved do
-          Comments.notify_comment(comment)
           UserStatistics.inc_stat(conn.assigns.current_user, :comments_posted)
         else
           Comments.report_non_approved(comment)

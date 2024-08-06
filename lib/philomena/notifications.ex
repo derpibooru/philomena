@@ -4,6 +4,7 @@ defmodule Philomena.Notifications do
   """
 
   import Ecto.Query, warn: false
+  alias Philomena.Repo
 
   alias Philomena.Channels.Subscription, as: ChannelSubscription
   alias Philomena.Forums.Subscription, as: ForumSubscription
@@ -78,12 +79,11 @@ defmodule Philomena.Notifications do
 
   """
   def create_channel_live_notification(channel) do
-    Creator.create_single(
-      where(ChannelSubscription, channel_id: ^channel.id),
-      ChannelLiveNotification,
-      nil,
-      :channel_id,
-      channel
+    Creator.broadcast_notification(
+      from: {ChannelSubscription, channel_id: channel.id},
+      into: ChannelLiveNotification,
+      select: [channel_id: channel.id],
+      unique_key: :channel_id
     )
   end
 
@@ -97,14 +97,12 @@ defmodule Philomena.Notifications do
 
   """
   def create_forum_post_notification(user, topic, post) do
-    Creator.create_double(
-      where(TopicSubscription, topic_id: ^topic.id),
-      ForumPostNotification,
-      user,
-      :topic_id,
-      topic,
-      :post_id,
-      post
+    Creator.broadcast_notification(
+      notification_author: user,
+      from: {TopicSubscription, topic_id: topic.id},
+      into: ForumPostNotification,
+      select: [topic_id: topic.id, post_id: post.id],
+      unique_key: :topic_id
     )
   end
 
@@ -118,12 +116,12 @@ defmodule Philomena.Notifications do
 
   """
   def create_forum_topic_notification(user, topic) do
-    Creator.create_single(
-      where(ForumSubscription, forum_id: ^topic.forum_id),
-      ForumTopicNotification,
-      user,
-      :topic_id,
-      topic
+    Creator.broadcast_notification(
+      notification_author: user,
+      from: {ForumSubscription, forum_id: topic.forum_id},
+      into: ForumTopicNotification,
+      select: [topic_id: topic.id],
+      unique_key: :topic_id
     )
   end
 
@@ -137,12 +135,11 @@ defmodule Philomena.Notifications do
 
   """
   def create_gallery_image_notification(gallery) do
-    Creator.create_single(
-      where(GallerySubscription, gallery_id: ^gallery.id),
-      GalleryImageNotification,
-      nil,
-      :gallery_id,
-      gallery
+    Creator.broadcast_notification(
+      from: {GallerySubscription, gallery_id: gallery.id},
+      into: GalleryImageNotification,
+      select: [gallery_id: gallery.id],
+      unique_key: :gallery_id
     )
   end
 
@@ -156,14 +153,12 @@ defmodule Philomena.Notifications do
 
   """
   def create_image_comment_notification(user, image, comment) do
-    Creator.create_double(
-      where(ImageSubscription, image_id: ^image.id),
-      ImageCommentNotification,
-      user,
-      :image_id,
-      image,
-      :comment_id,
-      comment
+    Creator.broadcast_notification(
+      notification_author: user,
+      from: {ImageSubscription, image_id: image.id},
+      into: ImageCommentNotification,
+      select: [image_id: image.id, comment_id: comment.id],
+      unique_key: :image_id
     )
   end
 
@@ -177,14 +172,11 @@ defmodule Philomena.Notifications do
 
   """
   def create_image_merge_notification(target, source) do
-    Creator.create_double(
-      where(ImageSubscription, image_id: ^target.id),
-      ImageMergeNotification,
-      nil,
-      :target_id,
-      target,
-      :source_id,
-      source
+    Creator.broadcast_notification(
+      from: {ImageSubscription, image_id: target.id},
+      into: ImageMergeNotification,
+      select: [target_id: target.id, source_id: source.id],
+      unique_key: :target_id
     )
   end
 
@@ -201,7 +193,7 @@ defmodule Philomena.Notifications do
   def clear_channel_live_notification(channel, user) do
     ChannelLiveNotification
     |> where(channel_id: ^channel.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
   end
 
   @doc """
@@ -217,7 +209,7 @@ defmodule Philomena.Notifications do
   def clear_forum_post_notification(topic, user) do
     ForumPostNotification
     |> where(topic_id: ^topic.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
   end
 
   @doc """
@@ -233,7 +225,7 @@ defmodule Philomena.Notifications do
   def clear_forum_topic_notification(topic, user) do
     ForumTopicNotification
     |> where(topic_id: ^topic.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
   end
 
   @doc """
@@ -249,7 +241,7 @@ defmodule Philomena.Notifications do
   def clear_gallery_image_notification(gallery, user) do
     GalleryImageNotification
     |> where(gallery_id: ^gallery.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
   end
 
   @doc """
@@ -265,7 +257,7 @@ defmodule Philomena.Notifications do
   def clear_image_comment_notification(image, user) do
     ImageCommentNotification
     |> where(image_id: ^image.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
   end
 
   @doc """
@@ -281,6 +273,24 @@ defmodule Philomena.Notifications do
   def clear_image_merge_notification(image, user) do
     ImageMergeNotification
     |> where(target_id: ^image.id)
-    |> Creator.clear(user)
+    |> delete_all_for_user(user)
+  end
+
+  #
+  # Clear all unread notifications using the given query.
+  #
+  # Returns `{:ok, count}`, where `count` is the number of affected rows.
+  #
+  defp delete_all_for_user(query, user) do
+    if user do
+      {count, nil} =
+        query
+        |> where(user_id: ^user.id)
+        |> Repo.delete_all()
+
+      {:ok, count}
+    else
+      {:ok, 0}
+    end
   end
 end

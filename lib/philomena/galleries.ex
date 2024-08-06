@@ -14,7 +14,6 @@ defmodule Philomena.Galleries do
   alias Philomena.IndexWorker
   alias Philomena.GalleryReorderWorker
   alias Philomena.Notifications
-  alias Philomena.NotificationWorker
   alias Philomena.Images
 
   use Philomena.Subscriptions,
@@ -163,7 +162,7 @@ defmodule Philomena.Galleries do
 
   def add_image_to_gallery(gallery, image) do
     Multi.new()
-    |> Multi.run(:lock, fn repo, %{} ->
+    |> Multi.run(:gallery, fn repo, %{} ->
       gallery =
         Gallery
         |> where(id: ^gallery.id)
@@ -179,7 +178,7 @@ defmodule Philomena.Galleries do
       |> Interaction.changeset(%{"image_id" => image.id, "position" => position})
       |> repo.insert()
     end)
-    |> Multi.run(:gallery, fn repo, %{} ->
+    |> Multi.run(:image_count, fn repo, %{} ->
       now = DateTime.utc_now()
 
       {count, nil} =
@@ -189,11 +188,11 @@ defmodule Philomena.Galleries do
 
       {:ok, count}
     end)
+    |> Multi.run(:notification, &notify_gallery/2)
     |> Repo.transaction()
     |> case do
       {:ok, result} ->
         Images.reindex_image(image)
-        notify_gallery(gallery, image)
         reindex_gallery(gallery)
 
         {:ok, result}
@@ -205,7 +204,7 @@ defmodule Philomena.Galleries do
 
   def remove_image_from_gallery(gallery, image) do
     Multi.new()
-    |> Multi.run(:lock, fn repo, %{} ->
+    |> Multi.run(:gallery, fn repo, %{} ->
       gallery =
         Gallery
         |> where(id: ^gallery.id)
@@ -222,7 +221,7 @@ defmodule Philomena.Galleries do
 
       {:ok, count}
     end)
-    |> Multi.run(:gallery, fn repo, %{interaction: interaction_count} ->
+    |> Multi.run(:image_count, fn repo, %{interaction: interaction_count} ->
       now = DateTime.utc_now()
 
       {count, nil} =
@@ -245,20 +244,14 @@ defmodule Philomena.Galleries do
     end
   end
 
+  defp notify_gallery(_repo, %{gallery: gallery}) do
+    Notifications.create_gallery_image_notification(gallery)
+  end
+
   defp last_position(gallery_id) do
     Interaction
     |> where(gallery_id: ^gallery_id)
     |> Repo.aggregate(:max, :position)
-  end
-
-  def notify_gallery(gallery, image) do
-    Exq.enqueue(Exq, "notifications", NotificationWorker, ["Galleries", [gallery.id, image.id]])
-  end
-
-  def perform_notify([gallery_id, _image_id]) do
-    gallery = get_gallery!(gallery_id)
-
-    Notifications.create_gallery_image_notification(gallery)
   end
 
   def reorder_gallery(gallery, image_ids) do
