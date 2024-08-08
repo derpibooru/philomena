@@ -47,34 +47,22 @@ defmodule Philomena.Notifications.Creator do
     |> insert_notifications(notification_schema, unique_key)
   end
 
-  # TODO: the following cannot be accomplished with a single query expression
-  # due to this Ecto bug: https://github.com/elixir-ecto/ecto/issues/4430
+  defp convert_to_notification(subscription, extra) do
+    now = dynamic([_], type(^DateTime.utc_now(:second), :utc_datetime))
 
-  defp convert_to_notification(subscription, [{name, object_id}]) do
-    now = DateTime.utc_now(:second)
+    base = %{
+      user_id: dynamic([s], s.user_id),
+      created_at: now,
+      updated_at: now,
+      read: false
+    }
 
-    from s in subscription,
-      select: %{
-        ^name => type(^object_id, :integer),
-        user_id: s.user_id,
-        created_at: ^now,
-        updated_at: ^now,
-        read: false
-      }
-  end
+    extra =
+      Map.new(extra, fn {field, value} ->
+        {field, dynamic([_], type(^value, :integer))}
+      end)
 
-  defp convert_to_notification(subscription, [{name1, object_id1}, {name2, object_id2}]) do
-    now = DateTime.utc_now(:second)
-
-    from s in subscription,
-      select: %{
-        ^name1 => type(^object_id1, :integer),
-        ^name2 => type(^object_id2, :integer),
-        user_id: s.user_id,
-        created_at: ^now,
-        updated_at: ^now,
-        read: false
-      }
+    from(subscription, select: ^Map.merge(base, extra))
   end
 
   defp subscription_query(subscription, notification_author) do
