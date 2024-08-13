@@ -1,10 +1,19 @@
 // Client-side tag completion.
+import { UniqueHeap } from './unique-heap';
 import store from './store';
 
-interface Result {
+export interface Result {
+  aliasName: string;
   name: string;
   imageCount: number;
   associations: number[];
+}
+
+/**
+ * Returns whether Result a is considered less than Result b.
+ */
+function compareResult(a: Result, b: Result): boolean {
+  return a.imageCount === b.imageCount ? a.name > b.name : a.imageCount < b.imageCount;
 }
 
 /**
@@ -18,10 +27,13 @@ function strcmp(a: string, b: string): number {
  * Returns the name of a tag without any namespace component.
  */
 function nameInNamespace(s: string): string {
-  const v = s.split(':', 2);
+  const first = s.indexOf(':');
 
-  if (v.length === 2) return v[1];
-  return v[0];
+  if (first !== -1) {
+    return s.slice(first + 1);
+  }
+
+  return s;
 }
 
 /**
@@ -59,7 +71,7 @@ export class LocalAutocompleter {
   /**
    * Get a tag's name and its associations given a byte location inside the file.
    */
-  getTagFromLocation(location: number): [string, number[]] {
+  private getTagFromLocation(location: number, imageCount: number, aliasName?: string): Result {
     const nameLength = this.view.getUint8(location);
     const assnLength = this.view.getUint8(location + 1 + nameLength);
 
@@ -70,29 +82,29 @@ export class LocalAutocompleter {
       associations.push(this.view.getUint32(location + 1 + nameLength + 1 + i * 4, true));
     }
 
-    return [name, associations];
+    return { aliasName: aliasName || name, name, imageCount, associations };
   }
 
   /**
    * Get a Result object as the ith tag inside the file.
    */
-  getResultAt(i: number): [string, Result] {
-    const nameLocation = this.view.getUint32(this.referenceStart + i * 8, true);
+  private getResultAt(i: number, aliasName?: string): Result {
+    const tagLocation = this.view.getUint32(this.referenceStart + i * 8, true);
     const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
-    const [name, associations] = this.getTagFromLocation(nameLocation);
+    const result = this.getTagFromLocation(tagLocation, imageCount, aliasName);
 
     if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return [name, this.getResultAt(-imageCount - 1)[1]];
+      return this.getResultAt(-imageCount - 1, aliasName || result.name);
     }
 
-    return [name, { name, imageCount, associations }];
+    return result;
   }
 
   /**
    * Get a Result object as the ith tag inside the file, secondary ordering.
    */
-  getSecondaryResultAt(i: number): [string, Result] {
+  private getSecondaryResultAt(i: number): Result {
     const referenceIndex = this.view.getUint32(this.secondaryStart + i * 4, true);
     return this.getResultAt(referenceIndex);
   }
@@ -100,23 +112,22 @@ export class LocalAutocompleter {
   /**
    * Perform a binary search to fetch all results matching a condition.
    */
-  scanResults(
-    getResult: (i: number) => [string, Result],
+  private scanResults(
+    getResult: (i: number) => Result,
     compare: (name: string) => number,
-    results: Record<string, Result>,
+    results: UniqueHeap<Result>,
+    hiddenTags: Set<number>,
   ) {
-    const unfilter = store.get('unfilter_tag_suggestions');
+    const filter = !store.get('unfilter_tag_suggestions');
 
     let min = 0;
     let max = this.numTags;
 
-    const hiddenTags = window.booru.hiddenTagList;
-
     while (min < max - 1) {
-      const med = (min + (max - min) / 2) | 0;
-      const sortKey = getResult(med)[0];
+      const med = min + (((max - min) / 2) | 0);
+      const result = getResult(med);
 
-      if (compare(sortKey) >= 0) {
+      if (compare(result.aliasName) >= 0) {
         // too large, go left
         max = med;
       } else {
@@ -126,40 +137,47 @@ export class LocalAutocompleter {
     }
 
     // Scan forward until no more matches occur
-    while (min < this.numTags - 1) {
-      const [sortKey, result] = getResult(++min);
-      if (compare(sortKey) !== 0) {
+    outer: while (min < this.numTags - 1) {
+      const result = getResult(++min);
+
+      if (compare(result.aliasName) !== 0) {
         break;
       }
 
-      // Add if not filtering or no associations are filtered
-      if (unfilter || hiddenTags.findIndex(ht => result.associations.includes(ht)) === -1) {
-        results[result.name] = result;
+      // Check if any associations are filtered
+      if (filter) {
+        for (const association of result.associations) {
+          if (hiddenTags.has(association)) {
+            continue outer;
+          }
+        }
       }
+
+      // Nothing was filtered, so add
+      results.append(result);
     }
   }
 
   /**
    * Find the top k results by image count which match the given string prefix.
    */
-  topK(prefix: string, k: number): Result[] {
-    const results: Record<string, Result> = {};
+  matchPrefix(prefix: string): UniqueHeap<Result> {
+    const results = new UniqueHeap<Result>(compareResult, 'name');
 
     if (prefix === '') {
-      return [];
+      return results;
     }
+
+    const hiddenTags = new Set(window.booru.hiddenTagList);
 
     // Find normally, in full name-sorted order
     const prefixMatch = (name: string) => strcmp(name.slice(0, prefix.length), prefix);
-    this.scanResults(this.getResultAt.bind(this), prefixMatch, results);
+    this.scanResults(this.getResultAt.bind(this), prefixMatch, results, hiddenTags);
 
     // Find in secondary order
     const namespaceMatch = (name: string) => strcmp(nameInNamespace(name).slice(0, prefix.length), prefix);
-    this.scanResults(this.getSecondaryResultAt.bind(this), namespaceMatch, results);
+    this.scanResults(this.getSecondaryResultAt.bind(this), namespaceMatch, results, hiddenTags);
 
-    // Sort results by image count
-    const sorted = Object.values(results).sort((a, b) => b.imageCount - a.imageCount);
-
-    return sorted.slice(0, k);
+    return results;
   }
 }
