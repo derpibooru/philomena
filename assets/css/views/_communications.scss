@@ -26,11 +26,11 @@ span.communication__body__sender-name {
 }
 
 .communication__body__text {
-  img { max-width: 100%; }
   word-wrap: break-word;
   margin-top: 3px;
   margin-bottom: 6px;
   line-height: 1.35em;
+  img { max-width: 100%; }
 }
 
 span.communication__sender__stats,
