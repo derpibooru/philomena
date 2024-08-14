@@ -59,7 +59,7 @@ services:
       - '5173:5173'
 
   postgres:
-    image: postgres:16.3-alpine
+    image: postgres:16.4-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -68,7 +68,7 @@ services:
       driver: "none"
 
   opensearch:
-    image: opensearchproject/opensearch:2.15.0
+    image: opensearchproject/opensearch:2.16.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
@@ -80,12 +80,12 @@ services:
         hard: 65536
 
   valkey:
-    image: valkey/valkey:7.2.5-alpine
+    image: valkey/valkey:8.0-alpine
     logging:
       driver: "none"
 
   files:
-    image: andrewgaul/s3proxy:sha-4175022
+    image: andrewgaul/s3proxy:sha-4976e17
     environment:
       - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
