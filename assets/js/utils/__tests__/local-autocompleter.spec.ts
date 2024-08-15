@@ -58,42 +58,44 @@ describe('Local Autocompleter', () => {
     });
 
     it('should return suggestions for exact tag name match', () => {
-      const result = localAc.topK('safe', defaultK);
-      expect(result).toEqual([expect.objectContaining({ name: 'safe', imageCount: 6 })]);
+      const result = localAc.matchPrefix('safe').topK(defaultK);
+      expect(result).toEqual([expect.objectContaining({ aliasName: 'safe', name: 'safe', imageCount: 6 })]);
     });
 
     it('should return suggestion for original tag when passed an alias', () => {
-      const result = localAc.topK('flowers', defaultK);
-      expect(result).toEqual([expect.objectContaining({ name: 'flower', imageCount: 1 })]);
+      const result = localAc.matchPrefix('flowers').topK(defaultK);
+      expect(result).toEqual([expect.objectContaining({ aliasName: 'flowers', name: 'flower', imageCount: 1 })]);
     });
 
     it('should return suggestions sorted by image count', () => {
-      const result = localAc.topK(termStem, defaultK);
+      const result = localAc.matchPrefix(termStem).topK(defaultK);
       expect(result).toEqual([
-        expect.objectContaining({ name: 'forest', imageCount: 3 }),
-        expect.objectContaining({ name: 'fog', imageCount: 1 }),
-        expect.objectContaining({ name: 'force field', imageCount: 1 }),
+        expect.objectContaining({ aliasName: 'forest', name: 'forest', imageCount: 3 }),
+        expect.objectContaining({ aliasName: 'fog', name: 'fog', imageCount: 1 }),
+        expect.objectContaining({ aliasName: 'force field', name: 'force field', imageCount: 1 }),
       ]);
     });
 
     it('should return namespaced suggestions without including namespace', () => {
-      const result = localAc.topK('test', defaultK);
-      expect(result).toEqual([expect.objectContaining({ name: 'artist:test', imageCount: 1 })]);
+      const result = localAc.matchPrefix('test').topK(defaultK);
+      expect(result).toEqual([
+        expect.objectContaining({ aliasName: 'artist:test', name: 'artist:test', imageCount: 1 }),
+      ]);
     });
 
     it('should return only the required number of suggestions', () => {
-      const result = localAc.topK(termStem, 1);
-      expect(result).toEqual([expect.objectContaining({ name: 'forest', imageCount: 3 })]);
+      const result = localAc.matchPrefix(termStem).topK(1);
+      expect(result).toEqual([expect.objectContaining({ aliasName: 'forest', name: 'forest', imageCount: 3 })]);
     });
 
     it('should NOT return suggestions associated with hidden tags', () => {
       window.booru.hiddenTagList = [1];
-      const result = localAc.topK(termStem, defaultK);
+      const result = localAc.matchPrefix(termStem).topK(defaultK);
       expect(result).toEqual([]);
     });
 
     it('should return empty array for empty prefix', () => {
-      const result = localAc.topK('', defaultK);
+      const result = localAc.matchPrefix('').topK(defaultK);
       expect(result).toEqual([]);
     });
   });

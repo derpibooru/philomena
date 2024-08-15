@@ -125,7 +125,7 @@ export default tsEslint.config(
       'no-irregular-whitespace': 2,
       'no-iterator': 2,
       'no-label-var': 2,
-      'no-labels': 2,
+      'no-labels': [2, { allowSwitch: true, allowLoop: true }],
       'no-lone-blocks': 2,
       'no-lonely-if': 0,
       'no-loop-func': 2,
