@@ -84,7 +84,7 @@ defmodule PhilomenaProxy.Http do
       body: body,
       headers: [{:user_agent, @user_agent} | headers],
       max_redirects: 1,
-      connect_options: connect_options(url),
+      connect_options: connect_options(),
       inet6: true,
       into: &stream_response_callback/2,
       decode_body: false
@@ -93,39 +93,14 @@ defmodule PhilomenaProxy.Http do
     |> Req.request()
   end
 
-  defp connect_options(url) do
-    transport_opts =
-      case URI.parse(url) do
-        %{scheme: "https"} ->
-          # SSL defaults validate SHA-1 on root certificates but this is unnecessary because many
-          # many roots are still signed with SHA-1 and it isn't relevant for security. Relax to
-          # allow validation of SHA-1, even though this creates a less secure client.
-          # https://github.com/erlang/otp/issues/8601
-          [
-            transport_opts: [
-              customize_hostname_check: [
-                match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
-              ],
-              signature_algs_cert: :ssl.signature_algs(:default, :"tlsv1.3") ++ [sha: :rsa]
-            ]
-          ]
+  defp connect_options do
+    case Application.get_env(:philomena, :proxy_host) do
+      nil ->
+        []
 
-        _ ->
-          # Do not pass any options for non-HTTPS schemes. Finch will raise badarg if the above
-          # options are passed.
-          []
-      end
-
-    proxy_opts =
-      case Application.get_env(:philomena, :proxy_host) do
-        nil ->
-          []
-
-        url ->
-          [proxy: proxy_opts(URI.parse(url))]
-      end
-
-    transport_opts ++ proxy_opts
+      proxy_url ->
+        [proxy: proxy_opts(URI.parse(proxy_url))]
+    end
   end
 
   defp proxy_opts(%{host: host, port: port, scheme: "https"}),
