@@ -16,15 +16,32 @@ defmodule PhilomenaWeb.Search.ReverseController do
     case DuplicateReports.execute_search_query(image_params) do
       {:ok, images} ->
         changeset = DuplicateReports.change_search_query(%SearchQuery{})
-        render(conn, "index.html", title: "Reverse Search", images: images, changeset: changeset)
+
+        render(conn, "index.html",
+          title: "Reverse Search",
+          layout_class: "layout--wide",
+          images: images,
+          changeset: changeset
+        )
 
       {:error, changeset} ->
-        render(conn, "index.html", title: "Reverse Search", images: nil, changeset: changeset)
+        render(conn, "index.html",
+          title: "Reverse Search",
+          layout_class: "layout--wide",
+          images: nil,
+          changeset: changeset
+        )
     end
   end
 
   def create(conn, _params) do
     changeset = DuplicateReports.change_search_query(%SearchQuery{})
-    render(conn, "index.html", title: "Reverse Search", images: nil, changeset: changeset)
+
+    render(conn, "index.html",
+      title: "Reverse Search",
+      layout_class: "layout--wide",
+      images: nil,
+      changeset: changeset
+    )
   end
 end
