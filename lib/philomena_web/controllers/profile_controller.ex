@@ -125,8 +125,12 @@ defmodule PhilomenaWeb.ProfileController do
           preload(Image, [:sources, tags: :aliases]),
           preload(Image, [:sources, tags: :aliases]),
           preload(Image, [:sources, tags: :aliases]),
-          preload(Comment, user: [awards: :badge], image: [:sources, tags: :aliases]),
-          preload(Post, user: [awards: :badge], topic: :forum)
+          preload(Comment, [
+            :deleted_by,
+            user: [awards: :badge],
+            image: [:sources, tags: :aliases]
+          ]),
+          preload(Post, [:deleted_by, user: [awards: :badge], topic: :forum])
         ]
       )
 
