@@ -67,6 +67,14 @@ describe('Image upload form', () => {
     if (!fetchButton.hasAttribute('disabled')) throw new Error('fetchButton is not disabled');
   };
 
+  const assertSubmitButtonIsDisabled = () => {
+    if (!submitButton.hasAttribute('disabled')) throw new Error('submitButton is not disabled');
+  };
+
+  const assertSubmitButtonIsEnabled = () => {
+    if (submitButton.hasAttribute('disabled')) throw new Error('submitButton is disabled');
+  };
+
   beforeEach(() => {
     document.documentElement.insertAdjacentHTML(
       'beforeend',
@@ -98,7 +106,7 @@ describe('Image upload form', () => {
     sourceEl = assertNotNull($<HTMLInputElement>('.js-source-url'));
     descrEl = assertNotNull($<HTMLTextAreaElement>('.js-image-descr-input'));
     fetchButton = assertNotNull($<HTMLButtonElement>('#js-scraper-preview'));
-    submitButton = assertNotNull($<HTMLButtonElement>('.actions > .button'))
+    submitButton = assertNotNull($<HTMLButtonElement>('.actions > .button'));
 
     setupImageUpload();
     fetchMock.resetMocks();

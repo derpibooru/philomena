@@ -183,6 +183,8 @@ function setupImageUpload() {
     $$('.tag-error').forEach(el => el.remove());
   }
 
+  const ratingsTags = ['safe', 'suggestive', 'questionable', 'explicit', 'semi-grimdark', 'grimdark', 'grotesque'];
+
   // populate tag error helper bars as necessary
   // return true if all checks pass
   // return false if any check fails
@@ -195,7 +197,6 @@ function setupImageUpload() {
 
     const tagsArr = tagInput.value.split(',').map(t => t.trim());
 
-    const ratingsTags = ['safe', 'suggestive', 'questionable', 'explicit', 'semi-grimdark', 'grimdark', 'grotesque'];
     const errors = [];
 
     let hasRating = false;
@@ -250,29 +251,32 @@ function setupImageUpload() {
   function anchorToTop() {
     let url = window.location.href;
     url = url.split('#')[0]; //remove any existing hash anchor from url
-    url += '#'; //move view to top of page
+    url += '#taginput-fancy-tag_input'; //move view to tags input
     window.location.href = url;
   }
 
   function submitHandler(event) {
-    clearTagErrors(); // remove any existing tag error elements
+    // Remove any existing tag error elements
+    clearTagErrors();
 
-    if (validateTags() === true) {
-      // tags valid;
+    if (validateTags()) {
+      // Disable navigation check
       unregisterBeforeUnload();
 
-      // allow form submission
+      // Prevent duplicate attempts to submit the form
       disableUploadButton();
-      return true;
+
+      // Let the form submission complete
+    } else {
+      // Scroll to the top of page to see validation errors
+      anchorToTop();
+
+      // allow users to re-submit the form
+      enableUploadButton();
+
+      // Prevent the form from being submitted
+      event.preventDefault();
     }
-
-    //tags invalid
-    enableUploadButton(); // enable Upload button
-    anchorToTop(); // move view to top of page
-
-    // prevent form submission
-    event.preventDefault();
-    return false;
   }
 
   fileField.addEventListener('change', registerBeforeUnload);
