@@ -25,6 +25,8 @@ const errorResponse = {
 };
 /* eslint-enable camelcase */
 
+const tagSets = ['safe', 'one, two, three', 'safe, expicit', 'safe, two, three'];
+
 describe('Image upload form', () => {
   let mockPng: File;
   let mockWebm: File;
@@ -87,7 +89,7 @@ describe('Image upload form', () => {
 
         <input id="image_sources_0_source" name="image[sources][0][source]" type="text" class="js-source-url" />
         <textarea id="image_tag_input" name="image[tag_input]" class="js-image-tags-input"></textarea>
-        <div class="js-taginput" value="safe, pony"></div>
+        <div class="js-taginput"></div>
         <button id="tagsinput-save" type="button" class="button">Save</button>
         <textarea id="image_description" name="image[description]" class="js-image-descr-input"></textarea>
         <div class="actions">
@@ -212,6 +214,14 @@ describe('Image upload form', () => {
   });
 
   it('should prevent form submission if tag checks fail', async () => {
+    tagSets.forEach(tags => {
+      taginputEl.value = tags;
+      //TODO fire submit event
+      // check whether the form fully submitted or was prevented by tag checks
+      // verify the number of error help blocks added
+      // check if the submit button is enabled/disabled
+    });
+
     await new Promise<void>(resolve => {
       form.addEventListener('submit', event => {
         event.preventDefault();
