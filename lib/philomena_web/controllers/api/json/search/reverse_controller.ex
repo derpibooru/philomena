@@ -27,6 +27,10 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseController do
 
     conn
     |> put_view(PhilomenaWeb.Api.Json.ImageView)
-    |> render("index.json", images: images, total: length(images), interactions: interactions)
+    |> render("index.json",
+      images: images,
+      total: images.total_entries,
+      interactions: interactions
+    )
   end
 end
