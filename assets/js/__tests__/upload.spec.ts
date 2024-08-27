@@ -87,11 +87,11 @@ describe('Image upload form', () => {
 
         <input id="image_sources_0_source" name="image[sources][0][source]" type="text" class="js-source-url" />
         <textarea id="image_tag_input" name="image[tag_input]" class="js-image-tags-input"></textarea>
-          <div class="js-taginput" value="safe, pony, third tag"/>
+        <div class="js-taginput" value="safe, pony"></div>
         <button id="tagsinput-save" type="button" class="button">Save</button>
         <textarea id="image_description" name="image[description]" class="js-image-descr-input"></textarea>
         <div class="actions">
-          <button class="button" type="submit">Upload</button>
+          <button class="button input--separate-top" type="submit">Upload</button>
         </div>
        </form>`,
     );
@@ -208,6 +208,23 @@ describe('Image upload form', () => {
       expect(fetch).toHaveBeenCalledTimes(1);
       expect(imgPreviews.querySelectorAll('img')).toHaveLength(0);
       expect(scraperError.innerText).toEqual('Error 1 Error 2');
+    });
+  });
+
+  it('should prevent form submission if tag checks fail', async () => {
+    await new Promise<void>(resolve => {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        resolve();
+      });
+      fireEvent.submit(form);
+    });
+
+    const succeededUnloadEvent = new Event('beforeunload', { cancelable: true });
+    expect(fireEvent(window, succeededUnloadEvent)).toBe(true);
+    await waitFor(() => {
+      assertSubmitButtonIsEnabled();
+      expect(form.querySelectorAll('.help-block')).toHaveLength(1);
     });
   });
 });

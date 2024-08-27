@@ -238,7 +238,7 @@ function setupImageUpload() {
   }
 
   function disableUploadButton() {
-    const submitButton = $('.input--separate-top');
+    const submitButton = $('.button.input--separate-top');
     if (submitButton !== null) {
       submitButton.disabled = true;
       submitButton.innerText = 'Please wait...';
