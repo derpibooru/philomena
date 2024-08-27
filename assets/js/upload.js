@@ -173,7 +173,7 @@ function setupImageUpload() {
 
   function createTagError(message) {
     const buttonAfter = $('#tagsinput-save');
-    const errorElement = makeEl('span', { className: 'help-block tag-error'});
+    const errorElement = makeEl('span', { className: 'help-block tag-error' });
     errorElement.innerText = message;
     buttonAfter.parentElement.insertBefore(errorElement, buttonAfter);
   }
@@ -182,7 +182,7 @@ function setupImageUpload() {
     const tagErrorElements = document.getElementsByClassName('tag-error');
 
     // remove() causes the length to decrease
-    while(tagErrorElements.length > 0) {
+    while (tagErrorElements.length > 0) {
       tagErrorElements[0].remove();
     }
   }
@@ -193,29 +193,28 @@ function setupImageUpload() {
   function validateTags() {
     const tags = $$('.tag');
     if (tags.length === 0) {
-      createTagError("Tag input must contain at least 3 tags")
+      createTagError('Tag input must contain at least 3 tags');
       return false;
     }
 
-    let tags_arr = [];
+    const tagsArr = [];
     for (const i in tags) {
       let tag = tags[i].innerText;
       tag = tag.substring(0, tag.length - 2); // remove " x" from the end
-      tags_arr.push(tag);
+      tagsArr.push(tag);
     }
 
-    let ratings_tags = ["safe", "suggestive", "questionable", "explicit",
-                        "semi-grimdark", "grimdark", "grotesque"];
+    const ratingsTags = ['safe', 'suggestive', 'questionable', 'explicit', 'semi-grimdark', 'grimdark', 'grotesque'];
 
-    let errors = [];
+    const errors = [];
 
     let hasRating = false;
     let hasSafe = false;
     let hasOtherRating = false;
-    tags_arr.forEach(tag => {
-      if (ratings_tags.includes(tag)) {
+    tagsArr.forEach(tag => {
+      if (ratingsTags.includes(tag)) {
         hasRating = true;
-        if (tag === "safe") {
+        if (tag === 'safe') {
           hasSafe = true;
         } else {
           hasOtherRating = true;
@@ -224,18 +223,18 @@ function setupImageUpload() {
     });
 
     if (!hasRating) {
-      errors.push("Tag input must contain at least one rating tag");
+      errors.push('Tag input must contain at least one rating tag');
     } else if (hasSafe && hasOtherRating) {
-      errors.push("Tag input may not contain any other rating if safe")
+      errors.push('Tag input may not contain any other rating if safe');
     }
 
-    if (tags_arr.length < 3) {
-      errors.push("Tag input must contain at least 3 tags");
+    if (tagsArr.length < 3) {
+      errors.push('Tag input must contain at least 3 tags');
     }
 
     errors.forEach(msg => createTagError(msg));
 
-    return errors.length == 0; // true: valid if no errors
+    return errors.length === 0; // true: valid if no errors
   }
 
   function enableUploadButton() {
@@ -250,7 +249,7 @@ function setupImageUpload() {
     const submitButton = $('.input--separate-top');
     if (submitButton !== null) {
       submitButton.disabled = true;
-      submitButton.innerText = "Please wait...";
+      submitButton.innerText = 'Please wait...';
     }
 
     // delay is needed because Safari stops the submit if the button is immediately disabled
@@ -274,15 +273,15 @@ function setupImageUpload() {
       // allow form submission
       disableUploadButton();
       return true;
-    } else {
-      //tags invalid
-      enableUploadButton(); // enable Upload button
-      anchorToTop(); // move view to top of page
-
-      // prevent form submission
-      event.preventDefault();
-      return false;
     }
+
+    //tags invalid
+    enableUploadButton(); // enable Upload button
+    anchorToTop(); // move view to top of page
+
+    // prevent form submission
+    event.preventDefault();
+    return false;
   }
 
   fileField.addEventListener('change', registerBeforeUnload);
