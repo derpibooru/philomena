@@ -88,10 +88,10 @@ describe('Image upload form', () => {
         <input id="image_sources_0_source" name="image[sources][0][source]" type="text" class="js-source-url" />
         <textarea id="image_tag_input" name="image[tag_input]" class="js-image-tags-input"></textarea>
           <div class="js-taginput" value="safe, pony, third tag"/>
-        <button id="tagsinput-save" type="button" class="button"/>
+        <button id="tagsinput-save" type="button" class="button">Save</button>
         <textarea id="image_description" name="image[description]" class="js-image-descr-input"></textarea>
         <div class="actions">
-          <button class="button" type="submit"/>
+          <button class="button" type="submit">Upload</button>
         </div>
        </form>`,
     );

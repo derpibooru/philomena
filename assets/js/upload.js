@@ -248,11 +248,15 @@ function setupImageUpload() {
     requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
   }
 
-  function anchorToTop() {
-    let url = window.location.href;
-    url = url.split('#')[0]; //remove any existing hash anchor from url
-    url += '#taginput-fancy-tag_input'; //move view to tags input
-    window.location.href = url;
+  function scrollToTags() {
+    const taginputEle = $('#taginput-fancy-tag_input');
+
+    if (!taginputEle) {
+      // default to scroll to top
+      window.scrollTo({ top: 0, left: 0 });
+    }
+
+    taginputEle.scrollIntoView();
   }
 
   function submitHandler(event) {
@@ -268,8 +272,8 @@ function setupImageUpload() {
 
       // Let the form submission complete
     } else {
-      // Scroll to the top of page to see validation errors
-      anchorToTop();
+      // Scroll to view validation errors
+      scrollToTags();
 
       // allow users to re-submit the form
       enableUploadButton();
