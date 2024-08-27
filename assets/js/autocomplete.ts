@@ -30,7 +30,7 @@ function removeSelected() {
   if (selected) selected.classList.remove('autocomplete__item--selected');
 }
 
-function isSearchField(targetInput: HTMLElement) {
+function isSearchField(targetInput: HTMLElement): boolean {
   return targetInput && targetInput.dataset.acMode === 'search';
 }
 
@@ -81,7 +81,7 @@ function changeSelected(firstOrLast: Element | null, current: Element | null, si
   }
 }
 
-function isSelectionOutsideCurrentTerm() {
+function isSelectionOutsideCurrentTerm(): boolean {
   if (!inputField || !selectedTerm) return true;
   if (inputField.selectionStart === null || inputField.selectionEnd === null) return true;
 
