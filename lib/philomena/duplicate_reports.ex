@@ -87,7 +87,7 @@ defmodule Philomena.DuplicateReports do
           {intensities, aspect}
           |> find_duplicates(dist: dist, aspect_dist: dist, limit: limit)
           |> preload([:user, :intensity, [:sources, tags: :aliases]])
-          |> Repo.all()
+          |> Repo.paginate(page_size: 50)
 
         {:ok, images}
 

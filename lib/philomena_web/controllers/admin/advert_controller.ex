@@ -34,7 +34,7 @@ defmodule PhilomenaWeb.Admin.AdvertController do
         |> put_flash(:info, "Advert was successfully created.")
         |> redirect(to: ~p"/admin/adverts")
 
-      {:error, :advert, changeset, _changes} ->
+      {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
   end

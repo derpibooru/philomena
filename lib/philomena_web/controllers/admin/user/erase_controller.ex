@@ -13,6 +13,7 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
     persisted: true,
     preload: [:roles]
 
+  plug :prevent_deleting_nonexistent_users
   plug :prevent_deleting_privileged_users
   plug :prevent_deleting_verified_users
 
@@ -32,6 +33,17 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
     case Canada.Can.can?(conn.assigns.current_user, :index, User) do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    end
+  end
+
+  defp prevent_deleting_nonexistent_users(conn, _opts) do
+    if is_nil(conn.assigns.user) do
+      conn
+      |> put_flash(:error, "Couldn't find that username. Was it already erased?")
+      |> redirect(to: ~p"/admin/users")
+      |> Plug.Conn.halt()
+    else
+      conn
     end
   end
 
