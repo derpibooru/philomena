@@ -58,10 +58,10 @@ describe('Image upload form', () => {
   let scraperError: HTMLDivElement;
   let fetchButton: HTMLButtonElement;
   let tagsEl: HTMLTextAreaElement;
-  let tagsinputEl: HTMLDivElement;
-  let tagEl: HTMLSpanElement;
+  let taginputEl: HTMLDivElement;
   let sourceEl: HTMLInputElement;
   let descrEl: HTMLTextAreaElement;
+  let submitButton: HTMLButtonElement;
 
   const assertFetchButtonIsDisabled = () => {
     if (!fetchButton.hasAttribute('disabled')) throw new Error('fetchButton is not disabled');
@@ -79,19 +79,12 @@ describe('Image upload form', () => {
 
         <input id="image_sources_0_source" name="image[sources][0][source]" type="text" class="js-source-url" />
         <textarea id="image_tag_input" name="image[tag_input]" class="js-image-tags-input"></textarea>
-          <div class="js-taginput">
-            <span class="tag">
-              "safe x"
-            </span>
-            <span class="tag">
-              "pony x"
-            </span>
-            <span class="tag">
-              "tag3 x"
-            </span>
-          </div>
+          <div class="js-taginput" value="safe, pony, third tag"/>
         <button id="tagsinput-save" type="button" class="button"/>
         <textarea id="image_description" name="image[description]" class="js-image-descr-input"></textarea>
+        <div class="actions">
+          <button class="button" type="submit"/>
+        </div>
        </form>`,
     );
 
@@ -101,11 +94,11 @@ describe('Image upload form', () => {
     remoteUrl = assertNotUndefined($$<HTMLInputElement>('.js-scraper')[1]);
     scraperError = assertNotUndefined($$<HTMLInputElement>('.js-scraper')[2]);
     tagsEl = assertNotNull($<HTMLTextAreaElement>('.js-image-tags-input'));
-    tagsinputEl = assertNotNull($<HTMLDivElement>('.js-taginput'));
-    tagEl = assertNotNull($<HTMLSpanElement>('.tag')); // ensure at least one exists
+    taginputEl = assertNotNull($<HTMLDivElement>('.js-taginput'));
     sourceEl = assertNotNull($<HTMLInputElement>('.js-source-url'));
     descrEl = assertNotNull($<HTMLTextAreaElement>('.js-image-descr-input'));
     fetchButton = assertNotNull($<HTMLButtonElement>('#js-scraper-preview'));
+    submitButton = assertNotNull($<HTMLButtonElement>('.actions > .button'))
 
     setupImageUpload();
     fetchMock.resetMocks();
