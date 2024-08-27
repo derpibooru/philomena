@@ -174,12 +174,13 @@ function setupImageUpload() {
   function createTagError(message) {
     const buttonAfter = $('#tagsinput-save');
     const errorElement = makeEl('span', { className: 'help-block tag-error' });
+
     errorElement.innerText = message;
     buttonAfter.parentElement.insertBefore(errorElement, buttonAfter);
   }
 
   function clearTagErrors() {
-    const tagErrorElements = document.getElementsByClassName('tag-error');
+    const tagErrorElements = $$('.tag-error');
 
     // remove() causes the length to decrease
     while (tagErrorElements.length > 0) {
@@ -192,14 +193,17 @@ function setupImageUpload() {
   // return false if any check fails
   function validateTags() {
     const tags = $$('.tag');
+
     if (tags.length === 0) {
       createTagError('Tag input must contain at least 3 tags');
       return false;
     }
 
     const tagsArr = [];
+
     for (const i in tags) {
       let tag = tags[i].innerText;
+
       tag = tag.substring(0, tag.length - 2); // remove " x" from the end
       tagsArr.push(tag);
     }
@@ -211,6 +215,7 @@ function setupImageUpload() {
     let hasRating = false;
     let hasSafe = false;
     let hasOtherRating = false;
+
     tagsArr.forEach(tag => {
       if (ratingsTags.includes(tag)) {
         hasRating = true;
