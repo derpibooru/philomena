@@ -5,7 +5,7 @@
 import { $, $$ } from './utils/dom';
 
 // List of options provided to the syntax handler function.
-type SyntaxHandlerOptions = {
+interface SyntaxHandlerOptions {
   prefix: string;
   shortcutKeyCode: number;
   suffix: string;
@@ -15,12 +15,12 @@ type SyntaxHandlerOptions = {
   escapeChar: string;
   image: boolean;
   text: string;
-};
+}
 
-type SyntaxHandler = {
+interface SyntaxHandler {
   action: (textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) => void;
   options: Partial<SyntaxHandlerOptions>;
-};
+}
 
 const markdownSyntax: Record<string, SyntaxHandler> = {
   bold: {
@@ -80,12 +80,12 @@ const markdownSyntax: Record<string, SyntaxHandler> = {
   },
 };
 
-type SelectionResult = {
+interface SelectionResult {
   processLinesOnly: boolean;
   selectedText: string;
   beforeSelection: string;
   afterSelection: string;
-};
+}
 
 function getSelections(textarea: HTMLTextAreaElement, linesOnly: RegExp | boolean = false): SelectionResult {
   let { selectionStart, selectionEnd } = textarea,
@@ -145,10 +145,10 @@ function getSelections(textarea: HTMLTextAreaElement, linesOnly: RegExp | boolea
   };
 }
 
-type TransformResult = {
+interface TransformResult {
   newText: string;
   caretOffset: number;
-};
+}
 
 type TransformCallback = (selectedText: string, processLinesOnly: boolean) => TransformResult;
 
