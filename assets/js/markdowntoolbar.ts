@@ -251,7 +251,7 @@ function escapeSelection(textarea: HTMLTextAreaElement, options: Partial<SyntaxH
     const { text = selectedText } = options,
       emptyText = text === '';
 
-    // Even if there is nothing to escape, we still need to return the result, otherwise the error would be thrown.
+    // Nothing to escape, so do nothing
     if (emptyText) {
       return {
         newText: text,
