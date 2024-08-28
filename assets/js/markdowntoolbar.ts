@@ -271,7 +271,7 @@ function escapeSelection(textarea: HTMLTextAreaElement, options: Partial<SyntaxH
 function clickHandler(event: MouseEvent) {
   if (!(event.target instanceof HTMLElement)) return;
 
-  const button = event.target?.closest<HTMLElement>('.communication__toolbar__button');
+  const button = event.target.closest<HTMLElement>('.communication__toolbar__button');
   const toolbar = button?.closest<HTMLElement>('.communication__toolbar');
 
   if (!button || !toolbar?.parentElement) return;
