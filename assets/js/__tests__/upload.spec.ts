@@ -25,7 +25,8 @@ const errorResponse = {
 };
 /* eslint-enable camelcase */
 
-const tagSets = ['safe', 'one, two, three', 'safe, expicit', 'safe, two, three'];
+const tagSets = ['', 'a tag', 'safe', 'one, two, three', 'safe, explicit', 'safe, explicit, three', 'safe, two, three'];
+const tagErrorCounts = [1, 2, 1, 1, 2, 1, 0];
 
 describe('Image upload form', () => {
   let mockPng: File;
@@ -213,28 +214,41 @@ describe('Image upload form', () => {
     });
   });
 
+  async function submitForm(frm): Promise<boolean> {
+    return new Promise(resolve => {
+      function onSubmit() {
+        frm.removeEventListener('submit', onSubmit);
+        resolve(true);
+      }
+
+      frm.addEventListener('submit', onSubmit);
+
+      if (!fireEvent.submit(frm)) {
+        frm.removeEventListener('submit', onSubmit);
+        resolve(false);
+      }
+    });
+  }
+
   it('should prevent form submission if tag checks fail', async () => {
-    tagSets.forEach(tags => {
-      taginputEl.value = tags;
-      //TODO fire submit event
-      // check whether the form fully submitted or was prevented by tag checks
-      // verify the number of error help blocks added
-      // check if the submit button is enabled/disabled
-    });
+    for (let i = 0; i < tagSets.length; i += 1) {
+      taginputEl.value = tagSets[i];
 
-    await new Promise<void>(resolve => {
-      form.addEventListener('submit', event => {
-        event.preventDefault();
-        resolve();
-      });
-      fireEvent.submit(form);
-    });
-
-    const succeededUnloadEvent = new Event('beforeunload', { cancelable: true });
-    expect(fireEvent(window, succeededUnloadEvent)).toBe(true);
-    await waitFor(() => {
-      assertSubmitButtonIsEnabled();
-      expect(form.querySelectorAll('.help-block')).toHaveLength(1);
-    });
+      if (await submitForm(form)) {
+        // form submit succeeded
+        await waitFor(() => {
+          assertSubmitButtonIsDisabled();
+          const succeededUnloadEvent = new Event('beforeunload', { cancelable: true });
+          expect(fireEvent(window, succeededUnloadEvent)).toBe(true);
+        });
+      } else {
+        // form submit prevented
+        frm = form;
+        await waitFor(() => {
+          assertSubmitButtonIsEnabled();
+          expect(frm.querySelectorAll('.help-block')).toHaveLength(tagErrorCounts[i]);
+        });
+      }
+    }
   });
 });
