@@ -125,10 +125,17 @@ function createItem(list: HTMLUListElement, suggestion: TermSuggestion) {
     className: 'autocomplete__item',
   });
 
+  let ignoreMouseOver = true;
+
   item.textContent = suggestion.label;
   item.dataset.value = suggestion.value;
 
   item.addEventListener('mouseover', () => {
+    // Prevent selection when mouse entered the element without actually moving.
+    if (ignoreMouseOver) {
+      return;
+    }
+
     removeSelected();
     item.classList.add('autocomplete__item--selected');
   });
@@ -136,6 +143,17 @@ function createItem(list: HTMLUListElement, suggestion: TermSuggestion) {
   item.addEventListener('mouseout', () => {
     removeSelected();
   });
+
+  item.addEventListener(
+    'mousemove',
+    () => {
+      ignoreMouseOver = false;
+      item.dispatchEvent(new CustomEvent('mouseover'));
+    },
+    {
+      once: true,
+    },
+  );
 
   item.addEventListener('click', () => {
     if (!inputField || !item.dataset.value) return;
