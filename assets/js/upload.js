@@ -2,6 +2,7 @@
  * Fetch and display preview images for various image upload forms.
  */
 
+import { assertNotNull } from './utils/assert';
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
@@ -173,9 +174,8 @@ function setupImageUpload() {
 
   function createTagError(message) {
     const buttonAfter = $('#tagsinput-save');
-    const errorElement = makeEl('span', { className: 'help-block tag-error' });
+    const errorElement = makeEl('span', { className: 'help-block tag-error', innerText: message });
 
-    errorElement.innerText = message;
     buttonAfter.insertAdjacentElement('beforebegin', errorElement);
   }
 
@@ -229,14 +229,6 @@ function setupImageUpload() {
     return errors.length === 0; // true: valid if no errors
   }
 
-  function enableUploadButton() {
-    const submitButton = $('.input--separate-top');
-    if (submitButton !== null) {
-      submitButton.disabled = false;
-      submitButton.innerText = 'Upload';
-    }
-  }
-
   function disableUploadButton() {
     const submitButton = $('.button.input--separate-top');
     if (submitButton !== null) {
@@ -246,17 +238,6 @@ function setupImageUpload() {
 
     // delay is needed because Safari stops the submit if the button is immediately disabled
     requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
-  }
-
-  function scrollToTags() {
-    const taginputEle = $('#taginput-fancy-tag_input');
-
-    if (!taginputEle) {
-      // default to scroll to top
-      window.scrollTo({ top: 0, left: 0 });
-    }
-
-    taginputEle.scrollIntoView();
   }
 
   function submitHandler(event) {
@@ -273,10 +254,7 @@ function setupImageUpload() {
       // Let the form submission complete
     } else {
       // Scroll to view validation errors
-      scrollToTags();
-
-      // allow users to re-submit the form
-      enableUploadButton();
+      assertNotNull($('.fancy-tag-upload')).scrollIntoView();
 
       // Prevent the form from being submitted
       event.preventDefault();
