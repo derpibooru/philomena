@@ -43,6 +43,17 @@ export function leftClick<E extends MouseEvent, Target extends EventTarget>(func
   };
 }
 
+export function mouseMoveThenOver<El extends HTMLElement>(element: El, func: (e: MouseEvent) => void) {
+  element.addEventListener(
+    'mousemove',
+    (event: MouseEvent) => {
+      func(event);
+      element.addEventListener('mouseover', func);
+    },
+    { once: true },
+  );
+}
+
 export function delegate<K extends keyof PhilomenaAvailableEventsMap, Target extends Element>(
   node: PhilomenaEventElement,
   event: K,
