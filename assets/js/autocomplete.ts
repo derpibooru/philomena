@@ -125,17 +125,37 @@ function createItem(list: HTMLUListElement, suggestion: TermSuggestion) {
     className: 'autocomplete__item',
   });
 
+  let ignoreMouseOver = true;
+
   item.textContent = suggestion.label;
   item.dataset.value = suggestion.value;
 
-  item.addEventListener('mouseover', () => {
+  function onItemMouseOver() {
+    // Prevent selection when mouse entered the element without actually moving.
+    if (ignoreMouseOver) {
+      return;
+    }
+
     removeSelected();
     item.classList.add('autocomplete__item--selected');
-  });
+  }
+
+  item.addEventListener('mouseover', onItemMouseOver);
 
   item.addEventListener('mouseout', () => {
     removeSelected();
   });
+
+  item.addEventListener(
+    'mousemove',
+    () => {
+      ignoreMouseOver = false;
+      onItemMouseOver();
+    },
+    {
+      once: true,
+    },
+  );
 
   item.addEventListener('click', () => {
     if (!inputField || !item.dataset.value) return;
