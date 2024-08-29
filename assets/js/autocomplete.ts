@@ -8,6 +8,7 @@ import { getTermContexts } from './match_query';
 import store from './utils/store';
 import { TermContext } from './query/lex.ts';
 import { $, $$, makeEl, removeEl } from './utils/dom.ts';
+import { mouseMoveThenOver } from './utils/events.ts';
 
 type TermSuggestion = {
   label: string;
@@ -125,37 +126,17 @@ function createItem(list: HTMLUListElement, suggestion: TermSuggestion) {
     className: 'autocomplete__item',
   });
 
-  let ignoreMouseOver = true;
-
   item.textContent = suggestion.label;
   item.dataset.value = suggestion.value;
 
-  function onItemMouseOver() {
-    // Prevent selection when mouse entered the element without actually moving.
-    if (ignoreMouseOver) {
-      return;
-    }
-
+  mouseMoveThenOver(item, () => {
     removeSelected();
     item.classList.add('autocomplete__item--selected');
-  }
-
-  item.addEventListener('mouseover', onItemMouseOver);
+  });
 
   item.addEventListener('mouseout', () => {
     removeSelected();
   });
-
-  item.addEventListener(
-    'mousemove',
-    () => {
-      ignoreMouseOver = false;
-      onItemMouseOver();
-    },
-    {
-      once: true,
-    },
-  );
 
   item.addEventListener('click', () => {
     if (!inputField || !item.dataset.value) return;
