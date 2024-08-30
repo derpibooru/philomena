@@ -11,7 +11,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
   @cdnint_regex ~r|(https://images-wixmp-[0-9a-f]+.wixmp.com)(?:/intermediary)?/f/([^/]*)/([^/?]*)|
   @png_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.png/v1/fill/[0-9a-z_,]+/[0-9a-z_\-]+)(\.png|\.jpe?g)(.*)|
-  @jpg_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.jpg/v1/fill/w_[0-9]+,h_[0-9]+,q_)([0-9]+)(,[a-z]+\/[a-z0-6_\-]+\.jpe?g.*)|
+  @jpg_regex ~r|(https://[0-9a-z\-\.]+(?:/intermediary)?/f/[0-9a-f\-]+/[0-9a-z\-]+\.jpg/v1/fill/w_[0-9]+,h_[0-9]+,q_)([0-9]+)(,[a-z]+\/[a-z0-9_\-]+\.jpe?g.*)|
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(uri, _url) do
