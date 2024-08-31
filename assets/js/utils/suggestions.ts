@@ -1,6 +1,7 @@
 import { makeEl } from './dom.ts';
 import { mouseMoveThenOver } from './events.ts';
 import { handleError } from './requests.ts';
+import { LocalAutocompleter } from './local-autocompleter.ts';
 
 export interface TermSuggestion {
   label: string;
@@ -162,4 +163,21 @@ export async function fetchSuggestions(endpoint: string, targetTerm: string) {
   cachedSuggestions.set(normalizedTerm, promisedSuggestions);
 
   return promisedSuggestions;
+}
+
+export function purgeSuggestionsCache() {
+  cachedSuggestions.clear();
+}
+
+export async function fetchLocalAutocomplete(): Promise<LocalAutocompleter> {
+  const now = new Date();
+  const cacheKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`;
+
+  return await fetch(`/autocomplete/compiled?vsn=2&key=${cacheKey}`, {
+    credentials: 'omit',
+    cache: 'force-cache',
+  })
+    .then(handleError)
+    .then(resp => resp.arrayBuffer())
+    .then(buf => new LocalAutocompleter(buf));
 }

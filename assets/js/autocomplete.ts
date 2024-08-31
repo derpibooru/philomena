@@ -8,7 +8,7 @@ import { getTermContexts } from './match_query';
 import store from './utils/store';
 import { TermContext } from './query/lex';
 import { $$ } from './utils/dom';
-import { fetchSuggestions, SuggestionsPopup, TermSuggestion } from './utils/suggestions';
+import { fetchLocalAutocomplete, fetchSuggestions, SuggestionsPopup, TermSuggestion } from './utils/suggestions';
 
 let inputField: HTMLInputElement | null = null,
   originalTerm: string | undefined,
@@ -118,13 +118,13 @@ function listenAutocomplete() {
   let serverSideSuggestionsTimeout: number | undefined;
 
   let localAc: LocalAutocompleter | null = null;
-  let localFetched = false;
+  let isLocalLoading = false;
 
-  document.addEventListener('focusin', fetchLocalAutocomplete);
+  document.addEventListener('focusin', loadAutocompleteFromEvent);
 
   document.addEventListener('input', event => {
     popup.hide();
-    fetchLocalAutocomplete(event);
+    loadAutocompleteFromEvent(event);
     window.clearTimeout(serverSideSuggestionsTimeout);
 
     if (!(event.target instanceof HTMLInputElement)) return;
@@ -195,21 +195,15 @@ function listenAutocomplete() {
     }
   });
 
-  function fetchLocalAutocomplete(event: Event) {
+  function loadAutocompleteFromEvent(event: Event) {
     if (!(event.target instanceof HTMLInputElement)) return;
 
-    if (!localFetched && event.target.dataset && 'ac' in event.target.dataset) {
-      const now = new Date();
-      const cacheKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`;
+    if (!isLocalLoading && event.target.dataset.ac) {
+      isLocalLoading = true;
 
-      localFetched = true;
-
-      fetch(`/autocomplete/compiled?vsn=2&key=${cacheKey}`, { credentials: 'omit', cache: 'force-cache' })
-        .then(handleError)
-        .then(resp => resp.arrayBuffer())
-        .then(buf => {
-          localAc = new LocalAutocompleter(buf);
-        });
+      fetchLocalAutocomplete().then(autocomplete => {
+        localAc = autocomplete;
+      });
     }
   }
 
