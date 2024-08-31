@@ -157,6 +157,36 @@ describe('Suggestions', () => {
       expect(thirdItem).toHaveClass(selectedItemClassName);
     });
 
+    it('should loop around when selecting next on last and previous on first', () => {
+      [popup, input] = mockBaseSuggestionsPopup(true);
+
+      const firstItem = document.querySelector('.autocomplete__item:first-child');
+      const lastItem = document.querySelector('.autocomplete__item:last-child');
+
+      if (lastItem) {
+        fireEvent.mouseOver(lastItem);
+        fireEvent.mouseMove(lastItem);
+      }
+
+      expect(lastItem).toHaveClass(selectedItemClassName);
+
+      popup.selectNext();
+
+      expect(document.querySelector(`.${selectedItemClassName}`)).toBeNull();
+
+      popup.selectNext();
+
+      expect(firstItem).toHaveClass(selectedItemClassName);
+
+      popup.selectPrevious();
+
+      expect(document.querySelector(`.${selectedItemClassName}`)).toBeNull();
+
+      popup.selectPrevious();
+
+      expect(lastItem).toHaveClass(selectedItemClassName);
+    });
+
     it('should return selected item value', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
