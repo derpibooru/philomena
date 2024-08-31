@@ -3,7 +3,6 @@
  */
 
 import { LocalAutocompleter } from './utils/local-autocompleter';
-import { handleError } from './utils/requests';
 import { getTermContexts } from './match_query';
 import store from './utils/store';
 import { TermContext } from './query/lex';
