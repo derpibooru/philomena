@@ -102,7 +102,7 @@ export class SuggestionsPopup {
         direction > 0 ? this.selectedElement.nextElementSibling : this.selectedElement.previousElementSibling;
     }
 
-    if (!(nextTargetElement instanceof HTMLElement) || !nextTargetElement.dataset.value) {
+    if (!(nextTargetElement instanceof HTMLElement)) {
       this.clearSelection();
       return;
     }
