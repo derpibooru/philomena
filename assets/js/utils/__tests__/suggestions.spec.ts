@@ -187,6 +187,24 @@ describe('Suggestions', () => {
       expect(itemSelectedHandler).toBeCalledTimes(1);
       expect(clickEvent?.detail).toEqual(mockedSuggestionsResponse[0]);
     });
+
+    it('should not emit selection on items without value', () => {
+      [popup, input] = mockBaseSuggestionsPopup();
+
+      popup.renderSuggestions([{ label: 'Option without value', value: '' }]);
+
+      const itemSelectionHandler = vi.fn();
+
+      popup.onItemSelected(itemSelectionHandler);
+
+      const firstItem = document.querySelector('.autocomplete__item:first-child')!;
+
+      if (firstItem) {
+        fireEvent.click(firstItem);
+      }
+
+      expect(itemSelectionHandler).not.toBeCalled();
+    });
   });
 
   describe('fetchSuggestions', () => {
