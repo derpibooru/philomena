@@ -89,10 +89,6 @@ export class SuggestionsPopup {
   }
 
   private changeSelection(direction: number) {
-    if (this.listElement.childElementCount === 0 || direction === 0) {
-      return;
-    }
-
     let nextTargetElement: Element | null;
 
     if (!this.selectedElement) {
