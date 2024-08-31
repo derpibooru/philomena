@@ -6,39 +6,23 @@ import { LocalAutocompleter } from './utils/local-autocompleter';
 import { handleError } from './utils/requests';
 import { getTermContexts } from './match_query';
 import store from './utils/store';
-import { TermContext } from './query/lex.ts';
-import { $, $$, makeEl, removeEl } from './utils/dom.ts';
-import { mouseMoveThenOver } from './utils/events.ts';
+import { TermContext } from './query/lex';
+import { $$ } from './utils/dom';
+import { fetchSuggestions, SuggestionsPopup, TermSuggestion } from './utils/suggestions';
 
-type TermSuggestion = {
-  label: string;
-  value: string;
-};
-
-const cachedSuggestions: Record<string, TermSuggestion[]> = {};
 let inputField: HTMLInputElement | null = null,
   originalTerm: string | undefined,
   originalQuery: string | undefined,
   selectedTerm: TermContext | null = null;
 
-function removeParent() {
-  const parent = $<HTMLElement>('.autocomplete');
-  if (parent) removeEl(parent);
-}
-
-function removeSelected() {
-  const selected = $<HTMLElement>('.autocomplete__item--selected');
-  if (selected) selected.classList.remove('autocomplete__item--selected');
-}
+const popup = new SuggestionsPopup();
 
 function isSearchField(targetInput: HTMLElement): boolean {
   return targetInput && targetInput.dataset.acMode === 'search';
 }
 
 function restoreOriginalValue() {
-  if (!inputField) {
-    return;
-  }
+  if (!inputField) return;
 
   if (isSearchField(inputField) && originalQuery) {
     inputField.value = originalQuery;
@@ -50,9 +34,7 @@ function restoreOriginalValue() {
 }
 
 function applySelectedValue(selection: string) {
-  if (!inputField) {
-    return;
-  }
+  if (!inputField) return;
 
   if (!isSearchField(inputField)) {
     inputField.value = selection;
@@ -67,21 +49,6 @@ function applySelectedValue(selection: string) {
   }
 }
 
-function changeSelected(firstOrLast: Element | null, current: Element | null, sibling: Element | null) {
-  if (current && sibling) {
-    // if the currently selected item has a sibling, move selection to it
-    current.classList.remove('autocomplete__item--selected');
-    sibling.classList.add('autocomplete__item--selected');
-  } else if (current) {
-    // if the next keypress will take the user outside the list, restore the unautocompleted term
-    restoreOriginalValue();
-    removeSelected();
-  } else if (firstOrLast) {
-    // if no item in the list is selected, select the first or last
-    firstOrLast.classList.add('autocomplete__item--selected');
-  }
-}
-
 function isSelectionOutsideCurrentTerm(): boolean {
   if (!inputField || !selectedTerm) return true;
   if (inputField.selectionStart === null || inputField.selectionEnd === null) return true;
@@ -93,127 +60,43 @@ function isSelectionOutsideCurrentTerm(): boolean {
 }
 
 function keydownHandler(event: KeyboardEvent) {
-  const selected = $<HTMLElement>('.autocomplete__item--selected'),
-    firstItem = $<HTMLElement>('.autocomplete__item:first-of-type'),
-    lastItem = $<HTMLElement>('.autocomplete__item:last-of-type');
+  if (inputField !== event.currentTarget) return;
 
   if (inputField && isSearchField(inputField)) {
     // Prevent submission of the search field when Enter was hit
-    if (selected && event.keyCode === 13) event.preventDefault(); // Enter
+    if (popup.selectedTerm && event.keyCode === 13) event.preventDefault(); // Enter
 
     // Close autocompletion popup when text cursor is outside current tag
-    if (selectedTerm && firstItem && (event.keyCode === 37 || event.keyCode === 39)) {
+    if (selectedTerm && (event.keyCode === 37 || event.keyCode === 39)) {
       // ArrowLeft || ArrowRight
       requestAnimationFrame(() => {
-        if (isSelectionOutsideCurrentTerm()) removeParent();
+        if (isSelectionOutsideCurrentTerm()) popup.hide();
       });
     }
   }
 
-  if (event.keyCode === 38) changeSelected(lastItem, selected, selected && selected.previousElementSibling); // ArrowUp
-  if (event.keyCode === 40) changeSelected(firstItem, selected, selected && selected.nextElementSibling); // ArrowDown
-  if (event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 188) removeParent(); // Enter || Esc || Comma
+  if (!popup.isActive) return;
+
+  if (event.keyCode === 38) popup.selectPrevious(); // ArrowUp
+  if (event.keyCode === 40) popup.selectNext(); // ArrowDown
+  if (event.keyCode === 13 || event.keyCode === 27 || event.keyCode === 188) popup.hide(); // Enter || Esc || Comma
   if (event.keyCode === 38 || event.keyCode === 40) {
     // ArrowUp || ArrowDown
-    const newSelected = $<HTMLElement>('.autocomplete__item--selected');
-    if (newSelected?.dataset.value) applySelectedValue(newSelected.dataset.value);
+    if (popup.selectedTerm) {
+      applySelectedValue(popup.selectedTerm);
+    } else {
+      restoreOriginalValue();
+    }
+
     event.preventDefault();
   }
 }
 
-function createItem(list: HTMLUListElement, suggestion: TermSuggestion) {
-  const item = makeEl('li', {
-    className: 'autocomplete__item',
-  });
+function findSelectedTerm(targetInput: HTMLInputElement, searchQuery: string): TermContext | null {
+  if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
-  item.textContent = suggestion.label;
-  item.dataset.value = suggestion.value;
-
-  mouseMoveThenOver(item, () => {
-    removeSelected();
-    item.classList.add('autocomplete__item--selected');
-  });
-
-  item.addEventListener('mouseout', () => {
-    removeSelected();
-  });
-
-  item.addEventListener('click', () => {
-    if (!inputField || !item.dataset.value) return;
-
-    applySelectedValue(item.dataset.value);
-
-    inputField.dispatchEvent(
-      new CustomEvent('autocomplete', {
-        detail: {
-          type: 'click',
-          label: suggestion.label,
-          value: suggestion.value,
-        },
-      }),
-    );
-  });
-
-  list.appendChild(item);
-}
-
-function createList(parentElement: HTMLElement, suggestions: TermSuggestion[]) {
-  const list = makeEl('ul', {
-    className: 'autocomplete__list',
-  });
-
-  suggestions.forEach(suggestion => createItem(list, suggestion));
-
-  parentElement.appendChild(list);
-}
-
-function createParent(): HTMLElement {
-  const parent = makeEl('div');
-  parent.className = 'autocomplete';
-
-  if (inputField && inputField.parentElement) {
-    // Position the parent below the inputfield
-    parent.style.position = 'absolute';
-    parent.style.left = `${inputField.offsetLeft}px`;
-    // Take the inputfield offset, add its height and subtract the amount by which the parent element has scrolled
-    parent.style.top = `${inputField.offsetTop + inputField.offsetHeight - inputField.parentElement.scrollTop}px`;
-  }
-
-  // We append the parent at the end of body
-  document.body.appendChild(parent);
-
-  return parent;
-}
-
-function showAutocomplete(suggestions: TermSuggestion[], fetchedTerm: string, targetInput: HTMLInputElement) {
-  // Remove old autocomplete suggestions
-  removeParent();
-
-  // Save suggestions in cache
-  cachedSuggestions[fetchedTerm] = suggestions;
-
-  // If the input target is not empty, still visible, and suggestions were found
-  if (targetInput.value && targetInput.style.display !== 'none' && suggestions.length) {
-    createList(createParent(), suggestions);
-    targetInput.addEventListener('keydown', keydownHandler);
-  }
-}
-
-async function getSuggestions(term: string): Promise<TermSuggestion[]> {
-  // In case source URL was not given at all, do not try sending the request.
-  if (!inputField?.dataset.acSource) return [];
-
-  return await fetch(`${inputField.dataset.acSource}${term}`)
-    .then(handleError)
-    .then(response => response.json());
-}
-
-function getSelectedTerm(): TermContext | null {
-  if (!inputField || !originalQuery) return null;
-  if (inputField.selectionStart === null || inputField.selectionEnd === null) return null;
-
-  const selectionIndex = Math.min(inputField.selectionStart, inputField.selectionEnd);
-  const terms = getTermContexts(originalQuery);
+  const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
+  const terms = getTermContexts(searchQuery);
 
   return terms.find(([range]) => range[0] < selectionIndex && range[1] >= selectionIndex) ?? null;
 }
@@ -232,7 +115,7 @@ function toggleSearchAutocomplete() {
 }
 
 function listenAutocomplete() {
-  let timeout: number | undefined;
+  let serverSideSuggestionsTimeout: number | undefined;
 
   let localAc: LocalAutocompleter | null = null;
   let localFetched = false;
@@ -240,21 +123,25 @@ function listenAutocomplete() {
   document.addEventListener('focusin', fetchLocalAutocomplete);
 
   document.addEventListener('input', event => {
-    removeParent();
+    popup.hide();
     fetchLocalAutocomplete(event);
-    window.clearTimeout(timeout);
+    window.clearTimeout(serverSideSuggestionsTimeout);
 
     if (!(event.target instanceof HTMLInputElement)) return;
 
     const targetedInput = event.target;
 
-    if (localAc !== null && 'ac' in targetedInput.dataset) {
+    if (!targetedInput.dataset.ac) return;
+
+    targetedInput.addEventListener('keydown', keydownHandler);
+
+    if (localAc !== null) {
       inputField = targetedInput;
       let suggestionsCount = 5;
 
       if (isSearchField(inputField)) {
         originalQuery = inputField.value;
-        selectedTerm = getSelectedTerm();
+        selectedTerm = findSelectedTerm(inputField, originalQuery);
         suggestionsCount = 10;
 
         // We don't need to run auto-completion if user is not selecting tag at all
@@ -273,40 +160,38 @@ function listenAutocomplete() {
         .map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
 
       if (suggestions.length) {
-        return showAutocomplete(suggestions, originalTerm, targetedInput);
+        popup.renderSuggestions(suggestions).showForField(targetedInput);
+        return;
       }
     }
 
+    const { acMinLength: minTermLength, acSource: endpointUrl } = targetedInput.dataset;
+
+    if (!endpointUrl) return;
+
     // Use a timeout to delay requests until the user has stopped typing
-    timeout = window.setTimeout(() => {
+    serverSideSuggestionsTimeout = window.setTimeout(() => {
       inputField = targetedInput;
       originalTerm = inputField.value;
 
       const fetchedTerm = inputField.value;
-      const { ac, acMinLength, acSource } = inputField.dataset;
 
-      if (!ac || !acSource || (acMinLength && fetchedTerm.length < parseInt(acMinLength, 10))) {
-        return;
-      }
+      if (minTermLength && fetchedTerm.length < parseInt(minTermLength, 10)) return;
 
-      if (cachedSuggestions[fetchedTerm]) {
-        showAutocomplete(cachedSuggestions[fetchedTerm], fetchedTerm, targetedInput);
-      } else {
-        // inputField could get overwritten while the suggestions are being fetched - use event.target
-        getSuggestions(fetchedTerm).then(suggestions => {
-          if (fetchedTerm === targetedInput.value) {
-            showAutocomplete(suggestions, fetchedTerm, targetedInput);
-          }
-        });
-      }
+      fetchSuggestions(endpointUrl, fetchedTerm).then(suggestions => {
+        // inputField could get overwritten while the suggestions are being fetched - use previously targeted input
+        if (fetchedTerm === targetedInput.value) {
+          popup.renderSuggestions(suggestions).showForField(targetedInput);
+        }
+      });
     }, 300);
   });
 
   // If there's a click outside the inputField, remove autocomplete
   document.addEventListener('click', event => {
-    if (event.target && event.target !== inputField) removeParent();
+    if (event.target && event.target !== inputField) popup.hide();
     if (inputField && event.target === inputField && isSearchField(inputField) && isSelectionOutsideCurrentTerm()) {
-      removeParent();
+      popup.hide();
     }
   });
 
@@ -329,6 +214,24 @@ function listenAutocomplete() {
   }
 
   toggleSearchAutocomplete();
+
+  popup.onItemSelected((event: CustomEvent<TermSuggestion>) => {
+    if (!event.detail || !inputField) return;
+
+    const originalSuggestion = event.detail;
+    applySelectedValue(originalSuggestion.value);
+
+    inputField.dispatchEvent(
+      new CustomEvent('autocomplete', {
+        detail: Object.assign(
+          {
+            type: 'click',
+          },
+          originalSuggestion,
+        ),
+      }),
+    );
+  });
 }
 
 export { listenAutocomplete };
