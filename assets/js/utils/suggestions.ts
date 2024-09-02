@@ -107,14 +107,14 @@ export class SuggestionsPopup {
   }
 
   selectNext() {
-    return this.changeSelection(1);
+    this.changeSelection(1);
   }
 
   selectPrevious() {
-    return this.changeSelection(-1);
+    this.changeSelection(-1);
   }
 
-  showForField(targetElement: HTMLElement): SuggestionsPopup {
+  showForField(targetElement: HTMLElement) {
     this.container.style.position = 'absolute';
     this.container.style.left = `${targetElement.offsetLeft}px`;
 
@@ -127,8 +127,6 @@ export class SuggestionsPopup {
     this.container.style.top = `${topPosition}px`;
 
     document.body.appendChild(this.container);
-
-    return this;
   }
 
   onItemSelected(callback: (event: CustomEvent<TermSuggestion>) => void) {
@@ -138,7 +136,7 @@ export class SuggestionsPopup {
 
 const cachedSuggestions = new Map<string, Promise<TermSuggestion[]>>();
 
-export async function fetchSuggestions(endpoint: string, targetTerm: string) {
+export async function fetchSuggestions(endpoint: string, targetTerm: string): Promise<TermSuggestion[]> {
   const normalizedTerm = targetTerm.trim().toLowerCase();
 
   if (cachedSuggestions.has(normalizedTerm)) {
