@@ -361,6 +361,9 @@ defmodule PhilomenaQuery.Parse.Parser do
        {%{wildcard: %{field(parser, field_name) => normalize_value(parser, field_name, value)}},
         []}}
 
+  defp field_type(_parser, [{LiteralParser, field_name}, _range, _value]),
+    do: {:error, "range specified for " <> field_name}
+
   defp field_type(parser, [{NgramParser, field_name}, range: :eq, literal: value]),
     do:
       {:ok,
@@ -384,11 +387,20 @@ defmodule PhilomenaQuery.Parse.Parser do
        {%{wildcard: %{field(parser, field_name) => normalize_value(parser, field_name, value)}},
         []}}
 
+  defp field_type(_parser, [{NgramParser, field_name}, _range, _value]),
+    do: {:error, "range specified for " <> field_name}
+
   defp field_type(parser, [{BoolParser, field_name}, range: :eq, bool: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
 
+  defp field_type(_parser, [{BoolParser, field_name}, _range, _value]),
+    do: {:error, "range specified for " <> field_name}
+
   defp field_type(parser, [{IpParser, field_name}, range: :eq, ip: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
+
+  defp field_type(_parser, [{IpParser, field_name}, _range, _value]),
+    do: {:error, "range specified for " <> field_name}
 
   # Types which do support ranges
 
