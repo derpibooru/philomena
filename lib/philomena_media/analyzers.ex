@@ -40,25 +40,32 @@ defmodule PhilomenaMedia.Analyzers do
   def analyzer(_content_type), do: :error
 
   @doc """
-  Attempts a MIME type check and analysis on the given path or `m:Plug.Upload`.
+  Attempts a MIME type check and analysis on the given `m:Plug.Upload`.
+
+  ## Examples
+
+      file = %Plug.Upload{...}
+      {:ok, %Result{...}} = Analyzers.analyze_upload(file)
+
+  """
+  @spec analyze_upload(Plug.Upload.t()) ::
+          {:ok, Result.t()} | {:unsupported_mime, Mime.t()} | :error
+  def analyze_upload(%Plug.Upload{path: path}), do: analyze_path(path)
+  def analyze_upload(_upload), do: :error
+
+  @doc """
+  Attempts a MIME type check and analysis on the given path.
 
   ## Examples
 
       file = "image_file.png"
-      {:ok, %Result{...}} = Analyzers.analyze(file)
-
-      file = %Plug.Upload{...}
-      {:ok, %Result{...}} = Analyzers.analyze(file)
+      {:ok, %Result{...}} = Analyzers.analyze_path(file)
 
       file = "text_file.txt"
-      :error = Analyzers.analyze(file)
+      :error = Analyzers.analyze_path(file)
 
   """
-  @spec analyze(Plug.Upload.t() | Path.t()) ::
-          {:ok, Result.t()} | {:unsupported_mime, Mime.t()} | :error
-  def analyze(%Plug.Upload{path: path}), do: analyze(path)
-
-  def analyze(path) when is_binary(path) do
+  def analyze_path(path) when is_binary(path) do
     with {:ok, mime} <- Mime.file(path),
          {:ok, analyzer} <- analyzer(mime) do
       {:ok, analyzer.analyze(path)}
@@ -68,5 +75,5 @@ defmodule PhilomenaMedia.Analyzers do
     end
   end
 
-  def analyze(_path), do: :error
+  def analyze_path(_path), do: :error
 end

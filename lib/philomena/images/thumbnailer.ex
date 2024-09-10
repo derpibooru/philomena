@@ -76,7 +76,7 @@ defmodule Philomena.Images.Thumbnailer do
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
     file = download_image_file(image)
-    {:ok, analysis} = Analyzers.analyze(file)
+    {:ok, analysis} = Analyzers.analyze_path(file)
 
     file =
       apply_edit_script(image, file, Processors.process(analysis, file, generated_sizes(image)))
@@ -127,7 +127,7 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   defp recompute_meta(image, file, changeset_fn) do
-    {:ok, %{dimensions: {width, height}}} = Analyzers.analyze(file)
+    {:ok, %{dimensions: {width, height}}} = Analyzers.analyze_path(file)
 
     image
     |> changeset_fn.(%{

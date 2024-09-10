@@ -210,7 +210,7 @@ defmodule PhilomenaMedia.Uploader do
           (schema_or_changeset(), map() -> Ecto.Changeset.t())
         ) :: Ecto.Changeset.t()
   def analyze_upload(schema_or_changeset, field_name, upload_parameter, changeset_fn) do
-    with {:ok, analysis} <- Analyzers.analyze(upload_parameter),
+    with {:ok, analysis} <- Analyzers.analyze_upload(upload_parameter),
          analysis <- extra_attributes(analysis, upload_parameter) do
       removed =
         schema_or_changeset
