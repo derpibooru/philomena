@@ -78,3 +78,6 @@ jobs:
 
       - run: npm run test
         working-directory: ./assets
+
+      - run: npm run build
+        working-directory: ./assets
