@@ -2,6 +2,7 @@
  * Fetch and display preview images for various image upload forms.
  */
 
+import { assertNotNull } from './utils/assert';
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
@@ -171,9 +172,98 @@ function setupImageUpload() {
     window.removeEventListener('beforeunload', beforeUnload);
   }
 
+  function createTagError(message) {
+    const buttonAfter = $('#tagsinput-save');
+    const errorElement = makeEl('span', { className: 'help-block tag-error', innerText: message });
+
+    buttonAfter.insertAdjacentElement('beforebegin', errorElement);
+  }
+
+  function clearTagErrors() {
+    $$('.tag-error').forEach(el => el.remove());
+  }
+
+  const ratingsTags = ['safe', 'suggestive', 'questionable', 'explicit', 'semi-grimdark', 'grimdark', 'grotesque'];
+
+  // populate tag error helper bars as necessary
+  // return true if all checks pass
+  // return false if any check fails
+  function validateTags() {
+    const tagInput = $('textarea.js-taginput');
+
+    if (!tagInput) {
+      return true;
+    }
+
+    const tagsArr = tagInput.value.split(',').map(t => t.trim());
+
+    const errors = [];
+
+    let hasRating = false;
+    let hasSafe = false;
+    let hasOtherRating = false;
+
+    tagsArr.forEach(tag => {
+      if (ratingsTags.includes(tag)) {
+        hasRating = true;
+        if (tag === 'safe') {
+          hasSafe = true;
+        } else {
+          hasOtherRating = true;
+        }
+      }
+    });
+
+    if (!hasRating) {
+      errors.push('Tag input must contain at least one rating tag');
+    } else if (hasSafe && hasOtherRating) {
+      errors.push('Tag input may not contain any other rating if safe');
+    }
+
+    if (tagsArr.length < 3) {
+      errors.push('Tag input must contain at least 3 tags');
+    }
+
+    errors.forEach(msg => createTagError(msg));
+
+    return errors.length === 0; // true: valid if no errors
+  }
+
+  function disableUploadButton() {
+    const submitButton = $('.button.input--separate-top');
+    if (submitButton !== null) {
+      submitButton.disabled = true;
+      submitButton.innerText = 'Please wait...';
+    }
+
+    // delay is needed because Safari stops the submit if the button is immediately disabled
+    requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
+  }
+
+  function submitHandler(event) {
+    // Remove any existing tag error elements
+    clearTagErrors();
+
+    if (validateTags()) {
+      // Disable navigation check
+      unregisterBeforeUnload();
+
+      // Prevent duplicate attempts to submit the form
+      disableUploadButton();
+
+      // Let the form submission complete
+    } else {
+      // Scroll to view validation errors
+      assertNotNull($('.fancy-tag-upload')).scrollIntoView();
+
+      // Prevent the form from being submitted
+      event.preventDefault();
+    }
+  }
+
   fileField.addEventListener('change', registerBeforeUnload);
   fetchButton.addEventListener('click', registerBeforeUnload);
-  form.addEventListener('submit', unregisterBeforeUnload);
+  form.addEventListener('submit', submitHandler);
 }
 
 export { setupImageUpload };

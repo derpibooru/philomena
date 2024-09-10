@@ -4,7 +4,25 @@
 
 import { $, $$ } from './utils/dom';
 
-const markdownSyntax = {
+// List of options provided to the syntax handler function.
+interface SyntaxHandlerOptions {
+  prefix: string;
+  shortcutKeyCode: number;
+  suffix: string;
+  prefixMultiline: string;
+  suffixMultiline: string;
+  singleWrap: boolean;
+  escapeChar: string;
+  image: boolean;
+  text: string;
+}
+
+interface SyntaxHandler {
+  action: (textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) => void;
+  options: Partial<SyntaxHandlerOptions>;
+}
+
+const markdownSyntax: Record<string, SyntaxHandler> = {
   bold: {
     action: wrapSelection,
     options: { prefix: '**', shortcutKeyCode: 66 },
@@ -62,14 +80,22 @@ const markdownSyntax = {
   },
 };
 
-function getSelections(textarea, linesOnly = false) {
+interface SelectionResult {
+  processLinesOnly: boolean;
+  selectedText: string;
+  beforeSelection: string;
+  afterSelection: string;
+}
+
+function getSelections(textarea: HTMLTextAreaElement, linesOnly: RegExp | boolean = false): SelectionResult {
   let { selectionStart, selectionEnd } = textarea,
     selection = textarea.value.substring(selectionStart, selectionEnd),
     leadingSpace = '',
     trailingSpace = '',
-    caret;
+    caret: number;
 
   const processLinesOnly = linesOnly instanceof RegExp ? linesOnly.test(selection) : linesOnly;
+
   if (processLinesOnly) {
     const explorer = /\n/g;
     let startNewlineIndex = 0,
@@ -119,7 +145,18 @@ function getSelections(textarea, linesOnly = false) {
   };
 }
 
-function transformSelection(textarea, transformer, eachLine) {
+interface TransformResult {
+  newText: string;
+  caretOffset: number;
+}
+
+type TransformCallback = (selectedText: string, processLinesOnly: boolean) => TransformResult;
+
+function transformSelection(
+  textarea: HTMLTextAreaElement,
+  transformer: TransformCallback,
+  eachLine: RegExp | boolean = false,
+) {
   const { selectedText, beforeSelection, afterSelection, processLinesOnly } = getSelections(textarea, eachLine),
     // For long comments, record scrollbar position to restore it later
     { scrollTop } = textarea;
@@ -140,7 +177,7 @@ function transformSelection(textarea, transformer, eachLine) {
   textarea.dispatchEvent(new Event('change'));
 }
 
-function insertLink(textarea, options) {
+function insertLink(textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) {
   let hyperlink = window.prompt(options.image ? 'Image link:' : 'Link:');
   if (!hyperlink || hyperlink === '') return;
 
@@ -155,10 +192,11 @@ function insertLink(textarea, options) {
   wrapSelection(textarea, { prefix, suffix });
 }
 
-function wrapSelection(textarea, options) {
-  transformSelection(textarea, selectedText => {
+function wrapSelection(textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) {
+  transformSelection(textarea, (selectedText: string): TransformResult => {
     const { text = selectedText, prefix = '', suffix = options.prefix } = options,
       emptyText = text === '';
+
     let newText = text;
 
     if (!emptyText) {
@@ -176,10 +214,14 @@ function wrapSelection(textarea, options) {
   });
 }
 
-function wrapLines(textarea, options, eachLine = true) {
+function wrapLines(
+  textarea: HTMLTextAreaElement,
+  options: Partial<SyntaxHandlerOptions>,
+  eachLine: RegExp | boolean = true,
+) {
   transformSelection(
     textarea,
-    (selectedText, processLinesOnly) => {
+    (selectedText: string, processLinesOnly: boolean): TransformResult => {
       const { text = selectedText, singleWrap = false } = options,
         prefix = (processLinesOnly && options.prefixMultiline) || options.prefix || '',
         suffix = (processLinesOnly && options.suffixMultiline) || options.suffix || '',
@@ -200,16 +242,22 @@ function wrapLines(textarea, options, eachLine = true) {
   );
 }
 
-function wrapSelectionOrLines(textarea, options) {
+function wrapSelectionOrLines(textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) {
   wrapLines(textarea, options, /\n/);
 }
 
-function escapeSelection(textarea, options) {
-  transformSelection(textarea, selectedText => {
+function escapeSelection(textarea: HTMLTextAreaElement, options: Partial<SyntaxHandlerOptions>) {
+  transformSelection(textarea, (selectedText: string): TransformResult => {
     const { text = selectedText } = options,
       emptyText = text === '';
 
-    if (emptyText) return;
+    // Nothing to escape, so do nothing
+    if (emptyText) {
+      return {
+        newText: text,
+        caretOffset: text.length,
+      };
+    }
 
     const newText = text.replace(/([*_[\]()^`%\\~<>#|])/g, '\\$1');
 
@@ -220,22 +268,28 @@ function escapeSelection(textarea, options) {
   });
 }
 
-function clickHandler(event) {
-  const button = event.target.closest('.communication__toolbar__button');
-  if (!button) return;
-  const toolbar = button.closest('.communication__toolbar'),
-    // There may be multiple toolbars present on the page,
-    // in the case of image pages with description edit active
-    // we target the textarea that shares the same parent as the toolbar
-    textarea = $('.js-toolbar-input', toolbar.parentNode),
+function clickHandler(event: MouseEvent) {
+  if (!(event.target instanceof HTMLElement)) return;
+
+  const button = event.target.closest<HTMLElement>('.communication__toolbar__button');
+  const toolbar = button?.closest<HTMLElement>('.communication__toolbar');
+
+  if (!button || !toolbar?.parentElement) return;
+
+  // There may be multiple toolbars present on the page,
+  // in the case of image pages with description edit active
+  // we target the textarea that shares the same parent as the toolbar
+  const textarea = $<HTMLTextAreaElement>('.js-toolbar-input', toolbar.parentElement),
     id = button.dataset.syntaxId;
+
+  if (!textarea || !id) return;
 
   markdownSyntax[id].action(textarea, markdownSyntax[id].options);
   textarea.focus();
 }
 
-function canAcceptShortcut(event) {
-  let ctrl, otherModifier;
+function canAcceptShortcut(event: KeyboardEvent): boolean {
+  let ctrl: boolean, otherModifier: boolean;
 
   switch (window.navigator.platform) {
     case 'MacIntel':
@@ -251,13 +305,15 @@ function canAcceptShortcut(event) {
   return ctrl && !otherModifier;
 }
 
-function shortcutHandler(event) {
+function shortcutHandler(event: KeyboardEvent) {
   if (!canAcceptShortcut(event)) {
     return;
   }
 
   const textarea = event.target,
     keyCode = event.keyCode;
+
+  if (!(textarea instanceof HTMLTextAreaElement)) return;
 
   for (const id in markdownSyntax) {
     if (keyCode === markdownSyntax[id].options.shortcutKeyCode) {
@@ -268,10 +324,10 @@ function shortcutHandler(event) {
 }
 
 function setupToolbar() {
-  $$('.communication__toolbar').forEach(toolbar => {
+  $$<HTMLElement>('.communication__toolbar').forEach(toolbar => {
     toolbar.addEventListener('click', clickHandler);
   });
-  $$('.js-toolbar-input').forEach(textarea => {
+  $$<HTMLTextAreaElement>('.js-toolbar-input').forEach(textarea => {
     textarea.addEventListener('keydown', shortcutHandler);
   });
 }

@@ -88,4 +88,4 @@
   = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "image", conn: @conn
 
   .actions
-    = submit "Upload", class: "button input--separate-top", autocomplete: "off", data: [disable_with: "Please wait..."]
+    = submit "Upload", class: "button input--separate-top", autocomplete: "off"
