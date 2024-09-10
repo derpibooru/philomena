@@ -214,7 +214,7 @@ describe('Image upload form', () => {
     });
   });
 
-  async function submitForm(frm): Promise<boolean> {
+  async function submitForm(frm: HTMLFormElement): Promise<boolean> {
     return new Promise(resolve => {
       function onSubmit() {
         frm.removeEventListener('submit', onSubmit);
@@ -232,7 +232,7 @@ describe('Image upload form', () => {
 
   it('should prevent form submission if tag checks fail', async () => {
     for (let i = 0; i < tagSets.length; i += 1) {
-      taginputEl.value = tagSets[i];
+      taginputEl.innerText = tagSets[i];
 
       if (await submitForm(form)) {
         // form submit succeeded
@@ -243,7 +243,7 @@ describe('Image upload form', () => {
         });
       } else {
         // form submit prevented
-        frm = form;
+        const frm = form;
         await waitFor(() => {
           assertSubmitButtonIsEnabled();
           expect(frm.querySelectorAll('.help-block')).toHaveLength(tagErrorCounts[i]);
