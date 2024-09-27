@@ -71,7 +71,7 @@ defmodule Philomena.Tags.SearchIndex do
       category: tag.category,
       aliased: !!tag.aliased_tag,
       description: tag.description,
-      short_description: tag.description
+      short_description: tag.short_description
     }
   end
 end
