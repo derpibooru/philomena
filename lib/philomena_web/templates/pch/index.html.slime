@@ -1,0 +1,8 @@
+h1 Enter passphrase for verification
+
+= form_for :event, ~p"/pch", fn f ->
+  .field
+    = text_input f, :passphrase, class: "input", placeholder: "Passphrase", required: true
+
+  .field
+    = submit "Submit", class: "button"
