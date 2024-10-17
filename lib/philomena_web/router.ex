@@ -101,6 +101,7 @@ defmodule PhilomenaWeb.Router do
       :require_authenticated_user
     ]
 
+    resources "/pch", PchController, only: [:index, :new, :create]
     resources "/registrations", RegistrationController, only: [:edit, :update], singleton: true
     resources "/sessions", SessionController, only: [:delete], singleton: true
 

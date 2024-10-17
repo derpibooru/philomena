@@ -20,6 +20,7 @@ services:
       - PASSWORD_PEPPER=dn2e0EpZrvBLoxUM3gfQveBhjf0bG/6/bYhrOyq3L3hV9hdo/bimJ+irbDWsuXLP
       - TUMBLR_API_KEY=fuiKNFp9vQFvjLNvx4sUwti4Yb5yGutBN4Xh10LXZhhRKjWlV4
       - OTP_SECRET_KEY=Wn7O/8DD+qxL0X4X7bvT90wOkVGcA90bIHww4twR03Ci//zq7PnMw8ypqyyT/b/C
+      - EVENT_SECRET_PHRASE=yfbWGiSxyMvsWbs7OdLCrXeACKXpT7DVmwitMBOfArSgEsJQ9QHHI3e0UkNIUaey
       - ADVERT_FILE_ROOT=adverts
       - AVATAR_FILE_ROOT=avatars
       - BADGE_FILE_ROOT=badges
