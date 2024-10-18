@@ -20,10 +20,10 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
     [handle, id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
     api_url_resolve_handle = "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=#{handle}"
-    did = PhilomenaProxy.Http.get(api_url_resolve_handle) |> json!() |> &1["did"]
+    did = PhilomenaProxy.Http.get(api_url_resolve_handle) |> json!() |> Map.fetch!(:did)
 
     api_url_get_posts = "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts?uris=at://#{did}/app.bsky.feed.post/#{id}"
-    post_json = PhilomenaProxy.Http.get(api_url_get_posts) |> json!() |> &1["posts"][0]
+    post_json = PhilomenaProxy.Http.get(api_url_get_posts) |> json!() |> Map.fetch!(:posts) |> hd
 
     %{
       source_url: url,
@@ -37,4 +37,6 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
       )
     }
   end
+
+  defp json!({:ok, %{body: body, status: 200}}), do: Jason.decode!(body)
 end
