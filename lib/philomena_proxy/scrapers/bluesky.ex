@@ -7,7 +7,7 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
   @behaviour Scraper
 
   @url_regex ~r|https://bsky\.app/profile/([^/]+)/post/([^/?#]+)|
-  @fullsize_image_regex ~r|/img/feed_fullsize/plain/([^/]+)/([^@]+)|
+  @fullsize_image_regex ~r|.*/img/feed_fullsize/plain/([^/]+)/([^@]+).*|
   @blob_image_url_pattern "https://bsky.social/xrpc/com.atproto.sync.getBlob/?did=\\1&cid=\\2"
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
