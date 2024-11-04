@@ -125,8 +125,9 @@ defmodule PhilomenaQuery.Batch do
     batch_size = Keyword.get(opts, :batch_size, 1000)
 
     queryable
-    |> exclude(:preload)
     |> exclude(:order_by)
+    |> exclude(:preload)
+    |> exclude(:select)
     |> order_by(asc: ^id_field)
     |> where([m], field(m, ^id_field) > ^max_id)
     |> select([m], field(m, ^id_field))
