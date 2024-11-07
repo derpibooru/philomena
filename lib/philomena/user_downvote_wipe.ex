@@ -15,7 +15,8 @@ defmodule Philomena.UserDownvoteWipe do
 
     ImageVote
     |> where(user_id: ^user.id, up: false)
-    |> Batch.query_batches([id_field: :image_id], fn queryable ->
+    |> Batch.query_batches(id_field: :image_id)
+    |> Enum.each(fn queryable ->
       {_, image_ids} = Repo.delete_all(select(queryable, [i_v], i_v.image_id))
 
       {count, nil} =
@@ -31,7 +32,8 @@ defmodule Philomena.UserDownvoteWipe do
     if upvotes_and_faves_too do
       ImageVote
       |> where(user_id: ^user.id, up: true)
-      |> Batch.query_batches([id_field: :image_id], fn queryable ->
+      |> Batch.query_batches(id_field: :image_id)
+      |> Enum.each(fn queryable ->
         {_, image_ids} = Repo.delete_all(select(queryable, [i_v], i_v.image_id))
 
         {count, nil} =
@@ -46,7 +48,8 @@ defmodule Philomena.UserDownvoteWipe do
 
       ImageFave
       |> where(user_id: ^user.id)
-      |> Batch.query_batches([id_field: :image_id], fn queryable ->
+      |> Batch.query_batches(id_field: :image_id)
+      |> Enum.each(fn queryable ->
         {_, image_ids} = Repo.delete_all(select(queryable, [i_f], i_f.image_id))
 
         {count, nil} =

@@ -199,11 +199,13 @@ defmodule PhilomenaQuery.Search do
       Search.reindex(query, Image, batch_size: 5000)
 
   """
-  @spec reindex(queryable(), schema_module(), Batch.batch_options()) :: []
+  @spec reindex(queryable(), schema_module(), Batch.batch_options()) :: :ok
   def reindex(queryable, module, opts \\ []) do
     index = @policy.index_for(module)
 
-    Batch.record_batches(queryable, opts, fn records ->
+    queryable
+    |> Batch.record_batches(opts)
+    |> Enum.each(fn records ->
       lines =
         Enum.flat_map(records, fn record ->
           doc = index.as_json(record)
