@@ -1,5 +1,5 @@
-use comrak::ComrakOptions;
 use crate::camo;
+use comrak::ComrakOptions;
 use rustler::{MapIterator, Term};
 use std::collections::HashMap;
 use std::env;
@@ -19,19 +19,28 @@ fn common_options() -> ComrakOptions {
     options.extension.camoifier = Some(|s| camo::image_url(s).unwrap_or_else(|| String::from("")));
 
     if let Ok(domains) = env::var("SITE_DOMAINS") {
-        options.extension.philomena_domains = Some(domains.split(',').map(|s| s.to_string()).collect::<Vec<String>>());
+        options.extension.philomena_domains = Some(
+            domains
+                .split(',')
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>(),
+        );
     }
 
     options
 }
 
 fn map_to_hashmap(map: Term) -> Option<HashMap<String, String>> {
-    Some(MapIterator::new(map)?.map(|(key, value)| {
-        let key: String = key.decode().unwrap_or_else(|_| String::from(""));
-        let value: String = value.decode().unwrap_or_else(|_| String::from(""));
+    Some(
+        MapIterator::new(map)?
+            .map(|(key, value)| {
+                let key: String = key.decode().unwrap_or_else(|_| String::from(""));
+                let value: String = value.decode().unwrap_or_else(|_| String::from(""));
 
-        (key, value)
-    }).collect())
+                (key, value)
+            })
+            .collect(),
+    )
 }
 
 pub fn to_html(input: String, reps: Term) -> String {
