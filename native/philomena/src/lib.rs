@@ -5,6 +5,8 @@ use std::collections::HashMap;
 mod camo;
 mod domains;
 mod markdown;
+#[cfg(test)]
+mod tests;
 mod zip;
 
 #[global_allocator]
