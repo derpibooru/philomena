@@ -1,8 +1,8 @@
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
 use ring::hmac;
 use std::env;
 use url::Url;
-use base64::Engine;
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 
 fn trusted_host(mut url: Url) -> Option<String> {
     url.set_port(Some(443)).ok()?;
