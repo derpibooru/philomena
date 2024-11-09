@@ -31,6 +31,9 @@ jobs:
       - run: docker compose pull
       - run: docker compose build
 
+      - name: mix format
+        run: docker compose run app mix format --check-formatted
+
       - name: Build and test
         run: docker compose run app run-test
 
@@ -49,6 +52,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: crate-ci/typos@master
+
+  cargo:
+    name: Rust Linting and Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: cargo fmt
+        run: (cd native/philomena && cargo fmt --check)
+
+      - name: cargo clippy
+        run: (cd native/philomena && cargo clippy -- -D warnings)
 
   lint-and-test:
     name: 'JavaScript Linting and Unit Tests'
