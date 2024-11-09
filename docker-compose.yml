@@ -64,16 +64,14 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    logging:
-      driver: "none"
+    attach: false
 
   opensearch:
     image: opensearchproject/opensearch:2.16.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
-    logging:
-      driver: "none"
+    attach: false
     ulimits:
       nofile:
         soft: 65536
@@ -81,8 +79,7 @@ services:
 
   valkey:
     image: valkey/valkey:8.0-alpine
-    logging:
-      driver: "none"
+    attach: false
 
   files:
     image: andrewgaul/s3proxy:sha-4976e17
@@ -90,6 +87,7 @@ services:
       - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
       - .:/srv/philomena
+    attach: false
 
   web:
     build:
@@ -106,8 +104,7 @@ services:
     environment:
       - AWS_ACCESS_KEY_ID=local-identity
       - AWS_SECRET_ACCESS_KEY=local-credential
-    logging:
-      driver: "none"
+    attach: false
     depends_on:
       - app
     ports:
