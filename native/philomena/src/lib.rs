@@ -1,7 +1,8 @@
 use jemallocator::Jemalloc;
-use rustler::Term;
+use std::collections::HashMap;
 
 mod camo;
+mod domains;
 mod markdown;
 
 #[global_allocator]
@@ -15,18 +16,18 @@ rustler::init! {
 // Markdown NIF wrappers.
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html(input: String, reps: Term) -> String {
+fn markdown_to_html(input: &str, reps: HashMap<String, String>) -> String {
     markdown::to_html(input, reps)
 }
 
 #[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_html_unsafe(input: String, reps: Term) -> String {
+fn markdown_to_html_unsafe(input: &str, reps: HashMap<String, String>) -> String {
     markdown::to_html_unsafe(input, reps)
 }
 
 // Camo NIF wrappers.
 
 #[rustler::nif]
-fn camo_image_url(input: String) -> String {
-    camo::image_url(input).unwrap_or_else(|| String::from(""))
+fn camo_image_url(input: &str) -> String {
+    camo::image_url_careful(input)
 }
