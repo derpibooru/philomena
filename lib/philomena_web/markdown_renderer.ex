@@ -75,8 +75,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
   defp render_representations(images, conn) do
     loaded_images = load_images(images)
 
-    images
-    |> Enum.map(fn group ->
+    Map.new(images, fn group ->
       img = loaded_images[Enum.at(group, 0)]
       text = "#{Enum.at(group, 0)}#{Enum.at(group, 1)}"
 
@@ -131,8 +130,7 @@ defmodule PhilomenaWeb.MarkdownRenderer do
         |> Phoenix.HTML.Safe.to_iodata()
         |> IO.iodata_to_binary()
 
-      [text, string_contents]
+      {text, string_contents}
     end)
-    |> Map.new(fn [id, html] -> {id, html} end)
   end
 end

@@ -25,24 +25,32 @@ defmodule PhilomenaQuery.Batch do
   @type id_field :: {:id_field, atom()}
   @type batch_options :: [batch_size() | id_field()]
 
-  @typedoc """
-  The callback for `record_batches/3`.
+  @doc """
+  Stream schema structures on a queryable, using batches to avoid locking.
 
-  Takes a list of schema structs which were returned in the batch. Return value is ignored.
+  Valid options:
+    * `batch_size` (integer) - the number of records to load per batch
+    * `id_field` (atom) - the name of the field containing the ID
+
+  ## Example
+
+      queryable = from i in Image, where: i.image_width >= 1920
+
+      queryable
+      |> PhilomenaQuery.Batch.record_batches()
+      |> Enum.each(fn image -> IO.inspect(image.id) end)
+
   """
-  @type record_batch_callback :: ([struct()] -> any())
-
-  @typedoc """
-  The callback for `query_batches/3`.
-
-  Takes an `m:Ecto.Query` that can be processed with `m:Philomena.Repo` query commands, such
-  as `Philomena.Repo.update_all/3` or `Philomena.Repo.delete_all/2`. Return value is ignored.
-  """
-  @type query_batch_callback :: ([Ecto.Query.t()] -> any())
+  @spec records(queryable(), batch_options()) :: Enumerable.t()
+  def records(queryable, opts \\ []) do
+    queryable
+    |> query_batches(opts)
+    |> Stream.flat_map(&Repo.all/1)
+  end
 
   @doc """
-  Execute a callback with lists of schema structures on a queryable,
-  using batches to avoid locking.
+  Stream lists of schema structures on a queryable, using batches to avoid
+  locking.
 
   Valid options:
     * `batch_size` (integer) - the number of records to load per batch
@@ -56,16 +64,20 @@ defmodule PhilomenaQuery.Batch do
         Enum.each(images, &IO.inspect(&1.id))
       end
 
-      PhilomenaQuery.Batch.record_batches(queryable, cb)
+      queryable
+      |> PhilomenaQuery.Batch.record_batches()
+      |> Enum.each(cb)
 
   """
-  @spec record_batches(queryable(), batch_options(), record_batch_callback()) :: []
-  def record_batches(queryable, opts \\ [], callback) do
-    query_batches(queryable, opts, &callback.(Repo.all(&1)))
+  @spec record_batches(queryable(), batch_options()) :: Enumerable.t()
+  def record_batches(queryable, opts \\ []) do
+    queryable
+    |> query_batches(opts)
+    |> Stream.map(&Repo.all/1)
   end
 
   @doc """
-  Execute a callback with bulk queries on a queryable, using batches to avoid locking.
+  Stream bulk queries on a queryable, using batches to avoid locking.
 
   Valid options:
     * `batch_size` (integer) - the number of records to load per batch
@@ -76,41 +88,36 @@ defmodule PhilomenaQuery.Batch do
   > If you are looking to receive schema structures (e.g., you are querying for `Image`s,
   > and you want to receive `Image` objects, then use `record_batches/3` instead.
 
-  An `m:Ecto.Query` which selects all IDs in the current batch is passed into the callback
-  during each invocation.
+  `m:Ecto.Query` structs which select the IDs in each batch are streamed out.
 
   ## Example
 
       queryable = from ui in ImageVote, where: ui.user_id == 1234
 
-      opts = [id_field: :image_id]
-
-      cb = fn bulk_query ->
-        Repo.delete_all(bulk_query)
-      end
-
-      PhilomenaQuery.Batch.query_batches(queryable, opts, cb)
+      queryable
+      |> PhilomenaQuery.Batch.query_batches(id_field: :image_id)
+      |> Enum.each(fn batch_query -> Repo.delete_all(batch_query) end)
 
   """
-  @spec query_batches(queryable(), batch_options(), query_batch_callback()) :: []
-  def query_batches(queryable, opts \\ [], callback) do
-    ids = load_ids(queryable, -1, opts)
-
-    query_batches(queryable, opts, callback, ids)
-  end
-
-  defp query_batches(_queryable, _opts, _callback, []), do: []
-
-  defp query_batches(queryable, opts, callback, ids) do
+  @spec query_batches(queryable(), batch_options()) :: Enumerable.t(Ecto.Query.t())
+  def query_batches(queryable, opts \\ []) do
     id_field = Keyword.get(opts, :id_field, :id)
 
-    queryable
-    |> where([m], field(m, ^id_field) in ^ids)
-    |> callback.()
+    Stream.unfold(
+      load_ids(queryable, -1, opts),
+      fn
+        [] ->
+          # Stop when no more results are produced
+          nil
 
-    ids = load_ids(queryable, Enum.max(ids), opts)
+        ids ->
+          # Process results and output next query
+          output = where(queryable, [m], field(m, ^id_field) in ^ids)
+          next_ids = load_ids(queryable, Enum.max(ids), opts)
 
-    query_batches(queryable, opts, callback, ids)
+          {output, next_ids}
+      end
+    )
   end
 
   defp load_ids(queryable, max_id, opts) do
@@ -118,8 +125,9 @@ defmodule PhilomenaQuery.Batch do
     batch_size = Keyword.get(opts, :batch_size, 1000)
 
     queryable
-    |> exclude(:preload)
     |> exclude(:order_by)
+    |> exclude(:preload)
+    |> exclude(:select)
     |> order_by(asc: ^id_field)
     |> where([m], field(m, ^id_field) > ^max_id)
     |> select([m], field(m, ^id_field))

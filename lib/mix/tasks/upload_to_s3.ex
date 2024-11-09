@@ -121,7 +121,9 @@ defmodule Mix.Tasks.UploadToS3 do
   end
 
   defp upload_typical(queryable, batch_size, file_root, new_file_root, field_name) do
-    Batch.record_batches(queryable, [batch_size: batch_size], fn models ->
+    queryable
+    |> Batch.record_batches(batch_size: batch_size)
+    |> Enum.each(fn models ->
       models
       |> Task.async_stream(&upload_typical_model(&1, file_root, new_file_root, field_name),
         timeout: :infinity
@@ -142,7 +144,9 @@ defmodule Mix.Tasks.UploadToS3 do
   end
 
   defp upload_images(queryable, batch_size, file_root, new_file_root) do
-    Batch.record_batches(queryable, [batch_size: batch_size], fn models ->
+    queryable
+    |> Batch.record_batches(batch_size: batch_size)
+    |> Enum.each(fn models ->
       models
       |> Task.async_stream(&upload_image_model(&1, file_root, new_file_root), timeout: :infinity)
       |> Stream.run()

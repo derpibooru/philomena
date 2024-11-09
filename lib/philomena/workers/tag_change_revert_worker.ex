@@ -27,7 +27,9 @@ defmodule Philomena.TagChangeRevertWorker do
     batch_size = attributes["batch_size"] || 100
     attributes = Map.delete(attributes, "batch_size")
 
-    Batch.query_batches(queryable, [batch_size: batch_size], fn queryable ->
+    queryable
+    |> Batch.query_batches(batch_size: batch_size)
+    |> Enum.each(fn queryable ->
       ids = Repo.all(select(queryable, [tc], tc.id))
       TagChanges.mass_revert(ids, cast_ip(atomify_keys(attributes)))
     end)
