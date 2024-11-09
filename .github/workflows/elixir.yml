@@ -31,11 +31,11 @@ jobs:
       - run: docker compose pull
       - run: docker compose build
 
-      - name: mix format
-        run: docker compose run app mix format --check-formatted
-
       - name: Build and test
         run: docker compose run app run-test
+
+      - name: mix format
+        run: docker compose run app mix format --check-formatted
 
       - name: Security lint
         run: |
