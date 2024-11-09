@@ -260,7 +260,9 @@ version = "0.3.0"
 dependencies = [
  "base64",
  "comrak",
+ "http",
  "jemallocator",
+ "regex",
  "ring",
  "rustler",
  "url",
