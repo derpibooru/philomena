@@ -62,3 +62,6 @@ elixir:
 
       - true ->
         p We couldn't find any commission listings to display. Sorry!
+
+  .block__header.page__header
+    .page__pagination = pagination
