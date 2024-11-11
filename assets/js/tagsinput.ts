@@ -2,14 +2,20 @@
  * Fancy tag editor.
  */
 
+import { assertNotNull, assertType } from './utils/assert';
 import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
+import { TermSuggestion } from './utils/suggestions';
 
-function setupTagsInput(tagBlock) {
-  const [textarea, container] = $$('.js-taginput', tagBlock);
-  const setup = $('.js-tag-block ~ button', tagBlock.parentNode);
-  const inputField = $('input', container);
+export function setupTagsInput(tagBlock: HTMLDivElement) {
+  const form = assertNotNull(tagBlock.closest('form'));
+  const textarea = assertNotNull($<HTMLTextAreaElement>('.js-taginput-plain', tagBlock));
+  const container = assertNotNull($<HTMLDivElement>('.js-taginput-fancy'));
+  const parentField = assertNotNull(tagBlock.parentElement);
+  const setup = assertNotNull($<HTMLButtonElement>('.js-tag-block ~ button', parentField));
+  const inputField = assertNotNull($<HTMLInputElement>('input', container));
+  const submitButton = assertNotNull($<HTMLInputElement | HTMLButtonElement>('[type="submit"]', form));
 
-  let tags = [];
+  let tags: string[] = [];
 
   // Load in the current tag set from the textarea
   setup.addEventListener('click', importTags);
@@ -27,7 +33,7 @@ function setupTagsInput(tagBlock) {
   inputField.addEventListener('keydown', handleKeyEvent);
 
   // Respond to autocomplete form clicks
-  inputField.addEventListener('autocomplete', handleAutocomplete);
+  inputField.addEventListener('autocomplete', handleAutocomplete as EventListener);
 
   // Respond to Ctrl+Enter shortcut
   tagBlock.addEventListener('keydown', handleCtrlEnter);
@@ -35,19 +41,19 @@ function setupTagsInput(tagBlock) {
   // TODO: Cleanup this bug fix
   // Switch to fancy tagging if user settings want it
   if (fancyEditorRequested(tagBlock)) {
-    showEl($$('.js-taginput-fancy'));
-    showEl($$('.js-taginput-hide'));
-    hideEl($$('.js-taginput-plain'));
-    hideEl($$('.js-taginput-show'));
+    showEl($$<HTMLElement>('.js-taginput-fancy'));
+    showEl($$<HTMLElement>('.js-taginput-hide'));
+    hideEl($$<HTMLElement>('.js-taginput-plain'));
+    hideEl($$<HTMLElement>('.js-taginput-show'));
     importTags();
   }
 
-  function handleAutocomplete(event) {
+  function handleAutocomplete(event: CustomEvent<TermSuggestion>) {
     insertTag(event.detail.value);
     inputField.focus();
   }
 
-  function handleAddTag(event) {
+  function handleAddTag(event: AddtagEvent) {
     // Ignore if not in tag edit mode
     if (container.classList.contains('hidden')) return;
 
@@ -55,14 +61,16 @@ function setupTagsInput(tagBlock) {
     event.stopPropagation();
   }
 
-  function handleTagClear(event) {
-    if (event.target.dataset.tagName) {
+  function handleTagClear(event: Event) {
+    const target = assertType(event.target, HTMLElement);
+
+    if (target.dataset.tagName) {
       event.preventDefault();
-      removeTag(event.target.dataset.tagName, event.target.parentNode);
+      removeTag(target.dataset.tagName, assertNotNull(target.parentElement));
     }
   }
 
-  function handleKeyEvent(event) {
+  function handleKeyEvent(event: KeyboardEvent) {
     const { keyCode, ctrlKey, shiftKey } = event;
 
     // allow form submission with ctrl+enter if no text was typed
@@ -73,7 +81,7 @@ function setupTagsInput(tagBlock) {
     // backspace on a blank input field
     if (keyCode === 8 && inputField.value === '') {
       event.preventDefault();
-      const erased = $('.tag:last-of-type', container);
+      const erased = $<HTMLElement>('.tag:last-of-type', container);
 
       if (erased) removeTag(tags[tags.length - 1], erased);
     }
@@ -86,14 +94,14 @@ function setupTagsInput(tagBlock) {
     }
   }
 
-  function handleCtrlEnter(event) {
+  function handleCtrlEnter(event: KeyboardEvent) {
     const { keyCode, ctrlKey } = event;
     if (keyCode !== 13 || !ctrlKey) return;
 
-    $('[type="submit"]', tagBlock.closest('form')).click();
+    submitButton.click();
   }
 
-  function insertTag(name) {
+  function insertTag(name: string) {
     name = name.trim(); // eslint-disable-line no-param-reassign
 
     // Add if not degenerate or already present
@@ -102,9 +110,9 @@ function setupTagsInput(tagBlock) {
     // Remove instead if the tag name starts with a minus
     if (name[0] === '-') {
       name = name.slice(1); // eslint-disable-line no-param-reassign
-      const tagLink = $(`[data-tag-name="${escapeCss(name)}"]`, container);
+      const tagLink = assertNotNull($(`[data-tag-name="${escapeCss(name)}"]`, container));
 
-      return removeTag(name, tagLink.parentNode);
+      return removeTag(name, assertNotNull(tagLink.parentElement));
     }
 
     tags.push(name);
@@ -116,7 +124,7 @@ function setupTagsInput(tagBlock) {
     inputField.value = '';
   }
 
-  function removeTag(name, element) {
+  function removeTag(name: string, element: HTMLElement) {
     removeEl(element);
 
     // Remove the tag from the list
@@ -134,7 +142,7 @@ function setupTagsInput(tagBlock) {
   }
 }
 
-function fancyEditorRequested(tagBlock) {
+function fancyEditorRequested(tagBlock: HTMLDivElement) {
   // Check whether the user made the fancy editor the default for each type of tag block.
   return (
     (window.booru.fancyTagUpload && tagBlock.classList.contains('fancy-tag-upload')) ||
@@ -142,19 +150,17 @@ function fancyEditorRequested(tagBlock) {
   );
 }
 
-function setupTagListener() {
+export function setupTagListener() {
   document.addEventListener('addtag', event => {
     if (event.target.value) event.target.value += ', ';
     event.target.value += event.detail.name;
   });
 }
 
-function addTag(textarea, name) {
+export function addTag(textarea: HTMLInputElement | HTMLTextAreaElement, name: string) {
   textarea.dispatchEvent(new CustomEvent('addtag', { detail: { name }, bubbles: true }));
 }
 
-function reloadTagsInput(textarea) {
+export function reloadTagsInput(textarea: HTMLInputElement | HTMLTextAreaElement) {
   textarea.dispatchEvent(new CustomEvent('reload'));
 }
-
-export { setupTagsInput, setupTagListener, addTag, reloadTagsInput };
