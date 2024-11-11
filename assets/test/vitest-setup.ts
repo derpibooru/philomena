@@ -7,6 +7,8 @@ import { fireEvent } from '@testing-library/dom';
 window.booru = {
   timeAgo: () => {},
   csrfToken: 'mockCsrfToken',
+  fancyTagEdit: true,
+  fancyTagUpload: true,
   hiddenTag: '/mock-tagblocked.svg',
   hiddenTagList: [],
   hideStaffTools: 'true',
