@@ -25,6 +25,7 @@ function restoreOriginalValue() {
 
   if (isSearchField(inputField) && originalQuery) {
     inputField.value = originalQuery;
+    return;
   }
 
   if (originalTerm) {
