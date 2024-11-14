@@ -25,6 +25,13 @@ function restoreOriginalValue() {
 
   if (isSearchField(inputField) && originalQuery) {
     inputField.value = originalQuery;
+
+    if (selectedTerm) {
+      const [, selectedTermEnd] = selectedTerm[0];
+
+      inputField.setSelectionRange(selectedTermEnd, selectedTermEnd);
+    }
+
     return;
   }
 
