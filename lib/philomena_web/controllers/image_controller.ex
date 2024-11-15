@@ -219,6 +219,7 @@ defmodule PhilomenaWeb.ImageController do
     end
   end
 
+  # TODO: this is duplicated in Image.SourceController
   defp sources_for_edit(), do: [%Source{}]
   defp sources_for_edit([]), do: sources_for_edit()
   defp sources_for_edit(sources), do: sources
