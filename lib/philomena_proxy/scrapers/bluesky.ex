@@ -19,29 +19,57 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
   def scrape(_uri, url) do
     [handle, id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
-    api_url_resolve_handle =
-      "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=#{handle}"
-
-    did = PhilomenaProxy.Http.get(api_url_resolve_handle) |> json!() |> Map.fetch!(:did)
+    did = fetch_did(handle)
 
     api_url_get_posts =
       "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts?uris=at://#{did}/app.bsky.feed.post/#{id}"
 
-    post_json = PhilomenaProxy.Http.get(api_url_get_posts) |> json!() |> Map.fetch!(:posts) |> hd
+    post_json =
+      api_url_get_posts
+      |> PhilomenaProxy.Http.get()
+      |> json!()
+      |> Map.fetch!("posts")
+      |> hd()
 
     %{
       source_url: url,
-      author_name: post_json["author"]["handle"],
+      author_name: domain_first_component(post_json["author"]["handle"]),
       description: post_json["record"]["text"],
       images:
-        post_json["embed"]["images"]
-        |> Enum.map(
+        Enum.map(
+          post_json["embed"]["images"],
           &%{
             url: String.replace(&1["fullsize"], @fullsize_image_regex, @blob_image_url_pattern),
             camo_url: PhilomenaProxy.Camo.image_url(&1["thumb"])
           }
         )
     }
+  end
+
+  defp fetch_did(handle) do
+    case handle do
+      <<"did:", _rest::binary>> ->
+        handle
+
+      _ ->
+        api_url_resolve_handle =
+          "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=#{handle}"
+
+        api_url_resolve_handle
+        |> PhilomenaProxy.Http.get()
+        |> json!()
+        |> Map.fetch!("did")
+    end
+  end
+
+  defp domain_first_component(domain) do
+    case String.split(domain, ".") do
+      [name | _] ->
+        name
+
+      _ ->
+        domain
+    end
   end
 
   defp json!({:ok, %{body: body, status: 200}}), do: Jason.decode!(body)

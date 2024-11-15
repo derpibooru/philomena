@@ -73,6 +73,14 @@ interface BooruObject {
    * List of image IDs in the current gallery.
    */
   galleryImages?: number[];
+  /**
+   * Fancy tag setting for uploading images.
+   */
+  fancyTagUpload: boolean;
+  /**
+   * Fancy tag setting for editing images.
+   */
+  fancyTagEdit: boolean;
 }
 
 declare global {

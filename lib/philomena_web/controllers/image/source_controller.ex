@@ -4,6 +4,7 @@ defmodule PhilomenaWeb.Image.SourceController do
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.UserStatistics
   alias Philomena.Images.Image
+  alias Philomena.Images.Source
   alias Philomena.Images
   alias Philomena.Repo
   import Ecto.Query
@@ -41,7 +42,9 @@ defmodule PhilomenaWeb.Image.SourceController do
           PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
         )
 
-        changeset = Images.change_image(image)
+        changeset =
+          %{image | sources: sources_for_edit(image.sources)}
+          |> Images.change_image()
 
         source_change_count =
           SourceChange
@@ -74,4 +77,9 @@ defmodule PhilomenaWeb.Image.SourceController do
         )
     end
   end
+
+  # TODO: this is duplicated in ImageController
+  defp sources_for_edit(), do: [%Source{}]
+  defp sources_for_edit([]), do: sources_for_edit()
+  defp sources_for_edit(sources), do: sources
 end
