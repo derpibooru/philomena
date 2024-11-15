@@ -19,10 +19,15 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
   def scrape(_uri, url) do
     [handle, id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
-    api_url_resolve_handle =
-      "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=#{handle}"
+    did =
+      if String.starts_with?(handle, "did:") do
+        handle
+      else
+        api_url_resolve_handle =
+          "https://public.api.bsky.app/xrpc/com.atproto.identity.resolveHandle?handle=#{handle}"
 
-    did = PhilomenaProxy.Http.get(api_url_resolve_handle) |> json!() |> Map.fetch!(:did)
+        PhilomenaProxy.Http.get(api_url_resolve_handle) |> json!() |> Map.fetch!(:did)
+      end
 
     api_url_get_posts =
       "https://public.api.bsky.app/xrpc/app.bsky.feed.getPosts?uris=at://#{did}/app.bsky.feed.post/#{id}"
