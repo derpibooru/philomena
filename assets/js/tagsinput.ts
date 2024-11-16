@@ -9,7 +9,7 @@ import { TermSuggestion } from './utils/suggestions';
 export function setupTagsInput(tagBlock: HTMLDivElement) {
   const form = assertNotNull(tagBlock.closest('form'));
   const textarea = assertNotNull($<HTMLTextAreaElement>('.js-taginput-plain', tagBlock));
-  const container = assertNotNull($<HTMLDivElement>('.js-taginput-fancy'));
+  const container = assertNotNull($<HTMLDivElement>('.js-taginput-fancy', tagBlock));
   const parentField = assertNotNull(tagBlock.parentElement);
   const setup = assertNotNull($<HTMLButtonElement>('.js-tag-block ~ button', parentField));
   const inputField = assertNotNull($<HTMLInputElement>('input', container));
