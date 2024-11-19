@@ -43,8 +43,9 @@ npm-debug.log
 # VS Code
 .vscode
 
-# ElixirLS
+# Language server
 .elixir_ls
+.lexical
 
 # Index dumps
 *.jsonl

@@ -49,6 +49,14 @@ fn subscript() {
 }
 
 #[test]
+fn subscript_autolink_interaction() {
+    html(
+        "https://example.com/search?q=1%2C2%2C3",
+        "<div class=\"paragraph\"><a href=\"https://example.com/search?q=1%2C2%2C3\">https://example.com/search?q=1%2C2%2C3</a></div>\n"
+    );
+}
+
+#[test]
 fn spoiler() {
     html(
         "The ||dog dies at the end of Marley and Me||.\n",
