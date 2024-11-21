@@ -15,9 +15,8 @@ static GLOBAL: Jemalloc = Jemalloc;
 rustler::init! {
     "Elixir.Philomena.Native",
     [
-        markdown_to_html, markdown_to_html_unsafe, markdown_to_cm,
-        markdown_has_subscript, camo_image_url, zip_open_writer,
-        zip_start_file, zip_write, zip_finish
+        markdown_to_html, markdown_to_html_unsafe, camo_image_url,
+        zip_open_writer, zip_start_file, zip_write, zip_finish
     ],
     load = load
 }
@@ -38,16 +37,6 @@ fn markdown_to_html(input: &str, reps: HashMap<String, String>) -> String {
 #[rustler::nif(schedule = "DirtyCpu")]
 fn markdown_to_html_unsafe(input: &str, reps: HashMap<String, String>) -> String {
     markdown::to_html_unsafe(input, reps)
-}
-
-#[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_to_cm(input: &str) -> String {
-    markdown::to_cm(input)
-}
-
-#[rustler::nif(schedule = "DirtyCpu")]
-fn markdown_has_subscript(input: &str) -> bool {
-    markdown::has_subscript(input)
 }
 
 // Camo NIF wrappers.

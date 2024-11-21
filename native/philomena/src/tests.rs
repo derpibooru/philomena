@@ -45,7 +45,7 @@ fn html_opts_w(input: &str, expected: &str, options: &comrak::Options) {
 
 #[test]
 fn subscript() {
-    html("H%2%O\n", "<div class=\"paragraph\">H<sub>2</sub>O</div>\n");
+    html("H~2~O\n", "<div class=\"paragraph\">H<sub>2</sub>O</div>\n");
 }
 
 #[test]
@@ -54,6 +54,14 @@ fn subscript_autolink_interaction() {
         "https://example.com/search?q=1%2C2%2C3",
         "<div class=\"paragraph\"><a href=\"https://example.com/search?q=1%2C2%2C3\">https://example.com/search?q=1%2C2%2C3</a></div>\n"
     );
+}
+
+#[test]
+fn underscore_autolink_interaction() {
+    html(
+        "https://example.com/x_",
+        "<div class=\"paragraph\"><a href=\"https://example.com/x_\">https://example.com/x_</a></div>\n"
+    )
 }
 
 #[test]

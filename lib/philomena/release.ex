@@ -14,10 +14,6 @@ defmodule Philomena.Release do
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
-  def migrate_markdown(type, id_start, id_end) do
-    Philomena.Markdown.SubscriptMigrator.migrate(type, id_start, id_end)
-  end
-
   def update_channels do
     start_app()
     Philomena.Channels.update_tracked_channels!()

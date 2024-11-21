@@ -18,20 +18,6 @@ defmodule Philomena.Markdown do
     do: Philomena.Native.markdown_to_html_unsafe(text, replacements)
 
   @doc """
-  Places a Markdown document into its canonical CommonMark form.
-  """
-  @spec to_cm(String.t()) :: String.t()
-  def to_cm(text),
-    do: Philomena.Native.markdown_to_cm(text)
-
-  @doc """
-  Determines whether a Markdown document uses a subscript operator, for migration.
-  """
-  @spec has_subscript?(String.t()) :: boolean()
-  def has_subscript?(text),
-    do: Philomena.Native.markdown_has_subscript(text)
-
-  @doc """
   Escapes special characters in text which is to be rendered as Markdown.
   """
   @spec escape(String.t()) :: String.t()
