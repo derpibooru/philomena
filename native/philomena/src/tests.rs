@@ -57,6 +57,14 @@ fn subscript_autolink_interaction() {
 }
 
 #[test]
+fn underscore_autolink_interaction() {
+    html(
+        "https://example.com/x_",
+        "<div class=\"paragraph\"><a href=\"https://example.com/x_\">https://example.com/x_</a></div>\n"
+    )
+}
+
+#[test]
 fn spoiler() {
     html(
         "The ||dog dies at the end of Marley and Me||.\n",
