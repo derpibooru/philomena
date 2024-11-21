@@ -60,7 +60,7 @@ const markdownSyntax: Record<string, SyntaxHandler> = {
   },
   subscript: {
     action: wrapSelection,
-    options: { prefix: '%' },
+    options: { prefix: '~' },
   },
   quote: {
     action: wrapLines,

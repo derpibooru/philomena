@@ -34,9 +34,9 @@ checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
 
 [[package]]
 name = "bon"
-version = "2.3.0"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "97493a391b4b18ee918675fb8663e53646fd09321c58b46afa04e8ce2499c869"
+checksum = "a636f83af97c6946f3f5cf5c268ec02375bf5efd371110292dfd57961f57a509"
 dependencies = [
  "bon-macros",
  "rustversion",
@@ -44,14 +44,16 @@ dependencies = [
 
 [[package]]
 name = "bon-macros"
-version = "2.3.0"
+version = "3.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a2af3eac944c12cdf4423eab70d310da0a8e5851a18ffb192c0a5e3f7ae1663"
+checksum = "a7eaf1bfaa5b8d512abfd36d0c432591fef139d3de9ee54f1f839ea109d70d33"
 dependencies = [
  "darling",
  "ident_case",
+ "prettyplease",
  "proc-macro2",
  "quote",
+ "rustversion",
  "syn",
 ]
 
@@ -92,7 +94,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 [[package]]
 name = "comrak"
 version = "0.29.0"
-source = "git+https://github.com/philomena-dev/comrak?branch=philomena-0.29.0#0c6fb51a55dddfc1835ed2bedfe3bcb20fb9627e"
+source = "git+https://github.com/philomena-dev/comrak?branch=philomena-0.29.1#85054b19a0383ad9c05aba1add49111c860932dc"
 dependencies = [
  "bon",
  "caseless",
@@ -368,6 +370,16 @@ dependencies = [
  "rustler",
  "url",
  "zip",
+]
+
+[[package]]
+name = "prettyplease"
+version = "0.2.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64d1ec885c64d0457d564db4ec299b2dae3f9c02808b8ad9c3a089c591b18033"
+dependencies = [
+ "proc-macro2",
+ "syn",
 ]
 
 [[package]]
