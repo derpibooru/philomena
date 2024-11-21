@@ -9,7 +9,7 @@
     ins> __underline__
     del> ~~strike~~
     sup> ^sup^
-    sub %sub%
+    sub ~sub~
 
   p
     a href="/pages/markdown"
