@@ -1,6 +1,7 @@
 use crate::{camo, domains};
-use comrak::Options;
-use std::collections::HashMap;
+use comrak::nodes::AstNode;
+use comrak::{Arena, Options};
+use std::collections::{HashMap, VecDeque};
 use std::sync::Arc;
 
 pub fn common_options() -> Options {
@@ -23,6 +24,7 @@ pub fn common_options() -> Options {
     options.extension.greentext = true;
     options.extension.subscript = true;
     options.extension.philomena = true;
+    options.extension.alternate_subscript = true;
     options.render.ignore_empty_links = true;
     options.render.ignore_setext = true;
 
@@ -51,4 +53,35 @@ pub fn to_html_unsafe(input: &str, reps: HashMap<String, String>) -> String {
     options.extension.replacements = Some(reps);
 
     comrak::markdown_to_html(input, &options)
+}
+
+fn migration_options() -> Options {
+    let mut options = common_options();
+    options.extension.subscript = false;
+    options
+}
+
+pub fn to_cm(input: &str) -> String {
+    comrak::markdown_to_commonmark(input, &migration_options())
+}
+
+pub fn has_subscript(input: &str) -> bool {
+    let mut queue: VecDeque<&AstNode> = VecDeque::new();
+    let arena = Arena::new();
+
+    queue.push_back(comrak::parse_document(&arena, input, &migration_options()));
+
+    while let Some(front) = queue.pop_front() {
+        match &front.data.borrow().value {
+            comrak::nodes::NodeValue::Subscript => return true,
+            comrak::nodes::NodeValue::Strikethrough => return true,
+            _ => {}
+        }
+
+        for child in front.children() {
+            queue.push_back(child);
+        }
+    }
+
+    false
 }
