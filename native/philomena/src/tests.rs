@@ -45,7 +45,7 @@ fn html_opts_w(input: &str, expected: &str, options: &comrak::Options) {
 
 #[test]
 fn subscript() {
-    html("H%2%O\n", "<div class=\"paragraph\">H<sub>2</sub>O</div>\n");
+    html("H~2~O\n", "<div class=\"paragraph\">H<sub>2</sub>O</div>\n");
 }
 
 #[test]
