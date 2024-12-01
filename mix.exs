@@ -77,7 +77,7 @@ defmodule Philomena.MixProject do
       {:mail, "~> 0.3.0"},
 
       # Markdown
-      {:rustler, "~> 0.27"},
+      {:rustler, "~> 0.35"},
 
       # Linting
       {:credo, "~> 1.6", only: [:dev, :test], runtime: false},

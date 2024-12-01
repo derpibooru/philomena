@@ -2,7 +2,7 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::sync::Mutex;
 
-use rustler::{Atom, Env, ResourceArc, Term};
+use rustler::{Atom, Resource, ResourceArc};
 use zip::{write::SimpleFileOptions, CompressionMethod, ZipWriter};
 
 mod atoms {
@@ -16,14 +16,10 @@ pub struct WriterResource {
     inner: Mutex<Option<ZipWriter<File>>>,
 }
 
-pub type WriterResourceArc = ResourceArc<WriterResource>;
+#[rustler::resource_impl]
+impl Resource for WriterResource {}
 
-// TODO: rustler must fix the resource macro to provide a top-level impl definition
-#[allow(non_local_definitions)]
-pub fn load(env: Env, _: Term) -> bool {
-    rustler::resource!(WriterResource, env);
-    true
-}
+pub type WriterResourceArc = ResourceArc<WriterResource>;
 
 fn with_writer<F, T>(writer: WriterResourceArc, f: F) -> Atom
 where
