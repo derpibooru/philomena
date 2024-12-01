@@ -236,8 +236,8 @@ fn image_mention_line_start() {
 
 #[test]
 fn auto_relative_links() {
-    let domains: Vec<String> = vec!["example.com".into()];
-    let f = Arc::new(move |url: &str| domains::relativize_careful(&domains, url));
+    let domains = Arc::new(vec!["example.com".into()].into_iter().collect());
+    let f = Arc::new(move |url: &str| domains::relativize_careful(&*domains, url));
 
     html_opts_i(
         "[some link text](https://example.com/some/path)",
