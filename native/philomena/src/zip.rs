@@ -53,15 +53,15 @@ pub fn open_writer(path: &str) -> Result<WriterResourceArc, Atom> {
 pub fn start_file(writer: WriterResourceArc, name: &str) -> Atom {
     let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
-    with_writer(writer, move |writer| {
+    with_writer(writer, |writer| {
         writer.as_mut()?.start_file(name, options).ok()
     })
 }
 
 pub fn write(writer: WriterResourceArc, data: &[u8]) -> Atom {
-    with_writer(writer, move |writer| writer.as_mut()?.write(data).ok())
+    with_writer(writer, |writer| writer.as_mut()?.write(data).ok())
 }
 
 pub fn finish(writer: WriterResourceArc) -> Atom {
-    with_writer(writer, move |writer| writer.take().map(|w| w.finish().ok()))
+    with_writer(writer, |writer| writer.take().map(|w| w.finish().ok()))
 }
