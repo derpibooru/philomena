@@ -25,7 +25,7 @@ fn with_writer<F, T>(writer: WriterResourceArc, f: F) -> Atom
 where
     F: FnOnce(&mut Option<ZipWriter<File>>) -> Option<T>,
 {
-    let mut guard = match (*writer).inner.lock() {
+    let mut guard = match writer.inner.lock() {
         Ok(g) => g,
         Err(_) => return atoms::error(),
     };
