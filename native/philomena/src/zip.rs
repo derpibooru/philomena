@@ -18,7 +18,7 @@ pub struct WriterResource {
 
 pub type WriterResourceArc = ResourceArc<WriterResource>;
 
-// TODO: rustler must fix the resource macro to provide a top-level impl definiton
+// TODO: rustler must fix the resource macro to provide a top-level impl definition
 #[allow(non_local_definitions)]
 pub fn load(env: Env, _: Term) -> bool {
     rustler::resource!(WriterResource, env);
