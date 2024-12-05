@@ -1,5 +1,5 @@
 use jemallocator::Jemalloc;
-use rustler::{Atom, Binary, Env, Term};
+use rustler::{Atom, Binary};
 use std::collections::HashMap;
 
 mod camo;
@@ -13,18 +13,7 @@ mod zip;
 static GLOBAL: Jemalloc = Jemalloc;
 
 rustler::init! {
-    "Elixir.Philomena.Native",
-    [
-        markdown_to_html, markdown_to_html_unsafe, camo_image_url,
-        zip_open_writer, zip_start_file, zip_write, zip_finish
-    ],
-    load = load
-}
-
-// Setup.
-
-fn load(env: Env, arg: Term) -> bool {
-    zip::load(env, arg)
+    "Elixir.Philomena.Native"
 }
 
 // Markdown NIF wrappers.

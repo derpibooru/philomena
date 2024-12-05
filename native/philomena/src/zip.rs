@@ -2,7 +2,7 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 use std::sync::Mutex;
 
-use rustler::{Atom, Env, ResourceArc, Term};
+use rustler::{Atom, Resource, ResourceArc};
 use zip::{write::SimpleFileOptions, CompressionMethod, ZipWriter};
 
 mod atoms {
@@ -16,18 +16,16 @@ pub struct WriterResource {
     inner: Mutex<Option<ZipWriter<File>>>,
 }
 
-pub type WriterResourceArc = ResourceArc<WriterResource>;
+#[rustler::resource_impl]
+impl Resource for WriterResource {}
 
-pub fn load(env: Env, _: Term) -> bool {
-    rustler::resource!(WriterResource, env);
-    true
-}
+pub type WriterResourceArc = ResourceArc<WriterResource>;
 
 fn with_writer<F, T>(writer: WriterResourceArc, f: F) -> Atom
 where
     F: FnOnce(&mut Option<ZipWriter<File>>) -> Option<T>,
 {
-    let mut guard = match (*writer).inner.lock() {
+    let mut guard = match writer.inner.lock() {
         Ok(g) => g,
         Err(_) => return atoms::error(),
     };
@@ -55,15 +53,15 @@ pub fn open_writer(path: &str) -> Result<WriterResourceArc, Atom> {
 pub fn start_file(writer: WriterResourceArc, name: &str) -> Atom {
     let options = SimpleFileOptions::default().compression_method(CompressionMethod::Deflated);
 
-    with_writer(writer, move |writer| {
+    with_writer(writer, |writer| {
         writer.as_mut()?.start_file(name, options).ok()
     })
 }
 
 pub fn write(writer: WriterResourceArc, data: &[u8]) -> Atom {
-    with_writer(writer, move |writer| writer.as_mut()?.write(data).ok())
+    with_writer(writer, |writer| writer.as_mut()?.write(data).ok())
 }
 
 pub fn finish(writer: WriterResourceArc) -> Atom {
-    with_writer(writer, move |writer| writer.take().map(|w| w.finish().ok()))
+    with_writer(writer, |writer| writer.take().map(|w| w.finish().ok()))
 }

@@ -133,17 +133,18 @@ defmodule Philomena.Reports do
   def create_system_report({reportable_type, reportable_id} = _type_and_id, category, reason) do
     attrs = %{
       reason: reason,
-      category: category
+      category: category,
+      user_agent: "system"
     }
 
-    attributes = %{
+    attribution = %{
       system: true,
       ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32},
       fingerprint: "ffff"
     }
 
     %Report{reportable_type: reportable_type, reportable_id: reportable_id}
-    |> Report.creation_changeset(attrs, attributes)
+    |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
     |> reindex_after_update()
   end

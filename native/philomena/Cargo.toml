@@ -14,9 +14,10 @@ base64 = "0.21"
 comrak = { git = "https://github.com/philomena-dev/comrak", branch = "philomena-0.29.2", default-features = false }
 http = "0.2"
 jemallocator = { version = "0.5.0", features = ["disable_initial_exec_tls"] }
+once_cell = "1.20"
 regex = "1"
 ring = "0.16"
-rustler = "0.28"
+rustler = "0.35"
 url = "2.3"
 zip = { version = "2.2.0", features = ["deflate"], default-features = false }
 

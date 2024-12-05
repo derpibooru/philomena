@@ -29,8 +29,8 @@ pub fn common_options() -> Options {
     options.extension.image_url_rewriter = Some(Arc::new(|url: &str| camo::image_url_careful(url)));
 
     if let Some(domains) = domains::get() {
-        options.extension.link_url_rewriter = Some(Arc::new(move |url: &str| {
-            domains::relativize_careful(&domains, url)
+        options.extension.link_url_rewriter = Some(Arc::new(|url: &str| {
+            domains::relativize_careful(domains, url)
         }));
     }
 
