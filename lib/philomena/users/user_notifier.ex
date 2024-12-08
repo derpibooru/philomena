@@ -3,19 +3,23 @@ defmodule Philomena.Users.UserNotifier do
   alias Philomena.Mailer
 
   defp deliver(to, subject, body) do
-    id =
-      :crypto.strong_rand_bytes(16)
-      |> Base.encode16()
-      |> String.downcase()
-
     Email.new(
       to: to,
       from: {"noreply", mailer_address()},
       subject: subject,
       text_body: body
     )
-    |> Email.header("Message-ID", id)
+    |> Email.header("Message-ID", message_id())
     |> Mailer.deliver_later()
+  end
+
+  defp message_id do
+    id =
+      :crypto.strong_rand_bytes(16)
+      |> Base.encode16()
+      |> String.downcase()
+
+    "#{id}.#{mailer_address()}"
   end
 
   defp mailer_address do
