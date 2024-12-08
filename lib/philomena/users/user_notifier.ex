@@ -2,9 +2,9 @@ defmodule Philomena.Users.UserNotifier do
   alias Swoosh.Email
   alias Philomena.Mailer
 
-  defp deliver(to, subject, body) do
+  defp deliver(name, address, subject, body) do
     Email.new(
-      to: to,
+      to: {name, address},
       from: {"noreply", mailer_address()},
       subject: subject,
       text_body: body
@@ -19,7 +19,7 @@ defmodule Philomena.Users.UserNotifier do
       |> Base.encode16()
       |> String.downcase()
 
-    "#{id}.#{mailer_address()}"
+    "<#{id}.#{mailer_address()}>"
   end
 
   defp mailer_address do
@@ -30,7 +30,7 @@ defmodule Philomena.Users.UserNotifier do
   Deliver instructions to confirm account.
   """
   def deliver_confirmation_instructions(user, url) do
-    deliver(user.email, "Confirmation instructions for your account", """
+    deliver(user.name, user.email, "Confirmation instructions for your account", """
 
     ==============================
 
@@ -50,7 +50,7 @@ defmodule Philomena.Users.UserNotifier do
   Deliver instructions to reset password for an account.
   """
   def deliver_reset_password_instructions(user, url) do
-    deliver(user.email, "Password reset instructions for your account", """
+    deliver(user.name, user.email, "Password reset instructions for your account", """
 
     ==============================
 
@@ -70,7 +70,7 @@ defmodule Philomena.Users.UserNotifier do
   Deliver instructions to update an account email.
   """
   def deliver_update_email_instructions(user, url) do
-    deliver(user.email, "Email update instructions for your account", """
+    deliver(user.name, user.email, "Email update instructions for your account", """
 
     ==============================
 
@@ -90,7 +90,7 @@ defmodule Philomena.Users.UserNotifier do
   Deliver instructions to unlock an account.
   """
   def deliver_unlock_instructions(user, url) do
-    deliver(user.email, "Unlock instructions for your account", """
+    deliver(user.name, user.email, "Unlock instructions for your account", """
 
     ==============================
 
