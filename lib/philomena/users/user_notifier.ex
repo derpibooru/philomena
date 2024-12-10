@@ -5,25 +5,11 @@ defmodule Philomena.Users.UserNotifier do
   defp deliver(to, subject, body) do
     Email.new(
       to: {to, to},
-      from: {"noreply", mailer_address()},
       subject: subject,
       text_body: body
     )
-    |> Email.header("Message-ID", message_id())
+    |> Mailer.format_message()
     |> Mailer.deliver_later()
-  end
-
-  defp message_id do
-    id =
-      :crypto.strong_rand_bytes(16)
-      |> Base.encode16()
-      |> String.downcase()
-
-    "<#{id}.#{mailer_address()}>"
-  end
-
-  defp mailer_address do
-    Application.get_env(:philomena, :mailer_address)
   end
 
   @doc """
