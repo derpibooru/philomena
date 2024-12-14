@@ -232,8 +232,12 @@ function listenAutocomplete() {
     const originalSuggestion = event.detail;
     applySelectedValue(originalSuggestion.value);
 
+    if (originalTerm?.startsWith('-')) {
+      originalSuggestion.value = `-${originalSuggestion.value}`;
+    }
+
     inputField.dispatchEvent(
-      new CustomEvent('autocomplete', {
+      new CustomEvent<TermSuggestion>('autocomplete', {
         detail: Object.assign(
           {
             type: 'click',
