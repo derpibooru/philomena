@@ -44,11 +44,13 @@ function applySelectedValue(selection: string) {
   if (!inputField) return;
 
   if (!isSearchField(inputField)) {
+    let resultValue = selection;
+
     if (originalTerm?.startsWith('-')) {
-      selection = `-${selection}`;
+      resultValue = `-${selection}`;
     }
 
-    inputField.value = selection;
+    inputField.value = resultValue;
     return;
   }
 
