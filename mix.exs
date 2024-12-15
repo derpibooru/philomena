@@ -72,7 +72,7 @@ defmodule Philomena.MixProject do
       {:inet_cidr, "~> 1.0"},
 
       # SMTP
-      {:swoosh, "~> 1.16"},
+      {:swoosh, "~> 1.17"},
       {:mua, "~> 0.2.0"},
       {:mail, "~> 0.3.0"},
 

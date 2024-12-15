@@ -4,16 +4,12 @@ defmodule Philomena.Users.UserNotifier do
 
   defp deliver(to, subject, body) do
     Email.new(
-      to: to,
-      from: mailer_address(),
+      to: {to, to},
       subject: subject,
       text_body: body
     )
+    |> Mailer.format_message()
     |> Mailer.deliver_later()
-  end
-
-  defp mailer_address do
-    Application.get_env(:philomena, :mailer_address)
   end
 
   @doc """

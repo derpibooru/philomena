@@ -112,7 +112,10 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
       name = name.slice(1); // eslint-disable-line no-param-reassign
       const tagLink = assertNotNull($(`[data-tag-name="${escapeCss(name)}"]`, container));
 
-      return removeTag(name, assertNotNull(tagLink.parentElement));
+      removeTag(name, assertNotNull(tagLink.parentElement));
+      inputField.value = '';
+
+      return;
     }
 
     tags.push(name);
