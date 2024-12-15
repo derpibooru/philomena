@@ -1,4 +1,5 @@
 - form_class = if @changeset.action, do: "", else: "hidden"
+- tags_class = if @changeset.action, do: "hidden", else: ""
 - tags = display_order(@image.tags)
 - tag_input = Enum.map_join(tags, ", ", & &1.name)
 
@@ -16,7 +17,7 @@
         = if @changeset.action do
           .alert.alert-danger
             p Oops, something went wrong! Please check the errors below.
-            
+
         = hidden_input f, :old_tag_input, value: tag_input
 
         .field
@@ -56,7 +57,7 @@
       p
         ' You can't edit the tags on this image.
 
-  .block.tagsauce
+  .block.tagsauce class=tags_class
     .block__header.flex
       span.block__header__title
         i.fas.fa-tag>
