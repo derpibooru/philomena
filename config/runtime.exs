@@ -101,7 +101,9 @@ if config_env() != :test do
     url: System.fetch_env!("DATABASE_URL"),
     pool_size: String.to_integer(System.get_env("POOL_SIZE", "16")),
     timeout: 60_000,
-    ownership_timeout: 60_000
+    ownership_timeout: 60_000,
+    queue_target: 20_000,
+    queue_interval: 20_000
 end
 
 if config_env() == :prod do
