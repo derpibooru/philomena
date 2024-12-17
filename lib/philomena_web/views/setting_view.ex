@@ -11,10 +11,7 @@ defmodule PhilomenaWeb.SettingView do
 
   def theme_colors do
     Enum.map(User.theme_colors(), fn name ->
-      case name do
-        "silver" -> {"Silver/Charcoal", name}
-        _ -> {String.capitalize(name), name}
-      end
+      {String.capitalize(name), name}
     end)
   end
 
