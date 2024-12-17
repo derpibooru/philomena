@@ -62,7 +62,7 @@ a.media-box__header--link:hover {
   background-color: var(--success-color);
 }
 
-/*  TODO: properly fix this */
+/* TODO: properly fix this */
 .media-box__content .image-container {
   width: 100%;
   height: 100%;

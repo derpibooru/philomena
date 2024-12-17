@@ -86,8 +86,9 @@ h1 Content Settings
             label> Theme color
             => select f, :theme_color, theme_colors(), class: "input"
             = error_tag f, :theme_color
-            .fieldlabel: i Color of the theme, don't forget to save settings to apply the theme
-          .hidden#js-theme-paths data-theme-paths=theme_paths_json()
+            .fieldlabel: i Color of the theme
+            .fieldlabel: strong Don't forget to save the settings to apply the theme!
+          .hidden#js-theme-paths data-theme-paths=theme_paths_json(@conn)
           .field
             => label f, :scale_large_images
             => select f, :scale_large_images, scale_options(), class: "input"

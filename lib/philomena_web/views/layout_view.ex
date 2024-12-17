@@ -4,7 +4,10 @@ defmodule PhilomenaWeb.LayoutView do
   import PhilomenaWeb.Config
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
+  alias Philomena.Users.User
   alias Plug.Conn
+
+  @themes User.themes()
 
   def layout_class(conn) do
     conn.assigns[:layout_class] || "layout--narrow"
@@ -70,26 +73,7 @@ defmodule PhilomenaWeb.LayoutView do
   end
 
   def stylesheet_path(conn, %{theme: theme})
-      when theme in [
-             "dark-red",
-             "dark-orange",
-             "dark-yellow",
-             "dark-blue",
-             "dark-green",
-             "dark-purple",
-             "dark-cyan",
-             "dark-pink",
-             "dark-silver",
-             "light-red",
-             "light-orange",
-             "light-yellow",
-             "light-blue",
-             "light-green",
-             "light-purple",
-             "light-cyan",
-             "light-pink",
-             "light-silver"
-           ],
+      when theme in @themes,
       do: static_path(conn, "/css/#{theme}.css")
 
   def stylesheet_path(_conn, _user),

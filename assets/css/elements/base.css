@@ -47,7 +47,7 @@ h4 {
   margin-bottom: 0.5em;
 }
 
-/*  Slightly dirty, no clean way to strip top margins off headers though */
+/* Slightly dirty, no clean way to strip top margins off headers though */
 .remove-top-margin {
   margin-top: 0;
 }
@@ -201,7 +201,7 @@ hr {
   background: var(--danger-light-color);
   border-color: var(--danger-color);
 }
-/*  Make HTML lists with multi-line text readable */
+/* Make HTML lists with multi-line text readable */
 .rule ul {
   margin: 0;
   padding: 5px 20px;
@@ -237,7 +237,7 @@ hr {
   }
 }
 
-/*  Text Editor */
+/* Text Editor */
 blockquote {
   margin: 1em 2em;
   border: 1px dotted var(--foreground-color);
@@ -253,13 +253,13 @@ blockquote .paragraph:last-child {
   margin-bottom: 0;
 }
 
-/*  Prevent blockquote from gaining far too much indentation and breaking. */
+/* Prevent blockquote from gaining far too much indentation and breaking. */
 blockquote blockquote blockquote blockquote blockquote blockquote {
   margin: 1em 0;
   padding: 1em 2px;
 }
 
-/*  Horizontal space is at a high premium on mobile. */
+/* Horizontal space is at a high premium on mobile. */
 @media (max-width: $min-desktop-width) {
   blockquote {
     margin: 1em 4px;
@@ -329,10 +329,12 @@ blockquote blockquote blockquote blockquote blockquote blockquote {
   margin-bottom: 6px;
 }
 
-@mixin image-alt-size tiny, var(--image-tiny-size);
-@mixin image-alt-size small, var(--image-small-size);
-@mixin image-alt-size medium, var(--image-medium-size);
-@mixin image-alt-size large, var(--image-large-size);
+/* We need to use $variables here because @media tags
+ * do not work with CSS3 custom properties (variables) */
+@mixin image-alt-size tiny, $image-tiny-size;
+@mixin image-alt-size small, $image-small-size;
+@mixin image-alt-size medium, $image-medium-size;
+@mixin image-alt-size large, $image-large-size;
 
 /* code styling */
 /* You might be asking what's up with this silly mixin
@@ -443,7 +445,7 @@ i.favicon-home {
   display: inline-block;
 }
 
-/*  changelog */
+/* changelog */
 .commit-sha {
   background: var(--assistant-color);
   border: 1px solid var(--assistant-border-color);

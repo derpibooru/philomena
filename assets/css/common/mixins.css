@@ -1,8 +1,8 @@
 @define-mixin image-alt-size $name, $size {
-  @media (min-width: $(size)) {
+  @media (min-width: $size) {
     img[alt="$(name)"] {
-      max-height: $(size) !important;
-      max-width: $(size) !important;
+      max-height: $size !important;
+      max-width: $size !important;
     }
   }
 }
@@ -67,7 +67,7 @@
   background: $(color);
 }
 
-/*  16x16 checkerboard */
+/* 16x16 checkerboard */
 @define-mixin img-checkerboard-background {
   img {
     background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAGUlEQVR42mP474AKGdDhCFGALoChYWQoAACpW7+B5lv5BwAAAABJRU5ErkJggg==");

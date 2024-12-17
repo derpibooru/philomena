@@ -125,7 +125,7 @@ nav {
 }
 
 /* Use the following two classes to center content when user has layout centering enabled: */
-/*  TODO replace this bullshit naming, this is not actually BEM at all and makes no sense */
+/* TODO replace this bullshit naming, this is not actually BEM at all and makes no sense */
 #container.layout--center-aligned .center--layout {
   justify-content: center;
   margin-left: auto;
@@ -188,7 +188,7 @@ nav {
   justify-content: center;
 }
 
-/*  Mostly for the header */
+/* Mostly for the header */
 .flex--start-bunched {
   justify-content: flex-start;
 }

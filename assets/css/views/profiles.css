@@ -8,11 +8,11 @@
 }
 
 .profile-top__name-and-links {
-  /*  Allow options extra space on high width even when name is short */
+  /* Allow options extra space on high width even when name is short */
   flex: 1 1 0%;
 }
 
-/*  Lessen h1's margins because it's not butting up against text */
+/* Lessen h1's margins because it's not butting up against text */
 h1.profile-top__name-header {
   margin-top: 10px;
   margin-bottom: 0;
@@ -47,7 +47,7 @@ td.table--stats__sparkline {
 
 .profile-top__options__column {
   flex: 0 0 auto;
-  /*  Override terrible browser styling */
+  /* Override terrible browser styling */
   list-style: none;
   padding: 0;
   margin: 0.5em 2em 0.5em 0;

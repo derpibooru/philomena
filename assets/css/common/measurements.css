@@ -6,6 +6,10 @@ $max-limited-desktop-width: 1150px;
 $min-desktop-width: 800px;
 $limited-layout-width: 980px;
 $min-desktop-thumb-width: 700px;
+$image-tiny-size: 64px;
+$image-small-size: 128px;
+$image-medium-size: 256px;
+$image-large-size: 512px;
 
 :root {
   --medium-layout-width: $medium-layout-width;
@@ -22,10 +26,10 @@ $min-desktop-thumb-width: 700px;
   --padding-normal: 1em;
   --centered-margin: 24px;
   --normal-margin: 12px;
-  --image-tiny-size: 64px;
-  --image-small-size: 128px;
-  --image-medium-size: 256px;
-  --image-large-size: 512px;
+  --image-tiny-size: $image-tiny-size;
+  --image-small-size: $image-small-size;
+  --image-medium-size: $image-medium-size;
+  --image-large-size: $image-large-size;
   --header-height: 36px;
   --header-field-height: 28px;
   --header-sub-height: 32px;

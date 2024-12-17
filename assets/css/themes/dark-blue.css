@@ -65,7 +65,7 @@ $image-overlay-background-color: #000000;
 
 /* Put any color variable overrides here.
  *
- * Note: due to (probably unintentional) behavior of Vite,
+ * Note: due to (intentional and bad) behavior of Vite,
  * this needs to contain something unique that the other
  * themes do not have, as Vite does not compile what it considers
  * "inputs with identical contents", and it does not seem to care

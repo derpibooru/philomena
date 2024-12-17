@@ -18,7 +18,7 @@
   color: var(--unread-message-color);
 }
 
-/*  For text preceded by an icon */
+/* For text preceded by an icon */
 .fa__text {
   padding-left: 6px;
 }
@@ -98,7 +98,7 @@ select.header__input:focus optgroup {
 .header__search__button,
 .header__search__button:visited {
   border: none;
-  /*  Chrome loves extra padding for some reason */
+  /* Chrome loves extra padding for some reason */
   padding-top: 0;
   padding-bottom: 0;
   line-height: var(--header-field-height);

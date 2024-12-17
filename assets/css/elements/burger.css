@@ -8,7 +8,7 @@
   display: none;
 }
 
-/*  content sliding open */
+/* content sliding open */
 #container.open {
   @mixin transform-n-animation open, 0.4s, translate(210px, 0);
 }
@@ -23,7 +23,7 @@
   }
 }
 
-/*  content closing */
+/* content closing */
 #container.close {
   animation: close 0.3s ease-in-out;
 }
