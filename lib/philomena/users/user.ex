@@ -347,7 +347,10 @@ defmodule Philomena.Users.User do
       :show_sidebar_and_watched_images
     ])
     |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
-    |> validate_inclusion(:theme, ~W(default dark red))
+    |> validate_inclusion(
+      :theme,
+      ~W(dark-red dark-orange dark-yellow dark-blue dark-green dark-purple dark-cyan dark-pink dark-silver light-red light-orange light-yellow light-blue light-green light-purple light-cyan light-pink light-silver)
+    )
     |> validate_inclusion(:images_per_page, 1..50)
     |> validate_inclusion(:comments_per_page, 1..100)
     |> validate_inclusion(:scale_large_images, ["false", "partscaled", "true"])

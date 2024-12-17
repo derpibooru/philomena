@@ -1,6 +1,0 @@
-// For more shame related to this, see the <style> element inside app/views/adverts/index.html.slim
-// Until HTML/CSS includes a native way to resize iframes based on their content, we do this approximation with viewport units.
-.ad-sandbox {
-  height: 18vw;
-  max-height: 113px;
-}

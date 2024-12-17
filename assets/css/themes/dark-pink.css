@@ -1,0 +1,68 @@
+@import "themes/base/dark";
+
+$background-color: #2f1d26;
+$page-background-color: #221117;
+$foreground-color: #e0e0e0;
+
+$base-color: #995470;
+
+$primary-light-color: #6b1a40;
+$success-light-color: #144714;
+$danger-light-color: #66211f;
+$warning-light-color: #7d4825;
+
+$destroyed-content-color: #382c2f;
+
+$meta-color: #2a1924;
+
+$header-color: #811242;
+$header-field-color: #521c3f;
+$header-secondary-color: #501e36;
+$header-admin-color: #3b1d1d;
+
+$block-header-color: #501e36;
+$block-header-link-text-color: #ee157a;
+
+$block-header-light-color: #501e36;
+$block-header-light-link-text-color: #ee157a;
+
+$border-color: #501e36;
+
+$media-box-color: #573142;
+
+$link-color: #ee157a;
+$link-hover-color: #b099dd;
+
+$fave-color: #a18e27;
+$vote-up-color: #5b9b26;
+$vote-down-color: #da3412;
+$hide-color: #da3412;
+
+$assistant-color: #511b4e;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #4aa158;
+$tag-category-rating-color: #418dd9;
+$tag-category-spoiler-color: #d49b39;
+$tag-category-origin-color: #6f66d6;
+$tag-category-oc-color: #b157b7;
+$tag-category-error-color: #d45460;
+$tag-category-character-color: #4aaabf;
+$tag-category-content-official-color: #b9b541;
+$tag-category-content-fanmade-color: #cc8eb5;
+$tag-category-species-color: #b16b50;
+$tag-category-body-type-color: #b8b8b8;
+
+$commission-category-color: #e07b27;
+
+$site-notice-color: #07070a;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin dark-theme-mutations;
+
+/* put mutation overrides here */
+:root {
+  --keep: #555555;
+}

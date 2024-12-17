@@ -1,0 +1,480 @@
+body {
+  background-color: var(--background-color);
+  color: var(--foreground-color);
+  font-family: var(--font-family-base);
+  font-size: 13px;
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+}
+
+/* normalize.css breakage */
+sup,
+sub {
+  line-height: 1.15em;
+}
+
+sub {
+  bottom: -0.15em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-weight: normal;
+  text-rendering: optimizelegibility;
+  margin-bottom: 0.62em;
+  line-height: 1.15em;
+}
+
+h1 {
+  font-size: 24px;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 19px;
+}
+
+h4 {
+  font-size: 17px;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+}
+
+/*  Slightly dirty, no clean way to strip top margins off headers though */
+.remove-top-margin {
+  margin-top: 0;
+}
+
+h5 {
+  margin-top: 0.5em;
+  margin-bottom: 0.3em;
+  font-size: 15px;
+}
+
+h6 {
+  font-size: 10px;
+  margin: 2px;
+  margin-bottom: 0;
+}
+
+p,
+.paragraph {
+  hyphens: none;
+  margin-bottom: var(--padding-small);
+  margin-top: var(--padding-small);
+  margin-left: 2px;
+  line-height: 1.35em;
+}
+
+.communication__body__text .paragraph {
+  margin-bottom: var(--padding-normal);
+}
+
+img {
+  margin: 0;
+  border: 0;
+  vertical-align: bottom;
+}
+
+.paragraph img,
+.communication__body__text img,
+.block__content img {
+  max-width: 100%;
+}
+
+pre {
+  background-color: var(--meta-color);
+  padding: 10px;
+  font-size: 11px;
+  font-family: var(--font-family-monospace);
+  border: 1px solid var(--meta-border-color);
+  max-width: 100%;
+  overflow: auto hidden;
+}
+
+a,
+a:active,
+a:visited {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+.clearfix {
+  clear: both;
+  height: 0;
+}
+
+/* Child selectors, as opposed to flat BEM classes, are justified in this case.
+ * HTML tables are bulky to begin with; adding .table__row and .table__cell to every
+ * item will hinder the development speed and decrease readability. */
+
+table,
+.table {
+  padding-left: 10px;
+  width: 100%;
+  border-collapse: collapse;
+  border: var(--border);
+}
+
+table th,
+.table th {
+  font-weight: bold;
+  text-align: left;
+  padding: 5px;
+}
+
+th.center {
+  text-align: center;
+}
+
+table th > thead > tr,
+.table th > thead > tr {
+  background: var(--background-color);
+}
+
+table > tbody,
+.table > tbody {
+  border: var(--border);
+}
+
+/* I know this looks odd, but first one expands to
+ .table > ...
+ while the other one does the table verbatim */
+@mixin even-odd table > tbody tr;
+@mixin even-odd-element table > tbody tr;
+
+td {
+  padding: 5px;
+}
+
+.table__tiny-column {
+  width: 50px;
+}
+
+.border-vertical {
+  border-top: 2px solid var(--border-color);
+}
+
+.background-success {
+  background-color: var(--success-light-color);
+}
+
+.background-warning {
+  background-color: var(--warning-light-color);
+}
+
+.background-danger {
+  background-color: var(--danger-light-color);
+}
+
+hr {
+  border: 0;
+  height: 1px;
+  background: var(--border-color);
+  margin: var(--padding-small);
+}
+
+/* rules page. API page also borrows stuff from here */
+.rule {
+  padding: 5px;
+}
+
+.rule h2 {
+  background: var(--background-odd-color);
+  border: var(--border);
+  padding: 5px;
+  padding-bottom: 7px;
+}
+
+.rule h2.important {
+  background: var(--danger-light-color);
+  border-color: var(--danger-color);
+}
+/*  Make HTML lists with multi-line text readable */
+.rule ul {
+  margin: 0;
+  padding: 5px 20px;
+}
+
+.rule li {
+  padding: 5px 0;
+}
+
+#error_explanation {
+  margin: 1em 0;
+  background: var(--warning-light-color);
+  border: 1px solid var(--warning-color);
+  padding: 0.62em;
+}
+
+#error_explanation li {
+  margin: 3px;
+  margin-left: 15px;
+}
+
+#error_explanation h2 {
+  font-size: 19px;
+}
+
+.walloftext {
+  font-size: 14px;
+}
+
+@media (max-width: 900px) {
+  .walloftext {
+    width: 95%;
+  }
+}
+
+/*  Text Editor */
+blockquote {
+  margin: 1em 2em;
+  border: 1px dotted var(--foreground-color);
+  padding: var(--padding-small);
+  background-color: inherit;
+}
+
+blockquote .paragraph:first-child {
+  margin-top: 0;
+}
+
+blockquote .paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/*  Prevent blockquote from gaining far too much indentation and breaking. */
+blockquote blockquote blockquote blockquote blockquote blockquote {
+  margin: 1em 0;
+  padding: 1em 2px;
+}
+
+/*  Horizontal space is at a high premium on mobile. */
+@media (max-width: $min-desktop-width) {
+  blockquote {
+    margin: 1em 4px;
+    padding: var(--padding-small) 4px;
+  }
+}
+
+.spoiler {
+  background-color: var(--admin-links-hover-color);
+  color: var(--admin-links-hover-color);
+}
+
+.spoiler a {
+  color: var(--admin-links-hover-color);
+}
+
+.spoiler:not(:hover) > .image-show-container {
+  background: var(--admin-links-hover-color);
+}
+
+.spoiler:not(:hover) > .image-show-container > * {
+  visibility: hidden;
+}
+
+.spoiler,
+.spoiler-revealed {
+  display: inline-block;
+  position: relative;
+}
+
+.spoiler:before,
+.spoiler-revealed:before {
+  content: " ";
+  display: block;
+  position: absolute;
+  pointer-events: none;
+  inset: 0;
+  background-color: var(--admin-links-hover-color);
+}
+
+.spoiler:hover:before,
+.spoiler-revealed:before {
+  display: none;
+}
+
+.spoiler:hover,
+.spoiler-revealed {
+  background-color: var(--admin-links-color);
+  color: var(--foreground-color);
+}
+
+.spoiler-revealed a,
+.spoiler:hover a {
+  color: var(--link-color);
+}
+
+.spoiler-revealed a:hover,
+.spoiler:hover a:hover {
+  color: var(--link-dark-color);
+}
+
+.literal {
+  white-space: pre-wrap;
+}
+
+.editor-syntax-reference {
+  margin-bottom: 6px;
+}
+
+@mixin image-alt-size tiny, var(--image-tiny-size);
+@mixin image-alt-size small, var(--image-small-size);
+@mixin image-alt-size medium, var(--image-medium-size);
+@mixin image-alt-size large, var(--image-large-size);
+
+/* code styling */
+/* You might be asking what's up with this silly mixin
+ * and the answer is just as silly, it's called
+ * stylelint. Can't define CSS classes in descending
+ * specificity so we do this silly thing */
+@define-mixin code-style {
+  background-color: var(--meta-color);
+  border: 1px solid var(--meta-border-color);
+  padding: 0 4px;
+}
+
+code {
+  @mixin code-style;
+}
+
+pre code {
+  border: 0;
+  background: 0;
+  padding: 0;
+}
+
+.spoiler-revealed code,
+.spoiler:hover code {
+  @mixin code-style;
+}
+
+.spoiler code {
+  background: 0;
+  border: 0;
+}
+
+/* donations */
+.donate-button {
+  background: 0;
+  border: 0;
+  margin-left: 170px;
+}
+
+.button_to {
+  display: inline;
+}
+
+/* User titles (admin/mod/assistant) and channel states (live/off air) */
+.label {
+  padding: 6px;
+  overflow-y: hidden;
+}
+
+.label--small {
+  font-size: 9px;
+  overflow: hidden;
+}
+
+.label--block {
+  display: inline-block;
+  margin: 2px 6px 6px 0;
+}
+
+.label--narrow {
+  padding: 0 2px;
+}
+
+.label--success {
+  background: var(--success-light-color);
+  border: 1px solid var(--success-color);
+}
+
+.label--danger {
+  background: var(--danger-light-color);
+  border: 1px solid var(--danger-color);
+}
+
+.label--warning {
+  background: var(--warning-light-color);
+  border: 1px solid var(--warning-color);
+}
+
+.label--purple {
+  background: var(--assistant-color);
+  border: 1px solid var(--assistant-border-color);
+}
+
+.label--primary {
+  background: var(--primary-light-color);
+  border: 1px solid var(--primary-color);
+}
+
+.large-text {
+  font-size: 15px;
+}
+
+.small-text {
+  font-size: 10px;
+}
+
+.page-current {
+  padding: 0 var(--header-spacing);
+}
+
+i.favicon-home {
+  background-image: url("/favicon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  min-width: 1em;
+  height: 1em;
+  display: inline-block;
+}
+
+/*  changelog */
+.commit-sha {
+  background: var(--assistant-color);
+  border: 1px solid var(--assistant-border-color);
+  padding: 2px;
+  font-size: 12px;
+  font-family: var(--font-family-monospace);
+  vertical-align: top;
+}
+
+.commit-message {
+  display: block;
+}
+
+span.stat {
+  font-size: 18px;
+}
+
+.seamless-frame {
+  border: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.no-overflow {
+  overflow: hidden;
+}
+
+.no-overflow-x {
+  overflow-x: hidden;
+}
+
+.hidden {
+  display: none !important;
+}

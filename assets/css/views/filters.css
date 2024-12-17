@@ -1,0 +1,27 @@
+/* TODO: -> block */
+/* FIXME: ugly selectors (.filter .filter-options ul li a:hover) */
+.filter {
+  background: var(--background-odd-color);
+  border: var(--border);
+  padding-left: var(--header-spacing);
+  margin-bottom: 8px;
+}
+
+.filter h3 {
+  margin: 0;
+  margin-top: 10px;
+}
+
+.filter .filter-options ul {
+  list-style: none;
+  padding-left: 2px;
+}
+
+.filter .filter-options ul li {
+  display: inline;
+  margin-right: 20px;
+}
+
+.spoiler-filter-code {
+  white-space: pre-wrap;
+}

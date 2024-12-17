@@ -1,0 +1,10 @@
+/*  Post diffs */
+del.differ {
+  width: 670px;
+  background: var(--danger-light-color);
+}
+
+ins.differ {
+  width: 670px;
+  background: var(--success-light-color);
+}

@@ -78,10 +78,16 @@ h1 Content Settings
                 ' This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50.
                 ' For 1080p monitors, try 24.
           .field
-            => label f, :theme
-            => select f, :theme, theme_options(), class: "input"
-            = error_tag f, :theme
-            .fieldlabel: i Preview themes by selecting one from the dropdown. Saving sets the currently selected theme.
+            label> Theme
+            => select f, :theme_name, themes(), class: "input"
+            = error_tag f, :theme_name
+            .fieldlabel: i General appearance of the theme
+          .field
+            label> Theme color
+            => select f, :theme_color, theme_colors(), class: "input"
+            = error_tag f, :theme_color
+            .fieldlabel: i Color of the theme, don't forget to save settings to apply the theme
+          .hidden#js-theme-paths data-theme-paths=theme_paths_json()
           .field
             => label f, :scale_large_images
             => select f, :scale_large_images, scale_options(), class: "input"

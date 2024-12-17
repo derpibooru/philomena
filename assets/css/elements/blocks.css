@@ -1,0 +1,295 @@
+.block {
+  margin-bottom: var(--block-spacing);
+}
+
+.block .success {
+  background-color: var(--success-color);
+}
+
+.block .warning {
+  background-color: var(--warning-color);
+}
+
+.block .danger {
+  background-color: var(--danger-color);
+}
+
+.block__content,
+.block__tab {
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  background: var(--background-color);
+  padding: var(--block-spacing);
+}
+
+.block__content img,
+.block__tab img {
+  max-width: 100%;
+}
+
+.block__content:first-child {
+  border-top: 1px solid var(--border-color);
+}
+
+.block__content:last-child,
+.block__tab:not(.hidden) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.block__content--destroyed {
+  background-color: var(--destroyed-content-color) !important;
+}
+
+.block__header {
+  font-size: 14px;
+  line-height: var(--block-header-height);
+  background: var(--block-header-color);
+  color: var(--foreground-color);
+}
+
+/* FIXME This whole area has problems with structure, things are too coupled */
+.block__header--sub {
+  font-size: 14px;
+  background: var(--block-header-color);
+  color: var(--foreground-color);
+  line-height: var(--block-header-sub-height);
+}
+
+.block__header--user-credit {
+  box-sizing: border-box;
+  line-height: 20px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 4px;
+}
+
+.block__header--single-item {
+  font-size: 14px;
+  line-height: var(--block-header-height);
+  background: var(--block-header-color);
+  color: var(--foreground-color);
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.block__header__title {
+  font-size: 14px;
+  margin: 0;
+  padding: 0 calc(var(--header-spacing) * 0.5) 0 var(--header-spacing);
+}
+
+.block__header__buttons {
+  display: flex;
+  flex-direction: row;
+  line-height: 100%;
+  align-items: center;
+  background: 0;
+}
+
+.block__tagbox {
+  padding-top: calc(var(--block-spacing) + 5px);
+}
+
+.block__header--light,
+.block__header--js-tabbed {
+  background: var(--block-header-light-color);
+}
+
+.block__header--js-tabbed {
+  background: transparent;
+  display: flex;
+  flex-wrap: wrap;
+  border-bottom: var(--border);
+}
+
+.block__header--light a {
+  color: var(--block-header-light-link-text-color);
+}
+
+.block__header--single-item,
+.block__header__item,
+.block__header a {
+  padding-left: var(--header-spacing);
+  padding-right: var(--header-spacing);
+}
+
+a.block__header--single-item,
+.block__header a {
+  color: var(--block-header-link-text-color);
+  display: inline-block;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.block__header a,
+.header__span {
+  background: var(--block-header-color);
+}
+
+.block__header--sub a {
+  padding-left: calc(var(--header-spacing) * 0.5);
+  padding-right: calc(var(--header-spacing) * 0.5);
+}
+
+.block__header--light a,
+.block__header--js-tabbed a,
+.block__header--light .header__span,
+.block__header--js-tabbed .header__span {
+  background: var(--block-header-light-color);
+}
+
+.block__header--js-tabbed a {
+  border-top: var(--border);
+  /* hide the bottom border for tab links */
+  margin-bottom: -1px;
+  border-bottom: 1px solid var(--block-header-light-color);
+}
+
+.block__header--light a:hover {
+  background: var(--block-header-light-hover-color);
+  color: var(--block-header-light-link-text-hover-color);
+}
+
+a.block__header--single-item:hover,
+.block__header a:hover {
+  background: var(--block-header-hover-color);
+  color: var(--block-header-link-text-hover-color);
+}
+
+.block__header--js-tabbed a:hover {
+  border-color: var(--block-header-light-hover-color);
+  background: var(--block-header-light-hover-color);
+  color: var(--block-header-light-link-text-hover-color);
+}
+
+.block__header--js-tabbed a:first-child {
+  border-left: var(--border);
+}
+
+.block__header--js-tabbed a:last-child {
+  border-right: var(--border);
+}
+
+.block__header--js-tabbed a.selected,
+.block__header--js-tabbed a.selected:hover {
+  cursor: default;
+  color: var(--foreground-color);
+  background: var(--background-color);
+  border-color: var(--block-header-light-color);
+  border-bottom: 1px solid var(--background-color);
+}
+
+/* Fixed blocks do not have header and content */
+.block--fixed {
+  padding: 6px var(--header-spacing);
+  background: var(--background-color);
+  border: var(--border);
+  line-height: 1.35;
+}
+
+.block--fixed--sub {
+  padding: 3px var(--header-spacing);
+}
+
+.block--no-margin {
+  margin: 0;
+}
+
+.block--success {
+  background: var(--success-light-color);
+  border-color: var(--success-color);
+}
+
+.block--warning {
+  background: var(--warning-light-color);
+  border-color: var(--warning-color);
+}
+
+.block--danger {
+  background: var(--danger-light-color);
+  border-color: var(--danger-color);
+}
+
+.block--primary {
+  background: var(--primary-light-color);
+  border-color: var(--primary-color);
+}
+
+.block--assistant {
+  background: var(--assistant-color);
+  border-color: var(--assistant-border-color);
+}
+
+/* Somewhat dirty workaround for <h*> margins */
+/* Now even dirtier without nesting! */
+.block__content > h1,
+.block__content > h2,
+.block__content > h3,
+.block__content > h4,
+.block__content > h5,
+.block__content > h6,
+.block__tab > h1,
+.block__tab > h2,
+.block__tab > h3,
+.block__tab > h4,
+.block__tab > h5,
+.block__tab > h6,
+.block--fixed > h1,
+.block--fixed > h2,
+.block--fixed > h3,
+.block--fixed > h4,
+.block--fixed > h5,
+.block--fixed > h6 {
+  margin-top: 6px;
+}
+
+.block__header__dropdown-tab:hover > a {
+  background-color: var(--block-header-hover-color);
+  color: var(--block-header-link-text-hover-color);
+}
+
+/* Table-like lists */
+.block__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-bottom: var(--border);
+}
+
+.block__list:not(:last-child) {
+  margin-bottom: 6px;
+}
+
+.block__list a.block__list__link {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  border: var(--border);
+  margin-bottom: -1px; /* collapse borders */
+  background: var(--background-color);
+}
+
+.block__list a.block__list__link.primary {
+  background: var(--primary-light-color);
+  border-color: var(--primary-color);
+}
+
+.block__list a.block__list__link:hover,
+.block__list a.block__list__link.active {
+  background: var(--success-light-color);
+  border-color: var(--success-color);
+}
+
+.block__list a.block__list__link.active:hover {
+  background: var(--danger-light-color);
+  border-color: var(--danger-color);
+}
+
+.block__list a.block__list__link.hidden {
+  display: none;
+}
+
+.block__content--top-border {
+  border-top: var(--border);
+}

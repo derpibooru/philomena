@@ -13,7 +13,9 @@ import './when-ready';
 // in order to enable HMR (live reload) on it.
 // Would typically be either the theme file, or any additional file
 // you later intend to put in the <link> tag.
-
-// import '../css/themes/default.scss';
-// import '../css/themes/dark.scss';
-// import '../css/themes/red.scss';
+//
+// For example, if you'd like to work on the dark blue theme,
+// import the following:
+//
+// import '../css/application.css';
+// import '../css/themes/dark-blue.css';

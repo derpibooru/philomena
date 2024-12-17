@@ -1,0 +1,49 @@
+@import "themes/base/light";
+
+$background-color: #ffffff;
+$page-background-color: #f8fafc;
+$foreground-color: #333333;
+
+$base-color: #b8a93c;
+
+$primary-color: #f9f0ab;
+$success-color: #bde9a3;
+$danger-color: #ebc0bb;
+$warning-color: #eed0bc;
+
+$link-color: #aa9812;
+$link-hover-color: #d09873;
+
+$fave-color: #ab9517;
+$vote-up-color: #67af2b;
+$vote-down-color: #cf0001;
+$hide-color: #cf0001;
+
+$destroyed-content-color: #ffdcdc;
+
+$assistant-color: #eeceed;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #6f8f0e;
+$tag-category-rating-color: #267ead;
+$tag-category-spoiler-color: #c24523;
+$tag-category-origin-color: #393f85;
+$tag-category-oc-color: #9852a3;
+$tag-category-error-color: #ad263f;
+$tag-category-character-color: #2d8677;
+$tag-category-content-official-color: #998e1a;
+$tag-category-content-fanmade-color: #bb5496;
+$tag-category-species-color: #8b552f;
+$tag-category-body-type-color: #4e4e4e;
+
+$commission-category-color: #986f3d;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin light-theme-mutations;
+
+/* put mutation overrides here */
+:root {
+  --comment-color: #9273d0;
+}

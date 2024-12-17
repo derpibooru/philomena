@@ -1,0 +1,12 @@
+/* CSS options folder
+ *
+ * This is where overrides go, such as those which are intended for
+ * specific options, for example - setting background to pure black
+ * if user chooses OLED-friendly version of the site.
+ *
+ * Right now this does nothing, reserved for future expansion.
+ */
+
+:root {
+  --some-variable: #ffffff;
+}

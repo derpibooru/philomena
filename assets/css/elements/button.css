@@ -1,0 +1,118 @@
+.button,
+.toggle-box + label {
+  background-color: var(--button-background-color);
+  border: 1px solid var(--button-border-color);
+  box-sizing: border-box;
+  color: var(--button-text-color);
+  display: inline-block;
+  line-height: normal;
+  font-family: var(--font-family-base);
+  font-size: 14px;
+  padding: 3px 5px;
+  border-radius: 0; /* reset rounded borders on iOS/Safari */
+  cursor: pointer;
+}
+
+.button:hover,
+.toggle-box + label:hover {
+  background-color: var(--button-hover-background-color);
+  border-color: var(--button-hover-border-color);
+}
+
+.button:disabled,
+.toggle-box + label:disabled {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.button:active,
+.button:hover,
+.button:visited,
+.toggle-box + label:visited,
+.toggle-box + label:active .toggle-box + label:hover {
+  color: var(--button-text-color);
+}
+
+.button--inline {
+  padding: 0.25rem;
+  border: 0;
+  border-radius: 0.25rem;
+  font-weight: 100;
+}
+
+.button--bold {
+  font-weight: bold;
+}
+
+.button--full-width {
+  width: 100%;
+}
+
+.button--link {
+  color: var(--link-color);
+  cursor: pointer;
+}
+
+.button--link:hover {
+  color: var(--link-hover-color);
+}
+
+.button--link:visited {
+  color: var(--link-color);
+}
+
+.button--separate-left {
+  margin-left: 5px;
+}
+
+.button--separate-right {
+  margin-right: 5px;
+}
+
+.button--small {
+  padding: 0 3px;
+}
+
+.button--state-primary {
+  background-color: var(--button-primary-background-color);
+  border-color: var(--button-primary-border-color);
+}
+
+.button--state-primary:hover {
+  background-color: var(--button-primary-hover-background);
+  border-color: var(--button-primary-hover-border);
+}
+
+.button--state-success {
+  background-color: var(--button-success-background-color);
+  border-color: var(--button-success-border-color);
+}
+
+.button--state-success:hover {
+  background-color: var(--button-success-hover-background);
+  border-color: var(--button-success-hover-border);
+}
+
+.button--state-warning {
+  background-color: var(--button-warning-background-color);
+  border-color: var(--button-warning-border-color);
+}
+
+.button--state-warning :hover {
+  background-color: var(--button-warning-hover-background);
+  border-color: var(--button-warning-hover-border);
+}
+
+.button--state-danger {
+  background-color: var(--button-danger-background-color);
+  border-color: var(--button-danger-border-color);
+}
+
+.button--state-danger:hover {
+  background-color: var(--button-danger-hover-background);
+  border-color: var(--button-danger-hover-border);
+}
+
+.button--state-danger.button--inline {
+  color: var(--button-danger-hover-border) !important;
+}

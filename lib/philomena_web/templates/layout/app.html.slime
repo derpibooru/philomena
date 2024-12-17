@@ -11,9 +11,10 @@ html lang="en"
       - else
         ' Derpibooru
     link rel="preconnect" href="https://#{cdn_host()}"
-    link rel="stylesheet" href=stylesheet_path(@current_user)
+    link rel="stylesheet" href=~p"/css/application.css"
+    link#js-theme-stylesheet rel="stylesheet" href=stylesheet_path(@conn, @current_user)
     = if is_nil(@current_user) do
-      link rel="stylesheet" href=dark_stylesheet_path() media="(prefers-color-scheme: dark)"
+      link#js-theme-stylesheet rel="stylesheet" href=light_stylesheet_path(@conn) media="(prefers-color-scheme: light)"
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"
     link rel="search" type="application/opensearchdescription+xml" title="Derpibooru" href="/opensearch.xml"

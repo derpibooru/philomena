@@ -1,0 +1,47 @@
+.staff-block__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-auto-rows: 1fr;
+  grid-gap: 0.5em;
+}
+
+.staff-block__user-card {
+  display: grid;
+  grid-template-columns: auto 8em;
+}
+
+.staff-block__user {
+  flex-grow: 1;
+  width: auto;
+  padding: 1em;
+}
+
+.staff-block__info {
+  margin-left: auto;
+}
+
+.profile-block {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.profile-block b {
+  display: block;
+}
+
+.staff-block__description {
+  margin: 1em 0;
+}
+
+.staff-block__separator {
+  margin: 0.75em 0.5em;
+}
+
+.staff-block__category {
+  margin-top: 1em;
+}
+
+.staff-block__user-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

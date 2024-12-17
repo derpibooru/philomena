@@ -1,0 +1,32 @@
+#imagespns {
+  border: var(--border);
+  padding: 2px 10px;
+  background: var(--background-odd-color);
+  text-align: center;
+}
+
+#imagespns .subtext {
+  font-size: 10px;
+}
+
+#imagespns .spnstxt {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: var(--foreground-half-color);
+  margin: 2px;
+  margin-bottom: 4px;
+}
+
+#imagespns img {
+  max-width: 100%;
+  height: auto;
+}
+
+#imagespns__link {
+  display: flex;
+  justify-content: center;
+}
+
+.table--adverts__image {
+  width: 730px;
+}

@@ -1,0 +1,40 @@
+$font-family-base: verdana, arial, helvetica, sans-serif;
+$font-family-monospace: "Droid Sans Mono", monospace;
+
+$medium-layout-width: 1330px;
+$max-limited-desktop-width: 1150px;
+$min-desktop-width: 800px;
+$limited-layout-width: 980px;
+$min-desktop-thumb-width: 700px;
+
+:root {
+  --medium-layout-width: $medium-layout-width;
+  --max-limited-desktop-width: $max-limited-desktop-width;
+  --min-desktop-width: $min-desktop-width;
+  --limited-layout-width: $limited-layout-width;
+  --min-desktop-thumb-width: $min-desktop-thumb-width;
+  --border: 1px solid var(--border-color);
+  --media-border: 1px solid var(--media-box-color);
+  --media-over-border: 1px dotted var(--vote-down-color);
+  --font-family-base: $font-family-base;
+  --font-family-monospace: $font-family-monospace;
+  --padding-small: 0.5em;
+  --padding-normal: 1em;
+  --centered-margin: 24px;
+  --normal-margin: 12px;
+  --image-tiny-size: 64px;
+  --image-small-size: 128px;
+  --image-medium-size: 256px;
+  --image-large-size: 512px;
+  --header-height: 36px;
+  --header-field-height: 28px;
+  --header-sub-height: 32px;
+  --header-font-size: 16px;
+  --header-spacing: 12px;
+  --header-field-spacing: 8px;
+  --header-field-vertical-spacing: calc((var(--header-height) - var(--header-field-height)) * 0.5);
+  --block-header-height: 32px;
+  --block-header-sub-height: 26px;
+  --block-spacing: 6px;
+  --media-box-header-height: 22px;
+}

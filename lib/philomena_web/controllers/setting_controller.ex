@@ -9,6 +9,7 @@ defmodule PhilomenaWeb.SettingController do
   def edit(conn, _params) do
     changeset =
       (conn.assigns.current_user || %User{})
+      |> assign_theme()
       |> TagList.assign_tag_list(:watched_tag_ids, :watched_tag_list)
       |> Users.change_user()
 
@@ -57,10 +58,26 @@ defmodule PhilomenaWeb.SettingController do
     )
   end
 
+  defp assign_theme(%{theme: theme} = user) do
+    [theme_name, theme_color] = String.split(theme, "-")
+
+    user
+    |> Map.put(:theme_name, theme_name)
+    |> Map.put(:theme_color, theme_color)
+  end
+
+  defp assign_theme(_), do: assign_theme(%{theme: "dark-blue"})
+
+  defp determine_theme(%{"theme_name" => name, "theme_color" => color} = attrs)
+       when name != nil and color != nil,
+       do: Map.put(attrs, "theme", "#{name}-#{color}")
+
+  defp determine_theme(attrs), do: Map.put(attrs, "theme", "dark-blue")
+
   defp maybe_update_user(conn, nil, _user_params), do: {:ok, conn}
 
   defp maybe_update_user(conn, user, user_params) do
-    case Users.update_settings(user, user_params) do
+    case Users.update_settings(user, determine_theme(user_params)) do
       {:ok, _user} ->
         {:ok, conn}
 

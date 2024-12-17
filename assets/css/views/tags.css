@@ -1,0 +1,162 @@
+/*  Tagsinput */
+.tagsinput {
+  display: block;
+  background: var(--background-color);
+  border: 1px solid var(--meta-border-color);
+  box-sizing: border-box;
+  height: 10.6em;
+  overflow: auto;
+  padding: 5px;
+  resize: both;
+}
+
+.tagsinput.js-taginput {
+  height: auto;
+  min-height: 7.33em;
+  max-height: 50vh;
+  padding-bottom: 0;
+  margin-bottom: 4px;
+}
+
+.tagsinput.js-taginput .input {
+  padding: 5px;
+  margin-bottom: 5px;
+}
+
+/*  Autocomplete */
+.autocomplete__list {
+  cursor: pointer;
+  display: inline-block;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  user-select: none;
+  white-space: nowrap;
+  z-index: 999;
+}
+
+.autocomplete__item {
+  background: var(--base-color);
+  color: var(--link-light-color);
+  padding: 5px;
+}
+
+.autocomplete__item--selected {
+  background: var(--link-light-color);
+  color: var(--base-color);
+}
+
+/*  Tags */
+.tag {
+  border: 1px solid;
+  display: inline-table;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  background: var(--tag-normal-background);
+  border-color: var(--tag-normal-border);
+  color: var(--tag-normal-color);
+}
+
+.tag > span {
+  padding: 5px;
+  display: table-cell;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag a {
+  color: inherit;
+}
+
+.tag__count {
+  background-color: var(--tag-normal-border);
+  color: var(--foreground-color);
+  font-weight: normal;
+}
+
+.tag__dropdown__link {
+  background-color: var(--meta-color);
+  padding: 5px;
+}
+
+.tag__dropdown__link:hover {
+  background-color: var(--tag-dropdown-hover-background);
+}
+
+@define-mixin tag-category $cat {
+  .tag[data-tag-category="$(cat)"] {
+    background: var(--tag-category-$(cat)-background);
+    border-color: var(--tag-category-$(cat)-border);
+    color: var(--tag-category-$(cat)-color);
+  }
+
+  .tag[data-tag-category="$(cat)"] .tag__count {
+    background: var(--tag-category-$(cat)-border);
+  }
+}
+
+@mixin tag-category rating;
+@mixin tag-category spoiler;
+@mixin tag-category origin;
+@mixin tag-category oc;
+@mixin tag-category error;
+@mixin tag-category character;
+@mixin tag-category content-official;
+@mixin tag-category content-fanmade;
+@mixin tag-category species;
+@mixin tag-category body-type;
+
+.tag-page .tag,
+.tagsinput .tag {
+  font-family: var(--font-family-base);
+  padding: 5px;
+}
+
+.tagsinput .tag a {
+  margin-left: 5px;
+}
+
+/*  Quick Tag Table */
+.quick-tag-table__tab > div {
+  display: inline-block;
+  padding: 0 6px;
+  vertical-align: top;
+  border-right: var(--border);
+  border-left: var(--border);
+}
+
+.quick-tag-table__tab > div:last-child {
+  border-right: none;
+}
+
+span.quick-tag-table__tab-separator {
+  background: var(--background-color);
+  border: var(--border);
+  border-bottom: 0;
+  display: inline-block;
+}
+
+.tag-image--constrained {
+  width: 50px;
+  height: 50px;
+}
+
+.tag-info__category {
+  margin-left: 20px;
+}
+
+.tag-info__heading {
+  margin: 8px 0;
+}
+
+.tag-info__list {
+  margin: 0;
+  padding-left: 30px;
+}

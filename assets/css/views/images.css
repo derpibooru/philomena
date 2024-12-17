@@ -1,0 +1,317 @@
+.image-flex-grid {
+  padding-right: 0;
+  padding-bottom: 0;
+}
+
+.media-box__header span.favorites,
+.media-box__header span.comments_count {
+  padding-left: 4px;
+}
+
+.media-box__header span.score {
+  padding: 0 4px;
+}
+
+.media-box__header--small span.favorites,
+.media-box__header--small span.comments_count {
+  padding-left: 2px;
+}
+
+.media-box__header--small span.score {
+  padding: 0 2px;
+}
+
+@define-mixin interaction-color $name, $col {
+  a.interaction--$(name) {
+    color: var(--$(col)-color);
+  }
+
+  a.interaction--$(name).active,
+  a.interaction--$(name):hover {
+    background: var(--$(col)-color);
+    color: var(--link-light-color);
+  }
+}
+
+@mixin interaction-color fave, fave;
+@mixin interaction-color upvote, vote-up;
+@mixin interaction-color downvote, vote-down;
+@mixin interaction-color hide, hide;
+
+a.interaction--comments {
+  color: var(--comment-color);
+}
+
+a.interaction--comments:hover {
+  background: var(--comment-color);
+  color: var(--background-color);
+}
+
+/* Disable spoilered image downvoting (see the interactions script) */
+.interaction--downvote.disabled,
+.interaction--downvote.disabled:hover {
+  cursor: default;
+  color: var(--downvote-disabled-color);
+  background: var(--media-box-color);
+}
+
+.tag-info__image {
+  border: var(--border);
+  text-align: center;
+  font-size: 12px;
+}
+
+/* Images rendered using the 'images/image_container' partial (image lists, comment list previews, gallery thumbs) */
+div.image-container {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  /* prevent .media-box__overlay from overflowing the container */
+  text-align: center;
+}
+
+/* spoilered images inside communications */
+span.spoiler div.image-container {
+  display: block;
+}
+
+/* .image-container sizes, set by the partial. */
+.thumb {
+  max-width: 250px;
+  max-height: 250px;
+}
+
+.thumb_small {
+  max-width: 150px;
+  max-height: 150px;
+}
+
+.thumb_tiny {
+  width: 50px;
+  height: 50px;
+}
+
+/* Used for elements that wrap .image-container */
+.thumb-tiny-container {
+  width: 50px;
+  height: 50px;
+}
+
+/* embedded images. kinda like image-container, but this one also shows a text, link to filter page, etc */
+.image-show-container {
+  color: var(--foreground-color);
+  display: inline-block;
+  max-width: 100%;
+  padding-bottom: 6px;
+}
+
+.image-show-container span.spoileredtag,
+.image-show-container span.hiddentag {
+  font-weight: bold;
+}
+
+.image-show-container a {
+  color: var(--image-show-link-color);
+}
+
+.dnp-warning a {
+  color: var(--vote-down-color);
+  font-weight: bold;
+}
+
+/* Make the link cover the whole container if the image is oblong */
+div.image-container a,
+div.image-container picture,
+div.image-container video {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dnp-warning a:hover {
+  color: var(--dnp-warning-hover-color);
+}
+
+.image-show-container:hover a:hover {
+  color: var(--image-show-link-hover-color);
+}
+
+/* This and the one above needed for older browsers for some reason, appears to be a bug */
+.image-target {
+  max-width: 100%;
+}
+
+/* Resizes large images to fit in a smaller container; width and height are defined inline */
+.image-constrained {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-constrained img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.image-scaled {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Due to the address bar hiding/reappearing in mobile browsers, viewport
+ * units are only reliable in desktop browsers. */
+@media (min-width: $min-desktop-width) {
+  .image-scaled {
+    max-height: 80vh;
+  }
+}
+
+.image-partscaled {
+  max-width: 100%;
+}
+
+.image-description {
+  overflow: auto;
+}
+
+.image-description img {
+  max-width: 100%;
+}
+
+.image-size {
+  white-space: nowrap;
+}
+
+.js-source-link {
+  word-wrap: break-word;
+}
+
+div.image-container img,
+div.image-container video {
+  vertical-align: middle;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+#image-source > p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.interaction-user-list-item {
+  display: inline-block;
+  padding: 2px;
+  padding-right: 7px;
+}
+
+.image_menu {
+  padding-left: 0;
+  margin: 1em 0 0;
+}
+
+.horizontal-list {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.horizontal-list li {
+  display: inline-block;
+}
+
+.horizontal-list li + li {
+  margin-left: 1em;
+}
+
+.dnp-warning {
+  padding: 0.5em;
+  border: 3px solid var(--vote-down-color);
+  background: var(--admin-links-color);
+}
+
+.dnp-warning h4 {
+  margin-top: 0.3em;
+  margin-bottom: 0.2em;
+}
+
+.derpy__2fa {
+  width: 25%;
+  min-width: 200px;
+}
+
+.derpy__login {
+  margin-left: 8px;
+  align-self: flex-end;
+}
+
+#js-image-upload-previews {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+#js-image-upload-previews:empty {
+  display: none;
+}
+
+#js-image-upload-previews img,
+#js-image-upload-previews video {
+  max-height: 200px;
+  max-width: 200px;
+}
+
+#js-image-upload-previews .scraper-preview--label {
+  cursor: pointer;
+  margin: 0 8px 8px 0;
+}
+
+#js-image-upload-previews .scraper-preview--label .scraper-preview--image-wrapper {
+  display: inline-block;
+  padding: 9px;
+  border: 1px solid transparent;
+  opacity: 0.6;
+}
+
+#js-image-upload-previews .scraper-preview--label .scraper-preview--image {
+  background: url("data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTYgMTYiIHhtbDpzcGFjZT0icHJlc2VydmUiPjxyZWN0IGZpbGw9IiNGRkZGRkYiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIvPjxyZWN0IGZpbGw9IiNFRkVGRUYiIHdpZHRoPSI4IiBoZWlnaHQ9IjgiLz48cmVjdCBmaWxsPSIjRUZFRkVGIiB3aWR0aD0iOCIgaGVpZ2h0PSI4IiB4PSI4IiB5PSI4Ii8+PC9zdmc+Cg==")
+    repeat top left;
+  background-size: 16px;
+}
+
+#js-image-upload-previews .scraper-preview--label .scraper-preview--input {
+  display: none;
+}
+
+#js-image-upload-previews .scraper-preview--label.checked > .scraper-preview--image-wrapper,
+#js-image-upload-previews .scraper-preview--label .scraper-preview--input:checked + .scraper-preview--image-wrapper {
+  opacity: 1;
+  border-color: var(--input-border-active);
+  background-color: var(--input-color-active);
+}
+
+.detail-link {
+  margin-right: 8px;
+}
+
+.full-height {
+  height: 100%;
+}
+
+.image_sources {
+  display: grid;
+  grid-template-columns: 2em auto;
+}
+
+.image_source__icon,
+.image_source__link {
+  padding: 0.5em;
+  overflow: hidden;
+}
+
+.image_source__icon {
+  justify-self: center;
+}

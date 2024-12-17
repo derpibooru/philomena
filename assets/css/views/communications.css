@@ -1,0 +1,109 @@
+td.table--communication-list__name {
+  font-size: 18px;
+}
+
+td.table--communication-list__stats {
+  width: 6%;
+}
+
+td.table--communication-list__last-post,
+td.table--communication-list__options {
+  width: 35%;
+}
+
+.communication:target {
+  border: 1px solid var(--input-border-active);
+}
+
+.communication__body {
+  overflow: hidden;
+}
+
+span.communication__body__sender-name {
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.communication__body__text {
+  word-wrap: break-word;
+  margin-top: 3px;
+  margin-bottom: 6px;
+  line-height: 1.35em;
+}
+
+.communication__body__text img {
+  max-width: 100%;
+}
+
+span.communication__sender__stats,
+.communication__options {
+  font-size: 0.86em;
+}
+
+.communication__options {
+  background: var(--background-odd-color);
+  border-top: var(--border);
+}
+
+.communication__interaction {
+  margin-left: 6px;
+}
+
+.communication__info {
+  display: unset;
+  margin-left: 6px;
+}
+
+.communication-edit__tab {
+  padding-bottom: 12px;
+}
+
+.communication-edit__actions {
+  margin-top: -4px; /* Dirty! 1px to override the border, 3px to negate input margin */
+  padding-top: 0;
+}
+
+.avatar-svg {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.communication__toolbar {
+  margin-bottom: 6px;
+}
+
+.communication__toolbar__button {
+  background-color: var(--meta-color);
+  border: 1px solid var(--meta-border-color);
+  color: var(--foreground-color);
+  margin: 1px;
+  padding: 4px;
+  border-radius: 0;
+  cursor: pointer;
+  min-width: 30px;
+}
+
+.communication__toolbar__button:hover {
+  background-color: var(--input-color-active);
+}
+
+.communication__toolbar__button:focus,
+.communication__toolbar__button:hover,
+.communication__toolbar__button:active,
+.communication__toolbar__button:visited {
+  border-color: var(--input-border-active);
+  outline: 0;
+}
+
+.hyphenate-breaks {
+  hyphens: auto;
+}
+
+.checkbox-label-of-doom {
+  display: inline-block;
+  margin-right: 2em;
+}
+
+.communication--destroyed {
+  background-color: var(--destroyed-content-color);
+}

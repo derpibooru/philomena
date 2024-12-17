@@ -1,0 +1,69 @@
+/* As originally seen on Furbooru */
+@import "themes/base/dark";
+
+$background-color: #1d1924;
+$page-background-color: #15121a;
+$foreground-color: #dadada;
+
+$base-color: #785b99;
+
+$primary-light-color: #46266b;
+$success-light-color: #0f330f;
+$danger-light-color: #66211f;
+$warning-light-color: #7d4825;
+
+$destroyed-content-color: #332025;
+
+$meta-color: #22192a;
+
+$header-color: #36274e;
+$header-field-color: #241c2c;
+$header-secondary-color: #251c36;
+$header-admin-color: #3b1d1d;
+
+$block-header-color: #3a314e;
+$block-header-link-text-color: #a96fdb;
+
+$block-header-light-color: #2d253c;
+$block-header-light-link-text-color: #8f72c4;
+
+$border-color: #332941;
+
+$media-box-color: #311e49;
+
+$link-color: #9747cc;
+$link-hover-color: #cbb5f8;
+
+$fave-color: #a18e27;
+$vote-up-color: #5b9b26;
+$vote-down-color: #da3412;
+$hide-color: #da3412;
+
+$assistant-color: #511b4e;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #4aa158;
+$tag-category-rating-color: #418dd9;
+$tag-category-spoiler-color: #d49b39;
+$tag-category-origin-color: #6f66d6;
+$tag-category-oc-color: #b157b7;
+$tag-category-error-color: #d45460;
+$tag-category-character-color: #4aaabf;
+$tag-category-content-official-color: #b9b541;
+$tag-category-content-fanmade-color: #cc8eb5;
+$tag-category-species-color: #b16b50;
+$tag-category-body-type-color: #b8b8b8;
+
+$commission-category-color: #e07b27;
+
+$site-notice-color: #07070a;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin dark-theme-mutations;
+
+/* put mutation overrides here */
+:root {
+  --keep: #666666;
+}

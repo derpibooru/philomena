@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "deploy": "cross-env NODE_ENV=production tsc && cross-env NODE_ENV=production vite build",
-    "lint": "eslint .",
+    "lint": "eslint . && stylelint ./css/**/*.css",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "dev": "vite",
@@ -10,30 +10,36 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.5.2",
-    "@types/web": "^0.0.148",
-    "autoprefixer": "^10.4.19",
+    "@csstools/postcss-relative-color-syntax": "^3.0.6",
+    "@fortawesome/fontawesome-free": "^6.7.1",
+    "@types/postcss-mixins": "^9.0.6",
+    "@types/web": "^0.0.185",
+    "autoprefixer": "^10.4.20",
     "cross-env": "^7.0.3",
-    "eslint": "^9.4.0",
-    "jest-environment-jsdom": "^29.7.0",
-    "normalize-scss": "^8.0.0",
-    "sass": "^1.75.0",
-    "typescript": "^5.4",
-    "typescript-eslint": "8.0.0-alpha.39",
-    "vite": "^5.4"
+    "normalize.css": "^8.0.1",
+    "postcss-mixins": "^11.0.3",
+    "postcss-simple-vars": "^7.0.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.2"
   },
   "devDependencies": {
-    "@testing-library/dom": "^10.1.0",
-    "@testing-library/jest-dom": "^6.4.6",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@types/chai-dom": "^1.11.3",
-    "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/coverage-v8": "^2.1.8",
     "chai": "^5",
+    "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vitest": "^0.5.4",
-    "jsdom": "^24.1.0",
-    "prettier": "^3.3.2",
-    "vitest": "^1.6.0",
-    "vitest-fetch-mock": "^0.2.2"
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
+    "stylelint": "^16.11.0",
+    "stylelint-config-standard": "^36.0.1",
+    "stylelint-prettier": "^5.0.2",
+    "typescript-eslint": "8.17.0",
+    "vitest": "^2.1.8",
+    "vitest-fetch-mock": "^0.4.2"
   }
 }
