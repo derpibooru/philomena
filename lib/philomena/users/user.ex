@@ -605,7 +605,7 @@ defmodule Philomena.Users.User do
     do: user.otp_backup_codes |> Enum.reject(&Password.verify_pass(token, &1))
 
   def theme_colors do
-    ~W(red orange yellow blue green purple cyan pink gray)
+    ~W(red orange yellow blue green purple teal pink gray)
   end
 
   def theme_names do
