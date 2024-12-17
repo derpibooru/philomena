@@ -1,13 +1,12 @@
-/// <reference types="vitest" />
 import fs from 'fs';
 import path from 'path';
 import autoprefixer from 'autoprefixer';
 import postcssMixins from 'postcss-mixins';
 import postcssSimpleVars from 'postcss-simple-vars';
 import postcssRelativeColor from '@csstools/postcss-relative-color-syntax';
-import { defineConfig, UserConfig, ConfigEnv } from 'vite';
+import { defineConfig, ViteUserConfig, ConfigEnv } from 'vitest/config';
 
-export default defineConfig(({ command, mode }: ConfigEnv): UserConfig => {
+export default defineConfig(({ command, mode }: ConfigEnv): ViteUserConfig => {
   const isDev = command !== 'build' && mode !== 'test';
   const targets = new Map();
 
