@@ -99,7 +99,7 @@ defmodule PhilomenaWeb.LayoutView do
     do: ~p"/css/light-blue.css"
 
   def theme_name(%{theme: theme}), do: theme
-  def theme_name(_user), do: "default"
+  def theme_name(_user), do: "dark-blue"
 
   def artist_tags(tags),
     do: Enum.filter(tags, &(&1.namespace == "artist"))
