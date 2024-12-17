@@ -32,239 +32,135 @@
     --image-overlay-color: $image-overlay-color;
     --image-overlay-background-color: $image-overlay-background-color;
 
-    /* $background-color */
     --text-light-color: $background-color;
 
-    /* mix($foreground-color, $background-color, 5%) */
     --meta-color: hsl(from $foreground-color h s calc(l + 77));
-    /* mix($foreground-color, $meta-color, 30%) */
     --meta-border-color: hsl(from $foreground-color h s calc(l + 58));
 
     --comment-color: var(--link-hover-color);
 
-    /* darken($base-color, 9%) */
     --header-color: hsl(from $base-color h s calc(l - 9));
-    /* darken($base-color, 16%) */
     --header-hover-color: hsl(from $base-color h s calc(l - 16));
-    /* $base-color */
     --header-field-color: $base-color;
-    /* darken($base-color, 7%) */
     --header-field-hover-color: hsl(from $base-color h s calc(l - 7));
-    /* desaturate(lighten($base-color, 30%), 25%) */
     --header-secondary-color: hsl(from $base-color h calc(s - 25) calc(l + 30));
-    /* darken($header-secondary-color, 7%) */
     --header-secondary-hover-color: hsl(from $base-color h calc(s - 25) calc(l + 23));
 
-    /* mix($vote-down-color, $background-color, 16%) */
     --header-admin-color: hsl(from $vote-down-color h s calc(l + 50));
-    /* mix($vote-down-color, $background-color, 30%) */
     --header-admin-hover-color: hsl(from $vote-down-color h s calc(l + 40));
 
-    /* lighten($base-color, 28%) */
     --block-header-color: hsl(from $base-color h s calc(l + 28));
-    /* desaturate(lighten($base-color, 20%), 5%) */
     --block-header-hover-color: hsl(from $base-color h calc(s - 5) calc(l + 20));
-    /* saturate(darken($header-color, 5%), 6%) */
     --block-header-link-text-color: hsl(from $base-color h calc(s + 5) calc(l - 15));
-    /* darken($header-color, 15%) */
     --block-header-link-text-hover-color: hsl(from $base-color h s calc(l - 24));
 
-    /* desaturate(lighten($base-color, 31%), 16%) */
     --block-header-light-color: hsl(from $base-color h calc(s - 16) calc(l + 31));
-    /* lighten($header-secondary-hover-color, 2%) */
     --block-header-light-hover-color: hsl(from $base-color h calc(s - 25) calc(l + 25));
-    /* darken($block-header-light-color, 42%) */
     --block-header-light-link-text-color: hsl(from $base-color h calc(s - 16) calc(l - 11));
-    /* darken($block-header-light-color, 52%) */
     --block-header-light-link-text-hover-color: hsl(from $base-color h calc(s - 16) calc(l - 21));
 
-    /* darken($block-header-light-color, 3%) */
     --border-color: hsl(from $base-color h calc(s - 16) calc(l + 28));
 
-    /* desaturate($block-header-light-color, 10%) */
     --media-box-color: hsl(from $base-color h calc(s - 26) calc(l + 31));
-    /* saturate(darken($media-box-color, 6%), 6%) */
     --media-box-hover-color: hsl(from $base-color h calc(s - 20) calc(l + 25));
-    /* $link-color */
     --media-box-header-link-text-color: $link-color;
-    /* darken($media-box-header-link-text-color, 10%) */
     --media-box-header-link-text-hover-color: hsl(from $link-color h s calc(l - 10));
 
     --link-light-color: var(--background-color);
 
-    /* lighten($primary-color, 5%) */
     --primary-light-color: hsl(from $primary-color h s calc(l + 5));
-    /* lighten($success-color, 7%) */
     --success-light-color: hsl(from $success-color h s calc(l + 7));
-    /* lighten($danger-color, 4%) */
     --danger-light-color: hsl(from $danger-color h s calc(l + 4));
-    /* lighten($warning-color, 6%) */
     --warning-light-color: hsl(from $warning-color h s calc(l + 6));
 
-    /* darken($link-color, 20%) */
     --link-dark-color: hsl(from $link-color h s calc(l - 20));
-    /* darken($link-hover-color, 20%) */
     --link-hover-dark-color: hsl(from $link-hover-color h s calc(l - 20));
 
-    /* $link-color */
     --image-show-link-color: $link-color;
-    /* $link-hover-color */
     --image-show-link-hover-color: $link-hover-color;
 
-    /* In default theme, expect odd color to be darker! */
-    /* lighten($base-color, 35%) */
     --background-odd-color: hsl(from $base-color h s calc(l + 35));
-    /* $background-color */
     --background-even-color: $background-color;
-    /* Depending on the theme, you may want to swap even and odd colors */
-    /* saturate(darken($success-light-color, 3%), 8%) */
     --success-odd-color: hsl(from $success-color h calc(s + 8) calc(l + 4));
-    /* lighten($success-color, 13%) */
     --success-even-color: hsl(from $success-color h s calc(l + 13));
-    /* saturate(darken($warning-light-color, 7%), 10%) */
     --warning-odd-color: hsl(from $warning-color h calc(s + 10) calc(l - 1));
-    /* lighten($warning-color, 5%) */
     --warning-even-color: hsl(from $warning-color h s calc(l + 5));
-    /* saturate(darken($danger-light-color, 1%), 12%) */
     --danger-odd-color: hsl(from $danger-color h calc(s + 12) calc(l + 3));
-    /* desaturate(lighten($danger-color, 7%), 10%) */
     --danger-even-color: hsl(from $danger-color h calc(s - 10) calc(l + 7));
 
-    /* mix($foreground-color, $background-color) */
     --foreground-half-color: hsl(from $background-color h s calc(l - 45));
 
-    /* lighten($base-color, 5%) */
     --sparkline-color: hsl(from $base-color h s calc(l + 5));
 
-    /* darken($assistant-color, 8%) */
     --assistant-border-color: hsl(from $assistant-color h s calc(l - 8));
 
-    /* mix($vote-down-color, $background-color, 17%) */
     --admin-links-color: hsl(from $vote-down-color h calc(s - 20) calc(l + 50));
-    /* mix($vote-down-color, $background-color, 48%) */
     --admin-links-hover-color: hsl(from $vote-down-color h calc(s - 30) calc(l + 30));
 
-    /* $foreground-color */
     --input-text-color: $foreground-color;
-    /* $meta-color */
     --input-color: var(--meta-color);
-    /* $meta-border-color */
     --input-border: var(--meta-border-color);
-    /* desaturate(lighten($base-color, 30%), 16%) */
     --input-color-active: hsl(from $base-color h calc(s - 16) calc(l + 30));
-    /* lighten($base-color, 10%) */
     --input-border-active: hsl(from $base-color h s calc(l + 10));
 
-    /* desaturate(lighten($tag-normal-color, 44%), 28%) */
     --tag-normal-background: hsl(from $tag-normal-color h calc(s - 28) calc(l + 44));
-    /* darken($tag-normal-background, 16%) */
     --tag-normal-border: hsl(from $tag-normal-color h calc(s - 28) calc(l + 28));
-    /* desaturate(lighten($tag-category-rating-color, 41%), 25%) */
     --tag-category-rating-background: hsl(from $tag-category-rating-color h calc(s - 25) calc(l + 41));
-    /* darken($tag-category-rating-background, 10%) */
     --tag-category-rating-border: hsl(from $tag-category-rating-color h calc(s - 25) calc(l + 31));
-    /* lighten($tag-category-spoiler-color, 41%) */
     --tag-category-spoiler-background: hsl(from $tag-category-spoiler-color h s calc(l + 41));
-    /* darken($tag-category-spoiler-background, 8%) */
     --tag-category-spoiler-border: hsl(from $tag-category-spoiler-color h s calc(l + 33));
-    /* lighten($tag-category-origin-color, 43%) */
     --tag-category-origin-background: hsl(from $tag-category-origin-color h s calc(l + 43));
-    /* darken($tag-category-origin-background, 10%) */
     --tag-category-origin-border: hsl(from $tag-category-origin-color h s calc(l + 33));
-    /* lighten($tag-category-oc-color, 35%) */
     --tag-category-oc-background: hsl(from $tag-category-oc-color h s calc(l + 35));
-    /* darken($tag-category-oc-background, 9%) */
     --tag-category-oc-border: hsl(from $tag-category-oc-color h s calc(l + 26));
-    /* lighten($tag-category-error-color, 40%) */
     --tag-category-error-background: hsl(from $tag-category-error-color h s calc(l + 40));
-    /* darken($tag-category-error-background, 8%) */
     --tag-category-error-border: hsl(from $tag-category-error-color h s calc(l + 32));
-    /* desaturate(lighten($tag-category-character-color, 44%), 10%) */
     --tag-category-character-background: hsl(from $tag-category-character-color h calc(s - 10) calc(l + 44));
-    /* lighten($tag-category-character-color, 22%) */
     --tag-category-character-border: hsl(from $tag-category-character-color h s calc(l + 22));
-    /* lighten($tag-category-content-official-color, 41%) */
     --tag-category-content-official-background: hsl(from $tag-category-content-official-color h s calc(l + 41));
-    /* lighten($tag-category-content-official-color, 18%) */
     --tag-category-content-official-border: hsl(from $tag-category-content-official-color h s calc(l + 18));
-    /* lighten($tag-category-content-fanmade-color, 36%) */
     --tag-category-content-fanmade-background: hsl(from $tag-category-content-fanmade-color h s calc(l + 36));
-    /* lighten($tag-category-content-fanmade-color, 18%) */
     --tag-category-content-fanmade-border: hsl(from $tag-category-content-fanmade-color h s calc(l + 18));
-    /* lighten($tag-category-species-color, 44%) */
     --tag-category-species-background: hsl(from $tag-category-species-color h s calc(l + 44));
-    /* lighten($tag-category-species-color, 25%) */
     --tag-category-species-border: hsl(from $tag-category-species-color h s calc(l + 25));
-    /* lighten($tag-category-body-type-color, 45%) */
     --tag-category-body-type-background: hsl(from $tag-category-body-type-color h s calc(l + 45));
-    /* lighten($tag-category-body-type-color, 35%) */
     --tag-category-body-type-border: hsl(from $tag-category-body-type-color h s calc(l + 35));
 
-    /* saturate(lighten($commission-category-color, 40%), 12%) */
     --commission-category-background: hsl(from $commission-category-color h calc(s + 12) calc(l + 40));
-    /* lighten($commission-category-color, 20%) */
     --commission-category-border: hsl(from $commission-category-color h s calc(l + 20));
 
-    /* darken($base-color, 32%) */
     --site-notice-color: hsl(from $base-color h s calc(l - 32));
-    /* $block-header-light-color */
     --site-notice-link-color: var(--block-header-light-color);
-    /* $block-header-hover-color */
     --site-notice-link-hover-color: var(--block-header-hover-color);
 
-    /* $foreground-color */
     --button-text-color: $foreground-color;
-    /* rgba($meta-color, 0.2) */
     --button-background-color: rgba(var(--meta-color), 0.2);
-    /* $input-color-active */
     --button-hover-background-color: var(--input-color-active);
-    /* $input-border-active */
     --button-hover-border-color: var(--input-border-active);
-    /* $meta-border-color */
     --button-border-color: var(--meta-border-color);
 
-    /* $primary-light-color */
     --button-primary-background-color: hsl(from $primary-color h s calc(l + 5));
-    /* $success-light-color */
     --button-success-background-color: hsl(from $success-color h s calc(l + 7));
-    /* $warning-light-color */
     --button-warning-background-color: hsl(from $warning-color h s calc(l + 6));
-    /* $danger-light-color */
     --button-danger-background-color: hsl(from $warning-color h s calc(l + 6));
 
-    /* darken($primary-color, 8%) */
     --button-primary-border-color: hsl(from $primary-color h s calc(l - 8));
-    /* darken($success-color, 10%) */
     --button-success-border-color: hsl(from $success-color h s calc(l - 10));
-    /* darken($warning-color, 11%) */
     --button-warning-border-color: hsl(from $warning-color h s calc(l - 11));
-    /* darken($danger-color, 8%) */
     --button-danger-border-color: hsl(from $danger-color h s calc(l - 8));
 
-    /* darken($button-primary-background-color, 5%) */
     --button-primary-hover-background: $primary-color;
-    /* darken($button-primary-border-color, 5%) */
     --button-primary-hover-border: hsl(from $primary-color h s calc(l - 13));
-    /* darken($button-success-background-color, 5%) */
     --button-success-hover-background: hsl(from $success-color h s calc(l + 2));
-    /* darken($button-success-border-color, 5%) */
     --button-success-hover-border: hsl(from $success-color h s calc(l - 15));
-    /* darken($button-warning-background-color, 6%) */
     --button-warning-hover-background: $warning-color;
-    /* darken($button-warning-border-color, 6%) */
     --button-warning-hover-border: hsl(from $warning-color h s calc(l - 17));
-    /* darken($button-danger-background-color, 5%) */
     --button-danger-hover-background: hsl(from $danger-color h s calc(l + 1));
-    /* darken($button-danger-border-color, 5%) */
     --button-danger-hover-border: hsl(from $danger-color h s calc(l - 13));
 
-    /* mix($vote-down-color, $block-header-light-color, 30%) */
     --downvote-disabled-color: hsl(from $vote-down-color calc(s - 40) calc(l - 20));
-    /* lighten($vote-down-color, 10%) */
     --dnp-warning-hover-color: hsl(from $vote-down-color h s calc(l + 10));
-    /* lighten($border-color, 8) */
     --poll-form-label-background: hsl(from $base-color h calc(s - 16) calc(l + 36));
-    /* darken($meta-color, 4%) */
     --tag-dropdown-hover-background: hsl(from $foreground-color h s calc(l - 10));
   }
 }
