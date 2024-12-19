@@ -1,0 +1,140 @@
+.profile-top {
+  display: flex;
+  margin-bottom: 6px;
+}
+
+.profile-top__avatar {
+  margin: 10px 10px 0 0;
+}
+
+.profile-top__name-and-links {
+  /* Allow options extra space on high width even when name is short */
+  flex: 1 1 0%;
+}
+
+/* Lessen h1's margins because it's not butting up against text */
+h1.profile-top__name-header {
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+.table--stats {
+  min-width: 220px;
+}
+
+@media (max-width: 900px) {
+  .table--stats {
+    margin-left: 0;
+  }
+}
+
+td.table--stats__parameter {
+  width: 20%;
+}
+
+td.table--stats__value {
+  width: 15%;
+}
+
+td.table--stats__sparkline {
+  width: 65%;
+}
+
+.profile-top__options {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.profile-top__options__column {
+  flex: 0 0 auto;
+  /* Override terrible browser styling */
+  list-style: none;
+  padding: 0;
+  margin: 0.5em 2em 0.5em 0;
+}
+
+.profile-admin__options__column {
+  flex: 0 0 auto;
+  list-style: none;
+  padding: 4px;
+  min-width: 200px;
+  margin: 0.5em 2em 0.5em 0;
+}
+
+.profile-admin__options__column li {
+  padding: 6px;
+  background: var(--header-secondary-color);
+  margin: 4px 0;
+}
+
+.profile-admin__options__column li:hover {
+  background: var(--header-secondary-hover-color);
+}
+
+.profile-admin__options__column a {
+  display: block;
+  color: var(--foreground-color) !important;
+}
+
+.profile-admin__options__column .admin__button {
+  margin-left: 4px;
+}
+
+@media (max-width: $min-desktop-width) {
+  .profile-admin__options__column {
+    width: 100%;
+  }
+}
+
+.profile-about {
+  overflow: hidden;
+}
+
+.banner__2fa {
+  margin-left: 8px;
+  padding: 2px;
+}
+
+.banner__2fa .success {
+  background: var(--success-color);
+}
+
+.banner__2fa .danger {
+  background: var(--danger-color);
+}
+
+.enable-2fa {
+  margin-top: 1em;
+}
+
+.break-word {
+  word-wrap: break-word;
+}
+
+.avatar--28px {
+  width: 28px;
+  height: 28px;
+}
+
+.avatar--50px {
+  width: 50px;
+  height: 50px;
+}
+
+.avatar--100px {
+  width: 100px;
+  height: 100px;
+}
+
+.avatar--125px {
+  width: 125px;
+  height: 125px;
+}
+
+.avatar-disabled {
+  opacity: 0.4;
+}
+
+.staff-title-muted {
+  color: #777;
+}

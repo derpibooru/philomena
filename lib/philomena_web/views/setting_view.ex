@@ -1,16 +1,26 @@
 defmodule PhilomenaWeb.SettingView do
   use PhilomenaWeb, :view
+  alias Philomena.Users.User
 
-  def theme_options do
+  def themes do
     [
-      [
-        key: "Default",
-        value: "default",
-        data: [theme_path: ~p"/css/default.css"]
-      ],
-      [key: "Dark", value: "dark", data: [theme_path: ~p"/css/dark.css"]],
-      [key: "Red", value: "red", data: [theme_path: ~p"/css/red.css"]]
+      Dark: "dark",
+      Light: "light"
     ]
+  end
+
+  def theme_colors do
+    Enum.map(User.theme_colors(), fn name ->
+      {String.capitalize(name), name}
+    end)
+  end
+
+  def theme_paths_json(conn) do
+    User.themes()
+    |> Map.new(fn name ->
+      {name, static_path(conn, "/css/#{name}.css")}
+    end)
+    |> Jason.encode!()
   end
 
   def scale_options do

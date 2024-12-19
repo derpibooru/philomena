@@ -6,8 +6,9 @@ html lang="en"
     = viewport_meta_tag(@conn)
 
     title Two Factor Authentication - Derpibooru
-    link rel="stylesheet" href=stylesheet_path(nil)
-    link rel="stylesheet" href=dark_stylesheet_path() media="(prefers-color-scheme: dark)"
+    link rel="stylesheet" href=~p"/css/application.css"
+    link rel="stylesheet" href=stylesheet_path(@conn, nil)
+    link rel="stylesheet" href=light_stylesheet_path(@conn) media="(prefers-color-scheme: light)"
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"
 

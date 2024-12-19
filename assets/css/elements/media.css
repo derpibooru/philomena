@@ -1,0 +1,111 @@
+.media-box {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  border: var(--media-border);
+  margin: 0 6px 6px 0;
+}
+
+.media-box.over {
+  border: var(--media-over-border);
+}
+
+.media-box__header {
+  min-width: 100%;
+  background: var(--media-box-color);
+  color: var(--foreground-color);
+  line-height: var(--media-box-header-height);
+  font-size: 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Links that take up the whole width of .media-box (title links) should use this class along with .media-box__header (without containers) */
+a.media-box__header--link {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: bold;
+  color: var(--media-box-header-link-text-color);
+}
+
+a.media-box__header--link:hover {
+  color: var(--media-box-header-link-text-hover-color);
+  background-color: var(--media-box-hover-color);
+}
+
+/* Containers with a row of links (e.g. image thumbnail header) should use this class. */
+.media-box__header--link-row > a {
+  display: inline-block;
+}
+
+.media-box__header--link-row > a,
+.media-box__overlay {
+  line-height: var(--media-box-header-height);
+  padding: 0 4px;
+}
+
+.media-box__header--small {
+  width: 150px;
+  font-size: 11px;
+}
+
+.media-box__header--small a {
+  padding: 0 3px;
+}
+
+.media-box__header--unselected {
+  background-color: var(--danger-color);
+}
+
+.media-box__header--selected {
+  background-color: var(--success-color);
+}
+
+/* TODO: properly fix this */
+.media-box__content .image-container {
+  width: 100%;
+  height: 100%;
+}
+
+.media-box__content--featured {
+  width: 326px;
+  height: 326px;
+}
+
+.media-box__content--large {
+  width: 254px;
+  height: 254px;
+}
+
+.media-box__content--small {
+  width: 150px;
+  height: 150px;
+}
+
+.media-box__overlay {
+  display: block;
+  position: absolute;
+  z-index: 4;
+  width: 100%;
+  text-align: left;
+  font-weight: bold;
+  word-wrap: break-word;
+  color: var(--image-overlay-color);
+  background: var(--image-overlay-background-color);
+  pointer-events: none;
+}
+
+.thumb_small .media-box__overlay {
+  font-size: 11px;
+}
+
+.thumb_tiny .media-box__overlay {
+  font-size: 10px;
+  line-height: 16px;
+}
+
+/* TODO: replace absolute positioning with a more flexible solution */
+.media-box__overlay:nth-child(2) {
+  top: var(--media-box-header-height);
+}

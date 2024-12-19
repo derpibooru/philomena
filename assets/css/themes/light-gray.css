@@ -1,0 +1,70 @@
+@import "themes/base/light";
+
+$background-color: #ffffff;
+$page-background-color: #f8fafc;
+$foreground-color: #333333;
+
+$base-color: #a1aab7;
+
+$primary-color: #d7e2e8;
+$success-color: #bde9a3;
+$danger-color: #ebc0bb;
+$warning-color: #eee9bc;
+
+$link-color: #3e7da1;
+$link-hover-color: #9273d0;
+
+$fave-color: #c4b246;
+$vote-up-color: #67af2b;
+$vote-down-color: #cf0001;
+$hide-color: #cf0001;
+
+$destroyed-content-color: #ffdcdc;
+
+$assistant-color: #eeceed;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #6f8f0e;
+$tag-category-rating-color: #267ead;
+$tag-category-spoiler-color: #c24523;
+$tag-category-origin-color: #393f85;
+$tag-category-oc-color: #9852a3;
+$tag-category-error-color: #ad263f;
+$tag-category-character-color: #2d8677;
+$tag-category-content-official-color: #998e1a;
+$tag-category-content-fanmade-color: #bb5496;
+$tag-category-species-color: #8b552f;
+$tag-category-body-type-color: #4e4e4e;
+
+$commission-category-color: #986f3d;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin light-theme-mutations;
+
+/* Put any color variable overrides here.
+ *
+ * Note: due to (intentional and bad) behavior of Vite,
+ * this needs to contain something unique that the other
+ * themes do not have, as Vite does not compile what it considers
+ * "inputs with identical contents", and it does not seem to care
+ * about differences in $variables. So please change something about
+ * the value below, or make up a random variable if you're not changing
+ * any color variables here.
+ */
+
+:root {
+  --block-header-color: hsl(from $base-color h s calc(l + 15));
+  --block-header-hover-color: hsl(from $base-color h calc(s - 5) calc(l + 5));
+  --block-header-link-text-color: hsl(from $base-color h calc(s + 5) calc(l - 30));
+  --block-header-link-text-hover-color: hsl(from $base-color h s calc(l - 30));
+  --block-header-light-color: hsl(from $base-color h calc(s - 16) calc(l + 22));
+  --block-header-light-hover-color: hsl(from $base-color h calc(s - 25) calc(l + 12));
+  --block-header-light-link-text-color: hsl(from $base-color h calc(s - 16) calc(l - 11));
+  --block-header-light-link-text-hover-color: hsl(from $base-color h calc(s - 16) calc(l - 21));
+  --border-color: hsl(from $base-color h calc(s - 16) calc(l + 15));
+  --media-box-color: hsl(from $base-color h calc(s - 26) calc(l + 20));
+  --media-box-hover-color: hsl(from $base-color h calc(s - 20) calc(l + 14));
+  --background-odd-color: #eaeaea;
+}

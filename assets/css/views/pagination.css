@@ -1,0 +1,48 @@
+.page__header {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.page__title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.page__title,
+.page__pagination {
+  flex-shrink: 0;
+  display: block;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.pagination__dropdown {
+  min-width: 4em;
+}
+
+@media (max-width: $min-desktop-thumb-width) {
+  .page__title,
+  .page__options {
+    display: none;
+  }
+
+  .page__header,
+  .page__pagination,
+  .page__info {
+    display: block;
+    text-align: center;
+  }
+
+  .page__pagination nav {
+    display: flex;
+    width: 100%;
+  }
+
+  .page__pagination nav a,
+  .page__pagination nav span {
+    text-align: center;
+    flex: 1 1 auto;
+    padding: 0 1vw;
+  }
+}

@@ -4,8 +4,11 @@ defmodule PhilomenaWeb.LayoutView do
   import PhilomenaWeb.Config
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
+  alias Philomena.Users.User
   alias Plug.Conn
   alias Philomena.Games
+
+  @themes User.themes()
 
   def layout_class(conn) do
     conn.assigns[:layout_class] || "layout--narrow"
@@ -70,13 +73,18 @@ defmodule PhilomenaWeb.LayoutView do
     Config.get(:footer)
   end
 
-  def stylesheet_path(%{theme: "dark"}), do: ~p"/css/dark.css"
-  def stylesheet_path(%{theme: "red"}), do: ~p"/css/red.css"
-  def stylesheet_path(_user), do: ~p"/css/default.css"
-  def dark_stylesheet_path, do: ~p"/css/dark.css"
+  def stylesheet_path(conn, %{theme: theme})
+      when theme in @themes,
+      do: static_path(conn, "/css/#{theme}.css")
+
+  def stylesheet_path(_conn, _user),
+    do: ~p"/css/dark-blue.css"
+
+  def light_stylesheet_path(_conn),
+    do: ~p"/css/light-blue.css"
 
   def theme_name(%{theme: theme}), do: theme
-  def theme_name(_user), do: "default"
+  def theme_name(_user), do: "dark-blue"
 
   def artist_tags(tags),
     do: Enum.filter(tags, &(&1.namespace == "artist"))

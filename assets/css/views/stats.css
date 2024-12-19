@@ -1,0 +1,7 @@
+.upload-stats rect {
+  fill: var(--sparkline-color);
+}
+
+.upload-stats rect:hover {
+  fill: red;
+}
