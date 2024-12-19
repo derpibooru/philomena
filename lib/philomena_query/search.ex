@@ -203,25 +203,21 @@ defmodule PhilomenaQuery.Search do
   def reindex(queryable, module, opts \\ []) do
     index = @policy.index_for(module)
 
-    process =
-      fn records ->
-        lines =
-          Enum.flat_map(records, fn record ->
-            doc = index.as_json(record)
-
-            [
-              %{index: %{_index: index.index_name(), _id: doc.id}},
-              doc
-            ]
-          end)
-
-        Api.bulk(@policy.opensearch_url(), lines)
-      end
-
     queryable
     |> Batch.record_batches(opts)
-    |> Task.async_stream(process, ordered: false, timeout: :infinity)
-    |> Stream.run()
+    |> Enum.each(fn records ->
+      lines =
+        Enum.flat_map(records, fn record ->
+          doc = index.as_json(record)
+
+          [
+            %{index: %{_index: index.index_name(), _id: doc.id}},
+            doc
+          ]
+        end)
+
+      Api.bulk(@policy.opensearch_url(), lines)
+    end)
   end
 
   @doc ~S"""
