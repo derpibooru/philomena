@@ -1,0 +1,16 @@
+.fetched-comment {
+  margin-bottom: -1px; /* collapse block borders */
+}
+
+.comment_deleted {
+  color: var(--vote-down-color);
+}
+
+.comment_under_review {
+  color: blue;
+}
+
+.post-image-container {
+  width: 60px;
+  text-align: center;
+}

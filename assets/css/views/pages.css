@@ -1,0 +1,10 @@
+.kiwiirc-frame {
+  border: 0;
+  width: 900px;
+  height: 600px;
+}
+
+.static-page__diff {
+  font-family: var(--font-family-monospace);
+  white-space: pre-wrap;
+}

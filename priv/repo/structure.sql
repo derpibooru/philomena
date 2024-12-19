@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.3
--- Dumped by pg_dump version 16.3
+-- Dumped from database version 16.4
+-- Dumped by pg_dump version 16.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -2098,7 +2098,7 @@ CREATE TABLE public.users (
     description_textile character varying,
     avatar character varying,
     spoiler_type character varying DEFAULT 'static'::character varying NOT NULL,
-    theme character varying DEFAULT 'default'::character varying NOT NULL,
+    theme character varying DEFAULT 'dark-blue'::character varying NOT NULL,
     images_per_page integer DEFAULT 15 NOT NULL,
     show_large_thumbnails boolean DEFAULT true NOT NULL,
     show_sidebar_and_watched_images boolean DEFAULT true NOT NULL,
@@ -5447,3 +5447,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20211219194836);
 INSERT INTO public."schema_migrations" (version) VALUES (20220321173359);
 INSERT INTO public."schema_migrations" (version) VALUES (20240723122759);
 INSERT INTO public."schema_migrations" (version) VALUES (20240728191353);
+INSERT INTO public."schema_migrations" (version) VALUES (20241216165826);

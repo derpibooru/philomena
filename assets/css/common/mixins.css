@@ -1,0 +1,75 @@
+@define-mixin image-alt-size $name, $size {
+  @media (min-width: $size) {
+    img[alt="$(name)"] {
+      max-height: $size !important;
+      max-width: $size !important;
+    }
+  }
+}
+
+@define-mixin transform-n-animation $type, $dur, $delta {
+  transform: $(delta);
+  animation: $(type) $(dur) ease-in-out;
+}
+
+@define-mixin even-odd-type $classname, $type {
+  .$(classname):nth-child(odd).$(type),
+  .$(classname):nth-child(odd) .$(type) {
+    background: var(--$(type)-even-color);
+  }
+
+  .$(classname):nth-child(even).$(type),
+  .$(classname):nth-child(even) .$(type) {
+    background: var(--$(type)-even-color);
+  }
+
+  .$(classname):nth-child(even) .$(classname):nth-child(odd).$(type),
+  .$(classname):nth-child(even) .$(classname):nth-child(odd) .$(type) {
+    background: var(--$(type)-even-color);
+  }
+}
+
+@define-mixin even-odd $classname {
+  .$(classname):nth-child(odd) {
+    background: var(--background-odd-color);
+  }
+
+  .$(classname):nth-child(even) {
+    background: var(--background-even-color);
+  }
+
+  @mixin even-odd-type $classname, success;
+  @mixin even-odd-type $classname, warning;
+  @mixin even-odd-type $classname, danger;
+}
+
+@define-mixin even-odd-element $el {
+  $(el):nth-child(odd) {
+    background: var(--background-odd-color);
+  }
+
+  $(el):nth-child(even) {
+    background: var(--background-even-color);
+  }
+
+  @mixin even-odd-type $el, success;
+  @mixin even-odd-type $el, warning;
+  @mixin even-odd-type $el, danger;
+}
+
+@define-mixin number-wrap $color {
+  display: inline-flex;
+  padding: 0 6px;
+  margin-left: 6px;
+  line-height: inherit;
+  font-size: 16px;
+  text-align: center;
+  background: $(color);
+}
+
+/* 16x16 checkerboard */
+@define-mixin img-checkerboard-background {
+  img {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAQAAAC1+jfqAAAAGUlEQVR42mP474AKGdDhCFGALoChYWQoAACpW7+B5lv5BwAAAABJRU5ErkJggg==");
+  }
+}

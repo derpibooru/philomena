@@ -1,0 +1,59 @@
+@import "themes/base/light";
+
+$background-color: #ffffff;
+$page-background-color: #f8fafc;
+$foreground-color: #333333;
+
+$base-color: #9664bf;
+
+$primary-color: #dec1f9;
+$success-color: #bde9a3;
+$danger-color: #ebc0bb;
+$warning-color: #eee9bc;
+
+$link-color: #9241d9;
+$link-hover-color: #cf73d0;
+
+$fave-color: #c4b246;
+$vote-up-color: #67af2b;
+$vote-down-color: #cf0001;
+$hide-color: #cf0001;
+
+$destroyed-content-color: #ffdcdc;
+
+$assistant-color: #eeceed;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #6f8f0e;
+$tag-category-rating-color: #267ead;
+$tag-category-spoiler-color: #c24523;
+$tag-category-origin-color: #393f85;
+$tag-category-oc-color: #9852a3;
+$tag-category-error-color: #ad263f;
+$tag-category-character-color: #2d8677;
+$tag-category-content-official-color: #998e1a;
+$tag-category-content-fanmade-color: #bb5496;
+$tag-category-species-color: #8b552f;
+$tag-category-body-type-color: #4e4e4e;
+
+$commission-category-color: #986f3d;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin light-theme-mutations;
+
+/* Put any color variable overrides here.
+ *
+ * Note: due to (intentional and bad) behavior of Vite,
+ * this needs to contain something unique that the other
+ * themes do not have, as Vite does not compile what it considers
+ * "inputs with identical contents", and it does not seem to care
+ * about differences in $variables. So please change something about
+ * the value below, or make up a random variable if you're not changing
+ * any color variables here.
+ */
+
+:root {
+  --keep: #eeeeee;
+}

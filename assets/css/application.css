@@ -1,0 +1,58 @@
+/*
+ * Main stylesheet file.
+ *
+ * This generates the base file for the stylesheets used throughout the project.
+ * Themes should be contained within the "themes" folder, and only contain
+ * color variations, and optional CSS changes.
+ *
+ */
+
+ @import "@fortawesome/fontawesome-free/css/fontawesome.css";
+ @import "@fortawesome/fontawesome-free/css/solid.css";
+ @import "@fortawesome/fontawesome-free/css/regular.css";
+ @import "@fortawesome/fontawesome-free/css/brands.css";
+ @import "normalize.css";
+
+ /* Import the dark blue theme to act as a fallback. */
+ @import "themes/dark-blue";
+
+ /* Files containing common properties, such as variable definitions. */
+@import "common/measurements";
+@import "common/mixins";
+
+/* General style elements that are used throughout the project. */
+@import "elements/base";
+@import "elements/barline";
+@import "elements/blocks";
+@import "elements/burger";
+@import "elements/button";
+@import "elements/dropdown";
+@import "elements/forms";
+@import "elements/header";
+@import "elements/layout";
+@import "elements/media";
+@import "elements/shame";
+@import "elements/text";
+
+/* Style elements specific to certain pages. */
+@import "views/adverts";
+@import "views/approval";
+@import "views/badges";
+@import "views/channels";
+@import "views/comments";
+@import "views/commissions";
+@import "views/communications";
+@import "views/duplicates";
+@import "views/filters";
+@import "views/galleries";
+@import "views/images";
+@import "views/notifications";
+@import "views/pages";
+@import "views/pagination";
+@import "views/polls";
+@import "views/posts";
+@import "views/profiles";
+@import "views/search";
+@import "views/staff";
+@import "views/stats";
+@import "views/tags";

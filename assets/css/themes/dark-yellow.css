@@ -1,0 +1,78 @@
+@import "themes/base/dark";
+
+$background-color: #2f281d;
+$page-background-color: #1c1a0d;
+$foreground-color: #e0e0e0;
+
+$base-color: #999254;
+
+$primary-light-color: #6b5f1a;
+$success-light-color: #144714;
+$danger-light-color: #66211f;
+$warning-light-color: #7d4825;
+
+$destroyed-content-color: #382c2f;
+
+$meta-color: #2a2919;
+
+$header-color: #857604;
+$header-field-color: #52491c;
+$header-secondary-color: #4f420a;
+$header-admin-color: #400d0d;
+
+$block-header-color: #4f420a;
+$block-header-link-text-color: #ffdc18;
+
+$block-header-light-color: #4f420a;
+$block-header-light-link-text-color: #ffdc18;
+
+$border-color: #4f420a;
+
+$media-box-color: #504d31;
+
+$link-color: #ffdc18;
+$link-hover-color: #b099dd;
+
+$fave-color: #a18e27;
+$vote-up-color: #5b9b26;
+$vote-down-color: #da3412;
+$hide-color: #da3412;
+
+$assistant-color: #511b4e;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #4aa158;
+$tag-category-rating-color: #418dd9;
+$tag-category-spoiler-color: #d49b39;
+$tag-category-origin-color: #6f66d6;
+$tag-category-oc-color: #b157b7;
+$tag-category-error-color: #d45460;
+$tag-category-character-color: #4aaabf;
+$tag-category-content-official-color: #b9b541;
+$tag-category-content-fanmade-color: #cc8eb5;
+$tag-category-species-color: #b16b50;
+$tag-category-body-type-color: #b8b8b8;
+
+$commission-category-color: #e07b27;
+
+$site-notice-color: #07070a;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin dark-theme-mutations;
+
+/* Put any color variable overrides here.
+ *
+ * Note: due to (intentional and bad) behavior of Vite,
+ * this needs to contain something unique that the other
+ * themes do not have, as Vite does not compile what it considers
+ * "inputs with identical contents", and it does not seem to care
+ * about differences in $variables. So please change something about
+ * the value below, or make up a random variable if you're not changing
+ * any color variables here.
+ */
+
+:root {
+  --keep: #999999;
+}

@@ -1,0 +1,80 @@
+/* As originally seen on Derpibooru */
+@import "themes/base/dark";
+
+$background-color: #412121;
+$page-background-color: $background-color;
+$foreground-color: #e0e0e0;
+$grey-color: #3b3b3b;
+
+$base-color: #995454;
+
+$primary-light-color: #641f1f;
+$success-light-color: #2e4e2e;
+$danger-light-color: #7b3b00;
+$warning-light-color: #5b5b00;
+
+$destroyed-content-color: #412f2f;
+
+$meta-color: #411d1d;
+
+$header-color: #923131;
+$header-field-color: #5e2727;
+$header-secondary-color: #7a2d2d;
+$header-admin-color: $grey-color;
+
+$link-color: #dbdb00;
+$link-hover-color: #fff3bd;
+
+$block-header-color: #812d2d;
+$block-header-link-text-color: $link-color;
+
+$block-header-light-color: #7a3030;
+$block-header-light-link-text-color: $link-color;
+
+$border-color: #7c2424;
+
+$media-box-color: #7c2424;
+
+$fave-color: #a18e27;
+$vote-up-color: #5b9b26;
+$vote-down-color: #da3412;
+$hide-color: #da3412;
+
+$assistant-color: #511b4e;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #d16767;
+$tag-category-rating-color: #9dc3e9;
+$tag-category-spoiler-color: #ddcf53;
+$tag-category-origin-color: #bbb6eb;
+$tag-category-oc-color: #dd7ee4;
+$tag-category-error-color: #ff5566;
+$tag-category-character-color: #82d0e2;
+$tag-category-content-official-color: #d1cf84;
+$tag-category-content-fanmade-color: #ebb1d6;
+$tag-category-species-color: #d2b48c;
+$tag-category-body-type-color: #b8b8b8;
+
+$commission-category-color: #e02727;
+
+$site-notice-color: $grey-color;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin dark-theme-mutations;
+
+/* Put any color variable overrides here.
+ *
+ * Note: due to (intentional and bad) behavior of Vite,
+ * this needs to contain something unique that the other
+ * themes do not have, as Vite does not compile what it considers
+ * "inputs with identical contents", and it does not seem to care
+ * about differences in $variables. So please change something about
+ * the value below, or make up a random variable if you're not changing
+ * any color variables here.
+ */
+
+:root {
+  --keep: #777777;
+}

@@ -1,0 +1,298 @@
+.header {
+  background: var(--header-color);
+}
+
+.header__force-right {
+  margin-left: auto;
+}
+
+[data-notification-count="0"] {
+  display: none !important;
+}
+
+.fa-search-button {
+  padding: 0 0.5rem;
+}
+
+.fa-unread-icon {
+  color: var(--unread-message-color);
+}
+
+/* For text preceded by an icon */
+.fa__text {
+  padding-left: 6px;
+}
+
+.header__navigation {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.header__input,
+.header__input:focus {
+  padding: 0 var(--header-field-spacing);
+  border: none;
+  height: var(--header-field-height);
+  background: var(--header-field-color);
+  color: var(--text-light-color);
+  -webkit-text-fill-color: var(--text-light-color);
+  text-overflow: ellipsis;
+
+  /* reset rounded borders on iOS/Safari */
+  border-radius: 0;
+}
+
+span.header__counter {
+  @mixin number-wrap var(--header-hover-color);
+}
+
+select.header__input,
+select.header__input:focus {
+  /* in case of <select>, a mere border-radius: 0; rule is not sufficient */
+  appearance: none;
+  /* setting "appearance: none;" removes dropdown arrow; the solution is to create a custom one:
+   * (based on http://stackoverflow.com/a/28274325) the first two items create left and right triangles
+   * that match up to create an arrow, the third one specifies dropdown background */
+  background:
+    linear-gradient(45deg, transparent 50%, var(--text-light-color) 50%) calc(100% - 15px) 12px / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--text-light-color) 50%, transparent 50%) calc(100% - 10px) 12px / 5px 5px no-repeat;
+  background-color: var(--header-field-color);
+  /* prevent the custom arrow from overlapping the content */
+  padding-right: 25px;
+}
+
+select.header__input:hover,
+select.header__input:focus:hover {
+  cursor: pointer;
+  background-color: var(--header-field-hover-color);
+}
+
+select.header__input option,
+select.header__input optgroup,
+select.header__input:focus option,
+select.header__input:focus optgroup {
+  background-color: var(--header-field-color);
+}
+
+select.header__input:hover option,
+select.header__input:hover optgroup,
+select.header__input:focus option,
+select.header__input:focus optgroup {
+  background-color: var(--header-field-hover-color);
+}
+
+.header__input--search {
+  width: 18vw;
+  max-width: 300px;
+}
+
+/* fix webkit's invisible coloring of the search bar */
+.header__input--search:-webkit-autofill,
+.header__input--search:-webkit-autofill:hover,
+.header__input--search:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-light-color);
+  box-shadow: 0 0 0 1000px var(--header-field-color) inset;
+  border: none;
+}
+
+.header__search__button,
+.header__search__button:visited {
+  border: none;
+  /* Chrome loves extra padding for some reason */
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: var(--header-field-height);
+  font-size: 1.25em;
+  background: var(--header-field-color);
+  color: var(--text-light-color);
+}
+
+.header__search__button:hover,
+.header__search__button:visited:hover {
+  cursor: pointer;
+  background: var(--header-field-hover-color);
+}
+
+.header__filter-form {
+  max-width: 15em; /* prevent long filter names from causing overflow */
+  margin: var(--header-field-vertical-spacing) var(--header-field-spacing);
+}
+
+span.header__link-user__dropdown-arrow {
+  padding: 0 9px;
+  background:
+    linear-gradient(45deg, transparent 50%, var(--text-light-color) 50%) calc(100% - 5px) 12px / 5px 5px no-repeat,
+    linear-gradient(135deg, var(--text-light-color) 50%, transparent 50%) calc(100%) 12px / 5px 5px no-repeat;
+  background-color: var(--header-color);
+}
+
+span.header__link-user__dropdown-arrow:hover,
+.header__dropdown:hover span.header__link-user__dropdown-arrow {
+  background-color: var(--header-hover-color);
+}
+
+a.header__link {
+  display: inline-block;
+  padding: 0 var(--header-spacing);
+  font-size: var(--header-font-size);
+  color: var(--text-light-color);
+  background: var(--header-color);
+  flex-shrink: 0;
+  line-height: var(--header-height);
+}
+
+a.header__link-user {
+  display: flex;
+  padding: var(--header-field-vertical-spacing) var(--header-field-spacing);
+}
+
+.header--secondary {
+  background: var(--header-secondary-color);
+  line-height: var(--header-sub-height);
+}
+
+.header--secondary a {
+  line-height: var(--header-sub-height);
+  color: var(--foreground-color);
+  background: var(--header-secondary-color);
+}
+
+.header--secondary__admin-links a {
+  background: var(--header-admin-color);
+}
+
+.flash--site-notice a,
+.flash--site-notice a:active,
+.flash--site-notice a:visited {
+  text-decoration: underline;
+  color: var(--site-notice-link-color);
+}
+
+.flash--site-notice a:hover {
+  color: var(--site-notice-link-hover-color);
+}
+
+a.header__link:hover,
+.header__dropdown:hover > a {
+  cursor: pointer;
+  background-color: var(--header-hover-color);
+}
+
+.header--secondary a:hover {
+  background-color: var(--header-secondary-hover-color);
+}
+
+.header--secondary__admin-links a:hover {
+  background: var(--header-admin-hover-color);
+}
+
+.header--secondary .header__dropdown:hover > a {
+  background-color: var(--header-secondary-hover-color);
+}
+
+.header--secondary div {
+  height: var(--header-sub-height);
+}
+
+.header--secondary span.header__counter {
+  @mixin number-wrap var(--header-secondary-hover-color);
+}
+
+span.header__counter__admin {
+  @mixin number-wrap var(--header-admin-hover-color);
+}
+
+.header--secondary__admin-links {
+  margin-right: var(--header-spacing);
+  background: var(--header-admin-color);
+}
+
+/* Flash notices */
+.flash {
+  line-height: var(--header-field-height);
+}
+
+.flash--site-notice {
+  background: var(--site-notice-color);
+  color: var(--text-light-color);
+}
+
+.flash--warning {
+  color: var(--foreground-color);
+  background: var(--warning-light-color);
+}
+
+.flash--success {
+  color: var(--foreground-color);
+  background: var(--success-light-color);
+}
+
+/* Mobile layout */
+
+@media (max-width: $min-desktop-width) {
+  .header > div {
+    height: auto;
+  }
+
+  .header__search {
+    width: 100%;
+    order: 1; /* sets the item to be displayed after .header__row__right, i.e. on a new line */
+  }
+
+  .header__input--search {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  select.header__input,
+  select.header__input:focus {
+    /* Using an absolute max-width resolves an issue with
+     * Chrome on small viewports, where a long filter
+     * name would cause a new row to be added. */
+    max-width: 100px;
+  }
+
+  .header--secondary__admin-links {
+    margin: 0;
+  }
+
+  .flash {
+    padding: 0 6px;
+  }
+
+  span.header__counter__admin {
+    margin-left: 1vw;
+    padding: 0 1vw;
+  }
+}
+
+/* Desktop layout */
+
+@media (min-width: $min-desktop-width) {
+  .header > div,
+  .flash {
+    box-sizing: border-box;
+  }
+
+  .flash {
+    width: 100%;
+    padding-left: var(--normal-margin);
+    padding-right: var(--normal-margin);
+  }
+
+  .layout--center-aligned .header > div {
+    padding-left: var(--centered-margin);
+    padding-right: var(--centered-margin);
+  }
+
+  .layout--center-aligned .flash {
+    padding-left: calc(var(--centered-margin) + var(--header-spacing));
+    padding-right: calc(var(--centered-margin) + var(--header-spacing));
+  }
+}
+
+@media (max-width: $max-limited-desktop-width) and (min-width: $min-desktop-width) {
+  .header > div {
+    height: auto;
+  }
+}

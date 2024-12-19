@@ -1,0 +1,166 @@
+@define-mixin light-theme-mutations {
+  :root {
+    --background-color: $background-color;
+    --page-background-color: $page-background-color;
+    --foreground-color: $foreground-color;
+    --base-color: $base-color;
+    --primary-color: $primary-color;
+    --success-color: $success-color;
+    --danger-color: $danger-color;
+    --warning-color: $warning-color;
+    --link-color: $link-color;
+    --link-hover-color: $link-hover-color;
+    --fave-color: $fave-color;
+    --vote-up-color: $vote-up-color;
+    --vote-down-color: $vote-down-color;
+    --hide-color: $hide-color;
+    --destroyed-content-color: $destroyed-content-color;
+    --assistant-color: $assistant-color;
+    --unread-message-color: $unread-message-color;
+    --tag-normal-color: $tag-normal-color;
+    --tag-category-rating-color: $tag-category-rating-color;
+    --tag-category-spoiler-color: $tag-category-spoiler-color;
+    --tag-category-origin-color: $tag-category-origin-color;
+    --tag-category-oc-color: $tag-category-oc-color;
+    --tag-category-error-color: $tag-category-error-color;
+    --tag-category-character-color: $tag-category-character-color;
+    --tag-category-content-official-color: $tag-category-content-official-color;
+    --tag-category-content-fanmade-color: $tag-category-content-fanmade-color;
+    --tag-category-species-color: $tag-category-species-color;
+    --tag-category-body-type-color: $tag-category-body-type-color;
+    --commission-category-color: $commission-category-color;
+    --image-overlay-color: $image-overlay-color;
+    --image-overlay-background-color: $image-overlay-background-color;
+
+    --text-light-color: $background-color;
+
+    --meta-color: hsl(from $foreground-color h s calc(l + 77));
+    --meta-border-color: hsl(from $foreground-color h s calc(l + 58));
+
+    --comment-color: var(--link-hover-color);
+
+    --header-color: hsl(from $base-color h s calc(l - 9));
+    --header-hover-color: hsl(from $base-color h s calc(l - 16));
+    --header-field-color: $base-color;
+    --header-field-hover-color: hsl(from $base-color h s calc(l - 7));
+    --header-secondary-color: hsl(from $base-color h calc(s - 25) calc(l + 30));
+    --header-secondary-hover-color: hsl(from $base-color h calc(s - 25) calc(l + 23));
+
+    --header-admin-color: hsl(from $vote-down-color h s calc(l + 50));
+    --header-admin-hover-color: hsl(from $vote-down-color h s calc(l + 40));
+
+    --block-header-color: hsl(from $base-color h s calc(l + 28));
+    --block-header-hover-color: hsl(from $base-color h calc(s - 5) calc(l + 20));
+    --block-header-link-text-color: hsl(from $base-color h calc(s + 5) calc(l - 15));
+    --block-header-link-text-hover-color: hsl(from $base-color h s calc(l - 24));
+
+    --block-header-light-color: hsl(from $base-color h calc(s - 16) calc(l + 31));
+    --block-header-light-hover-color: hsl(from $base-color h calc(s - 25) calc(l + 25));
+    --block-header-light-link-text-color: hsl(from $base-color h calc(s - 16) calc(l - 11));
+    --block-header-light-link-text-hover-color: hsl(from $base-color h calc(s - 16) calc(l - 21));
+
+    --border-color: hsl(from $base-color h calc(s - 16) calc(l + 28));
+
+    --media-box-color: hsl(from $base-color h calc(s - 26) calc(l + 31));
+    --media-box-hover-color: hsl(from $base-color h calc(s - 20) calc(l + 25));
+    --media-box-header-link-text-color: $link-color;
+    --media-box-header-link-text-hover-color: hsl(from $link-color h s calc(l - 10));
+
+    --link-light-color: var(--background-color);
+
+    --primary-light-color: hsl(from $primary-color h s calc(l + 5));
+    --success-light-color: hsl(from $success-color h s calc(l + 7));
+    --danger-light-color: hsl(from $danger-color h s calc(l + 4));
+    --warning-light-color: hsl(from $warning-color h s calc(l + 6));
+
+    --link-dark-color: hsl(from $link-color h s calc(l - 20));
+    --link-hover-dark-color: hsl(from $link-hover-color h s calc(l - 20));
+
+    --image-show-link-color: $link-color;
+    --image-show-link-hover-color: $link-hover-color;
+
+    --background-odd-color: hsl(from $base-color h s calc(l + 35));
+    --background-even-color: $background-color;
+    --success-odd-color: hsl(from $success-color h calc(s + 8) calc(l + 4));
+    --success-even-color: hsl(from $success-color h s calc(l + 13));
+    --warning-odd-color: hsl(from $warning-color h calc(s + 10) calc(l - 1));
+    --warning-even-color: hsl(from $warning-color h s calc(l + 5));
+    --danger-odd-color: hsl(from $danger-color h calc(s + 12) calc(l + 3));
+    --danger-even-color: hsl(from $danger-color h calc(s - 10) calc(l + 7));
+
+    --foreground-half-color: hsl(from $background-color h s calc(l - 45));
+
+    --sparkline-color: hsl(from $base-color h s calc(l + 5));
+
+    --assistant-border-color: hsl(from $assistant-color h s calc(l - 8));
+
+    --admin-links-color: hsl(from $vote-down-color h calc(s - 20) calc(l + 50));
+    --admin-links-hover-color: hsl(from $vote-down-color h calc(s - 30) calc(l + 30));
+
+    --input-text-color: $foreground-color;
+    --input-color: var(--meta-color);
+    --input-border: var(--meta-border-color);
+    --input-color-active: hsl(from $base-color h calc(s - 16) calc(l + 30));
+    --input-border-active: hsl(from $base-color h s calc(l + 10));
+
+    --tag-normal-background: hsl(from $tag-normal-color h calc(s - 28) calc(l + 44));
+    --tag-normal-border: hsl(from $tag-normal-color h calc(s - 28) calc(l + 28));
+    --tag-category-rating-background: hsl(from $tag-category-rating-color h calc(s - 25) calc(l + 41));
+    --tag-category-rating-border: hsl(from $tag-category-rating-color h calc(s - 25) calc(l + 31));
+    --tag-category-spoiler-background: hsl(from $tag-category-spoiler-color h s calc(l + 41));
+    --tag-category-spoiler-border: hsl(from $tag-category-spoiler-color h s calc(l + 33));
+    --tag-category-origin-background: hsl(from $tag-category-origin-color h s calc(l + 43));
+    --tag-category-origin-border: hsl(from $tag-category-origin-color h s calc(l + 33));
+    --tag-category-oc-background: hsl(from $tag-category-oc-color h s calc(l + 35));
+    --tag-category-oc-border: hsl(from $tag-category-oc-color h s calc(l + 26));
+    --tag-category-error-background: hsl(from $tag-category-error-color h s calc(l + 40));
+    --tag-category-error-border: hsl(from $tag-category-error-color h s calc(l + 32));
+    --tag-category-character-background: hsl(from $tag-category-character-color h calc(s - 10) calc(l + 44));
+    --tag-category-character-border: hsl(from $tag-category-character-color h s calc(l + 22));
+    --tag-category-content-official-background: hsl(from $tag-category-content-official-color h s calc(l + 41));
+    --tag-category-content-official-border: hsl(from $tag-category-content-official-color h s calc(l + 18));
+    --tag-category-content-fanmade-background: hsl(from $tag-category-content-fanmade-color h s calc(l + 36));
+    --tag-category-content-fanmade-border: hsl(from $tag-category-content-fanmade-color h s calc(l + 18));
+    --tag-category-species-background: hsl(from $tag-category-species-color h s calc(l + 44));
+    --tag-category-species-border: hsl(from $tag-category-species-color h s calc(l + 25));
+    --tag-category-body-type-background: hsl(from $tag-category-body-type-color h s calc(l + 45));
+    --tag-category-body-type-border: hsl(from $tag-category-body-type-color h s calc(l + 35));
+
+    --commission-category-background: hsl(from $commission-category-color h calc(s + 12) calc(l + 40));
+    --commission-category-border: hsl(from $commission-category-color h s calc(l + 20));
+
+    --site-notice-color: hsl(from $base-color h s calc(l - 32));
+    --site-notice-link-color: var(--block-header-light-color);
+    --site-notice-link-hover-color: var(--block-header-hover-color);
+
+    --button-text-color: $foreground-color;
+    --button-background-color: rgba(var(--meta-color), 0.2);
+    --button-hover-background-color: var(--input-color-active);
+    --button-hover-border-color: var(--input-border-active);
+    --button-border-color: var(--meta-border-color);
+
+    --button-primary-background-color: hsl(from $primary-color h s calc(l + 5));
+    --button-success-background-color: hsl(from $success-color h s calc(l + 7));
+    --button-warning-background-color: hsl(from $warning-color h s calc(l + 6));
+    --button-danger-background-color: hsl(from $warning-color h s calc(l + 6));
+
+    --button-primary-border-color: hsl(from $primary-color h s calc(l - 8));
+    --button-success-border-color: hsl(from $success-color h s calc(l - 10));
+    --button-warning-border-color: hsl(from $warning-color h s calc(l - 11));
+    --button-danger-border-color: hsl(from $danger-color h s calc(l - 8));
+
+    --button-primary-hover-background: $primary-color;
+    --button-primary-hover-border: hsl(from $primary-color h s calc(l - 13));
+    --button-success-hover-background: hsl(from $success-color h s calc(l + 2));
+    --button-success-hover-border: hsl(from $success-color h s calc(l - 15));
+    --button-warning-hover-background: $warning-color;
+    --button-warning-hover-border: hsl(from $warning-color h s calc(l - 17));
+    --button-danger-hover-background: hsl(from $danger-color h s calc(l + 1));
+    --button-danger-hover-border: hsl(from $danger-color h s calc(l - 13));
+
+    --downvote-disabled-color: hsl(from $vote-down-color calc(s - 40) calc(l - 20));
+    --dnp-warning-hover-color: hsl(from $vote-down-color h s calc(l + 10));
+    --poll-form-label-background: hsl(from $base-color h calc(s - 16) calc(l + 36));
+    --tag-dropdown-hover-background: hsl(from $foreground-color h s calc(l - 10));
+  }
+}

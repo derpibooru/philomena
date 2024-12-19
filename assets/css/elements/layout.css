@@ -1,0 +1,428 @@
+@media (max-width: $min-desktop-width) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+@media (max-width: $min-desktop-thumb-width) {
+  .hide-mobile-t {
+    display: none !important;
+  }
+}
+
+@media (max-width: $max-limited-desktop-width) and (min-width: $min-desktop-width) {
+  .hide-limited-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: $min-desktop-width) {
+  .hide-desktop {
+    display: none !important;
+  }
+}
+
+@media (min-width: $min-desktop-thumb-width) {
+  .hide-desktop-t {
+    display: none !important;
+  }
+}
+
+nav {
+  display: inline-block;
+}
+
+#burger {
+  font-size: 18px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 100%;
+  display: none;
+  overflow: auto;
+  background: var(--meta-color);
+  padding: 5px;
+}
+
+#burger a {
+  background: var(--meta-color);
+  color: var(--foreground-color);
+  display: block;
+  padding: 5px;
+}
+
+#burger a:hover {
+  background: var(--base-color);
+  color: var(--link-light-color);
+}
+
+#container {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  height: 100%;
+  margin: auto;
+  width: 100%;
+  background: var(--page-background-color);
+}
+
+#content {
+  margin-top: var(--header-spacing);
+  margin-bottom: var(--header-spacing);
+  flex: 1 0 auto;
+  clear: both;
+}
+
+#content > h1 {
+  margin: 0 0 12px;
+}
+
+@media (max-width: $min-desktop-width) {
+  #content {
+    padding: 0 4px;
+  }
+}
+
+@media (min-width: $min-desktop-width) {
+  .layout--wide,
+  .layout--medium,
+  .layout--narrow {
+    box-sizing: border-box;
+  }
+
+  .layout--narrow {
+    width: 96vw;
+    max-width: var(--limited-layout-width);
+  }
+
+  .layout--medium {
+    width: 96vw;
+    max-width: var(--medium-layout-width);
+  }
+
+  .layout--wide {
+    width: 100%;
+    padding-left: var(--normal-margin);
+    padding-right: var(--normal-margin);
+  }
+
+  .layout--center-aligned .layout--medium,
+  .layout--center-aligned .layout--narrow {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .layout--center-aligned .layout--wide {
+    padding-left: var(--centered-margin);
+    padding-right: var(--centered-margin);
+  }
+
+  #container:not(.layout--center-aligned) #content {
+    padding-left: var(--normal-margin);
+  }
+}
+
+/* Use the following two classes to center content when user has layout centering enabled: */
+/* TODO replace this bullshit naming, this is not actually BEM at all and makes no sense */
+#container.layout--center-aligned .center--layout {
+  justify-content: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#container.layout--center-aligned .center--layout--flex {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 6px;
+  padding-bottom: 10px;
+  font-size: 12px;
+  color: var(--foreground-half-color);
+  background: var(--background-color);
+  line-height: 14px;
+}
+
+#footer #footer_content {
+  display: flex;
+  flex-direction: row;
+}
+
+#footer .footercol {
+  flex: 1 0 auto;
+  width: auto;
+}
+
+#footer .footercol h5 {
+  margin: 3px 0;
+}
+
+#footer .footercol + .footercol {
+  margin-left: 15px;
+}
+
+#footer #serving_info {
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex--centered {
+  align-items: center;
+}
+
+.flex--center-distributed {
+  justify-content: center;
+}
+
+/* Mostly for the header */
+.flex--start-bunched {
+  justify-content: flex-start;
+}
+
+.flex--end-bunched {
+  justify-content: flex-end;
+}
+
+@media (max-width: $min-desktop-width) {
+  .flex--maybe-wrap {
+    flex-wrap: wrap !important;
+  }
+
+  #footer {
+    align-items: normal !important;
+  }
+
+  #footer_content {
+    flex-direction: column !important;
+  }
+
+  .footercol {
+    margin-left: 15px;
+  }
+}
+
+.flex--maybe-wrap {
+  flex-wrap: nowrap;
+}
+
+.flex--no-wrap {
+  flex-wrap: nowrap;
+}
+
+.flex--wrap {
+  flex-wrap: wrap;
+}
+
+.flex__right {
+  flex: 1 1 auto;
+  text-align: right;
+}
+
+.flex__grow {
+  flex: 1 0 0;
+}
+
+.flex__shrink {
+  flex: 0 1 auto;
+}
+
+.flex__fixed {
+  flex: 0 0 auto;
+}
+
+.flex--column {
+  flex-direction: column;
+}
+
+.flex--spaced-out {
+  justify-content: space-between;
+}
+
+.grid {
+  display: grid;
+}
+
+@media (max-width: $min-desktop-width) {
+  .stretched-mobile-links {
+    display: flex;
+    width: 100%;
+  }
+
+  /* Do not use a descendant selector here as it affects dropdowns */
+  .stretched-mobile-links > a,
+  .stretched-mobile-links span {
+    text-align: center;
+    flex: 1 1 auto;
+    padding: 0 1vw; /* Having smaller padding makes it harder to click the right link on small mobile screens */
+  }
+}
+
+@mixin even-odd alternating-color;
+
+.spacing-right {
+  margin-right: 12px;
+}
+
+.spacing-left {
+  margin-left: 12px;
+}
+
+.column-layout {
+  display: flex;
+}
+
+@media (max-width: $min-desktop-width) {
+  .column-layout {
+    display: block;
+  }
+}
+
+.column-layout__left {
+  flex: 0 0 auto;
+  width: 326px;
+  margin-right: var(--header-spacing);
+  word-wrap: break-word;
+}
+
+@media (max-width: $min-desktop-width) {
+  .column-layout__left {
+    margin-right: 0;
+    width: 100%;
+  }
+}
+
+.column-layout__main {
+  flex: 1 1 auto;
+  word-wrap: break-word;
+  /* prevent really long words from overflowing things */
+  min-width: 0;
+}
+
+figure {
+  display: table;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+figure img {
+  width: 100%;
+  height: auto;
+  max-width: 400px;
+  display: inline-block;
+}
+
+figure figcaption {
+  display: block;
+  font-weight: bold;
+}
+
+.theme-preview-trixie {
+  align-self: flex-end; /* place the image next to the theme switch (align it to the bottom of the container) */
+  min-width: 0; /* allow the image to be downsized */
+  padding-left: var(--block-spacing); /* on narrow screens, the image would sit uncomfortably close to the text */
+}
+
+.table-list__label {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.table-list__label .table-list__label__text,
+.table-list__label .table-list__label__input {
+  padding: 8px;
+}
+
+.table-list__label .table-list__label__text {
+  flex: 1 0 30%;
+}
+
+@media (min-width: $min-desktop-width) {
+  .table-list__label .table-list__label__text {
+    text-align: right;
+  }
+}
+
+.table-list__label .table-list__label__input {
+  flex: 1 1 60%;
+}
+
+.permission-choices {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.permission-choice__label input {
+  display: none;
+}
+
+.permission-choice__label input:checked .permission-option--yes {
+  border-color: var(--success-color);
+  background-color: var(--success-light-color);
+}
+
+.permission-choice__label input:checked .permission-option--no {
+  border-color: var(--danger-color);
+  background-color: var(--danger-light-color);
+}
+
+.permission-choice__label input:hover .permission-option--yes {
+  background-color: var(--success-light-color);
+}
+
+.permission-choice__label input:hover .permission-option--no {
+  background-color: var(--danger-light-color);
+}
+
+.permission-option {
+  text-align: center;
+  border: 1px solid transparent;
+}
+
+.permission-option:not(:last-child) {
+  margin-right: 12px;
+}
+
+.choice-text {
+  display: flex;
+  text-align: center;
+  padding: 4px 16px;
+}
+
+.minimal {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.minimal__message {
+  padding: 30px;
+  max-width: 560px;
+  width: 100%;
+  margin: auto;
+  text-align: left;
+  background-color: var(--header-secondary-color);
+}
+
+.minimal__message__header {
+  margin: 0 0 10px;
+}

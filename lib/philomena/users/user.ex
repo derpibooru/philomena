@@ -67,7 +67,7 @@ defmodule Philomena.Users.User do
 
     # Settings
     field :spoiler_type, :string, default: "static"
-    field :theme, :string, default: "default"
+    field :theme, :string, default: "dark-blue"
     field :images_per_page, :integer, default: 15
     field :show_large_thumbnails, :boolean, default: true
     field :show_sidebar_and_watched_images, :boolean, default: true
@@ -347,7 +347,7 @@ defmodule Philomena.Users.User do
       :show_sidebar_and_watched_images
     ])
     |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
-    |> validate_inclusion(:theme, ~W(default dark red))
+    |> validate_inclusion(:theme, themes())
     |> validate_inclusion(:images_per_page, 1..50)
     |> validate_inclusion(:comments_per_page, 1..100)
     |> validate_inclusion(:scale_large_images, ["false", "partscaled", "true"])
@@ -603,4 +603,18 @@ defmodule Philomena.Users.User do
 
   defp remove_backup_code(user, token),
     do: user.otp_backup_codes |> Enum.reject(&Password.verify_pass(token, &1))
+
+  def theme_colors do
+    ~W(red orange yellow blue green purple teal pink gray)
+  end
+
+  def theme_names do
+    ~W(dark light)
+  end
+
+  def themes do
+    for name <- theme_names(), color <- theme_colors() do
+      "#{name}-#{color}"
+    end
+  end
 end

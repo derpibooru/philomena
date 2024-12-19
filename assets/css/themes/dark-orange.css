@@ -1,0 +1,78 @@
+@import "themes/base/dark";
+
+$background-color: #2b1a15;
+$page-background-color: #210f0c;
+$foreground-color: #e0e0e0;
+
+$base-color: #a04517;
+
+$primary-light-color: #8c2a0f;
+$success-light-color: #144714;
+$danger-light-color: #66211f;
+$warning-light-color: #7d4825;
+
+$destroyed-content-color: #382c2f;
+
+$meta-color: #2a1c19;
+
+$header-color: #893a12;
+$header-field-color: #492110;
+$header-secondary-color: #44291d;
+$header-admin-color: #480909;
+
+$block-header-color: #44291d;
+$block-header-link-text-color: #ec5f19;
+
+$block-header-light-color: #44291d;
+$block-header-light-link-text-color: #ec5f19;
+
+$border-color: #44291d;
+
+$media-box-color: #40312a;
+
+$link-color: #ec5f19;
+$link-hover-color: #ec1919;
+
+$fave-color: #a18e27;
+$vote-up-color: #5b9b26;
+$vote-down-color: #da3412;
+$hide-color: #da3412;
+
+$assistant-color: #511b4e;
+$unread-message-color: #ff8800;
+
+$tag-normal-color: #4aa158;
+$tag-category-rating-color: #418dd9;
+$tag-category-spoiler-color: #d49b39;
+$tag-category-origin-color: #6f66d6;
+$tag-category-oc-color: #b157b7;
+$tag-category-error-color: #d45460;
+$tag-category-character-color: #4aaabf;
+$tag-category-content-official-color: #b9b541;
+$tag-category-content-fanmade-color: #cc8eb5;
+$tag-category-species-color: #b16b50;
+$tag-category-body-type-color: #b8b8b8;
+
+$commission-category-color: #e07b27;
+
+$site-notice-color: #07070a;
+
+$image-overlay-color: #ffffff;
+$image-overlay-background-color: #000000;
+
+@mixin dark-theme-mutations;
+
+/* Put any color variable overrides here.
+ *
+ * Note: due to (intentional and bad) behavior of Vite,
+ * this needs to contain something unique that the other
+ * themes do not have, as Vite does not compile what it considers
+ * "inputs with identical contents", and it does not seem to care
+ * about differences in $variables. So please change something about
+ * the value below, or make up a random variable if you're not changing
+ * any color variables here.
+ */
+
+:root {
+  --comment-color: #b099dd;
+}
