@@ -15,7 +15,7 @@
 @define-mixin even-odd-type $classname, $type {
   .$(classname):nth-child(odd).$(type),
   .$(classname):nth-child(odd) .$(type) {
-    background: var(--$(type)-even-color);
+    background: var(--$(type)-odd-color);
   }
 
   .$(classname):nth-child(even).$(type),
@@ -25,7 +25,7 @@
 
   .$(classname):nth-child(even) .$(classname):nth-child(odd).$(type),
   .$(classname):nth-child(even) .$(classname):nth-child(odd) .$(type) {
-    background: var(--$(type)-even-color);
+    background: var(--$(type)-odd-color);
   }
 }
 
