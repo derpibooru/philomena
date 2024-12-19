@@ -42,9 +42,11 @@
 @import "views/comments";
 @import "views/commissions";
 @import "views/communications";
+@import "views/derpibooru";
 @import "views/duplicates";
 @import "views/filters";
 @import "views/galleries";
+@import "views/game";
 @import "views/images";
 @import "views/notifications";
 @import "views/pages";

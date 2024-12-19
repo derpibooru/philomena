@@ -67,4 +67,5 @@ $image-overlay-background-color: #000000;
   --media-box-color: hsl(from $base-color h calc(s - 26) calc(l + 20));
   --media-box-hover-color: hsl(from $base-color h calc(s - 20) calc(l + 14));
   --background-odd-color: #eaeaea;
+  --logo-color: #d4d7e9;
 }

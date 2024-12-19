@@ -1,0 +1,21 @@
+/*
+ * This file contains Derpibooru-specific branding changes
+ * You probably do not want to copy it in your fork.
+ *
+ * This will all be unnecessary in the debranding update anyway,
+ * but for now, we have to hack around :3
+ */
+
+:root {
+  --logo-color: #73d6ed;
+}
+
+i.favicon-home {
+  position: relative;
+  top: 2px;
+  background-image: unset !important;
+  background-color: var(--logo-color);
+  -webkit-mask-image: url("/favicon.svg");
+  mask-image: url("/favicon.svg");
+  mask-size: contain;
+}

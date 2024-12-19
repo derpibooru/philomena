@@ -57,4 +57,5 @@ $image-overlay-background-color: #000000;
 :root {
   --header-admin-color: hsl(from $foreground-color h s calc(l + 60));
   --header-admin-hover-color: hsl(from $foreground-color h s calc(l + 50));
+  --logo-color: #ff8080;
 }

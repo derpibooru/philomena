@@ -57,4 +57,5 @@ $image-overlay-background-color: #000000;
 :root {
   --comment-color: #9273d0;
   --background-odd-color: #f5efde;
+  --logo-color: #fbc115;
 }

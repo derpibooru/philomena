@@ -1,15 +1,8 @@
-// Hi, brave soul who reads this.
-// I've written this file like you see mostly
-// because this is how redesign is written.
-// This file is... terrible tbh.
-// Redesign is much better.
 :root {
   --border-radius: 0.25rem;
-
   --team1-color: #38407c;
   --team2-color: #dc591a;
   --middle-color: #7a4a55;
-
   --bar-outline-color: #665773;
 }
 
@@ -60,18 +53,19 @@
   grid-template-columns: auto auto;
 }
 
-.game__title--team1 {
+.game__title--team1,
+.game__title--team2 {
   display: flex;
   flex-direction: row;
   line-height: 2rem;
+}
 
-  & > span {
-    font-size: 16px;
-  }
+.game__title--team1 > span,
+.game__title--team2 > span {
+  font-size: 16px;
 }
 
 .game__title--team2 {
-  @extend .game__title--team1;
   margin-left: auto;
 }
 
@@ -100,12 +94,7 @@
 }
 
 .game__progress_bar {
-  background: linear-gradient(
-    90deg,
-    var(--team1-color) 0%,
-    var(--middle-color) 50%,
-    var(--team2-color) 100%
-  );
+  background: linear-gradient(90deg, var(--team1-color) 0%, var(--middle-color) 50%, var(--team2-color) 100%);
   height: 1rem;
   width: 100%;
 }
