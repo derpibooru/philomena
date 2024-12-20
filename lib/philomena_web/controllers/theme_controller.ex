@@ -1,4 +1,4 @@
-defmodule PhilomenaWeb.Api.Json.ThemeController do
+defmodule PhilomenaWeb.ThemeController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.SettingView
