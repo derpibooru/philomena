@@ -15,12 +15,10 @@ defmodule PhilomenaWeb.SettingView do
     end)
   end
 
-  def theme_paths_json(conn) do
-    User.themes()
-    |> Map.new(fn name ->
-      {name, static_path(conn, "/css/#{name}.css")}
+  def theme_paths do
+    Map.new(User.themes(), fn name ->
+      {name, static_path(PhilomenaWeb.Endpoint, "/css/#{name}.css")}
     end)
-    |> Jason.encode!()
   end
 
   def scale_options do
