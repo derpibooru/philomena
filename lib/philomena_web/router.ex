@@ -157,6 +157,8 @@ defmodule PhilomenaWeb.Router do
         resources "/posts", Forum.Topic.PostController, only: [:show, :index]
       end
     end
+
+    resources "/themes", ThemeController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do
