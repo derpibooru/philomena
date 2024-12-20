@@ -18,4 +18,6 @@ i.favicon-home {
   -webkit-mask-image: url("/favicon.svg");
   mask-image: url("/favicon.svg");
   mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
 }
