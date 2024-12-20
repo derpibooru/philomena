@@ -115,7 +115,8 @@
 }
 
 a.block__header--single-item,
-.block__header a {
+.block__header a,
+.block__header--sub a {
   color: var(--block-header-link-text-color);
   display: inline-block;
   cursor: pointer;
