@@ -29,11 +29,12 @@ defmodule PhilomenaMedia.Processors.Webm do
     duration = analysis.duration
     stripped = strip(file)
     preview = preview(duration, stripped)
-    mp4 = scale_mp4_only(stripped, dimensions, dimensions)
+    decoder = select_decoder(file)
+    mp4 = scale_mp4_only(decoder, stripped, dimensions, dimensions)
 
     {:ok, intensities} = Intensities.file(preview)
 
-    scaled = Enum.flat_map(versions, &scale(stripped, duration, dimensions, &1))
+    scaled = Enum.flat_map(versions, &scale(decoder, stripped, duration, dimensions, &1))
     mp4 = [{:copy, mp4, "full.mp4"}]
 
     [
@@ -82,12 +83,12 @@ defmodule PhilomenaMedia.Processors.Webm do
     stripped
   end
 
-  defp scale(file, duration, dimensions, {thumb_name, target_dimensions}) do
-    {webm, mp4} = scale_videos(file, dimensions, target_dimensions)
+  defp scale(decoder, file, duration, dimensions, {thumb_name, target_dimensions}) do
+    {webm, mp4} = scale_videos(decoder, file, dimensions, target_dimensions)
 
     cond do
       thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(file, duration, dimensions, target_dimensions)
+        gif = scale_gif(decoder, file, duration, dimensions, target_dimensions)
 
         [
           {:copy, webm, "#{thumb_name}.webm"},
@@ -103,7 +104,7 @@ defmodule PhilomenaMedia.Processors.Webm do
     end
   end
 
-  defp scale_videos(file, dimensions, target_dimensions) do
+  defp scale_videos(decoder, file, dimensions, target_dimensions) do
     filter = scale_filter(dimensions, target_dimensions)
     webm = Briefly.create!(extname: ".webm")
     mp4 = Briefly.create!(extname: ".mp4")
@@ -113,6 +114,8 @@ defmodule PhilomenaMedia.Processors.Webm do
         "-loglevel",
         "0",
         "-y",
+        "-c:v",
+        decoder,
         "-i",
         file,
         "-c:v",
@@ -162,7 +165,7 @@ defmodule PhilomenaMedia.Processors.Webm do
     {webm, mp4}
   end
 
-  defp scale_mp4_only(file, dimensions, target_dimensions) do
+  defp scale_mp4_only(decoder, file, dimensions, target_dimensions) do
     filter = scale_filter(dimensions, target_dimensions)
     mp4 = Briefly.create!(extname: ".mp4")
 
@@ -171,6 +174,8 @@ defmodule PhilomenaMedia.Processors.Webm do
         "-loglevel",
         "0",
         "-y",
+        "-c:v",
+        decoder,
         "-i",
         file,
         "-c:v",
@@ -197,13 +202,37 @@ defmodule PhilomenaMedia.Processors.Webm do
     mp4
   end
 
-  defp scale_gif(file, duration, dimensions, target_dimensions) do
+  defp scale_gif(decoder, file, duration, dimensions, target_dimensions) do
     {width, height} = box_dimensions(dimensions, target_dimensions)
     gif = Briefly.create!(extname: ".gif")
 
-    GifPreview.preview(file, gif, duration, {width, height})
+    GifPreview.preview(decoder, file, gif, duration, {width, height})
 
     gif
+  end
+
+  defp select_decoder(file) do
+    {output, 0} =
+      System.cmd("ffprobe", [
+        "-loglevel",
+        "0",
+        "-select_streams",
+        "v:0",
+        "-show_entries",
+        "stream=codec_name",
+        "-of",
+        "default=noprint_wrappers=1:nokey=1",
+        "-i",
+        file
+      ])
+
+    # Mediatools verifies that we only have one video stream and that it is
+    # one of the supported formats, so the following is safe to do:
+    case output do
+      "vp8\n" -> "libvpx"
+      "vp9\n" -> "libvpx-vp9"
+      "av1\n" -> "av1"
+    end
   end
 
   defp scale_filter(dimensions, target_dimensions) do

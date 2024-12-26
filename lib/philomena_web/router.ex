@@ -157,8 +157,6 @@ defmodule PhilomenaWeb.Router do
         resources "/posts", Forum.Topic.PostController, only: [:show, :index]
       end
     end
-
-    resources "/themes", ThemeController, only: [:index]
   end
 
   scope "/", PhilomenaWeb do
@@ -491,6 +489,8 @@ defmodule PhilomenaWeb.Router do
     scope "/fetch", Fetch, as: :fetch do
       resources "/tags", TagController, only: [:index]
     end
+
+    resources "/themes", ThemeController, only: [:index]
 
     resources "/tags", TagController, only: [:index, :show] do
       resources "/tag_changes", Tag.TagChangeController, only: [:index]

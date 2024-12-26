@@ -13,6 +13,9 @@ defmodule PhilomenaMedia.GifPreview do
           target_framerate: target_framerate()
         ]
 
+  @typedoc "One of av1, h264, libvpx, libvpx-vp9"
+  @type decoder :: String.t()
+
   @doc """
   Generate a GIF preview of the given video input with evenly-spaced sample points.
 
@@ -31,8 +34,8 @@ defmodule PhilomenaMedia.GifPreview do
     * 1 or above: 5 images
     * otherwise: 2 images
   """
-  @spec preview(Path.t(), Path.t(), duration(), dimensions(), opts()) :: :ok
-  def preview(video, gif, duration, dimensions, opts \\ []) do
+  @spec preview(decoder(), Path.t(), Path.t(), duration(), dimensions(), opts()) :: :ok
+  def preview(decoder, video, gif, duration, dimensions, opts \\ []) do
     target_framerate = Keyword.get(opts, :target_framerate, 2)
 
     num_images =
@@ -48,22 +51,41 @@ defmodule PhilomenaMedia.GifPreview do
     {_output, 0} =
       System.cmd(
         "ffmpeg",
-        commands(video, gif, clamp(duration), dimensions, num_images, target_framerate)
+        commands(decoder, video, gif, clamp(duration), dimensions, num_images, target_framerate)
       )
 
     :ok
   end
 
-  @spec commands(Path.t(), Path.t(), duration(), dimensions(), num_images(), target_framerate()) ::
+  @spec commands(
+          decoder(),
+          Path.t(),
+          Path.t(),
+          duration(),
+          dimensions(),
+          num_images(),
+          target_framerate()
+        ) ::
           [String.t()]
-  defp commands(video, gif, duration, {target_width, target_height}, num_images, target_framerate) do
+  defp commands(
+         decoder,
+         video,
+         gif,
+         duration,
+         {target_width, target_height},
+         num_images,
+         target_framerate
+       ) do
     # Compute range [0, num_images)
     image_range = 0..(num_images - 1)
 
     # Generate input list in the following form:
-    #   -ss 0.0 -i input.webm
+    #   -ss 0.0 -c:v libvpx -i input.webm
     input_arguments =
-      Enum.flat_map(image_range, &["-ss", "#{&1 * duration / num_images}", "-i", video])
+      Enum.flat_map(
+        image_range,
+        &["-ss", "#{&1 * duration / num_images}", "-c:v", decoder, "-i", video]
+      )
 
     # Generate graph in the following form:
     #   [0:v] trim=end_frame=1 [t0]; [1:v] trim=end_frame=1 [t1] ...
@@ -87,7 +109,7 @@ defmodule PhilomenaMedia.GifPreview do
       "[s0] palettegen=stats_mode=single:max_colors=255:reserve_transparent=1 [palettegen]"
 
     paletteuse_filter =
-      "[s1][palettegen] paletteuse=dither=bayer:bayer_scale=5:new=1:alpha_threshold=255"
+      "[s1][palettegen] paletteuse=dither=bayer:bayer_scale=5:new=1:alpha_threshold=251"
 
     filter_graph =
       [
