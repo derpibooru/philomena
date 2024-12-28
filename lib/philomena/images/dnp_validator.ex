@@ -3,22 +3,23 @@ defmodule Philomena.Images.DnpValidator do
   import Ecto.Query
   alias Philomena.Repo
   alias Philomena.Tags.Tag
-  alias Philomena.ArtistLinks.ArtistLink
+  alias Philomena.DnpEntries.DnpEntry
 
   def validate_dnp(changeset, uploader) do
     tags =
       changeset
       |> get_field(:tags)
-      |> extract_tags()
+      |> Enum.map(& &1.name)
 
-    edit_present? = MapSet.member?(tags, "edit")
+    edit_present? = "edit" in tags
 
     tags_with_dnp =
       Tag
-      |> where([t], t.name in ^extract_artists(tags))
-      |> preload(dnp_entries: :requesting_user)
+      |> from(as: :tag)
+      |> where([t], t.name in ^tags)
+      |> where(exists(where(DnpEntry, [d], d.tag_id == parent_as(:tag).id)))
+      |> preload(dnp_entries: [tag: :verified_links])
       |> Repo.all()
-      |> Enum.filter(&(length(&1.dnp_entries) > 0))
 
     changeset
     |> validate_artist_only(tags_with_dnp, uploader)
@@ -26,54 +27,38 @@ defmodule Philomena.Images.DnpValidator do
   end
 
   defp validate_artist_only(changeset, tags_with_dnp, uploader) do
-    Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
-      case Enum.any?(
-             tag.dnp_entries,
-             &(&1.dnp_type == "Artist Upload Only" and not valid_user?(&1, uploader))
-           ) do
-        true ->
-          add_error(changeset, :image, "DNP (Artist upload only)")
+    validate_tags_with_dnp(changeset, tags_with_dnp, uploader, "Artist Upload Only")
+  end
 
-        false ->
+  defp validate_no_edits(changeset, tags_with_dnp, uploader, edit_present?) do
+    if edit_present? do
+      validate_tags_with_dnp(changeset, tags_with_dnp, uploader, "No Edits")
+    else
+      changeset
+    end
+  end
+
+  defp validate_tags_with_dnp(changeset, tags_with_dnp, uploader, dnp_type) do
+    Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
+      tag.dnp_entries
+      |> Enum.any?(&(&1.dnp_type == dnp_type and not uploader_permitted?(&1, uploader)))
+      |> case do
+        true ->
+          add_error(changeset, :image, "DNP (#{dnp_type})")
+
+        _ ->
           changeset
       end
     end)
   end
 
-  defp validate_no_edits(changeset, _tags_with_dnp, _uploader, false), do: changeset
+  defp uploader_permitted?(dnp_entry, uploader) do
+    case uploader do
+      %{id: uploader_id} ->
+        Enum.any?(dnp_entry.tag.verified_links, &(&1.user_id == uploader_id))
 
-  defp validate_no_edits(changeset, tags_with_dnp, uploader, true) do
-    Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
-      case Enum.any?(
-             tag.dnp_entries,
-             &(&1.dnp_type == "No Edits" and not valid_user?(&1, uploader))
-           ) do
-        true ->
-          add_error(changeset, :image, "DNP (No edits)")
-
-        false ->
-          changeset
-      end
-    end)
-  end
-
-  defp valid_user?(_dnp_entry, nil), do: false
-
-  defp valid_user?(dnp_entry, user) do
-    ArtistLink
-    |> where(tag_id: ^dnp_entry.tag_id)
-    |> where(aasm_state: "verified")
-    |> where(user_id: ^user.id)
-    |> Repo.exists?()
-  end
-
-  defp extract_tags(tags) do
-    tags
-    |> Enum.map(& &1.name)
-    |> MapSet.new()
-  end
-
-  defp extract_artists(tags) do
-    Enum.filter(tags, &String.starts_with?(&1, "artist:"))
+      _ ->
+        false
+    end
   end
 end

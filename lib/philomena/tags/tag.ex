@@ -68,6 +68,7 @@ defmodule Philomena.Tags.Tag do
       join_through: "tags_implied_tags",
       join_keys: [implied_tag_id: :id, tag_id: :id]
 
+    has_many :verified_links, ArtistLink, where: [aasm_state: "verified"]
     has_many :public_links, ArtistLink, where: [public: true, aasm_state: "verified"]
     has_many :hidden_links, ArtistLink, where: [public: false, aasm_state: "verified"]
     has_many :dnp_entries, DnpEntry, where: [aasm_state: "listed"]
