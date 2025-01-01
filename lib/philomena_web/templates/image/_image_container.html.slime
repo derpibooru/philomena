@@ -36,7 +36,7 @@
     - {:video, webm, mp4, hover_text} ->
       .media-box__overlay.js-spoiler-info-overlay
       a href=link title=hover_text
-        video alt=hover_text autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
+        video alt=hover_text autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline" disablepictureinpicture="disablepictureinpicture"
           source src=webm type="video/webm"
           source src=mp4 type="video/mp4"
         img alt=hover_text
@@ -50,7 +50,7 @@
     - {:filtered_video, hover_text} ->
       .media-box__overlay.js-spoiler-info-overlay
       a href=link title=hover_text
-        video autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline"
+        video autoplay="autoplay" muted="muted" loop="loop" playsinline="playsinline" disablepictureinpicture="disablepictureinpicture"
         img alt=hover_text
 
     - :not_rendered ->
