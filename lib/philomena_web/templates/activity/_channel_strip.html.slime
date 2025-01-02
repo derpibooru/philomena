@@ -8,6 +8,10 @@
       /  => image_tag 'no_avatar_original.svg', width: 32, height: 32, alt: "#{channel.title}'s logo'", class: 'channel-strip__image'
       = @channel.title || @channel.short_name
   .flex__fixed.flex__right
+    = if @channel.nsfw do
+      span title="NSFW"
+        ' 🔞
+    '
     = if @channel.is_live do
       span.channel-strip__state.label.label--narrow.label--success
         ' LIVE NOW
