@@ -46,10 +46,10 @@ defmodule PhilomenaQuery.Search.Client do
   end
 
   defp encode_body(body) when is_map(body),
-    do: Jason.encode!(body)
+    do: Jason.encode_to_iodata!(body)
 
   defp encode_body(body) when is_list(body),
-    do: [Enum.map_intersperse(body, "\n", &Jason.encode!(&1)), "\n"]
+    do: [Enum.map_intersperse(body, "\n", &Jason.encode_to_iodata!(&1)), "\n"]
 
   defp encode_options,
     do: [headers: request_headers(), receive_timeout: @receive_timeout]
