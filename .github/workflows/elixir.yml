@@ -16,7 +16,7 @@ jobs:
             _build
             .cargo
             deps
-          key: ${{ runner.os }}-deps-2-${{ hashFiles('mix.lock') }}
+          key: ${{ runner.os }}-deps-3-${{ hashFiles('mix.lock') }}
 
       - name: Enable caching
         run: |
@@ -33,18 +33,6 @@ jobs:
 
       - name: Build and test
         run: docker compose run app run-test
-
-      - name: mix format
-        run: docker compose run app mix format --check-formatted
-
-      - name: Security lint
-        run: |
-          docker compose run app mix sobelow --config
-          docker compose run app mix deps.audit
-
-      - name: Dialyzer
-        run: |
-          docker compose run app mix dialyzer
 
   typos:
     name: 'Check for spelling errors'

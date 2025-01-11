@@ -1,9 +1,13 @@
 #!/usr/bin/env sh
+set -e
 
 export MIX_ENV=test
 
 # Always install mix dependencies
 (cd /srv/philomena && mix deps.get)
+
+# Run formatting check
+mix format --check-formatted
 
 # Sleep to allow OpenSearch to finish initializing
 # if it's not done doing whatever it does yet
@@ -21,4 +25,11 @@ mix ecto.create
 mix ecto.load
 
 # Test the application
-exec mix test
+mix test
+
+# Security lint
+mix sobelow --config
+mix deps.audit
+
+# Static analysis
+exec mix dialyzer

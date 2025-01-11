@@ -91,8 +91,8 @@ defmodule PhilomenaWeb.ActivityController do
 
     streams =
       Channel
-      |> where([c], c.nsfw == false)
       |> where([c], not is_nil(c.last_fetched_at))
+      |> maybe_show_nsfw_channels(conn.cookies["chan_nsfw"])
       |> order_by(desc: :is_live, asc: :title)
       |> limit(6)
       |> Repo.all()
@@ -150,6 +150,9 @@ defmodule PhilomenaWeb.ActivityController do
       )
     )
   end
+
+  defp maybe_show_nsfw_channels(query, "true"), do: query
+  defp maybe_show_nsfw_channels(query, _falsy), do: where(query, [c], c.nsfw == false)
 
   defp multi_search(images, top_scoring, comments, nil) do
     responses =

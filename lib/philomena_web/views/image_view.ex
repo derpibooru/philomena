@@ -264,7 +264,8 @@ defmodule PhilomenaWeb.ImageView do
       height: image.image_height,
       aspect_ratio: image.image_aspect_ratio,
       sha512_hash: image.image_sha512_hash,
-      orig_sha512_hash: image.image_orig_sha512_hash
+      orig_sha512_hash: image.image_orig_sha512_hash,
+      description: image.description
     }
   end
 
