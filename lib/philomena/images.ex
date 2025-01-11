@@ -847,16 +847,25 @@ defmodule Philomena.Images do
   end
 
   def indexing_preloads do
+    user_query = select(User, [u], map(u, [:id, :name]))
+    sources_query = select(Source, [s], map(s, [:image_id, :source]))
+    alias_tags_query = select(Tag, [t], map(t, [:aliased_tag_id, :name]))
+
+    base_tags_query =
+      Tag
+      |> select([t], [:category, :id, :name])
+      |> preload(aliases: ^alias_tags_query)
+
     [
-      :user,
-      :favers,
-      :downvoters,
-      :upvoters,
-      :hiders,
-      :deleter,
       :gallery_interactions,
-      :sources,
-      tags: [:aliases, :aliased_tag]
+      sources: sources_query,
+      user: user_query,
+      favers: user_query,
+      downvoters: user_query,
+      upvoters: user_query,
+      hiders: user_query,
+      deleter: user_query,
+      tags: base_tags_query
     ]
   end
 

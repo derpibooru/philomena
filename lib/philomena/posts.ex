@@ -11,6 +11,7 @@ defmodule Philomena.Posts do
   alias Philomena.Topics.Topic
   alias Philomena.Topics
   alias Philomena.UserStatistics
+  alias Philomena.Users.User
   alias Philomena.Posts.Post
   alias Philomena.Posts.SearchIndex, as: PostIndex
   alias Philomena.IndexWorker
@@ -279,7 +280,17 @@ defmodule Philomena.Posts do
   end
 
   def indexing_preloads do
-    [:user, topic: :forum]
+    user_query = select(User, [u], map(u, [:id, :name]))
+
+    topic_query =
+      Topic
+      |> select([t], struct(t, [:forum_id, :title]))
+      |> preload([:forum])
+
+    [
+      user: user_query,
+      topic: topic_query
+    ]
   end
 
   def perform_reindex(column, condition) do
