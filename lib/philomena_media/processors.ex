@@ -91,7 +91,7 @@ defmodule PhilomenaMedia.Processors do
 
   @doc """
   Returns a processor, with the processor being a module capable
-  of processing this content type, or nil.
+  of processing this content type.
 
   The allowed MIME types are:
   - `image/gif`
@@ -111,10 +111,10 @@ defmodule PhilomenaMedia.Processors do
       PhilomenaMedia.Processors.Png
 
       iex> PhilomenaMedia.Processors.processor("application/octet-stream")
-      nil
+      ** (ArgumentError) invalid content type application/octet-stream
 
   """
-  @spec processor(Mime.t()) :: module() | nil
+  @spec processor(Mime.t()) :: module()
   def processor(content_type)
 
   def processor("image/gif"), do: Gif
@@ -122,7 +122,9 @@ defmodule PhilomenaMedia.Processors do
   def processor("image/png"), do: Png
   def processor("image/svg+xml"), do: Svg
   def processor("video/webm"), do: Webm
-  def processor(_content_type), do: nil
+
+  def processor(content_type),
+    do: raise(ArgumentError, message: "invalid content type #{content_type}")
 
   @doc """
   Takes a MIME type and filtered version list and generates a list of version files to be
