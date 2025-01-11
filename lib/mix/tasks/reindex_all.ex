@@ -11,6 +11,6 @@ defmodule Mix.Tasks.ReindexAll do
       raise "do not run this task unless you know what you're doing"
     end
 
-    SearchIndexer.recreate_reindex_all_destructive!()
+    SearchIndexer.recreate_reindex_all_destructive!(maintenance: false)
   end
 end
