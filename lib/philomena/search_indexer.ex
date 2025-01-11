@@ -40,6 +40,16 @@ defmodule Philomena.SearchIndexer do
     Tag => Tags
   }
 
+  @batch_sizes %{
+    Comment => 2048,
+    Filter => 2048,
+    Gallery => 1024,
+    Image => 32,
+    Post => 2048,
+    Report => 128,
+    Tag => 2048
+  }
+
   @doc """
   Recreate the index corresponding to all schemas, and then reindex all of the
   documents within.
@@ -115,7 +125,7 @@ defmodule Philomena.SearchIndexer do
     # Reports currently require handling for their polymorphic nature
     Report
     |> preload([:user, :admin])
-    |> Batch.record_batches()
+    |> Batch.record_batches(batch_size: @batch_sizes[Report])
     |> Enum.each(fn records ->
       records
       |> Polymorphic.load_polymorphic(reportable: [reportable_id: :reportable_type])
@@ -129,6 +139,6 @@ defmodule Philomena.SearchIndexer do
 
     schema
     |> preload(^context.indexing_preloads())
-    |> Search.reindex(schema)
+    |> Search.reindex(schema, batch_size: @batch_sizes[schema])
   end
 end
