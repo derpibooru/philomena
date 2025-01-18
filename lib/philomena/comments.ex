@@ -9,11 +9,13 @@ defmodule Philomena.Comments do
 
   alias PhilomenaQuery.Search
   alias Philomena.UserStatistics
+  alias Philomena.Users.User
   alias Philomena.Comments.Comment
   alias Philomena.Comments.SearchIndex, as: CommentIndex
   alias Philomena.IndexWorker
   alias Philomena.Images.Image
   alias Philomena.Images
+  alias Philomena.Tags.Tag
   alias Philomena.Notifications
   alias Philomena.Versions
   alias Philomena.Reports
@@ -265,7 +267,18 @@ defmodule Philomena.Comments do
   end
 
   def indexing_preloads do
-    [:user, image: :tags]
+    user_query = select(User, [u], map(u, [:id, :name]))
+    tag_query = select(Tag, [t], map(t, [:id]))
+
+    image_query =
+      Image
+      |> select([i], struct(i, [:approved, :hidden_from_users, :id]))
+      |> preload(tags: ^tag_query)
+
+    [
+      user: user_query,
+      image: image_query
+    ]
   end
 
   def perform_reindex(column, condition) do
