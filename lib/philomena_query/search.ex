@@ -189,6 +189,10 @@ defmodule PhilomenaQuery.Search do
   Note that indexing is near real-time and requires an index refresh before documents will
   become visible. Unless changed in the mapping, this happens after 5 seconds have elapsed.
 
+  > #### Warning {: .warning}
+  > The returned stream must be enumerated for the reindex to process. If you do not care
+  > about the progress IDs yielded, use `reindex/3` instead.
+
   ## Example
 
       query =
@@ -196,11 +200,14 @@ defmodule PhilomenaQuery.Search do
           where: i.id < 100_000,
           preload: ^Images.indexing_preloads()
 
-      Search.reindex(query, Image, batch_size: 5000)
+      query
+      |> Search.reindex_stream(Image, batch_size: 1024)
+      |> Enum.each(&IO.inspect/1)
 
   """
-  @spec reindex(queryable(), schema_module(), Batch.batch_options()) :: :ok
-  def reindex(queryable, module, opts \\ []) do
+  @spec reindex_stream(queryable(), schema_module(), Batch.batch_options()) ::
+          Enumerable.t({:ok, integer()})
+  def reindex_stream(queryable, module, opts \\ []) do
     max_concurrency = Keyword.get(opts, :max_concurrency, 1)
     index = @policy.index_for(module)
 
@@ -208,10 +215,10 @@ defmodule PhilomenaQuery.Search do
     |> Batch.query_batches(opts)
     |> Task.async_stream(
       fn query ->
+        records = Repo.all(query)
+
         lines =
-          query
-          |> Repo.all()
-          |> Enum.flat_map(fn record ->
+          Enum.flat_map(records, fn record ->
             doc = index.as_json(record)
 
             [
@@ -221,10 +228,52 @@ defmodule PhilomenaQuery.Search do
           end)
 
         Api.bulk(@policy.opensearch_url(), lines)
+
+        last_id(records)
       end,
       timeout: :infinity,
       max_concurrency: max_concurrency
     )
+    |> flatten_stream()
+  end
+
+  defp last_id([]), do: []
+  defp last_id(records), do: [Enum.max_by(records, & &1.id).id]
+
+  @spec flatten_stream(Enumerable.t({:ok, [integer()]})) :: Enumerable.t({:ok, integer()})
+  defp flatten_stream(stream) do
+    # Converts [{:ok, [1, 2]}] into [{:ok, 1}, {:ok, 2}]
+    Stream.transform(stream, [], fn {:ok, last_id}, _ ->
+      {Enum.map(last_id, &{:ok, &1}), []}
+    end)
+  end
+
+  @doc """
+  Efficiently index a batch of documents in the index named by the module.
+
+  This function is substantially more efficient than running `index_document/2` for
+  each instance of a schema struct and can index with hundreds of times the throughput.
+
+  The queryable should be a schema type with its indexing preloads included in
+  the query. The options are forwarded to `PhilomenaQuery.Batch.record_batches/3`.
+
+  Note that indexing is near real-time and requires an index refresh before documents will
+  become visible. Unless changed in the mapping, this happens after 5 seconds have elapsed.
+
+  ## Example
+
+      query =
+        from i in Image,
+          where: i.id < 100_000,
+          preload: ^Images.indexing_preloads()
+
+      Search.reindex(query, Image, batch_size: 1024)
+
+  """
+  @spec reindex(queryable(), schema_module(), Batch.batch_options()) :: :ok
+  def reindex(queryable, module, opts \\ []) do
+    queryable
+    |> reindex_stream(module, opts)
     |> Stream.run()
   end
 
