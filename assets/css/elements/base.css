@@ -138,8 +138,8 @@ th.center {
   text-align: center;
 }
 
-table th > thead > tr,
-.table th > thead > tr {
+table > thead > tr,
+.table > thead > tr {
   background: var(--background-color);
 }
 
