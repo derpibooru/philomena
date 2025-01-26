@@ -259,7 +259,7 @@ function escapeSelection(textarea: HTMLTextAreaElement, options: Partial<SyntaxH
       };
     }
 
-    const newText = text.replace(/([*_[\]()^`%\\~<>#|])/g, '\\$1');
+    const newText = text.replace(/([*_[\]()^`%\\~<>#|:.+-])/g, '\\$1');
 
     return {
       newText,

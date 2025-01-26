@@ -5,17 +5,21 @@ describe('Unique Heap', () => {
     name: string;
   }
 
-  function compare(a: Result, b: Result): boolean {
-    return a.name < b.name;
+  function compare(a: Result, b: Result): number {
+    return a.name < b.name ? -1 : Number(a.name > b.name);
+  }
+
+  function unique(r: Result): string {
+    return r.name;
   }
 
   test('it should return no results when empty', () => {
-    const heap = new UniqueHeap<Result>(compare, 'name');
+    const heap = new UniqueHeap<Result>(compare, unique, []);
     expect(heap.topK(5)).toEqual([]);
   });
 
   test("doesn't insert duplicate results", () => {
-    const heap = new UniqueHeap<Result>(compare, 'name');
+    const heap = new UniqueHeap<Result>(compare, unique, []);
 
     heap.append({ name: 'name' });
     heap.append({ name: 'name' });
@@ -24,7 +28,7 @@ describe('Unique Heap', () => {
   });
 
   test('it should return results in reverse sorted order', () => {
-    const heap = new UniqueHeap<Result>(compare, 'name');
+    const heap = new UniqueHeap<Result>(compare, unique, []);
 
     const names = [
       'alpha',

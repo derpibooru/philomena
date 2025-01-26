@@ -172,8 +172,7 @@ function listenAutocomplete() {
       }
 
       const suggestions = localAc
-        .matchPrefix(trimPrefixes(originalTerm))
-        .topK(suggestionsCount)
+        .matchPrefix(trimPrefixes(originalTerm), suggestionsCount)
         .map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
 
       if (suggestions.length) {
