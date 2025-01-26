@@ -6,28 +6,43 @@ export interface Result {
   aliasName: string;
   name: string;
   imageCount: number;
-  associations: number[];
 }
 
 /**
- * Returns whether Result a is considered less than Result b.
+ * Opaque, unique pointer to tag data.
  */
-function compareResult(a: Result, b: Result): boolean {
-  return a.imageCount === b.imageCount ? a.name > b.name : a.imageCount < b.imageCount;
-}
+type TagPointer = number;
 
 /**
- * Compare two strings, C-style.
+ * Numeric index of a tag in its primary order.
  */
-function strcmp(a: string, b: string): number {
-  return a < b ? -1 : Number(a > b);
+type TagReferenceIndex = number;
+
+/**
+ * Compare two UTF-8 strings, C-style.
+ */
+function strcmp(a: Uint8Array, b: Uint8Array): number {
+  const aLength = a.length;
+  const bLength = b.length;
+  let index = 0;
+
+  while (index < aLength && index < bLength && a[index] === b[index]) {
+    index++;
+  }
+
+  const aValue = index >= aLength ? 0 : a[index];
+  const bValue = index >= bLength ? 0 : b[index];
+
+  return aValue - bValue;
 }
+
+const namespaceSeparator = ':'.charCodeAt(0);
 
 /**
  * Returns the name of a tag without any namespace component.
  */
-function nameInNamespace(s: string): string {
-  const first = s.indexOf(':');
+function nameInNamespace(s: Uint8Array): Uint8Array {
+  const first = s.indexOf(namespaceSeparator);
 
   if (first !== -1) {
     return s.slice(first + 1);
@@ -43,9 +58,10 @@ function nameInNamespace(s: string): string {
  * the JS heap and speed up the execution of the search.
  */
 export class LocalAutocompleter {
+  private encoder: TextEncoder;
+  private decoder: TextDecoder;
   private data: Uint8Array;
   private view: DataView;
-  private decoder: TextDecoder;
   private numTags: number;
   private referenceStart: number;
   private secondaryStart: number;
@@ -55,9 +71,10 @@ export class LocalAutocompleter {
    * Build a new local autocompleter.
    */
   constructor(backingStore: ArrayBuffer) {
+    this.encoder = new TextEncoder();
+    this.decoder = new TextDecoder();
     this.data = new Uint8Array(backingStore);
     this.view = new DataView(backingStore);
-    this.decoder = new TextDecoder();
     this.numTags = this.view.getUint32(backingStore.byteLength - 4, true);
     this.referenceStart = this.view.getUint32(backingStore.byteLength - 8, true);
     this.secondaryStart = this.referenceStart + 8 * this.numTags;
@@ -69,54 +86,94 @@ export class LocalAutocompleter {
   }
 
   /**
-   * Get a tag's name and its associations given a byte location inside the file.
+   * Return the pointer to tag data for the given reference index.
    */
-  private getTagFromLocation(location: number, imageCount: number, aliasName?: string): Result {
-    const nameLength = this.view.getUint8(location);
-    const assnLength = this.view.getUint8(location + 1 + nameLength);
+  private resolveTagReference(i: TagReferenceIndex, resolveAlias: boolean = true): TagPointer {
+    const tagPointer = this.view.getUint32(this.referenceStart + i * 8, true);
+    const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
 
-    const associations: number[] = [];
-    const name = this.decoder.decode(this.data.slice(location + 1, location + nameLength + 1));
-
-    for (let i = 0; i < assnLength; i++) {
-      associations.push(this.view.getUint32(location + 1 + nameLength + 1 + i * 4, true));
+    if (resolveAlias && imageCount < 0) {
+      // This is actually an alias, so follow it
+      return this.resolveTagReference(-imageCount - 1);
     }
 
-    return { aliasName: aliasName || name, name, imageCount, associations };
+    return tagPointer;
   }
 
   /**
-   * Get a Result object as the ith tag inside the file.
+   * Get the images count for the given reference index.
    */
-  private getResultAt(i: number, aliasName?: string): Result {
-    const tagLocation = this.view.getUint32(this.referenceStart + i * 8, true);
+  private getImageCount(i: TagReferenceIndex): number {
     const imageCount = this.view.getInt32(this.referenceStart + i * 8 + 4, true);
-    const result = this.getTagFromLocation(tagLocation, imageCount, aliasName);
 
     if (imageCount < 0) {
       // This is actually an alias, so follow it
-      return this.getResultAt(-imageCount - 1, aliasName || result.name);
+      return this.getImageCount(-imageCount - 1);
     }
 
-    return result;
+    return imageCount;
+  }
+
+  /**
+   * Return the name buffer of the pointed-to result.
+   */
+  private referenceToName(i: TagReferenceIndex, resolveAlias: boolean = true): Uint8Array {
+    const pointer = this.resolveTagReference(i, resolveAlias);
+    const nameLength = this.view.getUint8(pointer);
+    return this.data.slice(pointer + 1, pointer + nameLength + 1);
+  }
+
+  /**
+   * Return whether any associations in the pointed-to result are in comparisonValues.
+   */
+  private isFilteredByReference(comparisonValues: Set<number>, i: TagReferenceIndex): boolean {
+    const pointer = this.resolveTagReference(i);
+    const nameLength = this.view.getUint8(pointer);
+    const assnLength = this.view.getUint8(pointer + 1 + nameLength);
+
+    for (let j = 0; j < assnLength; j++) {
+      const assnValue = this.view.getUint32(pointer + 1 + nameLength + 1 + j * 4, true);
+
+      if (comparisonValues.has(assnValue)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Return whether Result a is considered less than Result b.
+   */
+  private compareReferenceToReference(a: TagReferenceIndex, b: TagReferenceIndex): number {
+    const imagesA = this.getImageCount(a);
+    const imagesB = this.getImageCount(b);
+
+    if (imagesA !== imagesB) {
+      return imagesA - imagesB;
+    }
+
+    const nameA = this.referenceToName(a);
+    const nameB = this.referenceToName(a);
+
+    return strcmp(nameA, nameB);
   }
 
   /**
    * Get a Result object as the ith tag inside the file, secondary ordering.
    */
-  private getSecondaryResultAt(i: number): Result {
-    const referenceIndex = this.view.getUint32(this.secondaryStart + i * 4, true);
-    return this.getResultAt(referenceIndex);
+  private getSecondaryResultAt(i: number): TagReferenceIndex {
+    return this.view.getUint32(this.secondaryStart + i * 4, true);
   }
 
   /**
    * Perform a binary search to fetch all results matching a condition.
    */
   private scanResults(
-    getResult: (i: number) => Result,
-    compare: (name: string) => number,
-    results: UniqueHeap<Result>,
-    hiddenTags: Set<number>,
+    getResult: (i: number) => TagReferenceIndex,
+    compare: (result: TagReferenceIndex) => number,
+    hasFilteredAssociation: (result: TagReferenceIndex) => boolean,
+    results: UniqueHeap<TagReferenceIndex>,
   ) {
     const filter = !store.get('unfilter_tag_suggestions');
 
@@ -125,9 +182,9 @@ export class LocalAutocompleter {
 
     while (min < max - 1) {
       const med = min + (((max - min) / 2) | 0);
-      const result = getResult(med);
+      const referenceIndex = getResult(med);
 
-      if (compare(result.aliasName) >= 0) {
+      if (compare(referenceIndex) >= 0) {
         // too large, go left
         max = med;
       } else {
@@ -137,47 +194,60 @@ export class LocalAutocompleter {
     }
 
     // Scan forward until no more matches occur
-    outer: while (min < this.numTags - 1) {
-      const result = getResult(++min);
+    while (min < this.numTags - 1) {
+      const referenceIndex = getResult(++min);
 
-      if (compare(result.aliasName) !== 0) {
+      if (compare(referenceIndex) !== 0) {
         break;
       }
 
       // Check if any associations are filtered
-      if (filter) {
-        for (const association of result.associations) {
-          if (hiddenTags.has(association)) {
-            continue outer;
-          }
-        }
+      if (filter && hasFilteredAssociation(referenceIndex)) {
+        continue;
       }
 
       // Nothing was filtered, so add
-      results.append(result);
+      results.append(referenceIndex);
     }
   }
 
   /**
-   * Find the top k results by image count which match the given string prefix.
+   * Find the top K results by image count which match the given string prefix.
    */
-  matchPrefix(prefix: string): UniqueHeap<Result> {
-    const results = new UniqueHeap<Result>(compareResult, 'name');
-
-    if (prefix === '') {
-      return results;
+  matchPrefix(prefixStr: string, k: number): Result[] {
+    if (prefixStr.length === 0) {
+      return [];
     }
 
+    // Set up binary matching context
+    const prefix = this.encoder.encode(prefixStr);
+    const results = new UniqueHeap<TagReferenceIndex>(
+      this.compareReferenceToReference.bind(this),
+      this.resolveTagReference.bind(this),
+      new Uint32Array(this.numTags),
+    );
+
+    // Set up filter context
     const hiddenTags = new Set(window.booru.hiddenTagList);
+    const hasFilteredAssociation = this.isFilteredByReference.bind(this, hiddenTags);
 
-    // Find normally, in full name-sorted order
-    const prefixMatch = (name: string) => strcmp(name.slice(0, prefix.length), prefix);
-    this.scanResults(this.getResultAt.bind(this), prefixMatch, results, hiddenTags);
+    // Find tags ordered by full name
+    const prefixMatch = (i: TagReferenceIndex) =>
+      strcmp(this.referenceToName(i, false).slice(0, prefix.length), prefix);
+    const referenceToNameIndex = (i: number) => i;
+    this.scanResults(referenceToNameIndex, prefixMatch, hasFilteredAssociation, results);
 
-    // Find in secondary order
-    const namespaceMatch = (name: string) => strcmp(nameInNamespace(name).slice(0, prefix.length), prefix);
-    this.scanResults(this.getSecondaryResultAt.bind(this), namespaceMatch, results, hiddenTags);
+    // Find tags ordered by name in namespace
+    const namespaceMatch = (i: TagReferenceIndex) =>
+      strcmp(nameInNamespace(this.referenceToName(i, false)).slice(0, prefix.length), prefix);
+    const referenceToAliasIndex = this.getSecondaryResultAt.bind(this);
+    this.scanResults(referenceToAliasIndex, namespaceMatch, hasFilteredAssociation, results);
 
-    return results;
+    // Convert top K from heap into result array
+    return results.topK(k).map((i: TagReferenceIndex) => ({
+      aliasName: this.decoder.decode(this.referenceToName(i, false)),
+      name: this.decoder.decode(this.referenceToName(i)),
+      imageCount: this.getImageCount(i),
+    }));
   }
 }
