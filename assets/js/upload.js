@@ -6,6 +6,7 @@ import { assertNotNull } from './utils/assert';
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
+import { oncePersistedPageShown } from './utils/events';
 
 const MATROSKA_MAGIC = 0x1a45dfa3;
 
@@ -25,27 +26,6 @@ function elementForEmbeddedImage({ camo_url, type }) {
   const objectUrl = URL.createObjectURL(new Blob([camo_url], { type }));
   const tagName = new DataView(camo_url).getUint32(0) === MATROSKA_MAGIC ? 'video' : 'img';
   return makeEl(tagName, { className: 'scraper-preview--image', src: objectUrl });
-}
-
-/**
- * Execute the code when page was shown from back-forward cache.
- * @param {() => void} callback
- */
-function oncePersistedPageShown(callback) {
-  /**
-   * @param {PageTransitionEvent} event
-   */
-  function onPageShown(event) {
-    if (!event.persisted) {
-      return;
-    }
-
-    window.removeEventListener('pageshow', onPageShown);
-
-    callback();
-  }
-
-  window.addEventListener('pageshow', onPageShown);
 }
 
 function setupImageUpload() {
