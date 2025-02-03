@@ -27,6 +27,27 @@ function elementForEmbeddedImage({ camo_url, type }) {
   return makeEl(tagName, { className: 'scraper-preview--image', src: objectUrl });
 }
 
+/**
+ * Execute the code when page was shown from back-forward cache.
+ * @param {() => void} callback
+ */
+function oncePersistedPageShown(callback) {
+  /**
+   * @param {PageTransitionEvent} event
+   */
+  function onPageShown(event) {
+    if (!event.persisted) {
+      return;
+    }
+
+    window.removeEventListener('pageshow', onPageShown);
+
+    callback();
+  }
+
+  window.addEventListener('pageshow', onPageShown);
+}
+
 function setupImageUpload() {
   const imgPreviews = $('#js-image-upload-previews');
   if (!imgPreviews) return;
@@ -64,17 +85,21 @@ function setupImageUpload() {
       imgPreviews.appendChild(label);
     });
   }
+
   function showError() {
     clearEl(imgPreviews);
     showEl(scraperError);
     enableFetch();
   }
+
   function hideError() {
     hideEl(scraperError);
   }
+
   function disableFetch() {
     fetchButton.setAttribute('disabled', '');
   }
+
   function enableFetch() {
     fetchButton.removeAttribute('disabled');
   }
@@ -236,11 +261,25 @@ function setupImageUpload() {
       return;
     }
 
+    const originalButtonText = submitButton.innerText;
+
     submitButton.disabled = true;
     submitButton.innerText = 'Please wait...';
 
     // delay is needed because Safari stops the submit if the button is immediately disabled
     requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
+
+    // Rolling back the disabled state when user navigated back to the form.
+    oncePersistedPageShown(() => {
+      if (!submitButton.disabled) {
+        return;
+      }
+
+      submitButton.disabled = false;
+      submitButton.innerText = originalButtonText;
+
+      submitButton.removeAttribute('disabled');
+    });
   }
 
   function submitHandler(event) {
