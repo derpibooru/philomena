@@ -231,10 +231,13 @@ function setupImageUpload() {
 
   function disableUploadButton() {
     const submitButton = $('.button.input--separate-top');
-    if (submitButton !== null) {
-      submitButton.disabled = true;
-      submitButton.innerText = 'Please wait...';
+
+    if (!submitButton) {
+      return;
     }
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Please wait...';
 
     // delay is needed because Safari stops the submit if the button is immediately disabled
     requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
