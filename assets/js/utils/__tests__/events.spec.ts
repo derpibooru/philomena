@@ -1,4 +1,12 @@
-import { delegate, fire, mouseMoveThenOver, leftClick, on, PhilomenaAvailableEventsMap } from '../events';
+import {
+  delegate,
+  fire,
+  mouseMoveThenOver,
+  leftClick,
+  on,
+  PhilomenaAvailableEventsMap,
+  oncePersistedPageShown,
+} from '../events';
 import { getRandomArrayItem } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
 
@@ -126,6 +134,51 @@ describe('Event utils', () => {
       fireEvent.mouseMove(mockButton);
 
       expect(mockHandler).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('oncePersistedPageShown', () => {
+    it('should NOT fire on usual page show', () => {
+      const mockHandler = vi.fn();
+
+      oncePersistedPageShown(mockHandler);
+
+      fireEvent.pageShow(window, { persisted: false });
+
+      expect(mockHandler).toHaveBeenCalledTimes(0);
+    });
+
+    it('should fire on persisted pageshow', () => {
+      const mockHandler = vi.fn();
+
+      oncePersistedPageShown(mockHandler);
+
+      fireEvent.pageShow(window, { persisted: true });
+
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep waiting until the first persistent page shown fired', () => {
+      const mockHandler = vi.fn();
+
+      oncePersistedPageShown(mockHandler);
+
+      fireEvent.pageShow(window, { persisted: false });
+      fireEvent.pageShow(window, { persisted: false });
+      fireEvent.pageShow(window, { persisted: true });
+
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should NOT fire more than once', () => {
+      const mockHandler = vi.fn();
+
+      oncePersistedPageShown(mockHandler);
+
+      fireEvent.pageShow(window, { persisted: true });
+      fireEvent.pageShow(window, { persisted: true });
+
+      expect(mockHandler).toHaveBeenCalledTimes(1);
     });
   });
 

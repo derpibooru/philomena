@@ -54,6 +54,23 @@ export function mouseMoveThenOver<El extends HTMLElement>(element: El, func: (e:
   );
 }
 
+export function oncePersistedPageShown(func: (e: PageTransitionEvent) => void) {
+  const controller = new AbortController();
+
+  window.addEventListener(
+    'pageshow',
+    (e: PageTransitionEvent) => {
+      if (!e.persisted) {
+        return;
+      }
+
+      controller.abort();
+      func(e);
+    },
+    { signal: controller.signal },
+  );
+}
+
 export function delegate<K extends keyof PhilomenaAvailableEventsMap, Target extends Element>(
   node: PhilomenaEventElement,
   event: K,
