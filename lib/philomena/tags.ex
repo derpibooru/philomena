@@ -24,6 +24,19 @@ defmodule Philomena.Tags do
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Channels.Channel
 
+  @doc """
+  Gets existing tags or creates new ones from a tag list string.
+
+  Takes a string of comma-separated tag names, parses it into individual tags,
+  and either retrieves existing tags or creates new ones for tags that don't exist.
+  Also handles tag aliases by returning the aliased tag instead of the alias.
+
+  ## Examples
+
+      iex> get_or_create_tags("safe, cute, pony")
+      [%Tag{name: "safe"}, %Tag{name: "cute"}, %Tag{name: "pony"}]
+
+  """
   @spec get_or_create_tags(String.t()) :: list()
   def get_or_create_tags(tag_list) do
     tag_names = Tag.parse_tag_list(tag_list)
@@ -174,6 +187,18 @@ defmodule Philomena.Tags do
     end
   end
 
+  @doc """
+  Updates a tag's associated image.
+
+  Takes a tag and image upload attributes, analyzes the upload,
+  persists it, and removes the old tag image if successful.
+
+  ## Examples
+
+      iex> update_tag_image(tag, %{"image" => upload})
+      {:ok, %Tag{}}
+
+  """
   def update_tag_image(%Tag{} = tag, attrs) do
     tag
     |> Uploader.analyze_upload(attrs)
@@ -190,6 +215,17 @@ defmodule Philomena.Tags do
     end
   end
 
+  @doc """
+  Removes a tag's associated image.
+
+  Removes the image from the tag and deletes the persisted file.
+
+  ## Examples
+
+      iex> remove_tag_image(tag)
+      {:ok, %Tag{}}
+
+  """
   def remove_tag_image(%Tag{} = tag) do
     tag
     |> Tag.remove_image_changeset()
@@ -223,6 +259,18 @@ defmodule Philomena.Tags do
     {:ok, tag}
   end
 
+  @doc """
+  Performs the actual deletion of a tag.
+
+  Removes the tag from the database, deletes its search index,
+  and reindexes all images that were tagged with it.
+
+  ## Examples
+
+      iex> perform_delete(123)
+      :ok
+
+  """
   def perform_delete(tag_id) do
     tag = get_tag!(tag_id)
 
@@ -243,6 +291,19 @@ defmodule Philomena.Tags do
     |> Search.reindex(Image)
   end
 
+  @doc """
+  Creates an alias from one tag to another.
+
+  Takes a source tag and target tag name, creating an alias relationship
+  where the source tag becomes an alias of the target tag. Once the alias
+  is created, a job is queued to finish processing the alias.
+
+  ## Examples
+
+      iex> alias_tag(source_tag, %{"target_tag" => "destination"})
+      {:ok, %Tag{}}
+
+  """
   def alias_tag(%Tag{} = tag, attrs) do
     target_tag = Repo.get_by(Tag, name: String.downcase(attrs["target_tag"]))
 
@@ -261,6 +322,19 @@ defmodule Philomena.Tags do
     end
   end
 
+  @doc """
+  Performs the actual tag aliasing operation.
+
+  Transfers all associations from the source tag to the target tag,
+  including image taggings, filters, user watches, and other relationships.
+  Updates counters and reindexes affected records.
+
+  ## Examples
+
+      iex> perform_alias(123, 456)
+      :ok
+
+  """
   def perform_alias(tag_id, target_tag_id) do
     tag = get_tag!(tag_id)
     target_tag = get_tag!(target_tag_id)
@@ -315,14 +389,36 @@ defmodule Philomena.Tags do
     # Finally, reindex
     reindex_tag_images(target_tag)
     reindex_tags([tag, target_tag])
+
+    :ok
   end
 
+  @doc """
+  Enqueues reindexing of all images associated with a tag.
+
+  ## Examples
+
+      iex> reindex_tag_images(tag)
+      {:ok, %Tag{}}
+
+  """
   def reindex_tag_images(%Tag{} = tag) do
     Exq.enqueue(Exq, "indexing", TagReindexWorker, [tag.id])
 
     {:ok, tag}
   end
 
+  @doc """
+  Performs reindexing of all images associated with a tag.
+
+  Updates the tag's image count to reflect the current number of non-hidden images,
+  then reindexes all associated images and filters that reference this tag.
+
+  ## Examples
+
+      iex> perform_reindex_images(123)
+
+  """
   def perform_reindex_images(tag_id) do
     tag = get_tag!(tag_id)
 
@@ -351,12 +447,32 @@ defmodule Philomena.Tags do
     |> Search.reindex(Filter)
   end
 
+  @doc """
+  Enqueues removal of a tag alias.
+
+  ## Examples
+
+      iex> unalias_tag(tag)
+      {:ok, %Tag{}}
+
+  """
   def unalias_tag(%Tag{} = tag) do
     Exq.enqueue(Exq, "indexing", TagUnaliasWorker, [tag.id])
 
     {:ok, tag}
   end
 
+  @doc """
+  Performs removal of a tag alias.
+
+  Removes the alias relationship between two tags and reindexes
+  the images of the formerly aliased tag.
+
+  ## Examples
+
+      iex> perform_unalias(123)
+      {:ok, %Tag{}}
+  """
   def perform_unalias(tag_id) do
     tag = get_tag!(tag_id)
     former_alias = Repo.preload(tag, :aliased_tag).aliased_tag
@@ -389,6 +505,18 @@ defmodule Philomena.Tags do
     |> Repo.update_all([])
   end
 
+  @doc """
+  Copies tags from one image to another.
+
+  Creates new taggings on the target image for all tags present on the source image,
+  updates tag counters, and returns the list of copied tags.
+
+  ## Examples
+
+      iex> copy_tags(source_image, target_image)
+      [%Tag{}, ...]
+
+  """
   def copy_tags(source, target) do
     # Ecto bug:
     # ** (DBConnection.EncodeError) Postgrex expected a binary, got 5.
@@ -437,22 +565,66 @@ defmodule Philomena.Tags do
     Tag.changeset(tag, %{})
   end
 
+  @doc """
+  Queues a single tag for search index updates.
+  Returns the tag struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_tag(tag)
+      %Tag{}
+
+  """
   def reindex_tag(%Tag{} = tag) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Tags", "id", [tag.id]])
 
     tag
   end
 
+  @doc """
+  Queues a list of tags for search index updates.
+  Returns the list of tags unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_tags([%Tag{}, %Tag{}, ...])
+      [%Tag{}, %Tag{}, ...]
+
+  """
   def reindex_tags(tags) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Tags", "id", Enum.map(tags, & &1.id)])
 
     tags
   end
 
+  @doc """
+  Returns the list of associations to preload for tag indexing.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [:aliased_tag, :aliases, :implied_tags, :implied_by_tags]
+
+  """
   def indexing_preloads do
     [:aliased_tag, :aliases, :implied_tags, :implied_by_tags]
   end
 
+  @doc """
+  Performs reindexing of tags based on a column condition.
+
+  Takes a column name and a list of values to match against that column,
+  then reindexes all matching tags.
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      {:ok, []}
+
+      iex> perform_reindex(:name, ["safe", "suggestive"])
+      {:ok, []}
+
+  """
   def perform_reindex(column, condition) do
     Tag
     |> preload(^indexing_preloads())

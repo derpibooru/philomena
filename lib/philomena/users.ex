@@ -273,6 +273,12 @@ defmodule Philomena.Users do
 
   @doc """
   Unconditionally unlocks the given user.
+
+  ## Examples
+
+      iex> unlock_user(user)
+      {:ok, %User{}}
+
   """
   def unlock_user(user) do
     user
@@ -369,6 +375,20 @@ defmodule Philomena.Users do
     load_with_roles(query)
   end
 
+  @doc """
+  Checks if a TOTP token is valid for a given user.
+
+  Returns false if no user is provided.
+
+  ## Examples
+
+      iex> user_totp_token_valid?(user, "123456")
+      true
+
+      iex> user_totp_token_valid?(nil, "123456")
+      false
+
+  """
   def user_totp_token_valid?(nil, _token) do
     false
   end
@@ -503,6 +523,15 @@ defmodule Philomena.Users do
     end
   end
 
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking user changes.
+
+  ## Examples
+
+      iex> change_user(user)
+      %Ecto.Changeset{data: %User{}}
+
+  """
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
@@ -544,30 +573,84 @@ defmodule Philomena.Users do
   defp clean_roles(nil), do: []
   defp clean_roles(roles), do: Enum.filter(roles, &("" != &1))
 
+  @doc """
+  Updates a user's spoiler type settings.
+
+  ## Examples
+
+      iex> update_spoiler_type(user, %{spoiler_type: "click"})
+      {:ok, %User{}}
+
+      iex> update_spoiler_type(user, %{spoiler_type: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def update_spoiler_type(%User{} = user, attrs) do
     user
     |> User.spoiler_type_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates a user's general settings.
+
+  ## Examples
+
+      iex> update_settings(user, %{"theme" => "dark"})
+      {:ok, %User{}}
+
+      iex> update_settings(user, %{"theme" => bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def update_settings(%User{} = user, attrs) do
     user
     |> User.settings_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates a user's profile description and personal title.
+
+  ## Examples
+
+      iex> update_description(user, %{"description" => "Hello world"})
+      {:ok, %User{}}
+
+      iex> update_description(user, %{"personal_title" => "Site Admin"})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def update_description(%User{} = user, attrs) do
     user
     |> User.description_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates a user's moderation scratchpad content.
+
+  ## Examples
+
+      iex> update_scratchpad(user, %{"scratchpad" => "My notes"})
+      {:ok, %User{}}
+
+  """
   def update_scratchpad(%User{} = user, attrs) do
     user
     |> User.scratchpad_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Adds a tag to a user's watched tags list.
+
+  ## Examples
+
+      iex> watch_tag(user, tag)
+      {:ok, %User{}}
+
+  """
   def watch_tag(%User{} = user, tag) do
     watched_tag_ids = Enum.uniq([tag.id | user.watched_tag_ids])
 
@@ -576,6 +659,15 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  @doc """
+  Removes a tag from a user's watched tags list.
+
+  ## Examples
+
+      iex> unwatch_tag(user, tag)
+      {:ok, %User{}}
+
+  """
   def unwatch_tag(%User{} = user, tag) do
     watched_tag_ids = user.watched_tag_ids -- [tag.id]
 
@@ -584,6 +676,17 @@ defmodule Philomena.Users do
     |> Repo.update()
   end
 
+  @doc """
+  Updates a user's avatar with the provided file.
+
+  Handles file analysis and persistence.
+
+  ## Examples
+
+      iex> update_avatar(user, %{"avatar" => upload})
+      {:ok, %User{}}
+
+  """
   def update_avatar(%User{} = user, attrs) do
     user
     |> Uploader.analyze_upload(attrs)
@@ -600,6 +703,15 @@ defmodule Philomena.Users do
     end
   end
 
+  @doc """
+  Removes a user's avatar.
+
+  ## Examples
+
+      iex> remove_avatar(user)
+      {:ok, %User{}}
+
+  """
   def remove_avatar(%User{} = user) do
     user
     |> User.remove_avatar_changeset()
@@ -615,6 +727,17 @@ defmodule Philomena.Users do
     end
   end
 
+  @doc """
+  Updates a user's name and records the change in history.
+
+  Triggers a background job to update references to the old username.
+
+  ## Examples
+
+      iex> update_name(user, %{"name" => "new_name"})
+      {:ok, %User{}}
+
+  """
   def update_name(user, user_params) do
     old_name = user.name
 
@@ -636,6 +759,17 @@ defmodule Philomena.Users do
     end
   end
 
+  @doc """
+  Updates all search engine references to a user's old name with their new name.
+
+  This is called as a background job after a user requests a name change.
+
+  ## Examples
+
+      iex> perform_rename("old_name", "new_name")
+      :ok
+
+  """
   def perform_rename(old_name, new_name) do
     Images.user_name_reindex(old_name, new_name)
     Comments.user_name_reindex(old_name, new_name)
@@ -645,36 +779,96 @@ defmodule Philomena.Users do
     Filters.user_name_reindex(old_name, new_name)
   end
 
+  @doc """
+  Reactivates a previously deactivated user account.
+
+  ## Examples
+
+      iex> reactivate_user(user)
+      {:ok, %User{}}
+
+  """
   def reactivate_user(%User{} = user) do
     user
     |> User.reactivate_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Deactivates a user account.
+
+  Takes a moderator who is recorded as performing the deactivation.
+
+  ## Examples
+
+      iex> deactivate_user(moderator, user)
+      {:ok, %User{}}
+
+  """
   def deactivate_user(moderator, %User{} = user) do
     user
     |> User.deactivate_changeset(moderator)
     |> Repo.update()
   end
 
+  @doc """
+  Generates a new API key for the user.
+
+  ## Examples
+
+      iex> reset_api_key(user)
+      {:ok, %User{}}
+
+  """
   def reset_api_key(%User{} = user) do
     user
     |> User.api_key_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Forces a specific filter on a user's account, which will be applied in
+  conjunction to the user's current filter.
+
+  ## Examples
+
+      iex> force_filter(user, %{"forced_filter_id" => 123})
+      {:ok, %User{}}
+
+      iex> force_filter(user, %{"forced_filter_id" => bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
   def force_filter(%User{} = user, user_params) do
     user
     |> User.force_filter_changeset(user_params)
     |> Repo.update()
   end
 
+  @doc """
+  Removes a forced filter from a user's account.
+
+  ## Examples
+
+      iex> unforce_filter(user)
+      {:ok, %User{}}
+
+  """
   def unforce_filter(%User{} = user) do
     user
     |> User.unforce_filter_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Clears a user's recent filter history.
+
+  ## Examples
+
+      iex> clear_recent_filters(user)
+      {:ok, %User{}}
+
+  """
   def clear_recent_filters(%User{} = user) do
     user
     |> User.clear_recent_filters_changeset()
@@ -688,18 +882,50 @@ defmodule Philomena.Users do
     |> setup_roles()
   end
 
+  @doc """
+  Marks a user as verified for the purposes of automatically approving uploads,
+  and posting images in comments/posts/messages without moderator review.
+
+  ## Examples
+
+      iex> verify_user(user)
+      {:ok, %User{}}
+
+  """
   def verify_user(%User{} = user) do
     user
     |> User.verify_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Unverifies a user, removing the automatic approval status.
+
+  ## Examples
+
+      iex> unverify_user(user)
+      {:ok, %User{}}
+
+  """
   def unverify_user(%User{} = user) do
     user
     |> User.unverify_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Erases all changes associated with a user account, removing all personal
+  data and anonymizing the account.
+
+  This is primarily intended for use with spam accounts or other situations
+  where all of a user's data should be removed from the system.
+
+  ## Examples
+
+      iex> erase_user(user, moderator)
+      {:ok, %User{}}
+
+  """
   def erase_user(%User{} = user, %User{} = moderator) do
     # Deactivate to prevent the user from racing these changes
     {:ok, user} = deactivate_user(moderator, user)

@@ -138,26 +138,71 @@ defmodule Philomena.Topics do
     Topic.changeset(topic, %{})
   end
 
+  @doc """
+  Makes a topic sticky, appearing at the top of its forum.
+
+  ## Examples
+
+      iex> stick_topic(topic)
+      {:ok, %Topic{}}
+
+  """
   def stick_topic(topic) do
     Topic.stick_changeset(topic)
     |> Repo.update()
   end
 
+  @doc """
+  Removes sticky status from a topic.
+
+  ## Examples
+
+      iex> unstick_topic(topic)
+      {:ok, %Topic{}}
+
+  """
   def unstick_topic(topic) do
     Topic.unstick_changeset(topic)
     |> Repo.update()
   end
 
+  @doc """
+  Locks a topic to prevent further posting.
+
+  ## Examples
+
+      iex> lock_topic(topic, %{"lock_reason" => "Off topic"}, user)
+      {:ok, %Topic{}}
+
+  """
   def lock_topic(%Topic{} = topic, attrs, user) do
     Topic.lock_changeset(topic, attrs, user)
     |> Repo.update()
   end
 
+  @doc """
+  Unlocks a topic to allow posting again.
+
+  ## Examples
+
+      iex> unlock_topic(topic)
+      {:ok, %Topic{}}
+
+  """
   def unlock_topic(%Topic{} = topic) do
     Topic.unlock_changeset(topic)
     |> Repo.update()
   end
 
+  @doc """
+  Moves a topic to a different forum, updating post counts for both forums.
+
+  ## Examples
+
+      iex> move_topic(topic, 123)
+      {:ok, %{topic: %Topic{}}}
+
+  """
   def move_topic(topic, new_forum_id) do
     old_forum_id = topic.forum_id
     topic_changes = Topic.move_changeset(topic, new_forum_id)
@@ -183,6 +228,15 @@ defmodule Philomena.Topics do
     |> Repo.transaction()
   end
 
+  @doc """
+  Hides a topic and updates related forum data.
+
+  ## Examples
+
+      iex> hide_topic(topic, "Violates rules", moderator)
+      {:ok, %Topic{}}
+
+  """
   def hide_topic(topic, deletion_reason, user) do
     topic_changes = Topic.hide_changeset(topic, deletion_reason, user)
 
@@ -205,11 +259,29 @@ defmodule Philomena.Topics do
     end
   end
 
+  @doc """
+  Unhides a previously hidden topic.
+
+  ## Examples
+
+      iex> unhide_topic(topic)
+      {:ok, %Topic{}}
+
+  """
   def unhide_topic(topic) do
     Topic.unhide_changeset(topic)
     |> Repo.update()
   end
 
+  @doc """
+  Updates a topic's title.
+
+  ## Examples
+
+      iex> update_topic_title(topic, %{"title" => "New Title"})
+      {:ok, %Topic{}}
+
+  """
   def update_topic_title(topic, attrs) do
     topic
     |> Topic.title_changeset(attrs)

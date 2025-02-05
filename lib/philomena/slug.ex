@@ -1,29 +1,32 @@
 defmodule Philomena.Slug do
-  # Generates a URL-safe slug from a string by removing nonessential
-  # information from it.
-  #
-  # The process for this is as follows:
-  #
-  # 1. Remove non-ASCII or non-printable characters.
-  #
-  # 2. Replace any runs of non-alphanumeric characters that were allowed
-  #    through previously with hyphens.
-  #
-  # 3. Remove any starting or ending hyphens.
-  #
-  # 4. Convert all characters to their lowercase equivalents.
-  #
-  # This method makes no guarantee of creating unique slugs for unique inputs.
-  # In addition, for certain inputs, it will return empty strings.
-  #
-  # Example
-  #
-  #   destructive_slug("Time-Wasting Thread 3.0 (SFW - No Explicit/Grimdark)")
-  #   #=> "time-wasting-thread-3-0-sfw-no-explicit-grimdark"
-  #
-  #   destructive_slug("~`!@#$%^&*()-_=+[]{};:'\" <>,./?")
-  #   #=> ""
-  #
+  @moduledoc """
+  URL-safe string shortening.
+  """
+
+  @doc """
+  Generates a URL-safe slug from a string by removing nonessential
+  information from it.
+
+  The process for this is as follows:
+
+  1. Remove non-ASCII or non-printable characters.
+  2. Replace any runs of non-alphanumeric characters that were allowed
+     through previously with hyphens.
+  3. Remove any starting or ending hyphens.
+  4. Convert all characters to their lowercase equivalents.
+
+  This method makes no guarantee of creating unique slugs for unique inputs.
+  In addition, for certain inputs, it will return empty strings.
+
+  ## Example
+
+      iex> destructive_slug("Time-Wasting Thread 3.0 (SFW - No Explicit/Grimdark)")
+      "time-wasting-thread-3-0-sfw-no-explicit-grimdark"
+
+      iex> destructive_slug("~`!@#$%^&*()-_=+[]{};:'\" <>,./?")
+      ""
+
+  """
   @spec destructive_slug(String.t()) :: String.t()
   def destructive_slug(input) when is_binary(input) do
     input
@@ -39,6 +42,11 @@ defmodule Philomena.Slug do
 
   def destructive_slug(_input), do: ""
 
+  @doc """
+  Generates a reversible slug from a string by replacing certain characters
+  with escaped (not URL-encoded) equivalents.
+  """
+  @spec slug(String.t()) :: String.t()
   def slug(string) when is_binary(string) do
     string
     |> String.replace("-", "-dash-")

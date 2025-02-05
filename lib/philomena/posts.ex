@@ -111,6 +111,23 @@ defmodule Philomena.Posts do
     Notifications.create_forum_post_notification(post.user, topic, post)
   end
 
+  @doc """
+  Creates a system report for non-approved posts containing external images.
+  Returns false for already approved posts.
+
+  ## Returns
+  - `false`: If the post is already approved
+  - `{:ok, %Report{}}`: If a system report was created
+
+  ## Examples
+
+      iex> report_non_approved(approved_post)
+      false
+
+      iex> report_non_approved(unapproved_post)
+      {:ok, %Report{}}
+
+  """
   def report_non_approved(%Post{approved: true}), do: false
 
   def report_non_approved(post) do
@@ -176,6 +193,20 @@ defmodule Philomena.Posts do
     Repo.delete(post)
   end
 
+  @doc """
+  Hides a post and handles associated reports.
+
+  ## Parameters
+  - post: The post to hide
+  - attrs: Attributes for the hide operation
+  - user: The user performing the hide action
+
+  ## Examples
+
+      iex> hide_post(post, %{staff_note: "Rule violation"}, user)
+      {:ok, %Post{}}
+
+  """
   def hide_post(%Post{} = post, attrs, user) do
     report_query = Reports.close_report_query({"Post", post.id}, user)
 
@@ -209,6 +240,15 @@ defmodule Philomena.Posts do
     end
   end
 
+  @doc """
+  Unhides a previously hidden post.
+
+  ## Examples
+
+      iex> unhide_post(post)
+      {:ok, %Post{}}
+
+  """
   def unhide_post(%Post{} = post) do
     post
     |> Post.unhide_changeset()
@@ -216,6 +256,15 @@ defmodule Philomena.Posts do
     |> reindex_after_update()
   end
 
+  @doc """
+  Marks a post as destroyed and removes its text (hard deletion).
+
+  ## Examples
+
+      iex> destroy_post(post)
+      {:ok, %Post{}}
+
+  """
   def destroy_post(%Post{} = post) do
     post
     |> Post.destroy_changeset()
@@ -223,6 +272,20 @@ defmodule Philomena.Posts do
     |> reindex_after_update()
   end
 
+  @doc """
+  Approves a post, closes associated reports, and increments the user forum
+  posts count.
+
+  ## Parameters
+  - post: The post to approve
+  - user: The user performing the approval
+
+  ## Examples
+
+      iex> approve_comment(post, user)
+      {:ok, %Post{}}
+
+  """
   def approve_post(%Post{} = post, user) do
     report_query = Reports.close_report_query({"Post", post.id}, user)
     post = Post.approve_changeset(post)
@@ -257,6 +320,15 @@ defmodule Philomena.Posts do
     Post.changeset(post, %{})
   end
 
+  @doc """
+  Updates post search indices when a user's name changes.
+
+  ## Examples
+
+      iex> user_name_reindex("old_username", "new_username")
+      :ok
+
+  """
   def user_name_reindex(old_name, new_name) do
     data = PostIndex.user_name_update_by_query(old_name, new_name)
 
@@ -273,12 +345,31 @@ defmodule Philomena.Posts do
     result
   end
 
+  @doc """
+  Queues a single post for search index updates.
+  Returns the post struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_comment(post)
+      %Post{}
+
+  """
   def reindex_post(%Post{} = post) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Posts", "id", [post.id]])
 
     post
   end
 
+  @doc """
+  Provides preload queries for post indexing operations.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [user: user_query, topic: topic_query]
+
+  """
   def indexing_preloads do
     user_query = select(User, [u], map(u, [:id, :name]))
 
@@ -293,6 +384,22 @@ defmodule Philomena.Posts do
     ]
   end
 
+  @doc """
+  Performs a search reindex operation on posts matching the given criteria.
+
+  ## Parameters
+  - column: The database column to filter on (e.g., :id, :topic_id)
+  - condition: A list of values to match against the column
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      :ok
+
+      iex> perform_reindex(:topic_id, [123])
+      :ok
+
+  """
   def perform_reindex(column, condition) do
     Post
     |> preload(^indexing_preloads())
