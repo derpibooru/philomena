@@ -26,7 +26,7 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@types/chai-dom": "^1.11.3",
-    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.9",
     "chai": "^5",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
