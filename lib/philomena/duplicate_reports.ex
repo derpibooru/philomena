@@ -16,6 +16,18 @@ defmodule Philomena.DuplicateReports do
   alias Philomena.Images.Image
   alias Philomena.Images
 
+  @doc """
+  Generates automated duplicate reports for an image based on perceptual matching.
+
+  Takes a source image and generates duplicate reports for similar images based on
+  intensity and aspect ratio comparison.
+
+  ## Examples
+
+      iex> generate_reports(source_image)
+      [{:ok, %DuplicateReport{}}, ...]
+
+  """
   def generate_reports(source) do
     source = Repo.preload(source, :intensity)
 
@@ -30,6 +42,23 @@ defmodule Philomena.DuplicateReports do
     end)
   end
 
+  @doc """
+  Query for potential duplicate images based on intensity values and aspect ratio.
+
+  Takes a tuple of {intensities, aspect_ratio} and optional options to control the search:
+  - `:aspect_dist` - Maximum aspect ratio difference (default: 0.05)
+  - `:limit` - Maximum number of results (default: 10)
+  - `:dist` - Maximum intensity difference per channel (default: 0.25)
+
+  ## Examples
+
+      iex> find_duplicates({%{nw: 0.5, ne: 0.5, sw: 0.5, se: 0.5}, 1.0})
+      #Ecto.Query<...>
+
+      iex> find_duplicates({intensities, ratio}, dist: 0.3, limit: 20)
+      #Ecto.Query<...>
+
+  """
   def find_duplicates({intensities, aspect_ratio}, opts \\ []) do
     aspect_dist = Keyword.get(opts, :aspect_dist, 0.05)
     limit = Keyword.get(opts, :limit, 10)
@@ -150,6 +179,21 @@ defmodule Philomena.DuplicateReports do
     |> Repo.insert()
   end
 
+  @doc """
+  Accepts a duplicate report and merges the duplicate image into the target image.
+
+  Takes an optional Ecto.Multi, the duplicate report to accept, and the user accepting the report.
+  Handles rejecting any other duplicate reports between the same images and merges the images.
+
+  ## Examples
+
+      iex> accept_duplicate_report(nil, duplicate_report, user)
+      {:ok, %{duplicate_report: %DuplicateReport{}, ...}}
+
+      iex> accept_duplicate_report(existing_multi, duplicate_report, user)
+      %Ecto.Multi{}
+
+  """
   def accept_duplicate_report(multi \\ nil, %DuplicateReport{} = duplicate_report, user) do
     duplicate_report = Repo.preload(duplicate_report, [:image, :duplicate_of_image])
 
@@ -175,6 +219,18 @@ defmodule Philomena.DuplicateReports do
     |> Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image, user)
   end
 
+  @doc """
+  Accepts a duplicate report in reverse, making the target image the duplicate instead.
+
+  Creates a new duplicate report with reversed image relationship if one doesn't exist,
+  rejects the original report, and accepts the reversed report.
+
+  ## Examples
+
+      iex> accept_reverse_duplicate_report(duplicate_report, user)
+      {:ok, %{duplicate_report: %DuplicateReport{}, ...}}
+
+  """
   def accept_reverse_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
     new_report =
       DuplicateReport
@@ -204,18 +260,47 @@ defmodule Philomena.DuplicateReports do
     |> accept_duplicate_report(new_report, user)
   end
 
+  @doc """
+  Claims a duplicate report for review by a user.
+
+  ## Examples
+
+      iex> claim_duplicate_report(duplicate_report, user)
+      {:ok, %DuplicateReport{}}
+
+  """
   def claim_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
     duplicate_report
     |> DuplicateReport.claim_changeset(user)
     |> Repo.update()
   end
 
+  @doc """
+  Removes a user's claim on a duplicate report.
+
+  ## Examples
+
+      iex> unclaim_duplicate_report(duplicate_report)
+      {:ok, %DuplicateReport{}}
+
+  """
   def unclaim_duplicate_report(%DuplicateReport{} = duplicate_report) do
     duplicate_report
     |> DuplicateReport.unclaim_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Rejects a duplicate report.
+
+  Updates the duplicate report's state to rejected and records the user who rejected it.
+
+  ## Examples
+
+      iex> reject_duplicate_report(duplicate_report, user)
+      {:ok, %DuplicateReport{}}
+
+  """
   def reject_duplicate_report(%DuplicateReport{} = duplicate_report, user) do
     duplicate_report
     |> DuplicateReport.reject_changeset(user)
@@ -251,6 +336,19 @@ defmodule Philomena.DuplicateReports do
     DuplicateReport.changeset(duplicate_report, %{})
   end
 
+  @doc """
+  Counts the number of duplicate reports in "open" state,
+  if the user has permission to view them.
+
+  ## Examples
+
+      iex> count_duplicate_reports(admin)
+      42
+
+      iex> count_duplicate_reports(user)
+      nil
+
+  """
   def count_duplicate_reports(user) do
     if Canada.Can.can?(user, :index, DuplicateReport) do
       DuplicateReport

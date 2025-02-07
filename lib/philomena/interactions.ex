@@ -8,6 +8,19 @@ defmodule Philomena.Interactions do
   alias Philomena.Repo
   alias Ecto.Multi
 
+  @doc """
+  Gets all interactions for a list of images for a given user.
+
+  Returns an empty list if no user is provided. Otherwise returns a list of maps containing:
+  - image_id: The ID of the image
+  - user_id: The ID of the user
+  - interaction_type: One of "hidden", "faved", or "voted"
+  - value: For votes, either "up" or "down". Empty string for other interaction types.
+
+  ## Parameters
+    * images - List of images or image IDs to get interactions for
+    * user - The user to get interactions for, or nil
+  """
   def user_interactions(_images, nil),
     do: []
 
@@ -71,6 +84,18 @@ defmodule Philomena.Interactions do
     |> Repo.all()
   end
 
+  @doc """
+  Migrates all interactions from one image to another.
+
+  Copies all hides, faves, and votes from the source image to the target image.
+  Updates the target image's counters to reflect the new interactions.
+  All operations are performed in a single transaction.
+
+  ## Parameters
+    * source - The source Image struct to copy interactions from
+    * target - The target Image struct to copy interactions to
+
+  """
   def migrate_interactions(source, target) do
     now = DateTime.utc_now(:second)
     source = Repo.preload(source, [:hiders, :favers, :upvoters, :downvoters])
