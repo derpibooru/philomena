@@ -111,9 +111,34 @@ function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): 
   if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
   const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
-  const terms = getTermContexts(searchQuery);
+  const isMultiline = targetInput instanceof HTMLTextAreaElement;
 
-  return terms.find(([range]) => range[0] < selectionIndex && range[1] >= selectionIndex) ?? null;
+  let lineOffset = 0;
+  let targetQuery = searchQuery;
+
+  // Multi-line textarea elements should treat each line as the different search queries. Here we're looking for the
+  // actively edited line and use it instead of the whole value.
+  if (isMultiline) {
+    const activeLineStart = searchQuery.slice(0, selectionIndex).lastIndexOf('\n') + 1;
+    const lengthAfterSelectionIndex = Math.max(searchQuery.slice(selectionIndex).indexOf('\n'), 0);
+
+    targetQuery = searchQuery.slice(activeLineStart, selectionIndex + lengthAfterSelectionIndex);
+    lineOffset = activeLineStart;
+  }
+
+  const terms = getTermContexts(targetQuery);
+  const searchIndex = selectionIndex - lineOffset;
+  const term = terms.find(([range]) => range[0] < searchIndex && range[1] >= searchIndex) ?? null;
+
+  // Converting line-specific indexes back to absolute ones.
+  if (isMultiline && term) {
+    const [range] = term;
+
+    range[0] += lineOffset;
+    range[1] += lineOffset;
+  }
+
+  return term;
 }
 
 function toggleSearchAutocomplete() {
