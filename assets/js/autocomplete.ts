@@ -9,7 +9,9 @@ import { TermContext } from './query/lex';
 import { $$ } from './utils/dom';
 import { fetchLocalAutocomplete, fetchSuggestions, SuggestionsPopup, TermSuggestion } from './utils/suggestions';
 
-let inputField: HTMLInputElement | null = null,
+type InputFieldElement = HTMLInputElement | HTMLTextAreaElement;
+
+let inputField: InputFieldElement | null = null,
   originalTerm: string | undefined,
   originalQuery: string | undefined,
   selectedTerm: TermContext | null = null;
@@ -105,7 +107,7 @@ function keydownHandler(event: KeyboardEvent) {
   }
 }
 
-function findSelectedTerm(targetInput: HTMLInputElement, searchQuery: string): TermContext | null {
+function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): TermContext | null {
   if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
   const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
@@ -117,7 +119,7 @@ function findSelectedTerm(targetInput: HTMLInputElement, searchQuery: string): T
 function toggleSearchAutocomplete() {
   const enable = store.get('enable_search_ac');
 
-  for (const searchField of $$<HTMLInputElement>('input[data-ac-mode=search]')) {
+  for (const searchField of $$<InputFieldElement>(':is(input, textarea)[data-ac-mode=search]')) {
     if (enable) {
       searchField.autocomplete = 'off';
     } else {
@@ -144,13 +146,13 @@ function listenAutocomplete() {
     loadAutocompleteFromEvent(event);
     window.clearTimeout(serverSideSuggestionsTimeout);
 
-    if (!(event.target instanceof HTMLInputElement)) return;
+    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
 
     const targetedInput = event.target;
 
     if (!targetedInput.dataset.ac) return;
 
-    targetedInput.addEventListener('keydown', keydownHandler);
+    targetedInput.addEventListener('keydown', keydownHandler as EventListener);
 
     if (localAc !== null) {
       inputField = targetedInput;
@@ -212,7 +214,7 @@ function listenAutocomplete() {
   });
 
   function loadAutocompleteFromEvent(event: Event) {
-    if (!(event.target instanceof HTMLInputElement)) return;
+    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
 
     if (!isLocalLoading && event.target.dataset.ac) {
       isLocalLoading = true;
