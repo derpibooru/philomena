@@ -6,6 +6,7 @@ import { assertNotNull } from './utils/assert';
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
+import { oncePersistedPageShown } from './utils/events';
 
 const MATROSKA_MAGIC = 0x1a45dfa3;
 
@@ -64,17 +65,21 @@ function setupImageUpload() {
       imgPreviews.appendChild(label);
     });
   }
+
   function showError() {
     clearEl(imgPreviews);
     showEl(scraperError);
     enableFetch();
   }
+
   function hideError() {
     hideEl(scraperError);
   }
+
   function disableFetch() {
     fetchButton.setAttribute('disabled', '');
   }
+
   function enableFetch() {
     fetchButton.removeAttribute('disabled');
   }
@@ -231,13 +236,30 @@ function setupImageUpload() {
 
   function disableUploadButton() {
     const submitButton = $('.button.input--separate-top');
-    if (submitButton !== null) {
-      submitButton.disabled = true;
-      submitButton.innerText = 'Please wait...';
+
+    if (!submitButton) {
+      return;
     }
+
+    const originalButtonText = submitButton.innerText;
+
+    submitButton.disabled = true;
+    submitButton.innerText = 'Please wait...';
 
     // delay is needed because Safari stops the submit if the button is immediately disabled
     requestAnimationFrame(() => submitButton.setAttribute('disabled', 'disabled'));
+
+    // Rolling back the disabled state when user navigated back to the form.
+    oncePersistedPageShown(() => {
+      if (!submitButton.disabled) {
+        return;
+      }
+
+      submitButton.disabled = false;
+      submitButton.innerText = originalButtonText;
+
+      submitButton.removeAttribute('disabled');
+    });
   }
 
   function submitHandler(event) {

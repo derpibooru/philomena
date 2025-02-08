@@ -121,6 +121,20 @@ defmodule Philomena.Comments do
     Repo.delete(comment)
   end
 
+  @doc """
+  Hides a comment and handles associated reports.
+
+  ## Parameters
+  - comment: The comment to hide
+  - attrs: Attributes for the hide operation
+  - user: The user performing the hide action
+
+  ## Examples
+
+      iex> hide_comment(comment, %{staff_note: "Rule violation"}, user)
+      {:ok, %Comment{}}
+
+  """
   def hide_comment(%Comment{} = comment, attrs, user) do
     report_query = Reports.close_report_query({"Comment", comment.id}, user)
     comment = Repo.preload(comment, :user)
@@ -170,6 +184,15 @@ defmodule Philomena.Comments do
     end
   end
 
+  @doc """
+  Unhides a previously hidden comment.
+
+  ## Examples
+
+      iex> unhide_comment(comment)
+      {:ok, %Comment{}}
+
+  """
   def unhide_comment(%Comment{} = comment) do
     comment
     |> Comment.unhide_changeset()
@@ -185,12 +208,35 @@ defmodule Philomena.Comments do
     end
   end
 
+  @doc """
+  Marks a comment as destroyed and removes its text (hard deletion).
+
+  ## Examples
+
+      iex> destroy_comment(comment)
+      {:ok, %Comment{}}
+
+  """
   def destroy_comment(%Comment{} = comment) do
     comment
     |> Comment.destroy_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Approves a comment, closes associated reports, and increments the user comments
+  posted count.
+
+  ## Parameters
+  - comment: The comment to approve
+  - user: The user performing the approval
+
+  ## Examples
+
+      iex> approve_comment(comment, user)
+      {:ok, %Comment{}}
+
+  """
   def approve_comment(%Comment{} = comment, user) do
     report_query = Reports.close_report_query({"Comment", comment.id}, user)
     comment = Comment.approve_changeset(comment)
@@ -212,6 +258,23 @@ defmodule Philomena.Comments do
     end
   end
 
+  @doc """
+  Creates a system report for non-approved comments containing external images.
+  Returns false for already approved comments.
+
+  ## Returns
+  - `false`: If the comment is already approved
+  - `{:ok, %Report{}}`: If a system report was created
+
+  ## Examples
+
+      iex> report_non_approved(approved_comment)
+      false
+
+      iex> report_non_approved(unapproved_comment)
+      {:ok, %Report{}}
+
+  """
   def report_non_approved(%Comment{approved: true}), do: false
 
   def report_non_approved(comment) do
@@ -222,6 +285,20 @@ defmodule Philomena.Comments do
     )
   end
 
+  @doc """
+  Migrates comments from one image to another when handling duplicate images.
+  Returns the duplicate image parameter unchanged, for use in a pipeline.
+
+  ## Parameters
+  - image: The source image whose comments will be moved
+  - duplicate_of_image: The target image that will receive the comments
+
+  ## Examples
+
+      iex> migrate_comments(source_image, target_image)
+      %Image{}
+
+  """
   def migrate_comments(image, duplicate_of_image) do
     {count, nil} =
       Comment
@@ -248,24 +325,62 @@ defmodule Philomena.Comments do
     Comment.changeset(comment, %{})
   end
 
+  @doc """
+  Updates comment search indices when a user's name changes.
+
+  ## Examples
+
+      iex> user_name_reindex("old_username", "new_username")
+      :ok
+
+  """
   def user_name_reindex(old_name, new_name) do
     data = CommentIndex.user_name_update_by_query(old_name, new_name)
 
     Search.update_by_query(Comment, data.query, data.set_replacements, data.replacements)
   end
 
+  @doc """
+  Queues a single comment for search index updates.
+  Returns the comment struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_comment(comment)
+      %Comment{}
+
+  """
   def reindex_comment(%Comment{} = comment) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "id", [comment.id]])
 
     comment
   end
 
+  @doc """
+  Queues all comments associated with an image for search index updates.
+  Returns the image struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_comments(image)
+      %Image{}
+
+  """
   def reindex_comments(image) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "image_id", [image.id]])
 
     image
   end
 
+  @doc """
+  Provides preload queries for comment indexing operations.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [user: user_query, image: image_query]
+
+  """
   def indexing_preloads do
     user_query = select(User, [u], map(u, [:id, :name]))
     tag_query = select(Tag, [t], map(t, [:id]))
@@ -281,6 +396,22 @@ defmodule Philomena.Comments do
     ]
   end
 
+  @doc """
+  Performs a search reindex operation on comments matching the given criteria.
+
+  ## Parameters
+  - column: The database column to filter on (e.g., :id, :image_id)
+  - condition: A list of values to match against the column
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      :ok
+
+      iex> perform_reindex(:image_id, [123])
+      :ok
+
+  """
   def perform_reindex(column, condition) do
     Comment
     |> preload(^indexing_preloads())

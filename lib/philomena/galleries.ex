@@ -121,6 +121,15 @@ defmodule Philomena.Galleries do
     Gallery.changeset(gallery, %{})
   end
 
+  @doc """
+  Updates gallery search indices when a user's name changes.
+
+  ## Examples
+
+      iex> user_name_reindex("old_username", "new_username")
+      :ok
+
+  """
   def user_name_reindex(old_name, new_name) do
     data = GalleryIndex.user_name_update_by_query(old_name, new_name)
 
@@ -137,22 +146,65 @@ defmodule Philomena.Galleries do
     error
   end
 
+  @doc """
+  Queues a gallery for reindexing.
+
+  Adds the gallery to the indexing queue to update its search index.
+
+  ## Examples
+
+      iex> reindex_gallery(gallery)
+      %Gallery{}
+
+  """
   def reindex_gallery(%Gallery{} = gallery) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Galleries", "id", [gallery.id]])
 
     gallery
   end
 
+  @doc """
+  Removes a gallery from the search index.
+
+  Deletes the gallery's document from the search index.
+
+  ## Examples
+
+      iex> unindex_gallery(gallery)
+      %Gallery{}
+
+  """
   def unindex_gallery(%Gallery{} = gallery) do
     Search.delete_document(gallery.id, Gallery)
 
     gallery
   end
 
+  @doc """
+  Returns a list of associations to preload when indexing galleries.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [:subscribers, :creator, :interactions]
+
+  """
   def indexing_preloads do
     [:subscribers, :creator, :interactions]
   end
 
+  @doc """
+  Reindexes galleries based on a column condition.
+
+  Updates the search index for all galleries matching the given column condition.
+  Used for batch reindexing of galleries.
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      {:ok, [%Gallery{}, ...]}
+
+  """
   def perform_reindex(column, condition) do
     Gallery
     |> preload(^indexing_preloads())
@@ -160,6 +212,24 @@ defmodule Philomena.Galleries do
     |> Search.reindex(Gallery)
   end
 
+  @doc """
+  Adds the specified image to the gallery, updates image count, triggers
+  notifications, and performs necessary reindexing.
+
+  The image is added at the last position.
+
+  ## Examples
+
+      iex> add_image_to_gallery(gallery, image)
+      {:ok,
+       %{
+         gallery: %Gallery{},
+         interaction: %Interaction{},
+         image_count: 1,
+         notification: %Notification{}
+       }}
+
+  """
   def add_image_to_gallery(gallery, image) do
     Multi.new()
     |> Multi.run(:gallery, fn repo, %{} ->
@@ -202,6 +272,21 @@ defmodule Philomena.Galleries do
     end
   end
 
+  @doc """
+  Removes the specified image from the gallery, updates image count,
+  and performs necessary reindexing.
+
+  ## Examples
+
+      iex> remove_image_from_gallery(gallery, image)
+      {:ok,
+       %{
+         gallery: %Gallery{},
+         interaction: 1,
+         image_count: 0
+       }}
+
+  """
   def remove_image_from_gallery(gallery, image) do
     Multi.new()
     |> Multi.run(:gallery, fn repo, %{} ->
@@ -254,10 +339,35 @@ defmodule Philomena.Galleries do
     |> Repo.aggregate(:max, :position)
   end
 
+  @doc """
+  Queues a gallery reorder operation.
+  Returns the gallery struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reorder_gallery(gallery, [1, 2, 3])
+      %Gallery{}
+
+  """
   def reorder_gallery(gallery, image_ids) do
     Exq.enqueue(Exq, "indexing", GalleryReorderWorker, [gallery.id, image_ids])
+
+    gallery
   end
 
+  @doc """
+  Performs the actual reordering of images in a gallery.
+
+  Reorders the gallery's images according to the provided image IDs list, updating
+  positions while maintaining relative order for unspecified images. Handles position
+  updates efficiently and reindexes only the affected images.
+
+  ## Examples
+
+      iex> perform_reorder(gallery_id, [3, 1, 2])
+      :ok
+
+  """
   def perform_reorder(gallery_id, image_ids) do
     gallery = get_gallery!(gallery_id)
 
@@ -320,6 +430,8 @@ defmodule Philomena.Galleries do
 
     # Now update all the associated images
     Images.reindex_images(Map.keys(requested))
+
+    :ok
   end
 
   defp position_order(%{order_position_asc: true}), do: [asc: :position]

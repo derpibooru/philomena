@@ -134,7 +134,8 @@ defmodule Philomena.Images.Thumbnailer do
       "image_sha512_hash" => Sha512.file(file),
       "image_size" => File.stat!(file).size,
       "image_width" => width,
-      "image_height" => height
+      "image_height" => height,
+      "image_aspect_ratio" => width / height
     })
     |> Repo.update!()
   end

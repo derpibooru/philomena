@@ -157,6 +157,16 @@ defmodule Philomena.Images do
     Logger.error("Aborting upload of #{image.id} after #{retry_count} retries")
   end
 
+  @doc """
+  Approves an image for public viewing.
+
+  This will make the image visible to users and update necessary statistics.
+
+  ## Examples
+
+      iex> approve_image(image)
+      {:ok, %Image{}}
+  """
   def approve_image(image) do
     image
     |> Repo.preload(:user)
@@ -198,6 +208,18 @@ defmodule Philomena.Images do
 
   defp maybe_suggest_user_verification(_user), do: false
 
+  @doc """
+  Counts the number of images pending approval that a user can moderate.
+
+  ## Examples
+
+      iex> count_pending_approvals(admin)
+      42
+
+      iex> count_pending_approvals(user)
+      nil
+
+  """
   def count_pending_approvals(user) do
     if Canada.Can.can?(user, :approve, %Image{}) do
       Image
@@ -209,12 +231,36 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc """
+  Marks the given image as the current featured image.
+
+  ## Examples
+
+      iex> feature_image(user, image)
+      {:ok, %ImageFeature{}}
+
+  """
   def feature_image(featurer, %Image{} = image) do
     %ImageFeature{user_id: featurer.id, image_id: image.id}
     |> ImageFeature.changeset(%{})
     |> Repo.insert()
   end
 
+  @doc """
+  Destroys the contents of an image (hard deletion) by marking it as hidden
+  and deleting up associated files.
+
+  This will:
+  1. Mark the image as removed in the database
+  2. Purge associated files
+  3. Remove thumbnails
+
+  ## Examples
+
+      iex> destroy_image(image)
+      {:ok, %Image{}}
+
+  """
   def destroy_image(%Image{} = image) do
     image
     |> Image.remove_image_changeset()
@@ -231,36 +277,91 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc """
+  Locks or unlocks comments on an image.
+
+  ## Examples
+
+      iex> lock_comments(image, true)
+      {:ok, %Image{}}
+
+  """
   def lock_comments(%Image{} = image, locked) do
     image
     |> Image.lock_comments_changeset(locked)
     |> Repo.update()
   end
 
+  @doc """
+  Locks or unlocks the description of an image.
+
+  ## Examples
+
+      iex> lock_description(image, true)
+      {:ok, %Image{}}
+
+  """
   def lock_description(%Image{} = image, locked) do
     image
     |> Image.lock_description_changeset(locked)
     |> Repo.update()
   end
 
+  @doc """
+  Locks or unlocks the tags on an image.
+
+  ## Examples
+
+      iex> lock_tags(image, true)
+      {:ok, %Image{}}
+
+  """
   def lock_tags(%Image{} = image, locked) do
     image
     |> Image.lock_tags_changeset(locked)
     |> Repo.update()
   end
 
+  @doc """
+  Removes the original SHA-512 hash from an image, allowing users to upload
+  the same file again.
+
+  ## Examples
+
+      iex> remove_hash(image)
+      {:ok, %Image{}}
+
+  """
   def remove_hash(%Image{} = image) do
     image
     |> Image.remove_hash_changeset()
     |> Repo.update()
   end
 
+  @doc """
+  Updates the scratchpad notes on an image.
+
+  ## Examples
+
+      iex> update_scratchpad(image, %{"scratchpad" => "New notes"})
+      {:ok, %Image{}}
+
+  """
   def update_scratchpad(%Image{} = image, attrs) do
     image
     |> Image.scratchpad_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Removes all source change history for an image.
+
+  ## Examples
+
+      iex> remove_source_history(image)
+      {:ok, %Image{}}
+
+  """
   def remove_source_history(%Image{} = image) do
     image
     |> Repo.preload(:source_changes)
@@ -268,17 +369,49 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
+  @doc """
+  Repairs an image by regenerating its thumbnails.
+  Returns the image struct unchanged, for use in a pipeline.
+
+  This will:
+  1. Mark the image as needing thumbnail regeneration
+  2. Queue the thumbnail generation job
+
+  ## Examples
+
+      iex> repair_image(image)
+      %Image{}
+
+  """
   def repair_image(%Image{} = image) do
     Image
     |> where(id: ^image.id)
     |> Repo.update_all(set: [thumbnails_generated: false, processed: false])
 
     Exq.enqueue(Exq, queue(image.image_mime_type), ThumbnailWorker, [image.id])
+
+    image
   end
 
   defp queue("video/webm"), do: "videos"
   defp queue(_mime_type), do: "images"
 
+  @doc """
+  Updates the file content of an image.
+
+  This will:
+  1. Update the image metadata
+  2. Save the new file
+  3. Generate new thumbnails
+  4. Purge old files
+  5. Reindex the image
+
+  ## Examples
+
+      iex> update_file(image, %{"image" => upload})
+      {:ok, %Image{}}
+
+  """
   def update_file(%Image{} = image, attrs) do
     image
     |> Image.changeset(attrs)
@@ -317,12 +450,48 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
+  @doc """
+  Updates an image's description.
+
+  ## Examples
+
+      iex> update_description(image, %{"description" => "New description"})
+      {:ok, %Image{}}
+
+  """
   def update_description(%Image{} = image, attrs) do
     image
     |> Image.description_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates an image's sources with attribution tracking.
+
+  Handles both added and removed sources. Automatically determines the user's
+  intended source changes based on the provided previous image state.
+
+  This will update the image's sources, create source change records
+  for tracking, and reindex the image.
+
+  ## Examples
+
+      iex> update_sources(
+      ...>   image,
+      ...>   %{attribution: attrs},
+      ...>   %{
+      ...>     "old_sources" => %{},
+      ...>     "sources" => %{"0" => "http://example.com"}
+      ...>    }
+      ...> )
+      {:ok,
+       %{
+         image: image,
+         added_source_changes: 1,
+         removed_source_changes: 0
+       }}
+
+  """
   def update_sources(%Image{} = image, attribution, attrs) do
     old_sources = attrs["old_sources"]
     new_sources = attrs["sources"]
@@ -384,6 +553,17 @@ defmodule Philomena.Images do
     }
   end
 
+  @doc """
+  Updates the locked tags on an image.
+
+  Locked tags can only be added or removed by privileged users.
+
+  ## Examples
+
+      iex> update_locked_tags(image, %{tag_input: "safe, validated"})
+      {:ok, %Image{}}
+
+  """
   def update_locked_tags(%Image{} = image, attrs) do
     new_tags = Tags.get_or_create_tags(attrs["tag_input"])
 
@@ -393,6 +573,33 @@ defmodule Philomena.Images do
     |> Repo.update()
   end
 
+  @doc """
+  Updates an image's tags with attribution tracking.
+
+  Handles both added and removed tags. Automatically determines the user's
+  intended tag changes based on the provided previous image state.
+
+  This will update the image's tags, create tag change records
+  for tracking, and reindex the image.
+
+  ## Examples
+
+      iex> update_tags(
+      ...>   image,
+      ...>   %{attribution: attrs},
+      ...>   %{
+      ...>     old_tag_input: "safe",
+      ...>     tag_input: "safe, cute"
+      ...>   }
+      ...> )
+      {:ok,
+       %{
+         image: image,
+         added_tag_changes: 1,
+         removed_tag_changes: 0
+       }}
+
+  """
   def update_tags(%Image{} = image, attribution, attrs) do
     old_tags = Tags.get_or_create_tags(attrs["old_tag_input"])
     new_tags = Tags.get_or_create_tags(attrs["tag_input"])
@@ -487,14 +694,27 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc """
+  Updates the tag change tracking after committing updates to an image.
+
+  This updates the rate limit counters for total tag change count and rating change count
+  based on the changes made to the image.
+
+  ## Examples
+
+      iex> update_tag_change_limits_after_commit(image, %{user: user, ip: "127.0.0.1"})
+      :ok
+
+  """
   def update_tag_change_limits_after_commit(image, attribution) do
     rating_changed_count = if(image.ratings_changed, do: 1, else: 0)
     tag_changed_count = length(image.added_tags) + length(image.removed_tags)
     user = attribution[:user]
     ip = attribution[:ip]
 
-    Limits.update_tag_count_after_update(user, ip, tag_changed_count)
-    Limits.update_rating_count_after_update(user, ip, rating_changed_count)
+    :ok = Limits.update_tag_count_after_update(user, ip, tag_changed_count)
+    :ok = Limits.update_rating_count_after_update(user, ip, rating_changed_count)
+    :ok
   end
 
   defp tag_change_attributes(attribution, image, tag, added, user) do
@@ -519,18 +739,48 @@ defmodule Philomena.Images do
     }
   end
 
+  @doc """
+  Changes the uploader of an image.
+
+  ## Examples
+
+      iex> update_uploader(image, %{"username" => "Admin"})
+      {:ok, %Image{}}
+
+  """
   def update_uploader(%Image{} = image, attrs) do
     image
     |> Image.uploader_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates the anonymous status of an image.
+
+  ## Examples
+
+      iex> update_anonymous(image, %{"anonymous" => "true"})
+      {:ok, %Image{}}
+
+  """
   def update_anonymous(%Image{} = image, attrs) do
     image
     |> Image.anonymous_changeset(attrs)
     |> Repo.update()
   end
 
+  @doc """
+  Updates the hide reason for an image.
+
+  ## Examples
+
+      iex> update_hide_reason(image, %{hide_reason: "Duplicate of #1234"})
+      {:ok, %Image{}}
+
+      iex> update_hide_reason(image, %{hide_reason: ""})
+      {:ok, %Image{}}
+
+  """
   def update_hide_reason(%Image{} = image, attrs) do
     image
     |> Image.hide_reason_changeset(attrs)
@@ -546,6 +796,28 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc """
+  Hides an image from public view.
+
+  This will:
+  1. Mark the image as hidden
+  2. Close all reports and duplicate reports
+  3. Delete all gallery interactions containing the image
+  4. Decrement all tag counts with the image
+  5. Hide the image's thumbnails and purge them from the CDN
+  6. Reindex the image and all of its comments
+
+  ## Examples
+
+      iex> hide_image(image, moderator, %{reason: "Rule violation"})
+      {:ok,
+       %{
+         image: image,
+         tags: tags,
+         reports: {count, reports}
+       }}
+
+  """
   def hide_image(%Image{} = image, user, attrs) do
     duplicate_reports =
       DuplicateReport
@@ -589,6 +861,33 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc """
+  Merges one image into another, combining their metadata and content.
+
+  This will:
+  1. Hide the source image
+  2. Update first_seen_at timestamp
+  3. Copy tags to the target image
+  4. Migrate sources, comments, subscriptions and interactions
+  5. Send merge notifications
+  6. Reindex both images and all of the comments
+
+  ## Parameters
+  - multi: Optional `m:Ecto.Multi` for transaction handling
+  - image: The source image to merge from
+  - duplicate_of_image: The target image to merge into
+  - user: The user performing the merge
+
+  ## Examples
+
+      iex> merge_image(nil, source_image, target_image, moderator)
+      {:ok,
+       %{
+         image: image,
+         tags: tags
+       }}
+
+  """
   def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image, user) do
     multi = multi || Multi.new()
 
@@ -704,6 +1003,26 @@ defmodule Philomena.Images do
     {:ok, image}
   end
 
+  @doc """
+  Unhides an image, making it visible to users again.
+
+  This will:
+  1. Remove the hidden status from the image
+  2. Increment tag counts
+  3. Unhide thumbnails
+  4. Reindex the image and related content
+
+  Returns {:ok, image} if successful, or returns the image unchanged if it's not hidden.
+
+  ## Examples
+
+      iex> unhide_image(hidden_image)
+      {:ok, %Image{hidden_from_users: false}}
+
+      iex> unhide_image(visible_image)
+      {:ok, %Image{}}
+
+  """
   def unhide_image(%Image{hidden_from_users: true} = image) do
     key = image.hidden_image_key
 
@@ -740,6 +1059,24 @@ defmodule Philomena.Images do
 
   def unhide_image(image), do: {:ok, image}
 
+  @doc """
+  Performs a batch update on multiple images, adding and removing tags.
+
+  This function efficiently updates tags for multiple images at once,
+  handling tag changes, tag counts, and reindexing in a single transaction.
+
+  ## Parameters
+  - image_ids: List of image IDs to update
+  - added_tags: List of tags to add to all images
+  - removed_tags: List of tags to remove from all images
+  - tag_change_attributes: Attributes tag changes are created with
+
+  ## Examples
+
+      iex> batch_update([1, 2], [tag1], [tag2], %{user_id: user.id})
+      {:ok, ...}
+
+  """
   def batch_update(image_ids, added_tags, removed_tags, tag_change_attributes) do
     image_ids =
       Image
@@ -857,24 +1194,65 @@ defmodule Philomena.Images do
     Image.changeset(image, %{})
   end
 
+  @doc """
+  Updates image search indices when a user's name changes.
+
+  ## Examples
+
+      iex> user_name_reindex("old_username", "new_username")
+      :ok
+
+  """
   def user_name_reindex(old_name, new_name) do
     data = ImageIndex.user_name_update_by_query(old_name, new_name)
 
     Search.update_by_query(Image, data.query, data.set_replacements, data.replacements)
   end
 
+  @doc """
+  Queues a single image for search index updates.
+  Returns the image struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_image(image)
+      %Image{}
+
+  """
   def reindex_image(%Image{} = image) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Images", "id", [image.id]])
 
     image
   end
 
+  @doc """
+  Queues all listed image IDs for search index updates.
+  Returns the list unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_images([1, 2, 3])
+      [1, 2, 3]
+
+  """
   def reindex_images(image_ids) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Images", "id", image_ids])
 
     image_ids
   end
 
+  @doc """
+  Returns the preload configuration for image indexing.
+
+  Specifies which associations should be preloaded when indexing images,
+  optimizing the queries for better performance.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [sources: query, user: query, ...]
+
+  """
   def indexing_preloads do
     user_query = select(User, [u], map(u, [:id, :name]))
     sources_query = select(Source, [s], map(s, [:image_id, :source]))
@@ -898,6 +1276,19 @@ defmodule Philomena.Images do
     ]
   end
 
+  @doc """
+  Performs a search reindex operation on images matching the given criteria.
+
+  ## Parameters
+  - column: The database column to filter on (e.g., :id)
+  - condition: A list of values to match against the column
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      :ok
+
+  """
   def perform_reindex(column, condition) do
     Image
     |> preload(^indexing_preloads())
@@ -905,6 +1296,17 @@ defmodule Philomena.Images do
     |> Search.reindex(Image)
   end
 
+  @doc """
+  Purges image files from the CDN.
+
+  Enqueues a job to purge both visible and hidden thumbnail paths for the given image.
+
+  ## Examples
+
+      iex> purge_files(image, "hidden_key")
+      :ok
+
+  """
   def purge_files(image, hidden_key) do
     files =
       if is_nil(hidden_key) do
@@ -917,6 +1319,17 @@ defmodule Philomena.Images do
     Exq.enqueue(Exq, "indexing", ImagePurgeWorker, [files])
   end
 
+  @doc """
+  Executes the actual purge operation for image files.
+
+  Calls the system purge-cache command to remove the specified files from the CDN cache.
+
+  ## Examples
+
+      iex> perform_purge(["file1.jpg", "file2.jpg"])
+      :ok
+
+  """
   def perform_purge(files) do
     {_out, 0} = System.cmd("purge-cache", [Jason.encode!(%{files: files})])
 
@@ -925,6 +1338,29 @@ defmodule Philomena.Images do
 
   alias Philomena.Images.Subscription
 
+  @doc """
+  Migrates subscriptions and notifications from one image to another.
+
+  This function is used during image merging to transfer all subscriptions
+  and notifications from the source image to the target image. It handles:
+
+  1. User subscriptions
+  2. Comment notifications
+  3. Merge notifications
+
+  Returns `{:ok, {comment_notification_count, merge_notification_count}}`.
+
+  ## Parameters
+
+    - source: The source image to migrate from
+    - target: The target image to migrate to
+
+  ## Examples
+
+      iex> migrate_subscriptions(source_image, target_image)
+      {:ok, {5, 2}}
+
+  """
   def migrate_subscriptions(source, target) do
     subscriptions =
       Subscription
@@ -970,6 +1406,29 @@ defmodule Philomena.Images do
     {:ok, {comment_notification_count, merge_notification_count}}
   end
 
+  @doc """
+  Migrates source URLs from one image to another.
+
+  This function is used during image merging to combine source URLs from both images.
+  It will:
+
+  1. Combine sources from both images
+  2. Remove duplicates
+  3. Take up to 15 sources (the system limit)
+  4. Update the target image with the combined sources
+
+  Returns the result of updating the target image with the combined sources.
+
+  ## Parameters
+  - source: The source image containing sources to migrate
+  - target: The target image to receive the combined sources
+
+  ## Examples
+
+      iex> migrate_sources(source_image, target_image)
+      {:ok, %Image{}}
+
+  """
   def migrate_sources(source, target) do
     sources =
       (source.sources ++ target.sources)

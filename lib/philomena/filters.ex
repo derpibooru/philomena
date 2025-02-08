@@ -93,6 +93,17 @@ defmodule Philomena.Filters do
     |> reindex_after_update()
   end
 
+  @doc """
+  Makes a filter public.
+
+  Updates the filter to be publicly accessible by other users.
+
+  ## Examples
+
+      iex> make_filter_public(filter)
+      {:ok, %Filter{}}
+
+  """
   def make_filter_public(%Filter{} = filter) do
     filter
     |> Filter.public_changeset()
@@ -140,6 +151,21 @@ defmodule Philomena.Filters do
     Filter.changeset(filter, %{})
   end
 
+  @doc """
+  Returns a grouped list of recent and user filters.
+
+  Takes a user and returns a list of their recently used filters and personal filters,
+  grouped into "Recent Filters" and "Your Filters" categories.
+
+  ## Examples
+
+      iex> recent_and_user_filters(user)
+      [
+        {"Recent Filters", [[key: "Filter 1", value: 1], ...]},
+        {"Your Filters", [[key: "Filter 2", value: 2], ...]}
+      ]
+
+  """
   def recent_and_user_filters(user) do
     recent_filter_ids =
       [user.current_filter_id | user.recent_filter_ids]
@@ -174,6 +200,17 @@ defmodule Philomena.Filters do
     |> Enum.reverse()
   end
 
+  @doc """
+  Adds a tag to a filter's hidden tags list.
+
+  Updates the filter to hide content with the specified tag.
+
+  ## Examples
+
+      iex> hide_tag(filter, tag)
+      {:ok, %Filter{}}
+
+  """
   def hide_tag(filter, tag) do
     hidden_tag_ids = Enum.uniq([tag.id | filter.hidden_tag_ids])
 
@@ -183,6 +220,15 @@ defmodule Philomena.Filters do
     |> reindex_after_update()
   end
 
+  @doc """
+  Removes a tag from a filter's hidden tags list.
+
+  ## Examples
+
+      iex> unhide_tag(filter, tag)
+      {:ok, %Filter{}}
+
+  """
   def unhide_tag(filter, tag) do
     hidden_tag_ids = filter.hidden_tag_ids -- [tag.id]
 
@@ -192,6 +238,15 @@ defmodule Philomena.Filters do
     |> reindex_after_update()
   end
 
+  @doc """
+  Adds a tag to a filter's spoilered tags list.
+
+  ## Examples
+
+      iex> spoiler_tag(filter, tag)
+      {:ok, %Filter{}}
+
+  """
   def spoiler_tag(filter, tag) do
     spoilered_tag_ids = Enum.uniq([tag.id | filter.spoilered_tag_ids])
 
@@ -201,6 +256,15 @@ defmodule Philomena.Filters do
     |> reindex_after_update()
   end
 
+  @doc """
+  Removes a tag from a filter's spoilered tags list.
+
+  ## Examples
+
+      iex> unspoiler_tag(filter, tag)
+      {:ok, %Filter{}}
+
+  """
   def unspoiler_tag(filter, tag) do
     spoilered_tag_ids = filter.spoilered_tag_ids -- [tag.id]
 
@@ -210,38 +274,92 @@ defmodule Philomena.Filters do
     |> reindex_after_update()
   end
 
-  defp reindex_after_update({:ok, filter}) do
-    reindex_filter(filter)
+  defp reindex_after_update(result) do
+    case result do
+      {:ok, filter} ->
+        reindex_filter(filter)
 
-    {:ok, filter}
+        {:ok, filter}
+
+      error ->
+        error
+    end
   end
 
-  defp reindex_after_update(error) do
-    error
-  end
+  @doc """
+  Updates filter indexes when a user's name changes.
 
+  Updates search indexes to reflect a user's new name.
+
+  ## Examples
+
+      iex> user_name_reindex("old_name", "new_name")
+      :ok
+
+  """
   def user_name_reindex(old_name, new_name) do
     data = FilterIndex.user_name_update_by_query(old_name, new_name)
 
     Search.update_by_query(Filter, data.query, data.set_replacements, data.replacements)
   end
 
+  @doc """
+  Queues a single filter for search index updates.
+  Returns the filter struct unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_filter(filter)
+      %Filter{}
+
+  """
   def reindex_filter(%Filter{} = filter) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Filters", "id", [filter.id]])
 
     filter
   end
 
+  @doc """
+  Removes a filter from the search index.
+
+  ## Examples
+
+      iex> unindex_filter(filter)
+      %Filter{}
+
+  """
   def unindex_filter(%Filter{} = filter) do
     Search.delete_document(filter.id, Filter)
 
     filter
   end
 
+  @doc """
+  Returns a list of associations to preload when indexing filters.
+
+  ## Examples
+
+      iex> indexing_preloads()
+      [:user]
+
+  """
   def indexing_preloads do
     [:user]
   end
 
+  @doc """
+  Performs a search reindex operation on filters matching the given criteria.
+
+  ## Parameters
+  - column: The database column to filter on (e.g., :id)
+  - condition: A list of values to match against the column
+
+  ## Examples
+
+      iex> perform_reindex(:id, [1, 2, 3])
+      {:ok, [%Filter{}, ...]}
+
+  """
   def perform_reindex(column, condition) do
     Filter
     |> preload(^indexing_preloads())

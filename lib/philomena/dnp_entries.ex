@@ -77,6 +77,18 @@ defmodule Philomena.DnpEntries do
     |> Repo.update()
   end
 
+  @doc """
+  Transitions a DNP entry to a new state.
+
+  ## Examples
+
+      iex> transition_dnp_entry(dnp_entry, user, "acknowledged")
+      {:ok, %DnpEntry{}}
+
+      iex> transition_dnp_entry(dnp_entry, user, "invalid_state")
+      {:error, %Ecto.Changeset{}}
+
+  """
   def transition_dnp_entry(%DnpEntry{} = dnp_entry, user, new_state) do
     dnp_entry
     |> DnpEntry.transition_changeset(user, new_state)
@@ -112,6 +124,19 @@ defmodule Philomena.DnpEntries do
     DnpEntry.changeset(dnp_entry, %{})
   end
 
+  @doc """
+  Returns the count of active DNP entries in requested, claimed,
+  or acknowledged state, if the user has permission to view them.
+
+  ## Examples
+
+      iex> count_dnp_entries(admin)
+      42
+
+      iex> count_dnp_entries(user)
+      nil
+
+  """
   def count_dnp_entries(user) do
     if Canada.Can.can?(user, :index, DnpEntry) do
       DnpEntry
