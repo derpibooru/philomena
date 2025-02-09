@@ -176,7 +176,11 @@ defmodule Philomena.Tags do
     tag
     |> Tag.changeset(attrs, implied_tags)
     |> Repo.update()
-    |> case do
+    |> reindex_after_update()
+  end
+
+  defp reindex_after_update(result) do
+    case result do
       {:ok, tag} ->
         reindex_tag(tag)
 
@@ -483,6 +487,7 @@ defmodule Philomena.Tags do
     |> case do
       {:ok, _} = result ->
         reindex_tag_images(former_alias)
+        reindex_tags([tag, former_alias])
 
         result
 
