@@ -116,20 +116,18 @@ function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): 
   // actively edited line and use it instead of the whole value.
   const activeLineStart = searchQuery.slice(0, selectionIndex).lastIndexOf('\n') + 1;
   const lengthAfterSelectionIndex = Math.max(searchQuery.slice(selectionIndex).indexOf('\n'), 0);
-
   const targetQuery = searchQuery.slice(activeLineStart, selectionIndex + lengthAfterSelectionIndex);
-  const lineOffset = activeLineStart;
 
   const terms = getTermContexts(targetQuery);
-  const searchIndex = selectionIndex - lineOffset;
+  const searchIndex = selectionIndex - activeLineStart;
   const term = terms.find(([range]) => range[0] < searchIndex && range[1] >= searchIndex) ?? null;
 
   // Converting line-specific indexes back to absolute ones.
   if (term) {
     const [range] = term;
 
-    range[0] += lineOffset;
-    range[1] += lineOffset;
+    range[0] += activeLineStart;
+    range[1] += activeLineStart;
   }
 
   return term;
