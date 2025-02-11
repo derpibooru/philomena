@@ -31,13 +31,15 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
       |> Map.fetch!("posts")
       |> hd()
 
+    images = post_json["embed"]["images"] || post_json["embed"]["media"]["images"] || []
+
     %{
       source_url: url,
       author_name: domain_first_component(post_json["author"]["handle"]),
       description: post_json["record"]["text"],
       images:
         Enum.map(
-          post_json["embed"]["images"],
+          images,
           &%{
             url: String.replace(&1["fullsize"], @fullsize_image_regex, @blob_image_url_pattern),
             camo_url: PhilomenaProxy.Camo.image_url(&1["thumb"])

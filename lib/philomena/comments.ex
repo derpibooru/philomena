@@ -197,15 +197,7 @@ defmodule Philomena.Comments do
     comment
     |> Comment.unhide_changeset()
     |> Repo.update()
-    |> case do
-      {:ok, comment} ->
-        reindex_comment(comment)
-
-        {:ok, comment}
-
-      error ->
-        error
-    end
+    |> reindex_after_update()
   end
 
   @doc """
@@ -221,6 +213,19 @@ defmodule Philomena.Comments do
     comment
     |> Comment.destroy_changeset()
     |> Repo.update()
+    |> reindex_after_update()
+  end
+
+  defp reindex_after_update(result) do
+    case result do
+      {:ok, comment} ->
+        reindex_comment(comment)
+
+        {:ok, comment}
+
+      error ->
+        error
+    end
   end
 
   @doc """

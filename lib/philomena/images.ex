@@ -290,6 +290,7 @@ defmodule Philomena.Images do
     image
     |> Image.lock_comments_changeset(locked)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -305,6 +306,7 @@ defmodule Philomena.Images do
     image
     |> Image.lock_description_changeset(locked)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -320,6 +322,7 @@ defmodule Philomena.Images do
     image
     |> Image.lock_tags_changeset(locked)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -336,6 +339,7 @@ defmodule Philomena.Images do
     image
     |> Image.remove_hash_changeset()
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -351,6 +355,7 @@ defmodule Philomena.Images do
     image
     |> Image.scratchpad_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -367,6 +372,7 @@ defmodule Philomena.Images do
     |> Repo.preload(:source_changes)
     |> Image.remove_source_history_changeset()
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -448,6 +454,7 @@ defmodule Philomena.Images do
     image
     |> Image.changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -463,6 +470,7 @@ defmodule Philomena.Images do
     image
     |> Image.description_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -571,6 +579,7 @@ defmodule Philomena.Images do
     |> Repo.preload(:locked_tags)
     |> Image.locked_tags_changeset(attrs, new_tags)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -752,6 +761,7 @@ defmodule Philomena.Images do
     image
     |> Image.uploader_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -767,6 +777,7 @@ defmodule Philomena.Images do
     image
     |> Image.anonymous_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -785,7 +796,11 @@ defmodule Philomena.Images do
     image
     |> Image.hide_reason_changeset(attrs)
     |> Repo.update()
-    |> case do
+    |> reindex_after_update()
+  end
+
+  defp reindex_after_update(result) do
+    case result do
       {:ok, image} ->
         reindex_image(image)
 
