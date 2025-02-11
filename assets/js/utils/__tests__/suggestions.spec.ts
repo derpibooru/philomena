@@ -2,7 +2,7 @@ import { fetchMock } from '../../../test/fetch-mock.ts';
 import {
   fetchLocalAutocomplete,
   fetchSuggestions,
-  formatLocalAutocompleteResult,
+  createLocalAutocompleteResultFormatter,
   purgeSuggestionsCache,
   SuggestionsPopup,
   TermSuggestion,
@@ -334,12 +334,13 @@ describe('Suggestions', () => {
     });
   });
 
-  describe('formatLocalAutocompleteResult', () => {
+  describe('createLocalAutocompleteResultFormatter', () => {
     it('should format suggested tags as tag name and the count', () => {
       const tagName = 'safe';
       const tagCount = getRandomIntBetween(5, 10);
 
-      const resultObject = formatLocalAutocompleteResult({
+      const formatter = createLocalAutocompleteResultFormatter();
+      const resultObject = formatter({
         name: tagName,
         aliasName: tagName,
         imageCount: tagCount,
@@ -354,7 +355,8 @@ describe('Suggestions', () => {
       const tagAlias = 'rating:safe';
       const tagCount = getRandomIntBetween(5, 10);
 
-      const resultObject = formatLocalAutocompleteResult({
+      const formatter = createLocalAutocompleteResultFormatter();
+      const resultObject = formatter({
         name: tagName,
         aliasName: tagAlias,
         imageCount: tagCount,
@@ -362,6 +364,40 @@ describe('Suggestions', () => {
 
       expect(resultObject.label).toBe(`${tagAlias} ⇒ ${tagName} (${tagCount})`);
       expect(resultObject.value).toBe(tagName);
+    });
+
+    it('should not display aliases when tag is starting with the same matched', () => {
+      const tagName = 'chest fluff';
+      const tagAlias = 'chest floof';
+      const tagCount = getRandomIntBetween(5, 10);
+
+      const prefix = 'ch';
+
+      const formatter = createLocalAutocompleteResultFormatter(prefix);
+      const resultObject = formatter({
+        name: tagName,
+        aliasName: tagAlias,
+        imageCount: tagCount,
+      });
+
+      expect(resultObject.label).toBe(`${tagName} (${tagCount})`);
+    });
+
+    it('should display aliases if matched prefix is different from the tag name', () => {
+      const tagName = 'queen chrysalis';
+      const tagAlias = 'chrysalis';
+      const tagCount = getRandomIntBetween(5, 10);
+
+      const prefix = 'ch';
+
+      const formatter = createLocalAutocompleteResultFormatter(prefix);
+      const resultObject = formatter({
+        name: tagName,
+        aliasName: tagAlias,
+        imageCount: tagCount,
+      });
+
+      expect(resultObject.label).toBe(`${tagAlias} ⇒ ${tagName} (${tagCount})`);
     });
   });
 });
