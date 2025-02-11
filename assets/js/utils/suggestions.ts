@@ -1,7 +1,7 @@
 import { makeEl } from './dom.ts';
 import { mouseMoveThenOver } from './events.ts';
 import { handleError } from './requests.ts';
-import { LocalAutocompleter } from './local-autocompleter.ts';
+import { LocalAutocompleter, Result } from './local-autocompleter.ts';
 
 export interface TermSuggestion {
   label: string;
@@ -174,4 +174,17 @@ export async function fetchLocalAutocomplete(): Promise<LocalAutocompleter> {
     .then(handleError)
     .then(resp => resp.arrayBuffer())
     .then(buf => new LocalAutocompleter(buf));
+}
+
+export function formatLocalAutocompleteResult(result: Result): TermSuggestion {
+  let tagName = result.name;
+
+  if (tagName !== result.aliasName) {
+    tagName = `${result.aliasName} ⇒ ${tagName}`;
+  }
+
+  return {
+    value: result.name,
+    label: `${tagName} (${result.imageCount})`,
+  };
 }

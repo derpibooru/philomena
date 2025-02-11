@@ -2,6 +2,7 @@ import { fetchMock } from '../../../test/fetch-mock.ts';
 import {
   fetchLocalAutocomplete,
   fetchSuggestions,
+  formatLocalAutocompleteResult,
   purgeSuggestionsCache,
   SuggestionsPopup,
   TermSuggestion,
@@ -11,6 +12,7 @@ import path from 'path';
 import { LocalAutocompleter } from '../local-autocompleter.ts';
 import { afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/dom';
+import { getRandomIntBetween } from '../../../test/randomness.ts';
 
 const mockedSuggestionsEndpoint = '/endpoint?term=';
 const mockedSuggestionsResponse = [
@@ -329,6 +331,37 @@ describe('Suggestions', () => {
       fetchMock.mockResolvedValue(new Response('error', { status: 500 }));
 
       expect(() => fetchLocalAutocomplete()).rejects.toThrowError('Received error from server');
+    });
+  });
+
+  describe('formatLocalAutocompleteResult', () => {
+    it('should format suggested tags as tag name and the count', () => {
+      const tagName = 'safe';
+      const tagCount = getRandomIntBetween(5, 10);
+
+      const resultObject = formatLocalAutocompleteResult({
+        name: tagName,
+        aliasName: tagName,
+        imageCount: tagCount,
+      });
+
+      expect(resultObject.label).toBe(`${tagName} (${tagCount})`);
+      expect(resultObject.value).toBe(tagName);
+    });
+
+    it('should display original alias name for aliased tags', () => {
+      const tagName = 'safe';
+      const tagAlias = 'rating:safe';
+      const tagCount = getRandomIntBetween(5, 10);
+
+      const resultObject = formatLocalAutocompleteResult({
+        name: tagName,
+        aliasName: tagAlias,
+        imageCount: tagCount,
+      });
+
+      expect(resultObject.label).toBe(`${tagAlias} ⇒ ${tagName} (${tagCount})`);
+      expect(resultObject.value).toBe(tagName);
     });
   });
 });

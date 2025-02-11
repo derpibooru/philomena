@@ -7,7 +7,13 @@ import { getTermContexts } from './match_query';
 import store from './utils/store';
 import { TermContext } from './query/lex';
 import { $$ } from './utils/dom';
-import { fetchLocalAutocomplete, fetchSuggestions, SuggestionsPopup, TermSuggestion } from './utils/suggestions';
+import {
+  formatLocalAutocompleteResult,
+  fetchLocalAutocomplete,
+  fetchSuggestions,
+  SuggestionsPopup,
+  TermSuggestion,
+} from './utils/suggestions';
 
 type InputFieldElement = HTMLInputElement | HTMLTextAreaElement;
 
@@ -192,7 +198,7 @@ function listenAutocomplete() {
 
       const suggestions = localAc
         .matchPrefix(trimPrefixes(originalTerm), suggestionsCount)
-        .map(({ name, imageCount }) => ({ label: `${name} (${imageCount})`, value: name }));
+        .map(formatLocalAutocompleteResult);
 
       if (suggestions.length) {
         popup.renderSuggestions(suggestions).showForField(targetedInput);
