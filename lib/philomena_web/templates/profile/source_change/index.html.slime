@@ -4,6 +4,22 @@ h1
     = @user.name
 
 - route = fn p -> ~p"/profiles/#{@user}/source_changes?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
+- params = if @conn.params["added"], do: [added: @conn.params["added"]]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn, params: params
 
-= render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination
+.block
+  .block__header
+    span.block__header__title
+      | Display only:
+
+    = link "Removed", to: ~p"/profiles/#{@user}/source_changes?#{[added: 0]}"
+    = link "Added", to: ~p"/profiles/#{@user}/source_changes?#{[added: 1]}"
+    = link "All", to: ~p"/profiles/#{@user}/source_changes"
+
+  .block__header.block__header--light
+    span.block__header__title.page__info
+      ' Listing changes for
+      => @image_count
+      = pluralize("image", "images", @image_count)
+
+  = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination
