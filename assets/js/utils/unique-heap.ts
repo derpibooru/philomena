@@ -24,7 +24,7 @@ export class UniqueHeap<T> {
     const key = this.unique(value);
     const prevIndex = this.keys.get(key);
 
-    if (prevIndex === undefined) {
+    if (typeof prevIndex === 'undefined') {
       this.keys.set(key, this.length);
       this.values[this.length++] = value;
     } else if (forceReplace) {
