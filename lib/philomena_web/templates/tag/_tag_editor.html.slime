@@ -9,7 +9,7 @@ elixir:
 .js-tag-block class="fancy-tag-#{@type}"
   = textarea @f, @name, html_options
   .js-taginput.input.input--wide.tagsinput.hidden class="js-taginput-fancy" data-click-focus=".js-taginput-input.js-taginput-#{@name}"
-    input.input [
+    input.input[
       class="js-taginput-input js-taginput-#{@name}"
       id="taginput-fancy-#{@name}"
       type="text"
@@ -27,7 +27,7 @@ button.button.button--state-primary.button--bold[
   data-click-focus=".js-taginput-input.js-taginput-#{@name}"
 ]
   | Fancy Editor
-button.hidden.button.button--state-primary.button--bold [
+button.hidden.button.button--state-primary.button--bold[
   class="js-taginput-hide"
   data-click-show=".js-taginput-plain,.js-taginput-show"
   data-click-hide=".js-taginput-fancy,.js-taginput-hide"
