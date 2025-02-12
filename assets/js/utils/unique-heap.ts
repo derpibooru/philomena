@@ -1,28 +1,34 @@
 export type Compare<T> = (a: T, b: T) => number;
 export type Unique<T> = (a: T) => unknown;
-export type Collection<T> = { [index: number]: T; length: number };
+export type Collection<T> = {
+  [index: number]: T;
+  length: number;
+};
 
 export class UniqueHeap<T> {
-  private keys: Set<unknown>;
+  private keys: Map<unknown, number>;
   private values: Collection<T>;
   private length: number;
   private compare: Compare<T>;
   private unique: Unique<T>;
 
   constructor(compare: Compare<T>, unique: Unique<T>, values: Collection<T>) {
-    this.keys = new Set();
+    this.keys = new Map();
     this.values = values;
     this.length = 0;
     this.compare = compare;
     this.unique = unique;
   }
 
-  append(value: T) {
+  append(value: T, forceReplace: boolean = false) {
     const key = this.unique(value);
+    const prevIndex = this.keys.get(key);
 
-    if (!this.keys.has(key)) {
-      this.keys.add(key);
+    if (prevIndex === undefined) {
+      this.keys.set(key, this.length);
       this.values[this.length++] = value;
+    } else if (forceReplace) {
+      this.values[prevIndex] = value;
     }
   }
 
