@@ -15,13 +15,16 @@ import {
   TermSuggestion,
 } from './utils/suggestions';
 
-type AcEnabledInputElement = HTMLInputElement | HTMLTextAreaElement;
+type AutocompletableInputElement = HTMLInputElement | HTMLTextAreaElement;
 
-function hasAcEnabled(element: unknown): element is AcEnabledInputElement {
-  return (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) && Boolean(element.dataset.ac);
+function hasAutocompleteEnabled(element: unknown): element is AutocompletableInputElement {
+  return (
+    (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
+    Boolean(element.dataset.autocomplete)
+  );
 }
 
-let inputField: AcEnabledInputElement | null = null;
+let inputField: AutocompletableInputElement | null = null;
 let originalTerm: string | undefined;
 let originalQuery: string | undefined;
 let selectedTerm: TermContext | null = null;
@@ -29,7 +32,7 @@ let selectedTerm: TermContext | null = null;
 const popup = new SuggestionsPopup();
 
 function isSearchField(targetInput: HTMLElement): boolean {
-  return targetInput.dataset.acMode === 'search';
+  return targetInput.dataset.autocompleteMode === 'search';
 }
 
 function restoreOriginalValue() {
@@ -117,7 +120,7 @@ function keydownHandler(event: KeyboardEvent) {
   }
 }
 
-function findSelectedTerm(targetInput: AcEnabledInputElement, searchQuery: string): TermContext | null {
+function findSelectedTerm(targetInput: AutocompletableInputElement, searchQuery: string): TermContext | null {
   if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
   const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
@@ -151,11 +154,15 @@ function findSelectedTerm(targetInput: AcEnabledInputElement, searchQuery: strin
 function toggleSearchNativeAutocomplete() {
   const enable = store.get('enable_search_ac');
 
-  for (const searchField of $$<AcEnabledInputElement>(':is(input, textarea)[data-ac][data-ac-mode=search]')) {
+  const searchFields = $$<AutocompletableInputElement>(
+    ':is(input, textarea)[data-autocomplete][data-autocomplete-mode=search]',
+  );
+
+  for (const searchField of searchFields) {
     if (enable) {
       searchField.autocomplete = 'off';
     } else {
-      searchField.removeAttribute('data-ac');
+      searchField.removeAttribute('data-autocomplete');
       searchField.autocomplete = 'on';
     }
   }
@@ -166,14 +173,14 @@ function trimPrefixes(targetTerm: string): string {
 }
 
 /**
- * We control the autocomplete with `data-ac*` attributes in HTML, and subscribe
+ * We control the autocomplete with `data-autocomplete*` attributes in HTML, and subscribe
  * event listeners to the `document`. This pattern is described in more detail
  * here: https://javascript.info/event-delegation
  */
 export function listenAutocomplete() {
   let serverSideSuggestionsTimeout: number | undefined;
 
-  let localAc: LocalAutocompleter | null = null;
+  let localAutocomplete: LocalAutocompleter | null = null;
 
   document.addEventListener('focusin', loadAutocompleteFromEvent);
 
@@ -182,13 +189,13 @@ export function listenAutocomplete() {
     loadAutocompleteFromEvent(event);
     window.clearTimeout(serverSideSuggestionsTimeout);
 
-    if (!hasAcEnabled(event.target)) return;
+    if (!hasAutocompleteEnabled(event.target)) return;
 
     const targetedInput = event.target;
 
     targetedInput.addEventListener('keydown', keydownHandler as EventListener);
 
-    if (localAc !== null) {
+    if (localAutocomplete !== null) {
       inputField = targetedInput;
       let suggestionsCount = 5;
 
@@ -207,7 +214,7 @@ export function listenAutocomplete() {
         originalTerm = inputField.value.toLowerCase();
       }
 
-      const suggestions = localAc
+      const suggestions = localAutocomplete
         .matchPrefix(trimPrefixes(originalTerm), suggestionsCount)
         .map(formatLocalAutocompleteResult);
 
@@ -247,16 +254,16 @@ export function listenAutocomplete() {
     }
   });
 
-  // Lazy-load the local AC index from the server only once.
-  let localAcFetchInitiated = false;
+  // Lazy-load the local autocomplete index from the server only once.
+  let localAutocompleteFetchNeeded = true;
 
   async function loadAutocompleteFromEvent(event: Event) {
-    if (!hasAcEnabled(event.target) || localAcFetchInitiated) {
+    if (!localAutocompleteFetchNeeded || !hasAutocompleteEnabled(event.target)) {
       return;
     }
 
-    localAcFetchInitiated = true;
-    localAc = await fetchLocalAutocomplete();
+    localAutocompleteFetchNeeded = false;
+    localAutocomplete = await fetchLocalAutocomplete();
   }
 
   toggleSearchNativeAutocomplete();

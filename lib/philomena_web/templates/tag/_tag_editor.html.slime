@@ -16,9 +16,9 @@ elixir:
       placeholder="add a tag"
       autocomplete="off"
       autocapitalize="none"
-      data-ac="true"
-      data-ac-min-length="3"
-      data-ac-source="/autocomplete/tags?term="
+      data-autocomplete="true"
+      data-autocomplete-min-length="3"
+      data-autocomplete-source="/autocomplete/tags?term="
     ]
 button.button.button--state-primary.button--bold[
   class="js-taginput-show"

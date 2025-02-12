@@ -10,6 +10,7 @@ header.header
           ' Derpibooru
       a.header__link.hide-mobile href="/images/new" title="Upload"
         i.fa.fa-upload
+
     = form_for @conn, ~p"/search", [method: "get", class: "header__search flex flex--no-wrap flex--centered", enforce_utf8: false], fn f ->
       - title = \
         "For terms all required, separate with ',' or 'AND'; also supports 'OR' " <> \
@@ -22,9 +23,9 @@ header.header
         value=@conn.params["q"]
         placeholder="Search"
         autocapitalize="none"
-        data-ac="true"
-        data-ac-min-length="3"
-        data-ac-mode="search"
+        data-autocomplete="true"
+        data-autocomplete-min-length="3"
+        data-autocomplete-mode="search"
       ]
 
       = if present?(@conn.params["sf"]) do
