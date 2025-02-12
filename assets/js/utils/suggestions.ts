@@ -176,17 +176,15 @@ export async function fetchLocalAutocomplete(): Promise<LocalAutocompleter> {
     .then(buf => new LocalAutocompleter(buf));
 }
 
-export function createLocalAutocompleteResultFormatter(matchedPrefix?: string): (result: Result) => TermSuggestion {
-  return result => {
-    let tagName = result.name;
+export function formatLocalAutocompleteResult(result: Result): TermSuggestion {
+  let tagName = result.name;
 
-    if (tagName !== result.aliasName && (!matchedPrefix || !tagName.startsWith(matchedPrefix))) {
-      tagName = `${result.aliasName} ⇒ ${tagName}`;
-    }
+  if (tagName !== result.aliasName) {
+    tagName = `${result.aliasName} ⇒ ${tagName}`;
+  }
 
-    return {
-      value: result.name,
-      label: `${tagName} (${result.imageCount})`,
-    };
+  return {
+    value: result.name,
+    label: `${tagName} (${result.imageCount})`,
   };
 }
