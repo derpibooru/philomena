@@ -15,17 +15,21 @@ import {
   TermSuggestion,
 } from './utils/suggestions';
 
-type InputFieldElement = HTMLInputElement | HTMLTextAreaElement;
+type AcEnabledInputElement = HTMLInputElement | HTMLTextAreaElement;
 
-let inputField: InputFieldElement | null = null,
-  originalTerm: string | undefined,
-  originalQuery: string | undefined,
-  selectedTerm: TermContext | null = null;
+function hasAcEnabled(element: unknown): element is AcEnabledInputElement {
+  return (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) && Boolean(element.dataset.ac);
+}
+
+let inputField: AcEnabledInputElement | null = null;
+let originalTerm: string | undefined;
+let originalQuery: string | undefined;
+let selectedTerm: TermContext | null = null;
 
 const popup = new SuggestionsPopup();
 
 function isSearchField(targetInput: HTMLElement): boolean {
-  return targetInput && targetInput.dataset.acMode === 'search';
+  return targetInput.dataset.acMode === 'search';
 }
 
 function restoreOriginalValue() {
@@ -113,7 +117,7 @@ function keydownHandler(event: KeyboardEvent) {
   }
 }
 
-function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): TermContext | null {
+function findSelectedTerm(targetInput: AcEnabledInputElement, searchQuery: string): TermContext | null {
   if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
   const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
@@ -139,10 +143,15 @@ function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): 
   return term;
 }
 
-function toggleSearchAutocomplete() {
+/**
+ * Our custom autocomplete isn't compatible with the native browser autocomplete,
+ * so we have to turn it off if our autocomplete is enabled, or turn it back on
+ * if it's disabled.
+ */
+function toggleSearchNativeAutocomplete() {
   const enable = store.get('enable_search_ac');
 
-  for (const searchField of $$<InputFieldElement>(':is(input, textarea)[data-ac-mode=search]')) {
+  for (const searchField of $$<AcEnabledInputElement>(':is(input, textarea)[data-ac][data-ac-mode=search]')) {
     if (enable) {
       searchField.autocomplete = 'off';
     } else {
@@ -156,11 +165,15 @@ function trimPrefixes(targetTerm: string): string {
   return targetTerm.trim().replace(/^-/, '');
 }
 
-function listenAutocomplete() {
+/**
+ * We control the autocomplete with `data-ac*` attributes in HTML, and subscribe
+ * event listeners to the `document`. This pattern is described in more detail
+ * here: https://javascript.info/event-delegation
+ */
+export function listenAutocomplete() {
   let serverSideSuggestionsTimeout: number | undefined;
 
   let localAc: LocalAutocompleter | null = null;
-  let isLocalLoading = false;
 
   document.addEventListener('focusin', loadAutocompleteFromEvent);
 
@@ -169,11 +182,9 @@ function listenAutocomplete() {
     loadAutocompleteFromEvent(event);
     window.clearTimeout(serverSideSuggestionsTimeout);
 
-    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
+    if (!hasAcEnabled(event.target)) return;
 
     const targetedInput = event.target;
-
-    if (!targetedInput.dataset.ac) return;
 
     targetedInput.addEventListener('keydown', keydownHandler as EventListener);
 
@@ -193,7 +204,7 @@ function listenAutocomplete() {
 
         originalTerm = selectedTerm[1].toLowerCase();
       } else {
-        originalTerm = `${inputField.value}`.toLowerCase();
+        originalTerm = inputField.value.toLowerCase();
       }
 
       const suggestions = localAc
@@ -236,19 +247,19 @@ function listenAutocomplete() {
     }
   });
 
-  function loadAutocompleteFromEvent(event: Event) {
-    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
+  // Lazy-load the local AC index from the server only once.
+  let localAcFetchInitiated = false;
 
-    if (!isLocalLoading && event.target.dataset.ac) {
-      isLocalLoading = true;
-
-      fetchLocalAutocomplete().then(autocomplete => {
-        localAc = autocomplete;
-      });
+  async function loadAutocompleteFromEvent(event: Event) {
+    if (!hasAcEnabled(event.target) || localAcFetchInitiated) {
+      return;
     }
+
+    localAcFetchInitiated = true;
+    localAc = await fetchLocalAutocomplete();
   }
 
-  toggleSearchAutocomplete();
+  toggleSearchNativeAutocomplete();
 
   popup.onItemSelected((event: CustomEvent<TermSuggestion>) => {
     if (!event.detail || !inputField) return;
@@ -272,5 +283,3 @@ function listenAutocomplete() {
     );
   });
 }
-
-export { listenAutocomplete };
