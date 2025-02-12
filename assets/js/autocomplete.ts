@@ -8,7 +8,7 @@ import store from './utils/store';
 import { TermContext } from './query/lex';
 import { $$ } from './utils/dom';
 import {
-  formatLocalAutocompleteResult,
+  createLocalAutocompleteResultFormatter,
   fetchLocalAutocomplete,
   fetchSuggestions,
   SuggestionsPopup,
@@ -196,9 +196,11 @@ function listenAutocomplete() {
         originalTerm = `${inputField.value}`.toLowerCase();
       }
 
+      const matchedTerm = trimPrefixes(originalTerm);
+
       const suggestions = localAc
-        .matchPrefix(trimPrefixes(originalTerm), suggestionsCount)
-        .map(formatLocalAutocompleteResult);
+        .matchPrefix(matchedTerm, suggestionsCount)
+        .map(createLocalAutocompleteResultFormatter(matchedTerm));
 
       if (suggestions.length) {
         popup.renderSuggestions(suggestions).showForField(targetedInput);
