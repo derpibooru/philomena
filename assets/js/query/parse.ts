@@ -17,7 +17,7 @@ export function parseTokens(lexicalArray: TokenList): AstMatcher {
       const op2 = operandStack.pop();
       const op1 = operandStack.pop();
 
-      if (typeof op1 === 'undefined' || typeof op2 === 'undefined') {
+      if (op1 === undefined || op2 === undefined) {
         throw new ParseError('Missing operand.');
       }
 
@@ -43,7 +43,7 @@ export function parseTokens(lexicalArray: TokenList): AstMatcher {
 
   const op1 = operandStack.pop();
 
-  if (typeof op1 === 'undefined') {
+  if (op1 === undefined) {
     return matchNone();
   }
 

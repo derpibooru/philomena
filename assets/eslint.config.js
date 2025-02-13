@@ -181,7 +181,7 @@ export default tsEslint.config(
       'no-trailing-spaces': 2,
       'no-undef-init': 2,
       'no-undef': 2,
-      'no-undefined': 2,
+      'no-undefined': 0,
       'no-underscore-dangle': 0,
       'no-unexpected-multiline': 2,
       'no-unmodified-loop-condition': 2,
