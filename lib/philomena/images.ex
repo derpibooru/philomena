@@ -906,6 +906,12 @@ defmodule Philomena.Images do
   def merge_image(multi \\ nil, %Image{} = image, duplicate_of_image, user) do
     multi = multi || Multi.new()
 
+    image =
+      Repo.preload(image, [:user, :intensity, :sources, tags: :aliases])
+
+    duplicate_of_image =
+      Repo.preload(duplicate_of_image, [:user, :intensity, :sources, tags: :aliases])
+
     image
     |> Image.merge_changeset(duplicate_of_image)
     |> hide_image_multi(image, user, multi)
@@ -920,11 +926,7 @@ defmodule Philomena.Images do
       {:ok, Tags.copy_tags(image, duplicate_of_image)}
     end)
     |> Multi.run(:migrate_sources, fn repo, %{} ->
-      {:ok,
-       migrate_sources(
-         repo.preload(image, [:sources]),
-         repo.preload(duplicate_of_image, [:sources])
-       )}
+      {:ok, migrate_sources(image, duplicate_of_image)}
     end)
     |> Multi.run(:migrate_comments, fn _, %{} ->
       {:ok, Comments.migrate_comments(image, duplicate_of_image)}
@@ -942,6 +944,16 @@ defmodule Philomena.Images do
       {:ok, result} ->
         reindex_image(duplicate_of_image)
         Comments.reindex_comments(duplicate_of_image)
+
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "image:merge",
+          %{
+            image: PhilomenaWeb.Api.Json.ImageView.render("image.json", %{image: image}),
+            duplicate_of_image:
+              PhilomenaWeb.Api.Json.ImageView.render("image.json", %{image: duplicate_of_image})
+          }
+        )
 
         {:ok, result}
 

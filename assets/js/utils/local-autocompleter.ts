@@ -101,6 +101,13 @@ export class LocalAutocompleter {
   }
 
   /**
+   * Return whether the tag pointed to by the reference index is an alias.
+   */
+  private tagReferenceIsAlias(i: TagReferenceIndex): boolean {
+    return this.view.getInt32(this.referenceStart + i * 8 + 4, true) < 0;
+  }
+
+  /**
    * Get the images count for the given reference index.
    */
   private getImageCount(i: TagReferenceIndex): number {
@@ -173,6 +180,7 @@ export class LocalAutocompleter {
     getResult: (i: number) => TagReferenceIndex,
     compare: (result: TagReferenceIndex) => number,
     hasFilteredAssociation: (result: TagReferenceIndex) => boolean,
+    isAlias: (result: TagReferenceIndex) => boolean,
     results: UniqueHeap<TagReferenceIndex>,
   ) {
     const filter = !store.get('unfilter_tag_suggestions');
@@ -207,7 +215,7 @@ export class LocalAutocompleter {
       }
 
       // Nothing was filtered, so add
-      results.append(referenceIndex);
+      results.append(referenceIndex, !isAlias(referenceIndex));
     }
   }
 
@@ -230,18 +238,19 @@ export class LocalAutocompleter {
     // Set up filter context
     const hiddenTags = new Set(window.booru.hiddenTagList);
     const hasFilteredAssociation = this.isFilteredByReference.bind(this, hiddenTags);
+    const isAlias = this.tagReferenceIsAlias.bind(this);
 
     // Find tags ordered by full name
     const prefixMatch = (i: TagReferenceIndex) =>
       strcmp(this.referenceToName(i, false).slice(0, prefix.length), prefix);
     const referenceToNameIndex = (i: number) => i;
-    this.scanResults(referenceToNameIndex, prefixMatch, hasFilteredAssociation, results);
+    this.scanResults(referenceToNameIndex, prefixMatch, hasFilteredAssociation, isAlias, results);
 
     // Find tags ordered by name in namespace
     const namespaceMatch = (i: TagReferenceIndex) =>
       strcmp(nameInNamespace(this.referenceToName(i, false)).slice(0, prefix.length), prefix);
     const referenceToAliasIndex = this.getSecondaryResultAt.bind(this);
-    this.scanResults(referenceToAliasIndex, namespaceMatch, hasFilteredAssociation, results);
+    this.scanResults(referenceToAliasIndex, namespaceMatch, hasFilteredAssociation, isAlias, results);
 
     // Convert top K from heap into result array
     return results.topK(k).map((i: TagReferenceIndex) => ({
