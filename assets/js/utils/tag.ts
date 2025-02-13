@@ -45,7 +45,7 @@ export function getSpoileredTags(): TagData[] {
 
 export function imageHitsTags(img: HTMLElement, matchTags: TagData[]): TagData[] {
   const imageTagsString = img.dataset.imageTags;
-  if (typeof imageTagsString === 'undefined') {
+  if (imageTagsString === undefined) {
     return [];
   }
   const imageTags = JSON.parse(imageTagsString);
