@@ -224,7 +224,7 @@ export function listenAutocomplete() {
       }
     }
 
-    const { acMinLength: minTermLength, acSource: endpointUrl } = targetedInput.dataset;
+    const { autocompleteMinLength: minTermLength, autocompleteSource: endpointUrl } = targetedInput.dataset;
 
     if (!endpointUrl) return;
 
