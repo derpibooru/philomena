@@ -126,7 +126,7 @@ span.communication__sender__stats,
   }
 
   .communication__body__sender {
-    width: calc(100vw - 12px - 125px);
+    width: calc(100vw - 12px - var(--reduced-communication-avatar-size));
     grid-area: 1 / 2 / 2 / 3;
   }
 
