@@ -108,6 +108,11 @@ span.communication__sender__stats,
   background-color: var(--destroyed-content-color);
 }
 
+.communication__body__avatar {
+  flex: 0 0 auto;
+  margin-right: 12px;
+}
+
 /* Mobile layout fixes */
 @media (max-width: $min-desktop-width) {
   .communication__body {
@@ -116,7 +121,7 @@ span.communication__sender__stats,
     grid-template-rows: repeat(2, auto) repeat(3, 1fr);
   }
 
-  .communication__body:first-child {
+  .communication__body__avatar {
     grid-area: 1 / 1 / 2 / 2;
   }
 

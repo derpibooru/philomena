@@ -14,11 +14,11 @@ article.block.communication
                   ' Approve
 
   .block__content.flex.flex--no-wrap
-    .flex__fixed.spacing-right.hide-mobile
+    .communication__body__avatar.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
 
     .flex__grow.communication__body
-      .flex__fixed.spacing-right.hide-desktop
+      .communication__body__avatar.hide-desktop
         = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
       .communication__body__sender
         span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
