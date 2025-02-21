@@ -14,16 +14,16 @@ article.block.communication
                   ' Approve
 
   .block__content.flex.flex--no-wrap
-    .flex__fixed.spacing-right
+    .flex__fixed.spacing-right.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
 
     .flex__grow.communication__body
-
-      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
-      br
-
-      = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
-
+      .flex__fixed.spacing-right.hide-desktop
+        = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
+      .communication__body__sender
+        span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
+        br
+        = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
       .communication__body__text
         = @body
 

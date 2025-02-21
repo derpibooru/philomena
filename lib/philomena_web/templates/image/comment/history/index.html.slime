@@ -9,15 +9,16 @@ h1
 = for version <- @versions do
   article.block.communication
     .block__content.flex.flex--no-wrap
-      .flex__fixed.spacing-right
+      .flex__fixed.spacing-right.hide-mobile
         = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
 
       .flex__grow.communication__body
-        span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
-        br
-
-        = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @comment, conn: @conn
-
+        .flex__fixed.spacing-right.hide-desktop
+          = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
+        .communication__body__sender
+          span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @comment, awards: true, conn: @conn
+          br
+          = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @comment, conn: @conn
         .communication__body__text
           = for edit <- version.difference do
             = case edit do
