@@ -9,8 +9,28 @@ elixir:
 .js-tag-block class="fancy-tag-#{@type}"
   = textarea @f, @name, html_options
   .js-taginput.input.input--wide.tagsinput.hidden class="js-taginput-fancy" data-click-focus=".js-taginput-input.js-taginput-#{@name}"
-    input.input class="js-taginput-input js-taginput-#{@name}" id="taginput-fancy-#{@name}" type="text" placeholder="add a tag" autocomplete="off" autocapitalize="none" data-ac="true" data-ac-min-length="3" data-ac-source="/autocomplete/tags?term="
-button.button.button--state-primary.button--bold class="js-taginput-show" data-click-show=".js-taginput-fancy,.js-taginput-hide" data-click-hide=".js-taginput-plain,.js-taginput-show" data-click-focus=".js-taginput-input.js-taginput-#{@name}"
-  ' Fancy Editor
-button.hidden.button.button--state-primary.button--bold class="js-taginput-hide" data-click-show=".js-taginput-plain,.js-taginput-show" data-click-hide=".js-taginput-fancy,.js-taginput-hide" data-click-focus=".js-taginput-plain.js-taginput-#{@name}"
-  ' Plain Editor
+    input.input[
+      class="js-taginput-input js-taginput-#{@name}"
+      id="taginput-fancy-#{@name}"
+      type="text"
+      placeholder="add a tag"
+      autocomplete="off"
+      autocapitalize="none"
+      data-autocomplete="true"
+      data-autocomplete-min-length="3"
+      data-autocomplete-source="/autocomplete/tags?term="
+    ]
+button.button.button--state-primary.button--bold[
+  class="js-taginput-show"
+  data-click-show=".js-taginput-fancy,.js-taginput-hide"
+  data-click-hide=".js-taginput-plain,.js-taginput-show"
+  data-click-focus=".js-taginput-input.js-taginput-#{@name}"
+]
+  | Fancy Editor
+button.hidden.button.button--state-primary.button--bold[
+  class="js-taginput-hide"
+  data-click-show=".js-taginput-plain,.js-taginput-show"
+  data-click-hide=".js-taginput-fancy,.js-taginput-hide"
+  data-click-focus=".js-taginput-plain.js-taginput-#{@name}"
+]
+  | Plain Editor

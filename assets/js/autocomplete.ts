@@ -15,17 +15,24 @@ import {
   TermSuggestion,
 } from './utils/suggestions';
 
-type InputFieldElement = HTMLInputElement | HTMLTextAreaElement;
+type AutocompletableInputElement = HTMLInputElement | HTMLTextAreaElement;
 
-let inputField: InputFieldElement | null = null,
-  originalTerm: string | undefined,
-  originalQuery: string | undefined,
-  selectedTerm: TermContext | null = null;
+function hasAutocompleteEnabled(element: unknown): element is AutocompletableInputElement {
+  return (
+    (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement) &&
+    Boolean(element.dataset.autocomplete)
+  );
+}
+
+let inputField: AutocompletableInputElement | null = null;
+let originalTerm: string | undefined;
+let originalQuery: string | undefined;
+let selectedTerm: TermContext | null = null;
 
 const popup = new SuggestionsPopup();
 
 function isSearchField(targetInput: HTMLElement): boolean {
-  return targetInput && targetInput.dataset.acMode === 'search';
+  return targetInput.dataset.autocompleteMode === 'search';
 }
 
 function restoreOriginalValue() {
@@ -113,7 +120,7 @@ function keydownHandler(event: KeyboardEvent) {
   }
 }
 
-function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): TermContext | null {
+function findSelectedTerm(targetInput: AutocompletableInputElement, searchQuery: string): TermContext | null {
   if (targetInput.selectionStart === null || targetInput.selectionEnd === null) return null;
 
   const selectionIndex = Math.min(targetInput.selectionStart, targetInput.selectionEnd);
@@ -139,14 +146,23 @@ function findSelectedTerm(targetInput: InputFieldElement, searchQuery: string): 
   return term;
 }
 
-function toggleSearchAutocomplete() {
+/**
+ * Our custom autocomplete isn't compatible with the native browser autocomplete,
+ * so we have to turn it off if our autocomplete is enabled, or turn it back on
+ * if it's disabled.
+ */
+function toggleSearchNativeAutocomplete() {
   const enable = store.get('enable_search_ac');
 
-  for (const searchField of $$<InputFieldElement>(':is(input, textarea)[data-ac-mode=search]')) {
+  const searchFields = $$<AutocompletableInputElement>(
+    ':is(input, textarea)[data-autocomplete][data-autocomplete-mode=search]',
+  );
+
+  for (const searchField of searchFields) {
     if (enable) {
       searchField.autocomplete = 'off';
     } else {
-      searchField.removeAttribute('data-ac');
+      searchField.removeAttribute('data-autocomplete');
       searchField.autocomplete = 'on';
     }
   }
@@ -156,11 +172,15 @@ function trimPrefixes(targetTerm: string): string {
   return targetTerm.trim().replace(/^-/, '');
 }
 
-function listenAutocomplete() {
+/**
+ * We control the autocomplete with `data-autocomplete*` attributes in HTML, and subscribe
+ * event listeners to the `document`. This pattern is described in more detail
+ * here: https://javascript.info/event-delegation
+ */
+export function listenAutocomplete() {
   let serverSideSuggestionsTimeout: number | undefined;
 
-  let localAc: LocalAutocompleter | null = null;
-  let isLocalLoading = false;
+  let localAutocomplete: LocalAutocompleter | null = null;
 
   document.addEventListener('focusin', loadAutocompleteFromEvent);
 
@@ -169,15 +189,13 @@ function listenAutocomplete() {
     loadAutocompleteFromEvent(event);
     window.clearTimeout(serverSideSuggestionsTimeout);
 
-    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
+    if (!hasAutocompleteEnabled(event.target)) return;
 
     const targetedInput = event.target;
 
-    if (!targetedInput.dataset.ac) return;
-
     targetedInput.addEventListener('keydown', keydownHandler as EventListener);
 
-    if (localAc !== null) {
+    if (localAutocomplete !== null) {
       inputField = targetedInput;
       let suggestionsCount = 5;
 
@@ -193,10 +211,10 @@ function listenAutocomplete() {
 
         originalTerm = selectedTerm[1].toLowerCase();
       } else {
-        originalTerm = `${inputField.value}`.toLowerCase();
+        originalTerm = inputField.value.toLowerCase();
       }
 
-      const suggestions = localAc
+      const suggestions = localAutocomplete
         .matchPrefix(trimPrefixes(originalTerm), suggestionsCount)
         .map(formatLocalAutocompleteResult);
 
@@ -206,7 +224,7 @@ function listenAutocomplete() {
       }
     }
 
-    const { acMinLength: minTermLength, acSource: endpointUrl } = targetedInput.dataset;
+    const { autocompleteMinLength: minTermLength, autocompleteSource: endpointUrl } = targetedInput.dataset;
 
     if (!endpointUrl) return;
 
@@ -236,19 +254,19 @@ function listenAutocomplete() {
     }
   });
 
-  function loadAutocompleteFromEvent(event: Event) {
-    if (!(event.target instanceof HTMLInputElement) && !(event.target instanceof HTMLTextAreaElement)) return;
+  // Lazy-load the local autocomplete index from the server only once.
+  let localAutocompleteFetchNeeded = true;
 
-    if (!isLocalLoading && event.target.dataset.ac) {
-      isLocalLoading = true;
-
-      fetchLocalAutocomplete().then(autocomplete => {
-        localAc = autocomplete;
-      });
+  async function loadAutocompleteFromEvent(event: Event) {
+    if (!localAutocompleteFetchNeeded || !hasAutocompleteEnabled(event.target)) {
+      return;
     }
+
+    localAutocompleteFetchNeeded = false;
+    localAutocomplete = await fetchLocalAutocomplete();
   }
 
-  toggleSearchAutocomplete();
+  toggleSearchNativeAutocomplete();
 
   popup.onItemSelected((event: CustomEvent<TermSuggestion>) => {
     if (!event.detail || !inputField) return;
@@ -272,5 +290,3 @@ function listenAutocomplete() {
     );
   });
 }
-
-export { listenAutocomplete };
