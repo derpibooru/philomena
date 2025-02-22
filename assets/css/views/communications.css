@@ -158,12 +158,18 @@ span.communication__sender__stats,
 
   .communication__body__avatar {
     grid-area: 1 / 1 / 2 / 2;
+    align-self: center;
   }
 
   .communication__body__sender {
     /* 8px body padding + 2px borders + 12px article padding + 12px avatar margin */
     width: calc(100vw - 34px - var(--reduced-communication-avatar-size));
     grid-area: 1 / 2 / 2 / 3;
+    padding-bottom: 6px;
+  }
+
+  .communication__body__sender > .label--block {
+    margin-bottom: 0;
   }
 
   .communication__body__text {
