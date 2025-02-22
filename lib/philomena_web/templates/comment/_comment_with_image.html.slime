@@ -1,5 +1,5 @@
 article.block.communication id="comment_#{@comment.id}"
-  .block__content.flex.flex--no-wrap class=communication_body_class(@comment)
+  .block__content.communication__content.flex.flex--no-wrap class=communication_body_class(@comment)
     .communication__body__avatar.hide-mobile
       .post-image-container
         = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn

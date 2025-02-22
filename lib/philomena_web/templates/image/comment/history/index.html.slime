@@ -8,7 +8,7 @@ h1
 
 = for version <- @versions do
   article.block.communication
-    .block__content.flex.flex--no-wrap
+    .block__content.communication__content.flex.flex--no-wrap
       .communication__body__avatar.hide-mobile
         = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
 

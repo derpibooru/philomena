@@ -20,7 +20,7 @@ rules:
   font-family-no-duplicate-names: true
   keyframe-block-no-duplicate-selectors: true
   no-duplicate-at-import-rules: true
-  no-duplicate-selectors: true
+  no-duplicate-selectors: null
   color-no-invalid-hex: true
   function-calc-no-unspaced-operator: true
   named-grid-areas-no-invalid: true

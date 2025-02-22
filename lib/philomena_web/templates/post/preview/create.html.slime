@@ -1,4 +1,4 @@
-.block.flex
+.block.flex.communication__content
   .communication__body__avatar.hide-mobile
     = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
 

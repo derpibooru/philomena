@@ -1,6 +1,6 @@
 article.block.communication
   = if not @message.approved and (can?(@conn, :approve, @message) or @message.from_id == @conn.assigns.current_user.id) do
-    .block__content
+    .block__content.communication__content
       .block.block--fixed.block--danger
         p
           i.fas.fa-exclamation-triangle>
@@ -13,7 +13,7 @@ article.block.communication
                   i.fas.fa-check>
                   ' Approve
 
-  .block__content.flex.flex--no-wrap
+  .block__content.communication__content.flex.flex--no-wrap
     .communication__body__avatar.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
 

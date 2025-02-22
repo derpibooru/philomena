@@ -1,6 +1,6 @@
 article.block.communication id="comment_#{@comment.id}"
   = if not @comment.approved and not @comment.hidden_from_users and (can?(@conn, :hide, @comment) or @comment.user_id == @conn.assigns.current_user.id) do
-    .block__content
+    .block__content.communication__content
       .block.block--fixed.block--danger
         p
           i.fas.fa-exclamation-triangle>
@@ -21,7 +21,7 @@ article.block.communication id="comment_#{@comment.id}"
               = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-reject-reason-comment-#{@comment.id}", required: true
               = submit "Delete", class: "button"
 
-  .block__content.flex.flex--no-wrap class=communication_body_class(@comment)
+  .block__content.communication__content.flex.flex--no-wrap class=communication_body_class(@comment)
     .communication__body__avatar.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @comment, conn: @conn
     .flex__grow.communication__body
