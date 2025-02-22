@@ -1,6 +1,6 @@
 article.block.communication
   = if not @message.approved and (can?(@conn, :approve, @message) or @message.from_id == @conn.assigns.current_user.id) do
-    .block__content
+    .block__content.communication__content
       .block.block--fixed.block--danger
         p
           i.fas.fa-exclamation-triangle>
@@ -13,17 +13,17 @@ article.block.communication
                   i.fas.fa-check>
                   ' Approve
 
-  .block__content.flex.flex--no-wrap
-    .flex__fixed.spacing-right
+  .block__content.communication__content.flex.flex--no-wrap
+    .communication__body__avatar.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
 
     .flex__grow.communication__body
-
-      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
-      br
-
-      = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
-
+      .communication__body__avatar.hide-desktop
+        = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @message.from}, conn: @conn, class: "avatar--100px"
+      .communication__body__sender
+        span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
+        br
+        = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
       .communication__body__text
         = @body
 

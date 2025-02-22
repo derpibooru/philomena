@@ -41,4 +41,5 @@ $image-large-size: 512px;
   --block-header-sub-height: 26px;
   --block-spacing: 6px;
   --media-box-header-height: 22px;
+  --reduced-communication-avatar-size: 50px;
 }

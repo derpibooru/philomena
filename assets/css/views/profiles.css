@@ -130,3 +130,16 @@ td.table--stats__sparkline {
   width: 125px;
   height: 125px;
 }
+
+/* Mobile layout fixes */
+@media (max-width: $min-desktop-width) {
+  .avatar--100px {
+    width: var(--reduced-communication-avatar-size);
+    height: var(--reduced-communication-avatar-size);
+  }
+
+  .avatar--125px {
+    width: var(--reduced-communication-avatar-size);
+    height: var(--reduced-communication-avatar-size);
+  }
+}

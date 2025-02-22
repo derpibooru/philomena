@@ -1,6 +1,6 @@
 article.block.communication id="post_#{@post.id}"
   = if not @post.approved and not @post.hidden_from_users and (can?(@conn, :hide, @post) or @post.user_id == @conn.assigns.current_user.id) do
-    .block__content
+    .block__content.communication__content
       .block.block--fixed.block--danger
         p
           i.fas.fa-exclamation-triangle>
@@ -21,13 +21,16 @@ article.block.communication id="post_#{@post.id}"
               = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-reject-reason-post-#{@post.id}", required: true
               = submit "Delete", class: "button"
 
-  .block__content.flex.flex--no-wrap class=communication_body_class(@post)
-    .flex__fixed.spacing-right
+  .block__content.communication__content.flex.flex--no-wrap class=communication_body_class(@post)
+    .communication__body__avatar.hide-mobile
       = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
     .flex__grow.communication__body
-      span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, awards: true, conn: @conn
-      br
-      = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @post, conn: @conn
+      .communication__body__avatar.hide-desktop
+        = render PhilomenaWeb.UserAttributionView, "_anon_user_avatar.html", object: @post, conn: @conn
+      .communication__body__sender
+        span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @post, awards: true, conn: @conn
+        br
+        = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @post, conn: @conn
       .communication__body__text
         = if @post.hidden_from_users do
           strong.comment_deleted
