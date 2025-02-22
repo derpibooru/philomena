@@ -925,7 +925,7 @@ defmodule Philomena.Images do
     |> Multi.run(:copy_tags, fn _, %{} ->
       {:ok, Tags.copy_tags(image, duplicate_of_image)}
     end)
-    |> Multi.run(:migrate_sources, fn repo, %{} ->
+    |> Multi.run(:migrate_sources, fn _, %{} ->
       {:ok, migrate_sources(image, duplicate_of_image)}
     end)
     |> Multi.run(:migrate_comments, fn _, %{} ->

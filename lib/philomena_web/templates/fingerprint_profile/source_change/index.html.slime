@@ -3,6 +3,16 @@ h1
   = @fingerprint
 
 - route = fn p -> ~p"/fingerprint_profiles/#{@fingerprint}/source_changes?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn
+- params = if @conn.params["added"], do: [added: @conn.params["added"]]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @source_changes, route: route, conn: @conn, params: params
 
-= render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination
+.block
+  .block__header
+    span.block__header__title
+      | Display only:
+
+    = link "Removed", to: ~p"/fingerprint_profiles/#{@fingerprint}/source_changes?#{[added: 0]}"
+    = link "Added", to: ~p"/fingerprint_profiles/#{@fingerprint}/source_changes?#{[added: 1]}"
+    = link "All", to: ~p"/fingerprint_profiles/#{@fingerprint}/source_changes"
+
+  = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination

@@ -7,7 +7,6 @@ export function assertNotNull<T>(value: T | null): T {
 }
 
 export function assertNotUndefined<T>(value: T | undefined): T {
-  // eslint-disable-next-line no-undefined
   if (value === undefined) {
     throw new Error('Expected non-undefined value');
   }
