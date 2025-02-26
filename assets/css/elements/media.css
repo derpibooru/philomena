@@ -1,5 +1,6 @@
 .media-box {
-  display: inline-block;
+  display: inline-flex;
+  flex-flow: column;
   position: relative;
   overflow: hidden;
   border: var(--media-border);

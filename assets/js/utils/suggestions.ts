@@ -75,6 +75,11 @@ export class SuggestionsPopup {
   }
 
   private watchItem(listItem: HTMLElement, suggestion: TermSuggestion) {
+    // This makes sure the item isn't selected if the mouse pointer happens to
+    // be right on top of the item when the list is rendered. So, the item may
+    // only be selected on the first `mousemove` event occurring on the element.
+    // See more details about this problem in the PR description:
+    // https://github.com/philomena-dev/philomena/pull/350
     mouseMoveThenOver(listItem, () => this.updateSelection(listItem));
 
     listItem.addEventListener('mouseout', () => this.clearSelection());

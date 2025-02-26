@@ -28,6 +28,7 @@ export default defineConfig(({ command, mode }: ConfigEnv): ViteUserConfig => {
     server: {
       host: '0.0.0.0',
       port: 5173,
+      cors: true,
     },
     resolve: {
       alias: {

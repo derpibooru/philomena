@@ -144,8 +144,8 @@ function getFontRemSize(): string {
 async function createFp(): Promise<string> {
   const prints: string[] = [
     navigator.userAgent,
-    navigator.hardwareConcurrency.toString(),
-    navigator.maxTouchPoints.toString(),
+    navigator.hardwareConcurrency?.toString(),
+    navigator.maxTouchPoints?.toString(),
     navigator.language,
     await getKeyboardData(),
     getMemoryData(),
