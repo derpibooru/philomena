@@ -155,7 +155,7 @@ function toggleSearchNativeAutocomplete() {
   const enable = store.get('enable_search_ac');
 
   const searchFields = $$<AutocompletableInputElement>(
-    ':is(input, textarea)[data-autocomplete][data-autocomplete-mode=search]',
+    'input[data-autocomplete][data-autocomplete-mode=search], textarea[data-autocomplete][data-autocomplete-mode=search]',
   );
 
   for (const searchField of searchFields) {

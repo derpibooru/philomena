@@ -34,34 +34,48 @@ import { pollOptionCreator } from './poll';
 import { warnAboutPMs } from './pmwarning';
 import { imageSourcesCreator } from './sources';
 
+const functions = [
+  loadBooruData,
+  listenAutocomplete,
+  registerEvents,
+  setupBurgerMenu,
+  bindCaptchaLinks,
+  initImagesClientside,
+  setupComments,
+  setupDupeReports,
+  setSesCookie,
+  setupGalleryEditing,
+  bindImageTarget,
+  setupEvents,
+  setupNotifications,
+  setupPreviews,
+  setupQuickTag,
+  initializeListener,
+  setupSettings,
+  listenForKeys,
+  initTagDropdown,
+  setupTagListener,
+  setupTagEvents,
+  setupTimestamps,
+  setupImageUpload,
+  setupSearch,
+  setupToolbar,
+  hideStaffTools,
+  pollOptionCreator,
+  warnAboutPMs,
+  imageSourcesCreator,
+];
+
 whenReady(() => {
-  loadBooruData();
-  listenAutocomplete();
-  registerEvents();
-  setupBurgerMenu();
-  bindCaptchaLinks();
-  initImagesClientside();
-  setupComments();
-  setupDupeReports();
-  setSesCookie();
-  setupGalleryEditing();
-  bindImageTarget();
-  setupEvents();
-  setupNotifications();
-  setupPreviews();
-  setupQuickTag();
-  initializeListener();
-  setupSettings();
-  listenForKeys();
-  initTagDropdown();
-  setupTagListener();
-  setupTagEvents();
-  setupTimestamps();
-  setupImageUpload();
-  setupSearch();
-  setupToolbar();
-  hideStaffTools();
-  pollOptionCreator();
-  warnAboutPMs();
-  imageSourcesCreator();
+  functions.forEach(fn => {
+    try {
+      fn();
+    } catch (err: unknown) {
+      console.log(`${fn.name} ran with errors.`);
+
+      if (err instanceof Error) {
+        console.log(`The error was:\n\n${err.message}`);
+      }
+    }
+  });
 });
