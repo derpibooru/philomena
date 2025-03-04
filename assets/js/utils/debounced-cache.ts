@@ -18,7 +18,6 @@ export interface DebouncedCacheParams {
  * See more details about the concept of debouncing here:
  * https://lodash.com/docs/4.17.15#debounce.
  *
- *
  * If the function is called with the arguments that were already cached,
  * then the cached result will be returned immediately and the previous
  * scheduled call will be cancelled.
