@@ -75,15 +75,10 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
     defp default_script_src(_host), do: "'self'"
   end
 
-  defp default_connect_src(host) do
-    # Same workaround as in `default_script_src/1`
-    is_vite_hmr = vite_hmr?(do: true, else: false)
-
-    if is_vite_hmr do
-      "'self' #{host}:5173 ws://#{host}:5173"
-    else
-      "'self'"
-    end
+  vite_hmr? do
+    defp default_connect_src(host), do: "'self' #{host}:5173 ws://#{host}:5173"
+  else
+    defp default_connect_src(_host), do: "'self'"
   end
 
   defp default_style_src, do: vite_hmr?(do: "'self' 'unsafe-inline'", else: "'self'")
