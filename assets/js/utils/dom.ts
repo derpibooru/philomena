@@ -61,6 +61,7 @@ export function removeEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E
 export function makeEl<Tag extends keyof HTMLElementTagNameMap>(
   tag: Tag,
   attr?: Partial<HTMLElementTagNameMap[Tag]>,
+  children: HTMLElement[] = [],
 ): HTMLElementTagNameMap[Tag] {
   const el = document.createElement(tag);
   if (attr) {
@@ -71,6 +72,7 @@ export function makeEl<Tag extends keyof HTMLElementTagNameMap>(
       }
     }
   }
+  el.append(...children);
   return el;
 }
 
