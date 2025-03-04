@@ -1,125 +1,335 @@
 import { makeEl } from './dom.ts';
-import { mouseMoveThenOver } from './events.ts';
-import { handleError } from './requests.ts';
-import { LocalAutocompleter, Result } from './local-autocompleter.ts';
 
-export interface TermSuggestion {
-  label: string;
-  value: string;
+export interface TagSuggestionParams {
+  /**
+   * If present, then this suggestion is for a tag alias.
+   * If absent, then this suggestion is for the `canonical` tag name.
+   */
+  alias?: null | string;
+
+  /**
+   * The canonical name of the tag (non-alias).
+   */
+  canonical: string;
+
+  /**
+   * Number of images tagged with this tag.
+   */
+  images: number;
+
+  /**
+   * Length of the prefix in the suggestion that matches the prefix of the current input.
+   */
+  matchLength: number;
 }
 
-const selectedSuggestionClassName = 'autocomplete__item--selected';
+export class TagSuggestion {
+  alias?: null | string;
+  canonical: string;
+  images: number;
+  matchLength: number;
 
+  constructor(params: TagSuggestionParams) {
+    this.alias = params.alias;
+    this.canonical = params.canonical;
+    this.images = params.images;
+    this.matchLength = params.matchLength;
+  }
+
+  value(): string {
+    return this.canonical;
+  }
+
+  render(): HTMLElement[] {
+    const { alias: aliasName, canonical: canonicalName, images: imageCount } = this;
+
+    const label = aliasName ? `${aliasName} → ${canonicalName}` : canonicalName;
+
+    return [
+      makeEl('div', { className: 'autocomplete__item__content' }, [
+        makeEl('i', { className: 'fa-solid fa-tag' }),
+        makeEl('b', {
+          className: 'autocomplete__item__tag__match',
+          textContent: ` ${label.slice(0, this.matchLength)}`,
+        }),
+        makeEl('span', {
+          textContent: label.slice(this.matchLength),
+        }),
+      ]),
+      makeEl('span', {
+        className: 'autocomplete__item__tag__count',
+        textContent: `  ${TagSuggestion.formatImageCount(imageCount)}`,
+      }),
+    ];
+  }
+
+  static formatImageCount(count: number): string {
+    const chars = [...count.toString()];
+
+    for (let i = chars.length - 3; i > 0; i -= 3) {
+      chars.splice(i, 0, ' ');
+    }
+
+    return chars.join('');
+  }
+}
+
+export class HistorySuggestion {
+  /**
+   * Full query string that was previously searched and retrieved from the history.
+   */
+  content: string;
+
+  /**
+   * Length of the prefix in the suggestion that matches the prefix of the current input.
+   */
+  matchLength: number;
+
+  constructor(content: string, matchIndex: number) {
+    this.content = content;
+    this.matchLength = matchIndex;
+  }
+
+  value(): string {
+    return this.content;
+  }
+
+  render(): HTMLElement[] {
+    return [
+      makeEl('div', { className: 'autocomplete__item__content' }, [
+        makeEl('i', {
+          className: 'autocomplete__item__history__icon fa-solid fa-history',
+        }),
+        makeEl('b', {
+          textContent: ` ${this.content.slice(0, this.matchLength)}`,
+          className: 'autocomplete__item__history__match',
+        }),
+        makeEl('span', {
+          textContent: this.content.slice(this.matchLength),
+        }),
+      ]),
+      // Here will be a `delete` button to remove the item from the history.
+    ];
+  }
+}
+
+export type Suggestion = TagSuggestion | HistorySuggestion;
+
+export interface Suggestions {
+  history: HistorySuggestion[];
+  tags: TagSuggestion[];
+}
+
+export interface ItemSelectedEvent {
+  suggestion: Suggestion;
+  shiftKey: boolean;
+  ctrlKey: boolean;
+}
+
+interface SuggestionItem {
+  element: HTMLElement;
+  suggestion: Suggestion;
+}
+
+/**
+ * Responsible for rendering the suggestions dropdown.
+ */
 export class SuggestionsPopup {
+  /**
+   * Index of the currently selected suggestion. -1 means an imaginary item
+   * before the first item that represents the state where no item is selected.
+   */
+  private cursor: number = -1;
+  private items: SuggestionItem[];
   private readonly container: HTMLElement;
-  private readonly listElement: HTMLUListElement;
-  private selectedElement: HTMLElement | null = null;
 
   constructor() {
     this.container = makeEl('div', {
-      className: 'autocomplete',
+      className: 'autocomplete hidden',
+      tabIndex: -1,
     });
 
-    this.listElement = makeEl('ul', {
-      className: 'autocomplete__list',
-    });
-
-    this.container.appendChild(this.listElement);
+    // Make the container connected to DOM to make sure it's rendered when we unhide it
+    document.body.appendChild(this.container);
+    this.items = [];
   }
 
-  get selectedTerm(): string | null {
-    return this.selectedElement?.dataset.value || null;
+  get selectedSuggestion(): Suggestion | null {
+    return this.selectedItem?.suggestion ?? null;
   }
 
-  get isActive(): boolean {
-    return this.container.isConnected;
+  private get selectedItem(): SuggestionItem | null {
+    if (this.cursor < 0) {
+      return null;
+    }
+
+    return this.items[this.cursor];
+  }
+
+  get isHidden(): boolean {
+    return this.container.classList.contains('hidden');
   }
 
   hide() {
     this.clearSelection();
-    this.container.remove();
+    this.container.classList.add('hidden');
   }
 
   private clearSelection() {
-    if (!this.selectedElement) return;
-
-    this.selectedElement.classList.remove(selectedSuggestionClassName);
-    this.selectedElement = null;
+    this.setSelection(-1);
   }
 
-  private updateSelection(targetItem: HTMLElement) {
-    this.clearSelection();
+  private setSelection(index: number) {
+    if (this.cursor === index) {
+      return;
+    }
 
-    this.selectedElement = targetItem;
-    this.selectedElement.classList.add(selectedSuggestionClassName);
+    // This can't be triggered via the public API of this class
+    /* v8 ignore start */
+    if (index < -1 || index >= this.items.length) {
+      throw new Error(`BUG: setSelection(): invalid selection index: ${index}`);
+    }
+    /* v8 ignore end */
+
+    const selectedClass = 'autocomplete__item--selected';
+
+    this.selectedItem?.element.classList.remove(selectedClass);
+    this.cursor = index;
+
+    if (index >= 0) {
+      this.selectedItem?.element.classList.add(selectedClass);
+    }
   }
 
-  renderSuggestions(suggestions: TermSuggestion[]): SuggestionsPopup {
-    this.clearSelection();
+  setSuggestions(params: Suggestions): SuggestionsPopup {
+    this.cursor = -1;
+    this.items = [];
+    this.container.innerHTML = '';
 
-    this.listElement.innerHTML = '';
+    for (const suggestion of params.history) {
+      this.appendSuggestion(suggestion);
+    }
 
-    for (const suggestedTerm of suggestions) {
-      const listItem = makeEl('li', {
-        className: 'autocomplete__item',
-        innerText: suggestedTerm.label,
-      });
+    if (params.tags.length > 0 && params.history.length > 0) {
+      this.container.appendChild(makeEl('hr', { className: 'autocomplete__separator' }));
+    }
 
-      listItem.dataset.value = suggestedTerm.value;
-
-      this.watchItem(listItem, suggestedTerm);
-      this.listElement.appendChild(listItem);
+    for (const suggestion of params.tags) {
+      this.appendSuggestion(suggestion);
     }
 
     return this;
   }
 
-  private watchItem(listItem: HTMLElement, suggestion: TermSuggestion) {
-    // This makes sure the item isn't selected if the mouse pointer happens to
-    // be right on top of the item when the list is rendered. So, the item may
-    // only be selected on the first `mousemove` event occurring on the element.
-    // See more details about this problem in the PR description:
-    // https://github.com/philomena-dev/philomena/pull/350
-    mouseMoveThenOver(listItem, () => this.updateSelection(listItem));
+  appendSuggestion(suggestion: Suggestion) {
+    const type = suggestion instanceof TagSuggestion ? 'tag' : 'history';
 
-    listItem.addEventListener('mouseout', () => this.clearSelection());
+    const element = makeEl(
+      'div',
+      {
+        className: `autocomplete__item autocomplete__item__${type}`,
+      },
+      suggestion.render(),
+    );
 
-    listItem.addEventListener('click', () => {
-      if (!listItem.dataset.value) {
-        return;
-      }
+    const item: SuggestionItem = { element, suggestion };
 
-      this.container.dispatchEvent(new CustomEvent('item_selected', { detail: suggestion }));
+    this.watchItem(item);
+
+    this.items.push(item);
+    this.container.appendChild(element);
+  }
+
+  private watchItem(item: SuggestionItem) {
+    item.element.addEventListener('click', event => {
+      const detail: ItemSelectedEvent = {
+        suggestion: item.suggestion,
+        shiftKey: event.shiftKey,
+        ctrlKey: event.ctrlKey,
+      };
+
+      this.container.dispatchEvent(new CustomEvent('item_selected', { detail }));
     });
   }
 
   private changeSelection(direction: number) {
-    let nextTargetElement: Element | null;
-
-    if (!this.selectedElement) {
-      nextTargetElement = direction > 0 ? this.listElement.firstElementChild : this.listElement.lastElementChild;
-    } else {
-      nextTargetElement =
-        direction > 0 ? this.selectedElement.nextElementSibling : this.selectedElement.previousElementSibling;
-    }
-
-    if (!(nextTargetElement instanceof HTMLElement)) {
-      this.clearSelection();
+    if (this.items.length === 0) {
       return;
     }
 
-    this.updateSelection(nextTargetElement);
+    const index = this.cursor + direction;
+
+    if (index === -1 || index >= this.items.length) {
+      this.clearSelection();
+    } else if (index < -1) {
+      this.setSelection(this.items.length - 1);
+    } else {
+      this.setSelection(index);
+    }
   }
 
-  selectNext() {
+  selectDown() {
     this.changeSelection(1);
   }
 
-  selectPrevious() {
+  selectUp() {
     this.changeSelection(-1);
   }
 
-  showForField(targetElement: HTMLElement) {
+  /**
+   * The user wants to jump to the next lower block of types of suggestions.
+   */
+  selectCtrlDown() {
+    if (this.items.length === 0) {
+      return;
+    }
+
+    if (this.cursor >= this.items.length - 1) {
+      this.setSelection(0);
+      return;
+    }
+
+    let index = this.cursor + 1;
+    const type = this.itemType(index);
+
+    while (index < this.items.length - 1 && this.itemType(index) === type) {
+      index += 1;
+    }
+
+    this.setSelection(index);
+  }
+
+  /**
+   * The user wants to jump to the next upper block of types of suggestions.
+   */
+  selectCtrlUp() {
+    if (this.items.length === 0) {
+      return;
+    }
+
+    if (this.cursor <= 0) {
+      this.setSelection(this.items.length - 1);
+      return;
+    }
+
+    let index = this.cursor - 1;
+    const type = this.itemType(index);
+
+    while (index > 0 && this.itemType(index) === type) {
+      index -= 1;
+    }
+
+    this.setSelection(index);
+  }
+
+  /**
+   * Returns the item's prototype that can be viewed as the item's type identifier.
+   */
+  private itemType(index: number) {
+    return this.items[index].suggestion instanceof TagSuggestion ? 'tag' : 'history';
+  }
+
+  showForElement(targetElement: HTMLElement) {
     this.container.style.position = 'absolute';
     this.container.style.left = `${targetElement.offsetLeft}px`;
 
@@ -130,66 +340,12 @@ export class SuggestionsPopup {
     }
 
     this.container.style.top = `${topPosition}px`;
-
-    document.body.appendChild(this.container);
+    this.container.classList.remove('hidden');
   }
 
-  onItemSelected(callback: (event: CustomEvent<TermSuggestion>) => void) {
-    this.container.addEventListener('item_selected', callback as EventListener);
-  }
-}
-
-const cachedSuggestions = new Map<string, Promise<TermSuggestion[]>>();
-
-export async function fetchSuggestions(endpoint: string, targetTerm: string): Promise<TermSuggestion[]> {
-  const normalizedTerm = targetTerm.trim().toLowerCase();
-
-  if (cachedSuggestions.has(normalizedTerm)) {
-    return cachedSuggestions.get(normalizedTerm)!;
-  }
-
-  const promisedSuggestions: Promise<TermSuggestion[]> = fetch(`${endpoint}${targetTerm}`)
-    .then(handleError)
-    .then(response => response.json())
-    .catch(() => {
-      // Deleting the promised result from cache to allow retrying
-      cachedSuggestions.delete(normalizedTerm);
-
-      // And resolve failed promise with empty array
-      return [];
+  onItemSelected(callback: (event: ItemSelectedEvent) => void) {
+    this.container.addEventListener('item_selected', event => {
+      callback((event as CustomEvent<ItemSelectedEvent>).detail);
     });
-
-  cachedSuggestions.set(normalizedTerm, promisedSuggestions);
-
-  return promisedSuggestions;
-}
-
-export function purgeSuggestionsCache() {
-  cachedSuggestions.clear();
-}
-
-export async function fetchLocalAutocomplete(): Promise<LocalAutocompleter> {
-  const now = new Date();
-  const cacheKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`;
-
-  return await fetch(`/autocomplete/compiled?vsn=2&key=${cacheKey}`, {
-    credentials: 'omit',
-    cache: 'force-cache',
-  })
-    .then(handleError)
-    .then(resp => resp.arrayBuffer())
-    .then(buf => new LocalAutocompleter(buf));
-}
-
-export function formatLocalAutocompleteResult(result: Result): TermSuggestion {
-  let tagName = result.name;
-
-  if (tagName !== result.aliasName) {
-    tagName = `${result.aliasName} ⇒ ${tagName}`;
   }
-
-  return {
-    value: result.name,
-    label: `${tagName} (${result.imageCount})`,
-  };
 }
