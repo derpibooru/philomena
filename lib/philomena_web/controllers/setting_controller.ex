@@ -1,5 +1,4 @@
 defmodule PhilomenaWeb.SettingController do
-  require Logger
   use PhilomenaWeb, :controller
 
   alias Philomena.Users
