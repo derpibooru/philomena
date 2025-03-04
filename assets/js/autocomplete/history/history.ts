@@ -61,7 +61,6 @@ export class InputHistory {
     if (index >= 0) {
       this.records.splice(index, 1);
     } else if (this.records.length >= maxRecords) {
-      // Bye-bye, the oldest unused record! 👋 Nopony will miss you 🔪🩸
       this.records.pop();
     }
 
