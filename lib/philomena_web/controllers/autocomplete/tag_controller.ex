@@ -14,7 +14,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
   # See the docs on `show_v1` for the explanation on the breaking change we made
   # in the `v2` version.
   defp show_v2(conn, params) do
-    with {:ok, term} <- extract_term_v2(params),
+    with {:ok, term} <- extract_term(params),
          {:ok, limit} <- extract_limit(params) do
       suggestions = search(term, limit)
       json(conn, %{suggestions: suggestions})
@@ -26,7 +26,7 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     end
   end
 
-  defp extract_term_v2(%{"term" => term}) when is_binary(term) and byte_size(term) > 2 do
+  defp extract_term(%{"term" => term}) when is_binary(term) and byte_size(term) > 2 do
     result =
       term
       |> String.downcase()
@@ -35,10 +35,10 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     {:ok, result}
   end
 
-  defp extract_term_v2(%{"term" => _}),
+  defp extract_term(%{"term" => _}),
     do: {:error, "Term is too short, must be at least 3 characters"}
 
-  defp extract_term_v2(_params), do: {:error, "Term is missing"}
+  defp extract_term(_params), do: {:error, "Term is missing"}
 
   defp extract_limit(params) do
     limit =
@@ -104,10 +104,10 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
   defp show_v1(conn, params) do
     tags =
       case extract_term(params) do
-        nil ->
+        {:error, _} ->
           []
 
-        term ->
+        {:ok, term} ->
           Tag
           |> Search.search_definition(
             %{
@@ -135,12 +135,4 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     conn
     |> json(tags)
   end
-
-  defp extract_term(%{"term" => term}) when is_binary(term) and byte_size(term) > 2 do
-    term
-    |> String.downcase()
-    |> String.trim()
-  end
-
-  defp extract_term(_params), do: nil
 end
