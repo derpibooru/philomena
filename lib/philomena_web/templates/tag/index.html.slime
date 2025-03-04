@@ -2,7 +2,17 @@ h1 Tags
 
 = form_for :tags, ~p"/tags", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :tq, name: :tq, value: @conn.params["tq"] || "*", class: "input hform__text", placeholder: "Search tags", autocapitalize: "none"
+    = text_input f, :tq, name: :tq, value: @conn.params["tq"] || "*",
+      class: "input hform__text",
+      placeholder: "Search tags",
+      autocapitalize: "none",
+      autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+      inputmode: "search",
+      data: [ \
+        autocomplete: "multi-tags",
+        autocomplete_condition: "enable_search_ac",
+      ]
+
     = submit "Search", class: "hform__button button"
 
   .fieldlabel
@@ -31,7 +41,7 @@ h2 Search Results
     .block.block--fixed.block--danger
       ' Oops, there was an error parsing your query! Check for mistakes like mismatched parentheses. The error was:
     pre = assigns[:error]
-  
+
   - true ->
     p
       ' No tags found!
