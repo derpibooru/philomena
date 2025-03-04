@@ -265,6 +265,10 @@ export default tsEslint.config(
       'no-unused-vars': 'off',
       'no-redeclare': 'off',
       'no-shadow': 'off',
+
+      // Often conflicts with prettier. In fact, prettier should just be enforced by CI.
+      'no-extra-parens': 'off',
+
       '@typescript-eslint/no-unused-vars': [
         2,
         { vars: 'all', args: 'after-used', varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*' },
@@ -285,6 +289,13 @@ export default tsEslint.config(
       'no-unused-expressions': 0,
       'vitest/valid-expect': 0,
       '@typescript-eslint/no-unused-expressions': 0,
+      'vitest/expect-expect': [
+        'error',
+        {
+          // Custom `expectStuff()` functions must also count as assertions.
+          assertFunctionNames: ['expect*', '*.expect*'],
+        },
+      ],
     },
   },
 );
