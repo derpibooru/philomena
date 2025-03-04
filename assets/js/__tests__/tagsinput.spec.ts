@@ -1,6 +1,5 @@
 import { $, $$, hideEl } from '../utils/dom';
 import { assertNotNull } from '../utils/assert';
-import { TermSuggestion } from '../utils/suggestions';
 import { setupTagsInput, addTag, reloadTagsInput } from '../tagsinput';
 
 const formData = `<form class="tags-form">
@@ -96,7 +95,7 @@ describe('Fancy tags input', () => {
 
   it('should respond to autocomplete events', () => {
     setupTagsInput(tagBlock);
-    fancyText.dispatchEvent(new CustomEvent<TermSuggestion>('autocomplete', { detail: { value: 'a', label: 'a' } }));
+    fancyText.dispatchEvent(new CustomEvent<string>('autocomplete', { detail: 'a' }));
     expect($$('span.tag', fancyInput)).toHaveLength(1);
   });
 
