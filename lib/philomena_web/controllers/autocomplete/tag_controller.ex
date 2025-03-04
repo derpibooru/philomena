@@ -79,18 +79,10 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
         canonical: if(is_nil(&1.aliased_tag), do: &1.name, else: &1.aliased_tag.name),
         images:
           if(is_nil(&1.aliased_tag), do: &1.images_count, else: &1.aliased_tag.images_count),
-        id: &1.id
       }
     )
     |> Enum.filter(&(&1.images > 0))
     |> Enum.take(limit)
-    |> Enum.map(
-      &%{
-        :alias => &1.alias,
-        canonical: &1.canonical,
-        images: &1.images
-      }
-    )
   end
 
   # Version 1 is kept for backwards compatibility with the older versions of
