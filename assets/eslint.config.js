@@ -266,7 +266,8 @@ export default tsEslint.config(
       'no-redeclare': 'off',
       'no-shadow': 'off',
 
-      // Often conflicts with prettier. In fact, prettier should just be enforced by CI.
+      // Often conflicts with prettier.
+      // TODO: prettier should just be enforced by CI.
       'no-extra-parens': 'off',
 
       '@typescript-eslint/no-unused-vars': [
