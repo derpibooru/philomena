@@ -1,12 +1,4 @@
-import {
-  delegate,
-  fire,
-  mouseMoveThenOver,
-  leftClick,
-  on,
-  PhilomenaAvailableEventsMap,
-  oncePersistedPageShown,
-} from '../events';
+import { delegate, fire, leftClick, on, PhilomenaAvailableEventsMap, oncePersistedPageShown } from '../events';
 import { getRandomArrayItem } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
 
@@ -85,55 +77,6 @@ describe('Event utils', () => {
       fireEvent.click(mockButton, { button: mockButtonNumber });
 
       expect(mockHandler).toHaveBeenCalledTimes(0);
-    });
-  });
-
-  describe('mouseMoveThenOver', () => {
-    it('should NOT fire on first mouseover', () => {
-      const mockButton = document.createElement('button');
-      const mockHandler = vi.fn();
-
-      mouseMoveThenOver(mockButton, mockHandler);
-
-      fireEvent.mouseOver(mockButton);
-
-      expect(mockHandler).toHaveBeenCalledTimes(0);
-    });
-
-    it('should fire on the first mousemove', () => {
-      const mockButton = document.createElement('button');
-      const mockHandler = vi.fn();
-
-      mouseMoveThenOver(mockButton, mockHandler);
-
-      fireEvent.mouseMove(mockButton);
-
-      expect(mockHandler).toHaveBeenCalledTimes(1);
-    });
-
-    it('should fire on subsequent mouseover', () => {
-      const mockButton = document.createElement('button');
-      const mockHandler = vi.fn();
-
-      mouseMoveThenOver(mockButton, mockHandler);
-
-      fireEvent.mouseMove(mockButton);
-      fireEvent.mouseOver(mockButton);
-
-      expect(mockHandler).toHaveBeenCalledTimes(2);
-    });
-
-    it('should NOT fire on subsequent mousemove', () => {
-      const mockButton = document.createElement('button');
-      const mockHandler = vi.fn();
-
-      mouseMoveThenOver(mockButton, mockHandler);
-
-      fireEvent.mouseMove(mockButton);
-      fireEvent.mouseOver(mockButton);
-      fireEvent.mouseMove(mockButton);
-
-      expect(mockHandler).toHaveBeenCalledTimes(2);
     });
   });
 
