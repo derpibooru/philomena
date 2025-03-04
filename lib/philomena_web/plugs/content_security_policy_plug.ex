@@ -72,12 +72,12 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   vite_hmr? do
     defp default_script_src(host), do: "'self' #{host}:5173"
     defp default_connect_src(host), do: "'self' #{host}:5173 ws://#{host}:5173"
+    defp default_style_src, do: "'self' 'unsafe-inline'"
   else
     defp default_connect_src(_host), do: "'self'"
     defp default_script_src(_host), do: "'self'"
+    defp default_style_src, do: "'self'"
   end
-
-  defp default_style_src, do: vite_hmr?(do: "'self' 'unsafe-inline'", else: "'self'")
 
   defp to_uri(host) when host in [nil, ""], do: ""
   defp to_uri(host), do: URI.to_string(%URI{scheme: "https", host: host})
