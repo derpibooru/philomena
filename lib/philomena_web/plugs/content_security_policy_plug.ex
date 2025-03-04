@@ -71,14 +71,10 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   # you use to test the frontend on a mobile device connected via a local Wi-Fi.
   vite_hmr? do
     defp default_script_src(host), do: "'self' #{host}:5173"
-  else
-    defp default_script_src(_host), do: "'self'"
-  end
-
-  vite_hmr? do
     defp default_connect_src(host), do: "'self' #{host}:5173 ws://#{host}:5173"
   else
     defp default_connect_src(_host), do: "'self'"
+    defp default_script_src(_host), do: "'self'"
   end
 
   defp default_style_src, do: vite_hmr?(do: "'self' 'unsafe-inline'", else: "'self'")
