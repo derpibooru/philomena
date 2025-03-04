@@ -1,4 +1,5 @@
 import store from '../../utils/store';
+
 /**
  * The root JSON object that contains the history records and is persisted to disk.
  */
