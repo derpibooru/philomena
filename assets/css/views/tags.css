@@ -73,9 +73,9 @@
 
 .autocomplete__item__history__icon {
   /*
-  Makes the history icon aligned in width with the autocomplete__item__tag's icon.
-  Yes, it's a dirty hack, don't look at me like that >_<, but turns out font-awesome
-  icons aren't actually all of the same size!
+    Makes the history icon aligned in width with the autocomplete__item__tag's icon.
+    Yes, it's a dirty hack, don't look at me like that >_<, but turns out font-awesome
+    icons aren't actually all of the same size!
   */
   font-size: 11.38px;
 }
