@@ -73,11 +73,10 @@ export async function retry<R>(func: RetryFunc<R>, params?: RetryParams): Promis
     const hasNextAttempts = attempt < maxAttempts;
 
     try {
-      // XXX: an `await` is important in this block to make sure the exception is caught
+      // NB: an `await` is important in this block to make sure the exception is caught
       // in this scope. Doing a `return func()` would be a big mistake, so don't try
       // to "refactor" that!
-      const result = await func(attempt, hasNextAttempts ? nextDelayMs : undefined);
-      return result;
+      return await func(attempt, hasNextAttempts ? nextDelayMs : undefined);
     } catch (error) {
       if (!(error instanceof Error) || (params?.isRetryable && !params.isRetryable(error))) {
         throw error;
