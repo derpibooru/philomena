@@ -25,8 +25,8 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
 
       csp_config = [
         {:default_src, ["'self'"]},
-        {:script_src, [default_script_src() | script_src]},
-        {:connect_src, [default_connect_src()]},
+        {:script_src, [default_script_src(conn.host) | script_src]},
+        {:connect_src, [default_connect_src(conn.host)]},
         {:style_src, [default_style_src() | style_src]},
         {:object_src, ["'none'"]},
         {:frame_ancestors, ["'none'"]},
@@ -66,12 +66,18 @@ defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
   defp cdn_uri, do: Application.get_env(:philomena, :cdn_host) |> to_uri()
   defp camo_uri, do: Application.get_env(:philomena, :camo_host) |> to_uri()
 
-  defp default_script_src, do: vite_hmr?(do: "'self' localhost:5173", else: "'self'")
-
-  defp default_connect_src,
-    do: vite_hmr?(do: "'self' localhost:5173 ws://localhost:5173", else: "'self'")
-
-  defp default_style_src, do: vite_hmr?(do: "'self' 'unsafe-inline'", else: "'self'")
+  # Use the "current host" in vite HMR mode for whatever the "current host" is.
+  # Usually it's `localhost`, but it may be some other private IP address, that
+  # you use to test the frontend on a mobile device connected via a local Wi-Fi.
+  vite_hmr? do
+    defp default_script_src(host), do: "'self' #{host}:5173"
+    defp default_connect_src(host), do: "'self' #{host}:5173 ws://#{host}:5173"
+    defp default_style_src, do: "'self' 'unsafe-inline'"
+  else
+    defp default_connect_src(_host), do: "'self'"
+    defp default_script_src(_host), do: "'self'"
+    defp default_style_src, do: "'self'"
+  end
 
   defp to_uri(host) when host in [nil, ""], do: ""
   defp to_uri(host), do: URI.to_string(%URI{scheme: "https", host: host})
