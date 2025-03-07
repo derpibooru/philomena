@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
  * Main stylesheet file.
  *
@@ -7,16 +8,16 @@
  *
  */
 
- @import "@fortawesome/fontawesome-free/css/fontawesome.css";
- @import "@fortawesome/fontawesome-free/css/solid.css";
- @import "@fortawesome/fontawesome-free/css/regular.css";
- @import "@fortawesome/fontawesome-free/css/brands.css";
- @import "normalize.css";
+@import "@fortawesome/fontawesome-free/css/fontawesome.css";
+@import "@fortawesome/fontawesome-free/css/solid.css";
+@import "@fortawesome/fontawesome-free/css/regular.css";
+@import "@fortawesome/fontawesome-free/css/brands.css";
+@import "normalize.css";
 
- /* Import the dark blue theme to act as a fallback. */
- @import "themes/dark-blue";
+/* Import the dark blue theme to act as a fallback. */
+@import "themes/dark-blue";
 
- /* Files containing common properties, such as variable definitions. */
+/* Files containing common properties, such as variable definitions. */
 @import "common/measurements";
 @import "common/mixins";
 

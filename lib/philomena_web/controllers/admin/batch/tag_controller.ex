@@ -44,6 +44,16 @@ defmodule PhilomenaWeb.Admin.Batch.TagController do
 
     case Images.batch_update(image_ids, added_tags, removed_tags, attributes) do
       {:ok, _} ->
+        PhilomenaWeb.Endpoint.broadcast!(
+          "firehose",
+          "image:batch_tag_update",
+          %{
+            image_ids: image_ids,
+            added: Enum.map(added_tags, & &1.name),
+            removed: Enum.map(removed_tags, & &1.name)
+          }
+        )
+
         conn
         |> moderation_log(
           details: &log_details/2,
