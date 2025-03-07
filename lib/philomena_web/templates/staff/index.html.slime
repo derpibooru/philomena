@@ -2,7 +2,7 @@ h1 Staff
 .block.block--fixed.block--warning
   h3 Do you wish to submit a report?
   p
-    strong> 
+    strong>
       ' Do
       em not
     ' PM staff members with your reports. Instead, if you think something breaks
@@ -15,10 +15,7 @@ h1 Staff
   p
     ' Before contacting any of the staff members, you should try to ask your question in our
     = link to: "/pages/discord" do
-      ' Discord
-    ' or
-    = link to: "/pages/irc" do
-      ' IRC channels.
+      ' Discord server.
   p Keep in mind that all staff are unpaid volunteers who donate their time and effort into making sure this site remains organized and operational. Please do not harass them, and try to keep your PMs constructive. We will happily answer your questions, however receiving plenty of PMs for no reason gets tiring and impacts our ability to tend to more important matters, so please make sure you actually have a need to contact a staff member before doing so.
 
 .staff-block
