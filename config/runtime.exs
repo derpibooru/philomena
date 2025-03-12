@@ -88,7 +88,7 @@ config :philomena, :s3_secondary_options,
 
 config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
 
-config :ex_aws, http_client: PhilomenaMedia.Req
+config :ex_aws, http_client: ExAws.Request.Req
 
 config :ex_aws, :retries,
   max_attempts: 20,
