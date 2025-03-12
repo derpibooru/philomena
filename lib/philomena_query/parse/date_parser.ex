@@ -84,7 +84,7 @@ defmodule PhilomenaQuery.Parse.DateParser do
     lower_upper({{year, month, day}, {hour, minute, second}}, 1)
   end
 
-  defp absolute_datetime(_rest, opts, context, _line, _offset) do
+  defp absolute_datetime(rest, opts, context, _line, _offset) do
     date = Keyword.fetch!(opts, :date)
     timezone = Keyword.get(opts, :timezone, [])
 
@@ -93,7 +93,7 @@ defmodule PhilomenaQuery.Parse.DateParser do
     with {:ok, [lower, upper]} <- date_bounds(date),
          {:ok, lower} <- build_datetime(lower, tz_off, tz_hour, tz_minute),
          {:ok, upper} <- build_datetime(upper, tz_off, tz_hour, tz_minute) do
-      {[[lower, upper]], context}
+      {rest, [[lower, upper]], context}
     else
       _ ->
         date = Enum.join(date ++ timezone, ", ")
@@ -101,7 +101,7 @@ defmodule PhilomenaQuery.Parse.DateParser do
     end
   end
 
-  defp relative_datetime(_rest, [count, scale], context, _line, _offset) do
+  defp relative_datetime(rest, [count, scale], context, _line, _offset) do
     millennium_seconds = 31_536_000_000
 
     case count * scale <= millennium_seconds do
@@ -111,7 +111,7 @@ defmodule PhilomenaQuery.Parse.DateParser do
         lower = DateTime.add(now, (count + 1) * -scale, :second)
         upper = DateTime.add(now, count * -scale, :second)
 
-        {[[lower, upper]], context}
+        {rest, [[lower, upper]], context}
 
       _false ->
         {:error,
