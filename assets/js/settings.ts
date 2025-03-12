@@ -3,7 +3,7 @@
  */
 
 import { assertNotNull, assertNotUndefined } from './utils/assert';
-import { $, $$ } from './utils/dom';
+import { $, $$, hideIf } from './utils/dom';
 import store from './utils/store';
 
 function setupThemeSettings() {
@@ -28,26 +28,19 @@ function setupThemeSettings() {
   themeColorSelect.addEventListener('change', themePreviewCallback);
 }
 
-function hideIf(element: HTMLElement, condition: boolean) {
-  if (condition) {
-    element.classList.add('hidden');
-  } else {
-    element.classList.remove('hidden');
-  }
-}
-
 function setupAutocompleteSettings() {
   const autocompleteSettings = assertNotNull($<HTMLElement>('.autocomplete-settings'));
+  const autocompleteSearchHistorySettings = assertNotNull($<HTMLElement>('.autocomplete-search-history-settings'));
+  const enableSearchAutocomplete = assertNotNull($<HTMLInputElement>('#user_enable_search_ac'));
+  const userSearchHistoryHidden = assertNotNull($<HTMLInputElement>('#user_autocomplete_search_history_hidden'));
 
   // Don't show search history settings if autocomplete is entirely disabled.
-  assertNotNull($('#user_enable_search_ac')).addEventListener('change', event => {
-    hideIf(autocompleteSettings, !(event.target as HTMLInputElement).checked);
+  enableSearchAutocomplete.addEventListener('change', () => {
+    hideIf(!enableSearchAutocomplete.checked, autocompleteSettings);
   });
 
-  const autocompleteSearchHistorySettings = assertNotNull($<HTMLElement>('.autocomplete-search-history-settings'));
-
-  assertNotNull($('#user_autocomplete_search_history_hidden')).addEventListener('change', event => {
-    hideIf(autocompleteSearchHistorySettings, (event.target as HTMLInputElement).checked);
+  userSearchHistoryHidden.addEventListener('change', () => {
+    hideIf(userSearchHistoryHidden.checked, autocompleteSearchHistorySettings);
   });
 }
 
