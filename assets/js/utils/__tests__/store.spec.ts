@@ -2,7 +2,7 @@ import store, { lastUpdatedSuffix } from '../store';
 import { mockStorageImpl } from '../../../test/mock-storage';
 import { getRandomIntBetween } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
-import { mockDateNow } from '../../../test/mock-date-now';
+import { mockDateNow } from '../../../test/mock';
 
 describe('Store utilities', () => {
   const { setItemSpy, getItemSpy, removeItemSpy, forceStorageError, setStorageValue } = mockStorageImpl();
