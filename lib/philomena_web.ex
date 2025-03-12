@@ -22,9 +22,9 @@ defmodule PhilomenaWeb do
   def controller do
     quote do
       use Phoenix.Controller, namespace: PhilomenaWeb
+      use Gettext, backend: PhilomenaWeb.Gettext
 
       import Plug.Conn
-      import PhilomenaWeb.Gettext
       import Canary.Plugs
       import PhilomenaWeb.ModerationLogPlug, only: [moderation_log: 2]
 
@@ -43,9 +43,9 @@ defmodule PhilomenaWeb do
 
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
+      use Gettext, backend: PhilomenaWeb.Gettext
 
       import PhilomenaWeb.ErrorHelpers
-      import PhilomenaWeb.Gettext
 
       # Wrong way around for convenience
       import PhilomenaWeb.AppView

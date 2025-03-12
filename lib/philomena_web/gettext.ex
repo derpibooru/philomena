@@ -20,5 +20,5 @@ defmodule PhilomenaWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :philomena
+  use Gettext.Backend, otp_app: :philomena
 end
