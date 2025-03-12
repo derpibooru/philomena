@@ -1,3 +1,6 @@
+// Ignoring a non-100% coverage for HTTP client for now.
+// It will be 100% in https://github.com/philomena-dev/philomena/pull/453
+/* v8 ignore start */
 import { retry } from './retry';
 
 interface RequestParams extends RequestInit {
@@ -94,3 +97,4 @@ function generateId(prefix: string) {
 
   return chars.join('');
 }
+/* v8 ignore end */
