@@ -79,7 +79,6 @@ config :philomena, :s3_primary_options,
 config :philomena, :s3_primary_bucket, System.fetch_env!("S3_BUCKET")
 
 config :philomena, :s3_secondary_options,
-  region: System.get_env("ALT_S3_REGION", "us-east-1"),
   scheme: System.get_env("ALT_S3_SCHEME"),
   host: System.get_env("ALT_S3_HOST"),
   port: System.get_env("ALT_S3_PORT"),
