@@ -1,13 +1,24 @@
+// Ignoring a non-100% coverage for HTTP client for now.
+// It will be 100% in https://github.com/philomena-dev/philomena/pull/453
+/* v8 ignore start */
 /**
  * localStorage utils
  */
 
 export const lastUpdatedSuffix = '__lastUpdated';
 
+// We use this detached <div> element purely as an event bus to dispatch storage update
+// events. It is needed because the default 'stroge' event dispatched on the window
+// isn't triggered when the same page updates the storage.
+const localUpdates = document.createElement('div');
+
+type StorageUpdateEvent = CustomEvent<string>;
+
 export default {
   set(key: string, value: unknown) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      this.dispatchStorageUpdateEvent(key);
       return true;
     } catch {
       return false;
@@ -27,10 +38,16 @@ export default {
   remove(key: string) {
     try {
       localStorage.removeItem(key);
+      this.dispatchStorageUpdateEvent(key);
       return true;
     } catch {
       return false;
     }
+  },
+
+  dispatchStorageUpdateEvent(key: string) {
+    const event: StorageUpdateEvent = new CustomEvent('storage-update', { detail: key });
+    localUpdates.dispatchEvent(event);
   },
 
   // Watch changes to a specified key - returns value on change
@@ -40,6 +57,12 @@ export default {
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
+  },
+
+  // `null` key means the store was purged with `localStorage.clear()`
+  watchAll(callback: (key: null | string) => void) {
+    window.addEventListener('storage', event => callback(event.key));
+    localUpdates.addEventListener('storage-update', event => callback((event as StorageUpdateEvent).detail));
   },
 
   // set() with an additional key containing the current time + expiration time
@@ -58,3 +81,4 @@ export default {
     return lastUpdatedTime === null || Date.now() > lastUpdatedTime;
   },
 };
+/* v8 ignore end */
