@@ -149,7 +149,6 @@ export class SuggestionsPopup {
       tabIndex: -1,
     });
 
-    // Make the container connected to DOM to make sure it's rendered when we unhide it
     document.body.appendChild(this.container);
     this.items = [];
   }
