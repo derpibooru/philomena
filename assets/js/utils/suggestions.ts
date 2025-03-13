@@ -64,13 +64,11 @@ export class TagSuggestion {
   }
 
   static formatImageCount(count: number): string {
-    const chars = [...count.toString()];
+    // We use the 'fr' (French) number formatting style with space-separated
+    // groups of 3 digits.
+    const formatter = new Intl.NumberFormat('fr', { useGrouping: true });
 
-    for (let i = chars.length - 3; i > 0; i -= 3) {
-      chars.splice(i, 0, ' ');
-    }
-
-    return chars.join('');
+    return formatter.format(count);
   }
 }
 

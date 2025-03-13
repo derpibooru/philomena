@@ -98,12 +98,6 @@
 
 .autocomplete__item__tag__count {
   color: var(--autocomplete-tag-count-color);
-
-  /*
-    Reduce the space size between groups of 3 digits in big numbers like "1 000 000".
-    This way the number is more compact and easier to read.
-  */
-  word-spacing: -3px;
 }
 
 .autocomplete__item:hover:not(.autocomplete__item--selected) {
