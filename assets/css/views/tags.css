@@ -68,7 +68,7 @@
 }
 
 .autocomplete__item__history {
-  color: var(--block-header-link-text-color);
+  color: var(--autocomplete-history-color);
 }
 
 .autocomplete__item__history__icon {
@@ -84,7 +84,7 @@
   font-weight: bold;
 
   /* Use a lighter color to highlight the matched part of the query */
-  color: lch(from var(--block-header-link-text-color) calc(l + 20) c h);
+  color: var(--autocomplete-history-match-color);
 }
 
 .autocomplete__item__tag__match {
@@ -93,11 +93,11 @@
 
 .autocomplete__item__tag__match:not(.autocomplete__item--selected) {
   /* Use a lighter color to highlight the matched part of the query */
-  color: lch(from var(--foreground-color) calc(l + 20) c h);
+  color: var(--autocomplete-tag-match-color);
 }
 
 .autocomplete__item__tag__count {
-  color: var(--foreground-half-color);
+  color: var(--autocomplete-tag-count-color);
 
   /*
     Reduce the space size between groups of 3 digits in big numbers like "1 000 000".
@@ -107,7 +107,7 @@
 }
 
 .autocomplete__item:hover:not(.autocomplete__item--selected) {
-  background: lch(from var(--background-color) calc(l + 10) c h);
+  background: var(--autocomplete-match-selected-color);
 }
 
 .autocomplete__item--selected,

@@ -162,5 +162,14 @@
     --dnp-warning-hover-color: hsl(from $vote-down-color h s calc(l + 10));
     --poll-form-label-background: hsl(from $base-color h calc(s - 16) calc(l + 36));
     --tag-dropdown-hover-background: hsl(from $foreground-color h s calc(l - 10));
+
+    --autocomplete-history-color: $block-header-link-text-color
+    --autocomplete-history-match-color: hsl(from $block-header-link-text-color h s calc(l + 20));
+
+    --autocomplete-tag-color: $foreground-color;
+    --autocomplete-tag-match-color: hsl(from $foreground-color h s calc(l + 20));
+    --autocomplete-tag-count-color: $foreground-half-color
+
+    --autocomplete-match-selected-color: hsl(from $background-color h s calc(l + 10));
   }
 }
