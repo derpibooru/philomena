@@ -71,23 +71,6 @@ export class InputHistory {
   }
 
   listSuggestions(query: string, limit: number): string[] {
-    // Waiting for iterator combinators such as `Iterator.prototype.filter()`
-    // and `Iterator.prototype.take()` to reach a greater availability 🙏:
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/filter
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Iterator/take
-
-    const results = [];
-
-    for (const record of this.records) {
-      if (results.length >= limit) {
-        break;
-      }
-
-      if (record.startsWith(query)) {
-        results.push(record);
-      }
-    }
-
-    return results;
+    return this.records.filter(record => record.startsWith(query)).slice(0, limit);
   }
 }
