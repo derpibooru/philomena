@@ -2,6 +2,7 @@ import { HistorySuggestion } from '../../utils/suggestions';
 import { InputHistory } from './history';
 import { HistoryStore } from './store';
 import { AutocompletableInput } from '../input';
+import { delegate } from 'utils/events';
 
 /**
  * Stores a set of histories identified by their unique IDs.
@@ -38,20 +39,15 @@ export function listen() {
     histories.load(input.historyId);
   });
 
-  document.addEventListener('submit', event => {
-    if (!(event.target instanceof HTMLFormElement)) {
-      return;
-    }
+  delegate(document, 'submit', {
+    '[data-autocomplete-history-id]'(_event, target) {
+      const input = AutocompletableInput.fromElement(target);
+      if (!input || !input.hasHistory()) {
+        return;
+      }
 
-    const input = [...event.target.elements]
-      .map(elem => AutocompletableInput.fromElement(elem))
-      .find(it => it !== null && it.hasHistory());
-
-    if (!input) {
-      return;
-    }
-
-    histories.load(input.historyId).write(input.snapshot.trimmedValue);
+      histories.load(input.historyId).write(input.snapshot.trimmedValue);
+    },
   });
 }
 
