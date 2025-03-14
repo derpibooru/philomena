@@ -21,7 +21,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
     {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
     json = Jason.decode!(body)
-    
+
     case json["items"] do
       [] ->
         %{
@@ -30,10 +30,10 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
           description: "",
           images: []
         }
-        
+
       items ->
         username = hd(items)["username"]
-        
+
         images =
           Enum.map(items, fn item ->
             image_url = item["url"]
@@ -42,7 +42,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
               camo_url: PhilomenaProxy.Camo.image_url(image_url)
             }
           end)
-        
+
         %{
           source_url: url,
           author_name: username,
