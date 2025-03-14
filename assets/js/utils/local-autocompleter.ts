@@ -3,9 +3,21 @@ import { UniqueHeap } from './unique-heap';
 import store from './store';
 
 export interface Result {
-  aliasName: string;
-  name: string;
-  imageCount: number;
+  /**
+   * If present, then this suggestion is for a tag alias.
+   * If absent, then this suggestion is for the `canonical` tag name.
+   */
+  alias?: null | string;
+
+  /**
+   * The canonical name of the tag (non-alias).
+   */
+  canonical: string;
+
+  /**
+   * Number of images tagged with this tag.
+   */
+  images: number;
 }
 
 /**
@@ -253,10 +265,19 @@ export class LocalAutocompleter {
     this.scanResults(referenceToAliasIndex, namespaceMatch, hasFilteredAssociation, isAlias, results);
 
     // Convert top K from heap into result array
-    return results.topK(k).map((i: TagReferenceIndex) => ({
-      aliasName: this.decoder.decode(this.referenceToName(i, false)),
-      name: this.decoder.decode(this.referenceToName(i)),
-      imageCount: this.getImageCount(i),
-    }));
+    return results.topK(k).map((i: TagReferenceIndex) => {
+      const alias = this.decoder.decode(this.referenceToName(i, false));
+      const canonical = this.decoder.decode(this.referenceToName(i));
+      const result: Result = {
+        canonical,
+        images: this.getImageCount(i),
+      };
+
+      if (alias !== canonical) {
+        result.alias = alias;
+      }
+
+      return result;
+    });
   }
 }
