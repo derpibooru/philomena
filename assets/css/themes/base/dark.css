@@ -166,13 +166,13 @@
     --poll-form-label-background: hsl(from $border-color h s calc(l + 8));
     --tag-dropdown-hover-background: hsl(from $meta-color h s calc(l - 4));
 
-    --autocomplete-history-color: $block-header-link-text-color
-    --autocomplete-history-match-color: hsl(from $block-header-link-text-color h s calc(l + 20));
+    --autocomplete-history-color: hsl(from var(--block-header-link-text-color) h s calc(l));
+    --autocomplete-history-match-color: hsl(from var(--block-header-link-text-color) h s calc(l + 20));
 
-    --autocomplete-tag-color: $foreground-color;
-    --autocomplete-tag-match-color: hsl(from $foreground-color h s calc(l + 20));
-    --autocomplete-tag-count-color: $foreground-half-color
+    --autocomplete-tag-color: hsl(from var(--foreground-color) h s calc(l - 5));
+    --autocomplete-tag-match-color: hsl(from var(--foreground-color) h s calc(l + 20));
+    --autocomplete-tag-count-color: var(--foreground-half-color);
 
-    --autocomplete-match-selected-color: hsl(from $background-color h s calc(l + 10));
+    --autocomplete-match-selected-color: hsl(from var(--background-color) h s calc(l + 10));
   }
 }

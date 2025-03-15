@@ -61,7 +61,7 @@
 }
 
 .autocomplete__item__tag {
-  color: var(--foreground-color);
+  color: var(--autocomplete-tag-color);
   display: flex;
   justify-content: space-between;
   white-space: pre;
