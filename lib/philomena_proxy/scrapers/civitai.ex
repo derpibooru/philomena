@@ -37,6 +37,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
         images =
           Enum.map(items, fn item ->
             image_url = item["url"]
+
             %{
               url: image_url,
               camo_url: PhilomenaProxy.Camo.image_url(image_url)
