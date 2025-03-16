@@ -3,9 +3,8 @@ import { promises } from 'fs';
 import { join } from 'path';
 import { TextDecoder } from 'util';
 
-describe('Local Autocompleter', () => {
+describe('LocalAutocompleter', () => {
   let mockData: ArrayBuffer;
-  const defaultK = 5;
 
   beforeAll(async () => {
     const mockDataPath = join(__dirname, 'autocomplete-compiled-v2.bin');
@@ -44,59 +43,81 @@ describe('Local Autocompleter', () => {
     });
   });
 
-  describe('topK', () => {
+  describe('matchPrefix', () => {
     const termStem = ['f', 'o'].join('');
 
-    let localAutocomplete: LocalAutocompleter;
+    function expectLocalAutocomplete(term: string, topK = 5) {
+      const localAutocomplete = new LocalAutocompleter(mockData);
+      const results = localAutocomplete.matchPrefix(term, topK);
+      const actual = results.map(result => {
+        const canonical = `${result.canonical} (${result.images})`;
+        return result.alias ? `${result.alias} -> ${canonical}` : canonical;
+      });
 
-    beforeAll(() => {
-      localAutocomplete = new LocalAutocompleter(mockData);
-    });
+      return expect(actual);
+    }
 
     beforeEach(() => {
       window.booru.hiddenTagList = [];
     });
 
     it('should return suggestions for exact tag name match', () => {
-      const result = localAutocomplete.matchPrefix('safe', defaultK);
-      expect(result).toEqual([expect.objectContaining({ aliasName: 'safe', name: 'safe', imageCount: 6 })]);
+      expectLocalAutocomplete('safe').toMatchInlineSnapshot(`
+        [
+          "safe (6)",
+        ]
+      `);
     });
 
-    it('should return suggestion for original tag when passed an alias', () => {
-      const result = localAutocomplete.matchPrefix('flowers', defaultK);
-      expect(result).toEqual([expect.objectContaining({ aliasName: 'flowers', name: 'flower', imageCount: 1 })]);
+    it('should return suggestion for an alias', () => {
+      expectLocalAutocomplete('flowers').toMatchInlineSnapshot(`
+        [
+          "flowers -> flower (1)",
+        ]
+      `);
+    });
+
+    it('should prefer canonical tag over an alias when both match', () => {
+      expectLocalAutocomplete('flo').toMatchInlineSnapshot(`
+        [
+          "flower (1)",
+        ]
+      `);
     });
 
     it('should return suggestions sorted by image count', () => {
-      const result = localAutocomplete.matchPrefix(termStem, defaultK);
-      expect(result).toEqual([
-        expect.objectContaining({ aliasName: 'forest', name: 'forest', imageCount: 3 }),
-        expect.objectContaining({ aliasName: 'fog', name: 'fog', imageCount: 1 }),
-        expect.objectContaining({ aliasName: 'force field', name: 'force field', imageCount: 1 }),
-      ]);
+      expectLocalAutocomplete(termStem).toMatchInlineSnapshot(`
+        [
+          "forest (3)",
+          "fog (1)",
+          "force field (1)",
+        ]
+      `);
     });
 
     it('should return namespaced suggestions without including namespace', () => {
-      const result = localAutocomplete.matchPrefix('test', defaultK);
-      expect(result).toEqual([
-        expect.objectContaining({ aliasName: 'artist:test', name: 'artist:test', imageCount: 1 }),
-      ]);
+      expectLocalAutocomplete('test').toMatchInlineSnapshot(`
+        [
+          "artist:test (1)",
+        ]
+      `);
     });
 
     it('should return only the required number of suggestions', () => {
-      const result = localAutocomplete.matchPrefix(termStem, 1);
-      expect(result).toEqual([expect.objectContaining({ aliasName: 'forest', name: 'forest', imageCount: 3 })]);
+      expectLocalAutocomplete(termStem, 1).toMatchInlineSnapshot(`
+        [
+          "forest (3)",
+        ]
+      `);
     });
 
     it('should NOT return suggestions associated with hidden tags', () => {
       window.booru.hiddenTagList = [1];
-      const result = localAutocomplete.matchPrefix(termStem, defaultK);
-      expect(result).toEqual([]);
+      expectLocalAutocomplete(termStem).toMatchInlineSnapshot(`[]`);
     });
 
     it('should return empty array for empty prefix', () => {
-      const result = localAutocomplete.matchPrefix('', defaultK);
-      expect(result).toEqual([]);
+      expectLocalAutocomplete('').toMatchInlineSnapshot(`[]`);
     });
   });
 });

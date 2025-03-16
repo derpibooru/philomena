@@ -110,3 +110,11 @@ export function escapeCss(css: string): string {
 export function findFirstTextNode<N extends Node>(of: Node): N {
   return Array.prototype.filter.call(of.childNodes, el => el.nodeType === Node.TEXT_NODE)[0];
 }
+
+export function hideIf(condition: boolean, element: HTMLElement) {
+  if (condition) {
+    element.classList.add('hidden');
+  } else {
+    element.classList.remove('hidden');
+  }
+}

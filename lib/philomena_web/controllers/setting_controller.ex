@@ -37,21 +37,36 @@ defmodule PhilomenaWeb.SettingController do
 
   defp update_local_settings(conn, user_params) do
     conn
-    |> set_cookie(user_params, "hidpi", "hidpi")
-    |> set_cookie(user_params, "webm", "webm")
-    |> set_cookie(user_params, "serve_webm", "serve_webm")
-    |> set_cookie(user_params, "unmute_videos", "unmute_videos")
-    |> set_cookie(user_params, "chan_nsfw", "chan_nsfw")
-    |> set_cookie(user_params, "hide_staff_tools", "hide_staff_tools")
-    |> set_cookie(user_params, "hide_uploader", "hide_uploader")
-    |> set_cookie(user_params, "hide_score", "hide_score")
-    |> set_cookie(user_params, "unfilter_tag_suggestions", "unfilter_tag_suggestions")
-    |> set_cookie(user_params, "enable_search_ac", "enable_search_ac")
+    |> set_bool_cookie(user_params, "hidpi", "hidpi")
+    |> set_bool_cookie(user_params, "webm", "webm")
+    |> set_bool_cookie(user_params, "serve_webm", "serve_webm")
+    |> set_bool_cookie(user_params, "unmute_videos", "unmute_videos")
+    |> set_bool_cookie(user_params, "chan_nsfw", "chan_nsfw")
+    |> set_bool_cookie(user_params, "hide_staff_tools", "hide_staff_tools")
+    |> set_bool_cookie(user_params, "hide_uploader", "hide_uploader")
+    |> set_bool_cookie(user_params, "hide_score", "hide_score")
+    |> set_bool_cookie(user_params, "unfilter_tag_suggestions", "unfilter_tag_suggestions")
+    |> set_bool_cookie(user_params, "enable_search_ac", "enable_search_ac")
+    |> set_bool_cookie(
+      user_params,
+      "autocomplete_search_history_hidden",
+      "autocomplete_search_history_hidden"
+    )
+    |> set_cookie(
+      "autocomplete_search_history_max_suggestions_when_typing",
+      user_params["autocomplete_search_history_max_suggestions_when_typing"]
+    )
   end
 
-  defp set_cookie(conn, params, param_name, cookie_name) do
+  defp set_bool_cookie(conn, params, param_name, cookie_name) do
+    set_cookie(conn, cookie_name, to_string(params[param_name] == "true"))
+  end
+
+  defp set_cookie(conn, _, nil), do: conn
+
+  defp set_cookie(conn, cookie_name, value) do
     # JS wants access; max-age is set to 25 years from now
-    Conn.put_resp_cookie(conn, cookie_name, to_string(params[param_name] == "true"),
+    Conn.put_resp_cookie(conn, cookie_name, value,
       max_age: 788_923_800,
       http_only: false,
       extra: "SameSite=Lax"

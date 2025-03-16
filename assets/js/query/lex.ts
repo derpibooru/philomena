@@ -22,8 +22,15 @@ const tokenList: Token[] = [
 
 export type ParseTerm = (term: string, fuzz: number, boost: number) => AstMatcher;
 
-export type Range = [number, number];
-export type TermContext = [Range, string];
+export interface Range {
+  start: number;
+  end: number;
+}
+
+export interface TermContext {
+  range: Range;
+  content: string;
+}
 
 export interface LexResult {
   tokenList: TokenList;
@@ -61,7 +68,11 @@ export function generateLexResult(searchStr: string, parseTerm: ParseTerm): LexR
     if (searchTerm !== null) {
       // Push to stack.
       ret.tokenList.push(parseTerm(searchTerm, fuzz, boost));
-      ret.termContexts.push([[termIndex, termIndex + searchTerm.length], searchTerm]);
+
+      ret.termContexts.push({
+        range: { start: termIndex, end: termIndex + searchTerm.length },
+        content: searchTerm,
+      });
       // Reset term and options data.
       boost = 1;
       fuzz = 0;

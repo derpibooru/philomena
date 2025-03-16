@@ -1,6 +1,3 @@
-// Ignoring a non-100% coverage for HTTP client for now.
-// It will be 100% in https://github.com/philomena-dev/philomena/pull/453
-/* v8 ignore start */
 /**
  * localStorage utils
  */
@@ -81,4 +78,3 @@ export default {
     return lastUpdatedTime === null || Date.now() > lastUpdatedTime;
   },
 };
-/* v8 ignore end */
