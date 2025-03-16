@@ -66,7 +66,9 @@
     --block-header-link-text-hover-color: hsl(from $block-header-link-text-color calc(h + 6) calc(s - 20) calc(l - 3));
 
     --block-header-light-hover-color: hsl(from $block-header-light-color calc(h - 4) calc(s + 10) calc(l - 4));
-    --block-header-light-link-text-hover-color: hsl(from $block-header-light-link-text-color calc(h + 8) calc(s - 10) calc(l - 2));
+    --block-header-light-link-text-hover-color: hsl(
+      from $block-header-light-link-text-color calc(h + 8) calc(s - 10) calc(l - 2)
+    );
 
     --media-box-hover-color: hsl(from $media-box-color h s calc(l - 4));
     --media-box-header-link-text-hover-color: hsl(from $link-color h calc(s - 18) calc(l - 3));
@@ -121,7 +123,9 @@
     --tag-category-error-border: hsl(from $tag-category-error-color h s calc(l - 22));
     --tag-category-character-background: hsl(from $tag-category-character-color h s calc(l - 33));
     --tag-category-character-border: hsl(from $tag-category-character-color h s calc(l - 20));
-    --tag-category-content-official-background: hsl(from $tag-category-content-official-color h calc(s - 2) calc(l - 29));
+    --tag-category-content-official-background: hsl(
+      from $tag-category-content-official-color h calc(s - 2) calc(l - 29)
+    );
     --tag-category-content-official-border: hsl(from $tag-category-content-official-color h s calc(l - 20));
     --tag-category-content-fanmade-background: hsl(from $tag-category-content-fanmade-color h s calc(l - 40));
     --tag-category-content-fanmade-border: hsl(from $tag-category-content-fanmade-color h calc(s - 10) calc(l - 20));

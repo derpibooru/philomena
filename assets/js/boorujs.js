@@ -11,21 +11,45 @@ import { addTag } from './tagsinput';
 
 // Event types and any qualifying conditions - return true to not run action
 const types = {
-  click(event) { return event.button !== 0; /* Left-click only */ },
-  change() { /* No qualifier */ },
-  fetchcomplete() { /* No qualifier */ },
+  click(event) {
+    return event.button !== 0; /* Left-click only */
+  },
+  change() {
+    /* No qualifier */
+  },
+  fetchcomplete() {
+    /* No qualifier */
+  },
 };
 
 const actions = {
-  hide(data) { selectorCb(data.base, data.value, el => el.classList.add('hidden')); },
-  show(data) { selectorCb(data.base, data.value, el => el.classList.remove('hidden')); },
-  toggle(data) { selectorCb(data.base, data.value, el => el.classList.toggle('hidden')); },
-  submit(data) { selectorCb(data.base, data.value, el => el.submit()); },
-  disable(data) { selectorCb(data.base, data.value, el => el.disabled = true); },
-  focus(data) { document.querySelector(data.value).focus(); },
-  unfilter(data) { showBlock(data.el.closest('.image-show-container')); },
-  tabHide(data) { selectorCbChildren(data.base, data.value, el => el.classList.add('hidden')); },
-  preventdefault() { /* The existence of this entry is enough */ },
+  hide(data) {
+    selectorCb(data.base, data.value, el => el.classList.add('hidden'));
+  },
+  show(data) {
+    selectorCb(data.base, data.value, el => el.classList.remove('hidden'));
+  },
+  toggle(data) {
+    selectorCb(data.base, data.value, el => el.classList.toggle('hidden'));
+  },
+  submit(data) {
+    selectorCb(data.base, data.value, el => el.submit());
+  },
+  disable(data) {
+    selectorCb(data.base, data.value, el => (el.disabled = true));
+  },
+  focus(data) {
+    document.querySelector(data.value).focus();
+  },
+  unfilter(data) {
+    showBlock(data.el.closest('.image-show-container'));
+  },
+  tabHide(data) {
+    selectorCbChildren(data.base, data.value, el => el.classList.add('hidden'));
+  },
+  preventdefault() {
+    /* The existence of this entry is enough */
+  },
 
   copy(data) {
     document.querySelector(data.value).select();
@@ -78,9 +102,9 @@ const actions = {
       fetchHtml(loadTab)
         .then(handleError)
         .then(response => response.text())
-        .then(response => newTab.innerHTML = response)
-        .then(() => newTab.dataset.loaded = true)
-        .catch(() => newTab.textContent = 'Error!');
+        .then(response => (newTab.innerHTML = response))
+        .then(() => (newTab.dataset.loaded = true))
+        .catch(() => (newTab.textContent = 'Error!'));
     }
   },
 };
