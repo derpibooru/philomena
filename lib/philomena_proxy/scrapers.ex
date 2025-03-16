@@ -22,6 +22,7 @@ defmodule PhilomenaProxy.Scrapers do
 
   @scrapers [
     PhilomenaProxy.Scrapers.Bluesky,
+    PhilomenaProxy.Scrapers.Civitai,
     PhilomenaProxy.Scrapers.Deviantart,
     PhilomenaProxy.Scrapers.Pillowfort,
     PhilomenaProxy.Scrapers.Twitter,
