@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "fmt": "prettier --write .",
+    "fmt-check": "prettier --check ."
+  },
+  "devDependencies": {
+    "prettier": "^3.5.3"
+  }
+}

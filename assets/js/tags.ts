@@ -26,18 +26,40 @@ function createTagDropdown(tag: HTMLSpanElement) {
   const [unwatched, watched, spoilered, hidden] = $$<HTMLSpanElement>('.tag__state', tag);
   const tagId = parseInt(assertNotUndefined(tag.dataset.tagId), 10);
 
-  /* eslint-disable prettier/prettier */
   const actions: TagDropdownActionList = {
-    unwatch()   { hideEl(unwatch, watched);     showEl(watch, unwatched);     removeTag(tagId, watchedTagList);   },
-    watch()     { hideEl(watch, unwatched);     showEl(unwatch, watched);     addTag(tagId, watchedTagList);      },
+    unwatch() {
+      hideEl(unwatch, watched);
+      showEl(watch, unwatched);
+      removeTag(tagId, watchedTagList);
+    },
+    watch() {
+      hideEl(watch, unwatched);
+      showEl(unwatch, watched);
+      addTag(tagId, watchedTagList);
+    },
 
-    unspoiler() { hideEl(unspoiler, spoilered); showEl(spoiler);              removeTag(tagId, spoileredTagList); },
-    spoiler()   { hideEl(spoiler);              showEl(unspoiler, spoilered); addTag(tagId, spoileredTagList);    },
+    unspoiler() {
+      hideEl(unspoiler, spoilered);
+      showEl(spoiler);
+      removeTag(tagId, spoileredTagList);
+    },
+    spoiler() {
+      hideEl(spoiler);
+      showEl(unspoiler, spoilered);
+      addTag(tagId, spoileredTagList);
+    },
 
-    unhide()    { hideEl(unhide, hidden);       showEl(hide);                 removeTag(tagId, hiddenTagList);    },
-    hide()      { hideEl(hide);                 showEl(unhide, hidden);       addTag(tagId, hiddenTagList);       },
+    unhide() {
+      hideEl(unhide, hidden);
+      showEl(hide);
+      removeTag(tagId, hiddenTagList);
+    },
+    hide() {
+      hideEl(hide);
+      showEl(unhide, hidden);
+      addTag(tagId, hiddenTagList);
+    },
   };
-  /* eslint-enable prettier/prettier */
 
   const tagIsWatched = watchedTagList.includes(tagId);
   const tagIsSpoilered = spoileredTagList.includes(tagId);

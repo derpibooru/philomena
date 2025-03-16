@@ -47,8 +47,7 @@ function isOK(event: KeyboardEvent): boolean {
   );
 }
 
-/* eslint-disable prettier/prettier */
-
+// prettier-ignore
 const keyCodes: ShortcutKeyMap = {
   74() { click('.js-prev');             }, // J - go to previous image
   73() { click('.js-up');               }, // I - go to index page
@@ -67,8 +66,6 @@ const keyCodes: ShortcutKeyMap = {
     click(getHover() ? `a.interaction--upvote[data-image-id="${getHover()}"]` : '.block__header a.interaction--upvote');
   },
 };
-
-/* eslint-enable prettier/prettier */
 
 export function listenForKeys() {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
