@@ -1,29 +1,31 @@
 import {
-  SuggestionsPopup,
-  TagSuggestion,
-  TagSuggestionParams,
+  SuggestionsPopupComponent,
+  TagSuggestionComponent,
   Suggestions,
-  HistorySuggestion,
+  HistorySuggestionComponent,
   ItemSelectedEvent,
-} from '../suggestions.ts';
+} from '../suggestions-view.ts';
+import { TagSuggestion } from 'utils/suggestions-model.ts';
 import { afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/dom';
 import { assertNotNull } from '../assert.ts';
 
 const mockedSuggestions: Suggestions = {
-  history: ['foo bar', 'bar baz', 'baz qux'].map(content => new HistorySuggestion(content, 0)),
+  history: ['foo bar', 'bar baz', 'baz qux'].map(content => new HistorySuggestionComponent(content, 0)),
   tags: [
-    { images: 10, canonical: 'artist:assasinmonkey' },
-    { images: 10, canonical: 'artist:hydrusbeta' },
-    { images: 10, canonical: 'artist:the sexy assistant' },
-    { images: 10, canonical: 'artist:devinian' },
-    { images: 10, canonical: 'artist:moe' },
-  ].map(tags => new TagSuggestion({ ...tags, matchLength: 0 })),
+    { images: 10, canonical: ['artist:assasinmonkey'] },
+    { images: 10, canonical: ['artist:hydrusbeta'] },
+    { images: 10, canonical: ['artist:the sexy assistant'] },
+    { images: 10, canonical: ['artist:devinian'] },
+    { images: 10, canonical: ['artist:moe'] },
+  ].map(suggestion => new TagSuggestionComponent(suggestion)),
 };
 
-function mockBaseSuggestionsPopup(includeMockedSuggestions: boolean = false): [SuggestionsPopup, HTMLInputElement] {
+function mockBaseSuggestionsPopup(
+  includeMockedSuggestions: boolean = false,
+): [SuggestionsPopupComponent, HTMLInputElement] {
   const input = document.createElement('input');
-  const popup = new SuggestionsPopup();
+  const popup = new SuggestionsPopupComponent();
 
   document.body.append(input);
   popup.showForElement(input);
@@ -38,7 +40,7 @@ function mockBaseSuggestionsPopup(includeMockedSuggestions: boolean = false): [S
 const selectedItemClassName = 'autocomplete__item--selected';
 
 describe('Suggestions', () => {
-  let popup: SuggestionsPopup | undefined;
+  let popup: SuggestionsPopupComponent | undefined;
   let input: HTMLInputElement | undefined;
 
   afterEach(() => {
@@ -215,31 +217,31 @@ describe('Suggestions', () => {
     it('should format suggested tags as tag name and the count', () => {
       // The snapshots in this test contain a "narrow no-break space"
       /* eslint-disable no-irregular-whitespace */
-      expectTagRender({ canonical: 'safe', images: 10 }).toMatchInlineSnapshot(`
+      expectTagRender({ canonical: ['safe'], images: 10 }).toMatchInlineSnapshot(`
         {
           "label": " safe  10",
           "value": "safe",
         }
       `);
-      expectTagRender({ canonical: 'safe', images: 10_000 }).toMatchInlineSnapshot(`
+      expectTagRender({ canonical: ['safe'], images: 10_000 }).toMatchInlineSnapshot(`
         {
           "label": " safe  10 000",
           "value": "safe",
         }
       `);
-      expectTagRender({ canonical: 'safe', images: 100_000 }).toMatchInlineSnapshot(`
+      expectTagRender({ canonical: ['safe'], images: 100_000 }).toMatchInlineSnapshot(`
         {
           "label": " safe  100 000",
           "value": "safe",
         }
       `);
-      expectTagRender({ canonical: 'safe', images: 1000_000 }).toMatchInlineSnapshot(`
+      expectTagRender({ canonical: ['safe'], images: 1000_000 }).toMatchInlineSnapshot(`
         {
           "label": " safe  1 000 000",
           "value": "safe",
         }
       `);
-      expectTagRender({ canonical: 'safe', images: 10_000_000 }).toMatchInlineSnapshot(`
+      expectTagRender({ canonical: ['safe'], images: 10_000_000 }).toMatchInlineSnapshot(`
         {
           "label": " safe  10 000 000",
           "value": "safe",
@@ -249,7 +251,7 @@ describe('Suggestions', () => {
     });
 
     it('should display alias -> canonical for aliased tags', () => {
-      expectTagRender({ images: 10, canonical: 'safe', alias: 'rating:safe' }).toMatchInlineSnapshot(
+      expectTagRender({ images: 10, canonical: 'safe', alias: ['rating:safe'] }).toMatchInlineSnapshot(
         `
         {
           "label": " rating:safe → safe  10",
@@ -262,7 +264,7 @@ describe('Suggestions', () => {
 });
 
 function expectHistoryRender(content: string) {
-  const suggestion = new HistorySuggestion(content, 0);
+  const suggestion = new HistorySuggestionComponent(content, 0);
   const label = suggestion
     .render()
     .map(el => el.textContent)
@@ -272,8 +274,8 @@ function expectHistoryRender(content: string) {
   return expect({ label, value });
 }
 
-function expectTagRender(params: Omit<TagSuggestionParams, 'matchLength'>) {
-  const suggestion = new TagSuggestion({ ...params, matchLength: 0 });
+function expectTagRender(params: TagSuggestion) {
+  const suggestion = new TagSuggestionComponent(params);
   const label = suggestion
     .render()
     .map(el => el.textContent)

@@ -1,69 +1,61 @@
 import { makeEl } from './dom.ts';
+import { MatchPart, TagSuggestion } from './suggestions-model.ts';
 
-export interface TagSuggestionParams {
-  /**
-   * If present, then this suggestion is for a tag alias.
-   * If absent, then this suggestion is for the `canonical` tag name.
-   */
-  alias?: null | string;
+export class TagSuggestionComponent {
+  data: TagSuggestion;
 
-  /**
-   * The canonical name of the tag (non-alias).
-   */
-  canonical: string;
-
-  /**
-   * Number of images tagged with this tag.
-   */
-  images: number;
-
-  /**
-   * Length of the prefix in the suggestion that matches the prefix of the current input.
-   */
-  matchLength: number;
-}
-
-export class TagSuggestion {
-  alias?: null | string;
-  canonical: string;
-  images: number;
-  matchLength: number;
-
-  constructor(params: TagSuggestionParams) {
-    this.alias = params.alias;
-    this.canonical = params.canonical;
-    this.images = params.images;
-    this.matchLength = params.matchLength;
+  constructor(data: TagSuggestion) {
+    this.data = data;
   }
 
   value(): string {
-    return this.canonical;
+    if (typeof this.data.canonical === 'string') {
+      return this.data.canonical;
+    }
+
+    return this.data.canonical.map(part => (typeof part === 'string' ? part : part.matched)).join('');
   }
 
   render(): HTMLElement[] {
-    const { alias: aliasName, canonical: canonicalName, images: imageCount } = this;
-
-    const label = aliasName ? `${aliasName} → ${canonicalName}` : canonicalName;
+    const { data } = this;
 
     return [
       makeEl('div', { className: 'autocomplete__item__content' }, [
         makeEl('i', { className: 'fa-solid fa-tag' }),
-        makeEl('b', {
-          className: 'autocomplete__item__tag__match',
-          textContent: ` ${label.slice(0, this.matchLength)}`,
-        }),
-        makeEl('span', {
-          textContent: label.slice(this.matchLength),
-        }),
+        ' ',
+        ...this.renderLabel(),
       ]),
       makeEl('span', {
         className: 'autocomplete__item__tag__count',
-        textContent: `  ${TagSuggestion.formatImageCount(imageCount)}`,
+        textContent: `  ${TagSuggestionComponent.renderImageCount(data.images)}`,
       }),
     ];
   }
 
-  static formatImageCount(count: number): string {
+  renderLabel(): (HTMLElement | string)[] {
+    const { data } = this;
+
+    if (!data.alias) {
+      return TagSuggestionComponent.renderMatchParts(data.canonical);
+    }
+
+    return [...TagSuggestionComponent.renderMatchParts(data.alias), ` → ${data.canonical}`];
+  }
+
+  static renderMatchParts(parts: MatchPart[]): (HTMLElement | string)[] {
+    return parts.map(part => {
+      if (typeof part === 'string') {
+        return part;
+      }
+
+      return makeEl('b', {
+        className: 'autocomplete__item__tag__match',
+        textContent: part.matched,
+      });
+    });
+  }
+
+  static renderImageCount(count: number): string {
     // We use the 'fr' (French) number formatting style with space-separated
     // groups of 3 digits.
     const formatter = new Intl.NumberFormat('fr', { useGrouping: true });
@@ -72,7 +64,7 @@ export class TagSuggestion {
   }
 }
 
-export class HistorySuggestion {
+export class HistorySuggestionComponent {
   /**
    * Full query string that was previously searched and retrieved from the history.
    */
@@ -111,11 +103,11 @@ export class HistorySuggestion {
   }
 }
 
-export type Suggestion = TagSuggestion | HistorySuggestion;
+export type Suggestion = TagSuggestionComponent | HistorySuggestionComponent;
 
 export interface Suggestions {
-  history: HistorySuggestion[];
-  tags: TagSuggestion[];
+  history: HistorySuggestionComponent[];
+  tags: TagSuggestionComponent[];
 }
 
 export interface ItemSelectedEvent {
@@ -132,7 +124,7 @@ interface SuggestionItem {
 /**
  * Responsible for rendering the suggestions dropdown.
  */
-export class SuggestionsPopup {
+export class SuggestionsPopupComponent {
   /**
    * Index of the currently selected suggestion. -1 means an imaginary item
    * before the first item that represents the state where no item is selected.
@@ -198,7 +190,7 @@ export class SuggestionsPopup {
     }
   }
 
-  setSuggestions(params: Suggestions): SuggestionsPopup {
+  setSuggestions(params: Suggestions): SuggestionsPopupComponent {
     this.cursor = -1;
     this.items = [];
     this.container.innerHTML = '';
@@ -219,7 +211,7 @@ export class SuggestionsPopup {
   }
 
   appendSuggestion(suggestion: Suggestion) {
-    const type = suggestion instanceof TagSuggestion ? 'tag' : 'history';
+    const type = suggestion instanceof TagSuggestionComponent ? 'tag' : 'history';
 
     const element = makeEl(
       'div',
@@ -323,7 +315,7 @@ export class SuggestionsPopup {
    * Returns the item's prototype that can be viewed as the item's type identifier.
    */
   private itemType(index: number) {
-    return this.items[index].suggestion instanceof TagSuggestion ? 'tag' : 'history';
+    return this.items[index].suggestion instanceof TagSuggestionComponent ? 'tag' : 'history';
   }
 
   showForElement(targetElement: HTMLElement) {
