@@ -183,8 +183,32 @@ h1 Content Settings
         .fieldlabel: i Show streams marked as NSFW on the channels page.
       .field
         => label f, :enable_search_ac, "Enable search auto-completion"
-        => checkbox f, :enable_search_ac, checked: @conn.cookies["enable_search_ac"] === "true"
-        .fieldlabel: i Enable the auto-completion of tags in search fields.
+        => checkbox f, :enable_search_ac, checked: @conn.cookies["enable_search_ac"] == "true"
+
+      .autocomplete-settings class=if(@conn.cookies["enable_search_ac"] != "true", do: "hidden", else: "")
+        .field
+          => label f,
+              :autocomplete_search_history_hidden,
+              "Hide search history in auto-completion"
+          => checkbox f,
+              :autocomplete_search_history_hidden,
+              checked: @conn.cookies["autocomplete_search_history_hidden"] == "true"
+
+        .autocomplete-search-history-settings[
+          class=if(@conn.cookies["autocomplete_search_history_hidden"] == "true", do: "hidden", else: "")
+        ]
+          .field
+            => label f,
+                :autocomplete_search_history_max_suggestions_when_typing,
+                "Maximum number of search history suggestions in autocompletion when typing"
+            => number_input f,
+                :autocomplete_search_history_max_suggestions_when_typing,
+                min: 0,
+                max: 10,
+                step: 1,
+                value: @conn.cookies["autocomplete_search_history_max_suggestions_when_typing"] || 3,
+                class: "input"
+
       = if staff?(@conn.assigns.current_user) do
         .field
           => label f, :hide_staff_tools

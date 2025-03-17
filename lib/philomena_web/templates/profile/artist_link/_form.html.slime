@@ -10,7 +10,7 @@
           ' Artist Link validation is intended for artists. Validating your link will give you control over your content on the site, allowing you to create a
           a> href="/commissions" commissions
           ' listing and request takedowns or DNPs. Do not request a link if the source contains no artwork which you have created.
-      = text_input f, :tag_name, value: assigns[:tag_name], class: "input", autocomplete: "off", placeholder: "artist:your-name", data: [autocomplete: "true", autocomplete_min_length: "3", autocomplete_source: "/autocomplete/tags?term="]
+      = text_input f, :tag_name, value: assigns[:tag_name], class: "input", autocomplete: "off", placeholder: "artist:your-name", data: [autocomplete: "single-tag"]
       = error_tag f, :tag
 
   .field

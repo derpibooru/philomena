@@ -1,37 +1,35 @@
-import { fetchMock } from '../../../test/fetch-mock.ts';
 import {
-  fetchLocalAutocomplete,
-  fetchSuggestions,
-  formatLocalAutocompleteResult,
-  purgeSuggestionsCache,
   SuggestionsPopup,
-  TermSuggestion,
+  TagSuggestion,
+  TagSuggestionParams,
+  Suggestions,
+  HistorySuggestion,
+  ItemSelectedEvent,
 } from '../suggestions.ts';
-import fs from 'fs';
-import path from 'path';
-import { LocalAutocompleter } from '../local-autocompleter.ts';
 import { afterEach } from 'vitest';
 import { fireEvent } from '@testing-library/dom';
-import { getRandomIntBetween } from '../../../test/randomness.ts';
+import { assertNotNull } from '../assert.ts';
 
-const mockedSuggestionsEndpoint = '/endpoint?term=';
-const mockedSuggestionsResponse = [
-  { label: 'artist:assasinmonkey (1)', value: 'artist:assasinmonkey' },
-  { label: 'artist:hydrusbeta (1)', value: 'artist:hydrusbeta' },
-  { label: 'artist:the sexy assistant (1)', value: 'artist:the sexy assistant' },
-  { label: 'artist:devinian (1)', value: 'artist:devinian' },
-  { label: 'artist:moe (1)', value: 'artist:moe' },
-];
+const mockedSuggestions: Suggestions = {
+  history: ['foo bar', 'bar baz', 'baz qux'].map(content => new HistorySuggestion(content, 0)),
+  tags: [
+    { images: 10, canonical: 'artist:assasinmonkey' },
+    { images: 10, canonical: 'artist:hydrusbeta' },
+    { images: 10, canonical: 'artist:the sexy assistant' },
+    { images: 10, canonical: 'artist:devinian' },
+    { images: 10, canonical: 'artist:moe' },
+  ].map(tags => new TagSuggestion({ ...tags, matchLength: 0 })),
+};
 
 function mockBaseSuggestionsPopup(includeMockedSuggestions: boolean = false): [SuggestionsPopup, HTMLInputElement] {
   const input = document.createElement('input');
   const popup = new SuggestionsPopup();
 
   document.body.append(input);
-  popup.showForField(input);
+  popup.showForElement(input);
 
   if (includeMockedSuggestions) {
-    popup.renderSuggestions(mockedSuggestionsResponse);
+    popup.setSuggestions(mockedSuggestions);
   }
 
   return [popup, input];
@@ -40,26 +38,8 @@ function mockBaseSuggestionsPopup(includeMockedSuggestions: boolean = false): [S
 const selectedItemClassName = 'autocomplete__item--selected';
 
 describe('Suggestions', () => {
-  let mockedAutocompleteBuffer: ArrayBuffer;
   let popup: SuggestionsPopup | undefined;
   let input: HTMLInputElement | undefined;
-
-  beforeAll(async () => {
-    fetchMock.enableMocks();
-
-    mockedAutocompleteBuffer = await fs.promises
-      .readFile(path.join(__dirname, 'autocomplete-compiled-v2.bin'))
-      .then(fileBuffer => fileBuffer.buffer);
-  });
-
-  afterAll(() => {
-    fetchMock.disableMocks();
-  });
-
-  beforeEach(() => {
-    purgeSuggestionsCache();
-    fetchMock.resetMocks();
-  });
 
   afterEach(() => {
     if (input) {
@@ -69,6 +49,7 @@ describe('Suggestions', () => {
 
     if (popup) {
       popup.hide();
+      popup.setSuggestions({ history: [], tags: [] });
       popup = undefined;
     }
   });
@@ -78,113 +59,113 @@ describe('Suggestions', () => {
       [popup, input] = mockBaseSuggestionsPopup();
 
       expect(document.querySelector('.autocomplete')).toBeInstanceOf(HTMLElement);
-      expect(popup.isActive).toBe(true);
-    });
-
-    it('should be removed when hidden', () => {
-      [popup, input] = mockBaseSuggestionsPopup();
-
-      popup.hide();
-
-      expect(document.querySelector('.autocomplete')).not.toBeInstanceOf(HTMLElement);
-      expect(popup.isActive).toBe(false);
+      expect(popup.isHidden).toBe(false);
     });
 
     it('should render suggestions', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      expect(document.querySelectorAll('.autocomplete__item').length).toBe(mockedSuggestionsResponse.length);
+      expect(document.querySelectorAll('.autocomplete__item').length).toBe(
+        mockedSuggestions.history.length + mockedSuggestions.tags.length,
+      );
     });
 
-    it('should initially select first element when selectNext called', () => {
+    it('should initially select first element when selectDown is called', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      popup.selectNext();
+      popup.selectDown();
 
       expect(document.querySelector('.autocomplete__item:first-child')).toHaveClass(selectedItemClassName);
     });
 
-    it('should initially select last element when selectPrevious called', () => {
+    it('should initially select last element when selectUp is called', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      popup.selectPrevious();
+      popup.selectUp();
 
       expect(document.querySelector('.autocomplete__item:last-child')).toHaveClass(selectedItemClassName);
     });
 
-    it('should select and de-select items when hovering items over', () => {
+    it('should jump to the next lower block when selectCtrlDown is called', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      const firstItem = document.querySelector('.autocomplete__item:first-child');
-      const lastItem = document.querySelector('.autocomplete__item:last-child');
+      popup.selectCtrlDown();
 
-      if (firstItem) {
-        fireEvent.mouseOver(firstItem);
-        fireEvent.mouseMove(firstItem);
-      }
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.tags[0]);
+      expect(document.querySelector('.autocomplete__item__tag')).toHaveClass(selectedItemClassName);
 
-      expect(firstItem).toHaveClass(selectedItemClassName);
+      popup.selectCtrlDown();
 
-      if (lastItem) {
-        fireEvent.mouseOver(lastItem);
-        fireEvent.mouseMove(lastItem);
-      }
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.tags.at(-1));
+      expect(document.querySelector('.autocomplete__item__tag:last-child')).toHaveClass(selectedItemClassName);
 
-      expect(firstItem).not.toHaveClass(selectedItemClassName);
-      expect(lastItem).toHaveClass(selectedItemClassName);
-
-      if (lastItem) {
-        fireEvent.mouseOut(lastItem);
-      }
-
-      expect(lastItem).not.toHaveClass(selectedItemClassName);
+      // Should loop around
+      popup.selectCtrlDown();
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.history[0]);
+      expect(document.querySelector('.autocomplete__item:first-child')).toHaveClass(selectedItemClassName);
     });
 
-    it('should allow switching between mouse and selection', () => {
+    it('should jump to the next upper block when selectCtrlUp is called', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      const secondItem = document.querySelector('.autocomplete__item:nth-child(2)');
-      const thirdItem = document.querySelector('.autocomplete__item:nth-child(3)');
+      popup.selectCtrlUp();
 
-      if (secondItem) {
-        fireEvent.mouseOver(secondItem);
-        fireEvent.mouseMove(secondItem);
-      }
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.tags.at(-1));
+      expect(document.querySelector('.autocomplete__item__tag:last-child')).toHaveClass(selectedItemClassName);
 
-      expect(secondItem).toHaveClass(selectedItemClassName);
+      popup.selectCtrlUp();
 
-      popup.selectNext();
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.history.at(-1));
+      expect(
+        document.querySelector(`.autocomplete__item__history:nth-child(${mockedSuggestions.history.length})`),
+      ).toHaveClass(selectedItemClassName);
 
-      expect(secondItem).not.toHaveClass(selectedItemClassName);
-      expect(thirdItem).toHaveClass(selectedItemClassName);
+      popup.selectCtrlUp();
+
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.history[0]);
+      expect(document.querySelector('.autocomplete__item:first-child')).toHaveClass(selectedItemClassName);
+
+      // Should loop around
+      popup.selectCtrlUp();
+
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.tags.at(-1));
+      expect(document.querySelector('.autocomplete__item__tag:last-child')).toHaveClass(selectedItemClassName);
+    });
+
+    it('should do nothing on selection changes when empty', () => {
+      [popup, input] = mockBaseSuggestionsPopup();
+
+      popup.selectDown();
+      popup.selectUp();
+      popup.selectCtrlDown();
+      popup.selectCtrlUp();
+
+      expect(document.querySelector(`.${selectedItemClassName}`)).toBeNull();
     });
 
     it('should loop around when selecting next on last and previous on first', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      const firstItem = document.querySelector('.autocomplete__item:first-child');
-      const lastItem = document.querySelector('.autocomplete__item:last-child');
+      const firstItem = assertNotNull(document.querySelector('.autocomplete__item:first-child'));
+      const lastItem = assertNotNull(document.querySelector('.autocomplete__item:last-child'));
 
-      if (lastItem) {
-        fireEvent.mouseOver(lastItem);
-        fireEvent.mouseMove(lastItem);
-      }
+      popup.selectUp();
 
       expect(lastItem).toHaveClass(selectedItemClassName);
 
-      popup.selectNext();
+      popup.selectDown();
 
       expect(document.querySelector(`.${selectedItemClassName}`)).toBeNull();
 
-      popup.selectNext();
+      popup.selectDown();
 
       expect(firstItem).toHaveClass(selectedItemClassName);
 
-      popup.selectPrevious();
+      popup.selectUp();
 
       expect(document.querySelector(`.${selectedItemClassName}`)).toBeNull();
 
-      popup.selectPrevious();
+      popup.selectUp();
 
       expect(lastItem).toHaveClass(selectedItemClassName);
     });
@@ -192,176 +173,112 @@ describe('Suggestions', () => {
     it('should return selected item value', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      expect(popup.selectedTerm).toBe(null);
+      expect(popup.selectedSuggestion).toBe(null);
 
-      popup.selectNext();
+      popup.selectDown();
 
-      expect(popup.selectedTerm).toBe(mockedSuggestionsResponse[0].value);
+      expect(popup.selectedSuggestion).toBe(mockedSuggestions.history[0]);
     });
 
-    it('should emit an event when item was clicked with mouse', () => {
+    it('should emit an event when an item was clicked with a mouse', () => {
       [popup, input] = mockBaseSuggestionsPopup(true);
 
-      let clickEvent: CustomEvent<TermSuggestion> | undefined;
-
-      const itemSelectedHandler = vi.fn((event: CustomEvent<TermSuggestion>) => {
-        clickEvent = event;
-      });
+      const itemSelectedHandler = vi.fn<(event: ItemSelectedEvent) => void>();
 
       popup.onItemSelected(itemSelectedHandler);
 
-      const firstItem = document.querySelector('.autocomplete__item');
+      const firstItem = assertNotNull(document.querySelector('.autocomplete__item'));
 
-      if (firstItem) {
-        fireEvent.click(firstItem);
-      }
+      fireEvent.click(firstItem);
 
       expect(itemSelectedHandler).toBeCalledTimes(1);
-      expect(clickEvent?.detail).toEqual(mockedSuggestionsResponse[0]);
-    });
-
-    it('should not emit selection on items without value', () => {
-      [popup, input] = mockBaseSuggestionsPopup();
-
-      popup.renderSuggestions([{ label: 'Option without value', value: '' }]);
-
-      const itemSelectionHandler = vi.fn();
-
-      popup.onItemSelected(itemSelectionHandler);
-
-      const firstItem = document.querySelector('.autocomplete__item:first-child')!;
-
-      if (firstItem) {
-        fireEvent.click(firstItem);
-      }
-
-      expect(itemSelectionHandler).not.toBeCalled();
+      expect(itemSelectedHandler).toBeCalledWith({
+        ctrlKey: false,
+        shiftKey: false,
+        suggestion: mockedSuggestions.history[0],
+      });
     });
   });
 
-  describe('fetchSuggestions', () => {
-    it('should only call fetch once per single term', () => {
-      fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-      fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-
-      expect(fetch).toHaveBeenCalledTimes(1);
-    });
-
-    it('should be case-insensitive to terms and trim spaces', () => {
-      fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-      fetchSuggestions(mockedSuggestionsEndpoint, 'Art');
-      fetchSuggestions(mockedSuggestionsEndpoint, '   ART   ');
-
-      expect(fetch).toHaveBeenCalledTimes(1);
-    });
-
-    it('should return the same suggestions from cache', async () => {
-      fetchMock.mockResolvedValueOnce(new Response(JSON.stringify(mockedSuggestionsResponse), { status: 200 }));
-
-      const firstSuggestions = await fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-      const secondSuggestions = await fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-
-      expect(firstSuggestions).toBe(secondSuggestions);
-    });
-
-    it('should parse and return array of suggestions', async () => {
-      fetchMock.mockResolvedValueOnce(new Response(JSON.stringify(mockedSuggestionsResponse), { status: 200 }));
-
-      const resolvedSuggestions = await fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-
-      expect(resolvedSuggestions).toBeInstanceOf(Array);
-      expect(resolvedSuggestions.length).toBe(mockedSuggestionsResponse.length);
-      expect(resolvedSuggestions).toEqual(mockedSuggestionsResponse);
-    });
-
-    it('should return empty array on server error', async () => {
-      fetchMock.mockResolvedValueOnce(new Response('', { status: 500 }));
-
-      const resolvedSuggestions = await fetchSuggestions(mockedSuggestionsEndpoint, 'unknown tag');
-
-      expect(resolvedSuggestions).toBeInstanceOf(Array);
-      expect(resolvedSuggestions.length).toBe(0);
-    });
-
-    it('should return empty array on invalid response format', async () => {
-      fetchMock.mockResolvedValueOnce(new Response('invalid non-JSON response', { status: 200 }));
-
-      const resolvedSuggestions = await fetchSuggestions(mockedSuggestionsEndpoint, 'invalid response');
-
-      expect(resolvedSuggestions).toBeInstanceOf(Array);
-      expect(resolvedSuggestions.length).toBe(0);
+  describe('HistorySuggestion', () => {
+    it('should render the suggestion', () => {
+      expectHistoryRender('foo bar').toMatchInlineSnapshot(`
+        {
+          "label": " foo bar",
+          "value": "foo bar",
+        }
+      `);
     });
   });
 
-  describe('purgeSuggestionsCache', () => {
-    it('should clear cached responses', async () => {
-      fetchMock.mockResolvedValueOnce(new Response(JSON.stringify(mockedSuggestionsResponse), { status: 200 }));
-
-      const firstResult = await fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-      purgeSuggestionsCache();
-      const resultAfterPurge = await fetchSuggestions(mockedSuggestionsEndpoint, 'art');
-
-      expect(fetch).toBeCalledTimes(2);
-      expect(firstResult).not.toBe(resultAfterPurge);
-    });
-  });
-
-  describe('fetchLocalAutocomplete', () => {
-    it('should request binary with date-related cache key', () => {
-      fetchMock.mockResolvedValue(new Response(mockedAutocompleteBuffer, { status: 200 }));
-
-      const now = new Date();
-      const cacheKey = `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`;
-      const expectedEndpoint = `/autocomplete/compiled?vsn=2&key=${cacheKey}`;
-
-      fetchLocalAutocomplete();
-
-      expect(fetch).toBeCalledWith(expectedEndpoint, { credentials: 'omit', cache: 'force-cache' });
-    });
-
-    it('should return auto-completer instance', async () => {
-      fetchMock.mockResolvedValue(new Response(mockedAutocompleteBuffer, { status: 200 }));
-
-      const autocomplete = await fetchLocalAutocomplete();
-
-      expect(autocomplete).toBeInstanceOf(LocalAutocompleter);
-    });
-
-    it('should throw generic server error on failing response', async () => {
-      fetchMock.mockResolvedValue(new Response('error', { status: 500 }));
-
-      expect(() => fetchLocalAutocomplete()).rejects.toThrowError('Received error from server');
-    });
-  });
-
-  describe('formatLocalAutocompleteResult', () => {
+  describe('TagSuggestion', () => {
     it('should format suggested tags as tag name and the count', () => {
-      const tagName = 'safe';
-      const tagCount = getRandomIntBetween(5, 10);
-
-      const resultObject = formatLocalAutocompleteResult({
-        name: tagName,
-        aliasName: tagName,
-        imageCount: tagCount,
-      });
-
-      expect(resultObject.label).toBe(`${tagName} (${tagCount})`);
-      expect(resultObject.value).toBe(tagName);
+      // The snapshots in this test contain a "narrow no-break space"
+      /* eslint-disable no-irregular-whitespace */
+      expectTagRender({ canonical: 'safe', images: 10 }).toMatchInlineSnapshot(`
+        {
+          "label": " safe  10",
+          "value": "safe",
+        }
+      `);
+      expectTagRender({ canonical: 'safe', images: 10_000 }).toMatchInlineSnapshot(`
+        {
+          "label": " safe  10 000",
+          "value": "safe",
+        }
+      `);
+      expectTagRender({ canonical: 'safe', images: 100_000 }).toMatchInlineSnapshot(`
+        {
+          "label": " safe  100 000",
+          "value": "safe",
+        }
+      `);
+      expectTagRender({ canonical: 'safe', images: 1000_000 }).toMatchInlineSnapshot(`
+        {
+          "label": " safe  1 000 000",
+          "value": "safe",
+        }
+      `);
+      expectTagRender({ canonical: 'safe', images: 10_000_000 }).toMatchInlineSnapshot(`
+        {
+          "label": " safe  10 000 000",
+          "value": "safe",
+        }
+      `);
+      /* eslint-enable no-irregular-whitespace */
     });
 
-    it('should display original alias name for aliased tags', () => {
-      const tagName = 'safe';
-      const tagAlias = 'rating:safe';
-      const tagCount = getRandomIntBetween(5, 10);
-
-      const resultObject = formatLocalAutocompleteResult({
-        name: tagName,
-        aliasName: tagAlias,
-        imageCount: tagCount,
-      });
-
-      expect(resultObject.label).toBe(`${tagAlias} ⇒ ${tagName} (${tagCount})`);
-      expect(resultObject.value).toBe(tagName);
+    it('should display alias -> canonical for aliased tags', () => {
+      expectTagRender({ images: 10, canonical: 'safe', alias: 'rating:safe' }).toMatchInlineSnapshot(
+        `
+        {
+          "label": " rating:safe → safe  10",
+          "value": "safe",
+        }
+      `,
+      );
     });
   });
 });
+
+function expectHistoryRender(content: string) {
+  const suggestion = new HistorySuggestion(content, 0);
+  const label = suggestion
+    .render()
+    .map(el => el.textContent)
+    .join('');
+  const value = suggestion.value();
+
+  return expect({ label, value });
+}
+
+function expectTagRender(params: Omit<TagSuggestionParams, 'matchLength'>) {
+  const suggestion = new TagSuggestion({ ...params, matchLength: 0 });
+  const label = suggestion
+    .render()
+    .map(el => el.textContent)
+    .join('');
+  const value = suggestion.value();
+
+  return expect({ label, value });
+}

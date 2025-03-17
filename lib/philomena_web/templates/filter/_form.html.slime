@@ -26,7 +26,7 @@
     .field
       = label f, :spoilered_complex_str, "Complex Spoiler Filter"
       br
-      = textarea f, :spoilered_complex_str, class: "input input--wide", autocapitalize: "none", data: [autocomplete: "true", autocomplete_min_length: 3, autocomplete_mode: "search"]
+      = textarea f, :spoilered_complex_str, class: "input input--wide", autocapitalize: "none", autocomplete: "off", data: [autocomplete: "multi-tags"]
       br
       = error_tag f, :spoilered_complex_str
     .fieldlabel
@@ -51,7 +51,7 @@
     .field
       = label f, :hidden_complex_str, "Complex Hide Filter"
       br
-      = textarea f, :hidden_complex_str, class: "input input--wide",  autocapitalize: "none", data: [autocomplete: "true", autocomplete_min_length: 3, autocomplete_mode: "search"]
+      = textarea f, :hidden_complex_str, class: "input input--wide", autocapitalize: "none", autocomplete: "off", data: [autocomplete: "multi-tags"]
       br
       = error_tag f, :hidden_complex_str
     .fieldlabel

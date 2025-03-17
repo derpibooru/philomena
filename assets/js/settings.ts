@@ -3,7 +3,7 @@
  */
 
 import { assertNotNull, assertNotUndefined } from './utils/assert';
-import { $, $$ } from './utils/dom';
+import { $, $$, hideIf } from './utils/dom';
 import store from './utils/store';
 
 function setupThemeSettings() {
@@ -28,17 +28,34 @@ function setupThemeSettings() {
   themeColorSelect.addEventListener('change', themePreviewCallback);
 }
 
+function setupAutocompleteSettings() {
+  const autocompleteSettings = assertNotNull($<HTMLElement>('.autocomplete-settings'));
+  const autocompleteSearchHistorySettings = assertNotNull($<HTMLElement>('.autocomplete-search-history-settings'));
+  const enableSearchAutocomplete = assertNotNull($<HTMLInputElement>('#user_enable_search_ac'));
+  const userSearchHistoryHidden = assertNotNull($<HTMLInputElement>('#user_autocomplete_search_history_hidden'));
+
+  // Don't show search history settings if autocomplete is entirely disabled.
+  enableSearchAutocomplete.addEventListener('change', () => {
+    hideIf(!enableSearchAutocomplete.checked, autocompleteSettings);
+  });
+
+  userSearchHistoryHidden.addEventListener('change', () => {
+    hideIf(userSearchHistoryHidden.checked, autocompleteSearchHistorySettings);
+  });
+}
+
 export function setupSettings() {
   if (!$('#js-setting-table')) return;
 
-  const localCheckboxes = $$<HTMLInputElement>('[data-tab="local"] input[type="checkbox"]');
-
   // Local settings
-  localCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      store.set(checkbox.id.replace('user_', ''), checkbox.checked);
+  for (const input of $$<HTMLInputElement>('[data-tab="local"] input')) {
+    input.addEventListener('change', () => {
+      const newValue = input.type === 'checkbox' ? input.checked : input.value;
+
+      store.set(input.id.replace('user_', ''), newValue);
     });
-  });
+  }
 
   setupThemeSettings();
+  setupAutocompleteSettings();
 }

@@ -14,6 +14,7 @@ import {
   findFirstTextNode,
   disableEl,
   enableEl,
+  hideIf,
 } from '../dom';
 import { getRandomArrayItem, getRandomIntBetween } from '../../../test/randomness';
 import { fireEvent } from '@testing-library/dom';
@@ -442,6 +443,20 @@ describe('DOM Utilities', () => {
 
       const result: Node = findFirstTextNode(mockNode);
       expect(result).toBe(undefined);
+    });
+  });
+
+  describe('hideIf', () => {
+    it('should add "hidden" class if condition is true', () => {
+      const element = document.createElement('div');
+      hideIf(true, element);
+      expect(element).toHaveClass('hidden');
+    });
+    it('should remove "hidden" class if condition is false', () => {
+      const element = document.createElement('div');
+      element.classList.add('hidden');
+      hideIf(false, element);
+      expect(element).not.toHaveClass('hidden');
     });
   });
 });
