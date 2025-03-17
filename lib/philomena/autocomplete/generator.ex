@@ -5,6 +5,9 @@ defmodule Philomena.Autocomplete.Generator do
   See assets/js/utils/local-autocompleter.ts for how this should be used.
   The file follows the following binary format:
 
+      // Note that all pointer types (`struct T*`) are all relative to the binary payload start.
+
+      // Variable-length struct.
       struct tag {
         // Full name of the tag in UTF8.
         uint8_t name_length;
@@ -15,23 +18,28 @@ defmodule Philomena.Autocomplete.Generator do
         uint32_t associations[];
       };
 
+      // Fixed-length struct.
       struct tag_reference {
-        // Index of the tag in the `tags` array
-        uint32_t tag_location;
+        // 32 bit pointer to a tag in the `tags` array
+        struct tag* tag;
 
         // If >=0 then this tag is canonical and the `meta` is the number of images with this tag
         //
-        // If <0 then this is the index of the canonical tag aliased by this one
-        // in the `primary_references` array
+        // If <0 then do the following calculation: `-meta - 1` and you'll get a 32 bit pointer
+        // `struct tag_reference*` to the canonical tag aliased by this one in the `primary_references` array
         int32_t meta;
       };
 
+      // Fixed-length struct.
       struct secondary_reference {
-        // Index of the tag in the `tags` array
-        uint32_t primary_location;
+        // Index of the `tag_reference` in the `primary_references` array
+        uint32_t primary_reference_index;
       };
 
+      // Variable-length struct.
       struct autocomplete_file {
+        // Array of variable-length structs, so any references to the items in
+        // this array must be direct pointers instead of item indexes.
         struct tag tags[];
 
         // List of canonical/alias tags references with their respective metadata
@@ -42,8 +50,8 @@ defmodule Philomena.Autocomplete.Generator do
 
         uint32_t format_version;
 
-        // Byte index of the `tag_reference` array start
-        uint32_t reference_start;
+        // 32 bit pointer to the `primary_references` array start
+        struct tag_reference* primary_references_start;
 
         // Length of the `tags` array.
         uint32_t num_tags;
