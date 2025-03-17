@@ -51,6 +51,10 @@ export type TagSuggestion = CanonicalTagSuggestion | AliasTagSuggestion;
  * contains the `prefix` after the namespace separator.
  */
 export function prefixMatchParts(target: string, prefix: string): MatchPart[] {
+  return prefixMatchPartsImpl(target, prefix).filter(part => typeof part !== 'string' || part.length > 0);
+}
+
+function prefixMatchPartsImpl(target: string, prefix: string): MatchPart[] {
   const targetLower = target.toLowerCase();
   const prefixLower = prefix.toLowerCase();
 

@@ -34,4 +34,30 @@ describe('prefixMatchParts', () => {
       ]
     `);
   });
+
+  it(`should ignore case when matching`, () => {
+    expect(prefixMatchParts('FOObar', 'foo')).toMatchInlineSnapshot(`
+      [
+        {
+          "matched": "FOO",
+        },
+        "bar",
+      ]
+    `);
+  });
+
+  it(`should skip empty parts`, () => {
+    expect(prefixMatchParts('foo', 'foo')).toMatchInlineSnapshot(`
+      [
+        {
+          "matched": "foo",
+        },
+      ]
+    `);
+    expect(prefixMatchParts('foo', 'bar')).toMatchInlineSnapshot(`
+      [
+        "foo",
+      ]
+    `);
+  });
 });
