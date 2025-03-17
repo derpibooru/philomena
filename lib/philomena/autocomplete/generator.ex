@@ -25,7 +25,7 @@ defmodule Philomena.Autocomplete.Generator do
 
         // If >=0 then this tag is canonical and the `meta` is the number of images with this tag
         //
-        // If <0 then the following calculation: `-meta - 1` and will give the index
+        // If <0 then `-meta - 1` (to allow 0 as a possibility for the target) will give the index
         // of a `tag_reference` for the canonical tag aliased by this one
         // in the `primary_references` array
         int32_t meta;
