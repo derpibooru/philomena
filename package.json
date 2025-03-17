@@ -1,7 +1,6 @@
 {
   "scripts": {
-    "fmt": "prettier --write .",
-    "fmt-check": "prettier --check ."
+    "fmt": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "^3.5.3"
