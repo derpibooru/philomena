@@ -6,31 +6,46 @@ defmodule Philomena.Autocomplete.Generator do
   The file follows the following binary format:
 
       struct tag {
-        uint8_t key_length;
-        uint8_t key[];
-        uint8_t association_length;
+        // Full name of the tag in UTF8.
+        uint8_t name_length;
+        uint8_t name[];
+
+        // List of IDs of other tags that appear on the same images in >50% of cases
+        uint8_t associations_length;
         uint32_t associations[];
       };
 
       struct tag_reference {
+        // Index of the tag in the `tags` array
         uint32_t tag_location;
-        union {
-          int32_t raw;
-          uint32_t num_uses;    ///< when positive
-          uint32_t alias_index; ///< when negative, -alias_index - 1
-        };
+
+        // If >=0 then this tag is canonical and the `meta` is the number of images with this tag
+        //
+        // If <0 then this is the index of the canonical tag aliased by this one
+        // in the `primary_references` array
+        int32_t meta;
       };
 
       struct secondary_reference {
+        // Index of the tag in the `tags` array
         uint32_t primary_location;
       };
 
       struct autocomplete_file {
         struct tag tags[];
+
+        // List of canonical/alias tags references with their respective metadata
         struct tag_reference primary_references[];
+
+        // List of references to tags sorted by tag name discarding the namespace
         struct secondary_reference secondary_references[];
+
         uint32_t format_version;
+
+        // Byte index of the `tag_reference` array start
         uint32_t reference_start;
+
+        // Length of the `tags` array.
         uint32_t num_tags;
       };
 
