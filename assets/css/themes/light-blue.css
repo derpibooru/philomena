@@ -44,6 +44,8 @@ $commission-category-color: #986f3d;
 $image-overlay-color: #ffffff;
 $image-overlay-background-color: #000000;
 
+$autocomplete-history-color: #419cd9;
+
 @mixin light-theme-mutations;
 
 /* Put any color variable overrides here.

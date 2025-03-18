@@ -60,7 +60,9 @@ export class TagSuggestionComponent {
     // groups of 3 digits.
     const formatter = new Intl.NumberFormat('fr', { useGrouping: true });
 
-    return formatter.format(count);
+    // Normalize the whispace with a `.replace()`. We'll use CSS to guarantee
+    // a smaller spacing between the groups of digits.
+    return formatter.format(count).replace(/\s/g, ' ');
   }
 }
 
