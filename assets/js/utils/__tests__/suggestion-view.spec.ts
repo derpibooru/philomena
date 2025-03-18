@@ -225,25 +225,25 @@ describe('Suggestions', () => {
       `);
       expectTagRender({ canonical: ['safe'], images: 10_000 }).toMatchInlineSnapshot(`
         {
-          "label": " safe  10 000",
+          "label": " safe  10 000",
           "value": "safe",
         }
       `);
       expectTagRender({ canonical: ['safe'], images: 100_000 }).toMatchInlineSnapshot(`
         {
-          "label": " safe  100 000",
+          "label": " safe  100 000",
           "value": "safe",
         }
       `);
       expectTagRender({ canonical: ['safe'], images: 1000_000 }).toMatchInlineSnapshot(`
         {
-          "label": " safe  1 000 000",
+          "label": " safe  1 000 000",
           "value": "safe",
         }
       `);
       expectTagRender({ canonical: ['safe'], images: 10_000_000 }).toMatchInlineSnapshot(`
         {
-          "label": " safe  10 000 000",
+          "label": " safe  10 000 000",
           "value": "safe",
         }
       `);
