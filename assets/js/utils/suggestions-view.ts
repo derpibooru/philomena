@@ -321,6 +321,13 @@ export class SuggestionsPopupComponent {
   }
 
   showForElement(targetElement: HTMLElement) {
+    if (this.items.length === 0) {
+      // Hide the popup because there are no suggestions to show. We have to do it
+      // explicitly, because a border is still rendered even for an empty popup.
+      this.hide();
+      return;
+    }
+
     this.container.style.position = 'absolute';
     this.container.style.left = `${targetElement.offsetLeft}px`;
 
