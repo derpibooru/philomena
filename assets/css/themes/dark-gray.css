@@ -60,6 +60,8 @@ $site-notice-color: #38385a;
 $image-overlay-color: #ffffff;
 $image-overlay-background-color: #000000;
 
+$autocomplete-history-color: #9baab5;
+
 @mixin dark-theme-mutations;
 
 /* Put any color variable overrides here.

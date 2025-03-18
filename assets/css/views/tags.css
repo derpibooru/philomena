@@ -33,8 +33,15 @@
   user-select: none;
   white-space: nowrap;
   z-index: 999;
-  font-family: var(--font-family-monospace);
-  background: var(--background-color);
+
+  /*
+    'Courier New', which is the most widespread default monospace font is
+    less readable with the default font weight. So we make it bold.
+    Uncomment 'Courier New' below to test it.
+  */
+  font-weight: bold;
+  font-family: /* "Courier New", */ "Consolas", "Droid Sans Mono", "Noto Sans Mono", monospace;
+  background: var(--autocomplete-background);
 
   /* Borders */
   border-style: solid;
@@ -81,34 +88,31 @@
 }
 
 .autocomplete__item__history__match {
-  font-weight: bold;
-
-  /* Use a lighter color to highlight the matched part of the query */
   color: var(--autocomplete-history-match-color);
 }
 
 .autocomplete__item__tag__match {
-  font-weight: bold;
-}
-
-.autocomplete__item__tag__match:not(.autocomplete__item--selected) {
-  /* Use a lighter color to highlight the matched part of the query */
   color: var(--autocomplete-tag-match-color);
 }
 
 .autocomplete__item__tag__count {
   color: var(--autocomplete-tag-count-color);
+
+  /*
+    Reduce the space size between groups of 3 digits in big numbers like "1 000 000".
+    This way the number is more compact and easier to read.
+  */
+  word-spacing: -3px;
 }
 
 .autocomplete__item:hover:not(.autocomplete__item--selected) {
-  background: var(--autocomplete-match-selected-color);
+  background: var(--autocomplete-hover-background);
 }
 
 .autocomplete__item--selected,
 .autocomplete__item--selected .autocomplete__item__history__match,
 .autocomplete__item--selected .autocomplete__item__tag__match {
-  background: var(--foreground-color);
-  color: var(--background-color);
+  background: var(--autocomplete-selected-background);
 }
 
 /* Tags */
