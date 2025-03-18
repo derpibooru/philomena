@@ -41,7 +41,6 @@
   */
   font-weight: bold;
   font-family: /* "Courier New", */ "Consolas", "Droid Sans Mono", "Noto Sans Mono", monospace;
-
   background: var(--autocomplete-background);
 
   /* Borders */
