@@ -2,13 +2,14 @@ import { LocalAutocompleter } from '../utils/local-autocompleter';
 import * as history from './history';
 import { AutocompletableInput, TextInputElement } from './input';
 import {
-  SuggestionsPopup,
+  SuggestionsPopupComponent,
   Suggestions,
-  TagSuggestion,
+  TagSuggestionComponent,
   Suggestion,
-  HistorySuggestion,
+  HistorySuggestionComponent,
   ItemSelectedEvent,
-} from '../utils/suggestions';
+} from '../utils/suggestions-view';
+import { prefixMatchParts } from '../utils/suggestions-model';
 import { $$ } from '../utils/dom';
 import { AutocompleteClient, GetTagSuggestionsRequest } from './client';
 import { DebouncedCache } from '../utils/debounced-cache';
@@ -33,7 +34,7 @@ function readHistoryConfig() {
 class Autocomplete {
   index: null | 'fetching' | 'unavailable' | LocalAutocompleter = null;
   input: AutocompletableInput | null = null;
-  popup = new SuggestionsPopup();
+  popup = new SuggestionsPopupComponent();
   client = new AutocompleteClient();
   serverSideTagSuggestions = new DebouncedCache(this.client.getTagSuggestions.bind(this.client));
 
@@ -120,7 +121,7 @@ class Autocomplete {
 
     suggestions.tags = this.index
       .matchPrefix(activeTerm, input.maxSuggestions - suggestions.history.length)
-      .map(result => new TagSuggestion({ ...result, matchLength: activeTerm.length }));
+      .map(suggestion => new TagSuggestionComponent(suggestion));
 
     // Used for debugging server-side completions, to ensure local autocomplete
     // doesn't prevent sever-side completions from being shown. Use these console
@@ -146,7 +147,11 @@ class Autocomplete {
     this.scheduleServerSideSuggestions(activeTerm, suggestions.history);
   }
 
-  scheduleServerSideSuggestions(this: ActiveAutocomplete, term: string, historySuggestions: HistorySuggestion[]) {
+  scheduleServerSideSuggestions(
+    this: ActiveAutocomplete,
+    term: string,
+    historySuggestions: HistorySuggestionComponent[],
+  ) {
     const request: GetTagSuggestionsRequest = {
       term,
 
@@ -165,13 +170,25 @@ class Autocomplete {
       // Truncate the suggestions to the leftover space shared with history suggestions.
       const maxTags = this.input.maxSuggestions - historySuggestions.length;
 
-      const tags = response.suggestions.slice(0, maxTags).map(
-        suggestion =>
-          new TagSuggestion({
-            ...suggestion,
-            matchLength: term.length,
-          }),
-      );
+      const tags = response.suggestions.slice(0, maxTags).map(suggestion => {
+        // Convert the server-side suggestions into the UI components.
+        // We are inferring the match parts assuming it's a prefix match here
+        // on frontend but best would be if backend would return the match parts
+        // directly.
+
+        if (suggestion.alias) {
+          return new TagSuggestionComponent({
+            alias: prefixMatchParts(suggestion.alias, term),
+            canonical: suggestion.canonical,
+            images: suggestion.images,
+          });
+        }
+
+        return new TagSuggestionComponent({
+          canonical: prefixMatchParts(suggestion.canonical, term),
+          images: suggestion.images,
+        });
+      });
 
       this.showSuggestions({
         history: historySuggestions,
@@ -310,7 +327,7 @@ class Autocomplete {
 
     this.input.element.dispatchEvent(newEvent);
 
-    if (ctrlKey || (suggestion instanceof HistorySuggestion && !shiftKey)) {
+    if (ctrlKey || (suggestion instanceof HistorySuggestionComponent && !shiftKey)) {
       // We use `requestSubmit()` instead of `submit()` because it triggers the
       // 'submit' event on the form. We have a handler subscribed to that event
       // that records the input's value for history tracking.
@@ -334,7 +351,7 @@ class Autocomplete {
 
     const value = suggestion.value();
 
-    if (!activeTerm || suggestion instanceof HistorySuggestion) {
+    if (!activeTerm || suggestion instanceof HistorySuggestionComponent) {
       element.value = value;
       return;
     }
