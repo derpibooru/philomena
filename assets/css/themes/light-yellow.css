@@ -41,7 +41,7 @@ $commission-category-color: #986f3d;
 $image-overlay-color: #ffffff;
 $image-overlay-background-color: #000000;
 
-$autocomplete-history-color:rgb(142, 126, 6);
+$autocomplete-history-color: #8e7e06;
 
 @mixin light-theme-mutations;
 
