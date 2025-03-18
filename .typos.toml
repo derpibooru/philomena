@@ -5,6 +5,9 @@ extend-ignore-re = [
   ".*secret_key_base.*",
 
   # Key constraints with encoded names
-  "fk_rails_[a-f0-9]+"
-]
+  "fk_rails_[a-f0-9]+",
 
+  # Often used in tests as a partial match for `foo`
+  "fo",
+  "FO",
+]

@@ -1,24 +1,7 @@
 // Client-side tag completion.
 import { UniqueHeap } from './unique-heap';
 import store from './store';
-
-export interface Result {
-  /**
-   * If present, then this suggestion is for a tag alias.
-   * If absent, then this suggestion is for the `canonical` tag name.
-   */
-  alias?: null | string;
-
-  /**
-   * The canonical name of the tag (non-alias).
-   */
-  canonical: string;
-
-  /**
-   * Number of images tagged with this tag.
-   */
-  images: number;
-}
+import { prefixMatchParts, TagSuggestion } from './suggestions-model';
 
 /**
  * Opaque, unique pointer to tag data.
@@ -186,7 +169,8 @@ export class LocalAutocompleter {
   }
 
   /**
-   * Perform a binary search to fetch all results matching a condition.
+   * Perform a binary search with a subsequent forward scan to fetch all results
+   * matching a `compare` condition.
    */
   private scanResults(
     getResult: (i: number) => TagReferenceIndex,
@@ -234,7 +218,7 @@ export class LocalAutocompleter {
   /**
    * Find the top K results by image count which match the given string prefix.
    */
-  matchPrefix(prefixStr: string, k: number): Result[] {
+  matchPrefix(prefixStr: string, k: number): TagSuggestion[] {
     if (prefixStr.length === 0) {
       return [];
     }
@@ -268,16 +252,20 @@ export class LocalAutocompleter {
     return results.topK(k).map((i: TagReferenceIndex) => {
       const alias = this.decoder.decode(this.referenceToName(i, false));
       const canonical = this.decoder.decode(this.referenceToName(i));
-      const result: Result = {
-        canonical,
-        images: this.getImageCount(i),
-      };
+      const images = this.getImageCount(i);
 
-      if (alias !== canonical) {
-        result.alias = alias;
+      if (alias === canonical) {
+        return {
+          canonical: prefixMatchParts(canonical, prefixStr),
+          images,
+        };
       }
 
-      return result;
+      return {
+        alias: prefixMatchParts(alias, prefixStr),
+        canonical,
+        images,
+      };
     });
   }
 }

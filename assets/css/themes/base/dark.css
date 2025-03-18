@@ -66,7 +66,9 @@
     --block-header-link-text-hover-color: hsl(from $block-header-link-text-color calc(h + 6) calc(s - 20) calc(l - 3));
 
     --block-header-light-hover-color: hsl(from $block-header-light-color calc(h - 4) calc(s + 10) calc(l - 4));
-    --block-header-light-link-text-hover-color: hsl(from $block-header-light-link-text-color calc(h + 8) calc(s - 10) calc(l - 2));
+    --block-header-light-link-text-hover-color: hsl(
+      from $block-header-light-link-text-color calc(h + 8) calc(s - 10) calc(l - 2)
+    );
 
     --media-box-hover-color: hsl(from $media-box-color h s calc(l - 4));
     --media-box-header-link-text-hover-color: hsl(from $link-color h calc(s - 18) calc(l - 3));
@@ -121,7 +123,9 @@
     --tag-category-error-border: hsl(from $tag-category-error-color h s calc(l - 22));
     --tag-category-character-background: hsl(from $tag-category-character-color h s calc(l - 33));
     --tag-category-character-border: hsl(from $tag-category-character-color h s calc(l - 20));
-    --tag-category-content-official-background: hsl(from $tag-category-content-official-color h calc(s - 2) calc(l - 29));
+    --tag-category-content-official-background: hsl(
+      from $tag-category-content-official-color h calc(s - 2) calc(l - 29)
+    );
     --tag-category-content-official-border: hsl(from $tag-category-content-official-color h s calc(l - 20));
     --tag-category-content-fanmade-background: hsl(from $tag-category-content-fanmade-color h s calc(l - 40));
     --tag-category-content-fanmade-border: hsl(from $tag-category-content-fanmade-color h calc(s - 10) calc(l - 20));
@@ -166,13 +170,16 @@
     --poll-form-label-background: hsl(from $border-color h s calc(l + 8));
     --tag-dropdown-hover-background: hsl(from $meta-color h s calc(l - 4));
 
-    --autocomplete-history-color: var(--block-header-link-text-color);
-    --autocomplete-history-match-color: hsl(from var(--block-header-link-text-color) h s calc(l + 20));
+    --autocomplete-background: var(--background-color);
 
-    --autocomplete-tag-color: hsl(from var(--foreground-color) h s calc(l - 5));
-    --autocomplete-tag-match-color: hsl(from var(--foreground-color) h s calc(l + 20));
+    --autocomplete-history-color: $autocomplete-history-color;
+    --autocomplete-history-match-color: hsl(from $autocomplete-history-color h s calc(l + 20));
+
+    --autocomplete-tag-color: hsl(from $foreground-color h s calc(l - 5));
+    --autocomplete-tag-match-color: hsl(from $foreground-color h s calc(l + 20));
     --autocomplete-tag-count-color: var(--foreground-half-color);
 
-    --autocomplete-match-selected-color: hsl(from var(--background-color) h s calc(l + 10));
+    --autocomplete-hover-background: hsl(from $page-background-color h s calc(l + 13));
+    --autocomplete-selected-background: hsl(from $page-background-color h s calc(l + 18));
   }
 }

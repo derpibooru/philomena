@@ -1,4 +1,4 @@
-import { HistorySuggestion } from '../../utils/suggestions';
+import { HistorySuggestionComponent } from '../../utils/suggestions-view';
 import { InputHistory } from './history';
 import { HistoryStore } from './store';
 import { AutocompletableInput } from '../input';
@@ -60,7 +60,7 @@ export function listen() {
  * specified as an argument, it will return the maximum number of suggestions
  * allowed by the input.
  */
-export function listSuggestions(input: AutocompletableInput, limit?: number): HistorySuggestion[] {
+export function listSuggestions(input: AutocompletableInput, limit?: number): HistorySuggestionComponent[] {
   if (!input.hasHistory()) {
     return [];
   }
@@ -70,5 +70,5 @@ export function listSuggestions(input: AutocompletableInput, limit?: number): Hi
   return histories
     .load(input.historyId)
     .listSuggestions(value, limit ?? input.maxSuggestions)
-    .map(content => new HistorySuggestion(content, value.length));
+    .map(content => new HistorySuggestionComponent(content, value.length));
 }

@@ -2,6 +2,7 @@ import { LocalAutocompleter } from '../local-autocompleter';
 import { promises } from 'fs';
 import { join } from 'path';
 import { TextDecoder } from 'util';
+import { MatchPart } from 'utils/suggestions-model';
 
 describe('LocalAutocompleter', () => {
   let mockData: ArrayBuffer;
@@ -49,9 +50,16 @@ describe('LocalAutocompleter', () => {
     function expectLocalAutocomplete(term: string, topK = 5) {
       const localAutocomplete = new LocalAutocompleter(mockData);
       const results = localAutocomplete.matchPrefix(term, topK);
+
+      const joinMatchParts = (parts: MatchPart[]) =>
+        parts.map(part => (typeof part === 'string' ? part : `{${part.matched}}`)).join('');
+
       const actual = results.map(result => {
-        const canonical = `${result.canonical} (${result.images})`;
-        return result.alias ? `${result.alias} -> ${canonical}` : canonical;
+        if (result.alias) {
+          return `${joinMatchParts(result.alias)} -> ${result.canonical} (${result.images})`;
+        }
+
+        return `${joinMatchParts(result.canonical)} (${result.images})`;
       });
 
       return expect(actual);
@@ -64,7 +72,7 @@ describe('LocalAutocompleter', () => {
     it('should return suggestions for exact tag name match', () => {
       expectLocalAutocomplete('safe').toMatchInlineSnapshot(`
         [
-          "safe (6)",
+          "{safe} (6)",
         ]
       `);
     });
@@ -72,7 +80,7 @@ describe('LocalAutocompleter', () => {
     it('should return suggestion for an alias', () => {
       expectLocalAutocomplete('flowers').toMatchInlineSnapshot(`
         [
-          "flowers -> flower (1)",
+          "{flowers} -> flower (1)",
         ]
       `);
     });
@@ -80,7 +88,7 @@ describe('LocalAutocompleter', () => {
     it('should prefer canonical tag over an alias when both match', () => {
       expectLocalAutocomplete('flo').toMatchInlineSnapshot(`
         [
-          "flower (1)",
+          "{flo}wer (1)",
         ]
       `);
     });
@@ -88,9 +96,9 @@ describe('LocalAutocompleter', () => {
     it('should return suggestions sorted by image count', () => {
       expectLocalAutocomplete(termStem).toMatchInlineSnapshot(`
         [
-          "forest (3)",
-          "fog (1)",
-          "force field (1)",
+          "{fo}rest (3)",
+          "{fo}g (1)",
+          "{fo}rce field (1)",
         ]
       `);
     });
@@ -98,7 +106,7 @@ describe('LocalAutocompleter', () => {
     it('should return namespaced suggestions without including namespace', () => {
       expectLocalAutocomplete('test').toMatchInlineSnapshot(`
         [
-          "artist:test (1)",
+          "artist:{test} (1)",
         ]
       `);
     });
@@ -106,7 +114,7 @@ describe('LocalAutocompleter', () => {
     it('should return only the required number of suggestions', () => {
       expectLocalAutocomplete(termStem, 1).toMatchInlineSnapshot(`
         [
-          "forest (3)",
+          "{fo}rest (3)",
         ]
       `);
     });
