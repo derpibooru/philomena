@@ -215,8 +215,6 @@ describe('Suggestions', () => {
 
   describe('TagSuggestion', () => {
     it('should format suggested tags as tag name and the count', () => {
-      // The snapshots in this test contain a "narrow no-break space"
-      /* eslint-disable no-irregular-whitespace */
       expectTagRender({ canonical: ['safe'], images: 10 }).toMatchInlineSnapshot(`
         {
           "label": " safe  10",
