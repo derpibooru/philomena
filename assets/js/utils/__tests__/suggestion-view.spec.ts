@@ -247,7 +247,6 @@ describe('Suggestions', () => {
           "value": "safe",
         }
       `);
-      /* eslint-enable no-irregular-whitespace */
     });
 
     it('should display alias -> canonical for aliased tags', () => {
