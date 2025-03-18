@@ -19,7 +19,7 @@ regex = "1"
 ring = "0.17"
 rustler = "0.35"
 url = "2.5"
-zip = { version = "2.2.0", features = ["deflate"], default-features = false }
+zip = { version = "2.3.0", features = ["deflate"], default-features = false }
 
 [profile.release]
 opt-level = 3
