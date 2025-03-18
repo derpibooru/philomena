@@ -40,7 +40,7 @@
     Uncomment 'Courier New' below to test it.
   */
   font-weight: bold;
-  font-family: /* "Courier New", */ "Consolas", "Droid Sans Mono", "Noto Sans Mono", monospace;
+  font-family: /* "Courier New" */ "Consolas", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", monospace;
   background: var(--autocomplete-background);
 
   /* Borders */
