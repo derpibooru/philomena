@@ -70,10 +70,8 @@ export function setupBurgerMenu() {
       return;
     }
 
-    if (content.contains(event.target)) {
-      if (content.classList.contains('open')) {
-        close(burger, content, body, root);
-      }
+    if (content.contains(event.target) && content.classList.contains('open')) {
+      close(burger, content, body, root);
     }
   });
 }
