@@ -1,4 +1,4 @@
-import { init } from './context';
+import { init } from '../context';
 
 it('requests server-side autocomplete if local autocomplete returns no results', async () => {
   const ctx = await init();

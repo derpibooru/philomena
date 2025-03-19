@@ -294,7 +294,7 @@ export default tsEslint.config(
         'error',
         {
           // Custom `expectStuff()` functions must also count as assertions.
-          assertFunctionNames: ['expect*', '*.expect*'],
+          assertFunctionNames: ['expect*', '*.expect*', 'assert*'],
         },
       ],
     },
