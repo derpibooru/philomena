@@ -229,9 +229,14 @@ class Autocomplete {
       // We use this method instead of the `focusout` event because this way it's
       // easier to work in the developer tools when you want to inspect the element.
       // When you inspect it, a `focusout` happens.
-      this.popup.hide();
+      this.hidePopup('The user clicked away');
       this.input = null;
     }
+  }
+
+  hidePopup(reason: string) {
+    this.serverSideTagSuggestions.abortLastSchedule(`[Autocomplete] Popup was hidden. ${reason}`);
+    this.popup.hide();
   }
 
   onKeyDown(event: KeyboardEvent) {
@@ -239,8 +244,8 @@ class Autocomplete {
       return;
     }
     if ((event.key === ',' || event.code === 'Enter') && this.input.type === 'single-tag') {
-      // Coma means the end of input for the current tag in single-tag mode.
-      this.popup.hide();
+      // Comma/Enter mean the end of input for the current tag in single-tag mode.
+      this.hidePopup(`User accepted the existing input via key: '${event.key}', code: '${event.code}'`);
       return;
     }
 
@@ -265,7 +270,7 @@ class Autocomplete {
         return;
       }
       case 'Escape': {
-        this.popup.hide();
+        this.hidePopup('User pressed "Escape"');
         return;
       }
       case 'ArrowLeft':
@@ -340,7 +345,14 @@ class Autocomplete {
     // brief moment of silence for the user without the popup before they type
     // something else, otherwise we'd show some more completions for the current term.
     this.input.element.focus();
-    this.popup.hide();
+
+    // Technically no server-side suggestion request can be in flight at this point.
+    // If the user managed to accept a suggestion, it means the user already got
+    // presented with the results of auto-completions, so there is nothing in-flight.
+    //
+    // Although, we don't make this a hard assertion just in case, to make sure this
+    // code is tolerant to any bugs in the described assumption.
+    this.hidePopup('The user accepted the existing suggestion');
   }
 
   updateInputWithSelectedValue(this: ActiveAutocomplete, suggestion: Suggestion) {
