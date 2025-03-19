@@ -53,20 +53,27 @@ export function setupBurgerMenu() {
 
   copyUserLinksTo(burger);
 
-  toggle.addEventListener('click', event => {
-    event.stopPropagation();
-    event.preventDefault();
-
-    if (content.classList.contains('open')) {
-      close(burger, content, body, root);
-    } else {
-      open(burger, content, body, root);
+  document.addEventListener('click', event => {
+    if (!(event.target instanceof Node)) {
+      return;
     }
-  });
 
-  content.addEventListener('click', () => {
-    if (content.classList.contains('open')) {
-      close(burger, content, body, root);
+    if (toggle.contains(event.target)) {
+      event.preventDefault();
+
+      if (content.classList.contains('open')) {
+        close(burger, content, body, root);
+      } else {
+        open(burger, content, body, root);
+      }
+
+      return;
+    }
+
+    if (content.contains(event.target)) {
+      if (content.classList.contains('open')) {
+        close(burger, content, body, root);
+      }
     }
   });
 }
