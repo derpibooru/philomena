@@ -61,7 +61,16 @@ describe('Suggestions', () => {
       [popup, input] = mockBaseSuggestionsPopup();
 
       expect(document.querySelector('.autocomplete')).toBeInstanceOf(HTMLElement);
-      expect(popup.isHidden).toBe(false);
+      assert(popup.isHidden);
+    });
+
+    it('should hide the popup when there are no suggestions to show', () => {
+      [popup, input] = mockBaseSuggestionsPopup();
+
+      popup.setSuggestions({ history: [], tags: [] });
+      popup.showForElement(input);
+
+      assert(popup.isHidden);
     });
 
     it('should render suggestions', () => {
