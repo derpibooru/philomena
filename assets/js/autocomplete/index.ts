@@ -245,7 +245,7 @@ class Autocomplete {
     }
     if ((event.key === ',' || event.code === 'Enter') && this.input.type === 'single-tag') {
       // Comma/Enter mean the end of input for the current tag in single-tag mode.
-      this.hidePopup(`User accepted the existing input via key: '${event.key}', code: '${event.code}'`);
+      this.hidePopup(`The user accepted the existing input via key: '${event.key}', code: '${event.code}'`);
       return;
     }
 
