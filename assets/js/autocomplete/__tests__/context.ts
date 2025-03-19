@@ -6,7 +6,7 @@ import { fireEvent } from '@testing-library/dom';
 import { assertNotNull } from '../../utils/assert';
 import { TextInputElement } from '../input';
 import store from '../../utils/store';
-import { GetTagSuggestionsResponse } from 'autocomplete/client';
+import { GetTagSuggestionsResponse, TagSuggestion } from 'autocomplete/client';
 
 /**
  * A reusable test environment for autocompletion tests. Note that it does no
@@ -44,27 +44,30 @@ export class TestContext {
       }
 
       const url = new URL(request.url);
-      if (url.searchParams.get('term')?.toLowerCase() !== 'mar') {
-        const suggestions: GetTagSuggestionsResponse = { suggestions: [] };
-        return JSON.stringify(suggestions);
-      }
+      const term = url.searchParams.get('term');
+
+      const termLower = assertNotNull(term).toLowerCase();
+
+      const fakeSuggestions: TagSuggestion[] = [
+        {
+          alias: 'marvelous',
+          canonical: 'beautiful',
+          images: 30,
+        },
+        {
+          canonical: 'mare',
+          images: 20,
+        },
+        {
+          canonical: 'market',
+          images: 10,
+        },
+      ];
 
       const suggestions: GetTagSuggestionsResponse = {
-        suggestions: [
-          {
-            alias: 'marvelous',
-            canonical: 'beautiful',
-            images: 30,
-          },
-          {
-            canonical: 'mare',
-            images: 20,
-          },
-          {
-            canonical: 'market',
-            images: 10,
-          },
-        ],
+        suggestions: fakeSuggestions.filter(suggestion =>
+          (suggestion.alias || suggestion.canonical).startsWith(termLower),
+        ),
       };
 
       return JSON.stringify(suggestions);
