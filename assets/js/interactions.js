@@ -19,7 +19,13 @@ const endpoints = {
 
 const spoilerDownvoteMsg = 'Neigh! - Remove spoilered tags from your filters to downvote from thumbnails';
 
-/* Quick helper function to less verbosely iterate a QSA */
+/**
+ * Quick helper function to less verbosely iterate a QSA
+ *
+ * @param {string} id
+ * @param {string} selector
+ * @param {(node: HTMLElement) => void} cb
+ */
 function onImage(id, selector, cb) {
   [].forEach.call(document.querySelectorAll(`${selector}[data-image-id="${id}"]`), cb);
 }
@@ -145,14 +151,6 @@ function loadInteractions() {
 
       icon.setAttribute('title', spoilerDownvoteMsg);
       a.classList.add('disabled');
-      a.addEventListener(
-        'click',
-        event => {
-          event.stopPropagation();
-          event.preventDefault();
-        },
-        true,
-      );
     });
   });
 }
@@ -163,6 +161,10 @@ const targets = {
     interact('vote', imageId, 'DELETE').then(() => resetVoted(imageId));
   },
   '.interaction--downvote.active'(imageId) {
+    if (window.booru.imagesWithDownvotingDisabled.includes(imageId)) {
+      return;
+    }
+
     interact('vote', imageId, 'DELETE').then(() => resetVoted(imageId));
   },
   '.interaction--fave.active'(imageId) {
@@ -180,6 +182,10 @@ const targets = {
     });
   },
   '.interaction--downvote:not(.active)'(imageId) {
+    if (window.booru.imagesWithDownvotingDisabled.includes(imageId)) {
+      return;
+    }
+
     interact('vote', imageId, 'POST', { up: false }).then(() => {
       resetVoted(imageId);
       showDownvoted(imageId);
