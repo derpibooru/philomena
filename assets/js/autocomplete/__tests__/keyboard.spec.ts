@@ -12,8 +12,8 @@ it('supports navigation via keyboard', async () => {
       "input": "forest<>",
       "suggestions": [
         "👉 forest  3",
-        "fog  1",
         "force field  1",
+        "fog  1",
         "flower  1",
       ],
     }
@@ -23,11 +23,11 @@ it('supports navigation via keyboard', async () => {
 
   ctx.expectUi().toMatchInlineSnapshot(`
     {
-      "input": "fog<>",
+      "input": "force field<>",
       "suggestions": [
         "forest  3",
-        "👉 fog  1",
-        "force field  1",
+        "👉 force field  1",
+        "fog  1",
         "flower  1",
       ],
     }
@@ -40,8 +40,8 @@ it('supports navigation via keyboard', async () => {
       "input": "flower<>",
       "suggestions": [
         "forest  3",
-        "fog  1",
         "force field  1",
+        "fog  1",
         "👉 flower  1",
       ],
     }
@@ -54,8 +54,8 @@ it('supports navigation via keyboard', async () => {
       "input": "forest<>",
       "suggestions": [
         "👉 forest  3",
-        "fog  1",
         "force field  1",
+        "fog  1",
         "flower  1",
       ],
     }
