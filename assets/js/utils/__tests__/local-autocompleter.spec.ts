@@ -54,6 +54,16 @@ describe('LocalAutocompleter', () => {
       const joinMatchParts = (parts: MatchPart[]) =>
         parts.map(part => (typeof part === 'string' ? part : `{${part.matched}}`)).join('');
 
+      // Make sure results are ordered by (images, name)
+      expect(results).toEqual(
+        [...results].sort((a, b) => {
+          return (
+            b.images - a.images ||
+            joinMatchParts(b.alias ?? b.canonical).localeCompare(joinMatchParts(a.alias ?? a.canonical))
+          );
+        }),
+      );
+
       const actual = results.map(result => {
         if (result.alias) {
           return `${joinMatchParts(result.alias)} -> ${result.canonical} (${result.images})`;
@@ -97,8 +107,8 @@ describe('LocalAutocompleter', () => {
       expectLocalAutocomplete(termStem).toMatchInlineSnapshot(`
         [
           "{fo}rest (3)",
-          "{fo}g (1)",
           "{fo}rce field (1)",
+          "{fo}g (1)",
         ]
       `);
     });
