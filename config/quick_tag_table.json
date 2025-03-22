@@ -44,21 +44,8 @@
     "1": "season"
   },
   "Main": {
-    "Ratings": [
-      "safe",
-      "suggestive",
-      "questionable",
-      "explicit",
-      "semi-grimdark",
-      "grimdark",
-      "grotesque"
-    ],
-    "General Spoilers": [
-      "spoiler:comic",
-      "spoiler:g5",
-      "spoiler:pony life",
-      "spoilers for another series"
-    ],
+    "Ratings": ["safe", "suggestive", "questionable", "explicit", "semi-grimdark", "grimdark", "grotesque"],
+    "General Spoilers": ["spoiler:comic", "spoiler:g5", "spoiler:pony life", "spoilers for another series"],
     "Species": [
       "anthro",
       "equestria girls",
@@ -115,160 +102,145 @@
       "timber wolf",
       "windigo"
     ],
-    "Misc": [
-      "original species",
-      "hybrid"
-    ]
+    "Misc": ["original species", "hybrid"]
   },
   "Shorthands A": [
-    ["Mane Cast", [
-      ["m6", "mane six"],
-      ["pt", "princess twilight"],
-      ["ts", "twilight sparkle"],
-      ["rd", "rainbow dash"],
-      ["ry", "rarity"],
-      ["aj", "applejack"],
-      ["fs", "fluttershy"],
-      ["pp", "pinkie pie"],
-      ["sp", "spike"]
-    ]],
-    ["Secondary Cast", [
-      ["cmc", "cutie mark crusaders"],
-      ["ab", "apple bloom"],
-      ["sl", "scootaloo"],
-      ["sb", "sweetie belle"],
-      ["tia", "princess celestia"],
-      ["luna", "princess luna"],
-      ["pcd", "princess cadance"],
-      ["sa", "shining armor"],
-      ["sg", "starlight glimmer"]
-    ]],
-    ["More Ponies", [
-      ["tx", "trixie"],
-      ["sus", "sunset shimmer"],
-      ["sombra", "king sombra"],
-      ["qc", "queen chrysalis"],
-      ["dc", "discord"],
-      ["nmm", "nightmare moon"],
-      ["sf", "spitfire"],
-      ["sn", "soarin'"],
-      ["ld", "lightning dust"]
-    ]],
-    ["More Apples", [
-      ["bm", "big macintosh"],
-      ["gs", "granny smith"],
-      ["bb", "braeburn"],
-      ["bs", "babs seed"]
-    ]],
-    ["Fillies and Colts", [
-      ["ss", "silver spoon"],
-      ["dt", "diamond tiara"],
-      ["pfh", "princess flurry heart"]
-    ]]
+    [
+      "Mane Cast",
+      [
+        ["m6", "mane six"],
+        ["pt", "princess twilight"],
+        ["ts", "twilight sparkle"],
+        ["rd", "rainbow dash"],
+        ["ry", "rarity"],
+        ["aj", "applejack"],
+        ["fs", "fluttershy"],
+        ["pp", "pinkie pie"],
+        ["sp", "spike"]
+      ]
+    ],
+    [
+      "Secondary Cast",
+      [
+        ["cmc", "cutie mark crusaders"],
+        ["ab", "apple bloom"],
+        ["sl", "scootaloo"],
+        ["sb", "sweetie belle"],
+        ["tia", "princess celestia"],
+        ["luna", "princess luna"],
+        ["pcd", "princess cadance"],
+        ["sa", "shining armor"],
+        ["sg", "starlight glimmer"]
+      ]
+    ],
+    [
+      "More Ponies",
+      [
+        ["tx", "trixie"],
+        ["sus", "sunset shimmer"],
+        ["sombra", "king sombra"],
+        ["qc", "queen chrysalis"],
+        ["dc", "discord"],
+        ["nmm", "nightmare moon"],
+        ["sf", "spitfire"],
+        ["sn", "soarin'"],
+        ["ld", "lightning dust"]
+      ]
+    ],
+    [
+      "More Apples",
+      [
+        ["bm", "big macintosh"],
+        ["gs", "granny smith"],
+        ["bb", "braeburn"],
+        ["bs", "babs seed"]
+      ]
+    ],
+    [
+      "Fillies and Colts",
+      [
+        ["ss", "silver spoon"],
+        ["dt", "diamond tiara"],
+        ["pfh", "princess flurry heart"]
+      ]
+    ]
   ],
   "B": [
-    ["Background Ponies", [
-      ["dh", "derpy hooves"],
-      ["dw", "doctor whooves"],
-      ["cgt", "colgate"],
-      ["bon", "bon bon"],
-      ["oct", "octavia melody"],
-      ["dj", "vinyl scratch"],
-      ["bp", "berry punch"],
-      ["pbb", "prince blueblood"]
-    ]],
-    ["Student Six", [
-      ["s6", "student six"],
-      ["ga", "gallus"],
-      ["ols", "ocellus"],
-      ["snb", "sandbar"],
-      ["svs", "silverstream"],
-      ["sm", "smolder"],
-      ["yn", "yona"]
-    ]],
-    ["Uncategorized", [
-      ["maud", "maud pie"],
-      ["coco", "coco pommel"],
-      ["suri", "suri polomare"],
-      ["rg", "royal guard"],
-      ["za", "zecora"],
-      ["mm", "mayor mare"],
-      ["pdp", "pinkamena diane pie"],
-      ["owol", "owlowiscious"],
-      ["opal", "opalescence"]
-    ]],
-    ["Other Things", [
-      ["cm", "cutie mark"],
-      ["eoh", "elements of harmony"],
-      ["nmn", "nightmare night"]
-    ]]
+    [
+      "Background Ponies",
+      [
+        ["dh", "derpy hooves"],
+        ["dw", "doctor whooves"],
+        ["cgt", "colgate"],
+        ["bon", "bon bon"],
+        ["oct", "octavia melody"],
+        ["dj", "vinyl scratch"],
+        ["bp", "berry punch"],
+        ["pbb", "prince blueblood"]
+      ]
+    ],
+    [
+      "Student Six",
+      [
+        ["s6", "student six"],
+        ["ga", "gallus"],
+        ["ols", "ocellus"],
+        ["snb", "sandbar"],
+        ["svs", "silverstream"],
+        ["sm", "smolder"],
+        ["yn", "yona"]
+      ]
+    ],
+    [
+      "Uncategorized",
+      [
+        ["maud", "maud pie"],
+        ["coco", "coco pommel"],
+        ["suri", "suri polomare"],
+        ["rg", "royal guard"],
+        ["za", "zecora"],
+        ["mm", "mayor mare"],
+        ["pdp", "pinkamena diane pie"],
+        ["owol", "owlowiscious"],
+        ["opal", "opalescence"]
+      ]
+    ],
+    [
+      "Other Things",
+      [
+        ["cm", "cutie mark"],
+        ["eoh", "elements of harmony"],
+        ["nmn", "nightmare night"]
+      ]
+    ]
   ],
   "Ships ts": {
-    "implying": [
-      "shipping",
-      "twilight sparkle"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "twilight sparkle"],
+    "not_implying": []
   },
   "rd": {
-    "implying": [
-      "shipping",
-      "rainbow dash"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "rainbow dash"],
+    "not_implying": []
   },
   "ry": {
-    "implying": [
-      "shipping",
-      "rarity"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "rarity"],
+    "not_implying": []
   },
   "aj": {
-    "implying": [
-      "shipping",
-      "applejack"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "applejack"],
+    "not_implying": []
   },
   "fs": {
-    "implying": [
-      "shipping",
-      "fluttershy"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "fluttershy"],
+    "not_implying": []
   },
   "pp": {
-    "implying": [
-      "shipping",
-      "pinkie pie"
-    ],
-    "not_implying": [
-
-    ]
+    "implying": ["shipping", "pinkie pie"],
+    "not_implying": []
   },
   "misc": {
-    "implying": [
-      "shipping"
-    ],
-    "not_implying": [
-      "twilight sparkle",
-      "rainbow dash",
-      "rarity",
-      "applejack",
-      "fluttershy",
-      "pinkie pie"
-    ]
+    "implying": ["shipping"],
+    "not_implying": ["twilight sparkle", "rainbow dash", "rarity", "applejack", "fluttershy", "pinkie pie"]
   },
   "Season 9": [
     ["1-2", "the beginning of the end"],

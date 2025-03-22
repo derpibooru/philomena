@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+#
+# Pre-commit hook to run lightweight checks and auto-format the code. It's designed
+# to be blazingly fast, so it checks only changed files. Run the following command
+# to install this hook for yourself. It's a symlink, to make sure it stays always
+# up-to-date.
+#
+# ```bash
+# ln -s ../../.githooks/pre-commit .git/hooks/pre-commit
+# ```
+
+set -euxo pipefail
+
+function command_exists() {
+  bin_name=$(basename "$1")
+
+  if command -v "$1" &> /dev/null; then
+    printf "\e[0;32m[INFO] Using %s...\e[0m\n" "$bin_name"
+    return 0
+  fi
+
+  printf "\e[0;33m[WARN] %s CLI was not found. Ignoring it...\e[0m\n" "$bin_name" >&2
+  return 1
+}
+
+files=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
+
+if [[ -z "$files" ]]; then
+  echo "No files changed. Exiting the pre-commit hook..."
+  exit 0
+fi
+
+if command_exists typos; then
+  echo "$files" | xargs typos
+fi
+
+if command_exists ./node_modules/.bin/prettier; then
+  echo "$files" | xargs ./node_modules/.bin/prettier --ignore-unknown --write
+fi
+
+if command_exists cargo; then
+  # `rustfmt` doesn't ignore non-rust files automatically
+  rust_files=$(echo "$files" | { grep -E '\.rs$' || true; })
+
+  if [[ -n "$rust_files" ]]; then
+    echo "$rust_files" | xargs cargo fmt --manifest-path native/Cargo.toml --
+  fi
+fi
+
+if command_exists mix; then
+  echo "$files" | xargs mix format --check-formatted
+fi
+
+# Add the modified/prettified files to staging
+echo "$files" | xargs git add
+
+exit 0

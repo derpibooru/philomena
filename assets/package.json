@@ -27,13 +27,9 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.16.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-vitest": "^0.5.4",
-    "prettier": "^3.4.2",
     "stylelint": "^16.11.0",
     "stylelint-config-standard": "^36.0.1",
-    "stylelint-prettier": "^5.0.2",
     "typescript-eslint": "8.17.0",
     "vitest": "^2.1.9",
     "vitest-fetch-mock": "^0.4.2"

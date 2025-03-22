@@ -1,10 +1,10 @@
 ### Before you begin
 
-* I understand my contributions may be rejected for any reason
-* I understand my contributions are for the benefit of Derpibooru and/or the Philomena software
-* I understand my contributions are licensed under the GNU AGPLv3
+- I understand my contributions may be rejected for any reason
+- I understand my contributions are for the benefit of Derpibooru and/or the Philomena software
+- I understand my contributions are licensed under the GNU AGPLv3
 
-- [ ] I understand all of the above
+* [ ] I understand all of the above
 
 ---
 

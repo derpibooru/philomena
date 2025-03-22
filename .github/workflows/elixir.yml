@@ -59,6 +59,18 @@ jobs:
       - name: cargo test
         run: (cd native/philomena && cargo test)
 
+  prettier:
+    name: 'Prettier Formatting Check'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - run: npm ci --ignore-scripts
+      - run: npx prettier --check .
+
   lint-and-test:
     name: 'JavaScript Linting and Unit Tests'
     runs-on: ubuntu-latest
@@ -68,18 +80,10 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: 'npm'
 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: ./assets/node_modules
-          key: node_modules-${{ hashFiles('./assets/package-lock.json') }}
-
-      - name: Install npm dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci --ignore-scripts
+      - run: npm ci --ignore-scripts
         working-directory: ./assets
 
       - run: npm run lint

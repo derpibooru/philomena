@@ -6,11 +6,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "skipLibCheck": true,
-    "lib": [
-      "ES2016",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ES2016", "DOM", "DOM.Iterable"],
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,

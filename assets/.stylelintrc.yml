@@ -1,20 +1,18 @@
 ---
 extends: stylelint-config-recommended
-plugins:
-  - stylelint-prettier
 rules:
   block-no-empty: true
   at-rule-no-unknown:
     - true
     - ignoreAtRules:
-      - mixin
-      - define-mixin
+        - mixin
+        - define-mixin
   media-query-no-invalid:
   rule-empty-line-before:
     - always-multi-line
     - except:
-      - after-single-line-comment
-      - first-nested
+        - after-single-line-comment
+        - first-nested
   declaration-block-no-duplicate-custom-properties: true
   declaration-block-no-duplicate-properties: true
   font-family-no-duplicate-names: true
@@ -47,10 +45,10 @@ rules:
   at-rule-empty-line-before:
     - always
     - except:
-      - first-nested
+        - first-nested
       ignore:
-      - after-comment
-      - blockless-after-blockless
+        - after-comment
+        - blockless-after-blockless
   custom-property-empty-line-before: never
   declaration-empty-line-before: never
   declaration-block-single-line-max-declarations: 3
@@ -75,4 +73,3 @@ rules:
   declaration-block-no-redundant-longhand-properties: true
   shorthand-property-no-redundant-values: true
   comment-whitespace-inside: always
-  prettier/prettier: true
