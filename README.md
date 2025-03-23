@@ -2,7 +2,7 @@
 
 ![Philomena](/assets/static/images/phoenix.svg)
 
-## Getting started
+## Getting Started
 
 On systems with `docker` and `docker compose` installed, the process should be as simple as:
 
@@ -19,6 +19,42 @@ podman-compose up
 ```
 
 Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / philomena123
+
+## Development
+
+### Dependencies
+
+Install NodeJS, Rust and Elixir toolchains. Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
+
+```
+./scripts/init.sh
+```
+
+### VSCode Extensions
+
+If you are using VSCode, then the following extensions are recommended:
+
+| Extension                                          | Short description                                       |
+| -------------------------------------------------- | ------------------------------------------------------- |
+| [Rust Analyzer][vscode-rust-analyzer]              | Rust LSP                                                |
+| [Lexical][vscode-lexical]                          | Elixir LSP                                              |
+| [PostCSS Language Support][vscode-postcss]         | PostCSS LSP                                             |
+| [Slime][vscode-slime]                              | `.slime` syntax highlighting                            |
+| [ESLint][vscode-eslint]                            | `.js`, `.ts` linter                                     |
+| [Stylelint][vscode-stylelint]                      | `.css` linter                                           |
+| [Prettier - Code formatter][vscode-prettier]       | `.js`, `.ts`. `.css`, `.json`, `.yaml`, `.md` formatter |
+| [Typos Spell Checker][vscode-typos]                | Spell checker enforced on CI                            |
+| [Jest Snapshot Language Support][vscode-jest-snap] | `.toMatchInlineSnapshot()` syntax highlighting          |
+
+[vscode-rust-analyzer]: https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer
+[vscode-lexical]: https://marketplace.visualstudio.com/items?itemName=lexical-lsp.lexical
+[vscode-postcss]: https://marketplace.visualstudio.com/items?itemName=csstools.postcss
+[vscode-slime]: https://marketplace.visualstudio.com/items?itemName=xolan.slime
+[vscode-eslint]: https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+[vscode-stylelint]: https://marketplace.visualstudio.com/items?itemName=stylelint.vscode-stylelint
+[vscode-prettier]: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+[vscode-typos]: https://marketplace.visualstudio.com/items?itemName=tekumara.typos-vscode
+[vscode-jest-snap]: https://marketplace.visualstudio.com/items?itemName=tlent.jest-snapshot-language-support
 
 ## Troubleshooting
 

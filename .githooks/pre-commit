@@ -1,16 +1,12 @@
 #!/usr/bin/env bash
 #
 # Pre-commit hook to run lightweight checks and auto-format the code. It's designed
-# to be blazingly fast, so it checks only changed files. Run the following command
-# to install this hook for yourself. It's a symlink, to make sure it stays always
-# up-to-date.
+# to be blazingly fast, so it checks only changed files.
 #
-# ```bash
-# ln -s ../../.githooks/pre-commit .git/hooks/pre-commit
-# ```
+# You can install this hook and some of its dependencies by running `scripts/init.sh`.
 
 set -euxo pipefail
-
+# ```
 function command_exists() {
   bin_name=$(basename "$1")
 
