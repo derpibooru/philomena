@@ -55,7 +55,7 @@ h1 Content Settings
           br
           ' Do not share this URL with anyone, it may allow an attacker to compromise your account.
 
-      .block__tab.hidden.flex.flex--maybe-wrap data-tab="display"
+      .block__tab.hidden data-tab="display"
         div
           .field
             => label f, :use_centered_layout
@@ -94,7 +94,7 @@ h1 Content Settings
             => select f, :scale_large_images, scale_options(), class: "input"
             = error_tag f, :scale_large_images
 
-      .block__tab.hidden.flex.flex--maybe-wrap data-tab="comments"
+      .block__tab.hidden data-tab="comments"
         div
           .field
             => label f, :comments_newest_first, "Newest comments first"
@@ -118,7 +118,7 @@ h1 Content Settings
             => checkbox f, :messages_newest_first
             .fieldlabel: i Show the newest messages first (enabled) or show the oldest messages at the top of a conversation. Enabling this makes it feel more like a top-posted email quote chain.
 
-      .block__tab.hidden.flex.flex--maybe-wrap data-tab="notifications"
+      .block__tab.hidden data-tab="notifications"
         div
           .field
             => label f, :watch_on_reply, "Subscribe on Reply"
@@ -133,7 +133,7 @@ h1 Content Settings
             => checkbox f, :watch_on_new_topic, class: "checkbox"
             .fieldlabel: i Subscribe on New Threads means you'll be subscribed to threads automatically as soon as you post, to help you keep track of replies.
 
-      .block__tab.hidden.flex.flex--maybe-wrap data-tab="metadata"
+      .block__tab.hidden data-tab="metadata"
         div
           .field
             => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
