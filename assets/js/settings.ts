@@ -51,7 +51,7 @@ function setupHelpExpansions() {
       return;
     }
 
-    const helpButton = event.target.closest('.whats-this-button');
+    const helpButton = event.target.closest('.field-help-button');
 
     if (!helpButton || !helpButton.nextElementSibling) {
       return;

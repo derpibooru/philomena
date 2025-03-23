@@ -44,13 +44,13 @@ defmodule PhilomenaWeb.SettingView do
       children
       |> Enum.intersperse(" ")
       |> Enum.concat([
-        content_tag :span, class: "whats-this-button" do
+        content_tag :span, class: "field-help-button" do
           [
             content_tag(:i, "", class: "fa-regular fa-question-circle"),
-            " What's this?"
+            " Help"
           ]
         end,
-        content_tag :div, class: "whats-this-content hidden" do
+        content_tag :div, class: "field-help-content hidden" do
           [
             title,
             tag(:hr)
