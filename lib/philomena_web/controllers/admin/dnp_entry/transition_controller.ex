@@ -16,6 +16,7 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
       {:ok, dnp_entry} ->
         conn
         |> put_flash(:info, "Successfully updated DNP entry.")
+        |> moderation_log(details: &log_details/2, data: dnp_entry)
         |> redirect(to: ~p"/dnp/#{dnp_entry}")
 
       {:error, _changeset} ->
@@ -30,5 +31,12 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, dnp_entry) do
+    %{
+      body: "#{String.capitalize(dnp_entry.aasm_state)} DNP entry #{dnp_entry.id}",
+      subject_path: ~p"/dnp/#{dnp_entry}"
+    }
   end
 end
