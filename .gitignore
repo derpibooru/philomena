@@ -41,7 +41,10 @@ npm-debug.log
 .idea
 
 # VS Code
-.vscode
+# A trailing `/*` is required here: https://stackoverflow.com/a/16318111
+.vscode/*
+# This is used to suggest the recommended extensions for the workspace
+!.vscode/extensions.json
 
 # Language server
 .elixir_ls
