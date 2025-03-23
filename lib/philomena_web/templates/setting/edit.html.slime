@@ -56,96 +56,107 @@ h1 Content Settings
           ' Do not share this URL with anyone, it may allow an attacker to compromise your account.
 
       .block__tab.hidden data-tab="display"
-        div
-          .field
-            => label f, :use_centered_layout
-            => checkbox f, :use_centered_layout, class: "checkbox"
-            .fieldlabel: i Align content to the center of the page - try this option out if you browse the site on a tablet or a fairly wide screen.
-          .field
-            => label f, :show_sidebar_and_watched_images
-            => checkbox f, :show_sidebar_and_watched_images, class: "checkbox"
-            .fieldlabel: i Show the sidebar and new watched images on the homepage (the default) or hide it.
-          .field
-            => label f, :hide_vote_counts
-            => checkbox f, :hide_vote_counts, class: "checkbox"
-            .fieldlabel: i Hide upvote and downvote counts on images, showing only the overall score
-          .field
-            => label f, :images_per_page
-            => number_input f, :images_per_page, min: 1, max: 50, step: 1, class: "input"
-            = error_tag f, :images_per_page
-            .fieldlabel
-              i
-                ' This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50.
-                ' For 1080p monitors, try 24.
-          .field
-            label> Theme
-            => select f, :theme_name, themes(), class: "input"
-            = error_tag f, :theme_name
-            .fieldlabel: i General appearance of the theme
-          .field
-            label> Theme color
-            => select f, :theme_color, theme_colors(), class: "input"
-            = error_tag f, :theme_color
-            .fieldlabel: i Color of the theme
-            .fieldlabel: strong Don't forget to save the settings to apply the theme!
-          .hidden#js-theme-paths data-theme-paths=Jason.encode!(theme_paths())
-          .field
-            => label f, :scale_large_images
-            => select f, :scale_large_images, scale_options(), class: "input"
-            = error_tag f, :scale_large_images
+        = field_with_help( \
+            "Align content to the center of the page - try this option out if you " <> \
+            "browse the site on a tablet or a fairly wide screen.",
+            [ \
+              checkbox(f, :use_centered_layout, class: "checkbox"),
+              label(f, :use_centered_layout),
+            ] \
+          )
+
+        = field_with_help( \
+          "Show the sidebar and new watched images on the homepage (the default) or hide it.",
+          [ \
+            checkbox(f, :show_sidebar_and_watched_images, class: "checkbox"),
+            label(f, :show_sidebar_and_watched_images),
+          ] \
+        )
+
+        = field_with_help( \
+          "Hide upvote and downvote counts on images, showing only the overall score",
+          [ \
+            checkbox(f, :hide_vote_counts, class: "checkbox"),
+            label(f, :hide_vote_counts),
+          ] \
+        )
+
+        = field_with_help( \
+          "This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50. For 1080p monitors, try 24.", \
+          [ \
+            number_input(f, :images_per_page, min: 1, max: 50, step: 1, class: "input"), \
+            label(f, :images_per_page), \
+            error_tag(f, :images_per_page) \
+          ] \
+        )
+
+        .field
+          => select f, :theme_name, themes(), class: "input"
+          label> Theme
+          = error_tag f, :theme_name
+
+        .field
+          => select f, :theme_color, theme_colors(), class: "input"
+          label> Theme color
+          = error_tag f, :theme_color
+
+        .block.block--fixed.block--warning Don't forget to save the settings to apply the theme!
+
+        .hidden#js-theme-paths data-theme-paths=Jason.encode!(theme_paths())
+        .field
+          => select f, :scale_large_images, scale_options(), class: "input"
+          => label f, :scale_large_images
+          = error_tag f, :scale_large_images
 
       .block__tab.hidden data-tab="comments"
-        div
-          .field
-            => label f, :comments_newest_first, "Newest comments first"
-            => checkbox f, :comments_newest_first
-            .fieldlabel: i Display the newest comments at the top of the page.
-          .field
-            => label f, :comments_always_jump_to_last, "Show latest comment page"
-            => checkbox f, :comments_always_jump_to_last
-            .fieldlabel
-              i
-                ' This setting takes effect when the previous is disabled. Always jump to the latest page (enabled) or show the first page if the oldest comments are shown at the top of the page.
-                br
-                ' Posting will always direct you to the latest page so that you can see your comment in context.
-          .field
-            => label f, :comments_per_page
-            => number_input f, :comments_per_page, min: 1, max: 100, step: 1, class: "input"
-            = error_tag f, :comments_per_page
-            .fieldlabel: i This is the number of comments per page that are displayed on image pages.
-          .field
-            => label f, :messages_newest_first, "Newest messages first"
-            => checkbox f, :messages_newest_first
-            .fieldlabel: i Show the newest messages first (enabled) or show the oldest messages at the top of a conversation. Enabling this makes it feel more like a top-posted email quote chain.
+        .field
+          => label f, :comments_newest_first, "Newest comments first"
+          => checkbox f, :comments_newest_first
+          .fieldlabel: i Display the newest comments at the top of the page.
+        .field
+          => label f, :comments_always_jump_to_last, "Show latest comment page"
+          => checkbox f, :comments_always_jump_to_last
+          .fieldlabel
+            i
+              ' This setting takes effect when the previous is disabled. Always jump to the latest page (enabled) or show the first page if the oldest comments are shown at the top of the page.
+              br
+              ' Posting will always direct you to the latest page so that you can see your comment in context.
+        .field
+          => label f, :comments_per_page
+          => number_input f, :comments_per_page, min: 1, max: 100, step: 1, class: "input"
+          = error_tag f, :comments_per_page
+          .fieldlabel: i This is the number of comments per page that are displayed on image pages.
+        .field
+          => label f, :messages_newest_first, "Newest messages first"
+          => checkbox f, :messages_newest_first
+          .fieldlabel: i Show the newest messages first (enabled) or show the oldest messages at the top of a conversation. Enabling this makes it feel more like a top-posted email quote chain.
 
       .block__tab.hidden data-tab="notifications"
-        div
-          .field
-            => label f, :watch_on_reply, "Subscribe on Reply"
-            => checkbox f, :watch_on_reply, class: "checkbox"
-            .fieldlabel: i Subscribe on Reply means you'll be subscribed to things (images or topics) automatically as soon as you post a comment or reply, keeping you in the conversation.
-          .field
-            => label f, :watch_on_upload, "Subscribe on Upload"
-            => checkbox f, :watch_on_upload, class: "checkbox"
-            .fieldlabel: i Subscribe on Upload means you'll be subscribed to images automatically as soon as you upload, to help you keep track of comments.
-          .field
-            => label f, :watch_on_new_topic, "Subscribe on New Threads"
-            => checkbox f, :watch_on_new_topic, class: "checkbox"
-            .fieldlabel: i Subscribe on New Threads means you'll be subscribed to threads automatically as soon as you post, to help you keep track of replies.
+        .field
+          => label f, :watch_on_reply, "Subscribe on Reply"
+          => checkbox f, :watch_on_reply, class: "checkbox"
+          .fieldlabel: i Subscribe on Reply means you'll be subscribed to things (images or topics) automatically as soon as you post a comment or reply, keeping you in the conversation.
+        .field
+          => label f, :watch_on_upload, "Subscribe on Upload"
+          => checkbox f, :watch_on_upload, class: "checkbox"
+          .fieldlabel: i Subscribe on Upload means you'll be subscribed to images automatically as soon as you upload, to help you keep track of comments.
+        .field
+          => label f, :watch_on_new_topic, "Subscribe on New Threads"
+          => checkbox f, :watch_on_new_topic, class: "checkbox"
+          .fieldlabel: i Subscribe on New Threads means you'll be subscribed to threads automatically as soon as you post, to help you keep track of replies.
 
       .block__tab.hidden data-tab="metadata"
-        div
-          .field
-            => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
-            => checkbox f, :fancy_tag_field_on_upload, class: "checkbox"
-          .field
-            => label f, :fancy_tag_field_on_edit, "Fancy tags - edits"
-            => checkbox f, :fancy_tag_field_on_edit, class: "checkbox"
-            .fieldlabel: i The fancy tag editor gives you autosuggestions and visual representations of the tags, but is sometimes not desired - for instance when dealing with batch uploads where you might want to copy-paste tags. You can choose which type of editor to use by default here.
-          .field
-            => label f, :anonymous_by_default
-            => checkbox f, :anonymous_by_default, class: "checkbox"
-            .fieldlabel: i Check this box to post images and comments as anonymous by default, even if logged in.
+        .field
+          => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
+          => checkbox f, :fancy_tag_field_on_upload, class: "checkbox"
+        .field
+          => label f, :fancy_tag_field_on_edit, "Fancy tags - edits"
+          => checkbox f, :fancy_tag_field_on_edit, class: "checkbox"
+          .fieldlabel: i The fancy tag editor gives you autosuggestions and visual representations of the tags, but is sometimes not desired - for instance when dealing with batch uploads where you might want to copy-paste tags. You can choose which type of editor to use by default here.
+        .field
+          => label f, :anonymous_by_default
+          => checkbox f, :anonymous_by_default, class: "checkbox"
+          .fieldlabel: i Check this box to post images and comments as anonymous by default, even if logged in.
 
     .block__tab class=local_tab_class(@conn) data-tab="local"
       .block.block--fixed.block--warning Settings on this tab are saved in the current browser. They are independent of your login.

@@ -92,6 +92,30 @@ textarea {
   margin-bottom: 6px;
 }
 
+.whats-this-button,
+.whats-this-button * {
+  /* font-size: 0.9em; */
+  font-style: italic;
+  cursor: pointer;
+}
+
+.whats-this-button {
+  color: var(--foreground-half-color);
+  margin-left: 10px;
+
+  /*
+    We want this to behave like a button, so double clicking on it
+    shouldn't trigger a selection
+  */
+  user-select: none;
+}
+
+.whats-this-content {
+  color: var(--foreground-half-color);
+  margin: 10px auto;
+  font-style: italic;
+}
+
 .field_with_errors {
   background: var(--danger-color);
 }
@@ -107,6 +131,7 @@ span.help-block {
   max-width: 30em;
   width: 100%;
 }
+
 /* text input - grow to container size */
 .hform__text {
   flex: 1 0 auto;

@@ -2,8 +2,9 @@
  * Settings.
  */
 
+import { delegate } from 'utils/events';
 import { assertNotNull, assertNotUndefined } from './utils/assert';
-import { $, $$, hideIf } from './utils/dom';
+import { $, $$, hideIf, toggleEl } from './utils/dom';
 import store from './utils/store';
 
 function setupThemeSettings() {
@@ -44,6 +45,22 @@ function setupAutocompleteSettings() {
   });
 }
 
+function setupHelpExpansions() {
+  document.addEventListener('click', event => {
+    if (!(event.target instanceof HTMLElement)) {
+      return;
+    }
+
+    const helpButton = event.target.closest('.whats-this-button');
+
+    if (!helpButton || !helpButton.nextElementSibling) {
+      return;
+    }
+
+    helpButton.nextElementSibling.classList.toggle('hidden');
+  });
+}
+
 export function setupSettings() {
   if (!$('#js-setting-table')) return;
 
@@ -58,4 +75,5 @@ export function setupSettings() {
 
   setupThemeSettings();
   setupAutocompleteSettings();
+  setupHelpExpansions();
 }

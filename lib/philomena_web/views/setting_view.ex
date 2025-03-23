@@ -38,4 +38,26 @@ defmodule PhilomenaWeb.SettingView do
 
   def staff?(%{role: role}), do: role != "user"
   def staff?(_), do: false
+
+  def field_with_help(title, children) do
+    content =
+      children
+      |> Enum.intersperse(" ")
+      |> Enum.concat([
+        content_tag :span, class: "whats-this-button" do
+          [
+            content_tag(:i, "", class: "fa-regular fa-question-circle"),
+            " What's this?"
+          ]
+        end,
+        content_tag :div, class: "whats-this-content hidden" do
+          [
+            title,
+            tag(:hr)
+          ]
+        end
+      ])
+
+    content_tag(:div, content, class: "field", title: title)
+  end
 end
