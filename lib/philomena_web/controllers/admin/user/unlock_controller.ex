@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.Admin.User.UnlockController do
 
     conn
     |> put_flash(:info, "User was unlocked.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -20,5 +21,9 @@ defmodule PhilomenaWeb.Admin.User.UnlockController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, user) do
+    %{body: "Unlocked #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

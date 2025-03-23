@@ -20,6 +20,10 @@ defmodule PhilomenaWeb.TagChange.RevertController do
       {:ok, tag_changes} ->
         conn
         |> put_flash(:info, "Successfully reverted #{length(tag_changes)} tag changes.")
+        |> moderation_log(
+          details: &log_details/2,
+          data: %{user: conn.assigns.current_user, count: length(tag_changes)}
+        )
         |> redirect(external: conn.assigns.referrer)
 
       _error ->
@@ -34,5 +38,9 @@ defmodule PhilomenaWeb.TagChange.RevertController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, data) do
+    %{body: "Reverted #{data.count} tag changes", subject_path: ~p"/profiles/#{data.user}"}
   end
 end

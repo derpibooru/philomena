@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Image.RepairController do
 
   defp log_details(_action, image) do
     %{
-      body: "Repaired image >>#{image.id}",
+      body: "Repaired image #{image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

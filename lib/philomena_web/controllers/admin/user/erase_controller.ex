@@ -26,6 +26,7 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
 
     conn
     |> put_flash(:info, "User erase started")
+    |> moderation_log(details: &log_details/2, data: {conn.assigns.user, user})
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -67,5 +68,9 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
     else
       conn
     end
+  end
+
+  defp log_details(_action, {old_user, new_user}) do
+    %{body: "Erased #{old_user.name}", subject_path: ~p"/profiles/#{new_user}"}
   end
 end

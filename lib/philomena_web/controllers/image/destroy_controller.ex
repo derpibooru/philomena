@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
 
   defp log_details(_action, image) do
     %{
-      body: "Hard-deleted image >>#{image.id}",
+      body: "Hard-deleted image #{image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

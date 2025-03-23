@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.Image.ScratchpadController do
 
   defp log_details(_action, image) do
     %{
-      body: "Updated mod notes on image >>#{image.id} (#{image.scratchpad})",
+      body: "Updated mod notes on image #{image.id} (#{image.scratchpad})",
       subject_path: ~p"/images/#{image}"
     }
   end

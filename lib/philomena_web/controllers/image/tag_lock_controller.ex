@@ -48,9 +48,9 @@ defmodule PhilomenaWeb.Image.TagLockController do
   defp log_details(action, image) do
     body =
       case action do
-        :create -> "Locked tags on image >>#{image.id}"
-        :update -> "Updated list of locked tags on image >>#{image.id}"
-        :delete -> "Unlocked tags on image >>#{image.id}"
+        :create -> "Locked tags on image #{image.id}"
+        :update -> "Updated list of locked tags on image #{image.id}"
+        :delete -> "Unlocked tags on image #{image.id}"
       end
 
     %{

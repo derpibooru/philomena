@@ -25,9 +25,10 @@ defmodule PhilomenaWeb.Admin.BadgeController do
 
   def create(conn, %{"badge" => badge_params}) do
     case Badges.create_badge(badge_params) do
-      {:ok, _badge} ->
+      {:ok, badge} ->
         conn
         |> put_flash(:info, "Badge created successfully.")
+        |> moderation_log(details: &log_details/2, data: badge)
         |> redirect(to: ~p"/admin/badges")
 
       {:error, :badge, changeset, _changes} ->
@@ -42,9 +43,10 @@ defmodule PhilomenaWeb.Admin.BadgeController do
 
   def update(conn, %{"badge" => badge_params}) do
     case Badges.update_badge(conn.assigns.badge, badge_params) do
-      {:ok, _badge} ->
+      {:ok, badge} ->
         conn
         |> put_flash(:info, "Badge updated successfully.")
+        |> moderation_log(details: &log_details/2, data: badge)
         |> redirect(to: ~p"/admin/badges")
 
       {:error, :badge, changeset, _changes} ->
@@ -57,5 +59,15 @@ defmodule PhilomenaWeb.Admin.BadgeController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(action, badge) do
+    body =
+      case action do
+        :create -> "Created badge '#{badge.title}'"
+        :update -> "Updated badge '#{badge.title}'"
+      end
+
+    %{body: body, subject_path: ~p"/admin/badges"}
   end
 end

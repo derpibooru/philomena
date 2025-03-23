@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.Image.Comment.ApproveController do
 
   defp log_details(_action, comment) do
     %{
-      body: "Approved comment on image >>#{comment.image_id}",
+      body: "Approved comment on image #{comment.image_id}",
       subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"
     }
   end
