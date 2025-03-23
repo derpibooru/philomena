@@ -1,0 +1,5 @@
+# VSCode supports `jsonc` for all of its JSON files
+.vscode/*.json linguist-language=jsonc
+
+# We use PostCSS for our CSS files
+*.css linguist-language=PostCSS
