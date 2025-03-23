@@ -6,7 +6,7 @@
 # You can install this hook and some of its dependencies by running `scripts/init.sh`.
 
 set -euxo pipefail
-# ```
+
 function command_exists() {
   bin_name=$(basename "$1")
 
@@ -44,7 +44,7 @@ if command_exists cargo; then
 fi
 
 if command_exists mix; then
-  echo "$files" | xargs mix format --check-formatted
+  echo "$files" | xargs mix format
 fi
 
 # Add the modified/prettified files to staging
