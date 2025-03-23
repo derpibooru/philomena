@@ -5,7 +5,7 @@ set -euxo pipefail
 
 function fetch {
   local url="$1"
-  curl --fail --silent --show-error --location --retry-all-errors "$url"
+  curl --fail --silent --show-error --location --retry 5 --retry-all-errors "$url"
 }
 
 function fetch_github_artifact_url {
