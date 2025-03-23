@@ -94,3 +94,15 @@ jobs:
 
       - run: npm run build
         working-directory: ./assets
+
+  repo-init-script:
+    name: 'Repo Init Script'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - run: ./scripts/init.sh
+      - run: typos --version
+      - run: npx prettier --version
