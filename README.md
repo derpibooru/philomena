@@ -22,8 +22,6 @@ Once the application has started, navigate to http://localhost:8080 and login wi
 
 ## Development
 
-### Dependencies
-
 Install NodeJS, Rust and Elixir toolchains. Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
 
 ```
