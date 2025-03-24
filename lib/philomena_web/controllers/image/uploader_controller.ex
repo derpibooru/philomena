@@ -18,6 +18,7 @@ defmodule PhilomenaWeb.Image.UploaderController do
 
     conn
     |> put_view(PhilomenaWeb.ImageView)
+    |> moderation_log(details: &log_details/2, data: image)
     |> render("_uploader.html", layout: false, image: image, changeset: changeset)
   end
 
@@ -26,5 +27,9 @@ defmodule PhilomenaWeb.Image.UploaderController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, image) do
+    %{body: "Changed uploader of image #{image.id}", subject_path: ~p"/images/#{image}"}
   end
 end
