@@ -41,7 +41,7 @@ npm-debug.log
 .idea
 
 # VS Code
-.vscode/
+.vscode/*
 # This is used to suggest the recommended extensions for the workspace
 !.vscode/extensions.json
 
