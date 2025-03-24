@@ -86,8 +86,8 @@ defmodule PhilomenaWeb.Profile.AwardController do
     body =
       case action do
         :create -> "Awarded badge '#{award.badge.title}' to #{user.name}"
-        :update -> "Updated award of '#{award.badge.title}' on #{user.name}"
-        :delete -> "Removed award of '#{award.badge.title}' from #{user.name}"
+        :update -> "Updated award of badge '#{award.badge.title}' on #{user.name}"
+        :delete -> "Removed badge '#{award.badge.title}' from #{user.name}"
       end
 
     %{body: body, subject_path: ~p"/profiles/#{user}"}

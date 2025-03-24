@@ -49,7 +49,7 @@ defmodule PhilomenaWeb.TagChange.FullRevertController do
         %{"user_id" => user_id} ->
           user = Users.get_user!(user_id)
 
-          {"user #{user.name}", ~p"/profiles/#{user.name}"}
+          {"user #{user.name}", ~p"/profiles/#{user}"}
 
         %{"ip" => ip} ->
           {"ip #{ip}", ~p"/ip_profiles/#{ip}"}
