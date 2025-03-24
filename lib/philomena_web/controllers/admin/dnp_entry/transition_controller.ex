@@ -5,7 +5,13 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
   alias Philomena.DnpEntries
 
   plug :verify_authorized
-  plug :load_resource, model: DnpEntry, only: [:create], id_name: "dnp_entry_id", persisted: true
+
+  plug :load_resource,
+    model: DnpEntry,
+    only: [:create],
+    id_name: "dnp_entry_id",
+    preload: [:tag],
+    persisted: true
 
   def create(conn, %{"state" => new_state}) do
     case DnpEntries.transition_dnp_entry(
@@ -35,7 +41,8 @@ defmodule PhilomenaWeb.Admin.DnpEntry.TransitionController do
 
   defp log_details(_action, dnp_entry) do
     %{
-      body: "#{String.capitalize(dnp_entry.aasm_state)} DNP entry #{dnp_entry.id}",
+      body:
+        "#{String.capitalize(dnp_entry.aasm_state)} DNP entry #{dnp_entry.id} on #{dnp_entry.tag.name}",
       subject_path: ~p"/dnp/#{dnp_entry}"
     }
   end
