@@ -115,6 +115,10 @@ textarea {
   user-select: none;
 }
 
+.field-help-button:hover {
+  background-color: var(--primary-light-color);
+}
+
 .field-help-content {
   color: var(--foreground-half-color);
   margin: 10px auto;

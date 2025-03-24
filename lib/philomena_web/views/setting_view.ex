@@ -52,7 +52,7 @@ defmodule PhilomenaWeb.SettingView do
         end,
         content_tag :div, class: "field-help-content hidden" do
           [
-            title,
+            raw(text_to_html(title)),
             tag(:hr)
           ]
         end

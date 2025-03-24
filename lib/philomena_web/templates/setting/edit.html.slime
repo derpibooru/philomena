@@ -82,7 +82,8 @@ h1 Content Settings
         )
 
         = field_with_help( \
-          "This is the number of images per page that are displayed on image listings and searches, up to a maximum of 50. For 1080p monitors, try 24.", \
+          "The number of images per page that are displayed on image listings " <> \
+          "and searches, up to a maximum of 50. For 1080p monitors, try 24.",
           [ \
             number_input(f, :images_per_page, min: 1, max: 50, step: 1, class: "input"), \
             label(f, :images_per_page), \
@@ -109,54 +110,99 @@ h1 Content Settings
           = error_tag f, :scale_large_images
 
       .block__tab.hidden data-tab="comments"
-        .field
-          => label f, :comments_newest_first, "Newest comments first"
-          => checkbox f, :comments_newest_first
-          .fieldlabel: i Display the newest comments at the top of the page.
-        .field
-          => label f, :comments_always_jump_to_last, "Show latest comment page"
-          => checkbox f, :comments_always_jump_to_last
-          .fieldlabel
-            i
-              ' This setting takes effect when the previous is disabled. Always jump to the latest page (enabled) or show the first page if the oldest comments are shown at the top of the page.
-              br
-              ' Posting will always direct you to the latest page so that you can see your comment in context.
-        .field
-          => label f, :comments_per_page
-          => number_input f, :comments_per_page, min: 1, max: 100, step: 1, class: "input"
-          = error_tag f, :comments_per_page
-          .fieldlabel: i This is the number of comments per page that are displayed on image pages.
-        .field
-          => label f, :messages_newest_first, "Newest messages first"
-          => checkbox f, :messages_newest_first
-          .fieldlabel: i Show the newest messages first (enabled) or show the oldest messages at the top of a conversation. Enabling this makes it feel more like a top-posted email quote chain.
+        = field_with_help( \
+          "Display the newest comments at the top of the page.", \
+          [ \
+            checkbox(f, :comments_newest_first, class: "checkbox"), \
+            label(f, :comments_newest_first, "Newest comments first"), \
+          ] \
+        )
+
+        = field_with_help( \
+          "This setting takes effect when the previous is disabled. " <> \
+          "Always jump to the latest page (enabled) or show the first page " <> \
+          "if the oldest comments are shown at the top of the page.\n" <> \
+          "Posting will always direct you to the latest page " <> \
+          "so that you can see your comment in context.",
+          [ \
+            checkbox(f, :comments_always_jump_to_last, class: "checkbox"),
+            label(f, :comments_always_jump_to_last, "Show latest comment page"),
+          ] \
+        )
+
+        = field_with_help( \
+          "The number of comments per page that are displayed on image pages.",
+          [ \
+            number_input(f, :comments_per_page, min: 1, max: 100, step: 1, class: "input"),
+            label(f, :comments_per_page),
+            error_tag(f, :comments_per_page),
+          ] \
+        )
+
+        = field_with_help( \
+          "Show the newest messages first (enabled) or show the oldest messages " <> \
+          "at the top of a conversation. Enabling this makes it feel more like " <> \
+          "a top-posted email quote chain.",
+          [ \
+            checkbox(f, :messages_newest_first, class: "checkbox"),
+            label(f, :messages_newest_first, "Newest messages first"),
+          ] \
+        )
 
       .block__tab.hidden data-tab="notifications"
-        .field
-          => label f, :watch_on_reply, "Subscribe on Reply"
-          => checkbox f, :watch_on_reply, class: "checkbox"
-          .fieldlabel: i Subscribe on Reply means you'll be subscribed to things (images or topics) automatically as soon as you post a comment or reply, keeping you in the conversation.
-        .field
-          => label f, :watch_on_upload, "Subscribe on Upload"
-          => checkbox f, :watch_on_upload, class: "checkbox"
-          .fieldlabel: i Subscribe on Upload means you'll be subscribed to images automatically as soon as you upload, to help you keep track of comments.
-        .field
-          => label f, :watch_on_new_topic, "Subscribe on New Threads"
-          => checkbox f, :watch_on_new_topic, class: "checkbox"
-          .fieldlabel: i Subscribe on New Threads means you'll be subscribed to threads automatically as soon as you post, to help you keep track of replies.
+        = field_with_help( \
+          "If enabled, you'll be subscribed to things (images or topics) " <> \
+          "automatically as soon as you post a comment or reply, keeping " <> \
+          "you in the conversation.",
+          [ \
+            checkbox(f, :watch_on_reply, class: "checkbox"), \
+            label(f, :watch_on_reply, "Subscribe on Reply"), \
+          ] \
+        )
+
+        = field_with_help( \
+          "If enabled, you'll be subscribed to images automatically " <> \
+          "as soon as you upload, to help you keep track of comments.",
+          [ \
+            checkbox(f, :watch_on_upload, class: "checkbox"), \
+            label(f, :watch_on_upload, "Subscribe on Upload"), \
+          ] \
+        )
+
+        = field_with_help( \
+          "If enabled you'll be subscribed to threads automatically as soon " <> \
+          "as you post, to help you keep track of replies.",
+          [ \
+            checkbox(f, :watch_on_new_topic, class: "checkbox"), \
+            label(f, :watch_on_new_topic, "Subscribe on New Threads"), \
+          ] \
+        )
 
       .block__tab.hidden data-tab="metadata"
         .field
-          => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
           => checkbox f, :fancy_tag_field_on_upload, class: "checkbox"
-        .field
-          => label f, :fancy_tag_field_on_edit, "Fancy tags - edits"
-          => checkbox f, :fancy_tag_field_on_edit, class: "checkbox"
-          .fieldlabel: i The fancy tag editor gives you autosuggestions and visual representations of the tags, but is sometimes not desired - for instance when dealing with batch uploads where you might want to copy-paste tags. You can choose which type of editor to use by default here.
-        .field
-          => label f, :anonymous_by_default
-          => checkbox f, :anonymous_by_default, class: "checkbox"
-          .fieldlabel: i Check this box to post images and comments as anonymous by default, even if logged in.
+          => label f, :fancy_tag_field_on_upload, "Fancy tags - uploads"
+
+        = field_with_help( \
+          "The fancy tag editor gives you autosuggestions and visual " <> \
+          "representations of the tags, but is sometimes not desired - " <> \
+          "for instance when dealing with batch uploads where you might " <> \
+          "want to copy-paste tags. You can choose which type of editor " <> \
+          "to use by default here.",
+          [ \
+            checkbox(f, :fancy_tag_field_on_edit, class: "checkbox"), \
+            label(f, :fancy_tag_field_on_edit, "Fancy tags - edits"), \
+          ] \
+        )
+
+        = field_with_help( \
+          "Check this box to post images and comments as anonymous by default, " <> \
+          "even if logged in.",
+          [ \
+            checkbox(f, :anonymous_by_default, class: "checkbox"), \
+            label(f, :anonymous_by_default), \
+          ] \
+        )
 
     .block__tab class=local_tab_class(@conn) data-tab="local"
       .block.block--fixed.block--warning Settings on this tab are saved in the current browser. They are independent of your login.

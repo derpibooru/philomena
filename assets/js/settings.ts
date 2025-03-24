@@ -2,9 +2,8 @@
  * Settings.
  */
 
-import { delegate } from 'utils/events';
 import { assertNotNull, assertNotUndefined } from './utils/assert';
-import { $, $$, hideIf, toggleEl } from './utils/dom';
+import { $, $$, hideIf } from './utils/dom';
 import store from './utils/store';
 
 function setupThemeSettings() {
