@@ -6,9 +6,6 @@
     // Elixir LSP
     "lexical-lsp.lexical",
 
-    // PostCSS LSP
-    "csstools.postcss",
-
     // `.slime` syntax highlighting
     "xolan.slime",
 
