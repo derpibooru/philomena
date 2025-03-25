@@ -210,7 +210,7 @@ h1 Content Settings
         "Use high quality thumbnails on displays with a high pixel density. " <> \
         "Requires more data than regular thumbnails.", \
         [ \
-          checkbox(f, :hidpi, checked: @conn.cookies["hidpi"] == "true"), \
+          checkbox(f, :hidpi, checked: @conn.cookies["hidpi"] == "true", class: "checkbox"), \
           label(f, :hidpi, "Serve HiDPI thumbnails"), \
         ] \
       )
@@ -220,7 +220,7 @@ h1 Content Settings
         "lower-bandwidth connections, but the video versions may have missing " <> \
         "start/end frames, and don't support transparency.", \
         [ \
-          checkbox(f, :serve_webm, checked: @conn.cookies["serve_webm"] == "true"), \
+          checkbox(f, :serve_webm, checked: @conn.cookies["serve_webm"] == "true", class: "checkbox"), \
           label(f, :serve_webm, "Serve WebM"), \
         ] \
       )
@@ -228,7 +228,7 @@ h1 Content Settings
       = field_with_help( \
         "Use video thumbnails for WebM videos. Does not apply to GIF images.", \
         [ \
-          checkbox(f, :webm, checked: @conn.cookies["webm"] == "true"), \
+          checkbox(f, :webm, checked: @conn.cookies["webm"] == "true", class: "checkbox"), \
           label(f, :webm, "Use video thumbnails"), \
         ] \
       )
@@ -236,7 +236,7 @@ h1 Content Settings
       = field_with_help( \
         "Automatically enable audio on video pages when they are loaded.", \
         [ \
-          checkbox(f, :unmute_videos, checked: @conn.cookies["unmute_videos"] == "true"), \
+          checkbox(f, :unmute_videos, checked: @conn.cookies["unmute_videos"] == "true", class: "checkbox"), \
           label(f, :unmute_videos, "Enable video audio by default"), \
         ] \
       )
@@ -244,7 +244,7 @@ h1 Content Settings
       = field_with_help( \
         "Hide the uploader and date posted information on image pages.", \
         [ \
-          checkbox(f, :hide_uploader, checked: @conn.cookies["hide_uploader"] == "true"), \
+          checkbox(f, :hide_uploader, checked: @conn.cookies["hide_uploader"] == "true", class: "checkbox"), \
           label(f, :hide_uploader), \
         ] \
       )
@@ -252,7 +252,7 @@ h1 Content Settings
       = field_with_help( \
         "Don't attempt to filter tag suggestions using your current filter.", \
         [ \
-          checkbox(f, :unfilter_tag_suggestions, checked: @conn.cookies["unfilter_tag_suggestions"] == "true"), \
+          checkbox(f, :unfilter_tag_suggestions, checked: @conn.cookies["unfilter_tag_suggestions"] == "true", class: "checkbox"), \
           label(f, :unfilter_tag_suggestions), \
         ] \
       )
@@ -260,7 +260,7 @@ h1 Content Settings
       = field_with_help( \
         "Hide score information for images.", \
         [ \
-          checkbox(f, :hide_score, checked: @conn.cookies["hide_score"] == "true"), \
+          checkbox(f, :hide_score, checked: @conn.cookies["hide_score"] == "true", class: "checkbox"), \
           label(f, :hide_score), \
         ] \
       )
@@ -268,20 +268,21 @@ h1 Content Settings
       = field_with_help( \
         "Show streams marked as NSFW on the channels page.", \
         [ \
-          checkbox(f, :chan_nsfw, checked: @conn.cookies["chan_nsfw"] == "true"), \
+          checkbox(f, :chan_nsfw, checked: @conn.cookies["chan_nsfw"] == "true", class: "checkbox"), \
           label(f, :chan_nsfw, "Show NSFW channels"), \
         ] \
       )
 
       .field
-        => checkbox f, :enable_search_ac, checked: @conn.cookies["enable_search_ac"] == "true"
+        => checkbox f, :enable_search_ac, checked: @conn.cookies["enable_search_ac"] == "true", class: "checkbox"
         => label f, :enable_search_ac, "Enable search auto-completion"
 
       .autocomplete-settings class=if(@conn.cookies["enable_search_ac"] != "true", do: "hidden", else: "")
         .field
           => checkbox f,
               :autocomplete_search_history_hidden,
-              checked: @conn.cookies["autocomplete_search_history_hidden"] == "true"
+              checked: @conn.cookies["autocomplete_search_history_hidden"] == "true",
+              class: "checkbox"
           => label f,
               :autocomplete_search_history_hidden,
               "Hide search history in auto-completion"
@@ -306,7 +307,7 @@ h1 Content Settings
           "Hide most of the staff tools (e.g. IPs, anon names) making your site " <> \
           "appear as if you weren't staff, this is useful when browsing in public.",
           [ \
-            checkbox(f, :hide_staff_tools, checked: @conn.cookies["hide_staff_tools"] == "true"),
+            checkbox(f, :hide_staff_tools, checked: @conn.cookies["hide_staff_tools"] == "true", class: "checkbox"),
             label(f, :hide_staff_tools),
           ] \
         )
