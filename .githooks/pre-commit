@@ -49,5 +49,3 @@ fi
 
 # Add the modified/prettified files to staging
 echo "$files" | xargs git add
-
-exit 0
