@@ -31,8 +31,8 @@ if command_exists typos; then
   echo "$files" | step xargs typos
 fi
 
-if command_exists ./node_modules/.bin/prettier; then
-  echo "$files" | step xargs ./node_modules/.bin/prettier --ignore-unknown --write
+if command_exists npx; then
+  echo "$files" | step xargs npx prettier --ignore-unknown --write
 fi
 
 if command_exists cargo; then
