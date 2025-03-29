@@ -5,6 +5,7 @@ RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /et
     && cp /tmp/repositories /etc/apk/repositories \
     && apk update --allow-untrusted \
     && apk add --allow-untrusted \
+      bash \
       inotify-tools \
       build-base \
       git \
@@ -39,10 +40,15 @@ RUN git clone --depth 1 https://github.com/philomena-dev/mediatools /tmp/mediato
     && cd /tmp/mediatools \
     && make -j$(nproc) install
 
-COPY docker/app/run-development /usr/local/bin/run-development
-COPY docker/app/run-test /usr/local/bin/run-test
-COPY docker/app/safe-rsvg-convert /usr/local/bin/safe-rsvg-convert
-COPY docker/app/purge-cache /usr/local/bin/purge-cache
-ENV PATH=$PATH:/root/.cargo/bin
+COPY scripts/lib.sh /var/philomena/scripts/
+
+COPY \
+  docker/app/run-development \
+  docker/app/run-test \
+  docker/app/safe-rsvg-convert \
+  docker/app/purge-cache \
+  /var/philomena/docker/app/
+
+ENV PATH=$PATH:/root/.cargo/bin:/var/philomena/docker/app
 EXPOSE 5173
 CMD run-development
