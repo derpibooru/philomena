@@ -13,6 +13,13 @@ function info {
   echo -e "\033[32;1m[INFO]\033[0m \033[0;32m$message\033[0m" >&2
 }
 
+# Log a message at the warn level
+function warn {
+  local message=$1
+
+  echo -e "\033[33;1m[WARN]\033[0m \033[0;33m$message\033[0m" >&2
+}
+
 # Log the command and execute it
 function step {
   local cmd="$1"
@@ -22,6 +29,8 @@ function step {
     cmd=("${@:1}")
   fi
 
+  # If the process runs in a parallel subshell - use the TASK env var to prefix
+  # its log with the task name.
   local task="${TASK:-}"
 
   if [[ -n $task ]]; then
