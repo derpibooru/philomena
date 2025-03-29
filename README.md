@@ -2,7 +2,7 @@
 
 ![Philomena](/assets/static/images/phoenix.svg)
 
-## Getting started
+## Getting Started
 
 On systems with `docker` and `docker compose` installed, the process should be as simple as:
 
@@ -19,6 +19,16 @@ podman-compose up
 ```
 
 Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / philomena123
+
+## Development
+
+Install NodeJS, Rust and Elixir toolchains. Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
+
+```
+./scripts/init.sh
+```
+
+If you are using VSCode, you are encouraged to install the recommended extensions that VSCode should automatically suggest to you based on `.vscode/extensions.json` file in this repo.
 
 ## Troubleshooting
 
