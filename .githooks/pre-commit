@@ -7,6 +7,8 @@
 
 set -euo pipefail
 
+# Using `readlink` because the pre-commit hook is installed via a symlink, so
+# we need to resolve it before we can make path relative to this script's file.
 . "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/lib.sh"
 
 function command_exists() {
