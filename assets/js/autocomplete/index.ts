@@ -2,12 +2,12 @@ import { LocalAutocompleter } from '../utils/local-autocompleter';
 import * as history from './history';
 import { AutocompletableInput, TextInputElement } from './input';
 import {
-  SuggestionsPopupComponent,
-  Suggestions,
-  TagSuggestionComponent,
-  Suggestion,
   HistorySuggestionComponent,
   ItemSelectedEvent,
+  Suggestion,
+  Suggestions,
+  SuggestionsPopupComponent,
+  TagSuggestionComponent,
 } from '../utils/suggestions-view';
 import { prefixMatchParts } from '../utils/suggestions-model';
 import { $$ } from '../utils/dom';
@@ -243,13 +243,21 @@ class Autocomplete {
     if (!this.isActive() || this.input.element !== event.target) {
       return;
     }
-    if ((event.key === ',' || event.code === 'Enter') && this.input.type === 'single-tag') {
+
+    let keyCode = event.code;
+
+    // Chrome & Firefox on Android devices return empty code when "Enter" is pressed.
+    if (!keyCode && event.key === 'Enter') {
+      keyCode = event.key;
+    }
+
+    if ((event.key === ',' || keyCode === 'Enter') && this.input.type === 'single-tag') {
       // Comma/Enter mean the end of input for the current tag in single-tag mode.
       this.hidePopup(`The user accepted the existing input via key: '${event.key}', code: '${event.code}'`);
       return;
     }
 
-    switch (event.code) {
+    switch (keyCode) {
       case 'Enter': {
         const { selectedSuggestion } = this.popup;
         if (!selectedSuggestion) {
