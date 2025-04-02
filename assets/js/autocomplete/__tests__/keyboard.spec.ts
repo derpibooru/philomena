@@ -1,11 +1,7 @@
 import { init, TestContext } from './context';
 
-describe('Autocomplete keyboard navigation', () => {
-  let ctx: TestContext;
-
-  beforeAll(async () => {
-    ctx = await init();
-  });
+describe('Autocomplete keyboard navigation', async () => {
+  const ctx: TestContext = await init();
 
   it('supports navigation via keyboard', async () => {
     await ctx.setInput('f');
