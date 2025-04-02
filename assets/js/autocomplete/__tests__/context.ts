@@ -146,7 +146,7 @@ export class TestContext {
     await vi.runAllTimersAsync();
   }
 
-  async keyDown(code: string, params?: { ctrlKey?: boolean }) {
+  async keyDown(code: string, params?: { ctrlKey?: boolean; key?: string }) {
     fireEvent.keyDown(this.input, { code, ...(params ?? {}) });
     await vi.runAllTimersAsync();
   }

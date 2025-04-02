@@ -117,4 +117,30 @@ describe('Autocomplete keyboard navigation', () => {
       }
     `);
   });
+
+  it('should handle Enter key presses with empty code property', async () => {
+    await ctx.setInput('f');
+
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "f<>",
+        "suggestions": [
+          "forest  3",
+          "force field  1",
+          "fog  1",
+          "flower  1",
+        ],
+      }
+    `);
+
+    await ctx.keyDown('ArrowDown');
+    await ctx.keyDown('', { key: 'Enter' });
+
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest<>",
+        "suggestions": [],
+      }
+    `);
+  });
 });
