@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
 
   plug :check_can_delete when action in [:delete]
 
-  def index(conn, %{"q" => q}) when is_binary(q) do
+  def index(conn, %{"bq" => q}) when is_binary(q) do
     FingerprintBan
     |> where(
       [fb],
