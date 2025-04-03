@@ -2,7 +2,7 @@ h2 Do-Not-Post Requests
 
 = form_for :dnp_entry, ~p"/admin/dnp_entries", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :q, name: :q, value: @conn.params["q"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none"
+    = text_input f, :eq, name: :eq, value: @conn.params["eq"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none"
     = submit "Search", class: "hform__button button"
 
 - route = fn p -> ~p"/admin/dnp_entries?#{p}" end

@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Admin.UserBanController do
   plug :load_resource, model: UserBan, only: [:edit, :update, :delete], preload: :user
   plug :check_can_delete when action in [:delete]
 
-  def index(conn, %{"q" => q}) when is_binary(q) do
+  def index(conn, %{"bq" => q}) when is_binary(q) do
     like_q = "%#{q}%"
 
     UserBan

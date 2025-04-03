@@ -4,7 +4,7 @@ h1 Search
   = text_input f, :q, class: "input input--wide js-search-field",
     placeholder: "Search terms are chained with commas",
     autocapitalize: "none",
-    name: "q",
+    name: :q,
     value: @conn.params["q"],
     autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
     inputmode: "search",

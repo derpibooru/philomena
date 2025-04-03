@@ -15,7 +15,7 @@ defmodule PhilomenaWeb.Admin.DnpEntryController do
     |> load_entries(conn)
   end
 
-  def index(conn, %{"q" => q}) when is_binary(q) do
+  def index(conn, %{"eq" => q}) when is_binary(q) do
     q = to_ilike(q)
 
     DnpEntry
