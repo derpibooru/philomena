@@ -1,114 +1,146 @@
-import { init } from './context';
+import { init, TestContext } from './context';
 
-it('supports navigation via keyboard', async () => {
-  const ctx = await init();
+describe('Autocomplete keyboard navigation', () => {
+  let ctx: TestContext;
 
-  await ctx.setInput('f');
+  beforeAll(async () => {
+    ctx = await init();
+  });
 
-  await ctx.keyDown('ArrowDown');
+  it('supports navigation via keyboard', async () => {
+    await ctx.setInput('f');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest<>",
-      "suggestions": [
-        "👉 forest  3",
-        "force field  1",
-        "fog  1",
-        "flower  1",
-      ],
-    }
-  `);
+    await ctx.keyDown('ArrowDown');
 
-  await ctx.keyDown('ArrowDown');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest<>",
+        "suggestions": [
+          "👉 forest  3",
+          "force field  1",
+          "fog  1",
+          "flower  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "force field<>",
-      "suggestions": [
-        "forest  3",
-        "👉 force field  1",
-        "fog  1",
-        "flower  1",
-      ],
-    }
-  `);
+    await ctx.keyDown('ArrowDown');
 
-  await ctx.keyDown('ArrowDown', { ctrlKey: true });
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "force field<>",
+        "suggestions": [
+          "forest  3",
+          "👉 force field  1",
+          "fog  1",
+          "flower  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "flower<>",
-      "suggestions": [
-        "forest  3",
-        "force field  1",
-        "fog  1",
-        "👉 flower  1",
-      ],
-    }
-  `);
+    await ctx.keyDown('ArrowDown', { ctrlKey: true });
 
-  await ctx.keyDown('ArrowUp', { ctrlKey: true });
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "flower<>",
+        "suggestions": [
+          "forest  3",
+          "force field  1",
+          "fog  1",
+          "👉 flower  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest<>",
-      "suggestions": [
-        "👉 forest  3",
-        "force field  1",
-        "fog  1",
-        "flower  1",
-      ],
-    }
-  `);
+    await ctx.keyDown('ArrowUp', { ctrlKey: true });
 
-  await ctx.keyDown('Enter');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest<>",
+        "suggestions": [
+          "👉 forest  3",
+          "force field  1",
+          "fog  1",
+          "flower  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest<>",
-      "suggestions": [],
-    }
-  `);
+    await ctx.keyDown('Enter');
 
-  await ctx.setInput('forest, t<>, safe');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest<>",
+        "suggestions": [],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest, t<>, safe",
-      "suggestions": [
-        "artist:test  1",
-      ],
-    }
-  `);
+    await ctx.setInput('forest, t<>, safe');
 
-  await ctx.keyDown('ArrowDown');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest, t<>, safe",
+        "suggestions": [
+          "artist:test  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest, artist:test<>, safe",
-      "suggestions": [
-        "👉 artist:test  1",
-      ],
-    }
-  `);
+    await ctx.keyDown('ArrowDown');
 
-  await ctx.keyDown('Escape');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest, artist:test<>, safe",
+        "suggestions": [
+          "👉 artist:test  1",
+        ],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest, artist:test<>, safe",
-      "suggestions": [],
-    }
-  `);
+    await ctx.keyDown('Escape');
 
-  await ctx.setInput('forest, t<>, safe');
-  await ctx.keyDown('ArrowDown');
-  await ctx.keyDown('Enter');
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest, artist:test<>, safe",
+        "suggestions": [],
+      }
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "forest, artist:test<>, safe",
-      "suggestions": [],
-    }
-  `);
+    await ctx.setInput('forest, t<>, safe');
+    await ctx.keyDown('ArrowDown');
+    await ctx.keyDown('Enter');
+
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest, artist:test<>, safe",
+        "suggestions": [],
+      }
+    `);
+  });
+
+  it('should handle Enter key presses with empty code property', async () => {
+    await ctx.setInput('f');
+
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "f<>",
+        "suggestions": [
+          "forest  3",
+          "force field  1",
+          "fog  1",
+          "flower  1",
+        ],
+      }
+    `);
+
+    await ctx.keyDown('ArrowDown');
+    await ctx.keyDown('', { key: 'Enter' });
+
+    ctx.expectUi().toMatchInlineSnapshot(`
+      {
+        "input": "forest<>",
+        "suggestions": [],
+      }
+    `);
+  });
 });

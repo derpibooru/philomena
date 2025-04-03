@@ -26,11 +26,11 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@vitest/coverage-v8": "^2.1.9",
+    "@vitest/eslint-plugin": "^1.1.38",
     "eslint": "^9.16.0",
-    "eslint-plugin-vitest": "^0.5.4",
     "stylelint": "^16.11.0",
     "stylelint-config-standard": "^36.0.1",
-    "typescript-eslint": "8.17.0",
+    "typescript-eslint": "8.29.0",
     "vitest": "^2.1.9",
     "vitest-fetch-mock": "^0.4.2"
   }
