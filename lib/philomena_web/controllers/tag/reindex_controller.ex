@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Tag.ReindexController do
 
   def create(conn, _params) do
     {:ok, tag} = Tags.reindex_tag_images(conn.assigns.tag)
+    Tags.reindex_tag(tag)
 
     conn
     |> put_flash(:info, "Tag reindex started.")
