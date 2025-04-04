@@ -22,7 +22,7 @@ RUN (echo "https://github.com/philomena-dev/prebuilt-ffmpeg/raw/master"; cat /et
       librsvg \
       rsvg-convert \
       imagemagick \
-      postgresql16-client \
+      postgresql17-client \
       wget \
       rust \
       cargo \
