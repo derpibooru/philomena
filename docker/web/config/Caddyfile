@@ -2,22 +2,22 @@
 	cache
 }
 
-(s3path) {
-	route {args[0]} {
-		cache
-		rewrite {args[0]} {args[1]}
+# Internal image serving server
+:8888 {
+	root /
+
+	# Set up the internal route which won't be reverse-proxied by
+	# the main server block, preventing direct bucket access.
+	route /internal/* {
+		uri strip_prefix /internal/
+
 		s3proxy {
 			bucket {$S3_BUCKET}
 			region auto
 			endpoint {$S3_ENDPOINT}
-			root /
 			force_path_style
 		}
 	}
-}
-
-:80 {
-	root * {$APP_DIR}/priv/static/
 
 	@imgdownload path_regexp ^/img/download/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
 	@imgview path_regexp ^/img/view/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
@@ -27,24 +27,58 @@
 	@badges path_regexp ^/badge-img/(.+)$
 	@tags path_regexp ^/tag-img/(.+)$
 
-	header /img/download/* {
-		Cache-Control public
-		Content-Disposition "attachment"
+	rewrite @imgdownload /internal/images/{re.imgdownload.1}/{re.imgdownload.2}/full.{re.imgdownload.3}
+	rewrite @imgview /internal/images/{re.imgview.1}/{re.imgview.2}/full.{re.imgview.3}
+	rewrite @img /internal/images/{re.img.1}
+	rewrite @avatars /internal/avatars/{re.avatars.1}
+	rewrite @spns /internal/adverts/{re.spns.1}
+	rewrite @badges /internal/badges/{re.badges.1}
+	rewrite @tags /internal/tags/{re.tags.1}
+}
+
+# Main server on exposed port
+:80 {
+	root * {$APP_DIR}/priv/static/
+
+	# So, this block and the weird setup of this configuration file
+	# is necessary because it is possible for there to be files in the bucket
+	# which have "application/octet-stream" as their content type. We force-set
+	# it here based on the file extension for appropriate handling.
+	map {path} {custom_content_type} {
+		~.*\.png$ "image/png"
+		~.*\.jpe?g$ "image/jpeg"
+		~.*\.gif$ "image/gif"
+		~.*\.svg$ "image/svg+xml"
+		~.*\.mp4$ "video/mp4"
+		~.*\.webm$ "video/webm"
+		default "text/html"
 	}
 
-	import s3path @imgdownload images/{re.imgdownload.1}/{re.imgdownload.2}/full.{re.imgdownload.3}
-	import s3path @imgview images/{re.imgview.1}/{re.imgview.2}/full.{re.imgview.3}
-	import s3path @img images/{re.img.1}
-	import s3path @avatars avatars/{re.avatars.1}
-	import s3path @spns adverts/{re.spns.1}
-	import s3path @badges badges/{re.badges.1}
-	import s3path @tags tags/{re.tags.1}
+	# Important: limit image reverse-proxying to image paths!
+	@allimages path /img/* /avatars/* /spns/* /badge-img/* /tag-img/*
+
+	# Delegate image serving to a container-internal server on :8888
+	#
+	# This is necessary because for some incomprehensible to me reason
+	# s3-proxy plugin (or something else) APPENDS Content-Type *after*
+	# it was set by the "header" directive in the Caddyfile.
+	#
+	# By reverse-proxying the S3 block, we can force the Content-Type
+	# header to be what we want via the "header_down" directive.
+	route @allimages {
+		cache
+		reverse_proxy localhost:8888 {
+			header_down Content-Type {custom_content_type}
+		}
+	}
 
 	route {
+		# Try to serve static files first...
 		file_server {
-			pass_thru
+			pass_thru # Instead of returning 404, simply move on
 		}
 
+		# Delegate to app if there's no such file
 		reverse_proxy http://app:4000
 	}
 }

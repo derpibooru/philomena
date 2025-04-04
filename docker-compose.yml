@@ -102,7 +102,7 @@ services:
       - S3_BUCKET=philomena
       - AWS_ACCESS_KEY_ID=local-identity
       - AWS_SECRET_ACCESS_KEY=local-credential
-    attach: true
+    attach: false
     depends_on:
       - app
     ports:
