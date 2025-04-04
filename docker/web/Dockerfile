@@ -1,16 +1,14 @@
-FROM openresty/openresty:1.27.1.1-alpine
-ARG APP_DIR
-ARG S3_SCHEME
-ARG S3_HOST
-ARG S3_PORT
-ARG S3_BUCKET
+ARG CADDY_VERSION="2.9.1"
 
-RUN apk add --no-cache gettext curl perl && opm get jkeys089/lua-resty-hmac=0.06 && mkdir -p /etc/nginx/lua
-COPY docker/web/aws-signature.lua /etc/nginx/lua
-COPY docker/web/nginx.conf /tmp/docker.nginx
-RUN envsubst '$APP_DIR $S3_SCHEME $S3_HOST $S3_PORT $S3_BUCKET' < /tmp/docker.nginx > /etc/nginx/conf.d/default.conf && \
-    mkdir -p /var/www/cache/tmp && \
-    echo 'env AWS_ACCESS_KEY_ID;' >> /usr/local/openresty/nginx/conf/nginx.conf && \
-    echo 'env AWS_SECRET_ACCESS_KEY;' >> /usr/local/openresty/nginx/conf/nginx.conf
+FROM caddy:$CADDY_VERSION-builder-alpine AS builder
+
+RUN xcaddy build \
+    --with github.com/lindenlab/caddy-s3-proxy \
+    --with github.com/caddyserver/cache-handler
+
+FROM caddy:$CADDY_VERSION-alpine
+
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
 EXPOSE 80
-CMD ["openresty", "-g", "daemon off;"]
+EXPOSE 443

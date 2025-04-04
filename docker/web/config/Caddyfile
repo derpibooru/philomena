@@ -1,0 +1,50 @@
+{
+	cache
+}
+
+(s3path) {
+	route {args[0]} {
+		cache
+		rewrite {args[0]} {args[1]}
+		s3proxy {
+			bucket {$S3_BUCKET}
+			region auto
+			endpoint {$S3_ENDPOINT}
+			root /
+			force_path_style
+		}
+	}
+}
+
+:80 {
+	root * {$APP_DIR}/priv/static/
+
+	@imgdownload path_regexp ^/img/download/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@imgview path_regexp ^/img/view/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@img path_regexp ^/img/(.+)$
+	@spns path_regexp ^/spns/(.+)$
+	@avatars path_regexp ^/avatars/(.+)$
+	@badges path_regexp ^/badge-img/(.+)$
+	@tags path_regexp ^/tag-img/(.+)$
+
+	header /img/download/* {
+		Cache-Control public
+		Content-Disposition "attachment"
+	}
+
+	import s3path @imgdownload images/{re.imgdownload.1}/{re.imgdownload.2}/full.{re.imgdownload.3}
+	import s3path @imgview images/{re.imgview.1}/{re.imgview.2}/full.{re.imgview.3}
+	import s3path @img images/{re.img.1}
+	import s3path @avatars avatars/{re.avatars.1}
+	import s3path @spns adverts/{re.spns.1}
+	import s3path @badges badges/{re.badges.1}
+	import s3path @tags tags/{re.tags.1}
+
+	route {
+		file_server {
+			pass_thru
+		}
+
+		reverse_proxy http://app:4000
+	}
+}
