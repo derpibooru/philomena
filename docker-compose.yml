@@ -1,6 +1,7 @@
 volumes:
   postgres_data: {}
   opensearch_data: {}
+  caddy_data: {}
   app_cargo_data: {}
   app_build_data: {}
   app_deps_data: {}
@@ -96,6 +97,7 @@ services:
     volumes:
       - .:/srv/philomena
       - ./docker/web/config:/etc/caddy
+      - caddy_data:/data
     environment:
       - APP_DIR=/srv/philomena
       - S3_ENDPOINT=http://files:80

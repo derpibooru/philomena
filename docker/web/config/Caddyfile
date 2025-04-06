@@ -1,22 +1,4 @@
 {
-	# Caching should be based on URL, not rewritten URL.
-	order cache before rewrite
-
-	cache {
-		ttl 10h
-		default_cache_control public
-		cache_name Philomena
-
-		# Simplify cache keys to maximize hit rate.
-		key {
-			disable_body
-			disable_host
-			disable_method
-			disable_query
-			disable_scheme
-		}
-	}
-
 	filesystem philomena s3 {
 		bucket {$S3_BUCKET}
 		endpoint {$S3_ENDPOINT}
@@ -27,7 +9,6 @@
 
 (s3path) {
 	handle {args[0]} {
-		cache
 		rewrite {args[0]} {args[1]}
 		file_server {
 			fs philomena
