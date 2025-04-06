@@ -40,15 +40,8 @@ RUN git clone --depth 1 https://github.com/philomena-dev/mediatools /tmp/mediato
     && cd /tmp/mediatools \
     && make -j$(nproc) install
 
-COPY scripts/lib.sh /var/philomena/scripts/
+# docker-compose configures a bind-mount of the repo root dir to /srv/philomena
+ENV PATH=$PATH:/root/.cargo/bin:/srv/philomena/docker/app
 
-COPY \
-  docker/app/run-development \
-  docker/app/run-test \
-  docker/app/safe-rsvg-convert \
-  docker/app/purge-cache \
-  /var/philomena/docker/app/
-
-ENV PATH=$PATH:/root/.cargo/bin:/var/philomena/docker/app
 EXPOSE 5173
 CMD run-development
