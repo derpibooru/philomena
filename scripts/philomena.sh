@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # Script to start the docker-compose stack for development.
+# You can install a symlink to this script to `/usr/local/bin` with the `init`\
+# subcommand, which will make `philomena` available globally.
 
 set -euo pipefail
 
@@ -69,12 +71,20 @@ function clean {
   # but losing them may be inconvenient.
 }
 
+# Initialize the repo for development. See `init.sh` file for details of what
+# this means
+function init {
+  "$(dirname "${BASH_SOURCE[0]}")/init.sh"
+}
+
 subcommand="${1:-}"
 shift || true
 
 case "$subcommand" in
   up) up "$@" ;;
   down) down "$@" ;;
+  clean) clean "$@" ;;
+  init) init "$@" ;;
   *)
     die "See the available sub-commands in ${BASH_SOURCE[0]}"
     ;;

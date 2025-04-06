@@ -4,31 +4,46 @@
 
 ## Getting Started
 
-On systems with `docker` and `docker compose` installed, the process should be as simple as:
+Make sure the following core tools are installed on your machine:
+
+- [Docker](https://docs.docker.com/engine/install/) and [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-docker-compose-plugin)
+- [NodeJS toolchain](https://nodejs.org/en)
+- [Rust toolchain](https://www.rust-lang.org/tools/install)
+- [Elixir toolchain](https://elixir-lang.org/install.html)
+
+Add the directory `scripts/path` to your `PATH` to get the `philomena` dev CLI globally available in your terminal.
+
+Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
+
+```bash
+philomena init
+```
+
+Then use the following command to bring up or shut down a dev server:
 
 ```
-docker compose build
-docker compose up
+philomena up
+philomena down
 ```
 
-If you use `podman` and `podman-compose` instead, the process for constructing a rootless container is nearly identical:
+Once the application has started, navigate to http://localhost:8080 and login with
 
-```
-podman-compose build
-podman-compose up
-```
+| Credential | Value               |
+| ---------- | ------------------- |
+| Email      | `admin@example.com` |
+| Password   | `philomena123`      |
 
-Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / philomena123
+> [!TIP] See the source code of `scripts/philomena.sh` for details on the additional parameters and other subcommands.
 
-## Development
-
-Install NodeJS, Rust and Elixir toolchains. Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
-
-```
-./scripts/init.sh
-```
+## IDE Setup
 
 If you are using VSCode, you are encouraged to install the recommended extensions that VSCode should automatically suggest to you based on `.vscode/extensions.json` file in this repo.
+
+## Updates
+
+We regularly bump our dev tool versions, so if you want to stay in sync, make sure to rerun `philomena init` from time to time to get the latest updates.
+
+That command downloads and stores some dev tools under the `.tools` directory. If you don't keep in sync with this, our CI will catch any errors anyway, so don't worry.
 
 ## Troubleshooting
 

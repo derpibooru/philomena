@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Small wrapper for `scripts/philomena.sh` that lives in a separate `path`
+# directory so that it is safe to add it to your `$PATH` without extra pollution.
+
+exec "$(dirname "${BASH_SOURCE[0]}")/../philomena.sh" "$@"
