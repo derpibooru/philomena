@@ -33,7 +33,8 @@ Once the application has started, navigate to http://localhost:8080 and login wi
 | Email      | `admin@example.com` |
 | Password   | `philomena123`      |
 
-> [!TIP] See the source code of `scripts/philomena.sh` for details on the additional parameters and other subcommands.
+> [!TIP]
+> See the source code of `scripts/philomena.sh` for details on the additional parameters and other subcommands.
 
 ## IDE Setup
 
