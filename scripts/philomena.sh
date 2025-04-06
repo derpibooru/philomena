@@ -59,15 +59,29 @@ function down {
 
 # Clean up everything: DBs, build caches, etc.
 function clean {
+  # We don't run a `git clean` by default because some developers store dirty scripts
+  # and test data in the repo under ignored locations. These are usually harmless,
+  # but losing them may be inconvenient. If you really want to do a full clean of
+  # files not checked into git, you can use `--git` flag.
+  local git=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --git) git=true ;;
+      *) die "Unknown option: $1" ;;
+    esac
+    shift
+  done
+
   step docker compose down --volumes
   step docker container prune --all --force
   step docker volume prune --all --force
   step docker image prune --all --force
   step sudo chown --recursive "$(id -u):$(id -g)" .
 
-  # We don't run a `git clean` here because some people store dirty scripts
-  # and test data in the repo under ignored locations. These are usually harmless,
-  # but losing them may be inconvenient.
+  if [[ "$git" == "true" ]]; then
+    step git clean -xfdf
+  fi
 }
 
 # Initialize the repo for development. See `init.sh` file for details of what
