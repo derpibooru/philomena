@@ -38,4 +38,28 @@ defmodule PhilomenaWeb.SettingView do
 
   def staff?(%{role: role}), do: role != "user"
   def staff?(_), do: false
+
+  def field_with_help(title, children) do
+    content =
+      children
+      |> Enum.intersperse(" ")
+      |> Enum.concat([
+        content_tag :span, class: "field-help-button" do
+          [
+            content_tag(:i, "", class: "fa-regular fa-question-circle"),
+            " Help"
+          ]
+        end,
+        content_tag :div, class: "field-help-content hidden" do
+          [
+            # The `title` is static and doesn't include dynamic user input.
+            # sobelow_skip ["XSS.Raw"]
+            raw(text_to_html(title)),
+            tag(:hr)
+          ]
+        end
+      ])
+
+    content_tag(:div, content, class: "field", title: title)
+  end
 end
