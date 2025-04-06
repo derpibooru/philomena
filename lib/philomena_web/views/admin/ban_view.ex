@@ -14,10 +14,10 @@ defmodule PhilomenaWeb.Admin.BanView do
   end
 
   def page_params(params) do
-    case params["q"] do
+    case params["bq"] do
       nil -> []
       "" -> []
-      q -> [q: q]
+      q -> [bq: q]
     end
   end
 end

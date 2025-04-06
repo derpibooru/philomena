@@ -75,8 +75,8 @@ it('records search history', async () => {
         "(history) foo1",
         "-----------",
         "forest  3",
-        "fog  1",
         "force field  1",
+        "fog  1",
         "flower  1",
       ],
     }
@@ -93,8 +93,8 @@ it('records search history', async () => {
         "(history) foo1",
         "-----------",
         "forest  3",
-        "fog  1",
         "force field  1",
+        "fog  1",
         "flower  1",
       ],
     }

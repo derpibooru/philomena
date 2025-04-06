@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // Rust LSP
+    "rust-lang.rust-analyzer",
+
+    // Elixir LSP
+    "lexical-lsp.lexical",
+
+    // `.slime` syntax highlighting
+    "xolan.slime",
+
+    // `.js`, `.ts` linter
+    "dbaeumer.vscode-eslint",
+
+    // `.css` linter
+    "stylelint.vscode-stylelint",
+
+    // `.js`, `.ts`. `.css`, `.json`, `.yaml`, `.md` formatter
+    "esbenp.prettier-vscode",
+
+    // Spell checker enforced on CI
+    "tekumara.typos-vscode",
+
+    // `.toMatchInlineSnapshot()` syntax highlighting
+    "tlent.jest-snapshot-language-support"
+  ]
+}

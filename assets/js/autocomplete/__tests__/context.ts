@@ -22,7 +22,7 @@ import { GetTagSuggestionsResponse, TagSuggestion } from 'autocomplete/client';
  * `jsdom`, so it's expected that you define a single test per file so that
  * `vitest` runs every test in an isolated process, where no cleanup is needed.
  *
- * I wish `vitest` actually did that by default, because cleanup logic and test
+ * I wish `vitest` actually did that by default, because cleanup logic and
  * in-process test isolation is just boilerplate that we could avoid at this
  * scale at least.
  */
@@ -146,7 +146,7 @@ export class TestContext {
     await vi.runAllTimersAsync();
   }
 
-  async keyDown(code: string, params?: { ctrlKey?: boolean }) {
+  async keyDown(code: string, params?: { ctrlKey?: boolean; key?: string }) {
     fireEvent.keyDown(this.input, { code, ...(params ?? {}) });
     await vi.runAllTimersAsync();
   }

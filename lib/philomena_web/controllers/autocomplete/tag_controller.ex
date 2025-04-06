@@ -81,6 +81,10 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
       }
     )
     |> Enum.filter(&(&1.images > 0))
+    # Sometimes we have data desynchronization between OpenSearch and Postgres due
+    # to bugs. This client-side sort serves as a patch to make sure we have correct
+    # ranking of the autocomplete results even in the case of desynchronization.
+    |> Enum.sort_by(& &1.images, :desc)
     |> Enum.take(limit)
   end
 

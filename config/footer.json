@@ -1,9 +1,5 @@
 {
-  "cols": [
-    "Site Resources",
-    "Help & Information",
-    "Community"
-  ],
+  "cols": ["Site Resources", "Help & Information", "Community"],
   "Site Resources": [
     {
       "title": "Site Rules",
