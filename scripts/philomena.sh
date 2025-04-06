@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Script to start the docker-compose stack for development.
-# You can install a symlink to this script to `/usr/local/bin` with the `init`\
-# subcommand, which will make `philomena` available globally.
+# An entrypoint dev CLI for this repository. You are encouraged to add `scripts/path`
+# directory to your PATH to get this CLI available globally as `philomena` in your terminal.
 
 set -euo pipefail
 
