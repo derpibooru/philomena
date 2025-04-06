@@ -41,12 +41,6 @@ philomena init
 
 If you are using VSCode, you are encouraged to install the recommended extensions that VSCode should automatically suggest to you based on `.vscode/extensions.json` file in this repo.
 
-## Updates
-
-We regularly bump our dev tool versions, so if you want to stay in sync, make sure to rerun `philomena init` from time to time to get the latest updates.
-
-That command downloads and stores some dev tools under the `.tools` directory. If you don't keep in sync with this, our CI will catch any errors anyway, so don't worry.
-
 ## Troubleshooting
 
 If you are running Docker on Windows and the application crashes immediately upon startup, please ensure that `autocrlf` is set to `false` in your Git config, and then re-clone the repository. Additionally, it is recommended that you allocate at least 4GB of RAM to your Docker VM.
