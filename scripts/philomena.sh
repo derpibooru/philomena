@@ -59,7 +59,7 @@ function down {
 
 # Clean up everything: DBs, build caches, etc.
 function clean {
-  down --drop-db
+  step docker compose down --volumes
   step docker container prune --all --force
   step docker volume prune --all --force
   step docker image prune --all --force
