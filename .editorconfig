@@ -7,3 +7,20 @@ insert_final_newline = true
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
+
+# These configurations are recognized by `shfmt`:
+# https://github.com/mvdan/sh/blob/master/cmd/shfmt/shfmt.1.scd
+#
+# If you are using this VSCode extension https://github.com/foxundermoon/vs-shell-format/tree/master,
+# then add this to your settings.json, because it doesn't use the .editorconfig file by default:
+# ```json
+# {
+#     "shellformat.useEditorConfig": true
+# }
+# ```
+# That's really annoying, but it is what it is.
+#
+# The default for `shfmt` is not to indent the match arms of case statements, that is
+# exremely ugly. The issue about that in the VSCode extension repo:
+# https://github.com/foxundermoon/vs-shell-format/issues/371
+switch_case_indent = true
