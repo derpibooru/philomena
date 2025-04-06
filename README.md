@@ -4,24 +4,17 @@
 
 ## Getting Started
 
-Make sure the following core tools are installed on your machine:
+Make sure you have [Docker](https://docs.docker.com/engine/install/) and [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-docker-compose-plugin) installed.
 
-- [Docker](https://docs.docker.com/engine/install/) and [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-docker-compose-plugin)
-- [NodeJS toolchain](https://nodejs.org/en)
-- [Rust toolchain](https://www.rust-lang.org/tools/install)
-- [Elixir toolchain](https://elixir-lang.org/install.html)
-
-Add the directory `scripts/path` to your `PATH` to get the `philomena` dev CLI globally available in your terminal.
-
-Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
+Add the directory `scripts/path` to your `PATH` to get the `philomena` dev CLI globally available in your terminal. For example you can add the following to your shell's `.*rc` file, but adjust the path to philomena repo accordingly.
 
 ```bash
-philomena init
+export PATH="$PATH:$HOME/dev/philomena/scripts/path"
 ```
 
-Then use the following command to bring up or shut down a dev server:
+Use the following commands to bring up or shut down a dev server.
 
-```
+```bash
 philomena up
 philomena down
 ```
@@ -35,6 +28,14 @@ Once the application has started, navigate to http://localhost:8080 and login wi
 
 > [!TIP]
 > See the source code of `scripts/philomena.sh` for details on the additional parameters and other subcommands.
+
+## Pre-commit hook
+
+Run the following command to configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit.
+
+```bash
+philomena init
+```
 
 ## IDE Setup
 
