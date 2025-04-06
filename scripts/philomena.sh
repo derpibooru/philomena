@@ -8,7 +8,7 @@ set -euo pipefail
 
 function up {
   # Delete the database volumes. This doesn't remove the build caches.
-  # This is a shortcut to do a `down --drop-db` with a folluwing `up`.
+  # This is a shortcut to do a `down --drop-db` with a following `up`.
   local drop_db=false
 
   while [[ $# -gt 0 ]]; do
