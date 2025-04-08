@@ -20,6 +20,21 @@ function warn {
   echo -e "\033[33;1m[WARN]\033[0m \033[0;33m$message\033[0m" >&2
 }
 
+# Log a message at the error level
+function error {
+  local message=$1
+
+  echo -e "\033[31;1m[ERROR]\033[0m \033[0;31m$message\033[0m" >&2
+}
+
+# Log a message at the error level and exit with a non-zero status
+function die {
+  local message=$1
+
+  error "$message"
+  exit 1
+}
+
 # Log the command and execute it
 function step {
   local cmd="$1"

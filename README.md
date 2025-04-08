@@ -4,29 +4,40 @@
 
 ## Getting Started
 
-On systems with `docker` and `docker compose` installed, the process should be as simple as:
+Make sure you have [Docker](https://docs.docker.com/engine/install/) and [Docker Compose plugin](https://docs.docker.com/compose/install/#scenario-two-install-the-docker-compose-plugin) installed.
 
-```
-docker compose build
-docker compose up
-```
+Add the directory `scripts/path` to your `PATH` to get the `philomena` dev CLI globally available in your terminal. For example you can add the following to your shell's `.*rc` file, but adjust the path to philomena repo accordingly.
 
-If you use `podman` and `podman-compose` instead, the process for constructing a rootless container is nearly identical:
-
-```
-podman-compose build
-podman-compose up
+```bash
+export PATH="$PATH:$HOME/dev/philomena/scripts/path"
 ```
 
-Once the application has started, navigate to http://localhost:8080 and login with admin@example.com / philomena123
+Use the following commands to bring up or shut down a dev server.
 
-## Development
-
-Install NodeJS, Rust and Elixir toolchains. Then, run the following command to install other dependencies and configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit:
-
+```bash
+philomena up
+philomena down
 ```
-./scripts/init.sh
+
+Once the application has started, navigate to http://localhost:8080 and login with
+
+| Credential | Value               |
+| ---------- | ------------------- |
+| Email      | `admin@example.com` |
+| Password   | `philomena123`      |
+
+> [!TIP]
+> See the source code of `scripts/philomena.sh` for details on the additional parameters and other subcommands.
+
+## Pre-commit hook
+
+Run the following command to configure the git pre-commit hook that will auto-format the code and run lightweight checks on each commit.
+
+```bash
+philomena init
 ```
+
+## IDE Setup
 
 If you are using VSCode, you are encouraged to install the recommended extensions that VSCode should automatically suggest to you based on `.vscode/extensions.json` file in this repo.
 
