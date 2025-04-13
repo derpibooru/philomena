@@ -17,6 +17,7 @@ defmodule Philomena.Tags.Tag do
     "blog",
     "colorist",
     "comic",
+    "commissioner",
     "editor",
     "fanfic",
     "oc",
@@ -46,6 +47,7 @@ defmodule Philomena.Tags.Tag do
   @underscore_safe_namespaces [
     "artist:",
     "colorist:",
+    "commissioner:",
     "editor:",
     "oc:",
     "photographer:"
