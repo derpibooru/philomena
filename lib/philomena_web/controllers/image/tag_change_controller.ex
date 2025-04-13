@@ -4,6 +4,7 @@ defmodule PhilomenaWeb.Image.TagChangeController do
   alias Philomena.Images.Image
   alias Philomena.TagChanges
   alias Philomena.TagChanges.TagChange
+  alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
 
@@ -65,9 +66,15 @@ defmodule PhilomenaWeb.Image.TagChangeController do
     }
   end
 
-  defp tag_change_details(%TagChange{added: true, tag: tag}),
-    do: "+#{tag.name}"
+  defp tag_change_details(%TagChange{added: true, tag: %Tag{name: tag_name}}),
+    do: "+#{tag_name}"
 
-  defp tag_change_details(%TagChange{added: false, tag: tag}),
-    do: "-#{tag.name}"
+  defp tag_change_details(%TagChange{added: true, tag_name_cache: tag_name}),
+    do: "+#{tag_name}"
+
+  defp tag_change_details(%TagChange{added: false, tag: %Tag{name: tag_name}}),
+    do: "-#{tag_name}"
+
+  defp tag_change_details(%TagChange{added: false, tag_name_cache: tag_name}),
+    do: "-#{tag_name}"
 end
