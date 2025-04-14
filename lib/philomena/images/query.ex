@@ -1,6 +1,7 @@
 defmodule Philomena.Images.Query do
   alias PhilomenaQuery.Parse.Parser
   alias Philomena.Repo
+  alias Philomena.Tags.Tag
 
   defp gallery_id_transform(_ctx, value) do
     case Integer.parse(value) do
@@ -99,7 +100,8 @@ defmodule Philomena.Images.Query do
         "faved_by" => "favourited_by_users",
         "faved_by_id" => "favourited_by_user_ids"
       },
-      no_downcase_fields: ~W(file_name)
+      no_downcase_fields: ~W(file_name),
+      normalizations: %{"namespaced_tags.name" => &Tag.clean_tag_name/1}
     ]
   end
 
