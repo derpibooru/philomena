@@ -340,6 +340,9 @@ defmodule PhilomenaQuery.Parse.Parser do
     end
   end
 
+  defp field_term(_parser, custom_field: field_name, range: _range, value: _value),
+    do: {:error, "range specified for " <> field_name}
+
   defp field_term(parser, [{field_parser, field_name}, {:range, range}, {:value, value}]) do
     # N.B.: field_parser is an atom
     case field_parser.parse(value) do
