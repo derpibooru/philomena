@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.Image.ApproveController do
 
       image.hidden_from_users ->
         conn
-        |> put_flash(:error, "Cannot approve a deleted image.")
+        |> put_flash(:error, "Cannot approve a hidden image.")
         |> redirect(to: ~p"/admin/approvals")
         |> halt()
 
