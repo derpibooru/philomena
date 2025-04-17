@@ -161,7 +161,7 @@ const targets = {
     interact('vote', imageId, 'DELETE').then(() => resetVoted(imageId));
   },
   '.interaction--downvote.active'(imageId) {
-    if (window.booru.imagesWithDownvotingDisabled.includes(imageId)) {
+    if (!canDownvote(imageId)) {
       return;
     }
 
@@ -182,7 +182,7 @@ const targets = {
     });
   },
   '.interaction--downvote:not(.active)'(imageId) {
-    if (window.booru.imagesWithDownvotingDisabled.includes(imageId)) {
+    if (!canDownvote(imageId)) {
       return;
     }
 
@@ -204,6 +204,19 @@ const targets = {
     });
   },
 };
+
+/**
+ * Allow downvoting of the images only if the user is on the image page
+ * or the image is not spoilered.
+ *
+ * @param {string} imageId
+ */
+function canDownvote(imageId) {
+  // The `imagelist-container` indicates that we are on the page with the list of images
+  return (
+    !document.getElementById('imagelist-container') || !window.booru.imagesWithDownvotingDisabled.includes(imageId)
+  );
+}
 
 function bindInteractions() {
   document.addEventListener('click', event => {
