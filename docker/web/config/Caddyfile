@@ -1,0 +1,72 @@
+{
+	filesystem philomena s3 {
+		bucket {$S3_BUCKET}
+		endpoint {$S3_ENDPOINT}
+		region auto
+		use_path_style
+	}
+}
+
+(s3path) {
+	handle {args[0]} {
+		rewrite {args[0]} {args[1]}
+		file_server {
+			fs philomena
+		}
+	}
+}
+
+:80 {
+	# Handle images
+	@allimages path /img/* /avatars/* /spns/* /badge-img/* /tag-img/*
+	@imgdownload path_regexp ^/img/download/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@imgview path_regexp ^/img/view/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@img path_regexp ^/img/(.+)$
+	@spns path_regexp ^/spns/(.+)$
+	@avatars path_regexp ^/avatars/(.+)$
+	@badges path_regexp ^/badge-img/(.+)$
+	@tags path_regexp ^/tag-img/(.+)$
+
+	import s3path @imgdownload /images/{re.imgdownload.1}/{re.imgdownload.2}/full.{re.imgdownload.3}
+	import s3path @imgview /images/{re.imgview.1}/{re.imgview.2}/full.{re.imgview.3}
+	import s3path @img /images/{re.img.1}
+	import s3path @avatars /avatars/{re.avatars.1}
+	import s3path @spns /adverts/{re.spns.1}
+	import s3path @badges /badges/{re.badges.1}
+	import s3path @tags /tags/{re.tags.1}
+
+	# This block and the next block after it (the header one) are required
+	# because it is possible for there to be files in the bucket which have
+	# an incorrect content type (e.g. "application/octet-stream").
+	# The Content-Type header is force-set here based on the file extension.
+	map {path} {custom_content_type} {
+		~.*\.png$ "image/png"
+		~.*\.jpe?g$ "image/jpeg"
+		~.*\.gif$ "image/gif"
+		~.*\.svg$ "image/svg+xml"
+		~.*\.mp4$ "video/mp4"
+		~.*\.webm$ "video/webm"
+		default "text/html"
+	}
+
+	header @allimages {
+		Content-Type {custom_content_type}
+	}
+
+	# Download path should download the image, not view it.
+	header @imgdownload {
+		Content-Disposition "attachment"
+	}
+
+	route {
+		# Try to serve static files first...
+		file_server {
+			# Root must be set here, as setting it globally breaks other filesystems.
+			root {$APP_DIR}/priv/static/
+			pass_thru # Instead of returning 404, simply move on
+		}
+
+		# Delegate to app if there's no such file
+		reverse_proxy http://app:4000
+	}
+}
