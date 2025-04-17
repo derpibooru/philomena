@@ -161,7 +161,7 @@ const targets = {
     interact('vote', imageId, 'DELETE').then(() => resetVoted(imageId));
   },
   '.interaction--downvote.active'(imageId) {
-    if (!canDownvote(imageId)) {
+    if (downvoteRestricted(imageId)) {
       return;
     }
 
@@ -182,7 +182,7 @@ const targets = {
     });
   },
   '.interaction--downvote:not(.active)'(imageId) {
-    if (!canDownvote(imageId)) {
+    if (downvoteRestricted(imageId)) {
       return;
     }
 
@@ -211,9 +211,9 @@ const targets = {
  *
  * @param {string} imageId
  */
-function canDownvote(imageId) {
+function downvoteRestricted(imageId) {
   // The `imagelist-container` indicates that we are on the page with the list of images
-  return !$('#imagelist-container') || !window.booru.imagesWithDownvotingDisabled.includes(imageId);
+  return Boolean($('#imagelist-container')) && window.booru.imagesWithDownvotingDisabled.includes(imageId);
 }
 
 function bindInteractions() {
