@@ -17,6 +17,7 @@ defmodule Philomena.Tags.Tag do
     "blog",
     "colorist",
     "comic",
+    "commissioner",
     "editor",
     "fanfic",
     "generator",
@@ -50,6 +51,7 @@ defmodule Philomena.Tags.Tag do
   @underscore_safe_namespaces [
     "artist:",
     "colorist:",
+    "commissioner:",
     "editor:",
     "generator:",
     "oc:",
@@ -203,9 +205,10 @@ defmodule Philomena.Tags.Tag do
     )
     |> String.replace(~r/[\x{00b4}\x{2018}\x{2019}\x{201a}\x{201b}\x{2032}]/u, "'")
     |> String.replace(~r/[\x{201c}\x{201d}\x{201e}\x{201f}\x{2033}]/u, "\"")
-    |> String.trim()
     |> clean_tag_namespace()
     |> ununderscore()
+    |> String.trim()
+    |> String.replace(~r/ +/, " ")
   end
 
   defp clean_tag_namespace(name) do

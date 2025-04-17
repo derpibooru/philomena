@@ -44,6 +44,22 @@ function setupAutocompleteSettings() {
   });
 }
 
+function setupHelpExpansions() {
+  document.addEventListener('click', event => {
+    if (!(event.target instanceof HTMLElement)) {
+      return;
+    }
+
+    const helpButton = event.target.closest('.field-help-button');
+
+    if (!helpButton || !helpButton.nextElementSibling) {
+      return;
+    }
+
+    helpButton.nextElementSibling.classList.toggle('hidden');
+  });
+}
+
 export function setupSettings() {
   if (!$('#js-setting-table')) return;
 
@@ -58,4 +74,5 @@ export function setupSettings() {
 
   setupThemeSettings();
   setupAutocompleteSettings();
+  setupHelpExpansions();
 }

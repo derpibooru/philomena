@@ -71,6 +71,19 @@ defmodule PhilomenaQuery.Parse.Parser do
   """
   @type transform :: (context, String.t() -> transform_result())
 
+  @typedoc """
+  Type of the normalization function.
+
+  The normalization function receives a string value and returns a normalized string.
+  This function is used to customize how field values are processed before being used in queries.
+  Note that normalization only applies to literal and ngram fields.
+
+  When no custom normalizer is provided, the default behavior trims whitespace and downcases
+  the value (unless the field is in `no_downcase_fields`). Custom normalizers replace this
+  default behavior entirely.
+  """
+  @type normalizer :: (String.t() -> String.t())
+
   @type t :: %__MODULE__{
           default_field: {String.t(), default_field_type()},
           bool_fields: [String.t()],
@@ -84,6 +97,7 @@ defmodule PhilomenaQuery.Parse.Parser do
           transforms: %{String.t() => transform()},
           aliases: %{String.t() => String.t()},
           no_downcase_fields: [String.t()],
+          normalizations: %{String.t() => normalizer()},
           __fields__: map(),
           __data__: context()
         }
@@ -101,6 +115,7 @@ defmodule PhilomenaQuery.Parse.Parser do
     transforms: %{},
     aliases: %{},
     no_downcase_fields: [],
+    normalizations: %{},
     __fields__: %{},
     __data__: nil
   ]
@@ -124,6 +139,7 @@ defmodule PhilomenaQuery.Parse.Parser do
   - `transforms` - a map of custom field names to transform functions
   - `aliases` - a map of field names to the names they should have in the search engine
   - `no_downcase_fields` - a list of field names which do not have string downcasing applied
+  - `normalizations` - a map of field names to normalization functions (see `t:normalizer/0`)
 
   ## Example
 
@@ -131,7 +147,9 @@ defmodule PhilomenaQuery.Parse.Parser do
         bool_fields: ["hidden"],
         custom_fields: ["example"],
         transforms: %{"example" => fn _ctx, term -> %{term: %{term => "example"}} end},
-        aliases: %{"hidden" => "hidden_from_users"}
+        aliases: %{"hidden" => "hidden_from_users"},
+        literal_fields: ["username"],
+        normalizations: %{"username" => &(&1 |> String.trim() |> String.upcase())}
       ]
 
       Parser.new(options)
@@ -322,6 +340,9 @@ defmodule PhilomenaQuery.Parse.Parser do
     end
   end
 
+  defp field_term(_parser, custom_field: field_name, range: _range, value: _value),
+    do: {:error, "range specified for " <> field_name}
+
   defp field_term(parser, [{field_parser, field_name}, {:range, range}, {:value, value}]) do
     # N.B.: field_parser is an atom
     case field_parser.parse(value) do
@@ -444,6 +465,13 @@ defmodule PhilomenaQuery.Parse.Parser do
   end
 
   defp normalize_value(parser, field_name, value) do
+    case Map.get(parser.normalizations, field_name) do
+      nil -> default_normalize(parser, field_name, value)
+      normalizer -> normalizer.(value)
+    end
+  end
+
+  defp default_normalize(parser, field_name, value) do
     value
     |> String.trim()
     |> maybe_downcase(parser, field_name)

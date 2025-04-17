@@ -92,6 +92,39 @@ textarea {
   margin-bottom: 6px;
 }
 
+.field-help-button,
+.field-help-button * {
+  font-style: italic;
+  cursor: pointer;
+}
+
+.field-help-button {
+  margin-left: 6px;
+  font-size: 0.8em;
+  color: var(--foreground-half-color);
+  border-color: var(--foreground-half-color);
+  border-style: dashed;
+  border-width: 1px;
+  border-radius: 10px;
+  padding: 4px;
+
+  /*
+    We want this to behave like a button, so double clicking on it
+    shouldn't trigger a selection
+  */
+  user-select: none;
+}
+
+.field-help-button:hover {
+  background-color: var(--primary-light-color);
+}
+
+.field-help-content {
+  color: var(--foreground-half-color);
+  margin: 10px auto;
+  font-style: italic;
+}
+
 .field_with_errors {
   background: var(--danger-color);
 }
@@ -107,6 +140,7 @@ span.help-block {
   max-width: 30em;
   width: 100%;
 }
+
 /* text input - grow to container size */
 .hform__text {
   flex: 1 0 auto;
