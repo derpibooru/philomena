@@ -141,7 +141,7 @@ function loadInteractions() {
 
   /* Next part is only for image index pages
    * TODO: find a better way to do this */
-  if (!document.getElementById('imagelist-container')) return;
+  if (!$('#imagelist-container')) return;
 
   /* Users will blind downvote without this */
   window.booru.imagesWithDownvotingDisabled.forEach(i => {
@@ -213,9 +213,7 @@ const targets = {
  */
 function canDownvote(imageId) {
   // The `imagelist-container` indicates that we are on the page with the list of images
-  return (
-    !document.getElementById('imagelist-container') || !window.booru.imagesWithDownvotingDisabled.includes(imageId)
-  );
+  return !$('#imagelist-container') || !window.booru.imagesWithDownvotingDisabled.includes(imageId);
 }
 
 function bindInteractions() {
