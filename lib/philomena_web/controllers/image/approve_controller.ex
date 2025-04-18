@@ -20,15 +20,13 @@ defmodule PhilomenaWeb.Image.ApproveController do
   end
 
   defp verify_not_approved(conn, _opts) do
-    case conn.assigns.image.approved do
-      true ->
-        conn
-        |> put_flash(:error, "Someone else already approved this image.")
-        |> redirect(to: ~p"/admin/approvals")
-        |> halt()
-
-      _false ->
-        conn
+    if conn.assigns.image.approved do
+      conn
+      |> put_flash(:error, "Someone else already approved this image.")
+      |> redirect(to: ~p"/admin/approvals")
+      |> halt()
+    else
+      conn
     end
   end
 
