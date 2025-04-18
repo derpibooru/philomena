@@ -18,13 +18,13 @@ defmodule PhilomenaWeb.Image.DeleteController do
     case Images.hide_image(image, user, image_params) do
       {:ok, result} ->
         conn
-        |> put_flash(:info, "Image successfully hidden.")
+        |> put_flash(:info, "Image successfully deleted.")
         |> moderation_log(details: &log_details/2, data: result.image)
         |> redirect(to: ~p"/images/#{image}")
 
       _error ->
         conn
-        |> put_flash(:error, "Failed to hide image.")
+        |> put_flash(:error, "Failed to delete image.")
         |> redirect(to: ~p"/images/#{image}")
     end
   end
@@ -35,13 +35,13 @@ defmodule PhilomenaWeb.Image.DeleteController do
     case Images.update_hide_reason(image, image_params) do
       {:ok, image} ->
         conn
-        |> put_flash(:info, "Hide reason updated.")
+        |> put_flash(:info, "Deletion reason updated.")
         |> moderation_log(details: &log_details/2, data: image)
         |> redirect(to: ~p"/images/#{image}")
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Couldn't update hide reason.")
+        |> put_flash(:error, "Couldn't update deletion reason.")
         |> redirect(to: ~p"/images/#{image}")
     end
   end
@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
 
       _false ->
         conn
-        |> put_flash(:error, "Cannot change hide reason on a non-hidden image!")
+        |> put_flash(:error, "Cannot change deletion reason on a non-deleted image!")
         |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
     end
@@ -65,7 +65,7 @@ defmodule PhilomenaWeb.Image.DeleteController do
     {:ok, image} = Images.unhide_image(image)
 
     conn
-    |> put_flash(:info, "Image successfully unhidden.")
+    |> put_flash(:info, "Image successfully restored.")
     |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
@@ -73,8 +73,8 @@ defmodule PhilomenaWeb.Image.DeleteController do
   defp log_details(action, image) do
     body =
       case action do
-        :create -> "Hidden image >>#{image.id} (#{image.deletion_reason})"
-        :update -> "Changed hide reason of >>#{image.id} (#{image.deletion_reason})"
+        :create -> "Deleted image >>#{image.id} (#{image.deletion_reason})"
+        :update -> "Changed deletion reason of >>#{image.id} (#{image.deletion_reason})"
         :delete -> "Restored image >>#{image.id}"
       end
 
