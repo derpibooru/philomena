@@ -345,7 +345,6 @@ defmodule Philomena.Images.Image do
   def approve_changeset(image) do
     change(image)
     |> validate_not_approved()
-    |> validate_not_hidden()
     |> put_change(:approved, true)
     |> put_change(:first_seen_at, DateTime.utc_now(:second))
   end
