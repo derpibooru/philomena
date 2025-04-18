@@ -32,7 +32,7 @@ defmodule PhilomenaWeb.Image.DestroyController do
 
       _false ->
         conn
-        |> put_flash(:error, "Cannot destroy a non-hidden image!")
+        |> put_flash(:error, "Cannot destroy a non-deleted image!")
         |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
     end

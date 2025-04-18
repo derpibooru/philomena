@@ -105,7 +105,7 @@
           = label f, :deletion_reason, "Deletion reason (cannot be empty)"
           .field.field--inline
             = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Rule violation", required: true
-            = submit "Change hide reason", class: "button button--state-danger button--separate-left"
+            = submit "Change deletion reason", class: "button button--state-danger button--separate-left"
 
       .flex.flex--spaced-out.flex--wrap
         = if not @image.hidden_from_users do
