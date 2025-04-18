@@ -1,6 +1,7 @@
 volumes:
   postgres_data: {}
   opensearch_data: {}
+  caddy_data: {}
   app_cargo_data: {}
   app_build_data: {}
   app_deps_data: {}
@@ -93,15 +94,14 @@ services:
     build:
       context: .
       dockerfile: ./docker/web/Dockerfile
-      args:
-        - APP_DIR=/srv/philomena
-        - S3_SCHEME=http
-        - S3_HOST=files
-        - S3_PORT=80
-        - S3_BUCKET=philomena
     volumes:
       - .:/srv/philomena
+      - ./docker/web/config:/etc/caddy
+      - caddy_data:/data
     environment:
+      - APP_DIR=/srv/philomena
+      - S3_ENDPOINT=http://files:80
+      - S3_BUCKET=philomena
       - AWS_ACCESS_KEY_ID=local-identity
       - AWS_SECRET_ACCESS_KEY=local-credential
     attach: false

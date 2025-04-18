@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Image.ApproveController do
 
   plug PhilomenaWeb.CanaryMapPlug, create: :approve
   plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
-  plug :verify_image_state
+  plug :verify_not_approved
 
   def create(conn, _params) do
     image = conn.assigns.image
@@ -19,24 +19,14 @@ defmodule PhilomenaWeb.Image.ApproveController do
     |> redirect(to: ~p"/admin/approvals")
   end
 
-  defp verify_image_state(conn, _opts) do
-    image = conn.assigns.image
-
-    cond do
-      image.approved ->
-        conn
-        |> put_flash(:error, "Someone else already approved this image.")
-        |> redirect(to: ~p"/admin/approvals")
-        |> halt()
-
-      image.hidden_from_users ->
-        conn
-        |> put_flash(:error, "Cannot approve a hidden image.")
-        |> redirect(to: ~p"/admin/approvals")
-        |> halt()
-
-      true ->
-        conn
+  defp verify_not_approved(conn, _opts) do
+    if conn.assigns.image.approved do
+      conn
+      |> put_flash(:error, "Someone else already approved this image.")
+      |> redirect(to: ~p"/admin/approvals")
+      |> halt()
+    else
+      conn
     end
   end
 
