@@ -10,7 +10,8 @@ defmodule Philomena.Reports.Query do
       ip_fields: ~W(ip),
       bool_fields: ~W(open),
       ngram_fields: ~W(reason),
-      default_field: {"reason", :ngram}
+      default_field: {"reason", :ngram},
+      no_downcase_fields: ~W(reportable_type)
     ]
   end
 

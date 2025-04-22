@@ -1,14 +1,10 @@
 {
-  "system_filters": [{
+  "system_filters": [
+    {
       "name": "Default",
       "description": "The site's default filter.",
-      "hidden": [
-        "explicit",
-        "grotesque"
-      ],
-      "spoilered": [
-        "questionable"
-      ]
+      "hidden": ["explicit", "grotesque"],
+      "spoilered": ["questionable"]
     },
     {
       "name": "Everything",
@@ -17,7 +13,8 @@
       "spoilered": []
     }
   ],
-  "forums": [{
+  "forums": [
+    {
       "name": "General Discussion",
       "short_name": "dis",
       "description": "This is a discussion forum for everything unrelated to the show or other forums",
@@ -60,37 +57,31 @@
       "access_level": "staff"
     }
   ],
-  "users": [{
-    "name": "Administrator",
-    "email": "admin@example.com",
-    "password": "philomena123",
-    "role": "admin"
-  }],
-  "rating_tags": [
-    "safe",
-    "suggestive",
-    "questionable",
-    "explicit",
-    "semi-grimdark",
-    "grimdark",
-    "grotesque"
+  "users": [
+    {
+      "name": "Administrator",
+      "email": "admin@example.com",
+      "password": "philomena123",
+      "role": "admin"
+    }
   ],
+  "rating_tags": ["safe", "suggestive", "questionable", "explicit", "semi-grimdark", "grimdark", "grotesque"],
   "roles": [
-    {"name": "moderator", "resource_type": "Image"},
-    {"name": "moderator", "resource_type": "DuplicateReport"},
-    {"name": "moderator", "resource_type": "Comment"},
-    {"name": "moderator", "resource_type": "Tag"},
-    {"name": "moderator", "resource_type": "ArtistLink"},
-    {"name": "admin", "resource_type": "Tag"},
-    {"name": "moderator", "resource_type": "User"},
-    {"name": "admin", "resource_type": "SiteNotice"},
-    {"name": "admin", "resource_type": "Badge"},
-    {"name": "admin", "resource_type": "Role"},
-    {"name": "batch_update", "resource_type": "Tag"},
-    {"name": "moderator", "resource_type": "Topic"},
-    {"name": "admin", "resource_type": "Advert"},
-    {"name": "admin", "resource_type": "StaticPage"},
-    {"name": "admin", "resource_type": "Image"}
+    { "name": "moderator", "resource_type": "Image" },
+    { "name": "moderator", "resource_type": "DuplicateReport" },
+    { "name": "moderator", "resource_type": "Comment" },
+    { "name": "moderator", "resource_type": "Tag" },
+    { "name": "moderator", "resource_type": "ArtistLink" },
+    { "name": "admin", "resource_type": "Tag" },
+    { "name": "moderator", "resource_type": "User" },
+    { "name": "admin", "resource_type": "SiteNotice" },
+    { "name": "admin", "resource_type": "Badge" },
+    { "name": "admin", "resource_type": "Role" },
+    { "name": "batch_update", "resource_type": "Tag" },
+    { "name": "moderator", "resource_type": "Topic" },
+    { "name": "admin", "resource_type": "Advert" },
+    { "name": "admin", "resource_type": "StaticPage" },
+    { "name": "admin", "resource_type": "Image" }
   ],
   "pages": []
 }

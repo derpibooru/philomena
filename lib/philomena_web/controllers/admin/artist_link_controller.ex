@@ -11,7 +11,7 @@ defmodule PhilomenaWeb.Admin.ArtistLinkController do
     load_links(ArtistLink, conn)
   end
 
-  def index(conn, %{"q" => query}) do
+  def index(conn, %{"lq" => query}) do
     query = "%#{query}%"
 
     ArtistLink

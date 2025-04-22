@@ -1,6 +1,7 @@
 volumes:
   postgres_data: {}
   opensearch_data: {}
+  caddy_data: {}
   app_cargo_data: {}
   app_build_data: {}
   app_deps_data: {}
@@ -59,7 +60,7 @@ services:
       - '5173:5173'
 
   postgres:
-    image: postgres:17.2-alpine
+    image: postgres:17.4-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -67,7 +68,7 @@ services:
     attach: false
 
   opensearch:
-    image: opensearchproject/opensearch:2.18.0
+    image: opensearchproject/opensearch:2.19.1
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
@@ -78,11 +79,11 @@ services:
         hard: 65536
 
   valkey:
-    image: valkey/valkey:8.0-alpine
+    image: valkey/valkey:8.1-alpine
     attach: false
 
   files:
-    image: andrewgaul/s3proxy:sha-3ff077f
+    image: andrewgaul/s3proxy:sha-db34f6b
     environment:
       - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
     volumes:
@@ -93,15 +94,14 @@ services:
     build:
       context: .
       dockerfile: ./docker/web/Dockerfile
-      args:
-        - APP_DIR=/srv/philomena
-        - S3_SCHEME=http
-        - S3_HOST=files
-        - S3_PORT=80
-        - S3_BUCKET=philomena
     volumes:
       - .:/srv/philomena
+      - ./docker/web/config:/etc/caddy
+      - caddy_data:/data
     environment:
+      - APP_DIR=/srv/philomena
+      - S3_ENDPOINT=http://files:80
+      - S3_BUCKET=philomena
       - AWS_ACCESS_KEY_ID=local-identity
       - AWS_SECRET_ACCESS_KEY=local-credential
     attach: false

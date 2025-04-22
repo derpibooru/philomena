@@ -26,13 +26,13 @@ defmodule PhilomenaWeb.Topic.HideController do
     case Topics.hide_topic(topic, deletion_reason, user) do
       {:ok, topic} ->
         conn
-        |> put_flash(:info, "Topic successfully hidden!")
+        |> put_flash(:info, "Topic successfully deleted!")
         |> moderation_log(details: &log_details/2, data: topic)
         |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Unable to hide the topic!")
+        |> put_flash(:error, "Unable to delete the topic!")
         |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
     end
   end
@@ -58,7 +58,7 @@ defmodule PhilomenaWeb.Topic.HideController do
     body =
       case action do
         :create ->
-          "Hidden topic '#{topic.title}' (#{topic.deletion_reason}) in #{topic.forum.name}"
+          "Deleted topic '#{topic.title}' (#{topic.deletion_reason}) in #{topic.forum.name}"
 
         :delete ->
           "Restored topic '#{topic.title}' in #{topic.forum.name}"

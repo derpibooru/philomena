@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Admin.SubnetBanController do
   plug :load_resource, model: SubnetBan, only: [:edit, :update, :delete]
   plug :check_can_delete when action in [:delete]
 
-  def index(conn, %{"q" => q}) when is_binary(q) do
+  def index(conn, %{"bq" => q}) when is_binary(q) do
     SubnetBan
     |> where(
       [sb],

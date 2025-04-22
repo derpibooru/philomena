@@ -344,6 +344,7 @@ defmodule Philomena.Images.Image do
 
   def approve_changeset(image) do
     change(image)
+    |> validate_not_approved()
     |> put_change(:approved, true)
     |> put_change(:first_seen_at, DateTime.utc_now(:second))
   end
@@ -363,6 +364,13 @@ defmodule Philomena.Images.Image do
     case get_field(changeset, :hidden_from_users) do
       true -> add_error(changeset, :hidden_from_users, "must be false")
       false -> changeset
+    end
+  end
+
+  defp validate_not_approved(changeset) do
+    case get_field(changeset, :approved) do
+      true -> add_error(changeset, :approved, "must be false")
+      _ -> changeset
     end
   end
 end

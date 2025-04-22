@@ -9,6 +9,6 @@ quoteProps: as-needed
 trailingComma: all
 arrowParens: avoid
 overrides:
-  - files: "*.css"
+  - files: '*.css'
     options:
       singleQuote: false

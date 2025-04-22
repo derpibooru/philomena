@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Image.FileController do
     case conn.assigns.image.hidden_from_users do
       true ->
         conn
-        |> put_flash(:error, "Cannot replace a hidden image.")
+        |> put_flash(:error, "Cannot replace a deleted image.")
         |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
 

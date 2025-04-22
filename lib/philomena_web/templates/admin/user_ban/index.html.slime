@@ -5,7 +5,7 @@ h1 User Bans
 
 = form_for :user_ban, ~p"/admin/user_bans", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :q, name: "q", class: "hform__text input", placeholder: "Search"
+    = text_input f, :bq, name: :bq, value: @conn.params["bq"], class: "hform__text input", placeholder: "Search"
     = submit "Search", class: "button hform__button"
 
 .block

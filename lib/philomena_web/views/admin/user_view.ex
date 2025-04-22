@@ -3,7 +3,7 @@ defmodule PhilomenaWeb.Admin.UserView do
 
   def page_params(params) do
     []
-    |> page_param(params, "q", :q)
+    |> page_param(params, "uq", :uq)
     |> page_param(params, "staff", :staff)
     |> page_param(params, "twofactor", :twofactor)
   end

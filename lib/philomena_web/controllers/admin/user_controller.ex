@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.Admin.UserController do
 
   plug :load_roles when action in [:edit, :update]
 
-  def index(conn, %{"q" => q}) do
+  def index(conn, %{"uq" => q}) do
     User
     |> where([u], u.email == ^q or ilike(u.name, ^"%#{q}%"))
     |> load_users(conn)

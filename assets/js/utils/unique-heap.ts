@@ -20,7 +20,7 @@ export class UniqueHeap<T> {
     this.unique = unique;
   }
 
-  append(value: T, forceReplace: boolean = false) {
+  append(value: T, forceReplace = false) {
     const key = this.unique(value);
     const prevIndex = this.keys.get(key);
 

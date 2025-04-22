@@ -24,7 +24,7 @@ defmodule PhilomenaWeb.Image.FeatureController do
     case conn.assigns.image.hidden_from_users do
       true ->
         conn
-        |> put_flash(:error, "Cannot feature a hidden image.")
+        |> put_flash(:error, "Cannot feature a deleted image.")
         |> redirect(to: ~p"/images/#{conn.assigns.image}")
         |> halt()
 
