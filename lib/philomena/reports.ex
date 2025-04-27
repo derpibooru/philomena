@@ -78,7 +78,7 @@ defmodule Philomena.Reports do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_report({reportable_type, reportable_id}, attribution, attrs \\ %{}) do
+  def create_report({reportable_type, reportable_id} = _type_and_id, attribution, attrs \\ %{}) do
     %Report{reportable_type: reportable_type, reportable_id: reportable_id}
     |> Report.creation_changeset(attrs, attribution)
     |> Repo.insert()
@@ -113,7 +113,7 @@ defmodule Philomena.Reports do
       #Ecto.Query<...>
 
   """
-  def close_report_query({reportable_type, reportable_id}, closing_user) do
+  def close_report_query({reportable_type, reportable_id} = _type_and_id, closing_user) do
     from r in Report,
       where:
         r.reportable_type == ^reportable_type and r.reportable_id == ^reportable_id and
@@ -132,7 +132,7 @@ defmodule Philomena.Reports do
       {:ok, %Report{}}
 
   """
-  def create_system_report({reportable_type, reportable_id}, category, reason) do
+  def create_system_report({reportable_type, reportable_id} = _type_and_id, category, reason) do
     attrs = %{
       reason: reason,
       category: category,
