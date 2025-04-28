@@ -176,14 +176,17 @@ defmodule Philomena.Tags do
     tag
     |> Tag.changeset(attrs, implied_tags)
     |> Repo.update()
-    |> reindex_after_update()
+    |> reindex_after_update(tag)
   end
 
-  defp reindex_after_update(result) do
+  defp reindex_after_update(result, old_tag) do
     case result do
       {:ok, tag} ->
-        reindex_tag(tag)
+        if tag.category != old_tag.category do
+          reindex_tag_images(tag)
+        end
 
+        reindex_tag(tag)
         {:ok, tag}
 
       error ->
