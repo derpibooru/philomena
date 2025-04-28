@@ -28,7 +28,11 @@
         li = link("Report this user", to: ~p"/profiles/#{@user}/reports/new")
 
       ul.profile-top__options__column
-        li = link("Uploads", to: ~p"/search?#{[q: "uploader_id:#{@user.id}"]}")
+        = case @conn.assigns.current_user do
+          - %{role: role} when role in ~W(moderator admin) ->
+            li = link("Uploads", to: ~p"/search?#{[q: "true_uploader_id:#{@user.id}"]}")
+          - _ ->
+            li = link("Uploads", to: ~p"/search?#{[q: "uploader_id:#{@user.id}"]}")
         li = link("Comments", to: ~p"/comments?#{[cq: "user_id:#{@user.id}"]}")
         li = link("Posts", to: ~p"/posts?#{[pq: "user_id:#{@user.id}"]}")
         = if current?(@user, @conn.assigns.current_user) do
