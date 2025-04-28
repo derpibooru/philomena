@@ -20,7 +20,7 @@ h1 Reports
 .block
   .block__header
     span.block__header__title All Reports
-    = pagination
+    .page__pagination = pagination
   .block__content
     = if Enum.any?(@reports) do
       = render PhilomenaWeb.Admin.ReportView, "_reports.html", reports: @reports, conn: @conn
@@ -28,7 +28,7 @@ h1 Reports
       p We couldn't find any reports for you, sorry!
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination
 
 = form_for :report, ~p"/admin/reports", [method: "get", class: "hform"], fn f ->
   .field

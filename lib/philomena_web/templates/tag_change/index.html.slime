@@ -1,5 +1,5 @@
 .block__header
-  = @pagination
+  .page__pagination = @pagination
 
 = if reverts_tag_changes?(@conn) do
   .block__header.block__header--light.block__header--sub
@@ -72,8 +72,8 @@
                 a href=~p"/images/#{tag_change.image}/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
                   ' Delete from history
 
-  .block__header
-    = @pagination
+  .block__header.block__header--light
+    .page__pagination = @pagination
 
   = if reverts_tag_changes?(@conn) do
     = submit "Revert selected", class: "button", data: [confirm: "Are you really, really sure?"]

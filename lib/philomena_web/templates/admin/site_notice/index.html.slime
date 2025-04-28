@@ -9,7 +9,7 @@ h1 Site Notices
       i.fa.fa-plus>
       ' New site notice
 
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     table.table
@@ -41,4 +41,4 @@ h1 Site Notices
               => link "Destroy", to: ~p"/admin/site_notices/#{site_notice}", data: [confirm: "Are you really, really sure?", method: "delete"]
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

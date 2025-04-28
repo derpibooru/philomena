@@ -14,81 +14,81 @@ h1 Users
 
 .block
   .block__header
-    = pagination
+    .page__pagination = pagination
 
   .block__content
-  table.table
-    thead
-      tr
-        th Name
-        th Email
-        th Activated
-        th Role
-        th Created
-        th Options
-    tbody
-      = for user <- @users do
+    table.table
+      thead
         tr
-          td
-            = link user.name, to: ~p"/profiles/#{user}"
+          th Name
+          th Email
+          th Activated
+          th Role
+          th Created
+          th Options
+      tbody
+        = for user <- @users do
+          tr
+            td
+              = link user.name, to: ~p"/profiles/#{user}"
 
-            = cond do
-              - user.otp_required_for_login ->
-                span.banner__2fa.success
-                  i.fas.fa-check>
-                  ' 2FA
+              = cond do
+                - user.otp_required_for_login ->
+                  span.banner__2fa.success
+                    i.fas.fa-check>
+                    ' 2FA
 
-              - user.role != "user" and !user.otp_required_for_login ->
-                span.banner__2fa.danger 
-                  i.fas.fa-times>
-                  ' 2FA
+                - user.role != "user" and !user.otp_required_for_login ->
+                  span.banner__2fa.danger 
+                    i.fas.fa-times>
+                    ' 2FA
 
-              - true ->
+                - true ->
 
-          td
-            = if can?(@conn, :edit, Philomena.Users.User) do
-              = user.email
-            - else
-              i N/A
+            td
+              = if can?(@conn, :edit, Philomena.Users.User) do
+                = user.email
+              - else
+                i N/A
 
-          td
-            = cond do
-              - user.deleted_at ->
-                strong> Deactivated
-                = pretty_time user.deleted_at
+            td
+              = cond do
+                - user.deleted_at ->
+                  strong> Deactivated
+                  = pretty_time user.deleted_at
 
-              - user.confirmed_at ->
-                ' Active
+                - user.confirmed_at ->
+                  ' Active
 
-              - true ->
-                strong> Unconfirmed
+                - true ->
+                  strong> Unconfirmed
 
-          td
-            = String.capitalize(user.role)
+            td
+              = String.capitalize(user.role)
 
-          td
-            = pretty_time user.created_at
+            td
+              = pretty_time user.created_at
 
-          td
-            = if can?(@conn, :edit, user) do
-              => link to: ~p"/admin/users/#{user}/edit" do
-                i.fa.fa-fw.fa-user-edit
-                ' Edit
+            td
+              = if can?(@conn, :edit, user) do
+                => link to: ~p"/admin/users/#{user}/edit" do
+                  i.fa.fa-fw.fa-user-edit
+                  ' Edit
 
-            /= if user.deleted_at do
-            /  => link_to 'Reactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :create
-            /- else
-            /  => link_to 'Deactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :delete
-            /' &bull;
+              /= if user.deleted_at do
+              /  => link_to 'Reactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :create
+              /- else
+              /  => link_to 'Deactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :delete
+              /' &bull;
 
-            = if can?(@conn, :index, Philomena.Bans.User) do
-              => link to: ~p"/admin/user_bans/new?#{[user_id: user.id]}" do
-                i.fa.fa-fw.fa-ban
-                ' Ban
-            = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do
-              => link to: ~p"/profiles/#{user}/artist_links/new" do
-                i.fa.fa-fw.fa-link
-                ' Add link
+              = if can?(@conn, :index, Philomena.Bans.User) do
+                => link to: ~p"/admin/user_bans/new?#{[user_id: user.id]}" do
+                  i.fa.fa-fw.fa-ban
+                  ' Ban
+              = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do
+                => link to: ~p"/profiles/#{user}/artist_links/new" do
+                  i.fa.fa-fw.fa-link
+                  ' Add link
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination
