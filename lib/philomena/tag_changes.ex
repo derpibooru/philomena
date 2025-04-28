@@ -11,7 +11,8 @@ defmodule Philomena.TagChanges do
   alias Philomena.Images.Tagging
   alias Philomena.Tags.Tag
   alias Philomena.Images
-
+  alias Philomena.Comments
+  alias Philomena.Tags
   # TODO: this is substantially similar to Images.batch_update/4.
   # Perhaps it should be extracted.
   def mass_revert(ids, attributes) do
@@ -27,6 +28,8 @@ defmodule Philomena.TagChanges do
       |> Repo.all()
       |> Enum.reject(&is_nil(&1.tag_id))
       |> Enum.uniq_by(&{&1.image_id, &1.tag_id})
+
+    tag_ids = Enum.map(tag_changes, & &1.tag_id) |> Enum.uniq()
 
     {added, removed} = Enum.split_with(tag_changes, & &1.added)
 
@@ -92,6 +95,8 @@ defmodule Philomena.TagChanges do
     |> case do
       {:ok, _result} ->
         Images.reindex_images(image_ids)
+        Comments.reindex_comments_on_images(image_ids)
+        Tags.reindex_tags(Enum.map(tag_ids, &%{id: &1}))
 
         {:ok, tag_changes}
 

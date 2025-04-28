@@ -48,7 +48,7 @@ defmodule PhilomenaWeb.Image.TagController do
           PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
         )
 
-        Comments.reindex_comments(image)
+        Comments.reindex_comments_on_image(image)
         Images.reindex_image(image)
         Tags.reindex_tags(added_tags ++ removed_tags)
 
