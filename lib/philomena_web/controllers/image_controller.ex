@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.ImageController do
   alias PhilomenaWeb.CommentLoader
   alias PhilomenaWeb.NotificationCountPlug
   alias PhilomenaWeb.MarkdownRenderer
+  alias PhilomenaWeb.ImageScope
 
   alias Philomena.{
     Images,
@@ -48,7 +49,8 @@ defmodule PhilomenaWeb.ImageController do
       title: "Images",
       layout_class: "layout--wide",
       images: images,
-      interactions: interactions
+      interactions: interactions,
+      scope: ImageScope.scope(conn)
     )
   end
 
