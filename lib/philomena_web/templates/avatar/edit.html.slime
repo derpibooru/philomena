@@ -1,6 +1,6 @@
 .profile-top
   .profile-top__avatar
-    = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, conn: @conn
+    = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @current_user}, conn: @conn, no_profile_link: true
   .profile-top__name-and-links
     div
       h1 Your avatar

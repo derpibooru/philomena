@@ -5,18 +5,21 @@ defmodule PhilomenaWeb.UserAttributionView do
   alias PhilomenaWeb.AvatarGeneratorView
 
   def anonymous?(object) do
-    Attribution.anonymous?(object)
+    # This function may accept objects that don't have `Attribution` implemented.
+    not is_nil(Attribution.impl_for(object)) and Attribution.anonymous?(object)
   end
 
+  def anonymous_user?(object), do: is_nil(object.user) or anonymous?(object)
+
   def name(object) do
-    case is_nil(object.user) or anonymous?(object) do
+    case anonymous_user?(object) do
       true -> anonymous_name(object)
       _false -> object.user.name
     end
   end
 
   def avatar_url(object) do
-    case is_nil(object.user) or anonymous?(object) do
+    case anonymous_user?(object) do
       true -> anonymous_avatar_url(anonymous_name(object))
       _false -> user_avatar_url(object)
     end
@@ -40,39 +43,40 @@ defmodule PhilomenaWeb.UserAttributionView do
     end
   end
 
-  def anonymous_avatar(name, class \\ "avatar--100px") do
-    class = Enum.join(["image-constrained", class], " ")
+  def user_avatar(object, opts \\ []) do
+    class = Keyword.get(opts, :class) || "avatar--100px"
+    no_profile_link = Keyword.get(opts, :no_profile_link) || false
 
-    content_tag :div, class: class do
-      AvatarGeneratorView.generated_avatar(name)
-    end
+    anon = anonymous_user?(object)
+
+    content =
+      if anon or is_nil(object.user.avatar) do
+        AvatarGeneratorView.generated_avatar(name(object))
+      else
+        img_tag(avatar_url_root() <> "/" <> object.user.avatar)
+      end
+
+    {tag, attrs} =
+      if anon or no_profile_link do
+        {:div, []}
+      else
+        {:a, href: ~p"/profiles/#{object.user}"}
+      end
+
+    attrs = Keyword.put(attrs, :class, "image-constrained #{class}")
+
+    content_tag(tag, content, attrs)
   end
 
-  def user_avatar(object, class \\ "avatar--100px")
-
-  def user_avatar(%{user: nil} = object, class),
-    do: anonymous_avatar(anonymous_name(object), class)
-
-  def user_avatar(%{user: %{avatar: nil}} = object, class),
-    do: anonymous_avatar(object.user.name, class)
-
-  def user_avatar(%{user: %{avatar: avatar}}, class) do
-    class = Enum.join(["image-constrained", class], " ")
-
-    content_tag :div, class: class do
-      img_tag(avatar_url_root() <> "/" <> avatar)
-    end
-  end
-
-  def user_avatar_url(%{user: %{avatar: nil}} = object) do
+  defp user_avatar_url(%{user: %{avatar: nil}} = object) do
     anonymous_avatar_url(object.user.name)
   end
 
-  def user_avatar_url(%{user: %{avatar: avatar}}) do
+  defp user_avatar_url(%{user: %{avatar: avatar}}) do
     avatar_url_root() <> "/" <> avatar
   end
 
-  def anonymous_avatar_url(name) do
+  defp anonymous_avatar_url(name) do
     svg =
       name
       |> AvatarGeneratorView.generated_avatar()
