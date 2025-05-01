@@ -3,10 +3,6 @@ defmodule PhilomenaQuery.Parse.FloatParser do
 
   import NimbleParsec
 
-  space =
-    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
-    |> ignore()
-
   fuzz =
     string("~")
     |> ignore()
@@ -33,7 +29,6 @@ defmodule PhilomenaQuery.Parse.FloatParser do
       |> unwrap_and_tag(:float_range),
       float |> unwrap_and_tag(:float)
     ])
-    |> repeat(space)
     |> eos()
     |> label("a real number, like `2.7182818' or `-10'")
 
