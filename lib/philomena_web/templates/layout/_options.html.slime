@@ -1,0 +1,6 @@
+= if @current_user do
+  = if @current_user.borderless_tags do
+    link rel="stylesheet" href=~p"/css/options/tagnoborder.css"
+
+  = if @current_user.rounded_tags do
+    link rel="stylesheet" href=~p"/css/options/tagroundedborder.css"

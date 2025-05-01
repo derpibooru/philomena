@@ -87,10 +87,6 @@
   background: 0;
 }
 
-.block__tagbox {
-  padding-top: calc(var(--block-spacing) + 5px);
-}
-
 .block__header--light,
 .block__header--js-tabbed {
   background: var(--block-header-light-color);

@@ -1,0 +1,8 @@
+.tag {
+  border-radius: 0.15rem;
+}
+
+.tag .tag__count {
+  border-top-right-radius: 0.15rem;
+  border-bottom-right-radius: 0.15rem;
+}

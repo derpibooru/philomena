@@ -15,6 +15,7 @@ html lang="en"
     link#js-theme-stylesheet rel="stylesheet" href=stylesheet_path(@conn, @current_user)
     = if is_nil(@current_user) do
       link#js-theme-stylesheet rel="stylesheet" href=light_stylesheet_path(@conn) media="(prefers-color-scheme: light)"
+    = render PhilomenaWeb.LayoutView, "_options.html", assigns
     link rel="icon" href="/favicon.ico" type="image/x-icon"
     link rel="icon" href="/favicon.svg" type="image/svg+xml"
     link rel="search" type="application/opensearchdescription+xml" title="Derpibooru" href="/opensearch.xml"

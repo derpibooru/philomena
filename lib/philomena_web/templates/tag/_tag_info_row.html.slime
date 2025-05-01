@@ -4,9 +4,9 @@
       img src=tag_image(@tag) alt="spoiler image"
     - else
       | no spoiler image
-  
+
   .flex__grow
-    = render PhilomenaWeb.TagView, "_tag.html", tag: @tag, conn: @conn
+    => render PhilomenaWeb.TagView, "_tag.html", tag: @tag, conn: @conn
     = link "Tag changes", to: ~p"/tags/#{@tag}/tag_changes", class: "detail-link"
     = if manages_tags?(@conn) do
       = link "Edit details", to: ~p"/tags/#{@tag}/edit", class: "detail-link"
@@ -15,7 +15,7 @@
       = link "Create new DNP entry", to: ~p"/dnp/new?#{[tag_id: @tag.id]}", class: "detail-link"
 
     br
-  
+
     = if @tag.short_description not in [nil, ""] do
       strong> Short description:
       = @tag.short_description

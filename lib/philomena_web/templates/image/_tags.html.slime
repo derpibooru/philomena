@@ -72,5 +72,5 @@
             | History (
             = @tag_change_count
             | )
-    .block__content.block__tagbox
+    .block__content
       = render PhilomenaWeb.TagView, "_tag_list.html", tags: tags, conn: @conn

@@ -1,0 +1,4 @@
+.tag {
+  border-width: 0;
+  line-height: calc(1em + 12px);
+}
