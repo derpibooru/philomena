@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.Comment.ApproveController do
 
     {:ok, _comment} = Comments.approve_comment(comment, conn.assigns.current_user)
 
-    UserStatistics.inc_stat(comment.user, :comments_posted)
+    UserStatistics.inc_stat(comment.user.id, :comments_posted)
 
     conn
     |> put_flash(:info, "Comment has been approved.")
