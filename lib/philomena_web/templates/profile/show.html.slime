@@ -79,7 +79,7 @@
         .block__content.alternating-color.break-word class=link_block_class(link)
           .center
             = if link.tag do
-              .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
+              div = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
             = link(link.uri, to: link.uri)
 
             = if current?(@user, @conn.assigns.current_user) or manages_links?(@conn, @user) do

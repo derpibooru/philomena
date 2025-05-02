@@ -1,16 +1,10 @@
-span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" data-tag-name="#{@tag.name}" data-tag-slug="#{@tag.slug}"
+.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" data-tag-name="#{@tag.name}" data-tag-slug="#{@tag.slug}"
   / The order of tag states and dropdown links is important for tags.ts
   span
-    span.tag__state.hidden title="Unwatched"
-      | +
-    span.tag__state.hidden title="Watched"
-      | -
-    span.tag__state.hidden title="Spoilered"
-      | S
-    span.tag__state.hidden title="Hidden"
-      | H
-
     a.tag__name< href=pretty_tag_path(@tag) title="#{@tag.short_description}" = @tag.name
+
+  span.tag__count
+    = @tag.images_count
 
   div.dropdown__content
     a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=~p"/tags/#{@tag}/watch" Unwatch
@@ -24,6 +18,3 @@ span.tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" 
 
     a.tag__dropdown__link.hidden href="/sessions/new" Sign in to Watch
     a.tag__dropdown__link.hidden href="/filters" Filter
-
-  span.tag__count
-    = @tag.images_count

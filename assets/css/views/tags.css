@@ -1,9 +1,11 @@
 /* Tagsinput */
 .tagsinput {
-  display: block;
+  display: flex;
+  flex-flow: wrap;
+  place-content: flex-start;
+  gap: var(--padding-small);
   background: var(--background-color);
   border: 1px solid var(--meta-border-color);
-  box-sizing: border-box;
   height: 10.6em;
   overflow: auto;
   padding: 5px;
@@ -21,6 +23,7 @@
 .tagsinput.js-taginput .input {
   padding: 5px;
   margin-bottom: 5px;
+  height: fit-content;
 }
 
 /* Autocomplete */
@@ -121,25 +124,35 @@
   --tag-border: var(--tag-normal-border);
   --tag-color: var(--tag-normal-color);
   border: 1px solid;
-  display: inline-table;
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 5px;
+  line-height: calc(1em + 10px);
+  padding-left: 5px;
+  width: fit-content;
+  height: fit-content;
   align-items: center;
   font-size: 14px;
   font-weight: bold;
-  margin-bottom: 5px;
-  margin-right: 5px;
   background: var(--tag-background);
   border-color: var(--tag-border);
   color: var(--tag-color);
 }
 
-.tag > span {
-  padding: 5px;
-  display: table-cell;
+.tag .fa {
+  font-size: 12px;
+}
+
+/* For use on static pages */
+.tag--no-counter {
+  grid-template-columns: auto;
+  padding: 0 5px;
 }
 
 .tag-list {
   display: flex;
   flex-wrap: wrap;
+  gap: var(--padding-small);
 }
 
 .tag a {
@@ -150,6 +163,9 @@
   background-color: var(--tag-border);
   color: var(--foreground-color);
   font-weight: normal;
+  padding: 0 5px;
+  height: 100%;
+  align-content: center;
 }
 
 .tag__dropdown__link {
@@ -183,11 +199,22 @@
 .tag-page .tag,
 .tagsinput .tag {
   font-family: var(--font-family-base);
-  padding: 5px;
+  padding-right: 5px;
 }
 
 .tagsinput .tag a {
   margin-left: 5px;
+}
+
+.tag--spoilered,
+.tag--hidden {
+  opacity: 0.6;
+}
+
+/* Dropdowns don't work with opacity less than 1 */
+.tag--spoilered:hover,
+.tag--hidden:hover {
+  opacity: 1;
 }
 
 /* Quick Tag Table */

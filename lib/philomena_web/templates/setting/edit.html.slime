@@ -82,6 +82,22 @@ h1 Content Settings
         )
 
         = field_with_help( \
+          "Removes the border of the tags",
+          [ \
+            checkbox(f, :borderless_tags, class: "checkbox"),
+            label(f, :borderless_tags),
+          ] \
+        )
+
+        = field_with_help( \
+          "Adds rounding to the corners of the tags",
+          [ \
+            checkbox(f, :rounded_tags, class: "checkbox"),
+            label(f, :rounded_tags),
+          ] \
+        )
+
+        = field_with_help( \
           "The number of images per page that are displayed on image listings " <> \
           "and searches, up to a maximum of 50. For 1080p monitors, try 24.",
           [ \

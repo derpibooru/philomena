@@ -95,6 +95,8 @@ defmodule Philomena.Users.User do
     field :hide_advertisements, :boolean, default: false
     field :delay_home_images, :boolean, default: true
     field :staff_delay_home_images, :boolean, default: false
+    field :borderless_tags, :boolean, default: false
+    field :rounded_tags, :boolean, default: false
 
     # Counters
     field :forum_posts_count, :integer, default: 0
@@ -330,7 +332,9 @@ defmodule Philomena.Users.User do
       :messages_newest_first,
       :show_sidebar_and_watched_images,
       :delay_home_images,
-      :staff_delay_home_images
+      :staff_delay_home_images,
+      :borderless_tags,
+      :rounded_tags
     ])
     |> validate_required([
       :images_per_page,
@@ -348,7 +352,9 @@ defmodule Philomena.Users.User do
       :watch_on_new_topic,
       :comments_always_jump_to_last,
       :messages_newest_first,
-      :show_sidebar_and_watched_images
+      :show_sidebar_and_watched_images,
+      :borderless_tags,
+      :rounded_tags
     ])
     |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
     |> validate_inclusion(:theme, themes())

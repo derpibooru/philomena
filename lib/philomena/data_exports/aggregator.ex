@@ -64,7 +64,9 @@ defmodule Philomena.DataExports.Aggregator do
     :use_centered_layout,
     :personal_title,
     :hide_vote_counts,
-    :scale_large_images
+    :scale_large_images,
+    :borderless_tags,
+    :rounded_tags
   ]
 
   # All these also have created_at and are selected by user_id
