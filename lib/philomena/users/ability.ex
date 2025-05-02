@@ -46,7 +46,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   def can?(%User{role: "moderator"}, :show, %Filter{}), do: true
 
   # Privileged mods can hard-delete images
-  def can?(%User{role: "moderator", role_map: %{"Image" => "admin"}}, :destroy, %Image{}),
+  def can?(%User{role: "moderator", role_map: %{"Image" => %{"admin" => _}}}, :destroy, %Image{}),
     do: true
 
   # ...but normal ones cannot
@@ -144,72 +144,97 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   # And some privileged moderators can...
 
   # Manage site notices
-  def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, SiteNotice),
-    do: true
+  def can?(
+        %User{role: "moderator", role_map: %{"SiteNotice" => %{"admin" => _}}},
+        _action,
+        SiteNotice
+      ),
+      do: true
 
-  def can?(%User{role: "moderator", role_map: %{"SiteNotice" => "admin"}}, _action, %SiteNotice{}),
-    do: true
+  def can?(
+        %User{role: "moderator", role_map: %{"SiteNotice" => %{"admin" => _}}},
+        _action,
+        %SiteNotice{}
+      ),
+      do: true
 
   # Manage badges
-  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, Badge), do: true
-  def can?(%User{role: "moderator", role_map: %{"Badge" => "admin"}}, _action, %Badge{}), do: true
+  def can?(%User{role: "moderator", role_map: %{"Badge" => %{"admin" => _}}}, _action, Badge),
+    do: true
+
+  def can?(%User{role: "moderator", role_map: %{"Badge" => %{"admin" => _}}}, _action, %Badge{}),
+    do: true
 
   # Manage tags
-  def can?(%User{role: "moderator", role_map: %{"Tag" => "admin"}}, _action, Tag), do: true
-  def can?(%User{role: "moderator", role_map: %{"Tag" => "admin"}}, _action, %Tag{}), do: true
+  def can?(%User{role: "moderator", role_map: %{"Tag" => %{"admin" => _}}}, _action, Tag),
+    do: true
+
+  def can?(%User{role: "moderator", role_map: %{"Tag" => %{"admin" => _}}}, _action, %Tag{}),
+    do: true
 
   # Manage user roles
-  def can?(%User{role: "moderator", role_map: %{"Role" => "admin"}}, _action, %Role{}), do: true
+  def can?(%User{role: "moderator", role_map: %{"Role" => %{"admin" => _}}}, _action, %Role{}),
+    do: true
 
   # Manage users
-  def can?(%User{role: "moderator", role_map: %{"User" => "moderator"}}, _action, User), do: true
+  def can?(%User{role: "moderator", role_map: %{"User" => %{"moderator" => _}}}, _action, User),
+    do: true
 
-  def can?(%User{role: "moderator", role_map: %{"User" => "moderator"}}, _action, %User{}),
+  def can?(%User{role: "moderator", role_map: %{"User" => %{"moderator" => _}}}, _action, %User{}),
     do: true
 
   # Manage advertisements
-  def can?(%User{role: "moderator", role_map: %{"Advert" => "admin"}}, _action, Advert), do: true
+  def can?(%User{role: "moderator", role_map: %{"Advert" => %{"admin" => _}}}, _action, Advert),
+    do: true
 
-  def can?(%User{role: "moderator", role_map: %{"Advert" => "admin"}}, _action, %Advert{}),
+  def can?(%User{role: "moderator", role_map: %{"Advert" => %{"admin" => _}}}, _action, %Advert{}),
     do: true
 
   # Manage static pages
-  def can?(%User{role: "moderator", role_map: %{"StaticPage" => "admin"}}, _action, StaticPage),
-    do: true
+  def can?(
+        %User{role: "moderator", role_map: %{"StaticPage" => %{"admin" => _}}},
+        _action,
+        StaticPage
+      ),
+      do: true
 
-  def can?(%User{role: "moderator", role_map: %{"StaticPage" => "admin"}}, _action, %StaticPage{}),
-    do: true
+  def can?(
+        %User{role: "moderator", role_map: %{"StaticPage" => %{"admin" => _}}},
+        _action,
+        %StaticPage{}
+      ),
+      do: true
 
   #
   # Assistants can...
   #
 
   # Image assistant actions
-  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :show, %Image{}),
+  def can?(%User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}}, :show, %Image{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :hide, %Image{}),
+  def can?(%User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}}, :hide, %Image{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Image" => "moderator"}}, :edit, %Image{}),
+  def can?(%User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}}, :edit, %Image{}),
     do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"Image" => "moderator"}},
+        %User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}},
         :edit_metadata,
         %Image{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"Image" => "moderator"}},
+        %User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}},
         :edit_description,
         %Image{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"Image" => "moderator"}},
+        %User{role: "assistant", role_map: %{"Image" => %{"moderator" => _}}},
         :approve,
         %Image{}
       ),
@@ -217,112 +242,137 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # Dupe assistant actions
   def can?(
-        %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
+        %User{role: "assistant", role_map: %{"DuplicateReport" => %{"moderator" => _}}},
         :index,
         DuplicateReport
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
+        %User{role: "assistant", role_map: %{"DuplicateReport" => %{"moderator" => _}}},
         :edit,
         %DuplicateReport{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
+        %User{role: "assistant", role_map: %{"DuplicateReport" => %{"moderator" => _}}},
         :show,
         %Image{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
+        %User{role: "assistant", role_map: %{"DuplicateReport" => %{"moderator" => _}}},
         :edit,
         %Image{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"DuplicateReport" => "moderator"}},
+        %User{role: "assistant", role_map: %{"DuplicateReport" => %{"moderator" => _}}},
         :hide,
         %Comment{}
       ),
       do: true
 
   # Comment assistant actions
-  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :show, %Comment{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Comment" => %{"moderator" => _}}},
+        :show,
+        %Comment{}
+      ),
+      do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :edit, %Comment{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Comment" => %{"moderator" => _}}},
+        :edit,
+        %Comment{}
+      ),
+      do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :hide, %Comment{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Comment" => %{"moderator" => _}}},
+        :hide,
+        %Comment{}
+      ),
+      do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Comment" => "moderator"}}, :approve, %Comment{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Comment" => %{"moderator" => _}}},
+        :approve,
+        %Comment{}
+      ),
+      do: true
 
   # Topic assistant actions
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Topic{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :show, %Topic{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Topic{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :edit, %Topic{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Topic{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :hide, %Topic{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :show, %Post{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :show, %Post{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :edit, %Post{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :edit, %Post{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :hide, %Post{}),
+  def can?(%User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}}, :hide, %Post{}),
     do: true
 
-  def can?(%User{role: "assistant", role_map: %{"Topic" => "moderator"}}, :approve, %Post{}),
-    do: true
+  def can?(
+        %User{role: "assistant", role_map: %{"Topic" => %{"moderator" => _}}},
+        :approve,
+        %Post{}
+      ),
+      do: true
 
   # Tag assistant actions
-  def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :edit, %Tag{}), do: true
-
-  def can?(%User{role: "assistant", role_map: %{"Tag" => "moderator"}}, :batch_update, Tag),
+  def can?(%User{role: "assistant", role_map: %{"Tag" => %{"moderator" => _}}}, :edit, %Tag{}),
     do: true
+
+  def can?(
+        %User{role: "assistant", role_map: %{"Tag" => %{"moderator" => _}}},
+        :batch_update,
+        Tag
+      ),
+      do: true
 
   # Artist link assistant actions
   def can?(
-        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         _action,
         %ArtistLink{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :create_links,
         %User{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :edit,
         %ArtistLink{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :edit_links,
         %User{}
       ),
       do: true
 
   def can?(
-        %User{role: "assistant", role_map: %{"ArtistLink" => "moderator"}},
+        %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :index,
         %ArtistLink{}
       ),
@@ -340,7 +390,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   #
 
   # Batch tag
-  def can?(%User{role_map: %{"Tag" => "batch_update"}}, :batch_update, Tag), do: true
+  def can?(%User{role_map: %{"Tag" => %{"batch_update" => _}}}, :batch_update, Tag), do: true
 
   # Edit their description and personal title
   def can?(%User{id: id}, :edit_description, %User{id: id}), do: true
