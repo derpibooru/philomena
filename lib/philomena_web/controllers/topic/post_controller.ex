@@ -36,7 +36,7 @@ defmodule PhilomenaWeb.Topic.PostController do
     case Posts.create_post(topic, attributes, post_params) do
       {:ok, %{post: post}} ->
         if post.approved do
-          UserStatistics.inc_stat(conn.assigns.current_user, :forum_posts)
+          UserStatistics.inc_stat(conn.assigns.current_user.id, :forum_posts)
         else
           Posts.report_non_approved(post)
         end

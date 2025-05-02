@@ -27,7 +27,7 @@ defmodule Philomena.ImageFaves do
     |> Multi.insert(:fave, fave)
     |> Multi.update_all(:inc_faves_count, image_query, inc: [faves_count: 1])
     |> Multi.run(:inc_fave_stat, fn _repo, _changes ->
-      UserStatistics.inc_stat(user, :images_favourited, 1)
+      UserStatistics.inc_stat(user.id, :images_favourited, 1)
     end)
   end
 
@@ -52,7 +52,7 @@ defmodule Philomena.ImageFaves do
         image_query
         |> repo.update_all(inc: [faves_count: -faves])
 
-      UserStatistics.inc_stat(user, :images_favourited, -faves)
+      UserStatistics.inc_stat(user.id, :images_favourited, -faves)
 
       {:ok, count}
     end)

@@ -21,11 +21,11 @@ defmodule Philomena.UserStatistics do
       {:error, %Ecto.Changeset{}}
 
   """
-  def inc_stat(user, action, amount \\ 1)
+  def inc_stat(user_id, action, amount \\ 1)
 
   def inc_stat(nil, _action, _amount), do: {:ok, nil}
 
-  def inc_stat(%{id: user_id}, action, amount)
+  def inc_stat(user_id, action, amount)
       when action in [
              :uploads,
              :images_favourited,

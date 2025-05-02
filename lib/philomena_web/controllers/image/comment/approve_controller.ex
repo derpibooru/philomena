@@ -3,22 +3,18 @@ defmodule PhilomenaWeb.Image.Comment.ApproveController do
 
   alias Philomena.Comments.Comment
   alias Philomena.Comments
-  alias Philomena.UserStatistics
 
   plug PhilomenaWeb.CanaryMapPlug, create: :approve
 
   plug :load_and_authorize_resource,
     model: Comment,
     id_name: "comment_id",
-    persisted: true,
-    preload: [:user]
+    persisted: true
 
   def create(conn, _params) do
     comment = conn.assigns.comment
 
     {:ok, _comment} = Comments.approve_comment(comment, conn.assigns.current_user)
-
-    UserStatistics.inc_stat(comment.user, :comments_posted)
 
     conn
     |> put_flash(:info, "Comment has been approved.")
