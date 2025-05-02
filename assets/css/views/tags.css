@@ -201,14 +201,14 @@
   margin-left: 5px;
 }
 
-.tag:has(.tag__state[title="Spoilered"]:not(.hidden)),
-.tag:has(.tag__state[title="Hidden"]:not(.hidden)) {
+.tag--spoilered,
+.tag--hidden {
   opacity: 0.6;
 }
 
 /* Dropdowns don't work with opacity less than 1 */
-.tag:has(.tag__state[title="Spoilered"]:not(.hidden)):hover,
-.tag:has(.tag__state[title="Hidden"]:not(.hidden)):hover {
+.tag--spoilered:hover,
+.tag--hidden:hover {
   opacity: 1;
 }
 

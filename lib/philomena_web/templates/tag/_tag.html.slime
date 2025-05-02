@@ -1,14 +1,6 @@
 .tag.dropdown data-tag-category="#{@tag.category}" data-tag-id="#{@tag.id}" data-tag-name="#{@tag.name}" data-tag-slug="#{@tag.slug}"
   / The order of tag states and dropdown links is important for tags.ts
   span
-    span.tag__state.hidden title="Unwatched"
-    span.tag__state.hidden title="Watched"
-      i.fa.fa-eye
-    span.tag__state.hidden title="Spoilered"
-      i.fa.fa-eye-slash
-    span.tag__state.hidden title="Hidden"
-      i.fa.fa-ban
-
     a.tag__name< href=pretty_tag_path(@tag) title="#{@tag.short_description}" = @tag.name
 
   span.tag__count

@@ -2,90 +2,127 @@
  * Tags Dropdown
  */
 
-import { $$, showEl, hideEl } from './utils/dom';
-import { assertNotUndefined } from './utils/assert';
+import { $$, showEl, makeEl, hideIf, $, setClassIf } from './utils/dom';
+import { assertNotNull, assertNotUndefined } from './utils/assert';
 import '../types/ujs';
 
 type TagDropdownActionFunction = () => void;
 type TagDropdownActionList = Record<string, TagDropdownActionFunction>;
 
-function addTag(tagId: number, list: number[]) {
-  list.push(tagId);
+interface TagState {
+  name: string;
+  decor: HTMLElement;
+  tags: number[];
+  enableElem: HTMLElement;
+  disableElem: HTMLElement;
+  authorized: boolean;
 }
 
-function removeTag(tagId: number, list: number[]) {
-  list.splice(list.indexOf(tagId), 1);
+class Tag {
+  elem: HTMLElement;
+  id: number;
+
+  constructor(elem: HTMLElement) {
+    this.elem = elem;
+    this.id = parseInt(assertNotUndefined(elem.dataset.tagId), 10);
+  }
+
+  refresh(state: TagState): void {
+    const isEnabled = this.has(state);
+    hideIf(!isEnabled, state.decor);
+    setClassIf(isEnabled, this.elem, `tag--${state.name}`);
+
+    if (state.authorized) {
+      hideIf(isEnabled, state.enableElem);
+      hideIf(!isEnabled, state.disableElem);
+    }
+  }
+
+  has(state: TagState): boolean {
+    return state.tags.includes(this.id);
+  }
+
+  add(state: TagState): void {
+    state.tags.push(this.id);
+  }
+
+  remove(state: TagState): void {
+    state.tags.splice(state.tags.indexOf(this.id), 1);
+  }
 }
 
-function createTagDropdown(tag: HTMLSpanElement) {
-  const { userIsSignedIn, userCanEditFilter, watchedTagList, spoileredTagList, hiddenTagList } = window.booru;
+function createTagDropdown(tagElem: HTMLSpanElement) {
+  const tag: Tag = new Tag(tagElem);
+
+  const { userIsSignedIn, userCanEditFilter } = window.booru;
   const [unwatch, watch, unspoiler, spoiler, unhide, hide, signIn, filter] = $$<HTMLElement>(
     '.tag__dropdown__link',
-    tag,
+    tag.elem,
   );
-  const [unwatched, watched, spoilered, hidden] = $$<HTMLSpanElement>('.tag__state', tag);
-  const tagId = parseInt(assertNotUndefined(tag.dataset.tagId), 10);
+
+  const icon = (className: string) => [makeEl('i', { className }), ' '];
+
+  const states = {
+    watched: {
+      name: 'watched',
+      authorized: userIsSignedIn,
+      enableElem: watch,
+      disableElem: unwatch,
+      decor: makeEl('span', { title: 'Watched' }, icon('fa fa-eye')),
+      tags: window.booru.watchedTagList,
+    },
+    spoilered: {
+      name: 'spoilered',
+      authorized: userCanEditFilter,
+      enableElem: spoiler,
+      disableElem: unspoiler,
+      decor: makeEl('span', { title: 'Spoilered' }, icon('fa fa-eye-slash')),
+      tags: window.booru.spoileredTagList,
+    },
+    hidden: {
+      name: 'hidden',
+      authorized: userCanEditFilter,
+      enableElem: hide,
+      disableElem: unhide,
+      decor: makeEl('span', { title: 'Hidden' }, icon('fa fa-ban')),
+      tags: window.booru.hiddenTagList,
+    },
+  } satisfies Record<string, TagState>;
+
+  const statesList = Object.values(states);
+  const stateElems = statesList.map(state => {
+    state.decor.classList.add('tag__state', 'hidden');
+    return state.decor;
+  });
+
+  // Attach the state markers to the tag element as hidden. We'll toggle their
+  // visibility according to the tag's state during refresh.
+  assertNotNull($<HTMLElement>('.tag__name', tag.elem)).before(...stateElems);
 
   const actions: TagDropdownActionList = {
-    unwatch() {
-      hideEl(unwatch, watched);
-      showEl(watch, unwatched);
-      removeTag(tagId, watchedTagList);
-    },
-    watch() {
-      hideEl(watch, unwatched);
-      showEl(unwatch, watched);
-      addTag(tagId, watchedTagList);
-    },
+    unwatch: () => tag.remove(states.watched),
+    watch: () => tag.add(states.watched),
 
-    unspoiler() {
-      hideEl(unspoiler, spoilered);
-      showEl(spoiler);
-      removeTag(tagId, spoileredTagList);
-    },
-    spoiler() {
-      hideEl(spoiler);
-      showEl(unspoiler, spoilered);
-      addTag(tagId, spoileredTagList);
-    },
+    unspoiler: () => tag.remove(states.spoilered),
+    spoiler: () => tag.add(states.spoilered),
 
-    unhide() {
-      hideEl(unhide, hidden);
-      showEl(hide);
-      removeTag(tagId, hiddenTagList);
-    },
-    hide() {
-      hideEl(hide);
-      showEl(unhide, hidden);
-      addTag(tagId, hiddenTagList);
-    },
+    unhide: () => tag.remove(states.hidden),
+    hide: () => tag.add(states.hidden),
   };
 
-  const tagIsWatched = watchedTagList.includes(tagId);
-  const tagIsSpoilered = spoileredTagList.includes(tagId);
-  const tagIsHidden = hiddenTagList.includes(tagId);
-
-  const watchedLink = tagIsWatched ? unwatch : watch;
-  const spoilerLink = tagIsSpoilered ? unspoiler : spoiler;
-  const hiddenLink = tagIsHidden ? unhide : hide;
-
-  // State symbols (-, S, H, +)
-  if (tagIsWatched) showEl(watched);
-  if (tagIsSpoilered) showEl(spoilered);
-  if (tagIsHidden) showEl(hidden);
-  if (!tagIsWatched) showEl(unwatched);
-
   // Dropdown links
-  if (userIsSignedIn) showEl(watchedLink);
-  if (userCanEditFilter) showEl(spoilerLink);
-  if (userCanEditFilter) showEl(hiddenLink);
   if (!userIsSignedIn) showEl(signIn);
   if (userIsSignedIn && !userCanEditFilter) showEl(filter);
 
-  tag.addEventListener('fetchcomplete', event => {
+  const refresh = () => statesList.forEach(state => tag.refresh(state));
+
+  tag.elem.addEventListener('fetchcomplete', event => {
     const act = assertNotUndefined(event.target.dataset.tagAction);
     actions[act]();
+    refresh();
   });
+
+  refresh();
 }
 
 export function initTagDropdown() {
