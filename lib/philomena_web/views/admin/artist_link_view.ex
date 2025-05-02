@@ -21,10 +21,17 @@ defmodule PhilomenaWeb.Admin.ArtistLinkView do
     |> String.capitalize()
   end
 
-  def link_scope(conn) do
-    case conn.params["all"] do
-      nil -> []
-      _val -> [all: true]
+  def scope(conn) do
+    []
+    |> scope(conn, "lq", :lq)
+    |> scope(conn, "all", :all)
+  end
+
+  defp scope(list, conn, key, key_atom) do
+    case conn.params[key] do
+      nil -> list
+      "" -> list
+      val -> [{key_atom, val} | list]
     end
   end
 
