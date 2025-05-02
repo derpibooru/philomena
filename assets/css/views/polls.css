@@ -46,7 +46,7 @@
 .poll-option__label,
 .poll-form__options__label span {
   white-space: pre-wrap;
-  word-break: break-word;
+  word-wrap: break-word;
 }
 
 .poll-form__status,
