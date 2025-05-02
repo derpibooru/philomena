@@ -14,7 +14,7 @@ h1 Subnet Bans
       i.fa.fa-plus>
       ' New subnet ban
 
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     table.table
@@ -59,4 +59,4 @@ h1 Subnet Bans
                   => link "Destroy", to: ~p"/admin/subnet_bans/#{ban}", data: [confirm: "Are you really, really sure?", method: "delete"]
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

@@ -9,7 +9,7 @@ h2 Badges
       i.fa.fa-plus>
       ' New Badge
 
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     table.table
@@ -33,4 +33,4 @@ h2 Badges
               = link "Edit", to: ~p"/admin/badges/#{badge}/edit"
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

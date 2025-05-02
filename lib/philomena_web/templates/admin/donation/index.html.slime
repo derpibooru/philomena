@@ -5,10 +5,10 @@ h1 Donations
 
 .block
   .block__header
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     = render PhilomenaWeb.Admin.DonationView, "_table.html", donations: @donations, conn: @conn
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

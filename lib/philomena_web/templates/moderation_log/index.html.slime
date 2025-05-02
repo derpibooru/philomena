@@ -4,30 +4,30 @@ elixir:
 
 h1 Listing Moderation Logs
 
-block
+.block
   .block__header
     .page__pagination = pagination
 
-table
-  thead
-    tr
-      th Moderator
-      th Type
-      th Body
-      th Creation time
-      th Actions
-  tbody
-    = for log <- @moderation_logs do
-      tr
-        td = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: log.user}, conn: @conn
-        td = log.type
-        td = log.body
-        td = pretty_time(log.created_at)
-        td
-          = link to: log.subject_path do
-            i.fa.fa-eye>
-            ' View subject
+  .block__content
+    table.table
+      thead
+        tr
+          th Moderator
+          th Type
+          th Body
+          th Creation time
+          th Actions
+      tbody
+        = for log <- @moderation_logs do
+          tr
+            td = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: log.user}, conn: @conn
+            td = log.type
+            td = log.body
+            td = pretty_time(log.created_at)
+            td
+              = link to: log.subject_path do
+                i.fa.fa-eye>
+                ' View subject
 
-block
-  .block__header
+  .block__header.block__header--light
     .page__pagination = pagination

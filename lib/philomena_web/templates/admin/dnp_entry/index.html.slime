@@ -10,81 +10,84 @@ h2 Do-Not-Post Requests
 
 .block
   .block__header
-    = pagination
+    .page__pagination = pagination
 
-    span.block__header__title Display Only:
+    span.block__header__title Display only:
     => link "All Open", to: ~p"/admin/dnp_entries?#{[states: ~W(requested claimed rescinded acknowledged)]}"
     => link "Listed", to: ~p"/admin/dnp_entries?#{[states: ~W(listed)]}"
     => link "Rescinded", to: ~p"/admin/dnp_entries?#{[states: ~W(rescinded acknowledged)]}"
     => link "Closed", to: ~p"/admin/dnp_entries?#{[states: ~W(closed)]}"
 
   .block__content
-      table.table
-        thead
+    table.table
+      thead
+        tr
+          td Tag
+          td Requesting User
+          td Type
+          td Conditions
+          td Status
+          td Created
+          td Modified
+          td Options
+
+      tbody
+        = for {body, request} <- @dnp_entries do
           tr
-            td Tag
-            td Requesting User
-            td Type
-            td Conditions
-            td Status
-            td Created
-            td Modified
-            td Options
+            td
+              = render PhilomenaWeb.TagView, "_tag.html", tag: request.tag, conn: @conn
 
-        tbody
-          = for {body, request} <- @dnp_entries do
-            tr
-              td
-                = render PhilomenaWeb.TagView, "_tag.html", tag: request.tag, conn: @conn
+            td
+              = link request.requesting_user.name, to: ~p"/profiles/#{request.requesting_user}"
 
-              td
-                = link request.requesting_user.name, to: ~p"/profiles/#{request.requesting_user}"
+            td
+              = request.dnp_type
 
-              td
-                = request.dnp_type
+            td
+              = body
 
-              td
-                = body
+            td class=dnp_entry_row_class(request)
+              => pretty_state(request)
 
-              td class=dnp_entry_row_class(request)
-                => pretty_state(request)
+              = if request.modifying_user do
+                ' by
+                = link request.modifying_user.name, to: ~p"/profiles/#{request.modifying_user}"
 
-                = if request.modifying_user do
-                  ' by
-                  = link request.modifying_user.name, to: ~p"/profiles/#{request.modifying_user}"
+            td
+              = pretty_time(request.created_at)
 
-              td
-                = pretty_time(request.created_at)
+            td
+              = pretty_time(request.updated_at)
 
-              td
-                = pretty_time(request.updated_at)
+            td
+              => link "Show", to: ~p"/dnp/#{request}"
+              ' &bull;
+              => link "Send PM", to: ~p"/conversations/new?#{[recipient: request.requesting_user.name]}"
 
-              td
-                => link "Show", to: ~p"/dnp/#{request}"
-                ' &bull;
-                => link "Send PM", to: ~p"/conversations/new?#{[recipient: request.requesting_user.name]}"
+              = case request.aasm_state do
+                - s when s in ["requested", "claimed"] ->
+                  ' &bull;
+                  => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                  ' &bull;
+                  => link "Approve", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "listed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                  ' &bull;
+                  => link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
-                = case request.aasm_state do
-                  - s when s in ["requested", "claimed"] ->
-                    ' &bull;
-                    => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
-                    ' &bull;
-                    => link "Approve", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "listed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
-                    ' &bull;
-                    => link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                - "listed" ->
+                  ' &bull;
+                  => link "Rescind", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "rescinded"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                  ' &bull;
+                  = link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
-                  - "listed" ->
-                    ' &bull;
-                    => link "Rescind", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "rescinded"]}", data: [method: "post", confirm: "Are you really, really sure?"]
-                    ' &bull;
-                    = link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                - s when s in ["rescinded", "acknowledged"] ->
+                  ' &bull;
+                  => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "acknowledged"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                  ' &bull;
+                  = link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
-                  - s when s in ["rescinded", "acknowledged"] ->
-                    ' &bull;
-                    => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "acknowledged"]}", data: [method: "post", confirm: "Are you really, really sure?"]
-                    ' &bull;
-                    = link "Close", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "closed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+                - _state ->
+                  ' &bull;
+                  => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
-                  - _state ->
-                    ' &bull;
-                    => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
+  .block__header.block__header--light
+    .page__pagination = pagination
