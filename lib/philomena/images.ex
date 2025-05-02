@@ -222,7 +222,6 @@ defmodule Philomena.Images do
   def count_pending_approvals(user) do
     if Canada.Can.can?(user, :approve, %Image{}) do
       Image
-      |> where(hidden_from_users: false)
       |> where(approved: false)
       |> Repo.aggregate(:count)
     else
