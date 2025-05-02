@@ -151,7 +151,7 @@ export class TestContext {
     await vi.runAllTimersAsync();
   }
 
-  expectRequests() {
+  snapPequests() {
     const snapshot = vi.mocked(fetch).mock.calls.map(([input]) => {
       const request = input as unknown as Request;
       const meta: Record<string, unknown> = {};
@@ -178,7 +178,7 @@ export class TestContext {
       };
     });
 
-    return expect(snapshot);
+    return snapshot;
   }
 
   /**
@@ -186,14 +186,14 @@ export class TestContext {
    * selection start (`<`) and end (`>`), as well as some markers for the
    * currently selected item and history suggestions.
    */
-  expectUi() {
-    const input = this.inputSnapshot();
-    const suggestions = this.suggestionsSnapshot();
+  snapUi() {
+    const input = this.snapInput();
+    const suggestions = this.snapSuggestions();
 
-    return expect({ input, suggestions });
+    return { input, suggestions };
   }
 
-  suggestionsSnapshot() {
+  snapSuggestions() {
     const { popup } = this;
 
     if (popup.classList.contains('hidden')) {
@@ -218,7 +218,7 @@ export class TestContext {
     });
   }
 
-  inputSnapshot() {
+  snapInput() {
     const { input } = this;
 
     const value = [...input.value];
@@ -237,36 +237,38 @@ export class TestContext {
   }
 }
 
-export async function init(): Promise<TestContext> {
-  const fakeAutocompleteBuffer = await fs.promises
-    .readFile(path.join(__dirname, '../../utils/__tests__/autocomplete-compiled-v2.bin'))
-    .then(({ buffer }) => new Response(buffer));
+export const autocompleteTest = test.extend<{ ctx: TestContext }>({
+  ctx: async ({ expect }, use) => {
+    const fakeAutocompleteBuffer = await fs.promises
+      .readFile(path.join(__dirname, '../../utils/__tests__/autocomplete-compiled-v2.bin'))
+      .then(({ buffer }) => new Response(buffer));
 
-  const ctx = new TestContext(fakeAutocompleteBuffer);
+    const ctx = new TestContext(fakeAutocompleteBuffer);
 
-  expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
 
-  // Initialize the lazy autocomplete index cache
-  await ctx.focusInput();
+    // Initialize the lazy autocomplete index cache
+    await ctx.focusInput();
 
-  ctx.expectRequests().toMatchInlineSnapshot(`
-    [
-      {
-        "dest": "GET http://localhost:3000/autocomplete/compiled?vsn=2&key=1970-0-1",
-        "meta": {
-          "cache": "force-cache",
-          "credentials": "omit",
+    expect(ctx.snapPequests()).toMatchInlineSnapshot(`
+      [
+        {
+          "dest": "GET http://localhost:3000/autocomplete/compiled?vsn=2&key=1970-0-1",
+          "meta": {
+            "cache": "force-cache",
+            "credentials": "omit",
+          },
         },
-      },
-    ]
-  `);
+      ]
+    `);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
-    {
-      "input": "",
-      "suggestions": [],
-    }
-  `);
+    expect(ctx.snapUi()).toMatchInlineSnapshot(`
+      {
+        "input": "",
+        "suggestions": [],
+      }
+    `);
 
-  return ctx;
-}
+    await use(ctx);
+  },
+});

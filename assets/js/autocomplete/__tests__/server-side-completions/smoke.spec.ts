@@ -1,15 +1,13 @@
-import { init } from '../context';
+import { autocompleteTest } from '../context';
 
-it('requests server-side autocomplete if local autocomplete returns no results', async () => {
-  const ctx = await init();
-
+autocompleteTest('requests server-side autocomplete if local one has no results', async ({ ctx, expect }) => {
   await ctx.setInput('mar');
 
   // 1. Request the local autocomplete index.
   // 2. Request the server-side suggestions.
   expect(fetch).toHaveBeenCalledTimes(2);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "mar<>",
       "suggestions": [
@@ -28,7 +26,7 @@ it('requests server-side autocomplete if local autocomplete returns no results',
   await ctx.setInput(' Mar');
   await ctx.setInput('  MAR');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "  MAR<>",
       "suggestions": [

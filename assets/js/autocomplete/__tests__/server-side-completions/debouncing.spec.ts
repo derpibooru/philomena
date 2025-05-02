@@ -1,15 +1,13 @@
-import { init } from '../context';
+import { autocompleteTest } from '../context';
 
-it('ignores the autocompletion results if Escape was pressed', async () => {
-  const ctx = await init();
-
+autocompleteTest('ignores the autocompletion results if Escape was pressed', async ({ ctx, expect }) => {
   // First request for the local autocomplete index was done
   expect(fetch).toHaveBeenCalledTimes(1);
 
   await Promise.all([ctx.setInput('mar'), ctx.keyDown('Escape')]);
 
   // The input must be empty because the user typed `mar` and pressed `Escape` right after that
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "mar<>",
       "suggestions": [],
@@ -21,7 +19,7 @@ it('ignores the autocompletion results if Escape was pressed', async () => {
 
   await ctx.setInput('mar');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "mar<>",
       "suggestions": [
@@ -45,7 +43,7 @@ it('ignores the autocompletion results if Escape was pressed', async () => {
 
   expect(fetch).toHaveBeenCalledTimes(3);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "mare<>",
       "suggestions": [],
@@ -57,7 +55,7 @@ it('ignores the autocompletion results if Escape was pressed', async () => {
   // Make sure that the user gets the results immediately without any debouncing (0 ms)
   await vi.advanceTimersByTimeAsync(0);
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "mare<>",
       "suggestions": [
