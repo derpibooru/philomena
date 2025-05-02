@@ -2157,7 +2157,9 @@ CREATE TABLE public.users (
     scratchpad character varying,
     bypass_rate_limits boolean DEFAULT false,
     scale_large_images character varying(255) DEFAULT 'true'::character varying NOT NULL,
-    verified boolean DEFAULT false
+    verified boolean DEFAULT false,
+    delay_home_images boolean DEFAULT true,
+    staff_delay_home_images boolean DEFAULT false
 );
 
 
@@ -5449,4 +5451,5 @@ INSERT INTO public."schema_migrations" (version) VALUES (20220321173359);
 INSERT INTO public."schema_migrations" (version) VALUES (20240723122759);
 INSERT INTO public."schema_migrations" (version) VALUES (20240728191353);
 INSERT INTO public."schema_migrations" (version) VALUES (20241216165826);
+INSERT INTO public."schema_migrations" (version) VALUES (20250407021536);
 INSERT INTO public."schema_migrations" (version) VALUES (20250502110018);

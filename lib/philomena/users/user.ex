@@ -93,6 +93,8 @@ defmodule Philomena.Users.User do
     field :show_hidden_items, :boolean, default: false
     field :hide_vote_counts, :boolean, default: false
     field :hide_advertisements, :boolean, default: false
+    field :delay_home_images, :boolean, default: true
+    field :staff_delay_home_images, :boolean, default: false
 
     # Counters
     field :forum_posts_count, :integer, default: 0
@@ -326,7 +328,9 @@ defmodule Philomena.Users.User do
       :watch_on_new_topic,
       :comments_always_jump_to_last,
       :messages_newest_first,
-      :show_sidebar_and_watched_images
+      :show_sidebar_and_watched_images,
+      :delay_home_images,
+      :staff_delay_home_images
     ])
     |> validate_required([
       :images_per_page,
