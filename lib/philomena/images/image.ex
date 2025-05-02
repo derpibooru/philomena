@@ -271,6 +271,7 @@ defmodule Philomena.Images.Image do
     |> put_change(:deleter_id, user.id)
     |> put_change(:hidden_image_key, create_key())
     |> put_change(:hidden_from_users, true)
+    |> put_change(:approved, true)
     |> validate_required([:deletion_reason, :deleter_id])
   end
 

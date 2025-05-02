@@ -10,7 +10,6 @@ defmodule PhilomenaWeb.Admin.ApprovalController do
   def index(conn, _params) do
     images =
       Image
-      |> where(hidden_from_users: false)
       |> where(approved: false)
       |> order_by(asc: :id)
       |> preload([:user, :sources, tags: [:aliases, :aliased_tag]])
