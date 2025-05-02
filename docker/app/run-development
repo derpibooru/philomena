@@ -56,6 +56,9 @@ done
 if step createdb -h postgres -U postgres philomena_dev; then
   step mix ecto.setup_dev
   step mix reindex_all
+elif [[ "$(mix ecto.migrations)" == *" down "* ]]; then
+  step mix ecto.migrate --all
+  step mix reindex_all
 fi
 
 # Explicitly compile deps to avoid racing
