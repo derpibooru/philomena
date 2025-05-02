@@ -9,9 +9,10 @@ defmodule PhilomenaWeb.FilterIdPlug do
     filter = load_filter(conn.params)
     user = conn.assigns.current_user
 
-    case not is_nil(filter) and Canada.Can.can?(user, :show, filter) do
-      true -> Plug.Conn.assign(conn, :current_filter, filter)
-      false -> conn
+    if not is_nil(filter) and Canada.Can.can?(user, :show, filter) do
+      Plug.Conn.assign(conn, :current_filter, filter)
+    else
+      conn
     end
   end
 

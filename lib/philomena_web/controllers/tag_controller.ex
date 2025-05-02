@@ -131,28 +131,26 @@ defmodule PhilomenaWeb.TagController do
   end
 
   defp escape_name(name) do
-    cond do
-      String.contains?(name, "(") or String.contains?(name, ")") ->
-        # \ * ? " should be escaped, wrap in quotes so parser doesn't
-        # choke on parens.
-        name =
-          name
-          |> String.replace("\\", "\\\\")
-          |> String.replace("*", "\\*")
-          |> String.replace("?", "\\?")
-          |> String.replace("\"", "\\\"")
-
-        "\"#{name}\""
-
-      true ->
-        # \ * ? - ! " all must be escaped.
+    if String.contains?(name, "(") or String.contains?(name, ")") do
+      # \ * ? " should be escaped, wrap in quotes so parser doesn't
+      # choke on parens.
+      name =
         name
-        |> String.replace(~r/\A-/, "\\-")
-        |> String.replace(~r/\A!/, "\\!")
         |> String.replace("\\", "\\\\")
         |> String.replace("*", "\\*")
         |> String.replace("?", "\\?")
         |> String.replace("\"", "\\\"")
+
+      "\"#{name}\""
+    else
+      # \ * ? - ! " all must be escaped.
+      name
+      |> String.replace(~r/\A-/, "\\-")
+      |> String.replace(~r/\A!/, "\\!")
+      |> String.replace("\\", "\\\\")
+      |> String.replace("*", "\\*")
+      |> String.replace("?", "\\?")
+      |> String.replace("\"", "\\\"")
     end
   end
 

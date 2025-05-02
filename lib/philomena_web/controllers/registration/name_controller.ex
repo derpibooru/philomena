@@ -25,9 +25,10 @@ defmodule PhilomenaWeb.Registration.NameController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :change_username, conn.assigns.current_user) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :change_username, conn.assigns.current_user) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

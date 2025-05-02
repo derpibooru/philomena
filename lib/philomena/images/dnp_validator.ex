@@ -42,12 +42,10 @@ defmodule Philomena.Images.DnpValidator do
     Enum.reduce(tags_with_dnp, changeset, fn tag, changeset ->
       tag.dnp_entries
       |> Enum.any?(&(&1.dnp_type == dnp_type and not uploader_permitted?(&1, uploader)))
-      |> case do
-        true ->
-          add_error(changeset, :image, "DNP (#{dnp_type})")
-
-        _ ->
-          changeset
+      |> if do
+        add_error(changeset, :image, "DNP (#{dnp_type})")
+      else
+        changeset
       end
     end)
   end

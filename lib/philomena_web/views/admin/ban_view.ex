@@ -7,9 +7,10 @@ defmodule PhilomenaWeb.Admin.BanView do
   def ban_row_class(%{valid_until: until, enabled: enabled}) do
     now = DateTime.utc_now()
 
-    case enabled and DateTime.diff(until, now) > 0 do
-      true -> "success"
-      _false -> "danger"
+    if enabled and DateTime.diff(until, now) > 0 do
+      "success"
+    else
+      "danger"
     end
   end
 

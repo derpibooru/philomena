@@ -19,9 +19,10 @@ defmodule PhilomenaQuery.Parse.Helpers do
   def to_int(term) do
     {int, _} = :string.to_integer(term)
 
-    case int in -2_147_483_648..2_147_483_647 do
-      true -> int
-      _false -> 0
+    if int in -2_147_483_648..2_147_483_647 do
+      int
+    else
+      0
     end
   end
 

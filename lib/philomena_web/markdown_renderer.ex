@@ -80,49 +80,47 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       text = "#{Enum.at(group, 0)}#{Enum.at(group, 1)}"
 
       rendered =
-        cond do
-          img != nil ->
-            case group do
-              [_id, "p"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(ImageView, "_image_target.html",
-                  embed_display: true,
-                  image: img,
-                  size: ImageView.select_version(img, :medium),
-                  conn: conn
-                )
+        if img != nil do
+          case group do
+            [_id, "p"] when not img.hidden_from_users and img.approved ->
+              Phoenix.View.render(ImageView, "_image_target.html",
+                embed_display: true,
+                image: img,
+                size: ImageView.select_version(img, :medium),
+                conn: conn
+              )
 
-              [_id, "t"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(ImageView, "_image_target.html",
-                  embed_display: true,
-                  image: img,
-                  size: ImageView.select_version(img, :small),
-                  conn: conn
-                )
+            [_id, "t"] when not img.hidden_from_users and img.approved ->
+              Phoenix.View.render(ImageView, "_image_target.html",
+                embed_display: true,
+                image: img,
+                size: ImageView.select_version(img, :small),
+                conn: conn
+              )
 
-              [_id, "s"] when not img.hidden_from_users and img.approved ->
-                Phoenix.View.render(ImageView, "_image_target.html",
-                  embed_display: true,
-                  image: img,
-                  size: ImageView.select_version(img, :thumb_small),
-                  conn: conn
-                )
+            [_id, "s"] when not img.hidden_from_users and img.approved ->
+              Phoenix.View.render(ImageView, "_image_target.html",
+                embed_display: true,
+                image: img,
+                size: ImageView.select_version(img, :thumb_small),
+                conn: conn
+              )
 
-              [_id, suffix] when not img.approved ->
-                ">>#{img.id}#{suffix}#{link_suffix(img)}"
+            [_id, suffix] when not img.approved ->
+              ">>#{img.id}#{suffix}#{link_suffix(img)}"
 
-              [_id, ""] ->
-                link(">>#{img.id}#{link_suffix(img)}", to: "/images/#{img.id}")
+            [_id, ""] ->
+              link(">>#{img.id}#{link_suffix(img)}", to: "/images/#{img.id}")
 
-              [_id, suffix] when suffix in ["t", "s", "p"] ->
-                link(">>#{img.id}#{suffix}#{link_suffix(img)}", to: "/images/#{img.id}")
+            [_id, suffix] when suffix in ["t", "s", "p"] ->
+              link(">>#{img.id}#{suffix}#{link_suffix(img)}", to: "/images/#{img.id}")
 
-              # This condition should never trigger, but let's leave it here just in case.
-              [id, suffix] ->
-                ">>#{id}#{suffix}"
-            end
-
-          true ->
-            ">>#{text}"
+            # This condition should never trigger, but let's leave it here just in case.
+            [id, suffix] ->
+              ">>#{id}#{suffix}"
+          end
+        else
+          ">>#{text}"
         end
 
       string_contents =

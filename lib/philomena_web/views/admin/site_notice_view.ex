@@ -4,9 +4,10 @@ defmodule PhilomenaWeb.Admin.SiteNoticeView do
   def time_column_class(time) do
     now = DateTime.utc_now()
 
-    case DateTime.diff(time, now) > 0 do
-      true -> "success"
-      false -> "danger"
+    if DateTime.diff(time, now) > 0 do
+      "success"
+    else
+      "danger"
     end
   end
 

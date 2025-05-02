@@ -12,14 +12,12 @@ defmodule PhilomenaWeb.Api.Json.ProfileController do
       |> preload(public_links: :tag, awards: :badge)
       |> Repo.one()
 
-    cond do
-      is_nil(user) or user.deleted_at ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
-
-      true ->
-        render(conn, "show.json", user: user)
+    if is_nil(user) or user.deleted_at do
+      conn
+      |> put_status(:not_found)
+      |> text("")
+    else
+      render(conn, "show.json", user: user)
     end
   end
 end

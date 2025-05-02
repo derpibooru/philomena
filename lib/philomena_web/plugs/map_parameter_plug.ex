@@ -26,14 +26,12 @@ defmodule PhilomenaWeb.MapParameterPlug do
     param = Keyword.fetch!(opts, :param)
     value = conn.params[param]
 
-    cond do
-      is_map(value) ->
-        conn
+    if is_map(value) do
+      conn
+    else
+      params = Map.delete(conn.params, param)
 
-      true ->
-        params = Map.delete(conn.params, param)
-
-        Map.put(conn, :params, params)
+      Map.put(conn, :params, params)
     end
   end
 end

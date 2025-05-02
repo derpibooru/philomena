@@ -36,31 +36,29 @@ defmodule PhilomenaWeb.ReportController do
   def create(conn, action, reportable_type, reportable, %{"report" => report_params}) do
     attribution = conn.assigns.attributes
 
-    case too_many_reports?(conn) do
-      true ->
-        conn
-        |> put_flash(
-          :error,
-          "You may not have more than #{max_reports()} open reports at a time. Did you read the reporting tips?"
-        )
-        |> redirect(to: "/")
+    if too_many_reports?(conn) do
+      conn
+      |> put_flash(
+        :error,
+        "You may not have more than #{max_reports()} open reports at a time. Did you read the reporting tips?"
+      )
+      |> redirect(to: "/")
+    else
+      case Reports.create_report({reportable_type, reportable.id}, attribution, report_params) do
+        {:ok, _report} ->
+          conn
+          |> put_flash(
+            :info,
+            "Your report has been received and will be checked by staff shortly."
+          )
+          |> redirect(to: redirect_path(conn.assigns.current_user))
 
-      _falsy ->
-        case Reports.create_report({reportable_type, reportable.id}, attribution, report_params) do
-          {:ok, _report} ->
-            conn
-            |> put_flash(
-              :info,
-              "Your report has been received and will be checked by staff shortly."
-            )
-            |> redirect(to: redirect_path(conn.assigns.current_user))
-
-          {:error, changeset} ->
-            # Note that we are depending on the controller that called
-            # us to have set up the view already (Phoenix does this)
-            conn
-            |> render("new.html", reportable: reportable, changeset: changeset, action: action)
-        end
+        {:error, changeset} ->
+          # Note that we are depending on the controller that called
+          # us to have set up the view already (Phoenix does this)
+          conn
+          |> render("new.html", reportable: reportable, changeset: changeset, action: action)
+      end
     end
   end
 

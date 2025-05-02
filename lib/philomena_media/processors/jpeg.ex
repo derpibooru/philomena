@@ -56,22 +56,20 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
     # ImageMagick always reencodes the image, resulting in quality loss, so
     # be more clever
-    case requires_lossy_transformation?(file) do
-      true ->
-        # Transcode: strip EXIF, embedded profile and reorient image
-        {_output, 0} =
-          System.cmd("convert", [
-            file,
-            "-profile",
-            srgb_profile(),
-            "-auto-orient",
-            "-strip",
-            stripped
-          ])
-
-      _ ->
-        # Transmux only: Strip EXIF without touching orientation
-        validate_return(System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+    if requires_lossy_transformation?(file) do
+      # Transcode: strip EXIF, embedded profile and reorient image
+      {_output, 0} =
+        System.cmd("convert", [
+          file,
+          "-profile",
+          srgb_profile(),
+          "-auto-orient",
+          "-strip",
+          stripped
+        ])
+    else
+      # Transmux only: Strip EXIF without touching orientation
+      validate_return(System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
     end
 
     stripped

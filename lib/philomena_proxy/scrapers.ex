@@ -58,17 +58,15 @@ defmodule PhilomenaProxy.Scrapers do
   def scrape!(url) do
     uri = URI.parse(url)
 
-    cond do
-      is_nil(uri.host) ->
-        # Scraping without a hostname doesn't make sense because the proxy cannot fetch it, and
-        # some scrapers may test properties of the hostname.
-        nil
-
-      true ->
-        # Find the first scraper which can handle the URL and process, or return nil
-        Enum.find_value(@scrapers, nil, fn scraper ->
-          scraper.can_handle?(uri, url) && scraper.scrape(uri, url)
-        end)
+    if is_nil(uri.host) do
+      # Scraping without a hostname doesn't make sense because the proxy cannot fetch it, and
+      # some scrapers may test properties of the hostname.
+      nil
+    else
+      # Find the first scraper which can handle the URL and process, or return nil
+      Enum.find_value(@scrapers, nil, fn scraper ->
+        scraper.can_handle?(uri, url) && scraper.scrape(uri, url)
+      end)
     end
   end
 end

@@ -36,14 +36,12 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
       |> preload([:user, :topic])
       |> Repo.one()
 
-    cond do
-      is_nil(post) ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
-
-      true ->
-        render(conn, "show.json", post: post)
+    if is_nil(post) do
+      conn
+      |> put_status(:not_found)
+      |> text("")
+    else
+      render(conn, "show.json", post: post)
     end
   end
 end

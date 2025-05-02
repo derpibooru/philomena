@@ -28,9 +28,10 @@ defmodule Philomena.Bans.Finder do
       |> Repo.all()
 
     # Don't return a fingerprint or subnet ban if the user is currently signed in.
-    case is_nil(user) do
-      true -> Enum.at(bans, 0)
-      false -> user_ban(bans)
+    if is_nil(user) do
+      Enum.at(bans, 0)
+    else
+      user_ban(bans)
     end
   end
 

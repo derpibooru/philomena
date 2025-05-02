@@ -86,21 +86,19 @@ defmodule PhilomenaMedia.Processors.Webm do
   defp scale(decoder, file, duration, dimensions, {thumb_name, target_dimensions}) do
     {webm, mp4} = scale_videos(decoder, file, dimensions, target_dimensions)
 
-    cond do
-      thumb_name in [:thumb, :thumb_small, :thumb_tiny] ->
-        gif = scale_gif(decoder, file, duration, dimensions, target_dimensions)
+    if thumb_name in [:thumb, :thumb_small, :thumb_tiny] do
+      gif = scale_gif(decoder, file, duration, dimensions, target_dimensions)
 
-        [
-          {:copy, webm, "#{thumb_name}.webm"},
-          {:copy, mp4, "#{thumb_name}.mp4"},
-          {:copy, gif, "#{thumb_name}.gif"}
-        ]
-
-      true ->
-        [
-          {:copy, webm, "#{thumb_name}.webm"},
-          {:copy, mp4, "#{thumb_name}.mp4"}
-        ]
+      [
+        {:copy, webm, "#{thumb_name}.webm"},
+        {:copy, mp4, "#{thumb_name}.mp4"},
+        {:copy, gif, "#{thumb_name}.gif"}
+      ]
+    else
+      [
+        {:copy, webm, "#{thumb_name}.webm"},
+        {:copy, mp4, "#{thumb_name}.mp4"}
+      ]
     end
   end
 

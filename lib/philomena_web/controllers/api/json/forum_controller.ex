@@ -22,14 +22,12 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
       |> where(access_level: "normal")
       |> Repo.one()
 
-    cond do
-      is_nil(forum) ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
-
-      true ->
-        render(conn, forum: forum)
+    if is_nil(forum) do
+      conn
+      |> put_status(:not_found)
+      |> text("")
+    else
+      render(conn, forum: forum)
     end
   end
 end

@@ -45,12 +45,10 @@ defmodule Philomena.ArtistLinks.AutomaticVerifier do
     artist_link.uri
     |> PhilomenaProxy.Http.get()
     |> contains_verification_code?(artist_link.verification_code)
-    |> case do
-      true ->
-        %{next_check_at: nil, aasm_state: "link_verified"}
-
-      false ->
-        %{next_check_at: recheck_time}
+    |> if do
+      %{next_check_at: nil, aasm_state: "link_verified"}
+    else
+      %{next_check_at: recheck_time}
     end
   end
 

@@ -42,9 +42,10 @@ defmodule PhilomenaWeb.Admin.ArtistLinkController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, %ArtistLink{}) do
-      true -> conn
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, %ArtistLink{}) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

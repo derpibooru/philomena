@@ -64,25 +64,23 @@ defmodule PhilomenaMedia.Processors.Png do
       "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease,format=rgb32"
 
     {_output, 0} =
-      cond do
-        animated? ->
-          System.cmd("ffmpeg", [
-            "-loglevel",
-            "0",
-            "-y",
-            "-i",
-            file,
-            "-plays",
-            "0",
-            "-vf",
-            scale_filter,
-            "-f",
-            "apng",
-            scaled
-          ])
-
-        true ->
-          System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
+      if animated? do
+        System.cmd("ffmpeg", [
+          "-loglevel",
+          "0",
+          "-y",
+          "-i",
+          file,
+          "-plays",
+          "0",
+          "-vf",
+          scale_filter,
+          "-f",
+          "apng",
+          scaled
+        ])
+      else
+        System.cmd("ffmpeg", ["-loglevel", "0", "-y", "-i", file, "-vf", scale_filter, scaled])
       end
 
     System.cmd("optipng", ["-i0", "-o1", "-quiet", "-clobber", scaled])

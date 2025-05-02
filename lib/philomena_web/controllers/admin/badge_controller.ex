@@ -55,9 +55,10 @@ defmodule PhilomenaWeb.Admin.BadgeController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, Badge) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, Badge) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 

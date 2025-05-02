@@ -12,16 +12,18 @@ defmodule PhilomenaWeb.UserAttributionView do
   def anonymous_user?(object), do: is_nil(object.user) or anonymous?(object)
 
   def name(object) do
-    case anonymous_user?(object) do
-      true -> anonymous_name(object)
-      _false -> object.user.name
+    if anonymous_user?(object) do
+      anonymous_name(object)
+    else
+      object.user.name
     end
   end
 
   def avatar_url(object) do
-    case anonymous_user?(object) do
-      true -> anonymous_avatar_url(anonymous_name(object))
-      _false -> user_avatar_url(object)
+    if anonymous_user?(object) do
+      anonymous_avatar_url(anonymous_name(object))
+    else
+      user_avatar_url(object)
     end
   end
 
@@ -37,9 +39,10 @@ defmodule PhilomenaWeb.UserAttributionView do
       |> Integer.to_string(16)
       |> String.pad_leading(4, "0")
 
-    case not is_nil(object.user) and reveal_anon? do
-      true -> "#{object.user.name} (##{hash}, hidden)"
-      false -> "Background Pony ##{hash}"
+    if not is_nil(object.user) and reveal_anon? do
+      "#{object.user.name} (##{hash}, hidden)"
+    else
+      "Background Pony ##{hash}"
     end
   end
 
@@ -93,18 +96,20 @@ defmodule PhilomenaWeb.UserAttributionView do
   end
 
   defp personal_title(labels, %{personal_title: t}) do
-    case blank?(t) do
-      true -> labels
-      false -> [{"label--primary", t} | labels]
+    if blank?(t) do
+      labels
+    else
+      [{"label--primary", t} | labels]
     end
   end
 
   defp personal_title(labels, _user), do: labels
 
   defp secondary_role(labels, %{secondary_role: t}) do
-    case blank?(t) do
-      true -> labels
-      false -> [{"label--warning", t} | labels]
+    if blank?(t) do
+      labels
+    else
+      [{"label--warning", t} | labels]
     end
   end
 

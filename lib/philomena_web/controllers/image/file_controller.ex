@@ -27,15 +27,13 @@ defmodule PhilomenaWeb.Image.FileController do
   end
 
   defp verify_not_deleted(conn, _opts) do
-    case conn.assigns.image.hidden_from_users do
-      true ->
-        conn
-        |> put_flash(:error, "Cannot replace a deleted image.")
-        |> redirect(to: ~p"/images/#{conn.assigns.image}")
-        |> halt()
-
-      _false ->
-        conn
+    if conn.assigns.image.hidden_from_users do
+      conn
+      |> put_flash(:error, "Cannot replace a deleted image.")
+      |> redirect(to: ~p"/images/#{conn.assigns.image}")
+      |> halt()
+    else
+      conn
     end
   end
 

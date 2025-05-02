@@ -7,9 +7,10 @@ defmodule PhilomenaWeb.TagChangeView do
         tag_change.user.role != "user" and not tag_change.user.hide_default_role
 
   def user_column_class(tag_change) do
-    case staff?(tag_change) do
-      true -> "success"
-      false -> nil
+    if staff?(tag_change) do
+      "success"
+    else
+      nil
     end
   end
 

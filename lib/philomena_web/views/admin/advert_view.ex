@@ -9,9 +9,10 @@ defmodule PhilomenaWeb.Admin.AdvertView do
   def time_column_class(other_time) do
     now = DateTime.utc_now()
 
-    case DateTime.diff(other_time, now) > 0 do
-      true -> "success"
-      _false -> "danger"
+    if DateTime.diff(other_time, now) > 0 do
+      "success"
+    else
+      "danger"
     end
   end
 

@@ -104,9 +104,10 @@ defmodule PhilomenaWeb.Profile.Commission.ItemController do
   end
 
   defp ensure_commission(conn, _opts) do
-    case is_nil(conn.assigns.user.commission) do
-      true -> PhilomenaWeb.NotFoundPlug.call(conn)
-      false -> conn
+    if is_nil(conn.assigns.user.commission) do
+      PhilomenaWeb.NotFoundPlug.call(conn)
+    else
+      conn
     end
   end
 

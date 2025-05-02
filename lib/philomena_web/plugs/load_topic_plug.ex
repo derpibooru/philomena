@@ -27,9 +27,10 @@ defmodule PhilomenaWeb.LoadTopicPlug do
     do: assign(conn, :topic, topic)
 
   defp maybe_hide_topic(topic, %{assigns: %{current_user: user}} = conn, show_hidden) do
-    case show_hidden or can?(user, :show, topic) do
-      true -> assign(conn, :topic, topic)
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if show_hidden or can?(user, :show, topic) do
+      assign(conn, :topic, topic)
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

@@ -18,14 +18,12 @@ defmodule PhilomenaWeb.Fingerprint do
     fingerprint = upgrade(get_session(conn, @name), conn.cookies[@name])
 
     # If the fingerprint is valid, persist to session.
-    case valid_format?(fingerprint) do
-      true ->
-        conn
-        |> put_session(@name, fingerprint)
-        |> assign(:fingerprint, fingerprint)
-
-      false ->
-        assign(conn, :fingerprint, nil)
+    if valid_format?(fingerprint) do
+      conn
+      |> put_session(@name, fingerprint)
+      |> assign(:fingerprint, fingerprint)
+    else
+      assign(conn, :fingerprint, nil)
     end
   end
 

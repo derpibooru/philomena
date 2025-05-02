@@ -195,12 +195,10 @@ defmodule PhilomenaMedia.Objects do
     backends()
     |> Task.async_stream(fun, timeout: :infinity)
     |> Enum.any?(fn {_, v} -> v == :error end)
-    |> case do
-      true ->
-        Logger.warning("Failed to operate on all backends")
-
-      _ ->
-        :ok
+    |> if do
+      Logger.warning("Failed to operate on all backends")
+    else
+      :ok
     end
 
     :ok

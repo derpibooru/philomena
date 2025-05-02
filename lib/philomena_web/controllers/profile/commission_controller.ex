@@ -122,16 +122,18 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   end
 
   defp ensure_commission(conn, _opts) do
-    case is_nil(conn.assigns.user.commission) do
-      true -> PhilomenaWeb.NotFoundPlug.call(conn)
-      false -> conn
+    if is_nil(conn.assigns.user.commission) do
+      PhilomenaWeb.NotFoundPlug.call(conn)
+    else
+      conn
     end
   end
 
   defp ensure_no_commission(conn, _opts) do
-    case is_nil(conn.assigns.user.commission) do
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
-      true -> conn
+    if is_nil(conn.assigns.user.commission) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
@@ -146,18 +148,16 @@ defmodule PhilomenaWeb.Profile.CommissionController do
   end
 
   defp ensure_links_verified(conn, _opts) do
-    case Enum.any?(conn.assigns.user.verified_links) do
-      true ->
-        conn
-
-      false ->
-        conn
-        |> put_flash(
-          :error,
-          "You must have a verified artist link to create a commission listing."
-        )
-        |> redirect(to: ~p"/commissions")
-        |> halt()
+    if Enum.any?(conn.assigns.user.verified_links) do
+      conn
+    else
+      conn
+      |> put_flash(
+        :error,
+        "You must have a verified artist link to create a commission listing."
+      )
+      |> redirect(to: ~p"/commissions")
+      |> halt()
     end
   end
 end

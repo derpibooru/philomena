@@ -129,9 +129,10 @@ defmodule PhilomenaWeb.LayoutView do
   def viewport_meta_tag(conn) do
     ua = get_user_agent(conn)
 
-    case String.contains?(ua, ["Mobile", "webOS"]) do
-      true -> tag(:meta, name: "viewport", content: "width=device-width, initial-scale=1")
-      _false -> tag(:meta, name: "viewport", content: "width=1024, initial-scale=1")
+    if String.contains?(ua, ["Mobile", "webOS"]) do
+      tag(:meta, name: "viewport", content: "width=device-width, initial-scale=1")
+    else
+      tag(:meta, name: "viewport", content: "width=1024, initial-scale=1")
     end
   end
 

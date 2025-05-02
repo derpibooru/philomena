@@ -26,14 +26,12 @@ defmodule PhilomenaWeb.TotpPlug do
   defp maybe_require_totp_phase(%{otp_required_for_login: false}, conn), do: conn
 
   defp maybe_require_totp_phase(_user, conn) do
-    case conn.assigns.totp_valid? do
-      true ->
-        conn
-
-      _falsy ->
-        conn
-        |> Phoenix.Controller.redirect(to: ~p"/sessions/totp/new")
-        |> Plug.Conn.halt()
+    if conn.assigns.totp_valid? do
+      conn
+    else
+      conn
+      |> Phoenix.Controller.redirect(to: ~p"/sessions/totp/new")
+      |> Plug.Conn.halt()
     end
   end
 end

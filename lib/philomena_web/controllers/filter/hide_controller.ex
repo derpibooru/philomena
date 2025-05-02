@@ -38,15 +38,13 @@ defmodule PhilomenaWeb.Filter.HideController do
   end
 
   defp authorize_filter(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :edit, conn.assigns.current_filter) do
-      true ->
-        conn
-
-      false ->
-        conn
-        |> put_status(:forbidden)
-        |> text("")
-        |> halt()
+    if Canada.Can.can?(conn.assigns.current_user, :edit, conn.assigns.current_filter) do
+      conn
+    else
+      conn
+      |> put_status(:forbidden)
+      |> text("")
+      |> halt()
     end
   end
 end
