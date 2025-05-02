@@ -8,11 +8,14 @@ defmodule PhilomenaWeb.Admin.User.DownvoteController do
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def delete(conn, _params) do
-    Exq.enqueue(Exq, "indexing", UserUnvoteWorker, [conn.assigns.user.id, false])
+    user = conn.assigns.user
+
+    Exq.enqueue(Exq, "indexing", UserUnvoteWorker, [user.id, false])
 
     conn
     |> put_flash(:info, "Downvote wipe started.")
-    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
+    |> moderation_log(details: &log_details/2, data: user)
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
@@ -20,5 +23,9 @@ defmodule PhilomenaWeb.Admin.User.DownvoteController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, user) do
+    %{body: "Wiped downvotes for #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

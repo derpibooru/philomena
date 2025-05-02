@@ -8,10 +8,11 @@ defmodule PhilomenaWeb.Admin.User.AvatarController do
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def delete(conn, _params) do
-    {:ok, _user} = Users.remove_avatar(conn.assigns.user)
+    {:ok, user} = Users.remove_avatar(conn.assigns.user)
 
     conn
     |> put_flash(:info, "Successfully removed avatar.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/admin/users/#{conn.assigns.user}/edit")
   end
 
@@ -20,5 +21,9 @@ defmodule PhilomenaWeb.Admin.User.AvatarController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, user) do
+    %{body: "Removed avatar for #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

@@ -45,8 +45,8 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
   defp log_details(action, comment) do
     body =
       case action do
-        :create -> "Deleted comment on image >>#{comment.image_id} (#{comment.deletion_reason})"
-        :delete -> "Restored comment on image >>#{comment.image_id}"
+        :create -> "Deleted comment on image #{comment.image_id} (#{comment.deletion_reason})"
+        :delete -> "Restored comment on image #{comment.image_id}"
       end
 
     %{

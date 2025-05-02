@@ -18,6 +18,7 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterController do
 
     conn
     |> put_flash(:info, "Filter was forced.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -26,6 +27,7 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterController do
 
     conn
     |> put_flash(:info, "Forced filter was removed.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -34,5 +36,15 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(action, user) do
+    body =
+      case action do
+        :create -> "Forced filter #{user.forced_filter_id} for #{user.name}"
+        :delete -> "Removed forced filter for #{user.name}"
+      end
+
+    %{body: body, subject_path: ~p"/profiles/#{user}"}
   end
 end

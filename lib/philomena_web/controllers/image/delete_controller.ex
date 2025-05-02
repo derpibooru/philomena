@@ -73,9 +73,9 @@ defmodule PhilomenaWeb.Image.DeleteController do
   defp log_details(action, image) do
     body =
       case action do
-        :create -> "Deleted image >>#{image.id} (#{image.deletion_reason})"
-        :update -> "Changed deletion reason of >>#{image.id} (#{image.deletion_reason})"
-        :delete -> "Restored image >>#{image.id}"
+        :create -> "Deleted image #{image.id} (#{image.deletion_reason})"
+        :update -> "Changed deletion reason of #{image.id} (#{image.deletion_reason})"
+        :delete -> "Restored image #{image.id}"
       end
 
     %{

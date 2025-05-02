@@ -29,9 +29,10 @@ defmodule PhilomenaWeb.Admin.AdvertController do
 
   def create(conn, %{"advert" => advert_params}) do
     case Adverts.create_advert(advert_params) do
-      {:ok, _advert} ->
+      {:ok, advert} ->
         conn
         |> put_flash(:info, "Advert was successfully created.")
+        |> moderation_log(details: &log_details/2, data: advert)
         |> redirect(to: ~p"/admin/adverts")
 
       {:error, changeset} ->
@@ -46,9 +47,10 @@ defmodule PhilomenaWeb.Admin.AdvertController do
 
   def update(conn, %{"advert" => advert_params}) do
     case Adverts.update_advert(conn.assigns.advert, advert_params) do
-      {:ok, _advert} ->
+      {:ok, advert} ->
         conn
         |> put_flash(:info, "Advert was successfully updated.")
+        |> moderation_log(details: &log_details/2, data: advert)
         |> redirect(to: ~p"/admin/adverts")
 
       {:error, changeset} ->
@@ -57,10 +59,11 @@ defmodule PhilomenaWeb.Admin.AdvertController do
   end
 
   def delete(conn, _params) do
-    {:ok, _advert} = Adverts.delete_advert(conn.assigns.advert)
+    {:ok, advert} = Adverts.delete_advert(conn.assigns.advert)
 
     conn
     |> put_flash(:info, "Advert was successfully deleted.")
+    |> moderation_log(details: &log_details/2, data: advert)
     |> redirect(to: ~p"/admin/adverts")
   end
 
@@ -69,5 +72,16 @@ defmodule PhilomenaWeb.Admin.AdvertController do
       true -> conn
       false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(action, advert) do
+    body =
+      case action do
+        :create -> "Created advert #{advert.id}"
+        :update -> "Updated advert #{advert.id}"
+        :delete -> "Deleted advert #{advert.id}"
+      end
+
+    %{body: body, subject_path: ~p"/admin/adverts"}
   end
 end

@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.Admin.User.ApiKeyController do
 
     conn
     |> put_flash(:info, "API token successfully reset.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -20,5 +21,9 @@ defmodule PhilomenaWeb.Admin.User.ApiKeyController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, user) do
+    %{body: "Reset API key for #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

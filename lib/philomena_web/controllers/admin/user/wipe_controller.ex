@@ -8,14 +8,17 @@ defmodule PhilomenaWeb.Admin.User.WipeController do
   plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
 
   def create(conn, _params) do
-    Exq.enqueue(Exq, "indexing", UserWipeWorker, [conn.assigns.user.id])
+    user = conn.assigns.user
+
+    Exq.enqueue(Exq, "indexing", UserWipeWorker, [user.id])
 
     conn
     |> put_flash(
       :info,
       "PII wipe queued, please verify and then deactivate the account as necessary."
     )
-    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
+    |> moderation_log(details: &log_details/2, data: user)
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
@@ -23,5 +26,9 @@ defmodule PhilomenaWeb.Admin.User.WipeController do
       true -> conn
       _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, user) do
+    %{body: "Wiped PII for #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

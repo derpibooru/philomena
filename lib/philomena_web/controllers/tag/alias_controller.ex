@@ -23,6 +23,7 @@ defmodule PhilomenaWeb.Tag.AliasController do
       {:ok, tag} ->
         conn
         |> put_flash(:info, "Tag alias queued.")
+        |> moderation_log(details: &log_details/2, data: tag)
         |> redirect(to: ~p"/tags/#{tag}/alias/edit")
 
       {:error, changeset} ->
@@ -35,6 +36,17 @@ defmodule PhilomenaWeb.Tag.AliasController do
 
     conn
     |> put_flash(:info, "Tag dealias queued.")
+    |> moderation_log(details: &log_details/2, data: tag)
     |> redirect(to: ~p"/tags/#{tag}")
+  end
+
+  defp log_details(action, tag) do
+    body =
+      case action do
+        :update -> "Aliased tag '#{tag.name}' into '#{tag.aliased_tag.name}'"
+        :delete -> "Dealiased tag '#{tag.name}'"
+      end
+
+    %{body: body, subject_path: ~p"/tags/#{tag}"}
   end
 end
