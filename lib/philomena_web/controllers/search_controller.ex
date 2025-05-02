@@ -44,6 +44,6 @@ defmodule PhilomenaWeb.SearchController do
   defp search_function(true), do: &Search.search_records_with_hits/2
   defp search_function(_custom), do: &Search.search_records/2
 
-  defp custom_ordering?(%{params: %{"sf" => sf}}) when sf != "id", do: true
+  defp custom_ordering?(%{params: %{"sf" => sf}}) when sf not in ~W(id first_seen_at), do: true
   defp custom_ordering?(_conn), do: false
 end
