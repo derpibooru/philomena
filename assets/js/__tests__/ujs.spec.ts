@@ -143,7 +143,7 @@ describe('Remote utilities', () => {
 
     afterAll(() => {
       // restore window.location to the jsdom Location object
-      window.location = oldWindowLocation;
+      window.location.href = oldWindowLocation.href;
     });
 
     const configureForm = () => {
