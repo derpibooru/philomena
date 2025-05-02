@@ -3,6 +3,6 @@
 }
 
 .tag .tag__count {
-  border-top-right-radius: 0.15rem;
-  border-bottom-right-radius: 0.15rem;
+  border-top-right-radius: calc(var(--borderless-tags) * 0.15rem);
+  border-bottom-right-radius: calc(var(--borderless-tags) * 0.15rem);
 }

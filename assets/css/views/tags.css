@@ -1,7 +1,8 @@
 /* Tagsinput */
 .tagsinput {
   display: flex;
-  flex-wrap: wrap;
+  flex-flow: wrap;
+  place-content: flex-start;
   gap: var(--padding-small);
   background: var(--background-color);
   border: 1px solid var(--meta-border-color);
@@ -136,6 +137,10 @@
   background: var(--tag-background);
   border-color: var(--tag-border);
   color: var(--tag-color);
+}
+
+.tag .fa {
+  font-size: 12px;
 }
 
 /* For use on static pages */

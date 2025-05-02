@@ -1,3 +1,7 @@
+:root {
+  --borderless-tags: 1;
+}
+
 .tag {
   border-width: 0;
   line-height: calc(1em + 12px);

@@ -68,7 +68,7 @@ function createTagDropdown(tagElem: HTMLSpanElement) {
       authorized: userIsSignedIn,
       enableElem: watch,
       disableElem: unwatch,
-      decor: makeEl('span', { title: 'Watched' }, icon('fa fa-eye')),
+      decor: makeEl('span', { title: 'Watched' }, icon('fa fa-bookmark')),
       tags: window.booru.watchedTagList,
     },
     spoilered: {
@@ -76,7 +76,7 @@ function createTagDropdown(tagElem: HTMLSpanElement) {
       authorized: userCanEditFilter,
       enableElem: spoiler,
       disableElem: unspoiler,
-      decor: makeEl('span', { title: 'Spoilered' }, icon('fa fa-eye-slash')),
+      decor: makeEl('span', { title: 'Spoilered' }, icon('fa fa-eye-low-vision')),
       tags: window.booru.spoileredTagList,
     },
     hidden: {
