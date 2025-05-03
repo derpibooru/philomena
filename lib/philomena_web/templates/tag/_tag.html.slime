@@ -7,14 +7,26 @@
     = @tag.images_count
 
   div.dropdown__content
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=~p"/tags/#{@tag}/watch" Unwatch
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href=~p"/tags/#{@tag}/watch" Watch
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unwatch" href=~p"/tags/#{@tag}/watch"
+      i.fa.fa-bookmark.tag__dropdown-icon
+      |  Unwatch
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="watch" href=~p"/tags/#{@tag}/watch"
+      i.fa.fa-bookmark.tag__dropdown-icon
+      |  Watch
 
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unspoiler" href=~p"/filters/spoiler?#{[tag: @tag]}" Unspoiler
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="spoiler" href=~p"/filters/spoiler?#{[tag: @tag]}" Spoiler
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unspoiler" href=~p"/filters/spoiler?#{[tag: @tag]}"
+      i.fa.fa-eye-low-vision.tag__dropdown-icon
+      |  Unspoiler
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="spoiler" href=~p"/filters/spoiler?#{[tag: @tag]}"
+      i.fa.fa-eye-low-vision.tag__dropdown-icon
+      |  Spoiler
 
-    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unhide" href=~p"/filters/hide?#{[tag: @tag]}" Unhide
-    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="hide" href=~p"/filters/hide?#{[tag: @tag]}" Hide
+    a.tag__dropdown__link.hidden data-method="delete" data-remote="true" data-tag-action="unhide" href=~p"/filters/hide?#{[tag: @tag]}"
+      i.fa.fa-ban.tag__dropdown-icon
+      |  Unhide
+    a.tag__dropdown__link.hidden data-method="post" data-remote="true" data-tag-action="hide" href=~p"/filters/hide?#{[tag: @tag]}"
+      i.fa.fa-ban.tag__dropdown-icon
+      |  Hide
 
     a.tag__dropdown__link.hidden href="/sessions/new" Sign in to Watch
     a.tag__dropdown__link.hidden href="/filters" Filter
