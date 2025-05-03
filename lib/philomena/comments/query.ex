@@ -51,8 +51,8 @@ defmodule Philomena.Comments.Query do
   defp anonymous_fields do
     [
       int_fields: ~W(id),
+      numeric_fields: ~W(image_id),
       date_fields: ~W(created_at),
-      literal_fields: ~W(image_id),
       ngram_fields: ~W(body),
       custom_fields: ~W(author user_id),
       default_field: {"body", :ngram},
@@ -77,7 +77,8 @@ defmodule Philomena.Comments.Query do
     fields = user_fields()
 
     Keyword.merge(fields,
-      literal_fields: ~W(image_id user_id author fingerprint),
+      numeric_fields: fields[:numeric_fields] ++ ~W(user_id),
+      literal_fields: ~W(author fingerprint),
       ip_fields: ~W(ip),
       bool_fields: ~W(anonymous deleted),
       custom_fields: fields[:custom_fields] -- ~W(author user_id),

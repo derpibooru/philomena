@@ -10,9 +10,10 @@ defmodule Philomena.Filters.Query do
   defp anonymous_fields do
     [
       int_fields: ~W(id spoilered_count hidden_count),
+      numeric_fields: ~W(user_id),
       date_fields: ~W(created_at),
       ngram_fields: ~W(description),
-      literal_fields: ~W(name creator user_id),
+      literal_fields: ~W(name creator),
       bool_fields: ~W(public system),
       default_field: {"name", :term}
     ]

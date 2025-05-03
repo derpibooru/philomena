@@ -3,9 +3,6 @@ defmodule PhilomenaQuery.Parse.FloatParser do
 
   import NimbleParsec
 
-  defp to_number(input), do: PhilomenaQuery.Parse.Helpers.to_number(input)
-  defp range(input), do: PhilomenaQuery.Parse.Helpers.range(input)
-
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
     |> ignore()
@@ -18,21 +15,21 @@ defmodule PhilomenaQuery.Parse.FloatParser do
     ascii_string([?0..?9], min: 1)
     |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
-    |> reduce(:to_number)
+    |> reduce({PhilomenaQuery.Parse.Helpers, :to_number, []})
 
   float =
     optional(ascii_char(~c"-+"))
     |> ascii_string([?0..?9], min: 1)
     |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
-    |> reduce(:to_number)
+    |> reduce({PhilomenaQuery.Parse.Helpers, :to_number, []})
 
   float_parser =
     choice([
       float
       |> concat(fuzz)
       |> concat(unsigned_float)
-      |> reduce(:range)
+      |> reduce({PhilomenaQuery.Parse.Helpers, :range, []})
       |> unwrap_and_tag(:float_range),
       float |> unwrap_and_tag(:float)
     ])

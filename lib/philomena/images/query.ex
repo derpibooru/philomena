@@ -85,8 +85,9 @@ defmodule Philomena.Images.Query do
   defp anonymous_fields do
     [
       int_fields:
-        ~W(id width height score upvotes downvotes faves uploader_id faved_by_id pixels size orig_size comment_count source_count tag_count) ++
+        ~W(id width height score upvotes downvotes faves pixels size orig_size comment_count source_count tag_count) ++
           tag_count_fields(),
+      numeric_fields: ~W(uploader_id faved_by_id duplicate_id),
       float_fields: ~W(aspect_ratio wilson_score duration),
       date_fields: ~W(created_at updated_at first_seen_at),
       literal_fields:
@@ -118,8 +119,8 @@ defmodule Philomena.Images.Query do
     fields = user_fields()
 
     Keyword.merge(fields,
-      int_fields:
-        fields[:int_fields] ++
+      numeric_fields:
+        fields[:numeric_fields] ++
           ~W(upvoted_by_id downvoted_by_id true_uploader_id hidden_by_id deleted_by_user_id),
       literal_fields:
         fields[:literal_fields] ++
