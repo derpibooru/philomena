@@ -2,8 +2,8 @@
   .block__header
     .block__header__title.hide-mobile
       ' Viewing related images for
-      strong>
-        | #
+      = link to: ~p"/images/#{@image}" do
+        | image #
         = @image.id
 
   .block__content.js-resizable-media-container
