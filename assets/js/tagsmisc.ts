@@ -13,7 +13,7 @@ type TagInputActionFunction = (tagInput: HTMLTextAreaElement) => void;
 type TagInputActionList = Record<string, TagInputActionFunction>;
 
 function tagInputButtons(event: MouseEvent) {
-  const target = assertType(event.target, HTMLElement);
+  const target = assertType(event.target, Element);
 
   const actions: TagInputActionList = {
     save(tagInput: HTMLTextAreaElement) {

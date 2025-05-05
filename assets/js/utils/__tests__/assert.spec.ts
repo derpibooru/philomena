@@ -25,11 +25,21 @@ describe('Assertion utilities', () => {
 
   describe('assertType', () => {
     it('should return values of the generic type', () => {
-      expect(assertType({}, Object)).toEqual({});
+      expect(assertType({}, Object)).toMatchInlineSnapshot(`{}`);
     });
 
-    it('should throw when passed a value of the wrong type', () => {
-      expect(() => assertType('anything', Number)).toThrow('Expected value of type');
+    describe('it should throw when passed a value of the wrong type', () => {
+      test('for primitives', () => {
+        expect(() => assertType('anything', Number)).toThrowErrorMatchingInlineSnapshot(
+          `[Error: Expected value of type Number]`,
+        );
+      });
+
+      test('for objects', () => {
+        expect(() => assertType(new Error(), Array)).toThrowErrorMatchingInlineSnapshot(
+          `[Error: Expected value of type Array, but got Error]`,
+        );
+      });
     });
   });
 });

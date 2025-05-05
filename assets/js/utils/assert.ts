@@ -14,14 +14,20 @@ export function assertNotUndefined<T>(value: T | undefined): T {
   return value;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type Constructor<T> = { new (...args: any[]): T };
-
-export function assertType<T>(value: any, c: Constructor<T>): T {
-  if (value instanceof c) {
+export function assertType<T>(value: unknown, constructor: new (...args: unknown[]) => T): T {
+  if (value instanceof constructor) {
     return value;
   }
 
-  throw new Error('Expected value of type');
+  const actualConstructor = value instanceof Object ? value.constructor : null;
+
+  let message = `Expected value of type ${constructor.name}`;
+
+  if (actualConstructor) {
+    message += `, but got ${actualConstructor.name}`;
+  }
+
+  console.error(`${message}`, value);
+
+  throw new Error(message);
 }
-/* eslint-enable @typescript-eslint/no-explicit-any */
