@@ -17,6 +17,13 @@ footer#footer
   #serving_info
     ' Powered by
     a> href="https://github.com/philomena-dev/philomena" philomena
-    | (
+    br
+    = if hide_version() do
+      | (
+    - else
+      ' (version
+      = philomena_version()
+      ' ,
+    ' page generated in
     = render_time(@conn)
     | ms)
