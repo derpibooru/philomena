@@ -913,7 +913,7 @@ defmodule Philomena.Images do
     |> case do
       {:ok, result} ->
         reindex_image(duplicate_of_image)
-        Comments.reindex_comments(duplicate_of_image)
+        Comments.reindex_comments_on_image(duplicate_of_image)
 
         PhilomenaWeb.Endpoint.broadcast!(
           "firehose",
@@ -970,7 +970,7 @@ defmodule Philomena.Images do
           purge_files(image, image.hidden_image_key)
         end)
 
-        Comments.reindex_comments(image)
+        Comments.reindex_comments_on_image(image)
         Reports.reindex_reports(reports)
         Tags.reindex_tags(tags)
         reindex_image(image)
@@ -1044,7 +1044,7 @@ defmodule Philomena.Images do
 
         reindex_image(image)
         purge_files(image, image.hidden_image_key)
-        Comments.reindex_comments(image)
+        Comments.reindex_comments_on_image(image)
         Tags.reindex_tags(tags)
 
         {:ok, image}
@@ -1153,6 +1153,7 @@ defmodule Philomena.Images do
     |> case do
       {:ok, _} = result ->
         reindex_images(image_ids)
+        Comments.reindex_comments_on_images(image_ids)
         Tags.reindex_tags(Enum.map(added_tags ++ removed_tags, &%{id: &1}))
 
         result

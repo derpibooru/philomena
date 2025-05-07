@@ -283,7 +283,7 @@ defmodule Philomena.Comments do
     |> where(id: ^duplicate_of_image.id)
     |> Repo.update_all(inc: [comments_count: count])
 
-    reindex_comments(duplicate_of_image)
+    reindex_comments_on_image(duplicate_of_image)
   end
 
   @doc """
@@ -336,14 +336,30 @@ defmodule Philomena.Comments do
 
   ## Examples
 
-      iex> reindex_comments(image)
+      iex> reindex_comments_on_image(image)
       %Image{}
 
   """
-  def reindex_comments(image) do
+  def reindex_comments_on_image(image) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "image_id", [image.id]])
 
     image
+  end
+
+  @doc """
+  Queues all comments associated with a list of image IDs for search index updates.
+  Returns the list unchanged, for use in a pipeline.
+
+  ## Examples
+
+      iex> reindex_comments_on_images([1, 2, 3])
+      [1, 2, 3]
+
+  """
+  def reindex_comments_on_images(image_ids) do
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Comments", "image_id", image_ids])
+
+    image_ids
   end
 
   @doc """
