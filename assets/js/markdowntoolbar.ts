@@ -1,3 +1,5 @@
+import { normalizedKeyboardKey, keys } from './utils/keyboard';
+
 /**
  * Markdown toolbar
  */
@@ -7,7 +9,7 @@ import { $, $$ } from './utils/dom';
 // List of options provided to the syntax handler function.
 interface SyntaxHandlerOptions {
   prefix: string;
-  shortcutKeyCode: number;
+  shortcutKey: string;
   suffix: string;
   prefixMultiline: string;
   suffixMultiline: string;
@@ -25,19 +27,19 @@ interface SyntaxHandler {
 const markdownSyntax: Record<string, SyntaxHandler> = {
   bold: {
     action: wrapSelection,
-    options: { prefix: '**', shortcutKeyCode: 66 },
+    options: { prefix: '**', shortcutKey: keys.KeyB },
   },
   italics: {
     action: wrapSelection,
-    options: { prefix: '*', shortcutKeyCode: 73 },
+    options: { prefix: '*', shortcutKey: keys.KeyI },
   },
   under: {
     action: wrapSelection,
-    options: { prefix: '__', shortcutKeyCode: 85 },
+    options: { prefix: '__', shortcutKey: keys.KeyU },
   },
   spoiler: {
     action: wrapSelection,
-    options: { prefix: '||', shortcutKeyCode: 83 },
+    options: { prefix: '||', shortcutKey: keys.KeyS },
   },
   code: {
     action: wrapSelectionOrLines,
@@ -47,7 +49,7 @@ const markdownSyntax: Record<string, SyntaxHandler> = {
       prefixMultiline: '```\n',
       suffixMultiline: '\n```',
       singleWrap: true,
-      shortcutKeyCode: 69,
+      shortcutKey: keys.KeyE,
     },
   },
   strike: {
@@ -68,11 +70,11 @@ const markdownSyntax: Record<string, SyntaxHandler> = {
   },
   link: {
     action: insertLink,
-    options: { shortcutKeyCode: 76 },
+    options: { shortcutKey: keys.KeyL },
   },
   image: {
     action: insertLink,
-    options: { image: true, shortcutKeyCode: 75 },
+    options: { image: true, shortcutKey: keys.KeyK },
   },
   escape: {
     action: escapeSelection,
@@ -310,13 +312,13 @@ function shortcutHandler(event: KeyboardEvent) {
     return;
   }
 
-  const textarea = event.target,
-    keyCode = event.keyCode;
+  const textarea = event.target;
+  const key = normalizedKeyboardKey(event);
 
   if (!(textarea instanceof HTMLTextAreaElement)) return;
 
   for (const id in markdownSyntax) {
-    if (keyCode === markdownSyntax[id].options.shortcutKeyCode) {
+    if (key === markdownSyntax[id].options.shortcutKey) {
       markdownSyntax[id].action(textarea, markdownSyntax[id].options);
       event.preventDefault();
     }

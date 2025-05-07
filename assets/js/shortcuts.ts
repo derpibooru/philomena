@@ -2,9 +2,8 @@
  * Keyboard shortcuts
  */
 
+import { normalizedKeyboardKey, keys } from './utils/keyboard';
 import { $ } from './utils/dom';
-
-type ShortcutKeyMap = Record<number, () => void>;
 
 function getHover(): string | null {
   const thumbBoxHover = $<HTMLDivElement>('.media-box:hover');
@@ -46,31 +45,48 @@ function isOK(event: KeyboardEvent): boolean {
     document.activeElement.tagName !== 'TEXTAREA'
   );
 }
+const actions = {
+  // go to previous image
+  [keys.KeyJ]: () => click('.js-prev'),
 
-// prettier-ignore
-const keyCodes: ShortcutKeyMap = {
-  74() { click('.js-prev');             }, // J - go to previous image
-  73() { click('.js-up');               }, // I - go to index page
-  75() { click('.js-next');             }, // K - go to next image
-  82() { click('.js-rand');             }, // R - go to random image
-  83() { click('.js-source-link');      }, // S - go to image source
-  76() { click('.js-tag-sauce-toggle'); }, // L - edit tags
-  79() { openFullView();                }, // O - open original
-  86() { openFullViewNewTab();          }, // V - open original in a new tab
-  70() {
-    // F - favourite image
+  // go to index page
+  [keys.KeyI]: () => click('.js-up'),
+
+  // go to next image
+  [keys.KeyK]: () => click('.js-next'),
+
+  // go to random image
+  [keys.KeyR]: () => click('.js-rand'),
+
+  // go to image source
+  [keys.KeyS]: () => click('.js-source-link'),
+
+  // edit tags
+  [keys.KeyL]: () => click('.js-tag-sauce-toggle'),
+
+  // open original
+  [keys.KeyO]: () => openFullView(),
+
+  // open original in a new tab
+  [keys.KeyV]: () => openFullViewNewTab(),
+
+  // favourite image
+  [keys.KeyF]() {
     click(getHover() ? `a.interaction--fave[data-image-id="${getHover()}"]` : '.block__header a.interaction--fave');
   },
-  85() {
-    // U - upvote image
+
+  // upvote image
+  [keys.KeyU]() {
     click(getHover() ? `a.interaction--upvote[data-image-id="${getHover()}"]` : '.block__header a.interaction--upvote');
   },
 };
 
 export function listenForKeys() {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (isOK(event) && keyCodes[event.keyCode]) {
-      keyCodes[event.keyCode]();
+    const key = normalizedKeyboardKey(event);
+
+    if (isOK(event) && actions[key]) {
+      actions[key]();
       event.preventDefault();
     }
   });
