@@ -8,6 +8,9 @@ defmodule Philomena.Commissions do
   alias Philomena.Repo
 
   alias Philomena.Commissions.Commission
+  alias Philomena.Commissions.Item
+  alias Philomena.Commissions.QueryBuilder
+  alias Philomena.Commissions.SearchQuery
 
   @doc """
   Gets a single commission.
@@ -90,7 +93,37 @@ defmodule Philomena.Commissions do
     Commission.changeset(commission, %{})
   end
 
-  alias Philomena.Commissions.Item
+  @doc """
+  Searches commissions based on the given parameters.
+
+  ## Parameters
+
+    * params - Map of optional search parameters:
+      * item_type - Filter by item type
+      * category - Filter by category
+      * keywords - Search in information and will_create fields
+      * price_min - Minimum base price
+      * price_max - Maximum base price
+
+  Returns `{:ok, query}` with a queryable that can be used with Repo.paginate/2,
+  or `{:error, changeset}` if the provided parameters are invalid.
+  """
+  def execute_search_query(params \\ %{}) do
+    QueryBuilder.search_commissions(params)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking search query changes.
+
+  ## Examples
+
+      iex> change_search_query(search_query)
+      %Ecto.Changeset{source: %SearchQuery{}}
+
+  """
+  def change_search_query(%SearchQuery{} = search_query) do
+    SearchQuery.changeset(search_query, %{})
+  end
 
   @doc """
   Gets a single item.
