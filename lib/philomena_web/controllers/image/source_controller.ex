@@ -52,7 +52,7 @@ defmodule PhilomenaWeb.Image.SourceController do
           |> Repo.aggregate(:count, :id)
 
         if Enum.any?(added_sources) or Enum.any?(removed_sources) do
-          UserStatistics.inc_stat(conn.assigns.current_user.id, :metadata_updates)
+          UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
         Images.reindex_image(image)
