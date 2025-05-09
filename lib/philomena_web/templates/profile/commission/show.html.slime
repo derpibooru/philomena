@@ -15,4 +15,4 @@ h1
     = render PhilomenaWeb.Profile.CommissionView, "_listing_sheet.html", commission: @commission, user: @user, conn: @conn
 
     / Types and prices block
-   = render PhilomenaWeb.Profile.CommissionView, "_listing_items.html", commission: @commission, user: @user, items: @items, conn: @conn
+    = render PhilomenaWeb.Profile.CommissionView, "_listing_items.html", commission: @commission, user: @user, items: @items, conn: @conn

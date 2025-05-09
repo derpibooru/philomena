@@ -42,4 +42,4 @@
         ' with
         => @poll.total_votes
         = pluralize("vote", "votes", @poll.total_votes)
-       ' .
+        ' .
