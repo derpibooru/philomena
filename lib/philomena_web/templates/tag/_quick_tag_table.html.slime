@@ -5,7 +5,7 @@ elixir:
 .block__header--sub.block__header--js-tabbed
   = for {name, i} <- tabs do
     = link name, to: "#", class: tab_class(i), data: [click_tab: name]
-  
+
 = for {name, i} <- tabs do
   - tab_data = @data[name]
   - tab_mode = tab_modes[name]

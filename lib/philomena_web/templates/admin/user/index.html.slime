@@ -39,7 +39,7 @@ h1 Users
                     ' 2FA
 
                 - user.role != "user" and !user.otp_required_for_login ->
-                  span.banner__2fa.danger 
+                  span.banner__2fa.danger
                     i.fas.fa-times>
                     ' 2FA
 

@@ -49,7 +49,6 @@
         => link artist_link.uri, to: artist_link.uri
         br
 
-
     = if present?(@tag.public_links) or present?(@tag.channels) or present?(@tag.implied_by_tags) or present?(@tag.description) do
       br
       = link "Toggle detailed information", to: "#", data: [click_toggle: ".tag-info__more"]

@@ -22,4 +22,4 @@ h1
       => @image_count
       = pluralize("image", "images", @image_count)
 
-  = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination
+ = render PhilomenaWeb.SourceChangeView, "index.html", conn: @conn, source_changes: @source_changes, pagination: pagination

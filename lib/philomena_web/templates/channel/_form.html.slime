@@ -16,7 +16,7 @@
     code>
       | https://piczel.tv/watch/
       em piczel_channel_name
-    ' is 
+    ' is
     code piczel_channel_name
     ' .
     br

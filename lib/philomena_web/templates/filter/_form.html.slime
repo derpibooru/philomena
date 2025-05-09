@@ -15,7 +15,6 @@
     .fieldlabel
       ' Here you can describe your filter in a bit more detail.
 
-
     .field
       = label f, :spoilered_tag_list, "Spoilered Tags"
       br
@@ -39,7 +38,6 @@
       p
         strong> WARNING:
         ' This filter is applied along with your tag filters. Tag filters may spoiler images that you mean to filter more precisely here. Double-check to make sure they don't interfere.
-
 
     .field
       = label f, :hidden_tag_list, "Hidden Tags"

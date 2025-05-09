@@ -90,4 +90,4 @@ h2 Do-Not-Post Requests
                   => link "Claim", to: ~p"/admin/dnp_entries/#{request}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
 
   .block__header.block__header--light
-    .page__pagination = pagination
+   .page__pagination = pagination

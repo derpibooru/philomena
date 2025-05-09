@@ -9,6 +9,6 @@ h1 Mod Notes
 
   .block__content
     = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
-  
+
   .block__header.block__header--light
     .page__pagination = pagination

@@ -28,7 +28,6 @@ br
       - true ->
         ' You must be logged in and have a verified artist link to create and manage DNP entries.
 
-
 h3 The List
 .block
   - route = fn p -> ~p"/dnp?#{p}" end

@@ -9,7 +9,7 @@ h1
 .block
   .block__header
     .page__pagination = pagination
-  
+
   .block__content
     table.table
       thead

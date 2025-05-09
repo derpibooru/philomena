@@ -337,7 +337,6 @@ h1 Content Settings
           ] \
         )
 
-
     = if !@conn.assigns.current_user do
       .block__tab.hidden data-tab="join-the-herd"
         p
