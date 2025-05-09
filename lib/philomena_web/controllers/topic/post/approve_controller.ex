@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Topic.Post.ApproveController do
     model: Post,
     id_name: "post_id",
     persisted: true,
-    preload: [:topic, :user, topic: :forum]
+    preload: [:topic, topic: :forum]
 
   def create(conn, _params) do
     post = conn.assigns.post

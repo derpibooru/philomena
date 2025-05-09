@@ -53,7 +53,7 @@ defmodule PhilomenaWeb.Image.TagController do
         Tags.reindex_tags(added_tags ++ removed_tags)
 
         if Enum.any?(added_tags ++ removed_tags) do
-          UserStatistics.inc_stat(conn.assigns.current_user.id, :metadata_updates)
+          UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
         tag_change_count =
