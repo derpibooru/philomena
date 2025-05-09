@@ -34,5 +34,5 @@ elixir:
       span.comments_count data-image-id=@image.id = @image.comments_count
     a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
       i.fa.fa-eye-slash title="Hide"
-  .media-box__content.flex.flex--centered.flex--center-distributed class=size_class
+  .media-box__content class=size_class
     = render PhilomenaWeb.ImageView, "_image_container.html", link: link, image: @image, size: @size, conn: @conn

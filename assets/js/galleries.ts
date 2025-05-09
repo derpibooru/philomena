@@ -13,7 +13,7 @@ export function setupGalleryEditing() {
 
   const [rearrangeEl, saveEl] = $$<HTMLElement>('.rearrange-button');
   const sortableEl = assertNotNull($<HTMLDivElement>('#sortable'));
-  const containerEl = assertNotNull($<HTMLDivElement>('.js-resizable-media-container'));
+  const containerEl = assertNotNull($<HTMLDivElement>('.media-list'));
 
   // Copy array
   const galleryImages = assertNotUndefined(window.booru.galleryImages);

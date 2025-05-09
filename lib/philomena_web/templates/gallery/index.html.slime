@@ -38,12 +38,12 @@ elixir:
       .block__header.page__header
         .page__pagination = pagination
 
-      .block__content.js-resizable-media-container
-        = if Enum.any?(@galleries) do
+      = if Enum.any?(@galleries) do
+        .block__content.media-list
           = for gallery <- @galleries do
             = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
-
-        - else
+      - else
+        .block__content
           .block.block--fixed.block--no-margin.block--warning
             ' No galleries found!
 

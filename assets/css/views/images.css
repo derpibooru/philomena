@@ -1,8 +1,3 @@
-.image-flex-grid {
-  padding-right: 0;
-  padding-bottom: 0;
-}
-
 .media-box__header span.favorites,
 .media-box__header span.comments_count {
   padding-left: 4px;
@@ -63,11 +58,11 @@ a.interaction--comments:hover {
 
 /* Images rendered using the 'images/image_container' partial (image lists, comment list previews, gallery thumbs) */
 div.image-container {
+  display: flex;
   position: relative;
-  display: inline-block;
-  overflow: hidden;
-  /* prevent .media-box__overlay from overflowing the container */
-  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* spoilered images inside communications */
@@ -77,24 +72,26 @@ span.spoiler div.image-container {
 
 /* .image-container sizes, set by the partial. */
 .thumb {
-  max-width: 250px;
-  max-height: 250px;
+  max-width: max(var(--media-medium-container-width), 100%);
+  max-height: max(var(--media-medium-container-width), 100%);
 }
 
 .thumb_small {
-  max-width: 150px;
-  max-height: 150px;
+  max-width: max(var(--media-small-container-width), 100%);
+  max-height: max(var(--media-small-container-width), 100%);
 }
 
-.thumb_tiny {
-  width: 50px;
-  height: 50px;
+.thumb_tiny,
+.thumb_tiny img {
+  max-width: var(--media-tiny-container-width);
+  max-height: var(--media-tiny-container-width) !important;
 }
 
 /* Used for elements that wrap .image-container */
 .thumb-tiny-container {
-  width: 50px;
-  height: 50px;
+  width: var(--media-tiny-container-width);
+  height: var(--media-tiny-container-width);
+  place-content: center;
 }
 
 /* embedded images. kinda like image-container, but this one also shows a text, link to filter page, etc */
@@ -190,9 +187,9 @@ div.image-container video {
 
 div.image-container img,
 div.image-container video {
-  vertical-align: middle;
-  max-width: 100%;
   max-height: 100%;
+  max-width: 100%;
+  margin: auto;
 }
 
 #image-source > p {

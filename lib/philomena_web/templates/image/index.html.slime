@@ -24,7 +24,7 @@ elixir:
 
   = info_row @conn, tags
 
-  .block__content.js-resizable-media-container
+  .block__content.media-list
     = for record <- @images do
       = case record do
         - {image, hit} ->

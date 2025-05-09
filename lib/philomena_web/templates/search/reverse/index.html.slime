@@ -49,7 +49,7 @@ h1 Reverse Search
         span.block__header__title.page__title.hide-mobile
           ' Search by uploaded image
 
-    .block__content.js-resizable-media-container
+    .block__content.media-list
       = for image <- @images do
         = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: ~p"/images/#{image}", size: :thumb, conn: @conn
 

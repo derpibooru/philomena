@@ -1,5 +1,5 @@
-.block__content.flex.alternating-color
-  .flex__shrink.spacing-right
+.block__content.flex.alternating-color.flex--centered
+  .flex__shrink.spacing-right.thumb-tiny-container
     = render PhilomenaWeb.ImageView, "_image_container.html", image: @comment.image, size: :thumb_tiny, conn: @conn
   .flex__grow
     a href="/#{@comment.image.id}#comment_#{@comment.id}"
