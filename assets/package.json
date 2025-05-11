@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "deploy": "cross-env NODE_ENV=production tsc && cross-env NODE_ENV=production vite build",
+    "deploy": "cross-env NODE_ENV=production tsc --project tsconfig.build.json && cross-env NODE_ENV=production vite build",
     "lint": "eslint . && stylelint ./css/**/*.css",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
