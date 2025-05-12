@@ -106,15 +106,19 @@
       hr
       strong.comment_deleted This artist is on the Do-Not-Post List with the following restrictions:
 
-      = for {body, entry} <- @dnp_entries do
-        br
-        ' &bull;
-
-        strong
-          => entry.dnp_type
-
-        => body
-
-        | (
-        = link "more info", to: ~p"/dnp/#{entry}"
-        | )
+      .flex.flex--column
+        = for {body, entry} <- @dnp_entries do
+          .block.block--fixed
+            strong
+              i.fa.fa-fw.fa-triangle-exclamation>
+              => entry.dnp_type
+            = link "View details", to: ~p"/dnp/#{entry}"
+            = case body do
+              - {:safe, html} when html != "" ->
+                br
+                strong
+                  i.fa.fa-fw.fa-circle-info>
+                  | Conditions:
+                = body
+              - _ ->
+                span
