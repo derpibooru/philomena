@@ -96,22 +96,25 @@ defmodule Philomena.Images do
     |> Multi.insert(:image, image)
     |> Multi.run(:added_tag_count, fn repo, %{image: image} ->
       tag_ids = image.added_tags |> Enum.map(& &1.id)
-      tags = Tag |> where([t], t.id in ^tag_ids)
 
-      {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+      count = Tags.update_image_counts(repo, 1, tag_ids)
 
       {:ok, count}
     end)
     |> maybe_subscribe_on(:image, attribution[:user], :watch_on_upload)
     |> Repo.transaction()
     |> case do
-      {:ok, %{image: image}} = result ->
-        async_upload(image, attrs["image"])
+      {:ok, %{image: image}} ->
+        upload_pid = async_upload(image, attrs["image"])
         reindex_image(image)
         Tags.reindex_tags(image.added_tags)
         maybe_approve_image(image, attribution[:user])
 
-        result
+        # Return the upload PID along with the created image so that the caller
+        # can control the lifecycle of the upload if needed. It's useful, for
+        # example for the seeding process to know when to delete the temp file
+        # used for uploading.
+        {:ok, %{image: image, upload_pid: upload_pid}}
 
       result ->
         result
@@ -138,6 +141,8 @@ defmodule Philomena.Images do
 
     # Free up the linked process
     send(linked_pid, :ready)
+
+    linked_pid
   end
 
   defp try_upload(image, retry_count) when retry_count < 100 do
@@ -665,9 +670,8 @@ defmodule Philomena.Images do
 
       repo, %{image: {_image, _added, removed_tags}} ->
         tag_ids = removed_tags |> Enum.map(& &1.id)
-        tags = Tag |> where([t], t.id in ^tag_ids)
 
-        {count, nil} = repo.update_all(tags, inc: [images_count: -1])
+        count = Tags.update_image_counts(repo, -1, tag_ids)
 
         {:ok, count}
     end)
@@ -954,9 +958,8 @@ defmodule Philomena.Images do
       # to way too much drift, and the index has to be
       # maintained.
       tag_ids = Enum.map(image.tags, & &1.id)
-      query = where(Tag, [t], t.id in ^tag_ids)
 
-      repo.update_all(query, inc: [images_count: -1])
+      Tags.update_image_counts(repo, -1, tag_ids)
 
       {:ok, image.tags}
     end)
