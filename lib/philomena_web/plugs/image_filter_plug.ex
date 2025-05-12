@@ -51,7 +51,7 @@ defmodule PhilomenaWeb.ImageFilterPlug do
   defp invalid_filter_guard(user, search_string) do
     search_string
     |> String.normalize()
-    |> Query.compile(user: user)
+    |> Query.compile(user: user, filter: true)
     |> case do
       {:ok, query} -> query
       _error -> %{match_all: %{}}
