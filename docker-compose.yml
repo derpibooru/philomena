@@ -13,6 +13,13 @@ services:
       context: .
       dockerfile: ./docker/app/Dockerfile
     environment:
+      # Use this env variable to control the logs levels from different modules.
+      # The syntax is `{module.function}=level,...`. The filter evaluation stops
+      # on the first `{module.function}` that has a prefix match against the log
+      # event's module and function. The last entry in the list of filters should
+      # be a bare `level` which will be used as a catch-all for all other log
+      # events that do not match any of the previous filters.
+      - PHILOMENA_LOG=${PHILOMENA_LOG-Ecto=debug,Exq=none,PhilomenaMedia.Objects=info,debug}
       - MIX_ENV=dev
       - PGPASSWORD=postgres
       - ANONYMOUS_NAME_SALT=2fmJRo0OgMFe65kyAJBxPT0QtkVes/jnKDdtP21fexsRqiw8TlSY7yO+uFyMZycp

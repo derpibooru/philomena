@@ -15,6 +15,8 @@ defmodule Philomena.Images.Thumbnailer do
   alias Philomena.Images.Image
   alias Philomena.Repo
 
+  require Logger
+
   @versions [
     thumb_tiny: {50, 50},
     thumb_small: {150, 150},
@@ -75,6 +77,9 @@ defmodule Philomena.Images.Thumbnailer do
 
   def generate_thumbnails(image_id) do
     image = Repo.get!(Image, image_id)
+
+    Logger.debug("Generating thumbnails for the image #{image.id}")
+
     file = download_image_file(image)
     {:ok, analysis} = Analyzers.analyze_path(file)
 
