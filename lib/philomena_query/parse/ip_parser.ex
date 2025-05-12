@@ -126,17 +126,12 @@ defmodule PhilomenaQuery.Parse.IpParser do
     ])
     |> reduce({List, :to_string, []})
 
-  space =
-    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
-    |> ignore()
-
   ip =
     choice([
       ipv4_address |> optional(ipv4_prefix),
       ipv6_address |> optional(ipv6_prefix)
     ])
     |> reduce({Enum, :join, []})
-    |> repeat(space)
     |> unwrap_and_tag(:ip)
     |> eos()
     |> label("a valid IPv4 or IPv6 address and optional CIDR prefix")

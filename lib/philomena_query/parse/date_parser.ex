@@ -202,7 +202,6 @@ defmodule PhilomenaQuery.Parse.DateParser do
       absolute_date,
       relative_date
     ])
-    |> repeat(space)
     |> eos()
     |> label(
       "a RFC3339 datetime fragment, like `2019-01-01', or relative date, like `3 days ago'"

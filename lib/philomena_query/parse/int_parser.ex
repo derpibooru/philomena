@@ -3,10 +3,6 @@ defmodule PhilomenaQuery.Parse.IntParser do
 
   import NimbleParsec
 
-  space =
-    choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
-    |> ignore()
-
   fuzz =
     string("~")
     |> ignore()
@@ -26,7 +22,6 @@ defmodule PhilomenaQuery.Parse.IntParser do
       |> unwrap_and_tag(:int_range),
       int |> unwrap_and_tag(:int)
     ])
-    |> repeat(space)
     |> eos()
     |> label("a signed integer, like `3' or `-10'")
 
