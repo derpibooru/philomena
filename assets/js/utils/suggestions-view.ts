@@ -134,7 +134,7 @@ export class SuggestionsPopupComponent {
    * Index of the currently selected suggestion. -1 means an imaginary item
    * before the first item that represents the state where no item is selected.
    */
-  private cursor: number = -1;
+  private cursor = -1;
   private items: SuggestionItem[];
   private readonly container: HTMLElement;
 

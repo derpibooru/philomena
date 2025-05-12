@@ -133,7 +133,7 @@ function matchAttributes(event) {
 
       if (el) {
         // Return true if you don't want to preventDefault
-        actions[action]({ attr, el, value }) || event.preventDefault();
+        if (!actions[action]({ attr, el, value })) event.preventDefault();
       }
     }
   }

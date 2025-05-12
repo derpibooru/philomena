@@ -1,19 +1,19 @@
+import jsEslint from '@eslint/js';
 import tsEslint from 'typescript-eslint';
 import vitestPlugin from '@vitest/eslint-plugin';
 import globals from 'globals';
 
 export default tsEslint.config(
-  ...tsEslint.configs.recommended,
+  // Standard configs as per the docs to get the strictest linting possible.
+  // https://typescript-eslint.io/users/configs#projects-with-type-checking
+  jsEslint.configs.recommended,
+  tsEslint.configs.strict,
+  tsEslint.configs.stylistic,
+
+  // Custom tweaks on top of the standard recommended configs
   {
     name: 'PhilomenaConfig',
-    files: ['**/*.js', '**/*.ts'],
     languageOptions: {
-      ecmaVersion: 6,
-      sourceType: 'module',
-      parserOptions: {
-        ecmaVersion: 6,
-        sourceType: 'module',
-      },
       globals: {
         ...globals.browser,
       },
@@ -65,7 +65,6 @@ export default tsEslint.config(
       'no-duplicate-imports': 2,
       'no-else-return': 2,
       'no-empty-character-class': 2,
-      'no-empty-function': 0,
       'no-empty-pattern': 2,
       'no-empty': 2,
       'no-eq-null': 2,
@@ -107,7 +106,6 @@ export default tsEslint.config(
       'no-plusplus': 0,
       'no-proto': 2,
       'no-prototype-builtins': 0,
-      'no-redeclare': 2,
       'no-regex-spaces': 2,
       'no-restricted-globals': [2, 'event'],
       'no-restricted-imports': 2,
@@ -125,7 +123,6 @@ export default tsEslint.config(
       'no-this-before-super': 2,
       'no-throw-literal': 2,
       'no-undef-init': 2,
-      'no-undef': 2,
       'no-undefined': 0,
       'no-underscore-dangle': 0,
       'no-unexpected-multiline': 2,
@@ -134,9 +131,7 @@ export default tsEslint.config(
       'no-unreachable': 2,
       'no-unsafe-finally': 2,
       'no-unsafe-negation': 2,
-      'no-unused-expressions': [2, { allowShortCircuit: true, allowTernary: true }],
       'no-unused-labels': 2,
-      'no-unused-vars': [2, { vars: 'all', args: 'after-used', varsIgnorePattern: '^_', argsIgnorePattern: '^_' }],
       'no-use-before-define': [2, 'nofunc'],
       'no-useless-call': 2,
       'no-useless-computed-key': 2,
@@ -171,45 +166,41 @@ export default tsEslint.config(
       'valid-typeof': 2,
       'vars-on-top': 2,
       yoda: [2, 'never'],
+
+      // TODO: replace all non-null assertions with explicit errors
+      '@typescript-eslint/no-non-null-assertion': 0,
+
+      // Not very useful. An empty function is sometimes passed where the api
+      // requires some function, but we have nothing to do in it.
+      '@typescript-eslint/no-empty-function': 0,
+
+      // Make it possible to ignore unused variables with `_` prefix
+      '@typescript-eslint/no-unused-vars': [
+        2,
+        {
+          vars: 'all',
+          args: 'all',
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
+        },
+      ],
+
+      // For some reason `@typescript-eslint/no-shadown` doesn't disable the
+      // default eslint's rule (`no-shadow`) like other typescript rules
+      'no-shadow': 0,
+      '@typescript-eslint/no-shadow': 2,
     },
     ignores: ['js/vendor/*', 'vite.config.ts'],
   },
   {
-    files: ['**/*.js'],
-    rules: {
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-unused-expressions': 'off',
-      '@typescript-eslint/no-unused-vars': 'off',
-    },
-  },
-  {
-    files: ['**/*.ts'],
-    rules: {
-      'no-undef': 'off',
-      'no-unused-vars': 'off',
-      'no-redeclare': 'off',
-      'no-shadow': 'off',
-
-      '@typescript-eslint/no-unused-vars': [
-        2,
-        { vars: 'all', args: 'after-used', varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*' },
-      ],
-      '@typescript-eslint/no-redeclare': 2,
-      '@typescript-eslint/no-shadow': 2,
-    },
-  },
-  {
+    name: 'Tests',
     files: ['**/*.spec.ts', '**/test/*.ts'],
     plugins: {
       vitest: vitestPlugin,
     },
     rules: {
       ...vitestPlugin.configs.recommended.rules,
-      'no-undef': 'off',
-      'no-undefined': 'off',
-      'no-unused-expressions': 0,
       'vitest/valid-expect': 0,
-      '@typescript-eslint/no-unused-expressions': 0,
       'vitest/expect-expect': [
         'error',
         {

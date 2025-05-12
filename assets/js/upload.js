@@ -104,7 +104,7 @@ function setupImageUpload() {
 
   // Watch for files added to the form
   fileField.addEventListener('change', () => {
-    fileField.files.length && reader.readAsArrayBuffer(fileField.files[0]);
+    if (fileField.files.length) reader.readAsArrayBuffer(fileField.files[0]);
   });
 
   // Watch for [Fetch] clicks

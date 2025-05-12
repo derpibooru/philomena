@@ -110,12 +110,13 @@ function setupPreviews() {
   // Fire handler for automatic resizing if textarea contains text on page load (e.g. editing)
   if (textarea.value) textarea.dispatchEvent(new Event('change'));
 
-  previewAnon &&
+  if (previewAnon) {
     previewAnon.addEventListener('click', () => {
       if (previewContent.classList.contains('hidden')) return;
 
       updatePreview();
     });
+  }
 
   document.addEventListener('click', event => {
     if (event.target && event.target.closest('.post-reply')) {

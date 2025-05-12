@@ -77,7 +77,7 @@ export function makeEl<Tag extends keyof HTMLElementTagNameMap>(
 }
 
 export function onLeftClick(
-  callback: (e: MouseEvent) => boolean | void,
+  callback: (e: MouseEvent) => void,
   context: Pick<GlobalEventHandlers, 'addEventListener' | 'removeEventListener'> = document,
 ): VoidFunction {
   const handler: typeof callback = event => {

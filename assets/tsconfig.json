@@ -34,7 +34,15 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "strict": true
+    "strict": true,
+
+    // Checks that aren't enabled by `strict` and not covered by `eslint`:
+    "noImplicitOverride": true
+
+    // TODO: this is a really useful check, but our existing code has been
+    // written with so much unsafe indexing that needs some work to improve
+    // before this can be enabled
+    // "noUncheckedIndexedAccess": true
   },
   "include": ["./js/**/*", "./types/**/*", "./test/**/*"]
 }
