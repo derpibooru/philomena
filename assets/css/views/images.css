@@ -77,8 +77,8 @@ span.spoiler div.image-container {
 }
 
 .thumb_small {
-  max-width: max(var(--media-small-container-width), 100%);
-  max-height: max(var(--media-small-container-width), 100%);
+  max-width: var(--media-small-container-width);
+  max-height: var(--media-small-container-width);
 }
 
 .thumb_tiny,

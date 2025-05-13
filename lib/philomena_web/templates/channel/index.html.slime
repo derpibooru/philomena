@@ -22,8 +22,9 @@ h1 Livestreams
         ' Show NSFW streams
 
   .block__content
-    = for channel <- @channels do
-      = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions
+    .media-list
+      = for channel <- @channels do
+        = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions
 
   .block__header.page__header
     .page__pagination = pagination
