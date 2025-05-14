@@ -50,6 +50,7 @@
             i.fa.fa-eye>
             span.hide-mobile
               ' Browse Watched Images
-        .block__content.media-list.media-list--small
-          = for image <- @watched do
-            = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: ~p"/images/#{image}?#{[q: "my:watched"]}", size: :thumb_small, conn: @conn
+        .block__content
+          .media-list.media-list--small
+            = for image <- @watched do
+              = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: ~p"/images/#{image}?#{[q: "my:watched"]}", size: :thumb_small, conn: @conn
