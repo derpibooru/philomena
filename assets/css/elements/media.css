@@ -23,10 +23,14 @@
 }
 
 .media-list--small {
+  grid-template-columns: repeat(auto-fill, minmax(var(--media-small-container-width), 1fr));
+}
+
+.media-list--small-fixed-size {
   grid-template-columns: repeat(auto-fill, var(--media-small-container-width));
 }
 
-.media-list--small.media-list:before {
+.media-list--small-fixed-size.media-list:before {
   padding-bottom: 0 !important;
 }
 

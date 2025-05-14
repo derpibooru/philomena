@@ -75,6 +75,14 @@ p,
 
 .communication__body__text .paragraph {
   margin-bottom: var(--padding-normal);
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+@media (max-width: $min-desktop-width) {
+  .communication__body__text pre {                            /*        page      pre        borders */
+    max-width: calc(100vw - var(--block-spacing) * 2 - 32px); /* 32px = 4px * 2 + 10px * 2 + 1px * 4 */
+  }
 }
 
 img {
@@ -97,6 +105,7 @@ pre {
   border: 1px solid var(--meta-border-color);
   max-width: 100%;
   overflow: auto hidden;
+  overflow-x: auto;
 }
 
 a,
@@ -125,6 +134,8 @@ table,
   width: 100%;
   border-collapse: collapse;
   border: var(--border);
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 table th,
@@ -146,6 +157,12 @@ table > thead > tr,
 table > tbody,
 .table > tbody {
   border: var(--border);
+}
+
+@media (max-width: $min-desktop-width) {
+  .communication__body__text table {
+    overflow-x: auto;
+  }
 }
 
 /* I know this looks odd, but first one expands to
