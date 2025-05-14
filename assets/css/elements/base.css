@@ -138,11 +138,9 @@ table,
   word-wrap: break-word;
 }
 
-.communication__body__text {
-  table,
-  .table {
-    word-break: break-all;
-  }
+.communication__body__text table,
+.communication__body__text .table {
+  word-break: break-all;
 }
 
 table th,
