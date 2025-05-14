@@ -80,8 +80,9 @@ p,
 }
 
 @media (max-width: $min-desktop-width) {
-  .communication__body__text pre {                            /*        page      pre        borders */
-    max-width: calc(100vw - var(--block-spacing) * 2 - 32px); /* 32px = 4px * 2 + 10px * 2 + 1px * 4 */
+  .communication__body__text pre {
+    /* 32px = page padding(4px * 2) + pre padding(10px * 2) + borders(1px * 4) */
+    max-width: calc(100vw - var(--block-spacing) * 2 - 32px);
   }
 }
 
