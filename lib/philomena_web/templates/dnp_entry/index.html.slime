@@ -43,7 +43,7 @@ h3 The List
         tr
           th Tag
           th Restriction
-          th Conditions
+          th.hide-mobile Conditions
           = if @status_column do
             th Status
             th Created
@@ -57,7 +57,7 @@ h3 The List
             td
               = entry.dnp_type
 
-            td
+            td.hide-mobile
               = body
 
             = if @status_column do
@@ -68,7 +68,9 @@ h3 The List
                 = pretty_time(entry.created_at)
 
             td
-              = link "More Info", to: ~p"/dnp/#{entry}"
+              = link to: ~p"/dnp/#{entry}" do
+                span.hide-mobile More Info
+                span.hide-desktop View
 
   .block__header.page__header
     .page__pagination = pagination

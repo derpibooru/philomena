@@ -136,7 +136,13 @@ table,
   border-collapse: collapse;
   border: var(--border);
   word-wrap: break-word;
-  word-break: break-all;
+}
+
+.communication__body__text {
+  table,
+  .table {
+    word-break: break-all;
+  }
 }
 
 table th,
