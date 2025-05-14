@@ -2,11 +2,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Users.User
-  alias Philomena.Images.Image
-  alias Philomena.Tags.Tag
-  alias Philomena.TagChanges.TagChange
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.TagChanges
 
   plug PhilomenaWeb.CanaryMapPlug, index: :show
   plug :load_resource, model: User, id_name: "profile_id", id_field: "slug", persisted: true
@@ -14,27 +10,18 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
   def index(conn, params) do
     user = conn.assigns.user
 
-    common_query =
-      TagChange
-      |> join(:inner, [tc], i in Image, on: tc.image_id == i.id)
-      |> only_tag_join(params)
-      |> where(
-        [tc, i],
-        tc.user_id == ^user.id and not (i.user_id == ^user.id and i.anonymous == true)
+    {tag_changes, image_count} =
+      TagChanges.load(
+        %{
+          field: :user_id,
+          value: user.id,
+          added: params["added"],
+          tag: params["only_tag"],
+          filter_anon: true
+        },
+        :image_id,
+        conn.assigns.scrivener
       )
-      |> added_filter(params)
-      |> only_tag_filter(params)
-
-    tag_changes =
-      common_query
-      |> preload([:tag, :user, image: [:user, :sources, tags: :aliases]])
-      |> order_by(desc: :id)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    image_count =
-      common_query
-      |> select([_, i], count(i.id, :distinct))
-      |> Repo.one()
 
     # params.permit(:added, :only_tag) ...
     pagination_params =
@@ -49,27 +36,4 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       image_count: image_count
     )
   end
-
-  defp added_filter(query, %{"added" => "1"}),
-    do: where(query, added: true)
-
-  defp added_filter(query, %{"added" => "0"}),
-    do: where(query, added: false)
-
-  defp added_filter(query, _params),
-    do: query
-
-  defp only_tag_join(query, %{"only_tag" => only_tag})
-       when is_binary(only_tag) and only_tag != "",
-       do: join(query, :inner, [tc], t in Tag, on: tc.tag_id == t.id)
-
-  defp only_tag_join(query, _params),
-    do: query
-
-  defp only_tag_filter(query, %{"only_tag" => only_tag})
-       when is_binary(only_tag) and only_tag != "",
-       do: where(query, [_, _, t], t.name == ^only_tag)
-
-  defp only_tag_filter(query, _params),
-    do: query
 end

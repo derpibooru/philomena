@@ -17,4 +17,4 @@ h1
     = link "Added", to: ~p"/images/#{@image}/tag_changes?#{[added: 1]}"
     = link "All", to: ~p"/images/#{@image}/tag_changes"
 
-  = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination
+  = render PhilomenaWeb.TagChangeView, "index.html", conn: @conn, tag_changes: @tag_changes, pagination: pagination, hide_image: true

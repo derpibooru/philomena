@@ -8,69 +8,76 @@
       ' Toggle all
 
 = form_for :tag_changes, ~p"/tag_changes/revert", [class: "tag-changes-form"], fn _f ->
-  .block__content
-    table.table
-      thead
-        tr
-          = if reverts_tag_changes?(@conn) do
-            th Revert?
-          th colspan=2 Image
-          th Tag
-          th Action
-          th Timestamp
-          th User
-          th Retained?
-          = if reverts_tag_changes?(@conn) do
-            th Moderation
+  .block__content.tag__changes
+    .block.block--fixed.block--warning
+      h4
+        i.fa.fa-triangle-exclamation>
+        strong Do not undo staff member tag changes!
+      p Ask them if you believe their changes are wrong. Staff members usually have a good reason to change tags. There might also be additional context, which you either can't see, or simply are unaware of.
+    = for tag_change <- @tag_changes do
+      - {added_tags, removed_tags} = Enum.split_with(tag_change.tags, & &1.added)
+      - added_tags_count = Enum.count(added_tags)
+      - removed_tags_count = Enum.count(removed_tags)
+      - non_retained = non_retained_tags(tag_change)
 
-      tbody
-        = for tag_change <- @tag_changes do
-          tr
-            = if reverts_tag_changes?(@conn) do
-              td.center
-                input type="checkbox" name="ids[]" value=tag_change.id
-
-            td.center
-              = link tag_change.image_id, to: ~p"/images/#{tag_change.image}"
-            td.center
-              = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
-
-            td
-              = if tag_change.tag do
-                = render PhilomenaWeb.TagView, "_tag.html", tag: tag_change.tag, conn: @conn
-              - else
-                = tag_change.tag_name_cache || "Unknown tag"
-
-            = if tag_change.added do
-              td.success Added
-            - else
-              td.danger Removed
-
-            td
-              = pretty_time(tag_change.created_at)
-
-            td class=user_column_class(tag_change)
+      .tag__change-block class=user_block_class(tag_change)
+        = unless assigns[:hide_image] do
+          .tag__change-image
+            = render PhilomenaWeb.ImageView, "_image_container.html", image: tag_change.image, size: :thumb_tiny, conn: @conn
+        div.flex__grow
+          .tag__change
+            .tag__change-info
               => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: tag_change, conn: @conn
-
+              = if staff?(tag_change) do
+                .label.label--small.label--success
+                  i.fa.fa-gavel>
+                  | Staff Member
+              .flex__grow.hide-mobile
+              span
+                = pretty_time(tag_change.created_at)
+              .tag_change-tag-count
+                = if added_tags_count > 0 do
+                  .label.label--small.label--success
+                    i.fa.fa-plus>
+                    => added_tags_count
+                    | tag(s)
+                = if removed_tags_count > 0 do
+                  .label.label--small.label--danger
+                    i.fa.fa-minus>
+                    => removed_tags_count
+                    | tag(s)
+          .tag__change-tags
+            = if added_tags_count > 0 do
+              .added
+                i.fa.fa-plus
+                .tag-list
+                  = for tag <- added_tags do
+                    div class=non_retained_class(non_retained, tag)
+                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag.tag, conn: @conn
+            = if removed_tags_count > 0 do
+              .removed
+                i.fa.fa-minus
+                .tag-list
+                  = for tag <- removed_tags do
+                    div class=non_retained_class(non_retained, tag)
+                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag.tag, conn: @conn
+          = if reverts_tag_changes?(@conn) or can?(@conn, :show, :ip_address) do
+            .tag__change-tools
               = if can?(@conn, :show, :ip_address) do
                 => link_to_ip @conn, tag_change.ip
                 => link_to_fingerprint @conn, tag_change.fingerprint
 
-              = if staff?(tag_change) do
-                br
-                small
-                  strong> Stop!
-                  ' This user is a staff member.
-                  br
-                  ' Ask them before reverting their changes.
-            = if tag_change_retained(tag_change) do
-              td.success Yes
-            - else
-              td.danger No
-            = if reverts_tag_changes?(@conn) do
-              td
-                a href=~p"/images/#{tag_change.image}/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
-                  ' Delete from history
+              = if reverts_tag_changes?(@conn) do
+                .flex.flex__grow
+                a.button.button--state-danger href=~p"/images/#{tag_change.image}/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
+                  i.fa.fa-trash>
+                  span.hide-mobile Delete from history
+                  span.hide-desktop Delete
+                .flex.flex--centered.flex--gap-small
+                  span> Revert
+                  input.fancy-checkbox type="checkbox" name="ids[]" value=tag_change.id
+
+  p * Crossed out tags were reverted and thus are not retained
 
   .block__header.block__header--light
     .page__pagination = @pagination

@@ -1655,10 +1655,35 @@ ALTER SEQUENCE public.subnet_bans_id_seq OWNED BY public.subnet_bans.id;
 
 
 --
+-- Name: tag_change_tags; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tag_change_tags (
+    tag_change_id bigint NOT NULL,
+    tag_id bigint NOT NULL,
+    added boolean NOT NULL
+);
+
+
+--
 -- Name: tag_changes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.tag_changes (
+    id bigint NOT NULL,
+    image_id bigint NOT NULL,
+    user_id bigint,
+    ip inet NOT NULL,
+    fingerprint character varying(255) NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: tag_changes_legacy; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.tag_changes_legacy (
     id integer NOT NULL,
     ip inet,
     fingerprint character varying,
@@ -1690,7 +1715,26 @@ CREATE SEQUENCE public.tag_changes_id_seq
 -- Name: tag_changes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.tag_changes_id_seq OWNED BY public.tag_changes.id;
+ALTER SEQUENCE public.tag_changes_id_seq OWNED BY public.tag_changes_legacy.id;
+
+
+--
+-- Name: tag_changes_id_seq1; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.tag_changes_id_seq1
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: tag_changes_id_seq1; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.tag_changes_id_seq1 OWNED BY public.tag_changes.id;
 
 
 --
@@ -2493,7 +2537,14 @@ ALTER TABLE ONLY public.subnet_bans ALTER COLUMN id SET DEFAULT nextval('public.
 -- Name: tag_changes id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.tag_changes ALTER COLUMN id SET DEFAULT nextval('public.tag_changes_id_seq'::regclass);
+ALTER TABLE ONLY public.tag_changes ALTER COLUMN id SET DEFAULT nextval('public.tag_changes_id_seq1'::regclass);
+
+
+--
+-- Name: tag_changes_legacy id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_changes_legacy ALTER COLUMN id SET DEFAULT nextval('public.tag_changes_id_seq'::regclass);
 
 
 --
@@ -2877,11 +2928,19 @@ ALTER TABLE ONLY public.subnet_bans
 
 
 --
--- Name: tag_changes tag_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tag_changes_legacy tag_changes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_changes_legacy
+    ADD CONSTRAINT tag_changes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: tag_changes tag_changes_pkey1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tag_changes
-    ADD CONSTRAINT tag_changes_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT tag_changes_pkey1 PRIMARY KEY (id);
 
 
 --
@@ -4048,35 +4107,35 @@ CREATE INDEX index_subnet_bans_on_specification ON public.subnet_bans USING gist
 -- Name: index_tag_changes_on_fingerprint; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tag_changes_on_fingerprint ON public.tag_changes USING btree (fingerprint);
+CREATE INDEX index_tag_changes_on_fingerprint ON public.tag_changes_legacy USING btree (fingerprint);
 
 
 --
 -- Name: index_tag_changes_on_image_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tag_changes_on_image_id ON public.tag_changes USING btree (image_id);
+CREATE INDEX index_tag_changes_on_image_id ON public.tag_changes_legacy USING btree (image_id);
 
 
 --
 -- Name: index_tag_changes_on_ip; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tag_changes_on_ip ON public.tag_changes USING gist (ip inet_ops);
+CREATE INDEX index_tag_changes_on_ip ON public.tag_changes_legacy USING gist (ip inet_ops);
 
 
 --
 -- Name: index_tag_changes_on_tag_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tag_changes_on_tag_id ON public.tag_changes USING btree (tag_id);
+CREATE INDEX index_tag_changes_on_tag_id ON public.tag_changes_legacy USING btree (tag_id);
 
 
 --
 -- Name: index_tag_changes_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_tag_changes_on_user_id ON public.tag_changes USING btree (user_id);
+CREATE INDEX index_tag_changes_on_user_id ON public.tag_changes_legacy USING btree (user_id);
 
 
 --
@@ -4437,6 +4496,48 @@ CREATE INDEX reports_system_index ON public.reports USING btree (system) WHERE (
 
 
 --
+-- Name: tag_change_tags_tag_change_id_tag_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX tag_change_tags_tag_change_id_tag_id_index ON public.tag_change_tags USING btree (tag_change_id, tag_id);
+
+
+--
+-- Name: tag_change_tags_tag_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_change_tags_tag_id_index ON public.tag_change_tags USING btree (tag_id);
+
+
+--
+-- Name: tag_changes_fingerprint_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_changes_fingerprint_index ON public.tag_changes USING btree (fingerprint);
+
+
+--
+-- Name: tag_changes_image_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_changes_image_id_index ON public.tag_changes USING btree (image_id);
+
+
+--
+-- Name: tag_changes_ip_inet_ops_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_changes_ip_inet_ops_index ON public.tag_changes USING gist (ip inet_ops);
+
+
+--
+-- Name: tag_changes_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX tag_changes_user_id_index ON public.tag_changes USING btree (user_id);
+
+
+--
 -- Name: user_tokens_context_token_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4499,10 +4600,10 @@ ALTER TABLE ONLY public.image_faves
 
 
 --
--- Name: tag_changes fk_rails_0e6c53f1b9; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tag_changes_legacy fk_rails_0e6c53f1b9; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.tag_changes
+ALTER TABLE ONLY public.tag_changes_legacy
     ADD CONSTRAINT fk_rails_0e6c53f1b9 FOREIGN KEY (image_id) REFERENCES public.images(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
@@ -4547,10 +4648,10 @@ ALTER TABLE ONLY public.commissions
 
 
 --
--- Name: tag_changes fk_rails_1d7b844de4; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tag_changes_legacy fk_rails_1d7b844de4; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.tag_changes
+ALTER TABLE ONLY public.tag_changes_legacy
     ADD CONSTRAINT fk_rails_1d7b844de4 FOREIGN KEY (tag_id) REFERENCES public.tags(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
@@ -4883,10 +4984,10 @@ ALTER TABLE ONLY public.user_name_changes
 
 
 --
--- Name: tag_changes fk_rails_82fc2dd958; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tag_changes_legacy fk_rails_82fc2dd958; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.tag_changes
+ALTER TABLE ONLY public.tag_changes_legacy
     ADD CONSTRAINT fk_rails_82fc2dd958 FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
@@ -5411,6 +5512,38 @@ ALTER TABLE ONLY public.source_changes
 
 
 --
+-- Name: tag_change_tags tag_change_tags_tag_change_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_change_tags
+    ADD CONSTRAINT tag_change_tags_tag_change_id_fkey FOREIGN KEY (tag_change_id) REFERENCES public.tag_changes(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: tag_change_tags tag_change_tags_tag_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_change_tags
+    ADD CONSTRAINT tag_change_tags_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES public.tags(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: tag_changes tag_changes_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_changes
+    ADD CONSTRAINT tag_changes_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: tag_changes tag_changes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.tag_changes
+    ADD CONSTRAINT tag_changes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
 -- Name: user_tokens user_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5456,3 +5589,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20241216165826);
 INSERT INTO public."schema_migrations" (version) VALUES (20250407021536);
 INSERT INTO public."schema_migrations" (version) VALUES (20250501174007);
 INSERT INTO public."schema_migrations" (version) VALUES (20250502110018);
+INSERT INTO public."schema_migrations" (version) VALUES (20250507183410);

@@ -258,6 +258,14 @@ nav {
   justify-content: space-between;
 }
 
+.flex--gap-small {
+  gap: var(--padding-small);
+}
+
+.flex--gap-normal {
+  gap: var(--padding-normal);
+}
+
 .grid {
   display: grid;
 }

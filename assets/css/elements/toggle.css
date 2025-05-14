@@ -1,0 +1,52 @@
+input[type="checkbox"].fancy-toggle {
+  appearance: none;
+}
+
+.fancy-toggle {
+  display: inline-block;
+  align-self: center;
+  width: var(--toggle-width);
+  height: var(--toggle-height);
+  background: var(--danger-light-color);
+  border: var(--toggle-border-width) solid var(--danger-color);
+  border-radius: var(--border-radius-toggle);
+  transition:
+    background var(--transition-animation-duration) ease,
+    border-color var(--transition-animation-duration) ease;
+}
+
+.fancy-toggle:after {
+  content: "";
+  line-height: calc(var(--toggle-height) - var(--toggle-border-width) * 2);
+  display: block;
+  position: relative;
+  background: var(--foreground-color);
+  width: calc(var(--toggle-height) - var(--toggle-border-width) * 2);
+  height: calc(var(--toggle-height) - var(--toggle-border-width) * 2);
+  border-radius: var(--border-radius-inner-toggle);
+  left: 0;
+  transition: left var(--transition-animation-duration) ease;
+}
+
+.fancy-toggle:hover {
+  border-color: var(--danger-even-color);
+  cursor: pointer;
+}
+
+.fancy-toggle:checked {
+  background: var(--success-light-color);
+  border-color: var(--success-color);
+  transition:
+    background var(--transition-animation-duration) ease,
+    border-color var(--transition-animation-duration) ease;
+}
+
+.fancy-toggle:checked:hover {
+  border-color: var(--success-even-color);
+}
+
+.fancy-toggle:checked:after {
+  content: "";
+  left: calc(var(--toggle-width) - var(--toggle-height));
+  transition: left var(--transition-animation-duration) ease;
+}

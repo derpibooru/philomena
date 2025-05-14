@@ -114,8 +114,7 @@ defmodule Philomena.DataExports.Aggregator do
     {Report,
      [:ip, :fingerprint, :user_agent, :referrer, :reason, :reportable_id, :reportable_type]},
     {SourceChange, [:ip, :fingerprint, :user_agent, :referrer, :image_id, :added, :value]},
-    {TagChange,
-     [:ip, :fingerprint, :user_agent, :referrer, :image_id, :added, :tag_id, :tag_name_cache]},
+    {TagChange, [:ip, :fingerprint, :image_id]},
     {Topic, [:title, :anonymous, :forum_id]},
     {UserBan, [:reason, :generated_ban_id]}
   ]

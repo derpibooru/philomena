@@ -30,6 +30,7 @@ h2 Search Results
 
     = render PhilomenaWeb.TagView, "_tag_list.html", tags: @tags, conn: @conn
 
+    br
     .block
       .block__header.block__header--light.page__header
         .page__pagination = pagination

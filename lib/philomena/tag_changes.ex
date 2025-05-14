@@ -7,102 +7,57 @@ defmodule Philomena.TagChanges do
   alias Philomena.Repo
 
   alias Philomena.TagChangeRevertWorker
+  alias Philomena.TagChanges
   alias Philomena.TagChanges.TagChange
-  alias Philomena.Images.Tagging
-  alias Philomena.Tags.Tag
   alias Philomena.Images
-  alias Philomena.Comments
-  alias Philomena.Tags
-  # TODO: this is substantially similar to Images.batch_update/4.
-  # Perhaps it should be extracted.
+  alias Philomena.Images.Image
+  alias Philomena.Tags.Tag
+
+  # Accepts a list of TagChanges.TagChange IDs.
   def mass_revert(ids, attributes) do
-    now = DateTime.utc_now(:second)
-    tag_change_attributes = Map.merge(attributes, %{created_at: now, updated_at: now})
-    tag_attributes = %{name: "", slug: "", created_at: now, updated_at: now}
-
     tag_changes =
-      TagChange
-      |> join(:inner, [tc], _ in assoc(tc, :image))
-      |> where([tc, i], tc.id in ^ids and i.hidden_from_users == false)
-      |> order_by(desc: :created_at)
-      |> Repo.all()
-      |> Enum.reject(&is_nil(&1.tag_id))
-      |> Enum.uniq_by(&{&1.image_id, &1.tag_id})
+      Repo.all(
+        from tc in TagChange,
+          inner_join: i in assoc(tc, :image),
+          where: tc.id in ^ids and i.hidden_from_users == false,
+          order_by: [desc: :created_at],
+          preload: [tags: [:tag, :tag_change]]
+      )
 
-    tag_ids = Enum.map(tag_changes, & &1.tag_id) |> Enum.uniq()
-
-    {added, removed} = Enum.split_with(tag_changes, & &1.added)
-
-    image_ids =
-      tag_changes
-      |> Enum.map(& &1.image_id)
-      |> Enum.uniq()
-
-    to_remove =
-      added
-      |> Enum.map(&{&1.image_id, &1.tag_id})
-      |> Enum.reduce(where(Tagging, fragment("'t' = 'f'")), fn {image_id, tag_id}, q ->
-        or_where(q, image_id: ^image_id, tag_id: ^tag_id)
-      end)
-      |> select([t], [t.image_id, t.tag_id])
-
-    to_add = Enum.map(removed, &%{image_id: &1.image_id, tag_id: &1.tag_id})
-
-    Repo.transaction(fn ->
-      {_count, inserted} =
-        Repo.insert_all(Tagging, to_add, on_conflict: :nothing, returning: [:image_id, :tag_id])
-
-      {_count, deleted} = Repo.delete_all(to_remove)
-
-      inserted = Enum.map(inserted, &[&1.image_id, &1.tag_id])
-
-      added_changes =
-        Enum.map(inserted, fn [image_id, tag_id] ->
-          Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: true})
-        end)
-
-      removed_changes =
-        Enum.map(deleted, fn [image_id, tag_id] ->
-          Map.merge(tag_change_attributes, %{image_id: image_id, tag_id: tag_id, added: false})
-        end)
-
-      Repo.insert_all(TagChange, added_changes ++ removed_changes)
-
-      # In order to merge into the existing tables here in one go, insert_all
-      # is used with a query that is guaranteed to conflict on every row by
-      # using the primary key.
-
-      added_upserts =
-        inserted
-        |> Enum.group_by(fn [_image_id, tag_id] -> tag_id end)
-        |> Enum.map(fn {tag_id, instances} ->
-          Map.merge(tag_attributes, %{id: tag_id, images_count: length(instances)})
-        end)
-
-      removed_upserts =
-        deleted
-        |> Enum.group_by(fn [_image_id, tag_id] -> tag_id end)
-        |> Enum.map(fn {tag_id, instances} ->
-          Map.merge(tag_attributes, %{id: tag_id, images_count: -length(instances)})
-        end)
-
-      update_query = update(Tag, inc: [images_count: fragment("EXCLUDED.images_count")])
-
-      upserts = added_upserts ++ removed_upserts
-
-      Repo.insert_all(Tag, upserts, on_conflict: update_query, conflict_target: [:id])
-    end)
-    |> case do
+    case mass_revert_tags(Enum.flat_map(tag_changes, & &1.tags), attributes) do
       {:ok, _result} ->
-        Images.reindex_images(image_ids)
-        Comments.reindex_comments_on_images(image_ids)
-        Tags.reindex_tags(Enum.map(tag_ids, &%{id: &1}))
-
         {:ok, tag_changes}
 
       error ->
         error
     end
+  end
+
+  # Accepts a list of TagChanges.Tag objects with tag_change and tag relations preloaded.
+  def mass_revert_tags(tags, attributes) do
+    # Sort tags by tag change creation date, then uniq them by tag ID
+    # to keep the first, aka the latest, record. Then prepare the struct
+    # for the batch updater.
+    changes_per_image =
+      tags
+      |> Enum.group_by(& &1.tag_change.image_id)
+      |> Enum.map(fn {image_id, instances} ->
+        changed_tags =
+          instances
+          |> Enum.sort_by(& &1.tag_change.created_at, :desc)
+          |> Enum.uniq_by(& &1.tag_id)
+
+        {added_tags, removed_tags} = Enum.split_with(changed_tags, & &1.added)
+
+        # We send removed tags to be added, and added to be removed. That's how reverting works!
+        %{
+          image_id: image_id,
+          added_tags: Enum.map(removed_tags, & &1.tag),
+          removed_tags: Enum.map(added_tags, & &1.tag)
+        }
+      end)
+
+    Images.batch_update(changes_per_image, attributes)
   end
 
   def full_revert(%{user_id: _user_id, attributes: _attributes} = params),
@@ -114,56 +69,42 @@ defmodule Philomena.TagChanges do
   def full_revert(%{fingerprint: _fingerprint, attributes: _attributes} = params),
     do: Exq.enqueue(Exq, "indexing", TagChangeRevertWorker, [params])
 
-  @doc """
-  Gets a single tag_change.
+  defp tags_to_tag_change(_, nil, _), do: []
 
-  Raises `Ecto.NoResultsError` if the Tag change does not exist.
-
-  ## Examples
-
-      iex> get_tag_change!(123)
-      %TagChange{}
-
-      iex> get_tag_change!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_tag_change!(id), do: Repo.get!(TagChange, id)
-
-  @doc """
-  Creates a tag_change.
-
-  ## Examples
-
-      iex> create_tag_change(%{field: value})
-      {:ok, %TagChange{}}
-
-      iex> create_tag_change(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_tag_change(attrs \\ %{}) do
-    %TagChange{}
-    |> TagChange.changeset(attrs)
-    |> Repo.insert()
+  defp tags_to_tag_change(tag_change, tags, added) do
+    tags
+    |> Enum.map(
+      &%{
+        tag_change_id: tag_change.id,
+        tag_id: &1.id,
+        added: added
+      }
+    )
   end
 
   @doc """
-  Updates a tag_change.
-
-  ## Examples
-
-      iex> update_tag_change(tag_change, %{field: new_value})
-      {:ok, %TagChange{}}
-
-      iex> update_tag_change(tag_change, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
+  Creates a tag_change.
   """
-  def update_tag_change(%TagChange{} = tag_change, attrs) do
-    tag_change
-    |> TagChange.changeset(attrs)
-    |> Repo.update()
+  def create_tag_change(image, attrs, added_tags, removed_tags) do
+    user = attrs[:user]
+    user_id = if user, do: user.id, else: nil
+
+    {:ok, tc} =
+      %TagChange{
+        image_id: image.id,
+        user_id: user_id,
+        ip: attrs[:ip],
+        fingerprint: attrs[:fingerprint]
+      }
+      |> Repo.insert()
+
+    {added_count, nil} =
+      Repo.insert_all(TagChanges.Tag, tags_to_tag_change(tc, added_tags, true))
+
+    {removed_count, nil} =
+      Repo.insert_all(TagChanges.Tag, tags_to_tag_change(tc, removed_tags, false))
+
+    {:ok, {added_count, removed_count}}
   end
 
   @doc """
@@ -182,16 +123,95 @@ defmodule Philomena.TagChanges do
     Repo.delete(tag_change)
   end
 
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking tag_change changes.
-
-  ## Examples
-
-      iex> change_tag_change(tag_change)
-      %Ecto.Changeset{source: %TagChange{}}
-
-  """
-  def change_tag_change(%TagChange{} = tag_change) do
-    TagChange.changeset(tag_change, %{})
+  def count_tag_changes(field_name, value) do
+    Repo.aggregate(from(tc in TagChange, where: field(tc, ^field_name) == ^value), :count, :id)
   end
+
+  def load(attrs, pagination) do
+    {tag_changes, _} = load(attrs, nil, pagination)
+
+    tag_changes
+  end
+
+  def load(attrs, count_field, pagination) do
+    query =
+      attrs
+      |> base_query()
+      |> added_or_tag_field(attrs)
+      |> filter_anon(attrs)
+
+    item_count =
+      if count_field do
+        Repo.one(from tc in query, select: count(field(tc, ^count_field), :distinct))
+      end
+
+    query =
+      query
+      |> preload([:user, image: [:user, :sources, tags: :aliases], tags: [:tag]])
+      |> group_by([tc], tc.id)
+      |> order_by(desc: :created_at)
+
+    {Repo.paginate(query, pagination), item_count}
+  end
+
+  defp base_query(%{ip: ip}) do
+    from tc in TagChange, where: fragment("? >>= ip", ^ip)
+  end
+
+  defp base_query(%{field: field_name, value: value}) do
+    from tc in TagChange, where: field(tc, ^field_name) == ^value
+  end
+
+  defp base_query(_) do
+    from(tc in TagChange)
+  end
+
+  defp filter_anon(query, %{field: :user_id, value: id, filter_anon: true}) do
+    from t in query,
+      inner_join: i in Image,
+      on: i.id == t.image_id,
+      where: t.user_id == ^id and not (i.user_id == ^id and i.anonymous == true)
+  end
+
+  defp filter_anon(query, _), do: query
+
+  defp added_or_tag_field(query, %{added: nil, tag: nil}), do: query
+
+  defp added_or_tag_field(query, attrs) do
+    query =
+      from tc in query,
+        inner_join: tct in TagChanges.Tag,
+        on: tc.id == tct.tag_change_id
+
+    query
+    |> added_field(attrs)
+    |> tag_field(attrs)
+    |> tag_id_field(attrs)
+  end
+
+  defp added_field(query, %{added: nil}), do: query
+
+  defp added_field(query, %{added: added}),
+    do: from([_tc, tct] in query, where: tct.added == ^added)
+
+  defp added_field(query, _), do: query
+
+  defp tag_field(query, %{tag: nil}), do: query
+
+  defp tag_field(query, %{tag: tag}),
+    do:
+      from([_tc, tct] in query,
+        inner_join: t in Tag,
+        on: t.id == tct.tag_id,
+        where: t.name == ^tag
+      )
+
+  defp tag_field(query, _), do: query
+
+  defp tag_id_field(query, %{tag_id: nil}), do: query
+
+  defp tag_id_field(query, %{tag_id: id}),
+    do: from([_tc, tct] in query, where: tct.tag_id == ^id)
+
+  defp tag_id_field(query, _), do: query
 end

@@ -1,0 +1,109 @@
+.tag__changes {
+  display: flex;
+  flex-flow: column;
+  gap: var(--padding-normal);
+}
+
+.tag__change {
+  display: flex;
+  gap: var(--padding-normal);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: var(--padding-small);
+}
+
+.tag__change--staff {
+  border: 1px solid var(--success-color);
+  box-shadow:
+    inset 1px 1px 4px var(--success-light-color),
+    inset -1px -1px 4px var(--success-light-color);
+}
+
+.tag__change-info {
+  display: flex;
+  flex: 1 0 auto;
+  flex-wrap: wrap;
+  max-width: 100%;
+  gap: var(--padding-small);
+  align-items: center;
+}
+
+.tag_change-tag-count {
+  display: flex;
+  gap: var(--padding-small);
+}
+
+.tag__change-info > .label--small,
+.tag_change-tag-count > .label--small {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+.tag__change-image {
+  display: flex;
+  gap: var(--padding-small);
+  align-items: center;
+}
+
+.tag__change-revert {
+  display: flex;
+  gap: var(--padding-small);
+}
+
+.tag__change-tags > .added,
+.tag__change-tags > .removed {
+  display: flex;
+  flex: 1 0 auto;
+  gap: var(--padding-small);
+}
+
+.tag__change-tags > .removed > i,
+.tag__change-tags > .added > i {
+  font-size: 10px;
+  font-weight: bold;
+  padding: 6px;
+  place-content: center;
+}
+
+.tag__change-tags > .added {
+  background: var(--success-muted-color);
+}
+
+.tag__change-tags > .removed {
+  background: var(--danger-muted-color);
+}
+
+.tag__change-tags .tag-list {
+  padding: var(--padding-tiny) 0;
+}
+
+.tag__change-tools {
+  display: flex;
+  align-items: center;
+  gap: var(--padding-small);
+  margin-top: var(--padding-small);
+  padding-top: var(--padding-small);
+  border-top: 2px solid var(--border-color);
+}
+
+.tag__change--not-retained .tag__name {
+  text-decoration: line-through !important;
+  font-weight: normal !important;
+  font-style: italic !important;
+}
+
+.tag__change--not-retained .tag__count {
+  display: none;
+}
+
+.tag__change-block {
+  display: flex;
+  flex: 1 0 auto;
+  padding: var(--padding-small);
+  gap: var(--padding-small);
+  background: var(--background-color);
+  border: var(--border);
+}
