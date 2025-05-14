@@ -430,14 +430,15 @@ defmodule Philomena.Tags do
     array_replace(filters_spoilered, :spoilered_tag_ids, tag.id, target_tag.id)
     array_replace(users_watching, :watched_tag_ids, tag.id, target_tag.id)
 
-    # Manual insert all because ecto won't do it for us
-    Repo.query!(
-      "INSERT INTO image_taggings (image_id, tag_id) " <>
-        "SELECT i.id, #{target_tag.id} FROM images i " <>
-        "INNER JOIN image_taggings it on it.image_id = i.id " <>
-        "WHERE it.tag_id = #{tag.id} " <>
-        "ON CONFLICT DO NOTHING"
-    )
+    # Create taggings with the new tag ID on images where the old tag ID is used.
+    retag_query =
+      from i in Image,
+        inner_join: it in Tagging,
+        on: it.image_id == i.id,
+        select: %{image_id: i.id, tag_id: ^target_tag.id},
+        where: it.tag_id == ^tag.id
+
+    Repo.insert_all(Tagging, retag_query, on_conflict: :nothing)
 
     # Delete taggings on the source tag
     Tagging
