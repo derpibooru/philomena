@@ -67,7 +67,7 @@ services:
       - '5173:5173'
 
   postgres:
-    image: postgres:17.4-alpine
+    image: postgres:17.5-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -75,7 +75,7 @@ services:
     attach: false
 
   opensearch:
-    image: opensearchproject/opensearch:2.19.1
+    image: opensearchproject/opensearch:3.0.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
