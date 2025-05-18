@@ -1,9 +1,10 @@
-ARG CADDY_VERSION="2.9.1"
+ARG CADDY_VERSION="2.10.0"
+ARG CADDY_FS_S3_VERSION=v0.10.0
 
 FROM caddy:$CADDY_VERSION-builder-alpine AS builder
 
 RUN xcaddy build \
-    --with github.com/sagikazarmark/caddy-fs-s3
+    --with github.com/sagikazarmark/caddy-fs-s3@${CADDY_FS_S3_VERSION}
 
 FROM caddy:$CADDY_VERSION-alpine
 
