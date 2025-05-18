@@ -10,7 +10,7 @@ defmodule PhilomenaWeb.Profile.AliasView do
   def currently_banned?(%{bans: bans}) do
     now = DateTime.utc_now()
 
-    Enum.any?(bans, &(DateTime.diff(&1.valid_until, now) >= 0))
+    Enum.any?(bans, &(&1.enabled and DateTime.diff(&1.valid_until, now) >= 0))
   end
 
   def previously_banned?(%{bans: []}), do: false

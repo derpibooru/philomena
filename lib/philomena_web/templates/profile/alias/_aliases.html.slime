@@ -22,11 +22,11 @@
     = cond do
       - not is_nil(u.deleted_at) ->
         td.danger
-          ' Account Disabled
+          ' Account disabled
 
       - currently_banned?(u) ->
         td.danger
-          ' Currently Banned
+          ' Currently banned
 
       - previously_banned?(u) ->
         td.danger
