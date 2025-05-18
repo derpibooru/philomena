@@ -6,7 +6,12 @@ defmodule PhilomenaWeb.Profile.ScratchpadController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug
   plug PhilomenaWeb.CanaryMapPlug, edit: :index, update: :index
-  plug :load_and_authorize_resource, model: User, id_name: "profile_id", id_field: "slug", persisted: true
+
+  plug :load_and_authorize_resource,
+    model: User,
+    id_name: "profile_id",
+    id_field: "slug",
+    persisted: true
 
   def edit(conn, _params) do
     changeset = Users.change_user(conn.assigns.user)
