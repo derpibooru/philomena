@@ -98,7 +98,7 @@
               a href=~p"/profiles/#{@user}/artist_links/#{link}/edit"
                 ' Edit
               ' &bull;
-              a href=~p"/admin/artist_links/#{link}/reject" data-method="post"
+              a href=~p"/admin/artist_links/#{link}/reject" data-method="post" data-confirm="Are you really, really sure?"
                 ' Reject
             - else
               => unless link.public do
