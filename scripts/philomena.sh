@@ -74,7 +74,7 @@ function clean {
   done
 
   step docker compose down --volumes
-  step docker container prune --all --force
+  step docker container prune --force
   step docker volume prune --all --force
   step docker image prune --all --force
   step sudo chown --recursive "$(id -u):$(id -g)" .
