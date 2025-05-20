@@ -304,6 +304,7 @@ div.image-container video {
 .image_sources {
   display: grid;
   grid-template-columns: 2em auto;
+  grid-template-rows: 1fr;
 }
 
 .image_source__icon,
