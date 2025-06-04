@@ -648,9 +648,8 @@ defmodule Philomena.Images do
 
       repo, %{image: {_image, added_tags, _removed}} ->
         tag_ids = added_tags |> Enum.map(& &1.id)
-        tags = Tag |> where([t], t.id in ^tag_ids)
 
-        {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+        count = Tags.update_image_counts(repo, 1, tag_ids)
 
         {:ok, count}
     end)

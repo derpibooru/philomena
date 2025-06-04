@@ -91,8 +91,6 @@ defmodule Philomena.Tags do
   defp get_or_create_non_empty_tags_list(tag_names) do
     tags =
       tag_names
-      |> Enum.sort()
-      |> Enum.dedup()
       |> Enum.map(fn tag_name ->
         %Tag{}
         |> Tag.creation_changeset(%{name: tag_name})
@@ -123,7 +121,7 @@ defmodule Philomena.Tags do
         :new_tags,
         Tag,
         tags,
-        placeholders: %{timestamp: DateTime.utc_now() |> DateTime.truncate(:second)},
+        placeholders: %{timestamp: DateTime.utc_now(:second)},
         on_conflict: :nothing,
         returning: [:id]
       )
@@ -131,7 +129,6 @@ defmodule Philomena.Tags do
         :all_tags,
         Tag
         |> where([t], t.name in ^tag_names)
-        |> distinct([t], t.name)
         |> preload([:implied_tags, aliased_tag: :implied_tags])
       )
       |> Repo.transaction()
@@ -147,6 +144,8 @@ defmodule Philomena.Tags do
     |> reindex_tags()
 
     all_tags
+    |> Enum.map(&(&1.aliased_tag || &1))
+    |> Enum.uniq_by(& &1.id)
   end
 
   @doc """
