@@ -169,6 +169,8 @@ defmodule Philomena.Images.Query do
     )
   end
 
+  defp parse_filter_ids(nil), do: []
+
   defp parse_filter_ids(query_string),
     do:
       Regex.scan(~r/\bfilter_id:(\d+)/, query_string, capture: :all_but_first)
