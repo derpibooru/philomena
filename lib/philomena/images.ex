@@ -635,13 +635,17 @@ defmodule Philomena.Images do
     |> Multi.run(:check_limits, fn _repo, %{image: {image, _added, _removed}} ->
       check_tag_change_limits_before_commit(image, attribution)
     end)
-    |> Multi.run(:tag_changes, fn _repo, %{image: {image, added_tags, removed_tags}} ->
-      TagChanges.create_tag_change(
-        image,
-        attribution,
-        added_tags,
-        removed_tags
-      )
+    |> Multi.run(:tag_changes, fn
+      _repo, %{image: {_image, [], []}} ->
+        {:ok, {0, 0}}
+
+      _repo, %{image: {image, added_tags, removed_tags}} ->
+        TagChanges.create_tag_change(
+          image,
+          attribution,
+          added_tags,
+          removed_tags
+        )
     end)
     |> Multi.run(:added_tag_count, fn
       _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
@@ -649,9 +653,8 @@ defmodule Philomena.Images do
 
       repo, %{image: {_image, added_tags, _removed}} ->
         tag_ids = added_tags |> Enum.map(& &1.id)
-        tags = Tag |> where([t], t.id in ^tag_ids)
 
-        {count, nil} = repo.update_all(tags, inc: [images_count: 1])
+        count = Tags.update_image_counts(repo, 1, tag_ids)
 
         {:ok, count}
     end)

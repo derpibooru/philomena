@@ -76,13 +76,12 @@ p,
 .communication__body__text .paragraph {
   margin-bottom: var(--padding-normal);
   word-wrap: break-word;
-  word-break: break-all;
 }
 
 @media (max-width: $min-desktop-width) {
   .communication__body__text pre {
     /* 32px = page padding(4px * 2) + pre padding(10px * 2) + borders(1px * 4) */
-    max-width: calc(100vw - var(--block-spacing) * 2 - 32px);
+    max-width: calc(98vw - var(--block-spacing) * 2 - 32px);
   }
 }
 
@@ -140,7 +139,7 @@ table,
 
 .communication__body__text table,
 .communication__body__text .table {
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
 table th,
@@ -377,6 +376,7 @@ pre code {
   border: 0;
   background: 0;
   padding: 0;
+  white-space: pre-wrap;
 }
 
 .spoiler-revealed code,

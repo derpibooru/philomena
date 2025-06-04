@@ -29,6 +29,7 @@ span.communication__body__sender-name {
   margin-top: 3px;
   margin-bottom: 6px;
   line-height: 1.35em;
+  overflow: hidden;
 }
 
 .communication__body__text img {
@@ -163,7 +164,7 @@ span.communication__sender__stats,
 
   .communication__body__sender {
     /* 8px body padding + 2px borders + 12px article padding + 12px avatar margin */
-    width: calc(100vw - 34px - var(--reduced-communication-avatar-size));
+    width: calc(98vw - 34px - var(--reduced-communication-avatar-size));
     grid-area: 1 / 2 / 2 / 3;
     padding-bottom: 6px;
   }
