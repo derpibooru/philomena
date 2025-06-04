@@ -634,13 +634,17 @@ defmodule Philomena.Images do
     |> Multi.run(:check_limits, fn _repo, %{image: {image, _added, _removed}} ->
       check_tag_change_limits_before_commit(image, attribution)
     end)
-    |> Multi.run(:tag_changes, fn _repo, %{image: {image, added_tags, removed_tags}} ->
-      TagChanges.create_tag_change(
-        image,
-        attribution,
-        added_tags,
-        removed_tags
-      )
+    |> Multi.run(:tag_changes, fn
+      _repo, %{image: {_image, [], []}} ->
+        {:ok, {0, 0}}
+
+      _repo, %{image: {image, added_tags, removed_tags}} ->
+        TagChanges.create_tag_change(
+          image,
+          attribution,
+          added_tags,
+          removed_tags
+        )
     end)
     |> Multi.run(:added_tag_count, fn
       _repo, %{image: {%{hidden_from_users: true}, _added, _removed}} ->
