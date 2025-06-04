@@ -27,13 +27,14 @@
 @import "elements/blocks";
 @import "elements/burger";
 @import "elements/button";
+@import "elements/checkbox";
 @import "elements/dropdown";
 @import "elements/forms";
 @import "elements/header";
 @import "elements/layout";
 @import "elements/media";
-@import "elements/shame";
 @import "elements/text";
+@import "elements/toggle";
 
 /* Style elements specific to certain pages. */
 @import "views/adverts";
@@ -58,4 +59,5 @@
 @import "views/search";
 @import "views/staff";
 @import "views/stats";
+@import "views/tag_change";
 @import "views/tags";

@@ -6,9 +6,10 @@ defmodule PhilomenaWeb.DnpEntryView do
   end
 
   def form_class(changeset) do
-    case show_steps?(changeset) do
-      true -> "hidden"
-      false -> nil
+    if show_steps?(changeset) do
+      "hidden"
+    else
+      nil
     end
   end
 

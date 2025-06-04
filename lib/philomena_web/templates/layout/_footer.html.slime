@@ -4,7 +4,8 @@ footer#footer
 
     = for column <- footer_data["cols"] do
       .footercol
-        h5 = column
+        h5.hide-mobile = column
+        h2.hide-desktop = column
 
         = for row <- footer_data[column] do
           = if row["bold"] do
@@ -17,6 +18,13 @@ footer#footer
   #serving_info
     ' Powered by
     a> href="https://github.com/philomena-dev/philomena" philomena
-    | (
+    br
+    = if hide_version() do
+      | (
+    - else
+      ' (version
+      = philomena_version()
+      ' ,
+    ' page generated in
     = render_time(@conn)
     | ms)

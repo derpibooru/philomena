@@ -327,7 +327,7 @@ defmodule Philomena.Posts do
     |> Repo.transaction()
     |> case do
       {:ok, %{post: post, reports: {_count, reports}}} ->
-        UserStatistics.inc_stat(post.user, :forum_posts)
+        UserStatistics.inc_stat(post.user_id, :forum_posts)
         Reports.reindex_reports(reports)
         reindex_post(post)
 

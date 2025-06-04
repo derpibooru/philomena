@@ -7,23 +7,21 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 function up {
-  # Delete the database volumes. This doesn't remove the build caches.
-  # This is a shortcut to do a `down --drop-db` with a following `up`.
-  local drop_db=false
+  local down_args=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      --drop-db) drop_db=true ;;
-      *) die "Unknown option: $1" ;;
+      --drop-db | --drop-cache) down_args+=("$1") ;;
+      *) break ;;
     esac
     shift
   done
 
-  if [[ "$drop_db" == "true" ]]; then
-    down --drop-db
+  if [[ ${#down_args[@]} -gt 0 ]]; then
+    down "${down_args[@]}"
   fi
 
-  step exec docker compose up --no-log-prefix
+  step docker compose up --build --no-log-prefix "$@"
 }
 
 function down {
@@ -31,15 +29,28 @@ function down {
   # If you want to clean up everything see the `clean` subcommand.
   local drop_db=false
 
+  # Delete build caches
+  local drop_cache=false
+
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --drop-db) drop_db=true ;;
+      --drop-cache) drop_cache=true ;;
       *) die "Unknown option: $1" ;;
     esac
     shift
   done
 
   step docker compose down
+
+  if [[ "$drop_cache" == "true" ]]; then
+    info "Dropping build caches..."
+    step docker volume rm --force \
+      philomena_app_build_data \
+      philomena_app_cargo_data \
+      philomena_app_deps_data \
+      philomena_app_native_data
+  fi
 
   # If `--drop-db` is enabled it's important to stop all containers to make sure
   # they shut down cleanly. Also, `valkey` stores its data in RAM, so to drop its
@@ -74,7 +85,7 @@ function clean {
   done
 
   step docker compose down --volumes
-  step docker container prune --all --force
+  step docker container prune --force
   step docker volume prune --all --force
   step docker image prune --all --force
   step sudo chown --recursive "$(id -u):$(id -g)" .
@@ -98,6 +109,15 @@ case "$subcommand" in
   down) down "$@" ;;
   clean) clean "$@" ;;
   init) init "$@" ;;
+
+  # Run the given command in the devcontainer via `docker exec`. This script
+  # runs it directly here, because `lib.sh` forwards its execution to the
+  # devcontainer automatically already.
+  exec) "$@" ;;
+
+  # Shortcut for `philomena exec docker compose`
+  compose) docker compose "$@" ;;
+
   *)
     die "See the available sub-commands in ${BASH_SOURCE[0]}"
     ;;

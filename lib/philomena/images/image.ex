@@ -271,6 +271,7 @@ defmodule Philomena.Images.Image do
     |> put_change(:deleter_id, user.id)
     |> put_change(:hidden_image_key, create_key())
     |> put_change(:hidden_from_users, true)
+    |> put_change(:approved, true)
     |> validate_required([:deletion_reason, :deleter_id])
   end
 
@@ -354,23 +355,26 @@ defmodule Philomena.Images.Image do
   end
 
   defp validate_hidden(changeset) do
-    case get_field(changeset, :hidden_from_users) do
-      true -> changeset
-      false -> add_error(changeset, :hidden_from_users, "must be true")
+    if get_field(changeset, :hidden_from_users) do
+      changeset
+    else
+      add_error(changeset, :hidden_from_users, "must be true")
     end
   end
 
   defp validate_not_hidden(changeset) do
-    case get_field(changeset, :hidden_from_users) do
-      true -> add_error(changeset, :hidden_from_users, "must be false")
-      false -> changeset
+    if get_field(changeset, :hidden_from_users) do
+      add_error(changeset, :hidden_from_users, "must be false")
+    else
+      changeset
     end
   end
 
   defp validate_not_approved(changeset) do
-    case get_field(changeset, :approved) do
-      true -> add_error(changeset, :approved, "must be false")
-      _ -> changeset
+    if get_field(changeset, :approved) do
+      add_error(changeset, :approved, "must be false")
+    else
+      changeset
     end
   end
 end

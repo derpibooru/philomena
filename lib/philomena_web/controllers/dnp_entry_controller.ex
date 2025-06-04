@@ -130,10 +130,11 @@ defmodule PhilomenaWeb.DnpEntryController do
   end
 
   defp selectable_tags(conn) do
-    case present?(conn.params["tag_id"]) and
-           Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
-      true -> [Repo.get!(Tag, conn.params["tag_id"])]
-      false -> linked_tags(conn)
+    if present?(conn.params["tag_id"]) and
+         Canada.Can.can?(conn.assigns.current_user, :index, DnpEntry) do
+      [Repo.get!(Tag, conn.params["tag_id"])]
+    else
+      linked_tags(conn)
     end
   end
 
@@ -150,16 +151,14 @@ defmodule PhilomenaWeb.DnpEntryController do
   defp present?(_), do: true
 
   defp set_mod_notes(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
-      true ->
-        dnp_entry = conn.assigns.dnp_entry
+    if Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      dnp_entry = conn.assigns.dnp_entry
 
-        renderer = &MarkdownRenderer.render_collection(&1, conn)
-        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("DnpEntry", dnp_entry.id, renderer)
-        assign(conn, :mod_notes, mod_notes)
-
-      _false ->
-        conn
+      renderer = &MarkdownRenderer.render_collection(&1, conn)
+      mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("DnpEntry", dnp_entry.id, renderer)
+      assign(conn, :mod_notes, mod_notes)
+    else
+      conn
     end
   end
 

@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Image.TamperController do
       end
 
     %{
-      body: "Deleted #{vote_type} by #{data.username} on image >>#{data.image.id}",
+      body: "Deleted #{vote_type} by #{data.username} on image #{data.image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

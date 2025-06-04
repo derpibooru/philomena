@@ -12,11 +12,11 @@
     - else
       .label.label--danger.label--block.label--small: strong OFF AIR
 
-  = if @channel.nsfw do
-    .media-box__overlay
-      | NSFW
-
   .media-box__content.media-box__content--channel
+    = if @channel.nsfw do
+      .media-box__overlay
+        | NSFW
+
     a href=~p"/channels/#{@channel}"
       .image-constrained.media-box__content--channel
         img src=channel_image(@channel) alt="#{@channel.title}"

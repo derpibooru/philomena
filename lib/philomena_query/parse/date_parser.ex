@@ -33,9 +33,10 @@ defmodule PhilomenaQuery.Parse.DateParser do
   defp timezone_bounds([tz_off, tz_hour, tz_minute]), do: [tz_off, tz_hour, tz_minute]
 
   defp days_in_year(year) do
-    case Calendar.ISO.leap_year?(year) do
-      true -> 366
-      _ -> 365
+    if Calendar.ISO.leap_year?(year) do
+      366
+    else
+      365
     end
   end
 
@@ -104,18 +105,16 @@ defmodule PhilomenaQuery.Parse.DateParser do
   defp relative_datetime(rest, [count, scale], context, _line, _offset) do
     millennium_seconds = 31_536_000_000
 
-    case count * scale <= millennium_seconds do
-      true ->
-        now = DateTime.utc_now()
+    if count * scale <= millennium_seconds do
+      now = DateTime.utc_now()
 
-        lower = DateTime.add(now, (count + 1) * -scale, :second)
-        upper = DateTime.add(now, count * -scale, :second)
+      lower = DateTime.add(now, (count + 1) * -scale, :second)
+      upper = DateTime.add(now, count * -scale, :second)
 
-        {rest, [[lower, upper]], context}
-
-      _false ->
-        {:error,
-         "invalid date format in input; requested time #{count * scale} seconds is over a millennium ago"}
+      {rest, [[lower, upper]], context}
+    else
+      {:error,
+       "invalid date format in input; requested time #{count * scale} seconds is over a millennium ago"}
     end
   end
 
@@ -203,7 +202,6 @@ defmodule PhilomenaQuery.Parse.DateParser do
       absolute_date,
       relative_date
     ])
-    |> repeat(space)
     |> eos()
     |> label(
       "a RFC3339 datetime fragment, like `2019-01-01', or relative date, like `3 days ago'"

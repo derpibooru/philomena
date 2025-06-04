@@ -5,25 +5,24 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
   def init([]), do: false
 
   def call(conn, _opts) do
-    case captcha_enabled?() do
-      true -> maybe_check_captcha(conn, conn.assigns.current_user)
-      false -> conn
+    if captcha_enabled?() do
+      maybe_check_captcha(conn, conn.assigns.current_user)
+    else
+      conn
     end
   end
 
   defp maybe_check_captcha(conn, nil) do
-    case valid_solution?(conn.params) do
-      true ->
-        conn
-
-      false ->
-        conn
-        |> put_flash(
-          :error,
-          "There was an error verifying you're not a robot. Please try again."
-        )
-        |> do_failure_response(conn.assigns.ajax?)
-        |> halt()
+    if valid_solution?(conn.params) do
+      conn
+    else
+      conn
+      |> put_flash(
+        :error,
+        "There was an error verifying you're not a robot. Please try again."
+      )
+      |> do_failure_response(conn.assigns.ajax?)
+      |> halt()
     end
   end
 

@@ -33,9 +33,10 @@ defmodule PhilomenaWeb.IpProfileController do
   end
 
   defp authorize_ip(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
-      true -> conn
+    if Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

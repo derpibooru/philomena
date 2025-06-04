@@ -32,7 +32,7 @@ div
   a.communication__interaction.post-reply href=link_path data-reply-url=link_path data-author=safe_author
     i.fa.fa-reply>
     ' Reply
-  
+
   = if can?(@conn, :edit, @post) do
     span.owner-options
       strong

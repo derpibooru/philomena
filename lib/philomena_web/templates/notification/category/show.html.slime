@@ -9,7 +9,7 @@ h1 Notification Area
         .block__header
           span.block__header__title = name_of_category(@category)
         .block__header.block__header__sub
-          = pagination
+          .page__pagination = pagination
 
         div
           = for notification <- @notifications do
@@ -17,7 +17,7 @@ h1 Notification Area
               = render PhilomenaWeb.NotificationView, notification_template_path(@category), notification: notification, conn: @conn
 
         .block__header.block__header--light
-          = pagination
+          .page__pagination = pagination
 
     - true ->
       p You currently have no notifications of this category.

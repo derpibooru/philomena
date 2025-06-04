@@ -1,12 +1,14 @@
 - route = fn p -> ~p"/admin/mod_notes?#{p}" end
 - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @mod_notes, route: route, conn: @conn
 
-h2 Mod Notes
+h1 Mod Notes
 
 .block
   .block__header
-    span.block__header__title Mod Notes
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
+
+  .block__header.block__header--light
+    .page__pagination = pagination

@@ -20,7 +20,6 @@ ul
 h2 Actions
 ul
   li = link "Revert all tag changes", to: ~p"/tag_changes/full_revert?#{[fingerprint: @fingerprint]}", data: [confirm: "Are you really, really sure?", method: "create"]
-  li = link "...the button above didn't work (use carefully, this is resource-intensive)", to: ~p"/tag_changes/full_revert?#{[fingerprint: @fingerprint, batch_size: 1]}", data: [confirm: "Please confirm that you're aware that this may crash the site and are ready to take on the full wrath of the admins if it does so after you press this button.", method: "create"]
 
 h4 Observed users
 table.table

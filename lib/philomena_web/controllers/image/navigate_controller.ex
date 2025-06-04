@@ -41,7 +41,7 @@ defmodule PhilomenaWeb.Image.NavigateController do
 
     page_num = page_for_offset(pagination.page_size, images.total_entries)
 
-    redirect(conn, to: ~p"/search?#{[q: "*", page: page_num]}")
+    redirect(conn, to: ~p"/search?#{[q: "*", page: page_num, sf: "id"]}")
   end
 
   defp page_for_offset(per_page, offset) do
@@ -65,9 +65,10 @@ defmodule PhilomenaWeb.Image.NavigateController do
   defp match_all_if_blank(nil), do: "*"
 
   defp match_all_if_blank(input) do
-    case String.trim(input) == "" do
-      true -> "*"
-      false -> input
+    if String.trim(input) == "" do
+      "*"
+    else
+      input
     end
   end
 end

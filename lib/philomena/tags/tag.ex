@@ -230,9 +230,10 @@ defmodule Philomena.Tags.Tag do
     do: original_name
 
   defp ununderscore(name) do
-    case String.starts_with?(name, @underscore_safe_namespaces) do
-      true -> name
-      false -> String.replace(name, "_", " ")
+    if String.starts_with?(name, @underscore_safe_namespaces) do
+      name
+    else
+      String.replace(name, "_", " ")
     end
   end
 

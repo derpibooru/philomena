@@ -73,6 +73,9 @@
     --danger-light-color: hsl(from $danger-color h s calc(l + 4));
     --warning-light-color: hsl(from $warning-color h s calc(l + 6));
 
+    --success-muted-color: hsl(from $success-color h calc(s - 35) calc(l + 17));
+    --danger-muted-color: hsl(from $danger-color h calc(s - 30) calc(l + 8));
+
     --link-dark-color: hsl(from $link-color h s calc(l - 20));
     --link-hover-dark-color: hsl(from $link-hover-color h s calc(l - 20));
 

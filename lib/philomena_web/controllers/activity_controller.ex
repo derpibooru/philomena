@@ -20,10 +20,8 @@ defmodule PhilomenaWeb.ActivityController do
   def index(conn, _params) do
     user = conn.assigns.current_user
 
-    {:ok, {images, _tags}} =
-      ImageLoader.search_string(
-        conn,
-        "created_at.lte:3 minutes ago, -thumbnails_generated:false",
+    {images, _tags} =
+      ImageLoader.default_query(conn,
         pagination: %{conn.assigns.image_pagination | page_number: 1}
       )
 

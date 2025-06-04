@@ -136,16 +136,18 @@ defmodule PhilomenaWeb.Image.CommentController do
     image = conn.assigns.image
 
     image =
-      case is_nil(image.duplicate_id) do
-        true -> image
-        _false -> Images.get_image!(image.duplicate_id)
+      if is_nil(image.duplicate_id) do
+        image
+      else
+        Images.get_image!(image.duplicate_id)
       end
 
     conn = assign(conn, :image, image)
 
-    case Canada.Can.can?(conn.assigns.current_user, :show, image) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :show, image) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

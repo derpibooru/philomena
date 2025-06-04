@@ -15,7 +15,7 @@ function confirm(event: Event, target: HTMLElement) {
   }
 }
 
-function disable(event: Event, target: HTMLAnchorElement | HTMLButtonElement | HTMLInputElement) {
+function disable(_event: Event, target: HTMLAnchorElement | HTMLButtonElement | HTMLInputElement) {
   // failed validations prevent the form from being submitted;
   // stop here or the form will be permanently locked
   if (target.type === 'submit' && target.closest(':invalid') !== null) return;

@@ -247,46 +247,42 @@ defmodule PhilomenaWeb.ProfileController do
   end
 
   defp set_admin_metadata(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, User) do
-      true ->
-        user = Repo.preload(conn.assigns.user, [:current_filter])
-        filter = user.current_filter
+    if Canada.Can.can?(conn.assigns.current_user, :index, User) do
+      user = Repo.preload(conn.assigns.user, [:current_filter])
+      filter = user.current_filter
 
-        last_ip =
-          UserIp
-          |> where(user_id: ^user.id)
-          |> order_by(desc: :updated_at)
-          |> limit(1)
-          |> Repo.one()
+      last_ip =
+        UserIp
+        |> where(user_id: ^user.id)
+        |> order_by(desc: :updated_at)
+        |> limit(1)
+        |> Repo.one()
 
-        last_fp =
-          UserFingerprint
-          |> where(user_id: ^user.id)
-          |> order_by(desc: :updated_at)
-          |> limit(1)
-          |> Repo.one()
+      last_fp =
+        UserFingerprint
+        |> where(user_id: ^user.id)
+        |> order_by(desc: :updated_at)
+        |> limit(1)
+        |> Repo.one()
 
-        conn
-        |> assign(:filter, filter)
-        |> assign(:last_ip, last_ip)
-        |> assign(:last_fp, last_fp)
-
-      _false ->
-        conn
+      conn
+      |> assign(:filter, filter)
+      |> assign(:last_ip, last_ip)
+      |> assign(:last_fp, last_fp)
+    else
+      conn
     end
   end
 
   defp set_mod_notes(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
-      true ->
-        renderer = &MarkdownRenderer.render_collection(&1, conn)
-        user = conn.assigns.user
+    if Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      renderer = &MarkdownRenderer.render_collection(&1, conn)
+      user = conn.assigns.user
 
-        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", user.id, renderer)
-        assign(conn, :mod_notes, mod_notes)
-
-      _false ->
-        conn
+      mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("User", user.id, renderer)
+      assign(conn, :mod_notes, mod_notes)
+    else
+      conn
     end
   end
 end

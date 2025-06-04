@@ -5,6 +5,7 @@ defmodule PhilomenaWeb.ImageController do
   alias PhilomenaWeb.CommentLoader
   alias PhilomenaWeb.NotificationCountPlug
   alias PhilomenaWeb.MarkdownRenderer
+  alias PhilomenaWeb.ImageScope
 
   alias Philomena.{
     Images,
@@ -37,8 +38,7 @@ defmodule PhilomenaWeb.ImageController do
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
   def index(conn, _params) do
-    {:ok, {images, _tags}} =
-      ImageLoader.search_string(conn, "created_at.lte:3 minutes ago, -thumbnails_generated:false")
+    {images, _tags} = ImageLoader.default_query(conn)
 
     images = Search.search_records(images, preload(Image, [:sources, tags: :aliases]))
 
@@ -48,7 +48,8 @@ defmodule PhilomenaWeb.ImageController do
       title: "Images",
       layout_class: "layout--wide",
       images: images,
-      interactions: interactions
+      interactions: interactions,
+      scope: ImageScope.scope(conn)
     )
   end
 

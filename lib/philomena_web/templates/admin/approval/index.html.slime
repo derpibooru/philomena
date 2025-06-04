@@ -5,7 +5,7 @@ h1 Approval Queue
 
 .block
   .block__header
-    = pagination
+    .page__pagination = pagination
 
   = if Enum.any?(@images) do
     = render PhilomenaWeb.Admin.ApprovalView, "_approvals.html", images: @images, conn: @conn
@@ -13,4 +13,4 @@ h1 Approval Queue
     ' No images are pending approval. Good job!
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

@@ -23,11 +23,11 @@ function dragOver(event: DragEvent) {
   }
 }
 
-function dragEnter(event: DragEvent, target: HTMLElement) {
+function dragEnter(_event: DragEvent, target: HTMLElement) {
   target.classList.add('over');
 }
 
-function dragLeave(event: DragEvent, target: HTMLElement) {
+function dragLeave(_event: DragEvent, target: HTMLElement) {
   target.classList.remove('over');
 }
 
@@ -52,7 +52,7 @@ function drop(event: DragEvent, target: HTMLElement) {
   }
 }
 
-function dragEnd(event: DragEvent, target: HTMLElement) {
+function dragEnd(_event: DragEvent, target: HTMLElement) {
   clearDragSource();
 
   if (target.parentNode) {

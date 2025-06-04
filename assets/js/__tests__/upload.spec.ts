@@ -6,7 +6,6 @@ import { fixEventListeners } from '../../test/fix-event-listeners';
 import { fireEvent, waitFor } from '@testing-library/dom';
 import { promises } from 'fs';
 import { join } from 'path';
-
 import { setupImageUpload } from '../upload';
 
 /* eslint-disable camelcase */

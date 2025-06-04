@@ -38,27 +38,26 @@ h1
   = if length(@spoilered_tags) > 0 or !!@filter.spoilered_complex_str do
     h5 This filter spoilers...
 
-    = for tag <- @spoilered_tags do
-      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+    .tag-list
+      = for tag <- @spoilered_tags do
+        = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     pre.spoiler-filter-code
       = @filter.spoilered_complex_str
 
   - else
     p This filter doesn't spoiler any tags.
 
-
   = if length(@hidden_tags) > 0 or !!@filter.hidden_complex_str do
     h5 This filter hides...
 
-    = for tag <- @hidden_tags do
-      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+    .tag-list
+      = for tag <- @hidden_tags do
+        = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     pre.spoiler-filter-code
       = @filter.hidden_complex_str
 
   - else
     p This filter doesn't hide any tags.
-
-
 
 /p = link("Report filter to moderators", new_report_path(reportable_class: 'filter', reportable_id: @filter.id)
 p = link("Back to filters", to: ~p"/filters")

@@ -56,16 +56,18 @@ defmodule Philomena.PollVotes do
     end)
     |> Multi.run(:ended, fn _repo, _changes ->
       # Bail if poll is no longer active
-      case Polls.active?(poll) do
-        false -> {:error, []}
-        _true -> {:ok, []}
+      if Polls.active?(poll) do
+        {:ok, []}
+      else
+        {:error, []}
       end
     end)
     |> Multi.run(:existing_votes, fn _repo, _changes ->
       # Don't proceed if any votes exist
-      case voted?(poll, user) do
-        true -> {:error, []}
-        _false -> {:ok, []}
+      if voted?(poll, user) do
+        {:error, []}
+      else
+        {:ok, []}
       end
     end)
     |> Multi.run(:new_votes, fn repo, _changes ->

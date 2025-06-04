@@ -102,16 +102,18 @@ defmodule PhilomenaWeb.Admin.FingerprintBanController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, FingerprintBan) do
-      true -> conn
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, FingerprintBan) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
   defp check_can_delete(conn, _opts) do
-    case conn.assigns.current_user.role == "admin" do
-      true -> conn
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if conn.assigns.current_user.role == "admin" do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 

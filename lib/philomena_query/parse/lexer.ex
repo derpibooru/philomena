@@ -3,8 +3,6 @@ defmodule PhilomenaQuery.Parse.Lexer do
 
   import NimbleParsec
 
-  defp to_number(input), do: PhilomenaQuery.Parse.Helpers.to_number(input)
-
   space =
     choice([string(" "), string("\t"), string("\n"), string("\r"), string("\v"), string("\f")])
     |> ignore()
@@ -14,7 +12,7 @@ defmodule PhilomenaQuery.Parse.Lexer do
     |> ascii_string([?0..?9], min: 1)
     |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
-    |> reduce(:to_number)
+    |> reduce({PhilomenaQuery.Parse.Helpers, :to_number, []})
 
   l_and =
     times(space, min: 1)

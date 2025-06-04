@@ -2,6 +2,7 @@
  * Fancy tag editor.
  */
 
+import { normalizedKeyboardKey, keys } from './utils/keyboard';
 import { assertNotNull, assertType } from './utils/assert';
 import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
 
@@ -70,23 +71,22 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
   }
 
   function handleKeyEvent(event: KeyboardEvent) {
-    const { keyCode, ctrlKey, shiftKey } = event;
+    const { ctrlKey, shiftKey } = event;
+    const key = normalizedKeyboardKey(event);
 
     // allow form submission with ctrl+enter if no text was typed
-    if (keyCode === 13 && ctrlKey && inputField.value === '') {
+    if (key === keys.Enter && ctrlKey && inputField.value === '') {
       return;
     }
 
-    // backspace on a blank input field
-    if (keyCode === 8 && inputField.value === '') {
+    if (key === keys.Backspace && inputField.value === '') {
       event.preventDefault();
       const erased = $<HTMLElement>('.tag:last-of-type', container);
 
       if (erased) removeTag(tags[tags.length - 1], erased);
     }
 
-    // enter or comma
-    if (keyCode === 13 || (keyCode === 188 && !shiftKey)) {
+    if (key === keys.Enter || (key === keys.Comma && !shiftKey)) {
       event.preventDefault();
       inputField.value.split(',').forEach(t => insertTag(t));
       inputField.value = '';
@@ -94,8 +94,9 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
   }
 
   function handleCtrlEnter(event: KeyboardEvent) {
-    const { keyCode, ctrlKey } = event;
-    if (keyCode !== 13 || !ctrlKey) return;
+    const { ctrlKey } = event;
+
+    if (normalizedKeyboardKey(event) !== keys.Enter || !ctrlKey) return;
 
     submitButton.click();
   }

@@ -7,9 +7,10 @@ defmodule PhilomenaWeb.SourceChangeView do
         source_change.user.role != "user" and not source_change.user.hide_default_role
 
   def user_column_class(source_change) do
-    case staff?(source_change) do
-      true -> "success"
-      false -> nil
+    if staff?(source_change) do
+      "success"
+    else
+      nil
     end
   end
 end

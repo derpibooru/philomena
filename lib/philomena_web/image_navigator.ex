@@ -9,7 +9,7 @@ defmodule PhilomenaWeb.ImageNavigator do
   }
 
   def find_consecutive(conn, image, compiled_query, compiled_filter) do
-    conn = update_in(conn.params, &Map.put_new(&1, "sf", "id"))
+    conn = update_in(conn.params, &Map.put_new(&1, "sf", "first_seen_at"))
 
     %{query: compiled_query, sorts: sorts} = ImageSorter.parse_sort(conn.params, compiled_query)
 
@@ -22,7 +22,7 @@ defmodule PhilomenaWeb.ImageNavigator do
       conn.params["sort"]
       |> permit_list()
       |> Enum.flat_map(&permit_value/1)
-      |> default_value(image.id)
+      |> default_cursors(conn.params["sf"], image)
 
     maybe_search_after(
       Image,
@@ -62,6 +62,13 @@ defmodule PhilomenaWeb.ImageNavigator do
     []
   end
 
+  defp default_cursors([], "id", image), do: [image.id]
+
+  defp default_cursors([], "first_seen_at", image),
+    do: [image.first_seen_at |> DateTime.to_unix(:millisecond), image.id]
+
+  defp default_cursors(list, _sf, _image), do: list
+
   defp apply_direction({"galleries.position", sort_body}, rel) do
     sort_body = update_in(sort_body.order, fn direction -> @order_for_dir[rel][direction] end)
 
@@ -77,9 +84,6 @@ defmodule PhilomenaWeb.ImageNavigator do
 
   defp permit_value(value) when is_binary(value) or is_number(value), do: [value]
   defp permit_value(_value), do: []
-
-  defp default_value([], term), do: [term]
-  defp default_value(list, _term), do: list
 
   defp hidden_filter(%{id: id}, param) when param != "1", do: %{term: %{hidden_by_user_ids: id}}
   defp hidden_filter(_user, _param), do: %{match_none: %{}}

@@ -14,6 +14,7 @@ defmodule PhilomenaQuery.Parse.Parser do
   - Dates (absolute and relative, time points and ranges)
   - Floats
   - Integers
+  - Numerics
   - IP Addresses
   - Literal text
   - Stemmed text
@@ -33,6 +34,7 @@ defmodule PhilomenaQuery.Parse.Parser do
     DateParser,
     FloatParser,
     IntParser,
+    NumericParser,
     IpParser,
     Lexer,
     LiteralParser,
@@ -90,6 +92,7 @@ defmodule PhilomenaQuery.Parse.Parser do
           date_fields: [String.t()],
           float_fields: [String.t()],
           int_fields: [String.t()],
+          numeric_fields: [String.t()],
           ip_fields: [String.t()],
           literal_fields: [String.t()],
           ngram_fields: [String.t()],
@@ -108,6 +111,7 @@ defmodule PhilomenaQuery.Parse.Parser do
     date_fields: [],
     float_fields: [],
     int_fields: [],
+    numeric_fields: [],
     ip_fields: [],
     literal_fields: [],
     ngram_fields: [],
@@ -131,7 +135,8 @@ defmodule PhilomenaQuery.Parse.Parser do
   Available options:
   - `bool_fields` - a list of field names parsed as booleans
   - `float_fields` - a list of field names parsed as floats
-  - `int_fields` - a list of field names parsed as integers
+  - `int_fields` - a list of field names parsed as signed integers
+  - `numeric_fields` - a list of field names parsed as numeric values (unsigned integers without fuzzing or range queries)
   - `ip_fields` - a list of field names parsed as IP CIDR masks
   - `literal_fields` - wildcardable fields which are searched as the exact value
   - `ngram_fields` - wildcardable fields which are searched as stemmed values
@@ -164,6 +169,7 @@ defmodule PhilomenaQuery.Parse.Parser do
         Enum.map(parser.date_fields, fn f -> {f, DateParser} end) ++
         Enum.map(parser.float_fields, fn f -> {f, FloatParser} end) ++
         Enum.map(parser.int_fields, fn f -> {f, IntParser} end) ++
+        Enum.map(parser.numeric_fields, fn f -> {f, NumericParser} end) ++
         Enum.map(parser.ip_fields, fn f -> {f, IpParser} end) ++
         Enum.map(parser.literal_fields, fn f -> {f, LiteralParser} end) ++
         Enum.map(parser.ngram_fields, fn f -> {f, NgramParser} end) ++
@@ -436,6 +442,12 @@ defmodule PhilomenaQuery.Parse.Parser do
 
   defp field_type(_parser, [{IntParser, field_name}, range: _range, int_range: _value]),
     do: {:error, "multiple ranges specified for " <> field_name}
+
+  defp field_type(parser, [{NumericParser, field_name}, range: :eq, numeric: value]),
+    do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}
+
+  defp field_type(_parser, [{NumericParser, field_name}, _range, _value]),
+    do: {:error, "range specified for " <> field_name}
 
   defp field_type(parser, [{FloatParser, field_name}, range: :eq, float: value]),
     do: {:ok, {%{term: %{field(parser, field_name) => value}}, []}}

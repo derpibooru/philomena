@@ -52,9 +52,10 @@ defmodule PhilomenaWeb.CurrentFilterPlug do
         nil
 
       filter ->
-        case Canada.Can.can?(user, :show, filter) do
-          true -> filter
-          false -> nil
+        if Canada.Can.can?(user, :show, filter) do
+          filter
+        else
+          nil
         end
     end
   end

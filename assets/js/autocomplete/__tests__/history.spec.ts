@@ -1,12 +1,10 @@
-import { init } from './context';
+import { autocompleteTest } from './context';
 
-it('records search history', async () => {
-  const ctx = await init();
-
+autocompleteTest('records search history', async ({ ctx, expect }) => {
   await ctx.submitForm('foo1');
 
   // Empty input should show all latest history items
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "",
       "suggestions": [
@@ -17,7 +15,7 @@ it('records search history', async () => {
 
   await ctx.submitForm('foo2');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "",
       "suggestions": [
@@ -29,7 +27,7 @@ it('records search history', async () => {
 
   await ctx.submitForm('a complex OR (query AND bar)');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "",
       "suggestions": [
@@ -43,7 +41,7 @@ it('records search history', async () => {
   // Last recently used item should be on top
   await ctx.submitForm('foo2');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "",
       "suggestions": [
@@ -56,7 +54,7 @@ it('records search history', async () => {
 
   await ctx.setInput('a com');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "a com<>",
       "suggestions": [
@@ -67,7 +65,7 @@ it('records search history', async () => {
 
   await ctx.setInput('f');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "f<>",
       "suggestions": [
@@ -85,7 +83,7 @@ it('records search history', async () => {
   // History items must be selectable
   await ctx.keyDown('ArrowDown');
 
-  ctx.expectUi().toMatchInlineSnapshot(`
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
     {
       "input": "foo2<>",
       "suggestions": [

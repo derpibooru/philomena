@@ -212,6 +212,12 @@ nav {
 
   .footercol {
     margin-left: 15px;
+    line-height: 1.35;
+  }
+
+  .footercol a {
+    margin-left: 1rem;
+    font-size: 14px;
   }
 }
 
@@ -250,6 +256,14 @@ nav {
 
 .flex--spaced-out {
   justify-content: space-between;
+}
+
+.flex--gap-small {
+  gap: var(--padding-small);
+}
+
+.flex--gap-normal {
+  gap: var(--padding-normal);
 }
 
 .grid {

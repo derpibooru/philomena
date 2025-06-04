@@ -1,6 +1,6 @@
 .block
   .block__header
-    = @pagination
+    .page__pagination = @pagination
 
   .block__content
     table.table
@@ -46,5 +46,5 @@
                   br
                   ' Ask them before reverting their changes.
 
-  .block__header
-    = @pagination
+  .block__header.block__header--light
+    .page__pagination = @pagination

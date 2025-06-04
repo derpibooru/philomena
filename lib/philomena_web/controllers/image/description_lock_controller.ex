@@ -28,8 +28,8 @@ defmodule PhilomenaWeb.Image.DescriptionLockController do
   defp log_details(action, image) do
     body =
       case action do
-        :create -> "Locked description editing on image >>#{image.id}"
-        :delete -> "Unlocked description editing on image >>#{image.id}"
+        :create -> "Locked description editing on image #{image.id}"
+        :delete -> "Unlocked description editing on image #{image.id}"
       end
 
     %{

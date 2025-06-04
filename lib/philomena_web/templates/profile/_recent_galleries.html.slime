@@ -4,6 +4,6 @@
       span.block__header__title Recent Galleries
       = link "View all", to: ~p"/galleries?#{[gallery: [creator: @user.name]]}"
 
-    .block__content.js-resizable-media-container
+    .block__content.media-list
       = for gallery <- @galleries do
         = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn

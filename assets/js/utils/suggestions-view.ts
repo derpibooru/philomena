@@ -56,13 +56,16 @@ export class TagSuggestionComponent {
   }
 
   static renderImageCount(count: number): string {
-    // We use the 'fr' (French) number formatting style with space-separated
-    // groups of 3 digits.
-    const formatter = new Intl.NumberFormat('fr', { useGrouping: true });
+    // The old implementation here was using new Intl.NumberFormat('fr'), but we
+    // moved to a manual impl here to avoid platform-specific differences in
+    // `Intl` implementation. It depends on the ICU package availability.
+    const chars = [...count.toString()];
 
-    // Normalize the whitespace with a `.replace()`. We'll use CSS to guarantee
-    // a smaller spacing between the groups of digits.
-    return formatter.format(count).replace(/\s/g, ' ');
+    for (let i = chars.length - 3; i > 0; i -= 3) {
+      chars.splice(i, 0, ' ');
+    }
+
+    return chars.join('');
   }
 }
 
@@ -131,7 +134,7 @@ export class SuggestionsPopupComponent {
    * Index of the currently selected suggestion. -1 means an imaginary item
    * before the first item that represents the state where no item is selected.
    */
-  private cursor: number = -1;
+  private cursor = -1;
   private items: SuggestionItem[];
   private readonly container: HTMLElement;
 

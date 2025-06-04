@@ -1,5 +1,8 @@
 # VSCode supports `jsonc` for all of its JSON files
 .vscode/*.json linguist-language=jsonc
 
+# tsconfig is actually in `jsonc` format
+.tsconfig*.json linguist-language=jsonc
+
 # We use PostCSS for CSS files
 *.css linguist-language=PostCSS

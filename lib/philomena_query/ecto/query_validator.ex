@@ -62,6 +62,9 @@ defmodule PhilomenaQuery.Ecto.QueryValidator do
          {:ok, _} <- callback.(value) do
       changeset
     else
+      {:error, msg} ->
+        add_error(changeset, attr, "is invalid: #{msg}")
+
       _ ->
         add_error(changeset, attr, "is invalid")
     end

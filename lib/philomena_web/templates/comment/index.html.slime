@@ -31,7 +31,7 @@ h2 Search Results
     p
       ' Oops, there was an error evaluating your query:
     pre = assigns[:error]
-  
+
   - true ->
     p
       ' No comments found!

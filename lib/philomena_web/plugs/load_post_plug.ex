@@ -27,9 +27,10 @@ defmodule PhilomenaWeb.LoadPostPlug do
     do: assign(conn, :post, post)
 
   defp maybe_hide_post(post, %{assigns: %{current_user: user}} = conn, show_hidden) do
-    case show_hidden or can?(user, :show, post) do
-      true -> assign(conn, :post, post)
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if show_hidden or can?(user, :show, post) do
+      assign(conn, :post, post)
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

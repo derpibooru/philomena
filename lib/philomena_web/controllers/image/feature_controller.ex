@@ -21,21 +21,19 @@ defmodule PhilomenaWeb.Image.FeatureController do
   end
 
   defp verify_not_deleted(conn, _opts) do
-    case conn.assigns.image.hidden_from_users do
-      true ->
-        conn
-        |> put_flash(:error, "Cannot feature a hidden image.")
-        |> redirect(to: ~p"/images/#{conn.assigns.image}")
-        |> halt()
-
-      _false ->
-        conn
+    if conn.assigns.image.hidden_from_users do
+      conn
+      |> put_flash(:error, "Cannot feature a deleted image.")
+      |> redirect(to: ~p"/images/#{conn.assigns.image}")
+      |> halt()
+    else
+      conn
     end
   end
 
   defp log_details(_action, image) do
     %{
-      body: "Featured image >>#{image.id}",
+      body: "Featured image #{image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

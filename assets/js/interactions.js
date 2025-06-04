@@ -53,6 +53,7 @@ function cacheStatus(imageId, interactionType, value) {
 
 function uncacheStatus(imageId, interactionType) {
   modifyCache(cache => {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     delete cache[`${imageId}${interactionType}`];
     return cache;
   });

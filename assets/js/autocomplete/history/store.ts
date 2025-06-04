@@ -26,7 +26,7 @@ interface History {
  * data loss (extremely improbable, but just in case).
  */
 export class HistoryStore {
-  private writable: boolean = true;
+  private writable = true;
   private readonly key: string;
 
   constructor(key: string) {

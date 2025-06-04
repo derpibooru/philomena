@@ -55,7 +55,7 @@ defmodule PhilomenaWeb.FilterForcedUsersPlug do
   defp compile_filter(user, search_string) do
     search_string
     |> String.normalize()
-    |> Query.compile(user: user)
+    |> Query.compile(user: user, filter: true)
     |> case do
       {:ok, query} -> query
       _error -> %{match_all: %{}}

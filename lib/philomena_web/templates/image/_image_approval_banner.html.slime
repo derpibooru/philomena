@@ -2,7 +2,7 @@
   .block.block--fixed.block--warning
     h2 Hold up!
     p This image is pending approval from a staff member. It will appear on the site once it's reviewed and approved.
-    p 
+    p
       ' Don't worry,
       strong
         ' the image will not lose any viewership,

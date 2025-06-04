@@ -4,13 +4,11 @@ defmodule PhilomenaQuery.Parse.LiteralParser do
   import NimbleParsec
   @dialyzer [:no_match, :no_unused]
 
-  defp to_number(input), do: PhilomenaQuery.Parse.Helpers.to_number(input)
-
   float =
     ascii_string([?0..?9], min: 1)
     |> optional(ascii_char(~c".") |> ascii_string([?0..?9], min: 1))
     |> reduce({List, :to_string, []})
-    |> reduce(:to_number)
+    |> reduce({PhilomenaQuery.Parse.Helpers, :to_number, []})
 
   edit_distance =
     ignore(string("~"))

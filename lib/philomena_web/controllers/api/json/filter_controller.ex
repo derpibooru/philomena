@@ -14,14 +14,12 @@ defmodule PhilomenaWeb.Api.Json.FilterController do
       |> preload(:user)
       |> Repo.one()
 
-    case Canada.Can.can?(user, :show, filter) do
-      true ->
-        render(conn, "show.json", filter: filter)
-
-      _ ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
+    if Canada.Can.can?(user, :show, filter) do
+      render(conn, "show.json", filter: filter)
+    else
+      conn
+      |> put_status(:not_found)
+      |> text("")
     end
   end
 end

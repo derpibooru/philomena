@@ -49,12 +49,10 @@ defmodule Philomena.Images.TagValidator do
   end
 
   defp validate_number_of_tags(changeset, tag_set, num) do
-    cond do
-      MapSet.size(tag_set) < num ->
-        add_error(changeset, :tag_input, "must contain at least #{num} tags")
-
-      true ->
-        changeset
+    if MapSet.size(tag_set) < num do
+      add_error(changeset, :tag_input, "must contain at least #{num} tags")
+    else
+      changeset
     end
   end
 
@@ -62,56 +60,46 @@ defmodule Philomena.Images.TagValidator do
     bad_words = MapSet.new(Config.get(:tag)["blacklist"])
     intersection = MapSet.intersection(tag_set, bad_words)
 
-    cond do
-      MapSet.size(intersection) > 0 ->
-        Enum.reduce(
-          intersection,
-          changeset,
-          &add_error(&2, :tag_input, "contains forbidden tag `#{&1}'")
-        )
-
-      true ->
-        changeset
+    if MapSet.size(intersection) > 0 do
+      Enum.reduce(
+        intersection,
+        changeset,
+        &add_error(&2, :tag_input, "contains forbidden tag `#{&1}'")
+      )
+    else
+      changeset
     end
   end
 
   defp validate_has_rating(changeset, %{safe: s, sexual: x, horror: h, gross: g}) do
-    cond do
-      MapSet.size(s) > 0 or MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0 ->
-        changeset
-
-      true ->
-        add_error(changeset, :tag_input, "must contain at least one rating tag")
+    if MapSet.size(s) > 0 or MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0 do
+      changeset
+    else
+      add_error(changeset, :tag_input, "must contain at least one rating tag")
     end
   end
 
   defp validate_safe(changeset, %{safe: s, sexual: x, horror: h, gross: g}) do
-    cond do
-      MapSet.size(s) > 0 and (MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0) ->
-        add_error(changeset, :tag_input, "may not contain any other rating if safe")
-
-      true ->
-        changeset
+    if MapSet.size(s) > 0 and (MapSet.size(x) > 0 or MapSet.size(h) > 0 or MapSet.size(g) > 0) do
+      add_error(changeset, :tag_input, "may not contain any other rating if safe")
+    else
+      changeset
     end
   end
 
   defp validate_sexual_exclusion(changeset, %{sexual: x}) do
-    cond do
-      MapSet.size(x) > 1 ->
-        add_error(changeset, :tag_input, "may contain at most one sexual rating")
-
-      true ->
-        changeset
+    if MapSet.size(x) > 1 do
+      add_error(changeset, :tag_input, "may contain at most one sexual rating")
+    else
+      changeset
     end
   end
 
   defp validate_horror_exclusion(changeset, %{horror: h}) do
-    cond do
-      MapSet.size(h) > 1 ->
-        add_error(changeset, :tag_input, "may contain at most one grim rating")
-
-      true ->
-        changeset
+    if MapSet.size(h) > 1 do
+      add_error(changeset, :tag_input, "may contain at most one grim rating")
+    else
+      changeset
     end
   end
 

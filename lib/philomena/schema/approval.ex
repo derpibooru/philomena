@@ -19,15 +19,13 @@ defmodule Philomena.Schema.Approval do
     # 14 * 24 * 60 * 60
     two_weeks = 1_209_600
 
-    case String.match?(body, @image_embed_regex) do
-      true ->
-        case DateTime.compare(now, DateTime.add(user.created_at, two_weeks)) do
-          :gt -> change(changeset, approved: true)
-          _ -> change(changeset, approved: false)
-        end
-
-      _ ->
-        change(changeset, approved: true)
+    if String.match?(body, @image_embed_regex) do
+      case DateTime.compare(now, DateTime.add(user.created_at, two_weeks)) do
+        :gt -> change(changeset, approved: true)
+        _ -> change(changeset, approved: false)
+      end
+    else
+      change(changeset, approved: true)
     end
   end
 

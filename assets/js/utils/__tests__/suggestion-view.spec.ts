@@ -21,9 +21,7 @@ const mockedSuggestions: Suggestions = {
   ].map(suggestion => new TagSuggestionComponent(suggestion)),
 };
 
-function mockBaseSuggestionsPopup(
-  includeMockedSuggestions: boolean = false,
-): [SuggestionsPopupComponent, HTMLInputElement] {
+function mockBaseSuggestionsPopup(includeMockedSuggestions = false): [SuggestionsPopupComponent, HTMLInputElement] {
   const input = document.createElement('input');
   const popup = new SuggestionsPopupComponent();
 

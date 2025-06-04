@@ -27,16 +27,8 @@ defmodule PhilomenaMedia.Sha512 do
     |> Base.encode16(case: :lower)
   end
 
-  if Version.match?(System.version(), ">= 1.16.0") do
-    # `stream!/2` was added in Elixir 1.16 to accept a shortened form,
-    # where we only need to specify the size of each stream chunk
-    defp stream_file(file) do
-      File.stream!(file, @chunk_size)
-    end
-  else
-    # Use legacy stream/3 for older Elixir versions
-    defp stream_file(file) do
-      File.stream!(file, [], @chunk_size)
-    end
+  # sobelow_skip ["Traversal.FileModule"]
+  defp stream_file(file) do
+    File.stream!(file, @chunk_size)
   end
 end

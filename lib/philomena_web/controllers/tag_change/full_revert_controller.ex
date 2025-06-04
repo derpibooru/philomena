@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.TagChange.FullRevertController do
   use PhilomenaWeb, :controller
 
+  alias Philomena.Users
   alias Philomena.TagChanges.TagChange
   alias Philomena.TagChanges
 
@@ -28,13 +29,36 @@ defmodule PhilomenaWeb.TagChange.FullRevertController do
 
     conn
     |> put_flash(:info, "Reversion of tag changes enqueued.")
+    |> moderation_log(
+      details: &log_details/2,
+      data: %{user: conn.assigns.current_user, params: params}
+    )
     |> redirect(external: conn.assigns.referrer)
   end
 
   defp verify_authorized(conn, _params) do
-    case Canada.Can.can?(conn.assigns.current_user, :revert, TagChange) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :revert, TagChange) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(_action, data) do
+    {subject, subject_path} =
+      case data.params do
+        %{"user_id" => user_id} ->
+          user = Users.get_user!(user_id)
+
+          {"user #{user.name}", ~p"/profiles/#{user}"}
+
+        %{"ip" => ip} ->
+          {"ip #{ip}", ~p"/ip_profiles/#{ip}"}
+
+        %{"fingerprint" => fp} ->
+          {"fingerprint #{fp}", ~p"/fingerprint_profiles/#{fp}"}
+      end
+
+    %{body: "Reverted all tag changes for #{subject}", subject_path: subject_path}
   end
 end

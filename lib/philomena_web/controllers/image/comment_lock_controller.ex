@@ -28,8 +28,8 @@ defmodule PhilomenaWeb.Image.CommentLockController do
   defp log_details(action, image) do
     body =
       case action do
-        :create -> "Locked comments on image >>#{image.id}"
-        :delete -> "Unlocked comments on image >>#{image.id}"
+        :create -> "Locked comments on image #{image.id}"
+        :delete -> "Unlocked comments on image #{image.id}"
       end
 
     %{

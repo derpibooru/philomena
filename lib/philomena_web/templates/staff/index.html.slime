@@ -36,7 +36,7 @@ h1 Staff
                 = if unavailable?(user) do
                   .staff-block__avatar
                     .profile-block
-                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px avatar-disabled"
+                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px avatar-disabled", no_profile_link: true
                       b.staff-title-muted
                         => user.name
                         | (Unavailable)
@@ -45,7 +45,7 @@ h1 Staff
                 - else
                   .staff-block__avatar
                     a.profile-block href=~p"/profiles/#{user}"
-                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px"
+                      = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: user}, class: "avatar--125px", no_profile_link: true
                       p
                         b = user.name
                   .staff-block__info

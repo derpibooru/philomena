@@ -26,13 +26,15 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
 
     conn
     |> put_flash(:info, "User erase started")
+    |> moderation_log(details: &log_details/2, data: {conn.assigns.user, user})
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, User) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, User) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
@@ -67,5 +69,9 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
     else
       conn
     end
+  end
+
+  defp log_details(_action, {old_user, new_user}) do
+    %{body: "Erased #{old_user.name}", subject_path: ~p"/profiles/#{new_user}"}
   end
 end

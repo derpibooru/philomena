@@ -35,7 +35,7 @@ declare global {
  * @return The resulting hash as a 53-bit number.
  * @see {@link https://stackoverflow.com/a/52171480}
  */
-function cyrb53(str: string, seed: number = 0x16fe7b0a): number {
+function cyrb53(str: string, seed = 0x16fe7b0a): number {
   let h1 = 0xdeadbeef ^ seed;
   let h2 = 0x41c6ce57 ^ seed;
 

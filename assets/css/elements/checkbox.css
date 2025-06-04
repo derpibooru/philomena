@@ -1,0 +1,38 @@
+input[type="checkbox"].fancy-checkbox {
+  appearance: none;
+}
+
+.fancy-checkbox {
+  display: inline-block;
+  align-self: center;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  background: var(--input-color);
+  border: var(--checkbox-border-width) solid var(--input-border);
+  border-radius: var(--border-radius-checkbox);
+  transition:
+    background var(--transition-animation-duration) ease,
+    border-color var(--transition-animation-duration) ease;
+}
+
+.fancy-checkbox:checked,
+.fancy-checkbox:hover {
+  cursor: pointer;
+  background: var(--input-color-active);
+  border-color: var(--input-border-active);
+  transition:
+    background var(--transition-animation-duration) ease,
+    border-color var(--transition-animation-duration) ease;
+}
+
+.fancy-checkbox:checked:after {
+  content: "";
+  color: var(--foreground-color);
+  font-family: var(--fa-style-family, "Font Awesome 6 Free");
+  font-weight: var(--fa-style, 900);
+  text-align: center;
+  line-height: calc(var(--checkbox-size) - var(--checkbox-border-width) * 2);
+  display: block;
+  position: relative;
+  left: 0;
+}

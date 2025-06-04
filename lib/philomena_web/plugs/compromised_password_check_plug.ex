@@ -5,25 +5,24 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    case pwned_passwords_enabled?() do
-      true -> error_if_password_compromised(conn, conn.params)
-      false -> conn
+    if pwned_passwords_enabled?() do
+      error_if_password_compromised(conn, conn.params)
+    else
+      conn
     end
   end
 
   defp error_if_password_compromised(conn, %{"user" => %{"password" => password}}) do
-    case password_compromised?(password) do
-      true ->
-        conn
-        |> put_flash(
-          :error,
-          "We've detected that the password you entered has been compromised during a data breach of another website. Please choose a different password."
-        )
-        |> redirect(external: conn.assigns.referrer)
-        |> halt()
-
-      false ->
-        conn
+    if password_compromised?(password) do
+      conn
+      |> put_flash(
+        :error,
+        "We've detected that the password you entered has been compromised during a data breach of another website. Please choose a different password."
+      )
+      |> redirect(external: conn.assigns.referrer)
+      |> halt()
+    else
+      conn
     end
   end
 

@@ -3,10 +3,10 @@ defmodule Philomena.Reports.Query do
 
   defp fields do
     [
-      int_fields: ~W(id image_id),
+      int_fields: ~W(id),
+      numeric_fields: ~W(user_id admin_id reportable_id image_id),
       date_fields: ~W(created_at),
-      literal_fields:
-        ~W(state user user_id admin admin_id reportable_type reportable_id fingerprint),
+      literal_fields: ~W(state user admin reportable_type fingerprint),
       ip_fields: ~W(ip),
       bool_fields: ~W(open),
       ngram_fields: ~W(reason),

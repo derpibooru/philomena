@@ -53,8 +53,11 @@ elixir:
 
                     br
 
-                    = for item <- Enum.take_random(c.items, 5), not is_nil(item.example_image) do
-                      = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, size: :thumb_small, conn: @conn
+                    .media-list.media-list--small-fixed-size
+                      = for item <- Enum.take_random(c.items, 5), not is_nil(item.example_image) do
+                        .media-box
+                          .media-box__content.media-box__content--small
+                            = render PhilomenaWeb.ImageView, "_image_container.html", image: item.example_image, size: :thumb_small, conn: @conn
 
                   p
                     strong

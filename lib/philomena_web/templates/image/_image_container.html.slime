@@ -14,7 +14,7 @@
       .media-box__overlay
         strong Deleted:
         =< @image.deletion_reason
-        
+
     - true ->
 
   = case render_intent(@conn, @image, @size) do

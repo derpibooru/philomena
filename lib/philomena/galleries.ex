@@ -396,17 +396,15 @@ defmodule Philomena.Galleries do
       |> Enum.flat_map(fn {interaction, current_index} ->
         new_index = requested[interaction.image_id]
 
-        case new_index == current_index do
-          true ->
-            []
-
-          false ->
+        if new_index == current_index do
+          []
+        else
+          [
             [
-              [
-                id: interaction.id,
-                position: interaction_positions[new_index]
-              ]
+              id: interaction.id,
+              position: interaction_positions[new_index]
             ]
+          ]
         end
       end)
 

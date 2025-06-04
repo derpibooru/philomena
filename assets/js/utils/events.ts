@@ -63,6 +63,8 @@ export function oncePersistedPageShown(func: (e: PageTransitionEvent) => void) {
 export function delegate<K extends keyof PhilomenaAvailableEventsMap, Target extends Element>(
   node: PhilomenaEventElement,
   event: K,
+  // False positive lint - the callback can either return nothing (void) or boolean
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   selectors: Record<string, (e: PhilomenaAvailableEventsMap[K], target: Target) => void | boolean>,
 ) {
   node.addEventListener(event, e => {

@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.Admin.User.ActivationController do
 
     conn
     |> put_flash(:info, "User was reactivated.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
@@ -20,13 +21,25 @@ defmodule PhilomenaWeb.Admin.User.ActivationController do
 
     conn
     |> put_flash(:info, "User was deactivated.")
+    |> moderation_log(details: &log_details/2, data: user)
     |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, User) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, User) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
+  end
+
+  defp log_details(action, user) do
+    body =
+      case action do
+        :create -> "Reactivated #{user.name}"
+        :delete -> "Deactivated #{user.name}"
+      end
+
+    %{body: body, subject_path: ~p"/profiles/#{user}"}
   end
 end

@@ -1,9 +1,9 @@
 export type Compare<T> = (a: T, b: T) => number;
 export type Unique<T> = (a: T) => unknown;
-export type Collection<T> = {
+export interface Collection<T> {
   [index: number]: T;
   length: number;
-};
+}
 
 export class UniqueHeap<T> {
   private keys: Map<unknown, number>;

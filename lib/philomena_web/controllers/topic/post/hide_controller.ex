@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
     case Posts.hide_post(post, post_params, user) do
       {:ok, post} ->
         conn
-        |> put_flash(:info, "Post successfully hidden.")
+        |> put_flash(:info, "Post successfully deleted.")
         |> moderation_log(details: &log_details/2, data: post)
         |> redirect(
           to:
@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Unable to hide post!")
+        |> put_flash(:error, "Unable to delete post!")
         |> redirect(
           to:
             ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
@@ -44,7 +44,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
     case Posts.unhide_post(post) do
       {:ok, post} ->
         conn
-        |> put_flash(:info, "Post successfully unhidden.")
+        |> put_flash(:info, "Post successfully restored.")
         |> moderation_log(details: &log_details/2, data: post)
         |> redirect(
           to:
@@ -54,7 +54,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Unable to unhide post!")
+        |> put_flash(:error, "Unable to restore post!")
         |> redirect(
           to:
             ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
@@ -67,7 +67,7 @@ defmodule PhilomenaWeb.Topic.Post.HideController do
     body =
       case action do
         :create ->
-          "Hidden forum post ##{post.id} in topic '#{post.topic.title}' (#{post.deletion_reason})"
+          "Deleted forum post ##{post.id} in topic '#{post.topic.title}' (#{post.deletion_reason})"
 
         :delete ->
           "Restored forum post ##{post.id} in topic '#{post.topic.title}'"

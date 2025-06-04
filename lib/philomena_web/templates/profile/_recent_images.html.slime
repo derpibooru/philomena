@@ -5,6 +5,6 @@
       = if assigns[:view_all_path] do
         = link("View all", to: assigns[:view_all_path])
 
-    .block__content.js-resizable-media-container
+    .block__content.media-list
       = for image <- @images do
         = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb, conn: @conn

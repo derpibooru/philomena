@@ -88,11 +88,11 @@ describe('Image utils', () => {
     });
 
     describe('video thumbnail', () => {
-      type CreateMockElementsOptions = {
+      interface CreateMockElementsOptions {
         extension: string;
         videoClasses?: string[];
         imgClasses?: string[];
-      };
+      }
 
       const createMockElements = ({ videoClasses, imgClasses, extension }: CreateMockElementsOptions) => {
         const mockElement = document.createElement('div');

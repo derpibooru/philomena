@@ -8,7 +8,7 @@ p Verifying a link will automatically award an artist badge if the link is publi
     = submit "Search", class: "hform__button button"
 
 - route = fn p -> ~p"/admin/artist_links?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @artist_links, route: route, params: link_scope(@conn), conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @artist_links, route: route, params: scope(@conn), conn: @conn
 
 .block
   .block__header
@@ -17,7 +17,7 @@ p Verifying a link will automatically award an artist badge if the link is publi
     - else
       = link "Show all", to: ~p"/admin/artist_links?#{[all: "true"]}"
 
-    = pagination
+    .page__pagination = pagination
 
   .block__content
     table.table
@@ -75,4 +75,4 @@ p Verifying a link will automatically award an artist badge if the link is publi
               = public_text(link)
 
   .block__header.block__header--light
-    = pagination
+    .page__pagination = pagination

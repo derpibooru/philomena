@@ -10,7 +10,6 @@ defmodule PhilomenaWeb.Admin.ApprovalController do
   def index(conn, _params) do
     images =
       Image
-      |> where(hidden_from_users: false)
       |> where(approved: false)
       |> order_by(asc: :id)
       |> preload([:user, :sources, tags: [:aliases, :aliased_tag]])
@@ -20,9 +19,10 @@ defmodule PhilomenaWeb.Admin.ApprovalController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :approve, %Image{}) do
-      true -> conn
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :approve, %Image{}) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 end

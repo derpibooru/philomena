@@ -77,7 +77,7 @@ export function makeEl<Tag extends keyof HTMLElementTagNameMap>(
 }
 
 export function onLeftClick(
-  callback: (e: MouseEvent) => boolean | void,
+  callback: (e: MouseEvent) => void,
   context: Pick<GlobalEventHandlers, 'addEventListener' | 'removeEventListener'> = document,
 ): VoidFunction {
   const handler: typeof callback = event => {
@@ -112,9 +112,13 @@ export function findFirstTextNode<N extends Node>(of: Node): N {
 }
 
 export function hideIf(condition: boolean, element: HTMLElement) {
+  return setClassIf(condition, element, 'hidden');
+}
+
+export function setClassIf(condition: boolean, element: HTMLElement, className: string) {
   if (condition) {
-    element.classList.add('hidden');
+    element.classList.add(className);
   } else {
-    element.classList.remove('hidden');
+    element.classList.remove(className);
   }
 }

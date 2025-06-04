@@ -49,8 +49,8 @@ defmodule Philomena.Filters.Filter do
     |> validate_required([:name])
     |> validate_my_downvotes(:spoilered_complex_str)
     |> validate_my_downvotes(:hidden_complex_str)
-    |> validate_query(:spoilered_complex_str, &Query.compile(&1, user: user))
-    |> validate_query(:hidden_complex_str, &Query.compile(&1, user: user))
+    |> validate_query(:spoilered_complex_str, &Query.compile(&1, user: user, filter: true))
+    |> validate_query(:hidden_complex_str, &Query.compile(&1, user: user, filter: true))
     |> unsafe_validate_unique([:user_id, :name], Repo)
   end
 

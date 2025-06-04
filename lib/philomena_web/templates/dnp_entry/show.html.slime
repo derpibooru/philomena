@@ -35,7 +35,7 @@ h2
             td Reason:
             td
               = @reason
-        
+
         = if can?(@conn, :show_feedback, @dnp_entry) do
           tr
             td Instructions:

@@ -18,7 +18,7 @@ defmodule PhilomenaWeb.Image.HashController do
 
   defp log_details(_action, image) do
     %{
-      body: "Cleared hash of image >>#{image.id}",
+      body: "Cleared hash of image #{image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

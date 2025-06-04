@@ -26,21 +26,19 @@ defmodule PhilomenaWeb.Image.DestroyController do
   end
 
   defp verify_deleted(conn, _opts) do
-    case conn.assigns.image.hidden_from_users do
-      true ->
-        conn
-
-      _false ->
-        conn
-        |> put_flash(:error, "Cannot destroy a non-hidden image!")
-        |> redirect(to: ~p"/images/#{conn.assigns.image}")
-        |> halt()
+    if conn.assigns.image.hidden_from_users do
+      conn
+    else
+      conn
+      |> put_flash(:error, "Cannot destroy a non-deleted image!")
+      |> redirect(to: ~p"/images/#{conn.assigns.image}")
+      |> halt()
     end
   end
 
   defp log_details(_action, image) do
     %{
-      body: "Hard-deleted image >>#{image.id}",
+      body: "Hard-deleted image #{image.id}",
       subject_path: ~p"/images/#{image}"
     }
   end

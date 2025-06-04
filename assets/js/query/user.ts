@@ -14,7 +14,7 @@ function interactionMatch(
 
 export function makeUserMatcher(term: string): FieldMatcher {
   // Should work with most my:conditions except watched.
-  return (value, field, documentId) => {
+  return (_value, _field, documentId) => {
     switch (term) {
       case 'faves':
         return interactionMatch(documentId, 'faved', null, window.booru.interactions);

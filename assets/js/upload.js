@@ -3,6 +3,7 @@
  */
 
 import { assertNotNull } from './utils/assert';
+import { normalizedKeyboardKey, keys } from './utils/keyboard';
 import { fetchJson, handleError } from './utils/requests';
 import { $, $$, clearEl, hideEl, makeEl, showEl } from './utils/dom';
 import { addTag } from './tagsinput';
@@ -103,7 +104,7 @@ function setupImageUpload() {
 
   // Watch for files added to the form
   fileField.addEventListener('change', () => {
-    fileField.files.length && reader.readAsArrayBuffer(fileField.files[0]);
+    if (fileField.files.length) reader.readAsArrayBuffer(fileField.files[0]);
   });
 
   // Watch for [Fetch] clicks
@@ -143,7 +144,7 @@ function setupImageUpload() {
 
   // Fetch on "enter" in url field
   remoteUrl.addEventListener('keydown', event => {
-    if (event.keyCode === 13) {
+    if (normalizedKeyboardKey(event) === keys.Enter) {
       // Hit enter
       fetchButton.click();
     }

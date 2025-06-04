@@ -4,14 +4,14 @@ defmodule Philomena.MixProject do
   def project do
     [
       app: :philomena,
-      version: "1.1.2",
+      version: "1.2.0",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps(),
-      dialyzer: [plt_add_apps: [:mix]],
+      dialyzer: [plt_add_apps: [:ex_unit, :mix]],
       docs: [formatters: ["html"]]
     ]
   end

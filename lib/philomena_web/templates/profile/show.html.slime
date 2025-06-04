@@ -1,6 +1,6 @@
 .profile-top
   .profile-top__avatar
-    - avatar = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @user}, class: "avatar--125px"
+    - avatar = render PhilomenaWeb.UserAttributionView, "_user_avatar.html", object: %{user: @user}, class: "avatar--125px", no_profile_link: true
     = if current?(@user, @conn.assigns.current_user) do
       = link avatar, to: ~p"/avatar/edit?#{[profile: true]}", title: "Change avatar"
     - else
@@ -28,7 +28,11 @@
         li = link("Report this user", to: ~p"/profiles/#{@user}/reports/new")
 
       ul.profile-top__options__column
-        li = link("Uploads", to: ~p"/search?#{[q: "uploader_id:#{@user.id}"]}")
+        = case @conn.assigns.current_user do
+          - %{role: role} when role in ~W(moderator admin) ->
+            li = link("Uploads", to: ~p"/search?#{[q: "true_uploader_id:#{@user.id}"]}")
+          - _ ->
+            li = link("Uploads", to: ~p"/search?#{[q: "uploader_id:#{@user.id}"]}")
         li = link("Comments", to: ~p"/comments?#{[cq: "user_id:#{@user.id}"]}")
         li = link("Posts", to: ~p"/posts?#{[pq: "user_id:#{@user.id}"]}")
         = if current?(@user, @conn.assigns.current_user) do
@@ -75,7 +79,7 @@
         .block__content.alternating-color.break-word class=link_block_class(link)
           .center
             = if link.tag do
-              .tag_list = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
+              div = render PhilomenaWeb.TagView, "_tag.html", tag: link.tag, conn: @conn
             = link(link.uri, to: link.uri)
 
             = if current?(@user, @conn.assigns.current_user) or manages_links?(@conn, @user) do
@@ -94,7 +98,7 @@
               a href=~p"/profiles/#{@user}/artist_links/#{link}/edit"
                 ' Edit
               ' &bull;
-              a href=~p"/admin/artist_links/#{link}/reject" data-method="post"
+              a href=~p"/admin/artist_links/#{link}/reject" data-method="post" data-confirm="Are you really, really sure?"
                 ' Reject
             - else
               => unless link.public do

@@ -7,12 +7,11 @@ h1 Commissions Directory
     ' commissions with potential commissioners. We don't have any way
     ' for users to make payments through the site, so we can't be held
     ' responsible for any issues regarding payment.
-    a href="/pages/rules#9" More info.
 
 br
 
 .column-layout
   .column-layout__left
-    = render PhilomenaWeb.CommissionView, "_directory_sidebar.html", conn: @conn
+    = render PhilomenaWeb.CommissionView, "_directory_sidebar.html", changeset: @changeset, conn: @conn
   .column-layout__main
     = render PhilomenaWeb.CommissionView, "_directory_results.html", commissions: @commissions, conn: @conn

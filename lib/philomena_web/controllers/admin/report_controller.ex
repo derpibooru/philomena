@@ -118,23 +118,22 @@ defmodule PhilomenaWeb.Admin.ReportController do
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, Report) do
-      true -> conn
-      false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :index, Report) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
   defp set_mod_notes(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
-      true ->
-        report = conn.assigns.report
+    if Canada.Can.can?(conn.assigns.current_user, :index, ModNote) do
+      report = conn.assigns.report
 
-        renderer = &MarkdownRenderer.render_collection(&1, conn)
-        mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("Report", report.id, renderer)
-        assign(conn, :mod_notes, mod_notes)
-
-      _false ->
-        conn
+      renderer = &MarkdownRenderer.render_collection(&1, conn)
+      mod_notes = ModNotes.list_all_mod_notes_by_type_and_id("Report", report.id, renderer)
+      assign(conn, :mod_notes, mod_notes)
+    else
+      conn
     end
   end
 end

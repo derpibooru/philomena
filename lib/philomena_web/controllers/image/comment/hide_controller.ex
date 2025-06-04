@@ -14,13 +14,13 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
     case Comments.hide_comment(comment, comment_params, user) do
       {:ok, comment} ->
         conn
-        |> put_flash(:info, "Comment successfully hidden!")
+        |> put_flash(:info, "Comment successfully deleted!")
         |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
       _error ->
         conn
-        |> put_flash(:error, "Unable to hide comment!")
+        |> put_flash(:error, "Unable to delete comment!")
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
     end
   end
@@ -31,13 +31,13 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
     case Comments.unhide_comment(comment) do
       {:ok, comment} ->
         conn
-        |> put_flash(:info, "Comment successfully unhidden!")
+        |> put_flash(:info, "Comment successfully restored!")
         |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
       {:error, _changeset} ->
         conn
-        |> put_flash(:error, "Unable to unhide comment!")
+        |> put_flash(:error, "Unable to restore comment!")
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
     end
   end
@@ -45,8 +45,8 @@ defmodule PhilomenaWeb.Image.Comment.HideController do
   defp log_details(action, comment) do
     body =
       case action do
-        :create -> "Hidden comment on image >>#{comment.image_id} (#{comment.deletion_reason})"
-        :delete -> "Restored comment on image >>#{comment.image_id}"
+        :create -> "Deleted comment on image #{comment.image_id} (#{comment.deletion_reason})"
+        :delete -> "Restored comment on image #{comment.image_id}"
       end
 
     %{

@@ -19,11 +19,14 @@ defmodule PhilomenaWeb.Profile.AwardController do
   end
 
   def create(conn, %{"award" => award_params}) do
-    case Badges.create_badge_award(conn.assigns.current_user, conn.assigns.user, award_params) do
-      {:ok, _award} ->
+    user = conn.assigns.user
+
+    case Badges.create_badge_award(conn.assigns.current_user, user, award_params) do
+      {:ok, award} ->
         conn
         |> put_flash(:info, "Award successfully created.")
-        |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
+        |> moderation_log(details: &log_details/2, data: {user, award})
+        |> redirect(to: ~p"/profiles/#{user}")
 
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
@@ -37,10 +40,13 @@ defmodule PhilomenaWeb.Profile.AwardController do
 
   def update(conn, %{"award" => award_params}) do
     case Badges.update_badge_award(conn.assigns.award, award_params) do
-      {:ok, _award} ->
+      {:ok, award} ->
+        user = conn.assigns.user
+
         conn
         |> put_flash(:info, "Award successfully updated.")
-        |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
+        |> moderation_log(details: &log_details/2, data: {user, award})
+        |> redirect(to: ~p"/profiles/#{user}")
 
       {:error, changeset} ->
         render(conn, "edit.html", changeset: changeset)
@@ -48,17 +54,20 @@ defmodule PhilomenaWeb.Profile.AwardController do
   end
 
   def delete(conn, _params) do
-    {:ok, _award} = Badges.delete_badge_award(conn.assigns.award)
+    user = conn.assigns.user
+    {:ok, award} = Badges.delete_badge_award(conn.assigns.award)
 
     conn
     |> put_flash(:info, "Award successfully destroyed. By cruel and unusual means.")
-    |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
+    |> moderation_log(details: &log_details/2, data: {user, award})
+    |> redirect(to: ~p"/profiles/#{user}")
   end
 
   defp verify_authorized(conn, _opts) do
-    case Canada.Can.can?(conn.assigns.current_user, :create, Award) do
-      true -> conn
-      _false -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    if Canada.Can.can?(conn.assigns.current_user, :create, Award) do
+      conn
+    else
+      PhilomenaWeb.NotAuthorizedPlug.call(conn)
     end
   end
 
@@ -70,5 +79,18 @@ defmodule PhilomenaWeb.Profile.AwardController do
       |> Repo.all()
 
     assign(conn, :badges, badges)
+  end
+
+  defp log_details(action, {user, award}) do
+    award = Repo.preload(award, [:badge])
+
+    body =
+      case action do
+        :create -> "Awarded badge '#{award.badge.title}' to #{user.name}"
+        :update -> "Updated award of badge '#{award.badge.title}' on #{user.name}"
+        :delete -> "Removed badge '#{award.badge.title}' from #{user.name}"
+      end
+
+    %{body: body, subject_path: ~p"/profiles/#{user}"}
   end
 end

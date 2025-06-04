@@ -1,6 +1,9 @@
 defmodule PhilomenaQuery.Parse.Helpers do
   @moduledoc false
 
+  @min_int32 -2_147_483_648
+  @max_int32 2_147_483_647
+
   # Apparently, it's too hard for the standard library to to parse a number
   # as a float if it doesn't contain a decimal point. WTF
   def to_number(term) do
@@ -17,13 +20,17 @@ defmodule PhilomenaQuery.Parse.Helpers do
   end
 
   def to_int(term) do
-    {int, _} = :string.to_integer(term)
+    {int, []} = :string.to_integer(term)
 
-    case int in -2_147_483_648..2_147_483_647 do
-      true -> int
-      _false -> 0
-    end
+    clamp_to_int32(int)
   end
+
+  def int_range([center, deviation]) do
+    [clamp_to_int32(center - deviation), clamp_to_int32(center + deviation)]
+  end
+
+  def clamp_to_int32(int) when is_integer(int),
+    do: min(max(int, @min_int32), @max_int32)
 
   def range([center, deviation]) do
     [center - deviation, center + deviation]

@@ -26,9 +26,10 @@ defmodule PhilomenaWeb.ConversationView do
     do: false
 
   def conversation_class(user, conversation) do
-    case read_by?(user, conversation) do
-      false -> "warning"
-      _ -> nil
+    if read_by?(user, conversation) do
+      nil
+    else
+      "warning"
     end
   end
 

@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+
+  "compilerOptions": {
+    // Disable `vitest/globals` that transitively include `@types/node` and
+    // node's version of ES standard lib via a `<reference>` directive.
+    // More details in the main tsconfig.json.
+    "types": []
+  },
+
+  // Exclude all tests from the compilation. This tsconfig is only used for the
+  // final app build, where we don't need tests, especially because they depend
+  // on `vitest` which transitively depends on `@types/node` and `es2020`.
+  // See more details in the main `tsconfig.json`.
+  "exclude": ["**/__tests__/**/*", "./test/**/*"]
+}

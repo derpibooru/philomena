@@ -73,7 +73,7 @@ elixir:
         br
         strong Note that you may have to wait a couple of seconds before the order is applied.
 
-    .block__content.js-resizable-media-container
+    .block__content.media-list
       = for {image, hit} <- @gallery_images do
         = render PhilomenaWeb.ImageView, "_image_box.html", image: image, link: image_url.(image, hit), size: :thumb, conn: @conn
 

@@ -16,7 +16,7 @@ elixir:
     ' This net total excludes the
     => number_with_delimiter(img_bucket["deleted"]["doc_count"])
     ' images that have been deleted or marked as duplicates.
-  
+
   h3 Comments
   p
     ' There are
@@ -35,7 +35,7 @@ elixir:
     span.stat>
       = number_with_delimiter(trunc(img_bucket["non_deleted"]["avg_comments"]["value"] || 0))
     ' comments on each image on the site.
-  
+
   h3 Votes
   p
     ' Out of

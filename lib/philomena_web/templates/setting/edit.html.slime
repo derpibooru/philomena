@@ -82,6 +82,22 @@ h1 Content Settings
         )
 
         = field_with_help( \
+          "Removes the border of the tags",
+          [ \
+            checkbox(f, :borderless_tags, class: "checkbox"),
+            label(f, :borderless_tags),
+          ] \
+        )
+
+        = field_with_help( \
+          "Adds rounding to the corners of the tags",
+          [ \
+            checkbox(f, :rounded_tags, class: "checkbox"),
+            label(f, :rounded_tags),
+          ] \
+        )
+
+        = field_with_help( \
           "The number of images per page that are displayed on image listings " <> \
           "and searches, up to a maximum of 50. For 1080p monitors, try 24.",
           [ \
@@ -108,6 +124,15 @@ h1 Content Settings
           => select f, :scale_large_images, scale_options(), class: "input"
           => label f, :scale_large_images
           = error_tag f, :scale_large_images
+
+        - delay_home_images = if staff?(@conn.assigns.current_user), do: :staff_delay_home_images, else: :delay_home_images
+        = field_with_help( \
+          "Hide images without thumbnails on the homepage and for the first 3 minutes after upload (to allow for last-minute tag changes)",
+          [ \
+            checkbox(f, delay_home_images, class: "checkbox"),
+            label(f, delay_home_images, "Delay home images"),
+          ] \
+        )
 
       .block__tab.hidden data-tab="comments"
         = field_with_help( \
@@ -311,7 +336,6 @@ h1 Content Settings
             label(f, :hide_staff_tools),
           ] \
         )
-
 
     = if !@conn.assigns.current_user do
       .block__tab.hidden data-tab="join-the-herd"

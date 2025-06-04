@@ -1,7 +1,7 @@
 defmodule PhilomenaWeb.Image.TagController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.TagChanges.TagChange
+  alias Philomena.TagChanges
   alias Philomena.UserStatistics
   alias Philomena.Comments
   alias Philomena.Images.Image
@@ -9,7 +9,6 @@ defmodule PhilomenaWeb.Image.TagController do
   alias Philomena.Tags
   alias Philomena.Repo
   alias Plug.Conn
-  import Ecto.Query
 
   plug PhilomenaWeb.LimitPlug,
        [time: 5, error: "You may only update metadata once every 5 seconds."]
@@ -48,7 +47,7 @@ defmodule PhilomenaWeb.Image.TagController do
           PhilomenaWeb.Api.Json.ImageView.render("show.json", %{image: image, interactions: []})
         )
 
-        Comments.reindex_comments(image)
+        Comments.reindex_comments_on_image(image)
         Images.reindex_image(image)
         Tags.reindex_tags(added_tags ++ removed_tags)
 
@@ -56,10 +55,7 @@ defmodule PhilomenaWeb.Image.TagController do
           UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
-        tag_change_count =
-          TagChange
-          |> where(image_id: ^image.id)
-          |> Repo.aggregate(:count, :id)
+        tag_change_count = TagChanges.count_tag_changes(:image_id, image.id)
 
         image =
           image
