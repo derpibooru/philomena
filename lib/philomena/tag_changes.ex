@@ -124,7 +124,11 @@ defmodule Philomena.TagChanges do
   end
 
   def count_tag_changes(field_name, value) do
-    Repo.aggregate(from(tc in TagChange, where: field(tc, ^field_name) == ^value), :count, :id)
+    TagChange
+    |> where([c], field(c, ^field_name) == ^value)
+    |> join(:left, [c], t in assoc(c, :tags))
+    |> select([c, t], {count(c, :distinct), count(t)})
+    |> Repo.one()
   end
 
   def load(attrs, pagination) do

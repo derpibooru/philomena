@@ -71,6 +71,9 @@
             i.fa.fa-history>
             | History (
             = @tag_change_count
+            '  changes,
+            = @tag_change_tag_count
+            |  tags
             | )
     .block__content
       = render PhilomenaWeb.TagView, "_tag_list.html", tags: tags, conn: @conn
