@@ -15,7 +15,7 @@
         strong Do not undo staff member tag changes!
       p Ask them if you believe their changes are wrong. Staff members usually have a good reason to change tags. There might also be additional context, which you either can't see, or simply are unaware of.
     = for tag_change <- @tag_changes do
-      - {added_tags, removed_tags} = Enum.split_with(tag_change.tags, & &1.added)
+      - {added_tags, removed_tags} = split_tags(tag_change)
       - added_tags_count = Enum.count(added_tags)
       - removed_tags_count = Enum.count(removed_tags)
       - non_retained = non_retained_tags(tag_change)
@@ -53,14 +53,14 @@
                 .tag-list
                   = for tag <- added_tags do
                     div class=non_retained_class(non_retained, tag)
-                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag.tag, conn: @conn
+                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
             = if removed_tags_count > 0 do
               .removed
                 i.fa.fa-minus
                 .tag-list
                   = for tag <- removed_tags do
                     div class=non_retained_class(non_retained, tag)
-                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag.tag, conn: @conn
+                      = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
           = if reverts_tag_changes?(@conn) or can?(@conn, :show, :ip_address) do
             .tag__change-tools
               = if can?(@conn, :show, :ip_address) do
