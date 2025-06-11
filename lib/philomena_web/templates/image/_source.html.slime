@@ -56,7 +56,7 @@
         = if @source_change_count > 0 do
           a.button.button--link.button--inline href=~p"/images/#{@image}/source_changes" title="Source history"
             i.fa.fa-history>
-            spanspan.hide-mobile> History
+            span.hide-mobile> History
             | (
             = @source_change_count
             | )
