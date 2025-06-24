@@ -93,6 +93,26 @@ defmodule PhilomenaWeb.ImageView do
 
   defp append_gif_urls(urls, _image, _show_hidden), do: urls
 
+  def thumb_url_size(
+        %{image_aspect_ratio: ar, image_width: w, image_height: h} = image,
+        show_hidden,
+        name
+      ) do
+    {max_w, max_h} = Thumbnailer.thumbnail_versions()[name]
+
+    if w > max_w or h > max_h do
+      {thumb_url(image, show_hidden, name), thumb_dimensions(ar, max_w, max_h)}
+    else
+      {thumb_url(image, show_hidden, :full), {w, h}}
+    end
+  end
+
+  defp thumb_dimensions(ar, w, h) when ar > w / h,
+    do: {w, floor(w / ar)}
+
+  defp thumb_dimensions(ar, _w, h),
+    do: {floor(h * ar), h}
+
   def thumb_url(image, show_hidden, name) do
     %{year: year, month: month, day: day} = image.created_at
     deleted = image.hidden_from_users
