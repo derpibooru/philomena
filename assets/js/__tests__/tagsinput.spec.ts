@@ -166,7 +166,7 @@ describe('Fancy tags input', () => {
   it('adds new tag when comma is pressed', () => {
     setupTagsInput(tagBlock);
 
-    const ev = new KeyboardEvent('keydown', { keyCode: 188, bubbles: true });
+    const ev = new KeyboardEvent('keydown', { keyCode: 188, key: ',', bubbles: true });
     fancyText.value = 'a';
     fancyText.dispatchEvent(ev);
 

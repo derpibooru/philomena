@@ -41,13 +41,23 @@ const keysMapping = {
   88: 'KeyX',
   89: 'KeyY',
   90: 'KeyZ',
-  188: 'Comma',
+  // keyCode stays the same in various layouts, but actual value of the key differs
+  // and works in unexpected way
+  // 188: 'Comma',
 } as const;
+
+const literalKeysMapping = {
+  ',': 'Comma',
+} as const;
+
+type keysAsEnum<Obj extends Record<string, string>> = Record<Obj[keyof Obj], string>;
 
 /**
  * A map of known keys to be used in code to avoid typos.
  */
-export const keys = Object.fromEntries(Object.values(keysMapping).map(key => [key, key]));
+export const keys = Object.fromEntries(
+  (Object.values(keysMapping) as string[]).concat(Object.values(literalKeysMapping)).map(key => [key, key]),
+) as keysAsEnum<typeof keysMapping & typeof literalKeysMapping>;
 
 /**
  * There are many inconsistencies in the way different browsers handle keyboard
@@ -58,12 +68,15 @@ export const keys = Object.fromEntries(Object.values(keysMapping).map(key => [ke
  *   pressed via the virtual keyboard.
  * - There seems to be no way to reliably detect the `,` key on virtual
  *   keyboards on phones.
+ * - `,` key also have different placements in different layouts.
  * - The `event.code` uses `NumpadEnter` for the numpad enter key on regular
  *   keyboards
  */
 export function normalizedKeyboardKey(event: KeyboardEvent): string {
+  const literalKey = asRecord(literalKeysMapping)[event.key];
+
   // It is possible that this chain goes all the way to the `event.key` because
   // on mobile phones the `Enter` key has empty `code` for some reason, but it
   // has `Enter` as `key`.
-  return asRecord(keysMapping)[event.keyCode] || event.code || event.key;
+  return literalKey || asRecord(keysMapping)[event.keyCode] || event.code || event.key;
 }
