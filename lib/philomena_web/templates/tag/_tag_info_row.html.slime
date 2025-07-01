@@ -92,7 +92,7 @@
 
           .toggle-box-container
             .toggle-box-container__content
-              = map_join @tag.implied_by_tags, ", ", fn tag ->
+              = map_join Tag.display_order(@tag.implied_by_tags), ", ", fn tag ->
                 = link tag.name, to: ~p"/tags/#{tag}"
 
           br
