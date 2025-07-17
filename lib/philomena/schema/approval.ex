@@ -1,41 +1,42 @@
 defmodule Philomena.Schema.Approval do
-  alias Philomena.Users.User
   import Ecto.Changeset
 
   @image_embed_regex ~r/!+\[/
 
-  def maybe_put_approval(changeset, nil),
-    do: change(changeset, approved: true)
+  defp external_link_regex do
+    site_domains =
+      (String.split(Application.get_env(:philomena, :site_domains), ",") ++
+         [Application.get_env(:philomena, :cdn_host), Application.get_env(:philomena, :camo_host)])
+      |> Enum.reject(&is_nil/1)
+      |> Enum.uniq()
 
-  def maybe_put_approval(changeset, %{role: role})
-      when role != "user",
-      do: change(changeset, approved: true)
+    Regex.compile!(
+      "https?\\\\?:(?:\\\\*\\/?)*(?!(?:#{Enum.map_join(site_domains, "|", &Regex.escape/1)}))"
+    )
+  end
+
+  defp regex(:external_links), do: external_link_regex()
+  defp regex(:image_embeds), do: @image_embed_regex
+
+  defp trusted?(nil), do: false
+  defp trusted?(user) when user.role != "user", do: true
+  defp trusted?(user) when user.verified, do: true
+
+  defp trusted?(user) do
+    DateTime.diff(DateTime.utc_now(), user.created_at, :day) > 14
+  end
+
+  defp approved?(user, body, check) do
+    trusted?(user) or not Regex.match?(regex(check), body)
+  end
 
   def maybe_put_approval(
         %{changes: %{body: body}, valid?: true} = changeset,
-        %User{} = user
+        user,
+        check
       ) do
-    now = DateTime.utc_now(:second)
-    # 14 * 24 * 60 * 60
-    two_weeks = 1_209_600
-
-    if String.match?(body, @image_embed_regex) do
-      case DateTime.compare(now, DateTime.add(user.created_at, two_weeks)) do
-        :gt -> change(changeset, approved: true)
-        _ -> change(changeset, approved: false)
-      end
-    else
-      change(changeset, approved: true)
-    end
+    change(changeset, approved: approved?(user, body, check))
   end
 
-  def maybe_put_approval(changeset, _user), do: changeset
-
-  def maybe_strip_images(
-        %{changes: %{body: body}, valid?: true} = changeset,
-        nil
-      ),
-      do: change(changeset, body: Regex.replace(@image_embed_regex, body, "["))
-
-  def maybe_strip_images(changeset, _user), do: changeset
+  def maybe_put_approval(changeset, _user, _check), do: changeset
 end

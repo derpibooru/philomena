@@ -339,7 +339,7 @@ defmodule Philomena.Conversations do
       Reports.create_system_report(
         {"Conversation", message.conversation_id},
         "Approval",
-        "PM contains externally-embedded images and has been flagged for review."
+        "PM contains externally-embedded images"
       )
     end
   end
