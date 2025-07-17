@@ -68,6 +68,8 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   def can?(%User{role: "moderator"}, :show, %Topic{hidden_from_users: true}), do: true
 
+  def can?(%User{role: "moderator"}, :show, %Post{}), do: true
+
   # View and approve conversations
   def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
   def can?(%User{role: "moderator"}, :approve, %Conversation{}), do: true
