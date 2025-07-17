@@ -15,7 +15,7 @@ h5
   = for upvote <- Enum.sort_by(@image.upvotes, & String.downcase(&1.user.name)) do
     span.interaction-user-list-item
       => link upvote.user.name, to: ~p"/profiles/#{upvote.user}"
-      => link "(x)", to: ~p"/images/#{@image}/tamper?#{[user_id: upvote.user_id]}", method: "post"
+      => link "(x)", to: ~p"/images/#{@image}/tamper?#{[user_id: upvote.user_id]}", data: [confirm: "Are you sure?"], method: "post"
 
   h5
     ' Downvoted by
@@ -25,7 +25,7 @@ h5
   = for downvote <- Enum.sort_by(@image.downvotes, & String.downcase(&1.user.name)) do
     span.interaction-user-list-item
       => link downvote.user.name, to: ~p"/profiles/#{downvote.user}"
-      => link "(x)", to: ~p"/images/#{@image}/tamper?#{[user_id: downvote.user_id]}", method: "post"
+      => link "(x)", to: ~p"/images/#{@image}/tamper?#{[user_id: downvote.user_id]}", data: [confirm: "Are you sure?"], method: "post"
 
   h5
     ' Hidden by
