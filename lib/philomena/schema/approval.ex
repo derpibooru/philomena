@@ -5,10 +5,8 @@ defmodule Philomena.Schema.Approval do
 
   defp external_link_regex do
     site_domains =
-      (String.split(Application.get_env(:philomena, :site_domains), ",") ++
-         [Application.get_env(:philomena, :cdn_host), Application.get_env(:philomena, :camo_host)])
-      |> Enum.reject(&is_nil/1)
-      |> Enum.uniq()
+      String.split(Application.get_env(:philomena, :site_domains), ",") ++
+        [Application.get_env(:philomena, :cdn_host)]
 
     Regex.compile!(
       "https?\\\\?:(?:\\\\*\\/?)*(?!(?:#{Enum.map_join(site_domains, "|", &Regex.escape/1)}))"
