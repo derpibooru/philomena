@@ -26,7 +26,10 @@ defmodule Philomena.Schema.Approval do
     DateTime.diff(DateTime.utc_now(), user.created_at, :day) > 14
   end
 
-  defp approved?(user, body, check) do
+  def approved?(_user, nil, _check), do: true
+  def approved?(_user, "", _check), do: true
+
+  def approved?(user, body, check) do
     trusted?(user) or not Regex.match?(regex(check), body)
   end
 
