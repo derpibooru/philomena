@@ -16,15 +16,16 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
   @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
-    api_url = cond do
-      String.match?(url, @post_regex) ->
-        [post_id] = Regex.run(@post_regex, url, capture: :all_but_first)
-        "https://api.civitai.com/v1/images?postId=#{post_id}&nsfw=X"
+    api_url =
+      cond do
+        String.match?(url, @post_regex) ->
+          [post_id] = Regex.run(@post_regex, url, capture: :all_but_first)
+          "https://api.civitai.com/v1/images?postId=#{post_id}&nsfw=X"
 
-      String.match?(url, @image_regex) ->
-        [image_id] = Regex.run(@image_regex, url, capture: :all_but_first)
-        "https://api.civitai.com/v1/images?imageId=#{image_id}&nsfw=X"
-    end
+        String.match?(url, @image_regex) ->
+          [image_id] = Regex.run(@image_regex, url, capture: :all_but_first)
+          "https://api.civitai.com/v1/images?imageId=#{image_id}&nsfw=X"
+      end
 
     {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
