@@ -16,11 +16,11 @@ defmodule Philomena.Schema.Approval do
   defp regex(:external_links), do: external_link_regex()
   defp regex(:image_embeds), do: @image_embed_regex
 
-  defp trusted?(nil), do: false
-  defp trusted?(user) when user.role != "user", do: true
-  defp trusted?(user) when user.verified, do: true
+  def trusted?(nil), do: false
+  def trusted?(user) when user.role != "user", do: true
+  def trusted?(user) when user.verified, do: true
 
-  defp trusted?(user) do
+  def trusted?(user) do
     DateTime.diff(DateTime.utc_now(), user.created_at, :day) > 14
   end
 
