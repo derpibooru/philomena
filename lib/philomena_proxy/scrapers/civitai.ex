@@ -6,18 +6,26 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
   @behaviour Scraper
 
-  @url_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/posts/([\d]+)/?|
+  @post_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/posts/([\d]+)/?|
+  @image_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/images/([\d]+)/?|
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(_uri, url) do
-    String.match?(url, @url_regex)
+    String.match?(url, @post_regex) || String.match?(url, @image_regex)
   end
 
   @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
   def scrape(_uri, url) do
-    [post_id] = Regex.run(@url_regex, url, capture: :all_but_first)
+    api_url = cond do
+      String.match?(url, @post_regex) ->
+        [post_id] = Regex.run(@post_regex, url, capture: :all_but_first)
+        "https://api.civitai.com/v1/images?postId=#{post_id}&nsfw=X"
 
-    api_url = "https://api.civitai.com/v1/images?postId=#{post_id}&nsfw=X"
+      String.match?(url, @image_regex) ->
+        [image_id] = Regex.run(@image_regex, url, capture: :all_but_first)
+        "https://api.civitai.com/v1/images?imageId=#{image_id}&nsfw=X"
+    end
+
     {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
     json = Jason.decode!(body)
