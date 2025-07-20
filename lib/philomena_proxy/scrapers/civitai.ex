@@ -11,7 +11,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(_uri, url) do
-    String.match?(url, @post_regex) || String.match?(url, @image_regex)
+    String.match?(url, @post_regex) or String.match?(url, @image_regex)
   end
 
   @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
