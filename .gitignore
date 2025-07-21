@@ -64,3 +64,6 @@ npm-debug.log
 
 # Vitest coverage
 /assets/coverage
+
+# OS junk
+.DS_Store

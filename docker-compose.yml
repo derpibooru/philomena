@@ -6,6 +6,7 @@ volumes:
   app_build_data: {}
   app_deps_data: {}
   app_native_data: {}
+  s3_data: {}
 
 services:
   app:
@@ -90,11 +91,12 @@ services:
     attach: false
 
   files:
-    image: andrewgaul/s3proxy:sha-db34f6b
+    image: andrewgaul/s3proxy:sha-5ff5896
     environment:
-      - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
+      - JCLOUDS_FILESYSTEM_BASEDIR=/data
+      - S3PROXY_IGNORE_UNKNOWN_HEADERS=true
     volumes:
-      - .:/srv/philomena
+      - s3_data:/data
     attach: false
 
   web:
