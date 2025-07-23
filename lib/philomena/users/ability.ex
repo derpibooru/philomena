@@ -7,6 +7,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
   alias Philomena.Comments.Comment
   alias Philomena.Commissions.Commission
   alias Philomena.Conversations.Conversation
+  alias Philomena.Conversations.Message
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.Images.Image
@@ -72,7 +73,7 @@ defimpl Canada.Can, for: [Atom, Philomena.Users.User] do
 
   # View and approve conversations
   def can?(%User{role: "moderator"}, :show, %Conversation{}), do: true
-  def can?(%User{role: "moderator"}, :approve, %Conversation{}), do: true
+  def can?(%User{role: "moderator"}, :approve, %Message{}), do: true
 
   # View IP addresses and fingerprints
   def can?(%User{role: "moderator"}, :show, :ip_address), do: true

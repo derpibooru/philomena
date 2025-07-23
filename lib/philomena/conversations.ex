@@ -310,7 +310,7 @@ defmodule Philomena.Conversations do
       {:ok, %{reports: {_count, reports}, message: message}} ->
         Reports.reindex_reports(reports)
 
-        message
+        {:ok, message}
 
       _error ->
         {:error, message_changeset}
