@@ -8,7 +8,7 @@ defmodule PhilomenaMedia.Sha512 do
   @doc """
   Generate the SHA2-512 hash of the file at the given path as a string.
 
-  The file is processed in 10MiB chunks.
+  The file is processed in 10 MiB chunks.
 
   ## Example
 
