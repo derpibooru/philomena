@@ -71,7 +71,7 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
   }
 
   function handleKeyEvent(event: KeyboardEvent) {
-    const { ctrlKey, shiftKey } = event;
+    const { ctrlKey } = event;
     const key = normalizedKeyboardKey(event);
 
     // allow form submission with ctrl+enter if no text was typed
@@ -86,7 +86,7 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
       if (erased) removeTag(tags[tags.length - 1], erased);
     }
 
-    if (key === keys.Enter || (key === keys.Comma && !shiftKey)) {
+    if (key === keys.Enter || key === keys.Comma) {
       event.preventDefault();
       inputField.value.split(',').forEach(t => insertTag(t));
       inputField.value = '';
