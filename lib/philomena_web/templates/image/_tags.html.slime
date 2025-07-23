@@ -71,9 +71,11 @@
             i.fa.fa-history>
             span.hide-mobile> History
             | (
-            = @tag_change_count
-            '  changes,
-            = @tag_change_tag_count
-            |  tags)
+            => @tag_change_count
+            = pluralize("change", "changes", @tag_change_count)
+            ' ,
+            => @tag_change_tag_count
+            = pluralize("tag", "tags", @tag_change_tag_count)
+            | )
     .block__content
       = render PhilomenaWeb.TagView, "_tag_list.html", tags: tags, conn: @conn
