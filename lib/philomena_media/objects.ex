@@ -49,6 +49,14 @@ defmodule PhilomenaMedia.Objects do
   @typep operation_fn :: (... -> ExAws.Operation.S3.t())
 
   @doc """
+  Creates S3 buckets for all configured storage backends.
+  """
+  @spec create_buckets() :: :ok
+  def create_buckets do
+    replicate_request(&ExAws.S3.put_bucket/2, &[&1[:bucket], &1[:config_overrides][:region]])
+  end
+
+  @doc """
   Fetch a key from the storage backend and write it into the destination path.
 
   ## Example
