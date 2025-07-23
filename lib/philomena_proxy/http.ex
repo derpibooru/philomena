@@ -21,7 +21,7 @@ defmodule PhilomenaProxy.Http do
   @type result :: {:ok, Req.Response.t()} | {:error, Exception.t()}
 
   @user_agent "Mozilla/5.0 (X11; Philomena; Linux x86_64; rv:126.0) Gecko/20100101 Firefox/126.0"
-  @max_body 125_000_000
+  @max_body 131_072_000
 
   @max_body_key :resp_body_size
 
