@@ -6,7 +6,7 @@
       h1 Your avatar
 
       p Add a new avatar or remove your existing one here.
-      p Avatars must be less than 1000px tall and wide, and smaller than 512 KiB in size. PNG, JPEG, and GIF are acceptable.
+      p Avatars must be less than 1000px tall and wide, and smaller than 500 KiB in size. PNG, JPEG, and GIF are acceptable.
 
       = form_for @changeset, ~p"/avatar", [method: "put", multipart: true], fn f ->
         = if @changeset.action do
