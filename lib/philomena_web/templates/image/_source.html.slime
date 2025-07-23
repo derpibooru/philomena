@@ -61,10 +61,9 @@
             = @source_change_count
             | )
         = if can?(@conn, :hide, @image) and not hide_staff_tools?(@conn) do
-          = form_for @changeset, ~p"/images/#{@image}/source_history", [method: "delete"], fn _f ->
-            a.button.button--state-danger.button--inline type="submit" data-confirm="Are you really, really sure?" title="Wipe sources"
-              i.fas.fa-eraser>
-              ' Wipe
+          a.button.button--state-danger.button--inline href=~p"/images/#{@image}/source_history" data-method="delete" data-confirm="Are you really, really sure?" title="Wipe sources"
+            i.fas.fa-eraser>
+            ' Wipe
     .block__content.flex.flex--wrap.flex--column
       .image_sources
         = if has_sources do
