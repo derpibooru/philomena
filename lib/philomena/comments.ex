@@ -255,7 +255,7 @@ defmodule Philomena.Comments do
     Reports.create_system_report(
       {"Comment", comment.id},
       "Approval",
-      "Comment contains externally-embedded images and has been flagged for review."
+      "Comment contains external links"
     )
   end
 

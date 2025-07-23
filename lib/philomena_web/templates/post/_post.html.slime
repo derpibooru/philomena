@@ -1,5 +1,5 @@
 article.block.communication id="post_#{@post.id}"
-  = if not @post.approved and not @post.hidden_from_users and (can?(@conn, :hide, @post) or @post.user_id == @conn.assigns.current_user.id) do
+  = if not @post.approved and not @post.hidden_from_users do
     .block__content.communication__content
       .block.block--fixed.block--danger
         p

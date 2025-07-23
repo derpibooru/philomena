@@ -1,6 +1,12 @@
 defmodule PhilomenaWeb.ConversationView do
   use PhilomenaWeb, :view
 
+  alias Philomena.Schema.Approval
+
+  def trusted?(user) do
+    Approval.trusted?(user)
+  end
+
   def other_party(%{id: user_id}, %{to_id: user_id} = conversation),
     do: conversation.from
 
