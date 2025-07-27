@@ -8,6 +8,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
   @post_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/posts/([\d]+)/?|
   @image_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/images/([\d]+)/?|
+  @url_regex ~r|(https://image\.civitai\.com/\w+/[0-9a-f\-]+)/.*|
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()
   def can_handle?(_uri, url) do
@@ -48,7 +49,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
             image_url = item["url"]
 
             %{
-              url: image_url,
+              url: String.replace(image_url, @url_regex, "\\1/original=true"),
               camo_url: PhilomenaProxy.Camo.image_url(image_url)
             }
           end)
