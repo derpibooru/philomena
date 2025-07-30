@@ -74,5 +74,5 @@ defmodule PhilomenaProxy.Scrapers.Bluesky do
     end
   end
 
-  defp json!({:ok, %{body: body, status: 200}}), do: Jason.decode!(body)
+  defp json!({:ok, %{body: body, status: 200}}), do: JSON.decode!(body)
 end

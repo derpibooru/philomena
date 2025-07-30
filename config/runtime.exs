@@ -48,7 +48,7 @@ json_config =
     tag: "tag.json"
   }
   |> Map.new(fn {name, file} ->
-    {name, Jason.decode!(File.read!("#{app_dir}/config/#{file}"))}
+    {name, JSON.decode!(File.read!("#{app_dir}/config/#{file}"))}
   end)
 
 config :philomena,

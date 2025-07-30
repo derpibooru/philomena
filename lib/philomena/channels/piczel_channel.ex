@@ -8,7 +8,7 @@ defmodule Philomena.Channels.PiczelChannel do
     |> case do
       {:ok, %{body: body, status: 200}} ->
         body
-        |> Jason.decode!()
+        |> JSON.decode!()
         |> Map.new(&{&1["slug"], fetch(&1)})
 
       _error ->

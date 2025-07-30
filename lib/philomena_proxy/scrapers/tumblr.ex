@@ -38,7 +38,7 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
   end
 
   defp json!({:ok, %{body: body, status: 200}}),
-    do: Jason.decode!(body)
+    do: JSON.decode!(body)
 
   defp process_response!(%{"response" => %{"posts" => [post | _rest]}}),
     do: process_post!(post)

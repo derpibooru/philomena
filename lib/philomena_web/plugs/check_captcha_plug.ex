@@ -37,7 +37,7 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
       )
 
     body
-    |> Jason.decode!()
+    |> JSON.decode!()
     |> Map.get("success", false)
   end
 

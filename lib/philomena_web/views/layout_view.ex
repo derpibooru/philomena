@@ -59,9 +59,9 @@ defmodule PhilomenaWeb.LayoutView do
 
     data = [
       filter_id: filter.id,
-      hidden_tag_list: Jason.encode!(filter.hidden_tag_ids),
+      hidden_tag_list: JSON.encode!(filter.hidden_tag_ids),
       hidden_filter: PhilomenaQuery.Parse.String.normalize(filter.hidden_complex_str || ""),
-      spoilered_tag_list: Jason.encode!(filter.spoilered_tag_ids),
+      spoilered_tag_list: JSON.encode!(filter.spoilered_tag_ids),
       spoilered_filter: PhilomenaQuery.Parse.String.normalize(filter.spoilered_complex_str || ""),
       user_id: if(user, do: user.id, else: nil),
       user_name: if(user, do: user.name, else: nil),
@@ -69,11 +69,11 @@ defmodule PhilomenaWeb.LayoutView do
       user_is_signed_in: if(user, do: "true", else: "false"),
       user_can_edit_filter: if(user, do: filter.user_id == user.id, else: "false") |> to_string(),
       spoiler_type: if(user, do: user.spoiler_type, else: "static"),
-      watched_tag_list: Jason.encode!(if(user, do: user.watched_tag_ids, else: [])),
+      watched_tag_list: JSON.encode!(if(user, do: user.watched_tag_ids, else: [])),
       fancy_tag_edit: if(user, do: user.fancy_tag_field_on_edit, else: "true") |> to_string(),
       fancy_tag_upload: if(user, do: user.fancy_tag_field_on_upload, else: "true") |> to_string(),
-      interactions: Jason.encode!(interactions),
-      ignored_tag_list: Jason.encode!(ignored_tag_list(conn.assigns[:tags])),
+      interactions: JSON.encode!(interactions),
+      ignored_tag_list: JSON.encode!(ignored_tag_list(conn.assigns[:tags])),
       hide_staff_tools: conn.cookies["hide_staff_tools"] |> to_string()
     ]
 
