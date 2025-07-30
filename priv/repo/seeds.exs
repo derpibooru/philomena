@@ -42,7 +42,7 @@ end
 resources =
   "priv/repo/seeds.json"
   |> File.read!()
-  |> Jason.decode!()
+  |> JSON.decode!()
 
 IO.puts("---- Generating rating tags")
 

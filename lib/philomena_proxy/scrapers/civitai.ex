@@ -30,7 +30,7 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
     {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
-    json = Jason.decode!(body)
+    json = JSON.decode!(body)
 
     case json["items"] do
       [] ->

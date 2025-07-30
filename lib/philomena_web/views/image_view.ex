@@ -172,7 +172,7 @@ defmodule PhilomenaWeb.ImageView do
   def image_container_data(conn, image, size) do
     [
       image_id: image.id,
-      image_tags: Jason.encode!(Enum.map(image.tags, & &1.id)),
+      image_tags: JSON.encode!(Enum.map(image.tags, & &1.id)),
       image_tag_aliases:
         image.tags |> Enum.flat_map(&([&1] ++ &1.aliases)) |> Enum.map_join(", ", & &1.name),
       tag_count: length(image.tags),
@@ -184,8 +184,8 @@ defmodule PhilomenaWeb.ImageView do
       created_at: DateTime.to_iso8601(image.created_at),
       source_url:
         if(Enum.count(image.sources) > 0, do: Enum.at(image.sources, 0).source, else: ""),
-      source_urls: Jason.encode!(Enum.map(image.sources, & &1.source)),
-      uris: Jason.encode!(thumb_urls(image, can?(conn, :show, image))),
+      source_urls: JSON.encode!(Enum.map(image.sources, & &1.source)),
+      uris: JSON.encode!(thumb_urls(image, can?(conn, :show, image))),
       width: image.image_width,
       height: image.image_height,
       aspect_ratio: image.image_aspect_ratio,

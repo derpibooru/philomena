@@ -165,7 +165,7 @@ defmodule Philomena.DataExports.Aggregator do
     Stream.map(list_of_maps, fn map ->
       map
       |> Map.new(fn {k, v} -> {k, to_string(v)} end)
-      |> Jason.encode!()
+      |> JSON.encode!()
       |> Kernel.<>("\n")
     end)
   end

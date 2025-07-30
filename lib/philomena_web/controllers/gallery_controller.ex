@@ -78,7 +78,7 @@ defmodule PhilomenaWeb.GalleryController do
     gallery_images =
       Enum.to_list(gallery_prev) ++ Enum.to_list(images) ++ Enum.to_list(gallery_next)
 
-    gallery_json = Jason.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
+    gallery_json = JSON.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
 
     Galleries.clear_gallery_notification(gallery, user)
 

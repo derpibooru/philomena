@@ -23,7 +23,7 @@ alias Philomena.Tags
 resources =
   "priv/repo/seeds_development.json"
   |> File.read!()
-  |> Jason.decode!()
+  |> JSON.decode!()
 
 IO.puts "---- Generating users"
 for user_def <- resources["users"] do

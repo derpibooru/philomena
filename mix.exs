@@ -5,7 +5,7 @@ defmodule Philomena.MixProject do
     [
       app: :philomena,
       version: "1.2.1",
-      elixir: "~> 1.5",
+      elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
       start_permanent: Mix.env() == :prod,
@@ -44,7 +44,6 @@ defmodule Philomena.MixProject do
       {:phoenix_view, "~> 2.0"},
       {:phoenix_live_reload, "~> 1.4", only: :dev},
       {:gettext, "~> 0.22"},
-      {:jason, "~> 1.4"},
       {:bandit, "~> 1.2"},
       {:slime, "~> 1.3.1"},
       {:phoenix_slime, "~> 0.13",
