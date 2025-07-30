@@ -5,7 +5,7 @@ h1 Subnet Bans
 
 = form_for :subnet_ban, ~p"/admin/subnet_bans", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :bq, name: :bq, value: @conn.params["bq"], class: "hform__text input", placeholder: "Search"
+    = text_input f, :bq, name: :bq, value: @conn.params["bq"], class: "hform__text input", placeholder: "Search", spellcheck: "false"
     = submit "Search", class: "button hform__button"
 
 .block
