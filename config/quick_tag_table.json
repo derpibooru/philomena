@@ -443,9 +443,10 @@
         ["ml", "male"],
         ["oo", "oc only"],
         ["bgp", "background pony"],
-        ["bpr", "barely pony related"],
         ["cxo", "canon x oc"],
         ["huz", "humanized"],
+        ["ind", "indoors"],
+        ["out", "outdoors"],
         ["huzo", "humanized oc"],
         ["sona", "ponysona"]
       ]
@@ -467,6 +468,7 @@
       "Other C",
       [
         ["atg", "newbie artist training grounds"],
+        ["bpr", "barely pony related"],
         ["cmm", "commission"],
         ["sfm", "source filmmaker"],
         ["ych", "your character here"]
