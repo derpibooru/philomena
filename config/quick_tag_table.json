@@ -431,8 +431,8 @@
         ["wb", "white background"],
         ["abb", "abstract background"],
         ["csk", "colored sketch"],
+        ["ptb", "partially transparent background"],
         ["sib", "simple background"],
-        ["patb", "partially transparent background"],
         ["trad", "traditional art"]
       ]
     ],
