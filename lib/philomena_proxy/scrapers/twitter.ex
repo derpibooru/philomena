@@ -26,7 +26,7 @@ defmodule PhilomenaProxy.Scrapers.Twitter do
     images =
       Enum.map(tweet["media"]["photos"], fn p ->
         %{
-          url: "#{p["url"]}:orig",
+          url: p["url"],
           camo_url: PhilomenaProxy.Camo.image_url(p["url"])
         }
       end)
