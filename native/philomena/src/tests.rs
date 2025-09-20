@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc};
 
 use crate::{domains, markdown::*};
 
-fn test_options() -> comrak::Options {
+fn test_options() -> comrak::Options<'static> {
     let mut options = common_options();
     options.extension.image_url_rewriter = None;
     options.extension.link_url_rewriter = None;
