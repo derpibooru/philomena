@@ -1,8 +1,8 @@
 [package]
 name = "philomena"
-version = "0.3.0"
+version = "0.4.0"
 authors = ["Xe <https://github.com/Xe>", "Luna <https://github.com/Meow>", "Liam White <https://github.com/liamwhite>"]
-edition = "2021"
+edition = "2024"
 
 [lib]
 name = "philomena"
