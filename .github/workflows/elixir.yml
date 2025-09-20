@@ -45,10 +45,12 @@ jobs:
     name: Rust Linting and Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@1.87.0
+        with:
+          components: clippy, rustfmt
 
       - name: cargo fmt
         run: (cd native/philomena && cargo fmt --check)
