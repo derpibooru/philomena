@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@1.87.0
 
       - name: cargo fmt
         run: (cd native/philomena && cargo fmt --check)
