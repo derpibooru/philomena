@@ -6,6 +6,7 @@ volumes:
   app_build_data: {}
   app_deps_data: {}
   app_native_data: {}
+  s3_data: {}
 
 services:
   app:
@@ -67,7 +68,7 @@ services:
       - '5173:5173'
 
   postgres:
-    image: postgres:17.5-alpine
+    image: postgres:17.6-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -75,7 +76,7 @@ services:
     attach: false
 
   opensearch:
-    image: opensearchproject/opensearch:3.0.0
+    image: opensearchproject/opensearch:3.2.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
@@ -86,15 +87,16 @@ services:
         hard: 65536
 
   valkey:
-    image: valkey/valkey:8.1-alpine
+    image: valkey/valkey:8.1.3-alpine
     attach: false
 
   files:
-    image: andrewgaul/s3proxy:sha-db34f6b
+    image: andrewgaul/s3proxy:sha-9f66ef5
     environment:
-      - JCLOUDS_FILESYSTEM_BASEDIR=/srv/philomena/priv/s3
+      - JCLOUDS_FILESYSTEM_BASEDIR=/data
+      - S3PROXY_IGNORE_UNKNOWN_HEADERS=true
     volumes:
-      - .:/srv/philomena
+      - s3_data:/data
     attach: false
 
   web:

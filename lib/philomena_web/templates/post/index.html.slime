@@ -2,7 +2,7 @@ h1 Posts
 
 = form_for :posts, ~p"/posts", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :pq, name: :pq, value: @conn.params["pq"], class: "input hform__text", placeholder: "Search posts", autocapitalize: "none"
+    = text_input f, :pq, name: :pq, value: @conn.params["pq"], class: "input hform__text", placeholder: "Search posts", autocapitalize: "none", spellcheck: "false"
     = submit "Search", class: "hform__button button"
 
   .fieldlabel

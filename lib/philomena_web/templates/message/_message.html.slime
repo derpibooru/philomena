@@ -1,5 +1,5 @@
 article.block.communication
-  = if not @message.approved and (can?(@conn, :approve, @message) or @message.from_id == @conn.assigns.current_user.id) do
+  = if not @message.approved do
     .block__content.communication__content
       .block.block--fixed.block--danger
         p
@@ -24,8 +24,9 @@ article.block.communication
         span.communication__body__sender-name = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: @message.from}, badges: true, conn: @conn
         br
         = render PhilomenaWeb.UserAttributionView, "_user_title.html", object: %{user: @message.from}, conn: @conn
-      .communication__body__text
-        = @body
+      = if @message.approved or can?(@conn, :approve, @message) or @message.from_id == @conn.assigns.current_user.id do
+        .communication__body__text
+          = @body
 
   .block__content.communication__options
     .flex.flex--wrap.flex--spaced-out

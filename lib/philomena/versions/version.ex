@@ -32,7 +32,7 @@ defmodule Philomena.Versions.Version do
     edit_reason = get_field(changeset, :edit_reason)
 
     object =
-      Jason.encode!(%{
+      JSON.encode!(%{
         id: item_id,
         body: body,
         edit_reason: edit_reason

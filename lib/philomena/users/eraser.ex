@@ -13,7 +13,7 @@ defmodule Philomena.Users.Eraser do
   alias Philomena.Topics
   alias Philomena.Images
   alias Philomena.SourceChanges.SourceChange
-
+  alias Philomena.Reports
   alias Philomena.Users
 
   @reason "Site abuse"
@@ -90,6 +90,9 @@ defmodule Philomena.Users.Eraser do
           "valid_until" => "permanent"
         }
       )
+
+    # Close all reports against the user
+    {:ok, _} = Reports.close_reports({"User", user.id}, moderator)
 
     # We succeeded
     :ok

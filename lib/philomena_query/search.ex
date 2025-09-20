@@ -491,7 +491,7 @@ defmodule PhilomenaQuery.Search do
     entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
 
     Logger.debug("[Search] Query took #{time}ms")
-    Logger.debug("[Search] #{Jason.encode!(definition.body)}")
+    Logger.debug("[Search] #{JSON.encode!(definition.body)}")
 
     %Scrivener.Page{
       entries: entries,

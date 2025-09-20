@@ -34,7 +34,7 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
-    |> Approval.maybe_put_approval(post.user)
+    |> Approval.maybe_put_approval(post.user, :external_links)
   end
 
   @doc false
@@ -44,8 +44,7 @@ defmodule Philomena.Posts.Post do
     |> validate_required([:body])
     |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> change(attribution)
-    |> Approval.maybe_put_approval(attribution[:user])
-    |> Approval.maybe_strip_images(attribution[:user])
+    |> Approval.maybe_put_approval(attribution[:user], :external_links)
   end
 
   @doc false
@@ -57,8 +56,7 @@ defmodule Philomena.Posts.Post do
     |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
     |> change(attribution)
     |> change(topic_position: 0)
-    |> Approval.maybe_put_approval(attribution[:user])
-    |> Approval.maybe_strip_images(attribution[:user])
+    |> Approval.maybe_put_approval(attribution[:user], :external_links)
   end
 
   def hide_changeset(post, attrs, user) do

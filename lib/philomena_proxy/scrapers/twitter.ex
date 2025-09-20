@@ -20,13 +20,13 @@ defmodule PhilomenaProxy.Scrapers.Twitter do
     api_url = "https://api.fxtwitter.com/#{user}/status/#{status_id}"
     {:ok, %{status: 200, body: body}} = PhilomenaProxy.Http.get(api_url)
 
-    json = Jason.decode!(body)
+    json = JSON.decode!(body)
     tweet = json["tweet"]
 
     images =
       Enum.map(tweet["media"]["photos"], fn p ->
         %{
-          url: "#{p["url"]}:orig",
+          url: p["url"],
           camo_url: PhilomenaProxy.Camo.image_url(p["url"])
         }
       end)

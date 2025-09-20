@@ -4,15 +4,6 @@ set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/../../scripts/lib.sh"
 
-# Create S3 dirs
-step mkdir -p /srv/philomena/priv/static/system/images/thumbs
-step mkdir -p /srv/philomena/priv/s3/philomena
-step ln -sf /srv/philomena/priv/static/system/images/thumbs /srv/philomena/priv/s3/philomena/images
-step ln -sf /srv/philomena/priv/static/system/images /srv/philomena/priv/s3/philomena/adverts
-step ln -sf /srv/philomena/priv/static/system/images /srv/philomena/priv/s3/philomena/avatars
-step ln -sf /srv/philomena/priv/static/system/images /srv/philomena/priv/s3/philomena/badges
-step ln -sf /srv/philomena/priv/static/system/images /srv/philomena/priv/s3/philomena/tags
-
 # For compatibility with musl libc
 export CARGO_FEATURE_DISABLE_INITIAL_EXEC_TLS=1
 export CARGO_HOME=/srv/philomena/.cargo
@@ -43,6 +34,9 @@ background() {
   step cd /srv/philomena
   step mix deps.get
 )
+
+# Initialize S3 buckets
+step mix run -e 'PhilomenaMedia.Objects.create_buckets()' > /dev/null
 
 # Sleep to allow OpenSearch to finish initializing
 # if it's not done doing whatever it does yet

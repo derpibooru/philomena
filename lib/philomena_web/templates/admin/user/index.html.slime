@@ -2,7 +2,7 @@ h1 Users
 
 = form_for :user, ~p"/admin/users", [method: "get", class: "hform"], fn f ->
   .field
-    => text_input f, :uq, name: :uq, value: @conn.params["uq"], class: "hform__text input", placeholder: "Search query"
+    => text_input f, :uq, name: :uq, value: @conn.params["uq"], class: "hform__text input", placeholder: "Search query", spellcheck: "false"
     = submit "Search", class: "button hform__button"
 
 => link "Site staff", to: ~p"/admin/users?#{[staff: 1]}"

@@ -21,7 +21,10 @@ defmodule PhilomenaWeb do
 
   def controller do
     quote do
-      use Phoenix.Controller, namespace: PhilomenaWeb
+      use Phoenix.Controller,
+        formats: [json: "View", html: "View"],
+        layouts: [html: PhilomenaWeb.LayoutView]
+
       use Gettext, backend: PhilomenaWeb.Gettext
 
       import Plug.Conn

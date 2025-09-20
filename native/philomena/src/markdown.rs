@@ -3,7 +3,7 @@ use comrak::Options;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-pub fn common_options() -> Options {
+pub fn common_options() -> Options<'static> {
     let mut options = Options::default();
 
     // Upstream options
