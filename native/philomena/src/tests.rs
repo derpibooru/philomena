@@ -52,7 +52,7 @@ fn subscript() {
 fn subscript_autolink_interaction() {
     html(
         "https://example.com/search?q=1%2C2%2C3",
-        "<div class=\"paragraph\"><a href=\"https://example.com/search?q=1%2C2%2C3\">https://example.com/search?q=1%2C2%2C3</a></div>\n"
+        "<div class=\"paragraph\"><a href=\"https://example.com/search?q=1%2C2%2C3\">https://example.com/search?q=1%2C2%2C3</a></div>\n",
     );
 }
 
@@ -60,7 +60,7 @@ fn subscript_autolink_interaction() {
 fn underscore_autolink_interaction() {
     html(
         "https://example.com/x_",
-        "<div class=\"paragraph\"><a href=\"https://example.com/x_\">https://example.com/x_</a></div>\n"
+        "<div class=\"paragraph\"><a href=\"https://example.com/x_\">https://example.com/x_</a></div>\n",
     )
 }
 
@@ -147,7 +147,7 @@ fn greentext_preserved() {
 fn separate_quotes_on_line_end() {
     html(
         "> 1\n>\n> 2",
-        "<blockquote>\n<div class=\"paragraph\">1</div>\n</blockquote>\n<div class=\"paragraph\">&gt;</div>\n<blockquote>\n<div class=\"paragraph\">2</div>\n</blockquote>\n"
+        "<blockquote>\n<div class=\"paragraph\">1</div>\n</blockquote>\n<div class=\"paragraph\">&gt;</div>\n<blockquote>\n<div class=\"paragraph\">2</div>\n</blockquote>\n",
     );
 }
 
