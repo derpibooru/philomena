@@ -12,7 +12,8 @@ defmodule Philomena.MixProject do
       aliases: aliases(),
       deps: deps(),
       dialyzer: [plt_add_apps: [:ex_unit, :mix]],
-      docs: [formatters: ["html"]]
+      docs: [formatters: ["html"]],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
