@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.PchController do
 
     case event_params do
       %{"passphrase" => ^secret} ->
-        {:ok, _badge} = BadgeAwarder.award_badge(user, user, "PonyCon Holland")
+        {:ok, _badge} = BadgeAwarder.award_badge(user, user, "PonyCon Holland²")
 
         conn
         |> put_flash(:info, "Verification granted.")
