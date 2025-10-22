@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.PchController do
         {:ok, _badge} = BadgeAwarder.award_badge(user, user, "PonyCon Holland²")
 
         conn
-        |> put_flash(:info, "Verification granted.")
+        |> put_flash(:info, "Badge issued.")
         |> redirect(to: ~p"/")
 
       _ ->
