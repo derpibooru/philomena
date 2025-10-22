@@ -4,7 +4,7 @@ defmodule Philomena.MixProject do
   def project do
     [
       app: :philomena,
-      version: "1.2.1",
+      version: "1.2.2",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
@@ -12,7 +12,8 @@ defmodule Philomena.MixProject do
       aliases: aliases(),
       deps: deps(),
       dialyzer: [plt_add_apps: [:ex_unit, :mix]],
-      docs: [formatters: ["html"]]
+      docs: [formatters: ["html"]],
+      listeners: [Phoenix.CodeReloader]
     ]
   end
 
@@ -35,22 +36,23 @@ defmodule Philomena.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:phoenix, "~> 1.7"},
+      {:phoenix, "~> 1.8"},
       {:phoenix_pubsub, "~> 2.1"},
-      {:phoenix_ecto, "~> 4.4"},
+      {:phoenix_ecto, "~> 4.6"},
       {:ecto_sql, "~> 3.9"},
       {:postgrex, ">= 0.0.0"},
+      # Must be kept at 3.x because of Slime
       {:phoenix_html, "~> 3.3"},
       {:phoenix_view, "~> 2.0"},
-      {:phoenix_live_reload, "~> 1.4", only: :dev},
-      {:gettext, "~> 0.22"},
-      {:bandit, "~> 1.2"},
+      {:phoenix_live_reload, "~> 1.6", only: :dev},
+      {:gettext, "~> 1.0"},
+      {:bandit, "~> 1.8"},
       {:slime, "~> 1.3.1"},
       {:phoenix_slime, "~> 0.13",
        github: "slime-lang/phoenix_slime", ref: "8944de91654d6fcf6bdcc0aed6b8647fe3398241"},
       {:phoenix_pubsub_redis, "~> 3.0"},
-      {:ecto_network, "~> 1.3"},
-      {:bcrypt_elixir, "~> 3.0"},
+      {:ecto_network, "~> 1.6"},
+      {:bcrypt_elixir, "~> 3.3"},
       {:pot, "~> 1.0"},
       {:secure_compare, "~> 0.1"},
       {:nimble_parsec, "~> 1.2"},
@@ -59,40 +61,39 @@ defmodule Philomena.MixProject do
       {:pbkdf2, ">= 0.0.0",
        github: "basho/erlang-pbkdf2", ref: "7e9bd5fcd3cc3062159e4c9214bb628aa6feb5ca"},
       {:qrcode, "~> 0.1"},
-      {:redix, "~> 1.2"},
-      {:remote_ip, "~> 1.1"},
-      {:briefly, "~> 0.4"},
+      {:redix, "~> 1.4"},
+      {:remote_ip, "~> 1.2"},
+      {:briefly, "~> 0.5"},
       {:req, "~> 0.5"},
-      {:exq, "~> 0.17"},
+      {:exq, "~> 0.21"},
       {:ex_aws, "~> 2.5"},
-      {:ex_aws_s3, "~> 2.0"},
+      {:ex_aws_s3, "~> 2.5"},
       {:sweet_xml, "~> 0.7"},
       {:inet_cidr, "~> 1.0"},
 
       # SMTP
-      {:swoosh, "~> 1.17"},
-      {:mua, "~> 0.2.0"},
-      {:mail, "~> 0.3.0"},
+      {:swoosh, "~> 1.19"},
+      {:mua, "~> 0.2"},
+      {:mail, "~> 0.5"},
 
       # Markdown
-      {:rustler, "~> 0.35"},
+      {:rustler, "~> 0.37"},
 
       # Linting
-      {:credo, "~> 1.6", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:credo_envvar, "~> 0.1", only: [:dev, :test], runtime: false},
-      {:credo_naming, "~> 2.0", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.30", only: [:dev], runtime: false},
+      {:credo_naming, "~> 2.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.38", only: [:dev], runtime: false},
 
       # Security checks
-      {:sobelow, "~> 0.11", only: [:dev, :test], runtime: true},
+      {:sobelow, "~> 0.14", only: [:dev, :test], runtime: true},
       {:mix_audit, "~> 2.1", only: [:dev, :test], runtime: false},
 
       # Static analysis
-      {:dialyxir, "~> 1.2", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
 
-      # Fixes for Elixir v1.15+
-      {:canary, "~> 1.1",
-       github: "marcinkoziej/canary", ref: "704debde7a2c0600f78c687807884bf37c45bd79"}
+      # Authorization
+      {:canary, "~> 1.2"}
     ]
   end
 
