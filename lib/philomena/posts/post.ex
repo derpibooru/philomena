@@ -32,7 +32,7 @@ defmodule Philomena.Posts.Post do
     |> cast(attrs, [:body, :edit_reason])
     |> put_change(:edited_at, edited_at)
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> validate_length(:edit_reason, max: 70, count: :bytes)
     |> Approval.maybe_put_approval(post.user, :external_links)
   end
@@ -42,7 +42,7 @@ defmodule Philomena.Posts.Post do
     post
     |> cast(attrs, [:body, :anonymous])
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> Approval.maybe_put_approval(attribution[:user], :external_links)
   end
@@ -53,7 +53,7 @@ defmodule Philomena.Posts.Post do
     |> change(anonymous: anonymous?)
     |> cast(attrs, [:body])
     |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 20_000, count: :bytes)
+    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
     |> change(attribution)
     |> change(topic_position: 0)
     |> Approval.maybe_put_approval(attribution[:user], :external_links)
