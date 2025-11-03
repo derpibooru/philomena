@@ -178,7 +178,7 @@
         ["uts", "unicorn twilight"],
         ["ptia", "principal celestia"],
         ["sctw", "sci-twi"],
-        ["sprd", "spike the regular dog"]
+        ["spdg", "spike the regular dog"]
       ]
     ],
     [
@@ -214,7 +214,7 @@
         ["dt", "diamond tiara"],
         ["dw", "doctor whooves"],
         ["fl", "flitter"],
-        ["gl", "gilda"],
+        ["gd", "gilda"],
         ["gs", "granny smith"],
         ["ld", "lightning dust"],
         ["lh", "lyra heartstrings"],
@@ -245,12 +245,12 @@
         ["btn", "button mash"],
         ["cgt", "minuette"],
         ["chl", "cheerilee"],
-        ["cpc", "cup cake"],
         ["cra", "coloratura"],
+        ["cuc", "cup cake"],
         ["ddo", "daring do"],
         ["fdl", "fleur-de-lis"],
         ["fse", "flash sentry"],
-        ["lsp", "limestone pie"]
+        ["lmp", "limestone pie"]
       ]
     ],
     [
@@ -289,11 +289,11 @@
       "Type",
       [
         ["po", "pony"],
-        ["an", "anthro"],
+        ["at", "anthro"],
         ["da", "digitigrade anthro"],
         ["pa", "plantigrade anthro"],
         ["ua", "unguligrade anthro"],
-        ["san", "semi-anthro"]
+        ["sat", "semi-anthro"]
       ]
     ],
     [
@@ -331,7 +331,7 @@
       [
         ["btal", "bat pony alicorn"],
         ["chpg", "classical hippogriff"],
-        ["cspo", "crystal pony"],
+        ["crpo", "crystal pony"],
         ["drpo", "dracony"],
         ["ffpo", "fluffy pony"],
         ["mopo", "monster pony"],
@@ -343,6 +343,7 @@
     [
       "Head",
       [
+        ["tp", "tongue out"],
         ["1cl", "one eye closed"],
         ["cls", "eyes closed"],
         ["flp", "floppy ears"],
@@ -350,7 +351,6 @@
         ["mou", "mouth hold"],
         ["opm", "open mouth"],
         ["smi", "smiling"],
-        ["tou", "tongue out"],
         ["osmi", "open smile"],
         ["smiy", "smiling at you"]
       ]
@@ -375,7 +375,7 @@
       [
         ["st", "sitting"],
         ["oba", "on back"],
-        ["osi", "on side"],
+        ["osd", "on side"],
         ["rsh", "raised hoof"],
         ["rst", "raised tail"],
         ["spl", "spread legs"],
@@ -387,8 +387,8 @@
       "Body",
       [
         ["cl", "clothes"],
-        ["cfl", "chest fluff"],
-        ["efl", "ear fluff"],
+        ["chf", "chest fluff"],
+        ["eaf", "ear fluff"],
         ["epe", "ear piercing"],
         ["udh", "underhoof"],
         ["uns", "unshorn fetlocks"],
@@ -407,7 +407,7 @@
         ["spb", "speech bubble"],
         ["thb", "thought bubble"],
         ["offs", "offscreen character"],
-        ["sofo", "solo focus"]
+        ["sofc", "solo focus"]
       ]
     ],
     [
@@ -416,7 +416,7 @@
         ["ani", "animated"],
         ["asr", "absurd resolution"],
         ["bnw", "black and white"],
-        ["gra", "grayscale"],
+        ["gry", "grayscale"],
         ["hir", "high res"],
         ["mcr", "monochrome"],
         ["asfs", "absurd file size"]
@@ -425,12 +425,12 @@
     [
       "Tech B",
       [
-        ["gb", "gradient background"],
         ["sk", "sketch"],
         ["tb", "transparent background"],
         ["wb", "white background"],
-        ["abb", "abstract background"],
+        ["asb", "abstract background"],
         ["csk", "colored sketch"],
+        ["grb", "gradient background"],
         ["ptb", "partially transparent background"],
         ["sib", "simple background"],
         ["trad", "traditional art"]
@@ -483,11 +483,11 @@
         ["alt", "alternate version"],
         ["scc", "official comic"],
         ["altc", "alternate character"],
-        ["anma", "anonymous artist"],
+        ["anoa", "anonymous artist"],
+        ["cled", "color edit"],
         ["deex", "derpibooru exclusive"],
         ["edsc", "edited screencap"],
         ["poas", "part of a set"],
-        ["coled", "color edit"],
         ["veced", "vector edit"]
       ]
     ],
