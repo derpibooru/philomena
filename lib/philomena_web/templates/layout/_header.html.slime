@@ -28,6 +28,7 @@ header.header
         data-autocomplete="multi-tags"
         data-autocomplete-condition="enable_search_ac"
         data-autocomplete-history-id="search-history"
+        spellcheck="false"
       ]
 
       = if present?(@conn.params["sf"]) do

@@ -310,7 +310,7 @@ defmodule Philomena.Conversations do
       {:ok, %{reports: {_count, reports}, message: message}} ->
         Reports.reindex_reports(reports)
 
-        message
+        {:ok, message}
 
       _error ->
         {:error, message_changeset}
@@ -339,7 +339,7 @@ defmodule Philomena.Conversations do
       Reports.create_system_report(
         {"Conversation", message.conversation_id},
         "Approval",
-        "PM contains externally-embedded images and has been flagged for review."
+        "PM contains externally-embedded images"
       )
     end
   end

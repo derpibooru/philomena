@@ -55,7 +55,8 @@ defmodule PhilomenaWeb.Image.TagController do
           UserStatistics.inc_stat(conn.assigns.current_user, :metadata_updates)
         end
 
-        tag_change_count = TagChanges.count_tag_changes(:image_id, image.id)
+        {tag_change_count, tag_change_tag_count} =
+          TagChanges.count_tag_changes(:image_id, image.id)
 
         image =
           image
@@ -68,6 +69,7 @@ defmodule PhilomenaWeb.Image.TagController do
         |> render("_tags.html",
           layout: false,
           tag_change_count: tag_change_count,
+          tag_change_tag_count: tag_change_tag_count,
           image: image,
           changeset: changeset
         )
@@ -82,6 +84,7 @@ defmodule PhilomenaWeb.Image.TagController do
         |> render("_tags.html",
           layout: false,
           tag_change_count: 0,
+          tag_change_tag_count: 0,
           image: image,
           changeset: changeset
         )

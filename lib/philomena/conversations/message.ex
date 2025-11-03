@@ -30,7 +30,7 @@ defmodule Philomena.Conversations.Message do
     |> validate_required([:body])
     |> put_assoc(:from, user)
     |> validate_length(:body, max: 300_000, count: :bytes)
-    |> Approval.maybe_put_approval(user)
+    |> Approval.maybe_put_approval(user, :image_embeds)
   end
 
   @doc false

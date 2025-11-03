@@ -32,6 +32,6 @@
 
   .field
     => label f, :artist_tag, "Artist tag"
-    = text_input f, :artist_tag, class: "input", placeholder: "Artist tag"
+    = text_input f, :artist_tag, class: "input", placeholder: "Artist tag", spellcheck: "false"
 
   = submit "Save", class: "button"

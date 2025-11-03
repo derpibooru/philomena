@@ -209,7 +209,10 @@ defmodule PhilomenaWeb.UserAuth do
 
   defp signed_in_path(_conn), do: "/"
 
-  defp update_usages(conn, user) do
+  @doc """
+  Updates the user's IP address and fingerprint usage records asynchronously.
+  """
+  def update_usages(conn, user) do
     now = DateTime.utc_now(:second)
 
     UserIpUpdater.cast(user.id, conn.remote_ip, now)

@@ -1406,7 +1406,7 @@ defmodule Philomena.Images do
 
   """
   def perform_purge(files) do
-    {_out, 0} = System.cmd("purge-cache", [Jason.encode!(%{files: files})])
+    {_out, 0} = System.cmd("purge-cache", [JSON.encode!(%{files: files})])
 
     :ok
   end

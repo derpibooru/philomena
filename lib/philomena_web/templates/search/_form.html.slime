@@ -12,7 +12,8 @@ h1 Search
       autocomplete: "multi-tags",
       autocomplete_condition: "enable_search_ac",
       autocomplete_history_id: "search-history",
-    ]
+    ],
+    spellcheck: "false"
 
   .block
     .block__header.flex

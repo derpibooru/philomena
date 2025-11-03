@@ -8,7 +8,7 @@ defmodule Philomena.Channels.PicartoChannel do
     |> case do
       {:ok, %{body: body, status: 200}} ->
         body
-        |> Jason.decode!()
+        |> JSON.decode!()
         |> Map.new(&{&1["name"], fetch(&1)})
 
       _error ->

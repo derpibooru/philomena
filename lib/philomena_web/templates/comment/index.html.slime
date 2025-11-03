@@ -2,7 +2,7 @@ h1 Comments
 
 = form_for :comments, ~p"/comments", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search comments", autocapitalize: "none"
+    = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search comments", autocapitalize: "none", spellcheck: "false"
     = submit "Search", class: "hform__button button"
 
   .fieldlabel

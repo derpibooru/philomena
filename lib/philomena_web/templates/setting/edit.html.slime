@@ -33,11 +33,11 @@ h1 Content Settings
 
         .field
           = label f, :watched_images_query_str, "Watch list search string (images found by this search are added to your watched images list)"
-          = textarea f, :watched_images_query_str, class: "input input--wide", autocapitalize: "none"
+          = textarea f, :watched_images_query_str, class: "input input--wide", autocapitalize: "none", spellcheck: "false"
           = error_tag f, :watched_images_query_str
         .field
           = label f, :watched_images_exclude_str, "Watch list filter string (any images found by this search are removed from your watched images list)"
-          = textarea f, :watched_images_exclude_str, class: "input input--wide", autocapitalize: "none"
+          = textarea f, :watched_images_exclude_str, class: "input input--wide", autocapitalize: "none", spellcheck: "false"
           = error_tag f, :watched_images_exclude_str
         .field
           => checkbox f, :no_spoilered_in_watched, class: "checkbox"
@@ -119,7 +119,7 @@ h1 Content Settings
 
         .block.block--fixed.block--warning Don't forget to save the settings to apply the theme!
 
-        .hidden#js-theme-paths data-theme-paths=Jason.encode!(theme_paths())
+        .hidden#js-theme-paths data-theme-paths=JSON.encode!(theme_paths())
         .field
           => select f, :scale_large_images, scale_options(), class: "input"
           => label f, :scale_large_images

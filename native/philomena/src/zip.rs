@@ -3,7 +3,7 @@ use std::io::Write;
 use std::sync::Mutex;
 
 use rustler::{Atom, Resource, ResourceArc};
-use zip::{write::SimpleFileOptions, CompressionMethod, ZipWriter};
+use zip::{CompressionMethod, ZipWriter, write::SimpleFileOptions};
 
 mod atoms {
     rustler::atoms! {

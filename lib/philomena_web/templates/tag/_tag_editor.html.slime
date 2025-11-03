@@ -18,6 +18,7 @@ elixir:
       autocapitalize="none"
       data-autocomplete="single-tag"
       data-autocomplete-max-suggestions=5
+      spellcheck="false"
     ]
 button.button.button--state-primary.button--bold[
   class="js-taginput-show"

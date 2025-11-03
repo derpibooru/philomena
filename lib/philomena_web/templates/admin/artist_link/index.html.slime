@@ -4,7 +4,7 @@ p Verifying a link will automatically award an artist badge if the link is publi
 
 = form_for :artist_link, ~p"/admin/artist_links", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :lq, name: :lq, value: @conn.params["lq"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none"
+    = text_input f, :lq, name: :lq, value: @conn.params["lq"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none", spellcheck: "false"
     = submit "Search", class: "hform__button button"
 
 - route = fn p -> ~p"/admin/artist_links?#{p}" end

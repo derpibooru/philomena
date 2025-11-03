@@ -1,6 +1,7 @@
 defmodule PhilomenaWeb.RegistrationController do
   use PhilomenaWeb, :controller
 
+  alias PhilomenaWeb.UserAuth
   alias Philomena.Users
   alias Philomena.Users.User
 
@@ -17,6 +18,8 @@ defmodule PhilomenaWeb.RegistrationController do
   def create(conn, %{"user" => user_params}) do
     case Users.register_user(user_params) do
       {:ok, user} ->
+        UserAuth.update_usages(conn, user)
+
         {:ok, _} =
           Users.deliver_user_confirmation_instructions(
             user,

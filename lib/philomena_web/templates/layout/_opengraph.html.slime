@@ -5,14 +5,21 @@ meta name="format-detection" content="telephone=no"
 = if opengraph?(@conn) do
   - image = @conn.assigns.image
   - filtered = not image.thumbnails_generated
-  - description = "##{image.id} - #{Philomena.Images.tag_list(image)} - Derpibooru"
-  - thumb_large = ImageView.thumb_urls(image, false)[:large]
+  - title = "##{image.id} - #{Philomena.Images.tag_list(image)} - Derpibooru"
+  - description = "⭐ #{image.faves_count} ↕️ #{image.score} 💬 #{image.comments_count} • #{image.image_width}x#{image.image_height} #{String.upcase(to_string(image.image_format))}"
+  - {thumb_large, {large_width, large_height}} = ImageView.thumb_url_size(image, false, :large)
   - thumb_rendered = ImageView.thumb_url(image, false, :rendered)
+  - rendered_type = "image/png"
 
   meta name="keywords" content=tag_list(image)
-  meta name="description" content=description
-  meta property="og:title" content=description
+  meta name="description" content=title
+  meta property="og:site_name" content="Derpibooru"
+  meta property="og:title" content=title
+  meta property="og:description" content=description
   meta property="og:url" content=url(~p"/images/#{image}")
+  meta property="twitter:card" content="summary_large_image"
+  meta property="twitter:title" content=title
+  meta property="twitter:description" content=description
 
   = for tag <- artist_tags(image.tags) do
     meta property="dc:creator" content=tag.name_in_namespace
@@ -28,15 +35,30 @@ meta name="format-detection" content="telephone=no"
     - image.image_mime_type == "video/webm" and not filtered ->
       meta property="og:type" content="video.other"
       meta property="og:image" content=thumb_rendered
+      meta property="og:image:type" content=rendered_type
+      meta property="og:image:width" content=image.image_width
+      meta property="og:image:height" content=image.image_height
       meta property="og:video" content=thumb_large
+      meta property="og:video:type" content=image.image_mime_type
+      meta property="og:video:width" content=large_width
+      meta property="og:video:height" content=large_height
+      meta property="twitter:image" content=thumb_rendered
 
     - image.image_mime_type == "image/svg+xml" and not filtered ->
       meta property="og:type" content="website"
       meta property="og:image" content=thumb_rendered
+      meta property="og:image:type" content=rendered_type
+      meta property="og:image:width" content=image.image_width
+      meta property="og:image:height" content=image.image_height
+      meta property="twitter:image" content=thumb_rendered
 
     - not filtered ->
       meta property="og:type" content="website"
       meta property="og:image" content=thumb_large
+      meta property="og:image:type" content=image.image_mime_type
+      meta property="og:image:width" content=large_width
+      meta property="og:image:height" content=large_height
+      meta property="twitter:image" content=thumb_large
 
     - true ->
       meta property="og:type" content="website"

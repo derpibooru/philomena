@@ -11,7 +11,8 @@ h1 Tags
       data: [ \
         autocomplete: "multi-tags",
         autocomplete_condition: "enable_search_ac",
-      ]
+      ],
+      spellcheck: "false"
 
     = submit "Search", class: "hform__button button"
 

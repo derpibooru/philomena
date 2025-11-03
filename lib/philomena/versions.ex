@@ -27,7 +27,7 @@ defmodule Philomena.Versions do
       |> Enum.map_reduce(
         {parent.body, parent.edit_reason},
         fn version, {previous_body, previous_reason} ->
-          json = Jason.decode!(version.object || "{}")
+          json = JSON.decode!(version.object || "{}")
           body = json["body"] || ""
           edit_reason = json["edit_reason"]
 

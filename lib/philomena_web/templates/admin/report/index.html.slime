@@ -32,7 +32,7 @@ h1 Reports
 
 = form_for :report, ~p"/admin/reports", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :rq, name: :rq, value: @conn.params["rq"], class: "input hform__text", placeholder: "Search reports", autocapitalize: "none"
+    = text_input f, :rq, name: :rq, value: @conn.params["rq"], class: "input hform__text", placeholder: "Search reports", autocapitalize: "none", spellcheck: "false"
     = submit "Search", class: "hform__button button"
 
 .field
