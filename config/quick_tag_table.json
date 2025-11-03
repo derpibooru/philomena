@@ -4,6 +4,11 @@
     "Species",
     "Shorthands A",
     "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
     "Ships ts",
     "rd",
     "ry",
@@ -26,6 +31,11 @@
     "Species": "default",
     "Shorthands A": "shorthand",
     "B": "shorthand",
+    "C": "shorthand",
+    "D": "shorthand",
+    "E": "shorthand",
+    "F": "shorthand",
+    "G": "shorthand",
     "Ships ts": "shipping",
     "rd": "shipping",
     "ry": "shipping",
@@ -106,111 +116,437 @@
   },
   "Shorthands A": [
     [
-      "Mane Cast",
+      "Mane",
       [
-        ["m6", "mane six"],
-        ["pt", "princess twilight"],
-        ["ts", "twilight sparkle"],
-        ["rd", "rainbow dash"],
-        ["ry", "rarity"],
         ["aj", "applejack"],
         ["fs", "fluttershy"],
         ["pp", "pinkie pie"],
-        ["sp", "spike"]
+        ["rd", "rainbow dash"],
+        ["ry", "rarity"],
+        ["ts", "twilight sparkle"]
       ]
     ],
     [
-      "Secondary Cast",
+      "Major",
       [
-        ["cmc", "cutie mark crusaders"],
         ["ab", "apple bloom"],
-        ["sl", "scootaloo"],
-        ["sb", "sweetie belle"],
-        ["tia", "princess celestia"],
-        ["luna", "princess luna"],
-        ["pcd", "princess cadance"],
-        ["sa", "shining armor"],
-        ["sg", "starlight glimmer"]
-      ]
-    ],
-    [
-      "More Ponies",
-      [
-        ["tx", "trixie"],
-        ["sus", "sunset shimmer"],
-        ["sombra", "king sombra"],
-        ["qc", "queen chrysalis"],
         ["dc", "discord"],
+        ["pl", "princess luna"],
+        ["sb", "sweetie belle"],
+        ["sg", "starlight glimmer"],
+        ["sl", "scootaloo"],
+        ["sp", "spike"],
+        ["pcd", "princess cadance"],
+        ["sus", "sunset shimmer"],
+        ["tia", "princess celestia"]
+      ]
+    ],
+    [
+      "Major B",
+      [
+        ["ga", "gallus"],
+        ["sm", "smolder"],
+        ["tx", "trixie"],
+        ["yn", "yona"],
+        ["ols", "ocellus"],
+        ["snb", "sandbar"],
+        ["svs", "silverstream"]
+      ]
+    ],
+    [
+      "Major C",
+      [
+        ["cz", "cozy glow"],
+        ["qc", "queen chrysalis"],
+        ["sd", "sonata dusk"],
+        ["ada", "adagio dazzle"],
+        ["ari", "aria blaze"],
+        ["kso", "king sombra"],
         ["nmm", "nightmare moon"],
-        ["sf", "spitfire"],
-        ["sn", "soarin'"],
-        ["ld", "lightning dust"]
+        ["tps", "tempest shadow"]
       ]
     ],
     [
-      "More Apples",
+      "Alts",
       [
-        ["bm", "big macintosh"],
-        ["gs", "granny smith"],
-        ["bb", "braeburn"],
-        ["bs", "babs seed"]
+        ["pt", "princess twilight"],
+        ["fzb", "fizzlepop berrytwist"],
+        ["pdp", "pinkamena diane pie"],
+        ["ppl", "vice principal luna"],
+        ["s1l", "s1 luna"],
+        ["s5s", "s5 starlight"],
+        ["uts", "unicorn twilight"],
+        ["ptia", "principal celestia"],
+        ["sctw", "sci-twi"],
+        ["spdg", "spike the regular dog"]
       ]
     ],
     [
-      "Fillies and Colts",
+      "Groups",
       [
-        ["ss", "silver spoon"],
-        ["dt", "diamond tiara"],
-        ["pfh", "princess flurry heart"]
+        ["m5", "mane five"],
+        ["m6", "mane six"],
+        ["m7", "mane seven"],
+        ["s6", "student six"],
+        ["cmc", "cutie mark crusaders"]
       ]
     ]
   ],
   "B": [
     [
-      "Background Ponies",
+      "Minor",
       [
-        ["dh", "derpy hooves"],
-        ["dw", "doctor whooves"],
-        ["cgt", "colgate"],
-        ["bon", "bon bon"],
-        ["oct", "octavia melody"],
-        ["dj", "vinyl scratch"],
+        ["bb", "bon bon"],
+        ["bm", "big macintosh"],
+        ["bn", "braeburn"],
         ["bp", "berry punch"],
-        ["pbb", "prince blueblood"]
+        ["bs", "babs seed"],
+        ["cc", "cloudchaser"],
+        ["ct", "carrot top"],
+        ["db", "daybreaker"],
+        ["dh", "derpy hooves"],
+        ["dj", "vinyl scratch"]
       ]
     ],
     [
-      "Student Six",
+      "Minor B",
       [
-        ["s6", "student six"],
-        ["ga", "gallus"],
-        ["ols", "ocellus"],
-        ["snb", "sandbar"],
-        ["svs", "silverstream"],
-        ["sm", "smolder"],
-        ["yn", "yona"]
-      ]
-    ],
-    [
-      "Uncategorized",
-      [
-        ["maud", "maud pie"],
-        ["coco", "coco pommel"],
-        ["suri", "suri polomare"],
-        ["rg", "royal guard"],
-        ["za", "zecora"],
+        ["dt", "diamond tiara"],
+        ["dw", "doctor whooves"],
+        ["fl", "flitter"],
+        ["gd", "gilda"],
+        ["gs", "granny smith"],
+        ["ld", "lightning dust"],
+        ["lh", "lyra heartstrings"],
+        ["lv", "lily valley"],
         ["mm", "mayor mare"],
-        ["pdp", "pinkamena diane pie"],
-        ["owol", "owlowiscious"],
-        ["opal", "opalescence"]
+        ["pf", "photo finish"]
       ]
     ],
     [
-      "Other Things",
+      "Minor C",
+      [
+        ["rg", "royal guard"],
+        ["sa", "shining armor"],
+        ["sf", "spitfire"],
+        ["sn", "soarin'"],
+        ["ss", "silver spoon"],
+        ["tl", "thunderlane"],
+        ["za", "zecora"],
+        ["abn", "angel bunny"],
+        ["amt", "amethyst star"],
+        ["aub", "autumn blaze"]
+      ]
+    ],
+    [
+      "Minor D",
+      [
+        ["bbi", "bulk biceps"],
+        ["btn", "button mash"],
+        ["cgt", "minuette"],
+        ["chl", "cheerilee"],
+        ["cra", "coloratura"],
+        ["cuc", "cup cake"],
+        ["ddo", "daring do"],
+        ["fdl", "fleur-de-lis"],
+        ["fse", "flash sentry"],
+        ["lmp", "limestone pie"]
+      ]
+    ],
+    [
+      "Minor E",
+      [
+        ["lzt", "lemon zest"],
+        ["mbp", "marble pie"],
+        ["mdc", "moondancer"],
+        ["nmr", "nightmare rarity"],
+        ["nrh", "nurse redheart"],
+        ["oct", "octavia melody"],
+        ["opl", "opalescence"],
+        ["pbb", "prince blueblood"],
+        ["peb", "pear butter"],
+        ["pfh", "princess flurry heart"]
+      ]
+    ],
+    [
+      "Minor F",
+      [
+        ["ros", "roseluck"],
+        ["sub", "sunburst"],
+        ["sgc", "sugarcoat"],
+        ["ssw", "sour sweet"],
+        ["sug", "sugar belle"],
+        ["trh", "tree hugger"],
+        ["twv", "twilight velvet"],
+        ["wfb", "wallflower blush"],
+        ["chee", "cheese sandwich"],
+        ["owol", "owlowiscious"]
+      ]
+    ]
+  ],
+  "C": [
+    [
+      "Type",
+      [
+        ["po", "pony"],
+        ["at", "anthro"],
+        ["da", "digitigrade anthro"],
+        ["pa", "plantigrade anthro"],
+        ["ua", "unguligrade anthro"],
+        ["sat", "semi-anthro"]
+      ]
+    ],
+    [
+      "Species",
+      [
+        ["al", "alicorn"],
+        ["bt", "bat pony"],
+        ["ch", "changeling"],
+        ["dr", "dragon"],
+        ["ea", "earth pony"],
+        ["gr", "griffon"],
+        ["hu", "human"],
+        ["pg", "pegasus"],
+        ["un", "unicorn"],
+        ["org", "original species"]
+      ]
+    ],
+    [
+      "Species B",
+      [
+        ["cq", "changeling queen"],
+        ["dq", "draconequus"],
+        ["hy", "hybrid"],
+        ["ze", "zebra"],
+        ["brz", "breezie"],
+        ["chd", "changedling"],
+        ["cun", "classical unicorn"],
+        ["ddg", "diamond dog"],
+        ["hpg", "hippogriff"],
+        ["spo", "seapony"]
+      ]
+    ],
+    [
+      "Species C",
+      [
+        ["btal", "bat pony alicorn"],
+        ["chpg", "classical hippogriff"],
+        ["crpo", "crystal pony"],
+        ["drpo", "dracony"],
+        ["ffpo", "fluffy pony"],
+        ["mopo", "monster pony"],
+        ["rbpo", "robot pony"]
+      ]
+    ]
+  ],
+  "D": [
+    [
+      "Head",
+      [
+        ["tp", "tongue out"],
+        ["1cl", "one eye closed"],
+        ["cls", "eyes closed"],
+        ["flp", "floppy ears"],
+        ["glh", "glowing horn"],
+        ["mou", "mouth hold"],
+        ["opm", "open mouth"],
+        ["smi", "smiling"],
+        ["osmi", "open smile"],
+        ["smiy", "smiling at you"]
+      ]
+    ],
+    [
+      "Head B",
+      [
+        ["lka", "looking away"],
+        ["lkb", "looking back"],
+        ["lkd", "looking down"],
+        ["lks", "looking sideways"],
+        ["lku", "looking up"],
+        ["lky", "looking at you"],
+        ["lkby", "looking back at you"],
+        ["lkea", "looking at each other"],
+        ["lkso", "looking at someone"],
+        ["lkst", "looking at something"]
+      ]
+    ],
+    [
+      "Pose",
+      [
+        ["st", "sitting"],
+        ["oba", "on back"],
+        ["osd", "on side"],
+        ["rsh", "raised hoof"],
+        ["rst", "raised tail"],
+        ["spl", "spread legs"],
+        ["spw", "spread wings"],
+        ["fdau", "face down ass up"]
+      ]
+    ],
+    [
+      "Body",
+      [
+        ["cl", "clothes"],
+        ["chf", "chest fluff"],
+        ["eaf", "ear fluff"],
+        ["epe", "ear piercing"],
+        ["udh", "underhoof"],
+        ["uns", "unshorn fetlocks"],
+        ["armh", "arm hooves"],
+        ["ecth", "eye clipping through hair"],
+        ["evth", "eyebrows visible through hair"]
+      ]
+    ]
+  ],
+  "E": [
+    [
+      "Count",
+      [
+        ["so", "solo"],
+        ["dlg", "dialogue"],
+        ["spb", "speech bubble"],
+        ["thb", "thought bubble"],
+        ["offs", "offscreen character"],
+        ["sofc", "solo focus"]
+      ]
+    ],
+    [
+      "Tech",
+      [
+        ["ani", "animated"],
+        ["asr", "absurd resolution"],
+        ["bnw", "black and white"],
+        ["gry", "grayscale"],
+        ["hir", "high res"],
+        ["mcr", "monochrome"],
+        ["asfs", "absurd file size"]
+      ]
+    ],
+    [
+      "Tech B",
+      [
+        ["sk", "sketch"],
+        ["tb", "transparent background"],
+        ["wb", "white background"],
+        ["asb", "abstract background"],
+        ["csk", "colored sketch"],
+        ["grb", "gradient background"],
+        ["ptb", "partially transparent background"],
+        ["sib", "simple background"],
+        ["trad", "traditional art"]
+      ]
+    ],
+    [
+      "Other",
+      [
+        ["fe", "female"],
+        ["ml", "male"],
+        ["oo", "oc only"],
+        ["bgp", "background pony"],
+        ["cxo", "canon x oc"],
+        ["huz", "humanized"],
+        ["ind", "indoors"],
+        ["out", "outdoors"],
+        ["huzo", "humanized oc"],
+        ["sona", "ponysona"]
+      ]
+    ],
+    [
+      "Other B",
       [
         ["cm", "cutie mark"],
+        ["chs", "canterlot high"],
+        ["dfl", "discovery family logo"],
         ["eoh", "elements of harmony"],
-        ["nmn", "nightmare night"]
+        ["nlr", "new lunar republic"],
+        ["nmn", "nightmare night"],
+        ["vso", "ship:scratchtavia"],
+        ["pirl", "ponies in real life"]
+      ]
+    ],
+    [
+      "Other C",
+      [
+        ["atg", "newbie artist training grounds"],
+        ["bpr", "barely pony related"],
+        ["cmm", "commission"],
+        ["sfm", "source filmmaker"],
+        ["ych", "your character here"]
+      ]
+    ]
+  ],
+  "F": [
+    [
+      "Origin",
+      [
+        ["sc", "screencap"],
+        ["alt", "alternate version"],
+        ["scc", "official comic"],
+        ["altc", "alternate character"],
+        ["anoa", "anonymous artist"],
+        ["cled", "color edit"],
+        ["deex", "derpibooru exclusive"],
+        ["edsc", "edited screencap"],
+        ["poas", "part of a set"],
+        ["veced", "vector edit"]
+      ]
+    ],
+    [
+      "Media",
+      [
+        ["eg", "equestria girls"],
+        ["fim", "my little pony: friendship is magic"],
+        ["g4m", "my little pony: the movie"],
+        ["g5m", "my little pony: a new generation"],
+        ["mym", "my little pony: make your mark"],
+        ["tyt", "my little pony: tell your tale"],
+        ["mlpt", "my little pony tales"],
+        ["fimidw", "my little pony: friendship is magic (idw)"]
+      ]
+    ],
+    [
+      "Community",
+      [
+        ["dpb", "derpibooru"],
+        ["eaw", "equestria at war mod"],
+        ["eqd", "equestria daily"],
+        ["foe", "fallout equestria"],
+        ["loe", "legends of equestria"],
+        ["tfh", "them's fightin' herds"],
+        ["bfed", "banned from equestria daily"],
+        ["ptwn", "pony town"],
+        ["foeph", "fallout equestria: project horizons"]
+      ]
+    ]
+  ],
+  "G": [
+    [
+      "Mature",
+      [
+        ["br", "breasts"],
+        ["ni", "nipples"],
+        ["vu", "vulva"],
+        ["cle", "cleavage"],
+        ["hck", "horsecock"],
+        ["vgs", "vaginal secretions"],
+        ["crbr", "crotchboobs"],
+        ["bgbr", "big breasts"],
+        ["hgbr", "huge breasts"]
+      ]
+    ],
+    [
+      "Mature B",
+      [
+        ["enf", "embarrassed nude exposure"],
+        ["euf", "embarrassed underwear exposure"],
+        ["sof", "solo female"],
+        ["som", "solo male"],
+        ["sph", "small penis humiliation"],
+        ["cfnf", "clothed female nude female"],
+        ["cfnm", "clothed female nude male"],
+        ["cmnf", "clothed male nude female"],
+        ["cmnm", "clothed male nude male"],
+        ["hvop", "human vulva on pony"]
       ]
     ]
   ],
