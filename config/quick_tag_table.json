@@ -170,12 +170,13 @@
       "Alts",
       [
         ["pt", "princess twilight"],
+        ["ut", "unicorn twilight"],
         ["fzb", "fizzlepop berrytwist"],
         ["pdp", "pinkamena diane pie"],
         ["ppl", "vice principal luna"],
+        ["pt2", "princess twilight 2.0"],
         ["s1l", "s1 luna"],
         ["s5s", "s5 starlight"],
-        ["uts", "unicorn twilight"],
         ["ptia", "principal celestia"],
         ["sctw", "sci-twi"],
         ["spdg", "spike the regular dog"]
@@ -495,9 +496,9 @@
       "Media",
       [
         ["eg", "equestria girls"],
+        ["ang", "my little pony: a new generation"],
         ["fim", "my little pony: friendship is magic"],
         ["g4m", "my little pony: the movie"],
-        ["g5m", "my little pony: a new generation"],
         ["mym", "my little pony: make your mark"],
         ["tyt", "my little pony: tell your tale"],
         ["mlpt", "my little pony tales"],
@@ -537,10 +538,10 @@
     [
       "Mature B",
       [
+        ["1f", "solo female"],
+        ["1m", "solo male"],
         ["enf", "embarrassed nude exposure"],
         ["euf", "embarrassed underwear exposure"],
-        ["sof", "solo female"],
-        ["som", "solo male"],
         ["sph", "small penis humiliation"],
         ["cfnf", "clothed female nude female"],
         ["cfnm", "clothed female nude male"],
