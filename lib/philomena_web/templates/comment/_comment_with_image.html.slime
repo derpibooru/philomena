@@ -53,7 +53,7 @@ article.block.communication id="comment_#{@comment.id}"
                 ' Delete Contents
 
           - not @comment.hidden_from_users and not @comment.destroyed_content ->
-            a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
+            a.communication__interaction.toggleable-delete-form-link href="#" data-click-toggle="#inline-del-form-comment-#{@comment.id}"
               i.fas.fa-times>
               ' Delete
 
@@ -65,6 +65,6 @@ article.block.communication id="comment_#{@comment.id}"
           .communication__info.js-staff-action
             =<> link_to_fingerprint(@conn, @comment.fingerprint)
 
-        = form_for :comment, ~p"/images/#{@comment.image_id}/comments/#{@comment}/hide", [class: "togglable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->
+        = form_for :comment, ~p"/images/#{@comment.image_id}/comments/#{@comment}/hide", [class: "toggleable-delete-form hidden flex", id: "inline-del-form-comment-#{@comment.id}"], fn f ->
           = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-comment-#{@comment.id}", required: true
           = submit "Delete", class: "button"

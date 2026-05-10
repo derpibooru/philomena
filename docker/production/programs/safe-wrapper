@@ -1,0 +1,6 @@
+#!/bin/sh
+if [[ -z "${FIBERGLASS_URL}" ]]; then
+  export FIBERGLASS_URL=http://fiberglass:8080
+fi
+
+fiberglass-wrapper "$@"

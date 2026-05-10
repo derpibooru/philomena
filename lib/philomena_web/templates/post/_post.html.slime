@@ -13,11 +13,11 @@ article.block.communication id="post_#{@post.id}"
                   i.fas.fa-check>
                   ' Approve
               li
-                a.button.togglable-delete-form-link href="#" data-click-toggle="#inline-reject-form-post-#{@post.id}"
+                a.button.toggleable-delete-form-link href="#" data-click-toggle="#inline-reject-form-post-#{@post.id}"
                   i.fa.fa-times>
                   ' Reject
 
-            = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "togglable-delete-form hidden flex", id: "inline-reject-form-post-#{@post.id}"], fn f ->
+            = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "toggleable-delete-form hidden flex", id: "inline-reject-form-post-#{@post.id}"], fn f ->
               = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-reject-reason-post-#{@post.id}", required: true
               = submit "Delete", class: "button"
 
@@ -69,7 +69,7 @@ article.block.communication id="post_#{@post.id}"
                 ' Delete Contents
 
         - not @post.hidden_from_users and not @post.destroyed_content ->
-          a.communication__interaction.togglable-delete-form-link href="#" data-click-toggle="#inline-del-form-post-#{@post.id}"
+          a.communication__interaction.toggleable-delete-form-link href="#" data-click-toggle="#inline-del-form-post-#{@post.id}"
             i.fa.fa-times>
             ' Delete
 
@@ -81,6 +81,6 @@ article.block.communication id="post_#{@post.id}"
         .communication__info
           =<> link_to_fingerprint(@conn, @post.fingerprint)
 
-      = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "togglable-delete-form hidden flex", id: "inline-del-form-post-#{@post.id}"], fn f ->
+      = form_for :post, ~p"/forums/#{@post.topic.forum}/topics/#{@post.topic}/posts/#{@post}/hide", [class: "toggleable-delete-form hidden flex", id: "inline-del-form-post-#{@post.id}"], fn f ->
         = text_input f, :deletion_reason, class: "input input--wide", placeholder: "Deletion Reason", id: "inline-del-reason-post-#{@post.id}", required: true
         = submit "Delete", class: "button"

@@ -1,0 +1,201 @@
+{
+	auto_https disable_certs
+
+	filesystem philomena s3 {
+		bucket {$S3_BUCKET}
+		endpoint {$S3_ENDPOINT}
+		region auto
+		use_path_style
+	}
+
+	servers {
+		client_ip_headers CF-Connecting-IP X-Forwarded-For
+	}
+}
+
+(cors) {
+	@get_and_options method GET OPTIONS
+	@only_options method OPTIONS
+
+	header @get_and_options {
+		Access-Control-Allow-Origin "*"
+		Access-Control-Allow-Methods "GET, OPTIONS"
+		Access-Control-Allow-Headers "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type"
+	}
+
+	header @only_options {
+		Access-Control-Max-Age 1728000
+		Content-Type 'text/plain charset=UTF-8'
+		Content-Length 0
+	}
+}
+
+(s3path) {
+	handle {args[0]} {
+		rewrite {args[0]} {args[1]}
+		file_server {
+			fs philomena
+		}
+	}
+}
+
+(filepath) {
+	handle {args[0]} {
+		file_server {
+			root /var/www
+		}
+
+		header Cache-Control "public, max-age=2147483647"
+	}
+}
+
+{$APP_URL} {
+	@json path_regexp /.+\.json$
+	@static path_regexp ^/.+\.(ico|js|css|eot|woff|svg|ttf|otf|png|jpg|swf|gif|woff2|mp3)$
+	@downtime expression {$DOWNTIME} == true
+
+	rate_limit {
+		zone dynamic {
+			match {
+				host {$SITE_DOMAIN}
+			}
+			key {client_ip}
+			events 30
+			window 5s
+		}
+
+		log_key
+	}
+
+	handle @downtime {
+		error 503
+	}
+
+	handle_errors 500 502 504 429 {
+		log_skip
+		rewrite * /error_50x.html
+		root /var/www
+		file_server
+	}
+
+	handle @static {
+		encode zstd gzip
+		header Cache-Control "public, max-age=2147483647"
+		file_server {
+			root /var/www
+		}
+	}
+
+	handle @json {
+		log_skip
+		respond 400
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31556925"
+	}
+
+	request_body {
+		max_size 130MiB
+	}
+
+	route {
+		# Try to serve static files first...
+		file_server {
+			# Root must be set here, as setting it globally breaks other filesystems.
+			root /var/www
+			pass_thru # Instead of returning 404, simply move on
+		}
+
+		import cors
+
+		# Delegate to app if there's no such file
+		reverse_proxy http://{$APP_ADDRESS} {
+			header_up X-Real-Ip {client_ip}
+			header_up X-Forwarded-For {client_ip}
+			header_up X-Forwarded-Ssl on
+
+			header_down X-Frame-Options SAMEORIGIN
+			header_down Cache-Control 'no-store, no-cache'
+		}
+	}
+
+	log {
+		format filter {
+			request>headers delete
+			request>remote_port delete
+			resp_headers delete
+			wrap json
+		}
+
+		output file /var/log/caddy/access.log {
+			roll_size 2GiB
+			roll_keep 20
+		}
+
+		level INFO
+	}
+
+	log_append user_agent {http.request.header.User-Agent}
+}
+
+{$CDN_URL} {
+	# Handle images and static assets
+	@allimages path /img/* /avatars/* /spns/* /badge-img/* /tag-img/*
+	@imgdownload path_regexp ^/img/download/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@imgview path_regexp ^/img/view/(.+)/([0-9]+).*\.([A-Za-z0-9]+)$
+	@img path_regexp ^/img/(.+)$
+	@spns path_regexp ^/spns/(.+)$
+	@avatars path_regexp ^/avatars/(.+)$
+	@badges path_regexp ^/badges/(.+)$
+	@tags path_regexp ^/tags/(.+)$
+	@html path_regexp ^/(.+\.html)$
+	@static path_regexp ^/(.+\.html|challenge\.css|favicon\.svg)$
+
+	import s3path @imgdownload /images/{re.imgdownload.1}/{re.imgdownload.2}/full.{re.imgdownload.3}
+	import s3path @imgview /images/{re.imgview.1}/{re.imgview.2}/full.{re.imgview.3}
+	import s3path @img /images/{re.img.1}
+	import s3path @avatars /avatars/{re.avatars.1}
+	import s3path @spns /adverts/{re.spns.1}
+	import s3path @badges /badges/{re.badges.1}
+	import s3path @tags /tags/{re.tags.1}
+
+	import filepath @html
+
+	# This block and the next block after it (the header one) are required
+	# because it is possible for there to be files in the bucket which have
+	# an incorrect content type (e.g. "application/octet-stream").
+	# The Content-Type header is force-set here based on the file extension.
+	map {path} {custom_content_type} {
+		~.*\.png$ "image/png"
+		~.*\.jpe?g$ "image/jpeg"
+		~.*\.gif$ "image/gif"
+		~.*\.svg$ "image/svg+xml"
+		~.*\.mp4$ "video/mp4"
+		~.*\.webm$ "video/webm"
+		default "text/html"
+	}
+
+	header @allimages {
+		Content-Type {custom_content_type}
+	}
+
+	# Download path should download the image, not view it.
+	header @imgdownload {
+		Content-Disposition "attachment"
+	}
+
+	handle @static {
+		import cors
+		encode zstd gzip
+		header Cache-Control "public, max-age=2147483647"
+		file_server {
+			root /var/www
+		}
+	}
+
+	handle {
+		import cors
+		respond 404
+	}
+}

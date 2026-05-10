@@ -14,6 +14,11 @@ defmodule Philomena.Release do
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
   end
 
+  def seed do
+    start_app()
+    Code.require_file("priv/repo/seeds.exs")
+  end
+
   def update_channels do
     start_app()
     Philomena.Channels.update_tracked_channels!()

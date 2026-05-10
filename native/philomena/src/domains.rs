@@ -22,12 +22,11 @@ pub fn get() -> &'static Option<DomainSet> {
 pub fn relativize(domains: &DomainSet, url: &str) -> Option<String> {
     let uri = url.parse::<Uri>().ok()?;
 
-    if let Some(a) = uri.authority() {
-        if domains.contains(a.host()) {
-            if let Ok(re) = Regex::new(&format!(r#"^http(s)?://({})"#, regex::escape(a.host()))) {
-                return Some(re.replace(url, "").into());
-            }
-        }
+    if let Some(a) = uri.authority()
+        && domains.contains(a.host())
+        && let Ok(re) = Regex::new(&format!(r#"^http(s)?://({})"#, regex::escape(a.host())))
+    {
+        return Some(re.replace(url, "").into());
     }
 
     Some(url.into())

@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+if [[ -z "${START_WORKER}" ]]; then
+  ulimit -n 16384
+
+  export START_ENDPOINT=true
+  export RELEASE_NODE=philomena_app_0
+else
+  export START_WORKER=true
+  export RELEASE_NODE=philomena_worker_0
+fi
+
+philomena start

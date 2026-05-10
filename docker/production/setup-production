@@ -1,0 +1,25 @@
+#!/bin/sh
+set -e
+
+echo "Waiting for database to start..."
+until pg_isready; do
+  sleep 2
+done
+
+echo "Waiting for OpenSearch..."
+until wget --no-check-certificate -qO - $OPENSEARCH_URL; do
+  sleep 2
+done
+
+# Check if the schema_migrations table exists
+TABLE_EXISTS=$(psql -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'schema_migrations');")
+
+if [ "$TABLE_EXISTS" = "f" ]; then
+  echo "database appears to be uninitialized (table public.schema_migrations is missing), setting up..."
+  psql < priv/repo/structure.sql
+  philomena eval 'Philomena.Release.seed()'
+else
+  echo "database appears to be initialized, skipping setup"
+fi
+
+philomena eval 'Philomena.Release.migrate()'

@@ -1,6 +1,7 @@
-assets
 _build
 .cargo
 deps
 .elixir_ls
-priv
+priv/static
+native/philomena/target
+node_modules

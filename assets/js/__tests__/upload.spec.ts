@@ -238,6 +238,7 @@ describe('Image upload form', () => {
         await waitFor(() => {
           assertSubmitButtonIsDisabled();
           const succeededUnloadEvent = new Event('beforeunload', { cancelable: true });
+          // eslint-disable-next-line vitest/no-conditional-expect
           expect(fireEvent(window, succeededUnloadEvent)).toBe(true);
         });
       } else {
@@ -245,6 +246,7 @@ describe('Image upload form', () => {
         const frm = form;
         await waitFor(() => {
           assertSubmitButtonIsEnabled();
+          // eslint-disable-next-line vitest/no-conditional-expect
           expect(frm.querySelectorAll('.help-block')).toHaveLength(tagErrorCounts[i]);
         });
       }
