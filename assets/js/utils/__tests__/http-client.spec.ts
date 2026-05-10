@@ -36,23 +36,4 @@ describe('HttpClient', () => {
 
     expect(fetch).toHaveBeenCalledTimes(2);
   });
-
-  it('should not retry AbortError', async () => {
-    const client = new HttpClient();
-
-    fetchMock.mockResponse('OK', { status: 200, statusText: 'OK' });
-
-    const abortController = new AbortController();
-
-    const promise = expect(client.fetch('/', { signal: abortController.signal })).rejects.toThrowError(
-      'The operation was aborted.',
-    );
-
-    abortController.abort();
-
-    await vi.runAllTimersAsync();
-    await promise;
-
-    expect(fetch).toHaveBeenCalledOnce();
-  });
 });

@@ -24,7 +24,7 @@ pub fn common_options() -> Options<'static> {
     options.extension.subscript = true;
     options.extension.philomena = true;
     options.render.ignore_empty_links = true;
-    options.render.ignore_setext = true;
+    options.parse.ignore_setext = true;
 
     options.extension.image_url_rewriter = Some(Arc::new(|url: &str| camo::image_url_careful(url)));
 
@@ -47,7 +47,7 @@ pub fn to_html(input: &str, reps: HashMap<String, String>) -> String {
 pub fn to_html_unsafe(input: &str, reps: HashMap<String, String>) -> String {
     let mut options = common_options();
     options.render.escape = false;
-    options.render.unsafe_ = true;
+    options.render.r#unsafe = true;
     options.extension.replacements = Some(reps);
 
     comrak::markdown_to_html(input, &options)
