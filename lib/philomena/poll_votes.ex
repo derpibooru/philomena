@@ -99,11 +99,12 @@ defmodule Philomena.PollVotes do
   end
 
   defp filter_options(user, poll, now, %{"option_ids" => options}) when is_list(options) do
-    # TODO: enforce integrity at the constraint level
+    valid_option_ids = poll_option_ids(poll)
 
     votes =
       options
-      |> Enum.map(&String.to_integer/1)
+      |> Enum.map(&parse_option_id/1)
+      |> Enum.filter(&MapSet.member?(valid_option_ids, &1))
       |> Enum.uniq()
       |> Enum.map(&%{poll_option_id: &1, user_id: user.id, created_at: now})
 
@@ -114,6 +115,24 @@ defmodule Philomena.PollVotes do
   end
 
   defp filter_options(_user, _poll, _now, _attrs), do: []
+
+  defp poll_option_ids(poll) do
+    PollOption
+    |> where(poll_id: ^poll.id)
+    |> select([po], po.id)
+    |> Repo.all()
+    |> MapSet.new()
+  end
+
+  defp parse_option_id(option_id) when is_binary(option_id) do
+    case Integer.parse(option_id) do
+      {id, ""} -> id
+      _ -> nil
+    end
+  end
+
+  defp parse_option_id(option_id) when is_integer(option_id), do: option_id
+  defp parse_option_id(_option_id), do: nil
 
   def voted?(nil, _user), do: false
   def voted?(_poll, nil), do: false
