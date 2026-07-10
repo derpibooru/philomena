@@ -168,10 +168,10 @@ defmodule Philomena.Images.Image do
       sha512 = fetch_field!(changeset, :image_orig_sha512_hash)
       other_image = Repo.get_by(Image, image_orig_sha512_hash: sha512)
 
-      if not is_nil(other_image) do
-        add_error(changeset, :image, "has already been uploaded: it's image #{other_image.id}")
-      else
+      if is_nil(other_image) or other_image.id == changeset.data.id do
         changeset
+      else
+        add_error(changeset, :image, "has already been uploaded: it's image #{other_image.id}")
       end
     end)
   end
