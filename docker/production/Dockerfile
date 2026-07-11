@@ -1,5 +1,5 @@
 # We need to grab "psql" from the Postgres image for database setup
-FROM postgres:17.9-alpine AS pg
+FROM postgres:17.10-alpine AS pg
 
 #
 # Step 1: Build Philomena release
@@ -47,7 +47,7 @@ RUN mix phx.digest -o /tmp/philomena/_build/prod/rel/philomena/lib/philomena-*/p
 # Also copy psql from the Postgres image
 #
 
-FROM alpine:3.23
+FROM alpine:3.24
 
 LABEL org.opencontainers.image.authors="liamwhite <liamwhite@users.noreply.github.com>, Nighty <luna@nighty.cloud>, and contributors"
 LABEL org.opencontainers.image.description="The official Philomena Docker image intended for production use."
