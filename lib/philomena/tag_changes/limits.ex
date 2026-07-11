@@ -1,6 +1,7 @@
 defmodule Philomena.TagChanges.Limits do
   @moduledoc """
-  Tag change limits for anonymous users.
+  Tag change limits for anonymous and unverified users.
+  Verified users are exempt entirely; see `considered_for_limit?/1`.
   """
 
   @tag_changes_per_ten_minutes 50
@@ -23,7 +24,7 @@ defmodule Philomena.TagChanges.Limits do
 
   """
   def limited_for_tag_count?(user, ip, additional \\ 0) do
-    check_limit(user, tag_count_key_for_ip(ip), @tag_changes_per_ten_minutes, additional)
+    check_limit(user, tag_count_key(user, ip), @tag_changes_per_ten_minutes, additional)
   end
 
   @doc """
@@ -42,7 +43,9 @@ defmodule Philomena.TagChanges.Limits do
 
   """
   def limited_for_rating_count?(user, ip) do
-    check_limit(user, rating_count_key_for_ip(ip), @rating_changes_per_ten_minutes, 0)
+    # A rating change is a single change; pass it as the pending amount so the
+    # `> limit` comparison in check_limit still permits exactly one per window.
+    check_limit(user, rating_count_key(user, ip), @rating_changes_per_ten_minutes, 1)
   end
 
   @doc """
@@ -57,7 +60,7 @@ defmodule Philomena.TagChanges.Limits do
 
   """
   def update_tag_count_after_update(user, ip, amount) do
-    increment_counter(user, tag_count_key_for_ip(ip), amount, @ten_minutes_in_seconds)
+    increment_counter(user, tag_count_key(user, ip), amount, @ten_minutes_in_seconds)
   end
 
   @doc """
@@ -72,13 +75,13 @@ defmodule Philomena.TagChanges.Limits do
 
   """
   def update_rating_count_after_update(user, ip, amount) do
-    increment_counter(user, rating_count_key_for_ip(ip), amount, @ten_minutes_in_seconds)
+    increment_counter(user, rating_count_key(user, ip), amount, @ten_minutes_in_seconds)
   end
 
   defp check_limit(user, key, limit, additional) do
     if considered_for_limit?(user) do
       amt = String.to_integer(Redix.command!(:redix, ["GET", key]) || "0")
-      amt + additional >= limit
+      amt + additional > limit
     else
       false
     end
@@ -99,11 +102,14 @@ defmodule Philomena.TagChanges.Limits do
     is_nil(user) or not user.verified
   end
 
-  defp tag_count_key_for_ip(ip) do
-    "rltcn:#{ip}"
+  defp tag_count_key(user, ip) do
+    "rltcn:#{scope(user, ip)}"
   end
 
-  defp rating_count_key_for_ip(ip) do
-    "rltcr:#{ip}"
+  defp rating_count_key(user, ip) do
+    "rltcr:#{scope(user, ip)}"
   end
+
+  defp scope(nil, ip), do: "i:#{ip}"
+  defp scope(user, _ip), do: "u:#{user.id}"
 end

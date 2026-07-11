@@ -1,5 +1,5 @@
-ARG CADDY_VERSION="2.10.2"
-ARG CADDY_FS_S3_VERSION=v0.11.0
+ARG CADDY_VERSION="2.11.4"
+ARG CADDY_FS_S3_VERSION=v0.12.0
 
 #
 # Step 1: Build and digest Philomena static assets

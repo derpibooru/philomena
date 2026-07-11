@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
   end
 
   defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, User) do
+    if Canada.Can.can?(conn.assigns.current_user, :edit, %User{}) do
       conn
     else
       PhilomenaWeb.NotAuthorizedPlug.call(conn)

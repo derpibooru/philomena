@@ -10,8 +10,6 @@ defmodule PhilomenaWeb.Image.FileController do
   plug PhilomenaWeb.ScraperPlug, params_name: "image", params_key: "image"
 
   def update(conn, %{"image" => image_params}) do
-    Images.remove_hash(conn.assigns.image)
-
     case Images.update_file(conn.assigns.image, image_params) do
       {:ok, image} ->
         conn
