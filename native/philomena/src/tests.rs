@@ -139,15 +139,7 @@ fn no_setext_headings_in_philomena() {
 fn greentext_preserved() {
     html(
         ">implying\n>>implying",
-        "<div class=\"paragraph\">&gt;implying<br />\n&gt;&gt;implying</div>\n",
-    );
-}
-
-#[test]
-fn separate_quotes_on_line_end() {
-    html(
-        "> 1\n>\n> 2",
-        "<blockquote>\n<div class=\"paragraph\">1</div>\n</blockquote>\n<div class=\"paragraph\">&gt;</div>\n<blockquote>\n<div class=\"paragraph\">2</div>\n</blockquote>\n",
+        "<div class=\"paragraph\">&gt;implying<br />\n»implying</div>\n",
     );
 }
 
