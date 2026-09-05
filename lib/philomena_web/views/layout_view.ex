@@ -2,6 +2,7 @@ defmodule PhilomenaWeb.LayoutView do
   use PhilomenaWeb, :view
 
   import PhilomenaWeb.Config
+  import PhilomenaWeb.FrontendAssets
   alias PhilomenaWeb.ImageView
   alias Philomena.Config
   alias Philomena.Users.User
@@ -31,10 +32,6 @@ defmodule PhilomenaWeb.LayoutView do
 
   def cdn_host do
     Application.get_env(:philomena, :cdn_host)
-  end
-
-  def vite_reload? do
-    Application.get_env(:philomena, :vite_reload)
   end
 
   def generator_name do

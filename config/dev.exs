@@ -77,8 +77,8 @@ config :philomena, PhilomenaWeb.Endpoint,
 # Disable Pwned Passwords API check in development
 config :philomena, pwned_passwords: false
 
-# Relax CSP rules in development
-config :philomena, csp_relaxed: true
+# Relax CSP on development error pages so Plug.Debugger can render
+config :philomena, csp_relax_on_error: true
 
 # Enable Vite HMR
 config :philomena, vite_reload: true

@@ -17,10 +17,11 @@ defmodule PhilomenaWeb.CaptchaPlug do
   end
 
   defp maybe_assign_csp_headers(conn, nil) do
-    conn
-    |> ContentSecurityPolicyPlug.permit_source(:script_src, @hcaptcha_url)
-    |> ContentSecurityPolicyPlug.permit_source(:frame_src, @hcaptcha_url)
-    |> ContentSecurityPolicyPlug.permit_source(:style_src, @hcaptcha_url)
+    ContentSecurityPolicyPlug.permit_sources(conn, %{
+      script_src: @hcaptcha_url,
+      frame_src: @hcaptcha_url,
+      style_src: @hcaptcha_url
+    })
   end
 
   defp maybe_assign_csp_headers(conn, _user) do

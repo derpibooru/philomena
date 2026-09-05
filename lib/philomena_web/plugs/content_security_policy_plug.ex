@@ -1,93 +1,42 @@
 defmodule PhilomenaWeb.ContentSecurityPolicyPlug do
-  import PhilomenaWeb.Config
   import Plug.Conn
 
-  @allowed_sources [
-    :script_src,
-    :frame_src,
-    :style_src
-  ]
+  alias PhilomenaWeb.Config
+  alias PhilomenaWeb.ContentSecurityPolicy
 
-  def init(opts) do
-    opts
-  end
+  @conn_key :csp_sources
+  @csp_header "content-security-policy"
+
+  def init(_opts), do: []
 
   def call(conn, _opts) do
-    cdn_uri = cdn_uri()
-    camo_uri = camo_uri()
-
     register_before_send(conn, fn conn ->
-      config = get_config(conn)
-
-      script_src = Keyword.get(config, :script_src, [])
-      style_src = Keyword.get(config, :style_src, [])
-      frame_src = Keyword.get(config, :frame_src, nil)
-
-      csp_config = [
-        {:default_src, ["'self'"]},
-        {:script_src, [default_script_src(conn.host) | script_src]},
-        {:connect_src, [default_connect_src(conn.host)]},
-        {:style_src, [default_style_src() | style_src]},
-        {:object_src, ["'none'"]},
-        {:frame_ancestors, ["'none'"]},
-        {:frame_src, frame_src || ["'none'"]},
-        {:form_action, ["'self'"]},
-        {:manifest_src, ["'self'"]},
-        {:img_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]},
-        {:media_src, ["'self'", "blob:", "data:", cdn_uri, camo_uri]}
-      ]
-
-      csp_value = Enum.map_join(csp_config, "; ", &cspify_element/1)
-
-      csp_relaxed? do
-        if conn.status == 500 do
-          # Allow Plug.Debugger to function in this case
-          delete_resp_header(conn, "content-security-policy")
-        else
-          # Enforce CSP otherwise
-          put_resp_header(conn, "content-security-policy", csp_value)
-        end
+      if conn.status == 500 and Config.csp_relax_on_error?() do
+        # Allow Plug.Debugger to function in development
+        delete_resp_header(conn, @csp_header)
       else
-        put_resp_header(conn, "content-security-policy", csp_value)
+        additions = Map.get(conn.private, @conn_key, %{})
+
+        csp_value =
+          conn
+          |> ContentSecurityPolicy.conn_policy(additions)
+          |> ContentSecurityPolicy.serialize()
+
+        put_resp_header(conn, @csp_header, csp_value)
       end
     end)
   end
 
-  def permit_source(conn, key, value) when key in @allowed_sources do
-    conn
-    |> get_config()
-    |> Keyword.update(key, value, &(value ++ &1))
-    |> set_config(conn)
-  end
+  @doc """
+  Adds request-specific sources to the CSP for the current request.
+  """
+  @spec permit_sources(Plug.Conn.t(), %{optional(atom()) => [String.t()]}) :: Plug.Conn.t()
+  def permit_sources(conn, additions) do
+    sources =
+      conn.private
+      |> Map.get(@conn_key, %{})
+      |> ContentSecurityPolicy.merge_policy(additions)
 
-  defp get_config(conn), do: conn.private[:csp] || []
-  defp set_config(value, conn), do: put_private(conn, :csp, value)
-
-  defp cdn_uri, do: Application.get_env(:philomena, :cdn_host) |> to_uri()
-  defp camo_uri, do: Application.get_env(:philomena, :camo_host) |> to_uri()
-
-  # Use the "current host" in vite HMR mode for whatever the "current host" is.
-  # Usually it's `localhost`, but it may be some other private IP address, that
-  # you use to test the frontend on a mobile device connected via a local Wi-Fi.
-  vite_hmr? do
-    defp default_script_src(host), do: "'self' #{host}:5173"
-    defp default_connect_src(host), do: "'self' #{host}:5173 ws://#{host}:5173"
-    defp default_style_src, do: "'self' 'unsafe-inline'"
-  else
-    defp default_connect_src(_host), do: "'self'"
-    defp default_script_src(_host), do: "'self'"
-    defp default_style_src, do: "'self'"
-  end
-
-  defp to_uri(host) when host in [nil, ""], do: ""
-  defp to_uri(host), do: URI.to_string(%URI{scheme: "https", host: host})
-
-  defp cspify_element({key, value}) do
-    key =
-      key
-      |> Atom.to_string()
-      |> String.replace("_", "-")
-
-    Enum.join([key | value], " ")
+    put_private(conn, @conn_key, sources)
   end
 end
