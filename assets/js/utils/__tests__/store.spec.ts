@@ -157,6 +157,21 @@ describe('Store utilities', () => {
     });
   });
 
+  describe('watchAll', () => {
+    it('should fire with the key on storage events and local updates', () => {
+      const mockKey = `mock-watch-all-key-${getRandomIntBetween(1, 10)}`;
+      const mockCallback = vi.fn();
+
+      store.watchAll(mockCallback);
+
+      fireEvent(window, new StorageEvent('storage', { key: mockKey }));
+      fireEvent(window, new StorageEvent('storage', { key: null }));
+      store.dispatchStorageUpdateEvent(mockKey);
+
+      expect(mockCallback.mock.calls).toEqual([[mockKey], [null], [mockKey]]);
+    });
+  });
+
   describe('setWithExpireTime', () => {
     mockDateNow(initialDateNow);
 

@@ -238,7 +238,9 @@ export class TestContext {
 }
 
 export const autocompleteTest = test.extend<{ ctx: TestContext }>({
-  ctx: async ({ expect }, use) => {
+  // Vitest requires fixtures to destructure their dependencies, even when there are none
+  // eslint-disable-next-line no-empty-pattern
+  ctx: async ({}, use) => {
     const fakeAutocompleteBuffer = await fs.promises
       .readFile(path.join(__dirname, '../../utils/__tests__/autocomplete-compiled-v2.bin'))
       .then(({ buffer }) => new Response(buffer));

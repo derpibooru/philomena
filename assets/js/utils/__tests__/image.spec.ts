@@ -161,6 +161,22 @@ describe('Image utils', () => {
         expect(result).toBe(true);
       });
 
+      it('should show the video even if the spoiler overlay is missing', () => {
+        const { mockElement, mockImage, playSpy, mockVideo, mockSpoilerOverlay } = createMockElements({
+          extension: 'webm',
+          videoClasses: ['hidden'],
+        });
+
+        mockElement.removeChild(mockSpoilerOverlay);
+
+        const result = showThumb(mockElement);
+
+        expect(mockImage).toHaveClass(hiddenClass);
+        expect(mockVideo).not.toHaveClass(hiddenClass);
+        expect(playSpy).toHaveBeenCalledTimes(1);
+        expect(result).toBe(true);
+      });
+
       ['data-size', 'data-uris'].forEach(missingAttributeName => {
         it(`should return early if the ${missingAttributeName} attribute is missing`, () => {
           const { mockElement } = createMockElements({
@@ -428,6 +444,27 @@ describe('Image utils', () => {
           pauseSpy.mockRestore();
         }
       });
+
+      it('should hide video thumbnail if the spoiler overlay is missing', () => {
+        const mockElement = document.createElement('div');
+        const mockVideo = document.createElement('video');
+        mockElement.appendChild(mockVideo);
+        const pauseSpy = vi.spyOn(mockVideo, 'pause').mockReturnValue(undefined);
+        const mockImage = document.createElement('img');
+        mockImage.classList.add(hiddenClass);
+        mockElement.appendChild(mockImage);
+
+        hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
+
+        try {
+          expect(mockImage).not.toHaveClass(hiddenClass);
+          expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
+          expect(mockVideo).toHaveClass(hiddenClass);
+          expect(pauseSpy).toHaveBeenCalled();
+        } finally {
+          pauseSpy.mockRestore();
+        }
+      });
     });
 
     it('should return early if picture element is present AND img element is missing', () => {
@@ -469,6 +506,19 @@ describe('Image utils', () => {
       expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
       expect(mockOverlay).toContainHTML(mockSpoilerReason);
       expect(mockOverlay).not.toHaveClass(hiddenClass);
+    });
+
+    it('should hide img thumbnail if the spoiler overlay is missing', () => {
+      const mockElement = document.createElement('div');
+      const mockPicture = document.createElement('picture');
+      mockElement.appendChild(mockPicture);
+      const mockImage = document.createElement('img');
+      mockPicture.appendChild(mockImage);
+
+      hideThumb(mockElement, mockSpoilerUri, mockSpoilerReason);
+
+      expect(mockImage).toHaveAttribute('srcset', '');
+      expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
     });
   });
 
@@ -597,6 +647,17 @@ describe('Image utils', () => {
 
       expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
       expect(mockExplanation).toContainHTML(mockSpoilerReason);
+      expect(mockImageShow).toHaveClass(hiddenClass);
+      expect(mockImageFiltered).not.toHaveClass(hiddenClass);
+    });
+
+    it('should update the image if the filter explanation is missing', () => {
+      const { mockElement, mockImage, mockExplanation, mockImageShow, mockImageFiltered } = createMockElement();
+      mockElement.removeChild(mockExplanation);
+
+      spoilerBlock(mockElement, mockSpoilerUri, mockSpoilerReason);
+
+      expect(mockImage).toHaveAttribute('src', mockSpoilerUri);
       expect(mockImageShow).toHaveClass(hiddenClass);
       expect(mockImageFiltered).not.toHaveClass(hiddenClass);
     });

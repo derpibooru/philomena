@@ -101,7 +101,7 @@ describe('DebouncedCache', () => {
       expect(consoleSpy.error.mock.calls).toMatchInlineSnapshot(`
         [
           [
-            "An error occurred while calling 'spy'.",
+            "An error occurred while calling 'Mock'.",
             [Error: producer error],
           ],
         ]
@@ -135,6 +135,8 @@ describe('DebouncedCache', () => {
 
 function createTestCache(thresholdMs?: number) {
   const producer = vi.fn(producerImpl);
+  // Spies are always named 'Mock'; expose the implementation's name in logs.
+  Object.defineProperty(producer, 'name', { value: producerImpl.name });
   const cache = new DebouncedCache(producer, { thresholdMs });
 
   return { producer, cache };
