@@ -1,0 +1,5 @@
+h1 Confirm account
+
+= form_for @conn, ~p"/confirmations/#{@token}", [method: :put], fn _f ->
+  .actions
+    = submit "Confirm my account", class: "button"

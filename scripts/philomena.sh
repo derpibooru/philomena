@@ -6,6 +6,20 @@ set -euo pipefail
 
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
+
+# Devcontainer runs in the `app` service. We must make sure this service stays
+# intact during development, so all docker compose operations that might recreate
+# or remove the containers/volumes should exclude it and its volumes.
+mapfile -t services_except_app < <(docker compose config --services | grep -v app)
+
+services=()
+volumes=()
+
+if [[ "${DEVCONTAINER:-0}" == "1" ]]; then
+  services=("${services_except_app[@]}")
+  mapfile -t volumes < <(docker compose config --volumes | grep -v -e shell_history -e cargo_registry -e cargo_git)
+fi
+
 function up {
   local down_args=()
 
@@ -21,7 +35,13 @@ function up {
     down "${down_args[@]}"
   fi
 
-  step docker compose up --build --no-log-prefix "$@"
+  if [[ "${DEVCONTAINER:-0}" == "1" ]]; then
+    step docker compose build "${services[@]}"
+    step docker compose up --wait "${services[@]}"
+    step run-development
+  else
+    step docker compose up --build --no-log-prefix
+  fi
 }
 
 function down {
@@ -41,15 +61,10 @@ function down {
     shift
   done
 
-  step docker compose down
+  step docker compose down "${services[@]}"
 
   if [[ "$drop_cache" == "true" ]]; then
-    info "Dropping build caches..."
-    step docker volume rm --force \
-      philomena_app_build_data \
-      philomena_app_cargo_data \
-      philomena_app_deps_data \
-      philomena_app_native_data
+    drop_cache
   fi
 
   # If `--drop-db` is enabled it's important to stop all containers to make sure
@@ -65,6 +80,17 @@ function down {
     step docker volume rm \
       philomena_postgres_data \
       philomena_opensearch_data
+  fi
+}
+
+function test {
+  step docker compose build "${services[@]}"
+  step docker compose up --wait "${services_except_app[@]}"
+
+  if [[ "${DEVCONTAINER:-0}" == "1" ]]; then
+    step run-test
+  else
+    step docker compose run --rm app run-test
   fi
 }
 
@@ -84,21 +110,22 @@ function clean {
     shift
   done
 
-  step docker compose down --volumes
+  drop_cache
+  step docker compose down "${services[@]}"
+  step docker volume rm -f "${volumes[@]//#/philomena_}"
   step docker container prune --force
   step docker volume prune --all --force
   step docker image prune --all --force
-  step sudo chown --recursive "$(id -u):$(id -g)" .
+  step docker buildx prune --all --force
 
   if [[ "$git" == "true" ]]; then
     step git clean -xfdf
   fi
 }
 
-# Initialize the repo for development. See `init.sh` file for details of what
-# this means
-function init {
-  "$(dirname "${BASH_SOURCE[0]}")/init.sh"
+function drop_cache {
+  info "Dropping build caches..."
+  step rm -rf _build .cargo deps priv/native
 }
 
 subcommand="${1:-}"
@@ -107,16 +134,8 @@ shift || true
 case "$subcommand" in
   up) up "$@" ;;
   down) down "$@" ;;
+  test) test "$@" ;;
   clean) clean "$@" ;;
-  init) init "$@" ;;
-
-  # Run the given command in the devcontainer via `docker exec`. This script
-  # runs it directly here, because `lib.sh` forwards its execution to the
-  # devcontainer automatically already.
-  exec) "$@" ;;
-
-  # Shortcut for `philomena exec docker compose`
-  compose) docker compose "$@" ;;
 
   *)
     die "See the available sub-commands in ${BASH_SOURCE[0]}"

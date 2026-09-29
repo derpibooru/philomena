@@ -139,7 +139,7 @@ fn no_setext_headings_in_philomena() {
 fn greentext_preserved() {
     html(
         ">implying\n>>implying",
-        "<div class=\"paragraph\">&gt;implying<br />\n»implying</div>\n",
+        "<div class=\"paragraph\">&gt;implying<br />\n&gt;&gt;implying</div>\n",
     );
 }
 

@@ -26,8 +26,10 @@ defmodule Philomena.Application do
        [
          name: Philomena.PubSub,
          adapter: Phoenix.PubSub.Redis,
-         host: Application.get_env(:philomena, :redis_host),
-         node_name: valid_node_name(node())
+         node_name: valid_node_name(node()),
+         redis_opts: [
+           host: Application.get_env(:philomena, :redis_host)
+         ]
        ]},
 
       # Advert update batching

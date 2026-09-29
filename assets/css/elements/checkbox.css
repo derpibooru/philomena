@@ -36,3 +36,19 @@ input[type="checkbox"].fancy-checkbox {
   position: relative;
   left: 0;
 }
+
+.checkbox-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+}
+
+.checkbox-button__checkbox {
+  appearance: none;
+}
+
+.checkbox-button:has(input:checked) {
+  background-color: var(--button-success-background-color);
+  border-color: var(--button-success-border-color);
+}

@@ -1,0 +1,43 @@
+{
+  "name": "philomena-devcontainer",
+
+  // See the docs at https://containers.dev/implementors/json_reference/
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "overrideCommand": false,
+  "workspaceFolder": "/srv/philomena",
+
+  "containerEnv": {
+    "DEVCONTAINER": "1",
+    "HOST_WORKSPACE": "${localWorkspaceFolder}"
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "remote.localPortHost": "allInterfaces",
+        "elixirLS.dialyzerWarnOpts": ["no_opaque"],
+        "rust-analyzer.linkedProjects": ["./native/philomena/Cargo.toml"],
+        "[dockercompose]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
+      },
+      "extensions": [
+        "jakebecker.elixir-ls",
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "ms-azuretools.vscode-docker",
+        "docker.docker",
+        "github.vscode-github-actions",
+        "mads-hartmann.bash-ide-vscode",
+        "matthewpi.caddyfile-support",
+        "xolan.slime",
+        "oxc.oxc-vscode",
+        "stylelint.vscode-stylelint",
+        "esbenp.prettier-vscode",
+        "tekumara.typos-vscode",
+        "tlent.jest-snapshot-language-support"
+      ]
+    }
+  }
+}

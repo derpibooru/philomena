@@ -11,10 +11,10 @@ mix format --check-formatted
 
 # Sleep to allow OpenSearch to finish initializing
 # if it's not done doing whatever it does yet
-echo -n "Waiting for OpenSearch"
+printf "Waiting for OpenSearch"
 
-until wget -qO - opensearch:9200; do
-  echo -n "."
+until wget -qO - http://opensearch:9200; do
+  printf "."
   sleep 2
 done
 

@@ -5,9 +5,6 @@ defmodule PhilomenaWeb.DuplicateReportController do
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.Images.Image
   alias Philomena.Repo
-  import Ecto.Query
-
-  @valid_states ~W(open rejected accepted claimed)
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
@@ -18,28 +15,23 @@ defmodule PhilomenaWeb.DuplicateReportController do
     preload: [:image, :duplicate_of_image]
 
   def index(conn, params) do
-    states =
-      (presence(params["states"]) || ~W(open claimed))
-      |> wrap()
-      |> Enum.filter(&Enum.member?(@valid_states, &1))
+    case DuplicateReports.list_duplicate_reports(conn.assigns.scrivener, params["dq"] || %{}) do
+      {:ok, duplicate_reports, changeset} ->
+        render(conn, "index.html",
+          title: "Duplicate Reports",
+          duplicate_reports: duplicate_reports,
+          changeset: changeset,
+          layout_class: "layout--wide"
+        )
 
-    duplicate_reports =
-      DuplicateReport
-      |> where([d], d.state in ^states)
-      |> preload([
-        :user,
-        :modifier,
-        image: [:user, :sources, tags: :aliases],
-        duplicate_of_image: [:user, :sources, tags: :aliases]
-      ])
-      |> order_by(desc: :created_at)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html",
-      title: "Duplicate Reports",
-      duplicate_reports: duplicate_reports,
-      layout_class: "layout--wide"
-    )
+      {:error, changeset} ->
+        render(conn, "index.html",
+          title: "Duplicate Reports",
+          duplicate_reports: nil,
+          changeset: changeset,
+          layout_class: "layout--wide"
+        )
+    end
   end
 
   def create(conn, %{"duplicate_report" => duplicate_report_params}) do
@@ -74,9 +66,4 @@ defmodule PhilomenaWeb.DuplicateReportController do
       layout_class: "layout--wide"
     )
   end
-
-  defp wrap(list) when is_list(list), do: list
-  defp wrap(not_a_list), do: [not_a_list]
-  defp presence(""), do: nil
-  defp presence(x), do: x
 end

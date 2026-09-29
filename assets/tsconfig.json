@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    // XXX: There is the following dependency chain in the type declarations:
+    // XXX: Tests need `@types/node`, which pulls in a newer ES standard lib:
     //
-    // `vitest/globals` <- `vitest` <- `vite` <- `@types/node` <- `es2020`
+    // `node` <- `es2020`
     //
     // `@types/node` has this `<reference lib="es2020" />`:
     // https://github.com/DefinitelyTyped/DefinitelyTyped/blob/562ab89f5b7b6ec777941f9578b7c81eff10c5af/types/node/index.d.ts#L28C5-L28C31
@@ -16,13 +16,12 @@
     // just for application files in the IDE to make sure IDE suggests only the
     // features of maximum ECMA standard version that we support. However, as a
     // workaround we have a separate `tsconfig.build.json` that we use for our
-    // final builds and on CI. That `tsconfig` doesn't include `vitest`, and
-    // consequently any of its transitive `@types/node`, `es2020` dependencies.
-    // This way we still have a check that we don't depend on ES features higher
-    // than our support target.
+    // final builds and on CI. That `tsconfig` doesn't include `vitest/globals`
+    // or `node`, and consequently the `es2020` lib. This way we still have a
+    // check that we don't depend on ES features higher than our support target.
     "lib": ["ES2019", "DOM", "DOM.Iterable"],
     "target": "ES2019",
-    "types": ["vitest/globals"],
+    "types": ["vitest/globals", "node"],
 
     "baseUrl": "./js",
     "useDefineForClassFields": true,
@@ -36,7 +35,7 @@
     "noEmit": true,
     "strict": true,
 
-    // Checks that aren't enabled by `strict` and not covered by `eslint`:
+    // Checks that aren't enabled by `strict` and not covered by `oxlint`:
     "noImplicitOverride": true
 
     // TODO: this is a really useful check, but our existing code has been

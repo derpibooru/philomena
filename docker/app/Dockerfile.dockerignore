@@ -1,0 +1,4 @@
+**
+!docker/app/Dockerfile
+!scripts
+!rust-toolchain.toml

@@ -377,6 +377,24 @@ defmodule Philomena.Users do
   end
 
   @doc """
+  Gets the user with the given signed token and the token's creation time.
+
+  The timestamp is used by the web authentication plug to periodically
+  replace active session tokens.
+  """
+  def get_user_by_session_token_with_timestamp(token) do
+    {:ok, query} = UserToken.verify_session_token_query_with_timestamp(token)
+
+    case Repo.one(query) do
+      {user, token_inserted_at} ->
+        {load_user_with_roles(user), token_inserted_at}
+
+      nil ->
+        nil
+    end
+  end
+
+  @doc """
   Checks if a TOTP token is valid for a given user.
 
   Returns false if no user is provided.
@@ -901,8 +919,13 @@ defmodule Philomena.Users do
   end
 
   defp load_with_roles(query) do
-    query
-    |> Repo.one()
+    query |> Repo.one() |> load_user_with_roles()
+  end
+
+  defp load_user_with_roles(nil), do: nil
+
+  defp load_user_with_roles(user) do
+    user
     |> Repo.preload([:roles, :current_filter])
     |> setup_roles()
   end

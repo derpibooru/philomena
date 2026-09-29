@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
     {:ok, image} = Images.lock_tags(conn.assigns.image, true)
 
     conn
-    |> put_flash(:info, "Successfully locked tags.")
+    |> put_flash(:info, "Successfully locked tags and sources.")
     |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end
@@ -40,7 +40,7 @@ defmodule PhilomenaWeb.Image.TagLockController do
     {:ok, image} = Images.lock_tags(conn.assigns.image, false)
 
     conn
-    |> put_flash(:info, "Successfully unlocked tags.")
+    |> put_flash(:info, "Successfully unlocked tags and sources.")
     |> moderation_log(details: &log_details/2, data: image)
     |> redirect(to: ~p"/images/#{image}")
   end

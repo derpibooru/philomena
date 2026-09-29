@@ -6,8 +6,10 @@ describe('retry', () => {
     const func = maybeFunc ?? (() => Promise.reject(new Error('always failing')));
     const spy = vi.fn(func);
 
-    // Preserve the empty name of the anonymous functions. Spy wrapper overrides it.
-    const funcParam = func.name === '' ? (...args: Parameters<RetryFunc<R>>) => spy(...args) : spy;
+    // Spies are always named 'Mock'; preserve the original name, including the
+    // empty name of anonymous functions.
+    const funcParam = (...args: Parameters<RetryFunc<R>>) => spy(...args);
+    Object.defineProperty(funcParam, 'name', { value: func.name });
 
     const promise = retry(funcParam, params).catch(err => `throw ${err}`);
 

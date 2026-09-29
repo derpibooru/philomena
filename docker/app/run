@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+. "$(dirname "${BASH_SOURCE[0]}")/../../scripts/lib.sh"
+
+if [[ "${DEVCONTAINER:-0}" != "1" ]]; then
+    exec "$@"
+fi
+
+info "Running in devcontainer mode"
+
+# Some routines need to be run every time the container starts, because they
+# need to modify the bind-mounted volume.
+
+# Install prettier if not already. Required for git pre-commit hook to work.
+step npm ci --ignore-scripts
+
+# Install the pre-commit hook. It's a symlink, to make sure it stays always up-to-date.
+step ln -sf ../../.githooks/pre-commit .git/hooks/pre-commit
+
+# Make sure the process doesn't exit to keep the container alive
+step sleep infinity

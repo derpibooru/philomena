@@ -17,6 +17,14 @@ defmodule Philomena.DuplicateReports.DuplicateReport do
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
+  def open_states do
+    ~w(open claimed)
+  end
+
+  def valid_states do
+    ~w(open claimed accepted rejected)
+  end
+
   @doc false
   def changeset(duplicate_report, attrs) do
     duplicate_report

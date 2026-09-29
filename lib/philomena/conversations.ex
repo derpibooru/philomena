@@ -66,6 +66,14 @@ defmodule Philomena.Conversations do
 
   """
   def list_conversations(queryable \\ Conversation, user, pagination) do
+    # TODO: This table structure isn't usable for a proper index
+    read_predicate =
+      dynamic(
+        [conversations: c],
+        (c.from_id == ^user.id and c.from_read == false) or
+          (c.to_id == ^user.id and c.to_read == false)
+      )
+
     query =
       from c in queryable,
         as: :conversations,
@@ -79,7 +87,7 @@ defmodule Philomena.Conversations do
               select: %{count: count()}
           ),
         on: true,
-        order_by: [desc: :last_message_at],
+        order_by: ^[desc: read_predicate, desc: :last_message_at, desc: :id],
         preload: [:to, :from],
         select: %{c | message_count: cnt.count}
 

@@ -57,20 +57,37 @@ defmodule PhilomenaWeb.ConfirmationControllerTest do
   end
 
   describe "GET /confirmations/:id" do
-    test "confirms the given token once", %{conn: conn, user: user} do
+    test "renders the confirmation form without confirming the account", %{conn: conn, user: user} do
       token =
         extract_user_token(fn url ->
           Users.deliver_user_confirmation_instructions(user, url)
         end)
 
       conn = get(conn, ~p"/confirmations/#{token}")
+      response = html_response(conn, 200)
+
+      assert response =~ "<h1>Confirm account</h1>"
+      assert response =~ ~s(action="/confirmations/#{token}")
+      refute Repo.reload!(user).confirmed_at
+      assert Repo.get_by!(Users.UserToken, user_id: user.id).context == "confirm"
+    end
+  end
+
+  describe "PUT /confirmations/:id" do
+    test "confirms the given token once", %{conn: conn, user: user} do
+      token =
+        extract_user_token(fn url ->
+          Users.deliver_user_confirmation_instructions(user, url)
+        end)
+
+      conn = put(conn, ~p"/confirmations/#{token}")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :info) =~ "Account confirmed successfully"
       assert Users.get_user!(user.id).confirmed_at
       refute get_session(conn, :user_token)
       assert Repo.all(Users.UserToken) == []
 
-      conn = get(conn, ~p"/confirmations/#{token}")
+      conn = put(conn, ~p"/confirmations/#{token}")
       assert redirected_to(conn) == "/"
 
       assert Flash.get(conn.assigns.flash, :error) =~
@@ -78,7 +95,7 @@ defmodule PhilomenaWeb.ConfirmationControllerTest do
     end
 
     test "does not confirm email with invalid token", %{conn: conn, user: user} do
-      conn = get(conn, ~p"/confirmations/oops")
+      conn = put(conn, ~p"/confirmations/oops")
       assert redirected_to(conn) == "/"
 
       assert Flash.get(conn.assigns.flash, :error) =~

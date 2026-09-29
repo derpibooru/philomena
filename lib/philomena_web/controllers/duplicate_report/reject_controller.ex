@@ -20,9 +20,12 @@ defmodule PhilomenaWeb.DuplicateReport.RejectController do
       )
 
     conn
-    |> put_flash(:info, "Successfully rejected report.")
     |> moderation_log(details: &log_details/2, data: report)
-    |> redirect(to: ~p"/duplicate_reports")
+    |> put_view(PhilomenaWeb.DuplicateReportView)
+    |> render("_duplicate_reports.html",
+      layout: false,
+      duplicate_reports: DuplicateReports.display_preloads([report])
+    )
   end
 
   defp log_details(_action, report) do

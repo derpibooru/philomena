@@ -14,6 +14,22 @@ defmodule PhilomenaWeb.DuplicateReportView do
     |> Enum.max_by(fn {w, h} -> w * h end)
   end
 
+  def states do
+    [
+      {"Open", "open"},
+      {"Claimed", "claimed"},
+      {"Accepted", "accepted"},
+      {"Rejected", "rejected"}
+    ]
+  end
+
+  def sorts do
+    [
+      [key: "Ascending", value: "asc"],
+      [key: "Descending", value: "desc"]
+    ]
+  end
+
   def background_class(%{state: "rejected"}), do: "background-danger"
   def background_class(%{state: "accepted"}), do: "background-success"
   def background_class(%{state: "claimed"}), do: "background-warning"

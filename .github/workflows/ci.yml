@@ -7,50 +7,56 @@ jobs:
     name: 'Build Elixir app'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Cache mix deps
-        uses: actions/cache@v4
+      - uses: actions/checkout@v5
+      - uses: actions/cache@v5
         with:
           path: |
             _build
             .cargo
             deps
-          key: ${{ runner.os }}-deps-3-${{ hashFiles('mix.lock') }}
-
-      - name: Enable caching
-        run: |
-          # Disable volumes so caching can take effect
-          sed -i -Ee 's/- app_[a-z]+_data:.*$//g' docker-compose.yml
-
-          # Make ourselves the owner
-          echo "RUN addgroup -g $(id -g) -S appgroup && adduser -u $(id -u) -S appuser -G appgroup" >> docker/app/Dockerfile
-          echo "USER appuser" >> docker/app/Dockerfile
-          echo "RUN mix local.hex --force && mix local.rebar --force" >> docker/app/Dockerfile
+            priv/native
+          key: ${{ runner.os }}-deps-4-${{ hashFiles('mix.lock') }}-${{ hashFiles('native/philomena/**/*.rs', 'native/philomena/**/Cargo.*', 'rust-toolchain.toml') }}
 
       - run: docker compose pull
       - run: docker compose build
-
-      - name: Build and test
-        run: docker compose run app run-test
+      - name: Run tests
+        run: ./scripts/philomena.sh test
+      - name: Dump service logs and system state on failure
+        if: failure()
+        run: |
+          docker compose logs --timestamps opensearch postgres valkey
+          df -h
+          free -h
+      # Artifacts from docker bind mount are owned by root, but cache action
+      # can only save artifacts running under the default user:
+      - name: Change artifact ownership for cache action
+        run: sudo chown -R $USER $GITHUB_WORKSPACE
 
   typos:
     name: 'Check for spelling errors'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
-      - uses: crate-ci/typos@master
+      - uses: actions/checkout@v5
+      - run: ./scripts/install/typos.sh
+      - run: typos
+
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@v5
+      - run: ./scripts/install/shellcheck.sh
+      - run: ./scripts/shellcheck.sh
 
   cargo:
     name: Rust Linting and Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@1.91.0
+      # Uses the `rust-toolchain.toml` file
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          components: clippy, rustfmt
+          components: rustfmt, clippy
 
       - name: cargo fmt
         run: (cd native/philomena && cargo fmt --check)
@@ -63,9 +69,9 @@ jobs:
 
   prettier:
     name: 'Prettier Formatting Check'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -77,8 +83,7 @@ jobs:
     name: 'JavaScript Linting and Unit Tests'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v5
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -87,24 +92,9 @@ jobs:
 
       - run: npm ci --ignore-scripts
         working-directory: ./assets
-
       - run: npm run lint
         working-directory: ./assets
-
       - run: npm run test
         working-directory: ./assets
-
       - run: npm run build
         working-directory: ./assets
-
-  repo-init-script:
-    name: 'Repo Init Script'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-
-      - run: ./scripts/init.sh
-      - run: typos --version
-      - run: npx prettier --version

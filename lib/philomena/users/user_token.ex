@@ -48,6 +48,20 @@ defmodule Philomena.Users.UserToken do
   end
 
   @doc """
+  Checks if the token is valid and returns its underlying lookup query along
+  with the token's creation time.
+  """
+  def verify_session_token_query_with_timestamp(token) do
+    query =
+      from token in token_and_context_query(token, "session"),
+        join: user in assoc(token, :user),
+        where: token.created_at > ago(@session_validity_in_days, "day"),
+        select: {user, token.created_at}
+
+    {:ok, query}
+  end
+
+  @doc """
   Generates a token that will be stored in a signed place,
   such as session or cookie. As they are signed, those
   tokens do not need to be hashed.
@@ -127,7 +141,7 @@ defmodule Philomena.Users.UserToken do
 
   The query returns the user token record.
   """
-  def verify_change_email_token_query(token, context) do
+  def verify_change_email_token_query(token, "change:" <> _ = context) do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
@@ -142,6 +156,8 @@ defmodule Philomena.Users.UserToken do
         :error
     end
   end
+
+  def verify_change_email_token_query(_token, _context), do: :error
 
   @doc """
   Returns the given token with the given context.

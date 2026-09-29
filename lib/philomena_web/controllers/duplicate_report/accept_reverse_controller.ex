@@ -17,16 +17,20 @@ defmodule PhilomenaWeb.DuplicateReport.AcceptReverseController do
     user = conn.assigns.current_user
 
     case DuplicateReports.accept_reverse_duplicate_report(report, user) do
-      {:ok, report} ->
+      {:ok, %{duplicate_report: report, affected_duplicate_reports: reports}} ->
         conn
-        |> put_flash(:info, "Successfully accepted report in reverse.")
-        |> moderation_log(details: &log_details/2, data: report.duplicate_report)
-        |> redirect(to: ~p"/duplicate_reports")
+        |> moderation_log(details: &log_details/2, data: report)
+        |> put_view(PhilomenaWeb.DuplicateReportView)
+        |> render("_duplicate_reports.html",
+          layout: false,
+          duplicate_reports: DuplicateReports.display_preloads(reports)
+        )
 
       _error ->
         conn
         |> put_flash(:error, "Failed to accept report! Maybe someone else already accepted it.")
-        |> redirect(to: ~p"/duplicate_reports")
+        |> send_resp(:multiple_choices, "")
+        |> halt()
     end
   end
 

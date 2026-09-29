@@ -7,6 +7,11 @@ rules:
     - ignoreAtRules:
         - mixin
         - define-mixin
+  at-rule-prelude-no-invalid:
+    - true
+    - ignoreAtRules:
+        - mixin
+        - define-mixin
   media-query-no-invalid:
   rule-empty-line-before:
     - always-multi-line
