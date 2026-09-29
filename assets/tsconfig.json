@@ -36,7 +36,7 @@
     "noEmit": true,
     "strict": true,
 
-    // Checks that aren't enabled by `strict` and not covered by `eslint`:
+    // Checks that aren't enabled by `strict` and not covered by `oxlint`:
     "noImplicitOverride": true
 
     // TODO: this is a really useful check, but our existing code has been
