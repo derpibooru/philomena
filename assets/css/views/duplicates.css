@@ -10,6 +10,11 @@
   align-items: center;
 }
 
+.dupe-report-list--image-container .image-container {
+  width: 100%;
+  height: 100%;
+}
+
 .dupe-report-list__cell {
   padding: 0.5em 0.25em;
 }
