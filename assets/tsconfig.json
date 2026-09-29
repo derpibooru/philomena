@@ -23,7 +23,7 @@
     "target": "ES2019",
     "types": ["vitest/globals", "node"],
 
-    "baseUrl": "./js",
+    "paths": { "*": ["./js/*"] },
     "useDefineForClassFields": true,
     "esModuleInterop": true,
     "allowJs": true,
