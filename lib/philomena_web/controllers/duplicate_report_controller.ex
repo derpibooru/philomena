@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.DuplicateReportController do
 
   plug PhilomenaWeb.FilterBannedUsersPlug when action in [:create]
   plug PhilomenaWeb.UserAttributionPlug when action in [:create]
+  plug PhilomenaWeb.MapParameterPlug, [param: "dq"] when action in [:index]
 
   plug :load_resource,
     model: DuplicateReport,
