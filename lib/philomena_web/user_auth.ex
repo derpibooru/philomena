@@ -12,6 +12,7 @@ defmodule PhilomenaWeb.UserAuth do
   # If you want bump or reduce this value, also change
   # the token expiry itself in UserToken.
   @max_age 60 * 60 * 24 * 365
+  @session_reissue_age_in_days 7
   @remember_me_cookie "user_remember_me"
   @remember_me_options [sign: true, max_age: @max_age, same_site: "Lax"]
   @totp_auth_cookie "user_totp_auth"
@@ -38,11 +39,14 @@ defmodule PhilomenaWeb.UserAuth do
     |> put_session(:user_token, token)
     |> put_session(:live_socket_id, "users_sessions:#{Base.url_encode64(token)}")
     |> maybe_write_remember_me_cookie(token, params)
+    |> maybe_preserve_return_to(user, user_return_to)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
   defp maybe_write_remember_me_cookie(conn, token, %{"remember_me" => "true"}) do
-    put_resp_cookie(conn, @remember_me_cookie, token, @remember_me_options)
+    conn
+    |> put_session(:user_remember_me, true)
+    |> put_resp_cookie(@remember_me_cookie, token, @remember_me_options)
   end
 
   defp maybe_write_remember_me_cookie(conn, _token, _params) do
@@ -59,11 +63,14 @@ defmodule PhilomenaWeb.UserAuth do
     conn
     |> put_session(:totp_token, token)
     |> maybe_write_totp_auth_cookie(token, params)
+    |> delete_session(:user_return_to)
     |> redirect(to: user_return_to || signed_in_path(conn))
   end
 
   defp maybe_write_totp_auth_cookie(conn, token, %{"remember_me" => "true"}) do
-    put_resp_cookie(conn, @totp_auth_cookie, token, @totp_auth_options)
+    conn
+    |> put_session(:totp_remember_me, true)
+    |> put_resp_cookie(@totp_auth_cookie, token, @totp_auth_options)
   end
 
   defp maybe_write_totp_auth_cookie(conn, _token, _params) do
@@ -86,6 +93,8 @@ defmodule PhilomenaWeb.UserAuth do
   #     end
   #
   defp renew_session(conn) do
+    delete_csrf_token()
+
     conn
     |> configure_session(renew: true)
     |> clear_session()
@@ -109,20 +118,30 @@ defmodule PhilomenaWeb.UserAuth do
 
     conn
     |> renew_session()
-    |> delete_resp_cookie(@remember_me_cookie)
-    |> delete_resp_cookie(@totp_auth_cookie)
+    |> delete_resp_cookie(@remember_me_cookie, @remember_me_options)
+    |> delete_resp_cookie(@totp_auth_cookie, @totp_auth_options)
     |> redirect(to: "/")
   end
 
   @doc """
   Authenticates the user by looking into the session
   and remember me token.
+
+  Will reissue the session token if it is older than the configured age.
   """
   def fetch_current_user(conn, _opts) do
     {user_token, conn} = ensure_user_token(conn)
     {totp_token, conn} = ensure_totp_token(conn)
 
-    user = user_token && Users.get_user_by_session_token(user_token)
+    {user, conn} =
+      case user_token && Users.get_user_by_session_token_with_timestamp(user_token) do
+        {user, token_inserted_at} ->
+          {user, maybe_reissue_user_session_token(conn, user, token_inserted_at)}
+
+        _ ->
+          {nil, conn}
+      end
+
     totp = totp_token && Users.user_totp_token_valid?(user, totp_token)
 
     cond do
@@ -148,7 +167,10 @@ defmodule PhilomenaWeb.UserAuth do
       conn = fetch_cookies(conn, signed: [@remember_me_cookie])
 
       if user_token = conn.cookies[@remember_me_cookie] do
-        {user_token, put_session(conn, :user_token, user_token)}
+        {user_token,
+         conn
+         |> put_session(:user_token, user_token)
+         |> put_session(:user_remember_me, true)}
       else
         {nil, conn}
       end
@@ -168,6 +190,38 @@ defmodule PhilomenaWeb.UserAuth do
       end
     end
   end
+
+  # Reissue the session token if it is older than the configured reissue age.
+  defp maybe_reissue_user_session_token(conn, user, token_inserted_at) do
+    if DateTime.diff(DateTime.utc_now(:second), token_inserted_at, :day) >=
+         @session_reissue_age_in_days do
+      token = Users.generate_user_session_token(user)
+
+      conn
+      |> put_session(:user_token, token)
+      |> maybe_refresh_remember_me_cookie(token)
+    else
+      conn
+    end
+  end
+
+  defp maybe_refresh_remember_me_cookie(conn, token) do
+    if get_session(conn, :user_remember_me) do
+      put_resp_cookie(conn, @remember_me_cookie, token, @remember_me_options)
+    else
+      conn
+    end
+  end
+
+  # An OTP-enabled user still needs the return path during the second-factor
+  # step. It is cleared when that step completes in `totp_auth_user/3`.
+  defp maybe_preserve_return_to(conn, %{otp_required_for_login: true}, return_to)
+       when is_binary(return_to) do
+    put_session(conn, :user_return_to, return_to)
+  end
+
+  defp maybe_preserve_return_to(conn, _user, _return_to),
+    do: delete_session(conn, :user_return_to)
 
   @doc """
   Used for routes that require the user to not be authenticated.
@@ -201,8 +255,8 @@ defmodule PhilomenaWeb.UserAuth do
     end
   end
 
-  defp maybe_store_return_to(%{method: "GET", request_path: request_path} = conn) do
-    put_session(conn, :user_return_to, request_path)
+  defp maybe_store_return_to(%{method: "GET"} = conn) do
+    put_session(conn, :user_return_to, current_path(conn))
   end
 
   defp maybe_store_return_to(conn), do: conn

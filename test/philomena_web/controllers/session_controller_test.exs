@@ -1,5 +1,7 @@
 defmodule PhilomenaWeb.SessionControllerTest do
-  use PhilomenaWeb.ConnCase, async: true
+  use PhilomenaWeb.ConnCase, async: false
+
+  alias Philomena.Users
 
   import Philomena.UsersFixtures
 
@@ -20,6 +22,10 @@ defmodule PhilomenaWeb.SessionControllerTest do
   end
 
   describe "POST /sessions" do
+    test "adds a captcha to the sign-in form", %{conn: conn} do
+      assert html_response(get(conn, ~p"/sessions/new"), 200) =~ "I am not a robot!"
+    end
+
     test "logs the user in", %{conn: conn, user: user} do
       conn =
         post(conn, ~p"/sessions", %{
@@ -59,6 +65,35 @@ defmodule PhilomenaWeb.SessionControllerTest do
 
       response = html_response(conn, 200)
       assert response =~ "Invalid email or password"
+    end
+
+    test "invalidates all sessions and requires a reset for a compromised password", %{
+      conn: conn,
+      user: user
+    } do
+      Application.put_env(:philomena, :pwned_passwords, true)
+
+      on_exit(fn -> Application.put_env(:philomena, :pwned_passwords, false) end)
+
+      password = valid_user_password()
+
+      <<prefix::binary-size(5), suffix::binary>> = :crypto.hash(:sha, password) |> Base.encode16()
+
+      Req.Test.stub(PhilomenaProxy.Http, fn request ->
+        assert request.request_path == "/range/#{prefix}"
+        Req.Test.text(request, "#{suffix}:1\r\n")
+      end)
+
+      existing_session = Users.generate_user_session_token(user)
+
+      conn =
+        post(conn, ~p"/sessions", %{
+          "user" => %{"email" => user.email, "password" => password}
+        })
+
+      assert redirected_to(conn) == ~p"/passwords/new"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Please reset your password"
+      refute Users.get_user_by_session_token(existing_session)
     end
   end
 

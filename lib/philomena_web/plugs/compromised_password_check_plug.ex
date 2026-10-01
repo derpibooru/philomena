@@ -5,11 +5,7 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    if pwned_passwords_enabled?() do
-      error_if_password_compromised(conn, conn.params)
-    else
-      conn
-    end
+    error_if_password_compromised(conn, conn.params)
   end
 
   defp error_if_password_compromised(conn, %{"user" => %{"password" => password}}) do
@@ -29,14 +25,33 @@ defmodule PhilomenaWeb.CompromisedPasswordCheckPlug do
   defp error_if_password_compromised(conn, _params),
     do: conn
 
-  defp password_compromised?(password) do
+  @doc """
+  Returns whether a password appears in the Pwned Passwords database.
+
+  The range query only sends the first five characters of the password's SHA-1
+  hash. If the check is disabled or unavailable, passwords are allowed through.
+  """
+  def password_compromised?(password) when is_binary(password) do
+    if pwned_passwords_enabled?() do
+      password_compromised_in_breach?(password)
+    else
+      false
+    end
+  end
+
+  def password_compromised?(_password), do: false
+
+  defp password_compromised_in_breach?(password) do
     <<prefix::binary-size(5), rest::binary>> =
       :crypto.hash(:sha, password)
       |> Base.encode16()
 
     case PhilomenaProxy.Http.get(make_api_url(prefix)) do
-      {:ok, %{body: body, status: 200}} -> String.contains?(body, rest)
-      _ -> false
+      {:ok, %{body: body, status: 200}} ->
+        Enum.any?(String.split(body, "\n"), &String.starts_with?(&1, rest <> ":"))
+
+      _ ->
+        false
     end
   end
 

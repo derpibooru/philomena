@@ -378,6 +378,20 @@ defmodule Philomena.UsersTest do
     end
   end
 
+  describe "delete_user_sessions/1" do
+    test "deletes all of the user's sessions" do
+      user = user_fixture()
+      first_token = Users.generate_user_session_token(user)
+      second_token = Users.generate_user_session_token(user)
+      totp_token = Users.generate_user_totp_token(user)
+
+      assert Users.delete_user_sessions(user) == :ok
+      refute Users.get_user_by_session_token(first_token)
+      refute Users.get_user_by_session_token(second_token)
+      refute Users.user_totp_token_valid?(user, totp_token)
+    end
+  end
+
   describe "generate_user_totp_token/1" do
     setup do
       %{user: user_fixture()}

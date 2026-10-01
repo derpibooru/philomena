@@ -72,6 +72,9 @@ config :philomena, PhilomenaWeb.Endpoint,
     ]
   ]
 
+# Disable Pwned Passwords API check in development
+config :philomena, pwned_passwords: false
+
 # Relax CSP rules in development
 config :philomena, csp_relaxed: true
 

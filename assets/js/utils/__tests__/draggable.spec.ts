@@ -138,6 +138,16 @@ describe('Draggable Utilities', () => {
         expect(mockEvent.defaultPrevented).toBe(true);
         expect(mockEvent.dataTransfer?.dropEffect).toEqual('move');
       });
+
+      it('should cancel event if the event has no dataTransfer property', () => {
+        initDraggables();
+
+        const mockEvent = createDragEvent('dragover');
+        delete (mockEvent as Record<keyof typeof mockEvent, unknown>).dataTransfer;
+
+        expect(() => fireEvent(mockDraggable, mockEvent)).not.toThrow();
+        expect(mockEvent.defaultPrevented).toBe(true);
+      });
     });
 
     describe('dragEnter', () => {
@@ -272,6 +282,21 @@ describe('Draggable Utilities', () => {
 
         expect(mockDraggable).not.toHaveClass(draggingClass);
         expect(mockOverElement).not.toHaveClass(dragOverClass);
+      });
+
+      it('should remove dragging class from source if target has no parent node', () => {
+        initDraggables();
+
+        const mockStartEvent = createDragEvent('dragstart');
+        fireEvent(mockDraggable, mockStartEvent);
+
+        expect(mockDraggable).toHaveClass(draggingClass);
+
+        Object.defineProperty(mockDraggable, 'parentNode', { value: null });
+        const mockDropEvent = createDragEvent('dragend');
+
+        expect(() => fireEvent(mockDraggable, mockDropEvent)).not.toThrow();
+        expect(mockDraggable).not.toHaveClass(draggingClass);
       });
     });
 

@@ -61,6 +61,10 @@ form p {
   margin-left: 5px;
 }
 
+.input--separate-right {
+  margin-right: 5px;
+}
+
 .input--separate-top {
   margin-top: 5px;
 }

@@ -19,18 +19,24 @@ defmodule PhilomenaWeb.DuplicateReport.ClaimController do
       )
 
     conn
-    |> put_flash(:info, "Successfully claimed report.")
     |> moderation_log(details: &log_details/2, data: report)
-    |> redirect(to: ~p"/duplicate_reports")
+    |> put_view(PhilomenaWeb.DuplicateReportView)
+    |> render("_duplicate_reports.html",
+      layout: false,
+      duplicate_reports: DuplicateReports.display_preloads([report])
+    )
   end
 
   def delete(conn, _params) do
-    {:ok, _report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
+    {:ok, report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
 
     conn
-    |> put_flash(:info, "Successfully released report.")
     |> moderation_log(details: &log_details/2)
-    |> redirect(to: ~p"/duplicate_reports")
+    |> put_view(PhilomenaWeb.DuplicateReportView)
+    |> render("_duplicate_reports.html",
+      layout: false,
+      duplicate_reports: DuplicateReports.display_preloads([report])
+    )
   end
 
   defp log_details(action, _) do

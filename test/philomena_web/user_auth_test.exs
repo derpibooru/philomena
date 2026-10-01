@@ -171,7 +171,7 @@ defmodule PhilomenaWeb.UserAuthTest do
 
     test "stores the path to redirect to on GET", %{conn: conn} do
       halted_conn =
-        %{conn | request_path: "/foo?bar"}
+        %{conn | path_info: ["foo"], request_path: "/foo", query_string: "bar"}
         |> fetch_flash()
         |> UserAuth.require_authenticated_user([])
 
@@ -179,7 +179,7 @@ defmodule PhilomenaWeb.UserAuthTest do
       assert get_session(halted_conn, :user_return_to) == "/foo?bar"
 
       halted_conn =
-        %{conn | request_path: "/foo?bar", method: "POST"}
+        %{conn | path_info: ["foo"], request_path: "/foo", query_string: "bar", method: "POST"}
         |> fetch_flash()
         |> UserAuth.require_authenticated_user([])
 

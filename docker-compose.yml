@@ -1,12 +1,14 @@
+# Ensure a consistent project name regardless of how the repo directory is named
+name: philomena
+
 volumes:
   postgres_data: {}
   opensearch_data: {}
   caddy_data: {}
-  app_cargo_data: {}
-  app_build_data: {}
-  app_deps_data: {}
-  app_native_data: {}
   s3_data: {}
+  shell_history: {}
+  cargo_registry: {}
+  cargo_git: {}
 
 services:
   app:
@@ -55,20 +57,16 @@ services:
     working_dir: /srv/philomena
     tty: true
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - .:/srv/philomena
-      - app_cargo_data:/srv/philomena/.cargo
-      - app_build_data:/srv/philomena/_build
-      - app_deps_data:/srv/philomena/deps
-      - app_native_data:/srv/philomena/priv/native
-    depends_on:
-      - postgres
-      - opensearch
-      - valkey
+      - shell_history:/shell-history
+      - cargo_registry:/root/.cargo/registry
+      - cargo_git:/root/.cargo/git
     ports:
       - '5173:5173'
 
   postgres:
-    image: postgres:17.10-alpine
+    image: postgres:17.11-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
@@ -76,10 +74,10 @@ services:
     attach: false
 
   opensearch:
-    image: opensearchproject/opensearch:3.7.0
+    image: opensearchproject/opensearch:3.8.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
-      - ./docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
+      - ${HOST_WORKSPACE:-.}/docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
     attach: false
     ulimits:
       nofile:
@@ -87,11 +85,11 @@ services:
         hard: 65536
 
   valkey:
-    image: valkey/valkey:8.1.8-alpine
+    image: valkey/valkey:8.1.10-alpine
     attach: false
 
   files:
-    image: andrewgaul/s3proxy:3.3.0
+    image: andrewgaul/s3proxy:4.1.1
     environment:
       - JCLOUDS_FILESYSTEM_BASEDIR=/data
       - S3PROXY_IGNORE_UNKNOWN_HEADERS=true
@@ -104,8 +102,8 @@ services:
       context: .
       dockerfile: ./docker/web/Dockerfile
     volumes:
-      - .:/srv/philomena
-      - ./docker/web/config:/etc/caddy
+      - ${HOST_WORKSPACE:-.}:/srv/philomena
+      - ${HOST_WORKSPACE:-.}/docker/web/config:/etc/caddy
       - caddy_data:/data
     environment:
       - APP_DIR=/srv/philomena
@@ -114,7 +112,5 @@ services:
       - AWS_ACCESS_KEY_ID=local-identity
       - AWS_SECRET_ACCESS_KEY=local-credential
     attach: false
-    depends_on:
-      - app
     ports:
       - '8080:80'

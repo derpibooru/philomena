@@ -1,24 +1,27 @@
 h1 Duplicate Reports
 
-- route = fn p -> ~p"/duplicate_reports?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn, params: [states: @conn.params["states"] || ["open", "claimed"]]
+= form_for @changeset, ~p"/duplicate_reports", [as: :dq, method: :get], fn f ->
+  .field.field.field--inline
+    = for {label, state} <- states() do
+      label.checkbox-button.button.button--separate-right
+        input.checkbox-button__checkbox name="#{input_name(f, :states)}[]" type="checkbox" checked=Enum.member?(f.data.states, state) value=state
+        span.checkbox-button__label = label
+    = select f, :sd, sorts(), class: "input input--separate-right"
+    = submit "Search", class: "button button--state-primary"
+  .errors
+    = error_tag f, :states
+    = error_tag f, :sd
 
-.block
-  .block__header.page__header
-    .page__pagination = pagination
-    .page__info
-      span.block__header__title Display only:
-      => link "Open (All)", to: ~p"/duplicate_reports?#{[states: ~W(open claimed)]}"
-      => link "Open (Unclaimed)", to: ~p"/duplicate_reports?#{[states: ~W(open)]}"
-      => link "Open (Claimed)", to: ~p"/duplicate_reports?#{[states: ~W(claimed)]}"
-      => link "Open + Rejected", to: ~p"/duplicate_reports?#{[states: ~W(open rejected)]}"
-      => link "Rejected", to: ~p"/duplicate_reports?#{[states: ~W(rejected)]}"
-      => link "Rejected + Accepted", to: ~p"/duplicate_reports?#{[states: ~W(rejected accepted)]}"
-      => link "Accepted", to: ~p"/duplicate_reports?#{[states: ~W(accepted)]}"
-      = link "All", to: ~p"/duplicate_reports?#{[states: ~W(open rejected accepted claimed)]}"
-
-  = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: @duplicate_reports, conn: @conn
+= if @duplicate_reports do
+  - route = fn p -> ~p"/duplicate_reports?#{p}" end
+  - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @duplicate_reports, route: route, conn: @conn, params: [dq: @conn.params["dq"]]
 
   .block
-    .block__header.block__header--light.page__header
+    .block__header.page__header
       .page__pagination = pagination
+
+    = render PhilomenaWeb.DuplicateReportView, "_list.html", duplicate_reports: @duplicate_reports, conn: @conn
+
+    .block
+      .block__header.block__header--light.page__header
+        .page__pagination = pagination

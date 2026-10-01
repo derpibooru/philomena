@@ -139,9 +139,9 @@
           = button_to "Unlock description editing", ~p"/images/#{@image}/description_lock", method: "delete", class: "button"
 
         = if @image.tag_editing_allowed do
-          = button_to "Lock tag editing", ~p"/images/#{@image}/tag_lock", method: "post", class: "button"
+          = button_to "Lock tag/source editing", ~p"/images/#{@image}/tag_lock", method: "post", class: "button"
         - else
-          = button_to "Unlock tag editing", ~p"/images/#{@image}/tag_lock", method: "delete", class: "button"
+          = button_to "Unlock tag/source editing", ~p"/images/#{@image}/tag_lock", method: "delete", class: "button"
 
       br
       .flex.flex--spaced-out

@@ -48,6 +48,7 @@ const keysMapping = {
 
 const literalKeysMapping = {
   ',': 'Comma',
+  '.': 'Period',
 } as const;
 
 type keysAsEnum<Obj extends Record<string, string>> = Record<Obj[keyof Obj], string>;

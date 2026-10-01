@@ -3,8 +3,21 @@ elixir:
   target_url = comparison_url(@conn, @duplicate_report.duplicate_of_image)
   {width, height} = largest_dimensions([@duplicate_report.image, @duplicate_report.duplicate_of_image])
 
+.comparison--navigation
+  a.button.button--state-success.comparison--navigation__button> href=source_url target="_blank"
+    ' Open source file
+  a.button.button--state-success.comparison--navigation__button> href=target_url target="_blank"
+    ' Open target file
+  .comparison--navigation__gap
+  a.button.comparison--navigation__button> href="#subtractive"
+    ' Subtractive
+  a.button.comparison--navigation__button> href="#swipe"
+    ' Swipe
+  a.button.comparison--navigation__button> href="#onion-skin"
+    ' Onion skin
+
 h1 Difference
-.difference
+.difference#subtractive
   svg.difference__image viewBox="0 0 #{width} #{height}" height=height
     defs
       filter#overlay-diff color-interpolation-filters="sRGB"
@@ -17,7 +30,7 @@ h1 Difference
     rect width=width height=height filter="url(#overlay-diff)"
 
 h1 Swipe
-.swipe
+.swipe#swipe
   svg.swipe__image viewBox="0 0 #{width} #{height}" height=height
     defs
       pattern#checkerboard width="16" height="16" patternUnits="userSpaceOnUse"
@@ -33,7 +46,7 @@ h1 Swipe
     rect#divider width="3" height=height x=div(width, 2) fill="#000" stroke="#fff" stroke-width="1"
 
 h1 Onion Skin
-.onion-skin
+.onion-skin#onion-skin
   svg.onion-skin__image viewBox="0 0 #{width} #{height}" height=height
     defs
       pattern#checkerboard width="16" height="16" patternUnits="userSpaceOnUse"
@@ -44,6 +57,47 @@ h1 Onion Skin
     rect width=width height=height fill="url(#checkerboard)"
     image#source width="100%" height="100%" xlink:href=source_url
     image#target width="100%" height="100%" xlink:href=target_url
-  input.onion-skin__slider type="range" min="0" max="1" step="0.01"
+  .onion-skin__slider-box
+    input.onion-skin__slider type="range" min="0" max="1" step="0.01"
+    button.button.onion-skin__button
+      ' 0%
+    button.button.onion-skin__button
+      ' 100%
 
-p Left is source, right is target
+a.button href="#" data-click-toggle="#comparison-help"
+  ' Toggle help
+
+section.hidden#comparison-help
+  p Left is source, right is target.
+  p File links open in a new tab. Hold Ctrl, or middle-click, to open without focusing.
+
+  h2 Key bindings
+
+  table.table
+    thead
+      tr
+        th Key
+        th Action
+    tbody
+      tr
+        td
+          code> j
+        td Jump to subtractive difference
+      tr
+        td
+          code> k
+        td Jump to swipe difference
+      tr
+        td
+          code> l
+        td Jump to onion skin difference
+      tr
+        td
+          code> ,
+          | (comma)
+        td Set onion skin slider to 0%
+      tr
+        td
+          code> .
+          | (period)
+        td Set onion skin slider to 100%

@@ -1,4 +1,4 @@
-.grid--dupe-report-list__cell.flex.flex--column.flex--spaced-out.flex--centered.flex--no-wrap.center.dr__image-cell.border-vertical
+.flex.flex--column.flex--spaced-out.flex--centered.flex--no-wrap.center.dr__image-cell
   p
     = if is_nil(@image) do
       | (Image now hard-deleted)
@@ -6,7 +6,7 @@
       | #
       = @image.id
 
-  = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :thumb_small, conn: @conn
+  .dupe-report-list--image-container = render PhilomenaWeb.ImageView, "_image_container.html", image: @image, size: :thumb_small, conn: @conn
 
   p
     = @image.image_width
@@ -18,12 +18,12 @@
 
   = if can?(@conn, :edit, @report) and mergeable?(@report) do
     = if @source do
-      a href=~p"/duplicate_reports/#{@report}/accept_reverse" data-method="post"
-        button.button
+      = form_for @conn, ~p"/duplicate_reports/#{@report}/accept_reverse", [method: "post", class: "button_to js-duplicate-report", data: [remote: "true"]], fn _f ->
+        button.button.button--separate-right type="submit" data-disable-with="Loading…"
           ' Keep Source
           i.fa.fa-arrow-left
     - else
-      a href=~p"/duplicate_reports/#{@report}/accept" data-method="post"
-        button.button
+      = form_for @conn, ~p"/duplicate_reports/#{@report}/accept", [method: "post", class: "button_to js-duplicate-report", data: [remote: "true"]], fn _f ->
+        button.button.button--separate-right type="submit" data-disable-with="Loading…"
           i.fa.fa-arrow-right>
           | Keep Target

@@ -40,7 +40,9 @@ config :swoosh, :api_client, false
 # Markdown
 config :philomena, Philomena.Native,
   crate: "philomena",
-  mode: :release
+  mode: :release,
+  # Never link the C runtime statically, because we are building a `dylib`
+  env: [{"RUSTFLAGS", "-C target-feature=-crt-static"}]
 
 config :phoenix, :template_engines,
   slim: PhoenixSlime.Engine,

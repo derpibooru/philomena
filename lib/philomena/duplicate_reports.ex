@@ -11,10 +11,28 @@ defmodule Philomena.DuplicateReports do
 
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DuplicateReports.SearchQuery
+  alias Philomena.DuplicateReports.QueryBuilder
+  alias Philomena.DuplicateReports.QueryForm
   alias Philomena.DuplicateReports.Uploader
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.Images.Image
   alias Philomena.Images
+
+  def list_duplicate_reports(pagination, params) do
+    with {:ok, query, query_form} <- QueryBuilder.build_query(params) do
+      duplicate_reports =
+        query
+        |> preload([
+          :user,
+          :modifier,
+          image: [:user, :sources, tags: :aliases],
+          duplicate_of_image: [:user, :sources, tags: :aliases]
+        ])
+        |> Repo.paginate(pagination)
+
+      {:ok, duplicate_reports, QueryForm.changeset(query_form)}
+    end
+  end
 
   @doc """
   Generates automated duplicate reports for an image based on perceptual matching.
@@ -206,8 +224,9 @@ defmodule Philomena.DuplicateReports do
           (dr.image_id == ^duplicate_report.duplicate_of_image_id and
              dr.duplicate_of_image_id == ^duplicate_report.image_id)
       )
+      |> where([dr], dr.state != "rejected")
       |> where([dr], dr.id != ^duplicate_report.id)
-      |> update(set: [state: "rejected"])
+      |> select([dr], dr.id)
 
     changeset = DuplicateReport.accept_changeset(duplicate_report, user)
 
@@ -215,7 +234,10 @@ defmodule Philomena.DuplicateReports do
 
     multi
     |> Multi.update(:duplicate_report, changeset)
-    |> Multi.update_all(:other_reports, other_duplicate_reports, [])
+    |> Multi.update_all(:update_other_reports, other_duplicate_reports, set: [state: "rejected"])
+    |> Multi.all(:affected_duplicate_reports, fn %{update_other_reports: {_count, ids}} ->
+      where(DuplicateReport, [dr], dr.id in ^[duplicate_report.id | ids])
+    end)
     |> Images.merge_image(duplicate_report.image, duplicate_report.duplicate_of_image, user)
   end
 
@@ -253,11 +275,7 @@ defmodule Philomena.DuplicateReports do
         |> Repo.insert!()
       end
 
-    Multi.new()
-    |> Multi.run(:reject_duplicate_report, fn _, %{} ->
-      reject_duplicate_report(duplicate_report, user)
-    end)
-    |> accept_duplicate_report(new_report, user)
+    accept_duplicate_report(new_report, user)
   end
 
   @doc """
@@ -321,6 +339,15 @@ defmodule Philomena.DuplicateReports do
   """
   def delete_duplicate_report(%DuplicateReport{} = duplicate_report) do
     Repo.delete(duplicate_report)
+  end
+
+  def display_preloads(duplicate_reports) do
+    Repo.preload(duplicate_reports, [
+      :modifier,
+      :user,
+      image: [:user, :sources, tags: :aliases],
+      duplicate_of_image: [:user, :sources, tags: :aliases]
+    ])
   end
 
   @doc """

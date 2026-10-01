@@ -3,6 +3,10 @@ defmodule PhilomenaWeb.SessionController do
 
   alias Philomena.Users
   alias PhilomenaWeb.UserAuth
+  alias PhilomenaWeb.CompromisedPasswordCheckPlug
+
+  plug PhilomenaWeb.CaptchaPlug when action in [:new, :create]
+  plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
 
   def new(conn, _params) do
     render(conn, "new.html", error_message: nil)
@@ -19,6 +23,16 @@ defmodule PhilomenaWeb.SessionController do
       )
 
     cond do
+      not is_nil(user) and CompromisedPasswordCheckPlug.password_compromised?(password) ->
+        Users.delete_user_sessions(user)
+
+        conn
+        |> put_flash(
+          :error,
+          "We've detected that the password you entered has been compromised during a data breach of another website. Please reset your password before signing in again."
+        )
+        |> redirect(to: ~p"/passwords/new")
+
       not is_nil(user) and is_nil(user.confirmed_at) ->
         render(
           conn,

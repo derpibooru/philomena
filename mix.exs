@@ -4,7 +4,7 @@ defmodule Philomena.MixProject do
   def project do
     [
       app: :philomena,
-      version: "1.2.6",
+      version: "1.2.10",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
@@ -64,7 +64,7 @@ defmodule Philomena.MixProject do
       {:redix, "~> 1.4"},
       {:remote_ip, "~> 1.2"},
       {:briefly, "~> 0.5"},
-      {:req, "~> 0.5"},
+      {:req, "~> 0.7.4"},
       {:exq, "~> 0.21"},
       {:ex_aws, "~> 2.5"},
       {:ex_aws_s3, "~> 2.5"},

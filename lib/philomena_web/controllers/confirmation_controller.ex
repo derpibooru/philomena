@@ -28,19 +28,29 @@ defmodule PhilomenaWeb.ConfirmationController do
     |> redirect(to: "/")
   end
 
+  def show(conn, %{"id" => token}) do
+    render(conn, "edit.html", token: token)
+  end
+
   # Do not log in the user after confirmation to avoid a
   # leaked token giving the user access to the account.
-  def show(conn, %{"id" => token}) do
+  def update(conn, %{"id" => token}) do
     case Users.confirm_user(token) do
       {:ok, _} ->
         conn
         |> put_flash(:info, "Account confirmed successfully.")
-        |> redirect(to: "/")
+        |> redirect(to: ~p"/")
 
       :error ->
-        conn
-        |> put_flash(:error, "Confirmation link is invalid or it has expired.")
-        |> redirect(to: "/")
+        case conn.assigns do
+          %{current_user: %{confirmed_at: confirmed_at}} when not is_nil(confirmed_at) ->
+            redirect(conn, to: ~p"/")
+
+          _ ->
+            conn
+            |> put_flash(:error, "Confirmation link is invalid or it has expired.")
+            |> redirect(to: ~p"/")
+        end
     end
   end
 end
