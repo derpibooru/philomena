@@ -62,6 +62,8 @@ defmodule Philomena.ActivitiesTest do
   # hidden_tag_ids are read.
   defp filter, do: %Filter{hidden_tag_ids: []}
 
+  defp seed_rand(seed), do: :rand.seed(:exsss, seed)
+
   defp hours_ago(hours) do
     DateTime.utc_now()
     |> DateTime.add(-hours * 3600, :second)
@@ -120,6 +122,26 @@ defmodule Philomena.ActivitiesTest do
 
       assert Enum.any?(front.topics, &(&1.id == topic.id))
       assert is_list(front.interactions)
+    end
+
+    test "the trending strip ranks recent images by score, not upload time" do
+      liked = image_fixture(first_seen_at: hours_ago(2))
+      newer = image_fixture(first_seen_at: hours_ago(1))
+
+      liked
+      |> Ecto.Changeset.change(upvotes_count: 10, score: 10)
+      |> Repo.update!()
+
+      SearchHelpers.reindex_all!(Image)
+
+      # The strip shows a random one of its first six pages; seed the process
+      # so it lands on the first page, where both images are.
+      seed = Enum.find(1..1000, fn seed -> seed_rand(seed) && :rand.uniform(6) == 1 end)
+      seed_rand(seed)
+
+      assert {:ok, front} = Activities.show_activity(actor(), scope(), filter(), false)
+
+      assert Enum.map(front.top_scoring.entries, & &1.id) == [liked.id, newer.id]
     end
 
     test "the recent listing preloads each image's tags" do

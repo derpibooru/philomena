@@ -66,7 +66,7 @@ defmodule Philomena.Activities do
       ImageSearch.query(
         actor,
         scope,
-        ImageSearch.default_sort(),
+        {{:field, :wilson_score}, :desc},
         %{range: %{first_seen_at: %{gt: "now-3d"}}},
         pagination: %{page_number: :rand.uniform(6), page_size: 4}
       )
