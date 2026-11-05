@@ -332,6 +332,40 @@ describe('comment.ts setupComments', () => {
     });
   });
 
+  it('keeps rendered comments when a linked comment no longer exists', async () => {
+    mockCommentsDom({ loaded: '' });
+    const comments = $<HTMLDivElement>('#comments')!;
+    comments.dataset.loaded = 'true';
+    comments.innerHTML = '<div>no comments yet</div>';
+    window.location.hash = '#comment_123';
+    mockFetchHtml('Not found', false);
+
+    setupComments();
+
+    await waitFor(() => {
+      expect(fetchHtml).toHaveBeenCalledWith('http://localhost:3000/comments?comment_id=123');
+      expect(filterNode).toHaveBeenCalledWith(comments);
+    });
+    expect(comments).toContainHTML('no comments yet');
+    expect(comments).not.toContainHTML('Comment failed to load!');
+  });
+
+  it('still shows the error when refreshing a rendered page fails', async () => {
+    mockCommentsDom({ loaded: '' });
+    const comments = $<HTMLDivElement>('#comments')!;
+    comments.dataset.loaded = 'true';
+    comments.innerHTML = '<a id="js-refresh-comments" href="/comments">Refresh</a>';
+    window.location.hash = '#comment_123';
+
+    setupComments();
+    mockFetchHtml('Server error', false);
+    fireEvent.click($<HTMLAnchorElement>('#js-refresh-comments')!);
+
+    await waitFor(() => {
+      expect(comments).toContainHTML('Comment failed to load!');
+    });
+  });
+
   it('initial load with hash uses comment_id param', async () => {
     mockCommentsDom({ loaded: '' });
     window.location.hash = '#comment_AbC123';

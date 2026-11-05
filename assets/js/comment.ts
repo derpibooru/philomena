@@ -133,6 +133,8 @@ function loadComments(target?: Element) {
   const href = target?.getAttribute('href');
   const hashMatch = window.location.hash && window.location.hash.match(/#comment_([a-f0-9]+)/i);
   const url = new URL(assertString(container.dataset.currentUrl), window.location.origin);
+  // Looking up the page for a linked comment that isn't on the current page.
+  const isCommentLookup = !href && Boolean(hashMatch);
 
   if (href) {
     url.href = `${url.origin}${href}`;
@@ -141,8 +143,19 @@ function loadComments(target?: Element) {
   }
 
   fetchHtml(url.toString())
-    .then(handleError)
+    .then(response => {
+      // The linked comment was deleted or isn't visible to this viewer. Keep the
+      // comments already rendered on the page instead of replacing them with an error.
+      if (!response.ok && isCommentLookup && container.dataset.loaded) {
+        filterNode(container);
+        return null;
+      }
+
+      return handleError(response);
+    })
     .then(data => {
+      if (data === null) return;
+
       displayComments(container, data);
 
       // Make sure the :target CSS selector applies to the inserted content
