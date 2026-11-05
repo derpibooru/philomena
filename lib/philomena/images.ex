@@ -661,11 +661,18 @@ defmodule Philomena.Images do
     |> put_perform_batch_update(attributes)
   end
 
-  defp put_batch_tag(%Multi{} = multi, image_ids, added_names, removed_names, attributes) do
+  defp put_batch_tag(%Multi{} = multi, actor, image_ids, added_names, removed_names, attributes) do
     image_query =
       Image
       |> where([i], i.id in ^image_ids)
       |> order_by(asc: :id)
+
+    image_query =
+      if authorize(actor, :show, %Image{hidden_from_users: true}) == :ok do
+        image_query
+      else
+        where(image_query, hidden_from_users: false)
+      end
 
     multi
     |> Multi.lock_all(:locked_image_ids, select(image_query, [i], i.id))
@@ -2859,7 +2866,8 @@ defmodule Philomena.Images do
   On success returns `{:ok, result}` where `result` is a map with:
 
     * `:succeeded` - the number of image IDs successfully updated;
-    * `:failed` - the number of image IDs in failed chunks or matching no image.
+    * `:failed` - the number of image IDs in failed chunks, matching no image,
+      or inaccessible to the actor.
 
   Returns `{:error, :unauthorized}` when `actor` may not batch-tag, or an
   invalid `BatchTagForm` changeset when the parameters cannot be cast.
@@ -2892,7 +2900,7 @@ defmodule Philomena.Images do
       |> Enum.chunk_every(@batch_tag_size)
       |> Enum.reduce({0, 0}, fn image_ids, {succeeded, failed} ->
         Multi.new()
-        |> put_batch_tag(image_ids, added_names, removed_names, attributes)
+        |> put_batch_tag(actor, image_ids, added_names, removed_names, attributes)
         |> ModerationLogs.put_log(:moderation_log, actor, fn %{locked_image_ids: image_ids} ->
           {
             "Admin.Batch.Tag:update",

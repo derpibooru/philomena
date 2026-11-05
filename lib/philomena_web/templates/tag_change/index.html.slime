@@ -3,7 +3,7 @@
 
 h1 = @title
 
-= form_for :tag_changes, @path, [method: "get", class: "hform hform__text", enforce_utf8: false], fn f ->
+= form_for :tag_changes, @path, [method: "get", class: "hform hform__wide", enforce_utf8: false], fn f ->
   .field
     = text_input f, :tcq, name: :tcq, value: @conn.params["tcq"],
       class: "input hform__text",

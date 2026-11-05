@@ -21,13 +21,13 @@ html lang="en"
     link rel="search" type="application/opensearchdescription+xml" title="Derpibooru" href="/opensearch.xml"
     = csrf_meta_tag()
 
-    = vite_hmr? do
-      script type="module" src="http://#{@conn.host}:5173/@vite/client"
-      script type="module" src="http://#{@conn.host}:5173/js/app.ts"
+    = if vite_hmr?() do
+      script type="module" src=vite_asset_url(@conn, "/@vite/client")
+      script type="module" src=vite_asset_url(@conn, "/js/app.ts")
     - else
       script type="text/javascript" src=~p"/js/app.js" async="async"
     = render PhilomenaWeb.LayoutView, "_opengraph.html", assigns
-  body data-theme=theme_name(@current_user) data-vite-reload=to_string(vite_reload?()) data-hide-staff-tools=hide_staff_tools_attribute(@conn)
+  body data-theme=theme_name(@current_user) data-vite-reload=to_string(vite_hmr?()) data-hide-staff-tools=hide_staff_tools_attribute(@conn)
     = render PhilomenaWeb.LayoutView, "_burger.html", assigns
     #container class=container_class(@current_user)
       = render PhilomenaWeb.LayoutView, "_header.html", assigns
