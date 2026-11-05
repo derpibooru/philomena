@@ -36,6 +36,9 @@
 
 (s3path) {
 	handle {args[0]} {
+		# Images are drawn into cross-origin SVG/canvas contexts (e.g. the
+		# duplicate report diff view), which requires CORS headers.
+		import cors
 		rewrite {args[0]} {args[1]}
 		file_server {
 			fs philomena

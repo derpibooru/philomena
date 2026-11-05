@@ -42,6 +42,8 @@ defmodule Philomena.Reports do
 
   @max_open_reports 5
   @default_preloads [:admin, :rule, user: :linked_tags]
+  # The show page renders the reporter's badges next to their name.
+  @show_preloads [:admin, :rule, user: [:linked_tags, awards: :badge]]
 
   @typedoc "Locator for a reportable item."
   @type target_locator ::
@@ -301,7 +303,7 @@ defmodule Philomena.Reports do
   @spec show_report(Actor.t(), Loader.integer_id()) ::
           {:ok, Report.t()} | {:error, :unauthorized | :not_found}
   def show_report(%Actor{} = actor, id) do
-    Loader.fetch_and_authorize(report_query(@default_preloads), actor, :show, id)
+    Loader.fetch_and_authorize(report_query(@show_preloads), actor, :show, id)
   end
 
   @doc """

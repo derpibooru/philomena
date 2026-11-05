@@ -8,6 +8,8 @@ defmodule PhilomenaWeb.Admin.ReportControllerTest do
 
   import Philomena.ReportsFixtures
   import Philomena.ImagesFixtures
+  import Philomena.UsersFixtures
+  import Philomena.BadgesFixtures
 
   alias Philomena.Reports.Report
   alias PhilomenaQuery.Search
@@ -127,6 +129,25 @@ defmodule PhilomenaWeb.Admin.ReportControllerTest do
       response = html_response(conn, 200)
       assert response =~ "Showing Report"
       assert response =~ report.reason
+    end
+  end
+
+  describe "GET /admin/reports/:id (show) with a signed-in reporter" do
+    setup [:register_and_log_in_admin]
+
+    test "renders the reporter's name and badges", %{conn: conn, user: admin} do
+      reporter = user_fixture()
+      badge = badge_fixture()
+      badge_award_fixture(admin, reporter, badge)
+
+      image = image_fixture()
+      report = report_fixture(reporter, %{}, image_id: image.id)
+
+      conn = get(conn, ~p"/admin/reports/#{report}")
+      response = html_response(conn, 200)
+      assert response =~ "Showing Report"
+      assert response =~ reporter.name
+      assert response =~ badge.title
     end
   end
 
