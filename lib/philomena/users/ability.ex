@@ -685,8 +685,11 @@ defimpl Canada.Can, for: Philomena.Users.User do
       do: true
 
   def can?(%User{}, action, %Image{hidden_from_users: false})
-      when action in [:show, :index, :subscribe, :unsubscribe, :mark_read],
+      when action in [:show, :index, :subscribe, :unsubscribe],
       do: true
+
+  # Users must be able to dismiss notifications even after an image is hidden.
+  def can?(%User{}, :mark_read, %Image{}), do: true
 
   # Submit and inspect duplicate reports involving visible images.
   def can?(%User{}, action, DuplicateReport) when action in [:create, :search], do: true
