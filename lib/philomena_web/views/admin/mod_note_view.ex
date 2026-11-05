@@ -23,6 +23,10 @@ defmodule PhilomenaWeb.Admin.ModNoteView do
 
   def link_to_target(%ModNote{}), do: "Item permanently deleted"
 
+  # A new note's target lives in the changeset's changes, not its data.
+  def target_label(%Ecto.Changeset{} = changeset),
+    do: changeset |> Ecto.Changeset.apply_changes() |> target_label()
+
   def target_label(%ModNote{user_id: id}) when not is_nil(id), do: "User #{id}"
   def target_label(%ModNote{report_id: id}) when not is_nil(id), do: "Report #{id}"
   def target_label(%ModNote{dnp_entry_id: id}) when not is_nil(id), do: "DNP entry #{id}"

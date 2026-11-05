@@ -1,5 +1,5 @@
 h2
   ' New mod note for
-  => target_label(@changeset.data)
+  => target_label(@changeset)
 
 = render PhilomenaWeb.Admin.ModNoteView, "_form.html", changeset: @changeset, action: ~p"/admin/mod_notes", conn: @conn

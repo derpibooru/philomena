@@ -94,14 +94,18 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
       target = confirmed_user_fixture()
       conn = get(conn, ~p"/admin/mod_notes/new?#{[user_id: target.id]}")
-      assert html_response(conn, 200) =~ "New mod note for"
+      response = html_response(conn, 200)
+      assert response =~ "New mod note for User #{target.id}"
+      refute response =~ "unknown target"
     end
 
     test "renders the form for an admin", %{conn: conn} do
       %{conn: conn} = register_and_log_in_admin(%{conn: conn})
       target = confirmed_user_fixture()
       conn = get(conn, ~p"/admin/mod_notes/new?#{[user_id: target.id]}")
-      assert html_response(conn, 200) =~ "New mod note for"
+      response = html_response(conn, 200)
+      assert response =~ "New mod note for User #{target.id}"
+      refute response =~ "unknown target"
     end
 
     test "redirects to / with a not-found flash with no id", %{conn: conn} do
@@ -177,7 +181,7 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
           }
         })
 
-      assert html_response(conn, 200) =~ "New mod note for"
+      assert html_response(conn, 200) =~ "New mod note for User #{target.id}"
       refute Repo.exists?(ModNote)
     end
   end
