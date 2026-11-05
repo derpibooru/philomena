@@ -129,7 +129,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicy do
       iex> policy = %{default_src: ["'self'"], frame_src: ["https://frame.example"]}
       iex> serialized = PhilomenaWeb.ContentSecurityPolicy.serialize(policy)
       iex> String.split(serialized, "; ") |> Enum.take(2)
-      ["default-src 'self'", "script-src 'none'"]
+      ["default-src 'self'", "base-uri 'none'"]
 
   """
   @spec serialize(policy()) :: String.t()
@@ -166,7 +166,7 @@ defmodule PhilomenaWeb.ContentSecurityPolicy do
     merge_policy(policy, %{
       script_src: [origin],
       connect_src: [origin, websocket_origin],
-      style_sources: ["'unsafe-inline'"]
+      style_src: ["'unsafe-inline'"]
     })
   end
 
