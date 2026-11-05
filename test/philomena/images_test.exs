@@ -4961,6 +4961,55 @@ defmodule Philomena.ImagesTest do
       assert result == %{succeeded: 1, failed: 0}
     end
 
+    test "a batch tag grant does not allow changes to inaccessible hidden images" do
+      user = %{confirmed_user_fixture() | role_map: %{"Tag" => %{"batch_update" => []}}}
+      visible = image_fixture(tags: "safe, removeme")
+      hidden = image_fixture(tags: "safe, removeme", hidden_from_users: true)
+      added = tag_fixture(name: "batchadd")
+      :ok = Endpoint.subscribe("firehose")
+
+      assert {:ok, %{succeeded: 1, failed: 1}} =
+               Images.update_batch_tags(actor(user), %{
+                 tag_list: "batchadd, -removeme",
+                 image_ids: [hidden.id, visible.id]
+               })
+
+      assert "batchadd" in image_tag_names(visible)
+      refute "removeme" in image_tag_names(visible)
+      refute "batchadd" in image_tag_names(hidden)
+      assert "removeme" in image_tag_names(hidden)
+      assert Repo.get!(Tag, added.id).images_count == 1
+      refute Repo.exists?(from change in TagChange, where: change.image_id == ^hidden.id)
+      assert only_moderation_log!().body == "Batch tagged 'batchadd, -removeme' on 1 images"
+
+      assert_receive %Broadcast{
+        event: "image:batch_tag_update",
+        payload: %{image_ids: [image_id]}
+      }
+
+      assert image_id == visible.id
+    end
+
+    test "an assistant with image visibility and batch tag grants can update hidden images" do
+      user = %{
+        confirmed_user_fixture()
+        | role: "assistant",
+          role_map: %{"Tag" => %{"batch_update" => []}, "Image" => %{"moderator" => []}}
+      }
+
+      hidden = image_fixture(hidden_from_users: true)
+      added = tag_fixture(name: "batchadd")
+
+      assert {:ok, %{succeeded: 1, failed: 0}} =
+               Images.update_batch_tags(actor(user), %{
+                 tag_list: added.name,
+                 image_ids: [hidden.id]
+               })
+
+      assert added.name in image_tag_names(hidden)
+      assert Repo.get!(Tag, added.id).images_count == 0
+    end
+
     test "a plain moderator is not authorized" do
       image = image_fixture(tags: "safe")
 
