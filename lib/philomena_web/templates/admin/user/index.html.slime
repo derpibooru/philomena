@@ -128,13 +128,6 @@ table.table
         code = link "created_at.lt:2 weeks ago", to: ~p"/admin/users?#{[uq: [query: "created_at.lt:2 weeks ago"]]}"
     tr
       td
-        code updated_at
-      td Date/Time
-      td Matches the date and time the user was last updated.
-      td
-        code = link "updated_at.gt:1 month ago", to: ~p"/admin/users?#{[uq: [query: "updated_at.gt:1 month ago"]]}"
-    tr
-      td
         code confirmed
       td Boolean
       td Matches whether the user account has been confirmed.
@@ -219,18 +212,18 @@ table.table
         code = link "images_count.gte:200", to: ~p"/admin/users?#{[uq: [query: "images_count.gte:200"]]}"
     tr
       td
-        code images_favourited_count
+        code image_faves_count
       td Integer
       td Matches the number of images the user has favourited.
       td
-        code = link "images_favourited_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "images_favourited_count.gte:1000"]]}"
+        code = link "image_faves_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_faves_count.gte:1000"]]}"
     tr
       td
-        code votes_cast_count
+        code image_votes_count
       td Integer
       td Matches the number of votes the user has cast.
       td
-        code = link "votes_cast_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "votes_cast_count.gte:1000"]]}"
+        code = link "image_votes_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_votes_count.gte:1000"]]}"
     tr
       td
         code metadata_updates_count
@@ -240,18 +233,18 @@ table.table
         code = link "metadata_updates_count.gte:500", to: ~p"/admin/users?#{[uq: [query: "metadata_updates_count.gte:500"]]}"
     tr
       td
-        code comments_posted_count
+        code comments_count
       td Integer
       td Matches the number of comments the user has posted.
       td
-        code = link "comments_posted_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "comments_posted_count.gte:100"]]}"
+        code = link "comments_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "comments_count.gte:100"]]}"
     tr
       td
-        code forum_posts_count
+        code posts_count
       td Integer
       td Matches the number of forum posts the user has made.
       td
-        code = link "forum_posts_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "forum_posts_count.gte:100"]]}"
+        code = link "posts_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "posts_count.gte:100"]]}"
     tr
       td
         code topics_count

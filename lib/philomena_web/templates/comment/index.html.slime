@@ -117,8 +117,8 @@ table.table
         code = link "my:comments", to: ~p"/comments?#{[cq: "my:comments"]}"
     tr
       td
-        code user_id
+        code author_id
       td Literal
-      td Matches comments with the specified user_id. Anonymous users will never match this term.
+      td Matches comments with the specified author_id. Anonymous users will never match this term.
       td
-        code = link "user_id:211190", to: ~p"/comments?#{[cq: "user_id:211190"]}"
+        code = link "author_id:211190", to: ~p"/comments?#{[cq: "author_id:211190"]}"
