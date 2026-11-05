@@ -34,7 +34,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/philomena-dev/philomena
+          images: ghcr.io/${{ github.repository_owner }}/philomena
 
       - name: Build and push Philomena image
         uses: docker/build-push-action@v7
@@ -72,7 +72,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/philomena-dev/philomena-web
+          images: ghcr.io/${{ github.repository_owner }}/philomena-web
 
       - name: Build and push Philomena Web Server image
         uses: docker/build-push-action@v7
@@ -110,7 +110,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ghcr.io/philomena-dev/mediaproc
+          images: ghcr.io/${{ github.repository_owner }}/mediaproc
 
       - name: Build and push Media Processing image
         uses: docker/build-push-action@v7
