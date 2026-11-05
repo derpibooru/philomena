@@ -21,7 +21,7 @@ defmodule Philomena.Reports.QueryForm do
     |> validate_query(
       :query,
       with: &Query.compile/1,
-      default: "open:true AND NOT (admin_id:#{admin_id} OR system:true)",
+      default: "(open:true AND NOT (admin_id:#{admin_id} OR system:true)) OR open:false",
       into: :compiled_query
     )
   end
