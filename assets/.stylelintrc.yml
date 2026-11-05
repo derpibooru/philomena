@@ -56,7 +56,6 @@ rules:
         - blockless-after-blockless
   custom-property-empty-line-before: never
   declaration-empty-line-before: never
-  declaration-block-single-line-max-declarations: 3
   number-max-precision: 2
   max-nesting-depth: 1
   color-hex-length: long

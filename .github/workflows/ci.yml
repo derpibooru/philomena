@@ -7,8 +7,8 @@ jobs:
     name: 'Build Elixir app'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/cache@v5
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
         with:
           path: |
             _build
@@ -36,7 +36,7 @@ jobs:
     name: 'Check for spelling errors'
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: ./scripts/install/typos.sh
       - run: typos
 
@@ -44,7 +44,7 @@ jobs:
     name: Shellcheck
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: ./scripts/install/shellcheck.sh
       - run: ./scripts/shellcheck.sh
 
@@ -52,10 +52,10 @@ jobs:
     name: Rust Linting and Unit Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       # Uses the `rust-toolchain.toml` file
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           components: rustfmt, clippy
 
@@ -72,10 +72,10 @@ jobs:
     name: 'Prettier Formatting Check'
     runs-on: ubuntu-slim
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '26'
           cache: 'npm'
       - run: npm ci --ignore-scripts
       - run: npx prettier --check .
@@ -84,12 +84,12 @@ jobs:
     name: 'JavaScript Linting and Unit Tests'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: '22'
+          node-version: '26'
           cache: 'npm'
 
       - run: npm ci --ignore-scripts

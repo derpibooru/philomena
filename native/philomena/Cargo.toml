@@ -27,4 +27,4 @@ rustler = "0.39"
 similar = { version = "3.2", features = ["inline", "unicode"] }
 tokio = { version = "1.54", features = ["full"] }
 url = "2.5"
-zip = { version = "9.1", features = ["deflate"], default-features = false }
+zip = { version = "9.3", features = ["deflate"], default-features = false }
