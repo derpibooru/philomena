@@ -7,6 +7,11 @@ defmodule PhilomenaWeb.TagChangeController do
   action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, params) do
+    # The template reads the effective query back out of conn.params["tcq"],
+    # so the default must be written there when the parameter is absent.
+    params = update_in(params["tcq"], &(&1 || "created_at.gte:1 week ago"))
+    conn = put_in(conn.params, params)
+
     case TagChanges.list_tag_changes(conn.assigns.actor, params, conn.assigns.pagination) do
       {:ok, %TagChangePage{} = page, changeset} ->
         render(conn, "index.html",
