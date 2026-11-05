@@ -2632,8 +2632,11 @@ defmodule Philomena.Images do
              | :rate_limited
              | Ecto.Changeset.t()}
   def update_image_tags(%Actor{} = actor, image_id, attrs) do
+    # Unchanged and invalid submissions re-render the tags partial from this
+    # image, so it needs the same associations as the locked, updated one.
     with :ok <- verify_write_access(actor),
-         {:ok, image} <- load_image_member(actor, :edit_metadata, image_id),
+         {:ok, image} <-
+           load_image_member(actor, :edit_metadata, image_id, [:tags, :locked_tags]),
          {:ok, tag_input_form} <-
            %TagInputForm{}
            |> TagInputForm.changeset(attrs)

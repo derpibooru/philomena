@@ -149,6 +149,20 @@ defmodule PhilomenaWeb.Image.TagControllerTest do
            )
   end
 
+  test "PATCH without any tag change renders the partial", %{conn: conn} do
+    %{conn: conn} = register_and_log_in_user(%{conn: conn})
+    image = image_fixture()
+
+    conn =
+      patch(conn, ~p"/images/#{image}/tags", %{
+        "image" => %{"old_tag_input" => "safe", "tag_input" => "safe"}
+      })
+
+    assert html_response(conn, 200) =~ "safe"
+    assert tag_names(image) == ["safe"]
+    refute Repo.exists?(from tc in TagChange, where: tc.image_id == ^image.id)
+  end
+
   test "PATCH reducing the image below 3 tags renders the partial without changing tags",
        %{conn: conn} do
     %{conn: conn} = register_and_log_in_user(%{conn: conn})
