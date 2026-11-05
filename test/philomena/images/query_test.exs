@@ -2,6 +2,7 @@ defmodule Philomena.Images.QueryTest do
   use ExUnit.Case, async: true
 
   alias Philomena.Images.Query
+  alias PhilomenaQuery.Parse.Parser
 
   @user %{
     id: 1,
@@ -55,6 +56,24 @@ defmodule Philomena.Images.QueryTest do
 
       assert is_map(query)
       assert Enum.sort(names) == ["artist:example", "cute", "safe"]
+    end
+
+    test "leaves out tags from the user's watchlist queries" do
+      user = %{
+        @user
+        | settings: %{
+            @user.settings
+            | watched_images_query_str: "cute OR artist:example",
+              watched_images_exclude_str: "-grimdark"
+          }
+      }
+
+      assert {:ok, %{query: query, tag_names: names}} =
+               Query.compile_with_tag_names("safe AND my:watched", user: user)
+
+      # The watchlist still applies to the query itself.
+      assert "cute" in Parser.referenced_term_values(query, "tags")
+      assert names == ["safe"]
     end
 
     test "returns the normal parser error for malformed input" do

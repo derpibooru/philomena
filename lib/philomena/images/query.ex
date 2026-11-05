@@ -246,6 +246,10 @@ defmodule Philomena.Images.Query do
   @doc """
   Compiles an image query and returns the normalized tag names referenced by
   its exact tag clauses alongside the query body.
+
+  Only tags written in `query_string` itself are returned; tags that come from
+  expanding custom fields (such as the watchlist behind `my:watched` or the
+  filter behind `filter_id:`) are not.
   """
   @spec compile_with_tag_names(String.t() | nil, Keyword.t()) ::
           {:ok, %{query: map(), tag_names: [String.t()]}} | {:error, String.t()}
@@ -254,8 +258,26 @@ defmodule Philomena.Images.Query do
       {:ok,
        %{
          query: query,
-         tag_names: Parser.referenced_term_values(query, "tags")
+         tag_names: written_tag_names(Keyword.get(opts, :user), query_string)
        }}
+    end
+  end
+
+  # Re-parses the query with every custom field replaced by an empty clause,
+  # so the tags inside their expansions are not collected.
+  defp written_tag_names(user, query_string) do
+    fields =
+      user
+      |> fields_for()
+      |> Keyword.update!(:transforms, fn transforms ->
+        Map.new(transforms, fn {name, _transform} ->
+          {name, fn _ctx, _value -> {:ok, %{match_all: %{}}} end}
+        end)
+      end)
+
+    case fields |> Parser.new() |> Parser.parse(query_string) do
+      {:ok, query} -> Parser.referenced_term_values(query, "tags")
+      _error -> []
     end
   end
 end
