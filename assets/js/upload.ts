@@ -246,7 +246,7 @@ export function setupImageUpload() {
   const validateTags = (): boolean => {
     const tagInput = $<HTMLTextAreaElement>('textarea.js-taginput', form);
 
-    if (!tagInput || !tagInput.value) {
+    if (!tagInput) {
       return true;
     }
 

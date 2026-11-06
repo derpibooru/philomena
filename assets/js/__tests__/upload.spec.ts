@@ -27,7 +27,7 @@ const errorResponse = {
 /* eslint-enable camelcase */
 
 const tagSets = ['', 'a tag', 'safe', 'one, two, three', 'safe, explicit', 'safe, explicit, three', 'safe, two, three'];
-const tagErrorCounts = [0, 2, 1, 1, 2, 1, 0];
+const tagErrorCounts = [2, 2, 1, 1, 2, 1, 0];
 
 describe('Image upload form', () => {
   let mockPng: File;
