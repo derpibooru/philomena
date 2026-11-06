@@ -143,6 +143,18 @@ defmodule Philomena.RulesTest do
       refute changeset.valid?
     end
 
+    test "a taken position is a rejected changeset" do
+      rule = rule_fixture()
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Rules.create_rule(actor(admin_user_fixture()), %{
+                 name: "Another Rule",
+                 position: rule.position
+               })
+
+      assert %{position: ["has already been taken"]} = errors_on(changeset)
+    end
+
     test "a regular user is unauthorized" do
       assert Rules.create_rule(actor(confirmed_user_fixture()), %{name: "x", position: 1}) ==
                {:error, :unauthorized}
@@ -198,6 +210,19 @@ defmodule Philomena.RulesTest do
 
       assert carried.id == rule.id
       refute changeset.valid?
+    end
+
+    test "renaming to a taken name carries the unchanged rule for re-rendering" do
+      rule = rule_fixture()
+      other = rule_fixture()
+
+      assert {:error, {%Rule{} = carried, changeset}} =
+               Rules.update_rule(actor(admin_user_fixture()), to_string(rule.position), %{
+                 name: other.name
+               })
+
+      assert carried.id == rule.id
+      assert %{name: ["has already been taken"]} = errors_on(changeset)
     end
 
     test "a regular user is unauthorized" do
