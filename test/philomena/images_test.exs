@@ -14,6 +14,7 @@ defmodule Philomena.ImagesTest do
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.ImageHides
   alias Philomena.ImageHides.ImageHide
+  alias Philomena.Comments
   alias Philomena.Galleries.Interaction
   alias Philomena.Images
   alias Philomena.ImageVotes
@@ -368,6 +369,29 @@ defmodule Philomena.ImagesTest do
                |> Multi.transact()
 
       assert Repo.reload!(target).first_seen_at == source_first_seen_at
+    end
+
+    test "adds the source image's comments that are not destroyed to the target's count" do
+      moderator = moderator_user_fixture()
+      source = image_fixture()
+      target = image_fixture()
+      comment_fixture(target)
+      comment_fixture(source)
+      destroyed = comment_fixture(source)
+
+      {:ok, _} =
+        Comments.create_comment_hide(actor(moderator), source.id, destroyed.id, %{
+          "deletion_reason" => "Spam"
+        })
+
+      {:ok, _} = Comments.create_comment_delete(actor(moderator), source.id, destroyed.id)
+
+      assert {:ok, _result} =
+               Multi.new()
+               |> Images.put_merge_image(source, target, moderator)
+               |> Multi.transact()
+
+      assert Repo.reload!(target).comments_count == 2
     end
 
     test "notifies subscribers of either image that the source merged into the target" do

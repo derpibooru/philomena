@@ -809,16 +809,25 @@ defmodule Philomena.Comments do
   end
 
   @doc """
-  Moves comments from one image to another inside `multi`.
-
-  Image merge workflows compose this operation and then adjust the target
-  image's denormalized count through `Images.put_image_counter_delta`. The
-  returned `:migrated_comments` step contains the number of moved rows.
+  Moves comments from one image to another inside `multi` and adds the moved
+  comments that are not destroyed to the target image's comment count.
   """
   @spec put_migrate_image_comments(Multi.t(), Image.t(), Image.t()) :: Multi.t()
   def put_migrate_image_comments(%Multi{} = multi, %Image{} = source, %Image{} = target) do
-    query = where(Comment, image_id: ^source.id) |> update(set: [image_id: ^target.id])
-    Multi.update_all(multi, :migrated_comments, query, [])
+    query =
+      Comment
+      |> where(image_id: ^source.id)
+      |> select([c], c.destroyed_content)
+      |> update(set: [image_id: ^target.id])
+
+    multi
+    |> Multi.update_all(:migrated_comments, query, [])
+    |> Images.put_image_counter_delta(
+      :migrated_comment_count,
+      target.id,
+      :comments_count,
+      fn %{migrated_comments: {_count, destroyed}} -> Enum.count(destroyed, &(not &1)) end
+    )
   end
 
   @doc """

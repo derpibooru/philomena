@@ -1253,12 +1253,6 @@ defmodule Philomena.Images do
       |> Image.sources_changeset(sources)
     end)
     |> Comments.put_migrate_image_comments(image, duplicate_of_image)
-    |> put_image_counter_delta(
-      :migrated_comment_count,
-      duplicate_of_image.id,
-      :comments_count,
-      fn %{migrated_comments: {count, nil}} -> count end
-    )
     |> Multi.insert_all(:subscriptions, Subscription, subscriptions, on_conflict: :nothing)
     |> Notifications.put_migrate_image_notifications(image, duplicate_of_image)
     |> Interactions.migrate_loaded_images(image, duplicate_of_image)
