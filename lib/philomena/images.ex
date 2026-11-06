@@ -988,7 +988,7 @@ defmodule Philomena.Images do
   """
   @spec list_image_navigation(Actor.t(), Scope.t(), IntegerId.integer_id()) ::
           {:ok, {Image.t(), {Image.t(), map()} | nil}}
-          | {:error, :unauthorized | :not_found}
+          | {:error, :unauthorized | :not_found | String.t()}
   def list_image_navigation(%Actor{user: user} = actor, scope, image_id) do
     with {:ok, image} <- load_image_member(actor, :show, image_id),
          {:ok, query} <- ImageQuery.compile(scope.q || "*", user: user) do

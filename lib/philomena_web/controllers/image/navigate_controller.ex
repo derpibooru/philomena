@@ -24,6 +24,16 @@ defmodule PhilomenaWeb.Image.NavigateController do
         nil ->
           redirect(conn, to: ~p"/images/#{image}?#{scope}")
       end
+    else
+      {:error, message} when is_binary(message) ->
+        # The search query could not be compiled for this viewer, such as a
+        # `my:` query from a signed-out visitor; stay on the current image.
+        conn
+        |> put_flash(:error, message)
+        |> redirect(to: ~p"/images/#{params["image_id"]}?#{scope}")
+
+      error ->
+        error
     end
   end
 

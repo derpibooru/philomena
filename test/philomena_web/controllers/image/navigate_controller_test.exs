@@ -42,6 +42,17 @@ defmodule PhilomenaWeb.Image.NavigateControllerTest do
     end
   end
 
+  describe "GET /images/:image_id/navigate with a query the viewer cannot run" do
+    test "stays on the image and shows the query error", %{conn: conn} do
+      {_older, newer} = two_images()
+
+      conn = get(conn, ~p"/images/#{newer}/navigate?rel=next&q=my:faves")
+
+      assert redirected_to(conn) =~ ~p"/images/#{newer.id}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "logged in"
+    end
+  end
+
   describe "GET /images/:image_id/navigate?rel=prev" do
     test "redirects to the previous image in the sequence", %{conn: conn} do
       {older, newer} = two_images()
