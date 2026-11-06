@@ -8,6 +8,8 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   alias PhilomenaMedia.Strip
   alias PhilomenaMedia.Processors
 
+  require Logger
+
   @behaviour Processor
 
   @exit_success 0
@@ -20,17 +22,19 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
-    stripped = optimize(strip(file))
+    source =
+      case strip(file) do
+        {:ok, stripped} -> optimize(stripped)
+        :error -> file
+      end
 
-    {:ok, intensities} = Intensities.file(stripped)
+    {:ok, intensities} = Intensities.file(source)
 
-    scaled = Enum.flat_map(versions, &scale(stripped, &1))
+    scaled = Enum.flat_map(versions, &scale(source, &1))
 
-    [
-      replace_original: stripped,
-      intensities: intensities,
-      thumbnails: scaled
-    ]
+    replacement = if source != file, do: [replace_original: source], else: []
+
+    replacement ++ [intensities: intensities, thumbnails: scaled]
   end
 
   @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
@@ -45,16 +49,17 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   defp strip(file) do
     # ImageMagick always reencodes the image, resulting in quality loss, so
     # be more clever
-    # Transcode: normalize orientation, ICC profile and strip metadata
-    with true <- Strip.requires_strip?(file),
-         {:ok, stripped} <- Strip.strip(file, ".jpg") do
-      stripped
+    if Strip.requires_strip?(file) do
+      # Transcode: normalize orientation, ICC profile and strip metadata
+      with :error <- Strip.strip(file, ".jpg") do
+        Logger.warning("Failed to strip #{file}, keeping the original")
+        :error
+      end
     else
-      _ ->
-        # Transmux only: Strip EXIF without touching pixel data
-        stripped = Briefly.create!(extname: ".jpg")
-        validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
-        stripped
+      # Transmux only: Strip EXIF without touching pixel data
+      stripped = Briefly.create!(extname: ".jpg")
+      validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+      {:ok, stripped}
     end
   end
 
