@@ -1521,10 +1521,6 @@ defmodule Philomena.Tags do
         end,
         []
       )
-      |> Multi.on_commit(fn _changes ->
-        reindex_tag_images(target_tag)
-        reindex_tags([tag, target_tag])
-      end)
       |> Multi.transact()
       |> case do
         {:ok, _changes} ->
@@ -1534,6 +1530,15 @@ defmodule Philomena.Tags do
           {:error, :stale_target}
       end
     end)
+    |> case do
+      :ok ->
+        reindex_tag_images(target_tag)
+        reindex_tags([tag, target_tag])
+        :ok
+
+      error ->
+        error
+    end
   end
 
   @doc """

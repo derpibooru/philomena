@@ -25,6 +25,10 @@ defmodule Philomena.TagWorkersTest do
     |> Enum.map(& &1.id)
   end
 
+  defp enqueued_args(worker) do
+    for {:enqueue, [Exq, "indexing", ^worker, args]} <- history(Exq), do: args
+  end
+
   test "the alias worker moves image taggings to the target tag" do
     source = tag_fixture(name: "worker alias source")
     target = tag_fixture(name: "worker alias target")
@@ -58,6 +62,22 @@ defmodule Philomena.TagWorkersTest do
 
     assert Repo.reload!(source).images_count == 0
     assert Repo.reload!(target).images_count == 1
+  end
+
+  test "the alias worker reindexes the target and both tags when the source has no images" do
+    source = tag_fixture(name: "worker empty alias source")
+    target = tag_fixture(name: "worker empty alias target")
+
+    source
+    |> Ecto.Changeset.change(aliased_tag_id: target.id)
+    |> Repo.update!()
+
+    spy(Exq)
+
+    assert :ok = TagAliasWorker.perform(source.id, target.id)
+
+    assert enqueued_args(Philomena.TagReindexWorker) == [[target.id]]
+    assert enqueued_args(Philomena.IndexWorker) == [["Tags", "id", [source.id, target.id]]]
   end
 
   test "the alias worker does not count hidden images when moving taggings" do
