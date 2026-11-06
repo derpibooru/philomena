@@ -114,6 +114,19 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
     assert Repo.aggregate(Report, :count) == 0
   end
 
+  test "POST without a report map redirects with the not-found flash", %{conn: conn} do
+    image = image_fixture()
+
+    for params <- [%{}, %{"report" => "foo"}] do
+      conn = post(conn, ~p"/images/#{image}/reports", params)
+
+      assert redirected_to(conn) == "/"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Couldn't find what you were looking for!"
+    end
+  end
+
   test "POST with more than 5 open reports redirects to / with the limit flash",
        %{conn: conn} do
     %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
