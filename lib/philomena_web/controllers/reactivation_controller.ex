@@ -2,11 +2,11 @@ defmodule PhilomenaWeb.ReactivationController do
   use PhilomenaWeb, :controller
   alias Philomena.Users
 
-  def show(conn, %{"id" => _}) do
-    render(conn, "show.html", title: "Reactivate Your Account")
+  def show(conn, %{"id" => token}) do
+    render(conn, "show.html", title: "Reactivate Your Account", token: token)
   end
 
-  def create(conn, %{"token" => token}) do
+  def update(conn, %{"id" => token}) do
     Users.create_reactivation(token)
 
     conn

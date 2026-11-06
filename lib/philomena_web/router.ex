@@ -79,7 +79,7 @@ defmodule PhilomenaWeb.Router do
     resources "/confirmations", ConfirmationController, only: [:new, :create]
     resources "/passwords", PasswordController, only: [:new, :create, :edit, :update]
     resources "/unlocks", UnlockController, only: [:new, :create, :show]
-    resources "/reactivations", ReactivationController, only: [:show, :create]
+    resources "/reactivations", ReactivationController, only: [:show, :update]
   end
 
   scope "/", PhilomenaWeb do

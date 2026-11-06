@@ -26,7 +26,8 @@
 [x] GET    /unlocks/:id                                                     UnlockController :show
 [x] POST   /unlocks                                                         UnlockController :create
 [x] GET    /reactivations/:id                                               ReactivationController :show
-[x] POST   /reactivations                                                   ReactivationController :create
+[x] PATCH  /reactivations/:id                                               ReactivationController :update
+[x] PUT    /reactivations/:id                                               ReactivationController :update
 [x] GET    /confirmations/:id                                               ConfirmationController :show
 [x] PATCH  /confirmations/:id                                               ConfirmationController :update
 [x] PUT    /confirmations/:id                                               ConfirmationController :update

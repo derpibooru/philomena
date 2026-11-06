@@ -1,3 +1,3 @@
 h1 Reactivate Your Account
 = button_to "Cancel", ~p"/", class: "button"
-= button_to "Reactivate", "", class: ["button", "button--state-success", "button--separate-left"], method: "post", data: [confirm: "Are you sure you want to reactivate your account?"]
+= button_to "Reactivate", ~p"/reactivations/#{@token}", class: ["button", "button--state-success", "button--separate-left"], method: :put, data: [confirm: "Are you sure you want to reactivate your account?"]
