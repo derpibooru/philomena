@@ -93,7 +93,7 @@ defmodule Philomena.Topics do
       |> select([p], max(p.topic_position))
       |> Repo.one()
 
-    total_entries = last_position + 1
+    total_entries = (last_position || -1) + 1
 
     %Scrivener.Page{
       entries: entries,

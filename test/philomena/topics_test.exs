@@ -1136,6 +1136,14 @@ defmodule Philomena.TopicsTest do
       assert %Ecto.Changeset{} = page.topic_changeset
     end
 
+    test "renders an empty page for a topic without post rows" do
+      {forum, topic} = visible_topic()
+      Repo.delete_all(where(Post, topic_id: ^topic.id))
+
+      assert {:ok, %TopicPage{posts: %{entries: [], total_entries: 0, total_pages: 0}}} =
+               Topics.show_topic_page(actor(), forum.short_name, topic.slug, nil, @first_page)
+    end
+
     test "applies pending and destroyed post visibility before presentation" do
       viewer = confirmed_user_fixture()
       {forum, topic} = visible_topic()
