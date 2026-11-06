@@ -80,6 +80,29 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert response =~ ~p"/images/#{image.id}"
     end
 
+    test "links images in gallery order so image navigation stays in the gallery",
+         %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+      first = image_fixture()
+      second = image_fixture()
+      gallery_image_fixture(gallery, first)
+      gallery_image_fixture(gallery, second)
+      image_fixture()
+      SearchHelpers.reindex_all!(Image)
+
+      response = conn |> get(~p"/galleries/#{gallery}") |> html_response(200)
+
+      [query_string] =
+        Regex.run(~r{/images/#{second.id}\?([^"]+)"}, response, capture: :all_but_first)
+
+      query_string = String.replace(query_string, "&amp;", "&")
+      assert query_string =~ "sf=gallery_id%3A#{gallery.id}"
+
+      conn = get(build_conn(), "/images/#{second.id}/navigate?rel=next&#{query_string}")
+
+      assert redirected_to(conn) =~ ~p"/images/#{first.id}"
+    end
+
     test "renders a page number far past the search window", %{conn: conn} do
       gallery = gallery_fixture(confirmed_user_fixture(), title: "Test Deep Gallery")
 

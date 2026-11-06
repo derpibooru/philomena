@@ -480,11 +480,10 @@ defmodule Philomena.Galleries do
   Assembles the `GalleryPage` for the viewer described by `scope`, from
   `gallery_id`.
 
-  The gallery's position order is merged into the scope's parameters so the
-  images list, and the previous/next page probes flanking it, run in gallery
-  order; interactions and subscription state are computed for the viewer, and
-  the viewer's notification for the gallery is cleared as a side effect (so the
-  caller must read any notification counts afterwards).
+  The images list, and the previous/next page probes flanking it, run in
+  gallery position order; interactions and subscription state are computed for
+  the viewer, and the viewer's notification for the gallery is cleared as a
+  side effect (so the caller must read any notification counts afterwards).
 
   ## Examples
 

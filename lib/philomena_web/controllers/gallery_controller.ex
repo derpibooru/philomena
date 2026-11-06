@@ -50,6 +50,7 @@ defmodule PhilomenaWeb.GalleryController do
         # The page load clears the gallery notification, so the header ticker
         # must be re-read afterwards.
         conn
+        |> put_gallery_scope(page.gallery)
         |> NotificationCountPlug.call([])
         |> assign(:clientside_data, gallery_images: gallery_json)
         |> render("show.html",
@@ -118,5 +119,17 @@ defmodule PhilomenaWeb.GalleryController do
       |> put_flash(:info, "Gallery successfully destroyed.")
       |> redirect(to: ~p"/galleries")
     end
+  end
+
+  # Image links carry the gallery query and order, so navigation from an
+  # image page stays within the gallery.
+  defp put_gallery_scope(conn, gallery) do
+    query = "gallery_id:#{gallery.id}"
+    sort_direction = if gallery.order_position_asc, do: "asc", else: "desc"
+
+    update_in(
+      conn.params,
+      &Map.merge(&1, %{"q" => query, "sf" => query, "sd" => sort_direction})
+    )
   end
 end
