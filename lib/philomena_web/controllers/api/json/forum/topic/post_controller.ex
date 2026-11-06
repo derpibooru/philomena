@@ -5,11 +5,12 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
   alias Philomena.Posts
   import PhilomenaWeb.Api.Json.NotFound
 
-  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id}) do
+  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
     case Topics.list_topic_posts(
            conn.assigns.actor,
            forum_id,
            topic_id,
+           params["post_id"],
            conn.assigns.pagination
          ) do
       {:ok, posts} ->

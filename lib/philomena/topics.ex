@@ -331,8 +331,9 @@ defmodule Philomena.Topics do
   Paginates the posts of the topic named by `topic_slug` within the forum
   named by `forum_slug`, on behalf of `actor`.
 
-  Authorization and post visibility match `show_topic_page/5`, but nothing is
-  written: the actor's topic notifications stay unread.
+  Authorization, post visibility and the `post_id` page jump match
+  `show_topic_page/5`, but nothing is written: the actor's topic notifications
+  stay unread.
 
   ## Examples
 
@@ -340,12 +341,18 @@ defmodule Philomena.Topics do
       {:ok, %Scrivener.Page{}}
 
   """
-  @spec list_topic_posts(Actor.t(), String.t(), String.t(), Repo.pagination_params()) ::
+  @spec list_topic_posts(
+          Actor.t(),
+          String.t(),
+          String.t(),
+          String.t() | nil,
+          Repo.pagination_params()
+        ) ::
           {:ok, Scrivener.Page.t()} | {:error, :unauthorized | :not_found}
-  def list_topic_posts(%Actor{} = actor, forum_slug, topic_slug, pagination) do
+  def list_topic_posts(%Actor{} = actor, forum_slug, topic_slug, post_id, pagination) do
     with {:ok, forum} <- Forums.show_forum(actor, forum_slug),
          {:ok, topic} <- show_forum_topic(actor, forum, topic_slug, :show) do
-      {:ok, load_topic_posts(actor, topic, pagination)}
+      {:ok, load_topic_posts(actor, topic, topic_pagination(actor, topic, post_id, pagination))}
     end
   end
 
