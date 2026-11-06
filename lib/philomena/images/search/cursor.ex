@@ -14,6 +14,7 @@ defmodule Philomena.Images.Search.Cursor do
     score: :integer,
     hides: :integer,
     comment_count: :integer,
+    tag_count: :integer,
     pixels: :integer,
     size: :integer,
     aspect_ratio: :float,
@@ -46,9 +47,8 @@ defmodule Philomena.Images.Search.Cursor do
   end
 
   defp parse_cursor({:field, field_name}, [field_value, id_value]) do
-    field_type = Map.fetch!(@cursor_types, field_name)
-
-    with {:ok, field_value} <- parse_sort_field_value(field_type, field_value),
+    with {:ok, field_type} <- Map.fetch(@cursor_types, field_name),
+         {:ok, field_value} <- parse_sort_field_value(field_type, field_value),
          {:ok, id_value} <- parse_integer(id_value) do
       {:ok, [field_value, id_value]}
     end
