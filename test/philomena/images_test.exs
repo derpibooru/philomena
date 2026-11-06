@@ -3977,7 +3977,7 @@ defmodule Philomena.ImagesTest do
 
       assert {:ok, _result} =
                Images.update_image_sources(
-                 actor(),
+                 actor(nil, ip: random_ip()),
                  to_string(image.id),
                  add_source_attrs("https://example.com/anon")
                )
@@ -4213,7 +4213,7 @@ defmodule Philomena.ImagesTest do
 
       assert {:ok, _result} =
                Images.update_image_tags(
-                 actor(),
+                 actor(nil, ip: random_ip()),
                  to_string(image.id),
                  tag_attrs("safe", "safe, added test tag, other added tag")
                )
