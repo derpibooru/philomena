@@ -2,7 +2,7 @@
  * Keyboard shortcuts
  */
 
-import { normalizedKeyboardKey, keys } from './utils/keyboard';
+import { normalizedKeyboardKey, keys, isShortcutEvent } from './utils/keyboard';
 import { $ } from './utils/dom';
 
 function getHover(): string | null {
@@ -35,16 +35,6 @@ function click(selector: string) {
   }
 }
 
-function isOK(event: KeyboardEvent): boolean {
-  return (
-    !event.altKey &&
-    !event.ctrlKey &&
-    !event.metaKey &&
-    document.activeElement !== null &&
-    document.activeElement.tagName !== 'INPUT' &&
-    document.activeElement.tagName !== 'TEXTAREA'
-  );
-}
 const actions = {
   // go to previous image
   [keys.KeyJ]: () => click('.js-prev'),
@@ -85,7 +75,7 @@ export function listenForKeys() {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
     const key = normalizedKeyboardKey(event);
 
-    if (isOK(event) && actions[key]) {
+    if (isShortcutEvent(event) && actions[key]) {
       actions[key]();
       event.preventDefault();
     }

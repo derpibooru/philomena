@@ -5,7 +5,7 @@
 import { assertNotNull } from './utils/assert';
 import { needsChromiumJpegNormalization, replaceFilterImageHrefIfNeeded } from './utils/browser-workarounds';
 import { $, $$, makeEl } from './utils/dom';
-import { normalizedKeyboardKey, keys } from './utils/keyboard';
+import { normalizedKeyboardKey, keys, isShortcutEvent } from './utils/keyboard';
 
 export function setupDupeReports() {
   const diffImageSource = $<SVGFEImageElement>('feImage#source');
@@ -101,7 +101,7 @@ function setupKeyBindings() {
   document.addEventListener('keydown', (event: KeyboardEvent) => {
     const key = normalizedKeyboardKey(event);
 
-    if (actions[key]) {
+    if (isShortcutEvent(event) && actions[key]) {
       actions[key]();
     }
   });

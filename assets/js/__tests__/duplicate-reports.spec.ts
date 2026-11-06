@@ -1,6 +1,10 @@
 import { setupDupeReports } from '../duplicate-reports';
 import { needsChromiumJpegNormalization, replaceFilterImageHrefIfNeeded } from '../utils/browser-workarounds';
 import { fixEventListeners } from '../../test/fix-event-listeners';
+import { assertNotNull } from '../utils/assert';
+import { $ } from '../utils/dom';
+import { fireEvent } from '@testing-library/dom';
+import { MockInstance } from 'vitest';
 
 vi.mock('../utils/browser-workarounds');
 fixEventListeners(document);
@@ -34,3 +38,38 @@ it.each(['', '<feImage id="source"/>', '<feImage id="target"/>'])(
     expect(replaceFilterImageHrefIfNeeded).not.toHaveBeenCalled();
   },
 );
+
+describe('key bindings', () => {
+  let swipeClick: MockInstance;
+
+  beforeEach(() => {
+    document.body.innerHTML = `
+      <button class="onion-skin__button"></button>
+      <button class="onion-skin__button"></button>
+      <button class="comparison--navigation__button"></button>
+      <button class="comparison--navigation__button"></button>
+      <button class="comparison--navigation__button"></button>
+      <button class="comparison--navigation__button" id="swipe"></button>
+      <button class="comparison--navigation__button"></button>
+      <input type="text">`;
+    swipeClick = vi.spyOn(assertNotNull($<HTMLButtonElement>('#swipe')), 'click');
+    setupDupeReports();
+  });
+
+  it('clicks the bound button on a plain key press', () => {
+    fireEvent.keyDown(document, { key: 'k', keyCode: 75 });
+    expect(swipeClick).toHaveBeenCalledOnce();
+  });
+
+  it('ignores keys typed into a text field', () => {
+    const input = assertNotNull($<HTMLInputElement>('input'));
+    input.focus();
+    fireEvent.keyDown(input, { key: 'k', keyCode: 75 });
+    expect(swipeClick).not.toHaveBeenCalled();
+  });
+
+  it('ignores keys pressed with a modifier', () => {
+    fireEvent.keyDown(document, { key: 'k', keyCode: 75, ctrlKey: true });
+    expect(swipeClick).not.toHaveBeenCalled();
+  });
+});

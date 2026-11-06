@@ -83,3 +83,18 @@ export function normalizedKeyboardKey(event: KeyboardEvent): string {
   // has `Enter` as `key`.
   return literalKey || asRecord(keysMapping)[event.keyCode] || event.code || event.key;
 }
+
+/**
+ * Whether a keydown should trigger a page shortcut: no modifier is held and
+ * the user is not typing into a text field.
+ */
+export function isShortcutEvent(event: KeyboardEvent): boolean {
+  return (
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    document.activeElement !== null &&
+    document.activeElement.tagName !== 'INPUT' &&
+    document.activeElement.tagName !== 'TEXTAREA'
+  );
+}
