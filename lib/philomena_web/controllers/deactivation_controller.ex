@@ -3,6 +3,8 @@ defmodule PhilomenaWeb.DeactivationController do
   alias PhilomenaWeb.UserAuth
   alias Philomena.Users
 
+  action_fallback PhilomenaWeb.FallbackController
+
   def show(conn, _params) do
     render(conn, "index.html", title: "Deactivate Account")
   end

@@ -25,6 +25,18 @@ defmodule PhilomenaWeb.DeactivationControllerTest do
     end
   end
 
+  describe "DELETE /deactivations when banned" do
+    setup :register_and_log_in_banned_user
+
+    test "refuses with the ban response and keeps the account active", %{conn: conn, user: user} do
+      conn = delete(conn, ~p"/deactivations")
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      refute Users.fetch_user_for_worker!(user.id).deleted_at
+    end
+  end
+
   describe "when not logged in" do
     test "GET /deactivations redirects to the login page" do
       conn = build_conn() |> get(~p"/deactivations")
