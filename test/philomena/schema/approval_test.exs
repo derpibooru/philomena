@@ -42,18 +42,28 @@ defmodule Philomena.Schema.ApprovalTest do
     test "holds external links but not links to this site or its CDN" do
       cdn = Application.get_env(:philomena, :cdn_host)
 
-      assert Approval.approved?(new_user(), "https://#{site_domain()}/images/1", :external_links)
-      assert Approval.approved?(new_user(), "http://#{site_domain()}:8080/", :external_links)
-      assert Approval.approved?(new_user(), "https://#{cdn}/img/1.png", :external_links)
+      for body <- [
+            "https://#{site_domain()}",
+            "https://#{site_domain()}/images/1",
+            "http://#{site_domain()}:8080/",
+            "https://#{site_domain()}?q=1",
+            "[link](HTTPS://#{String.upcase(site_domain())})",
+            "https://#{cdn}/img/1.png"
+          ] do
+        assert Approval.approved?(new_user(), body, :external_links), body
+      end
 
-      refute Approval.approved?(new_user(), "https://spam.example/", :external_links)
-      refute Approval.approved?(new_user(), "https\\://spam.example/", :external_links)
-
-      refute Approval.approved?(
-               new_user(),
-               "https://#{site_domain()}.spam.example/",
-               :external_links
-             )
+      for body <- [
+            "https://spam.example/",
+            "https\\://spam.example/",
+            "HTTPS://spam.example/",
+            "https://#{site_domain()}.spam.example/",
+            "https://#{site_domain()}@spam.example/",
+            "https://#{site_domain()}:x@spam.example/",
+            "https://#{site_domain()}:8080@spam.example/"
+          ] do
+        refute Approval.approved?(new_user(), body, :external_links), body
+      end
     end
 
     test "holds image embeds" do
