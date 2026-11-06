@@ -2693,7 +2693,7 @@ defmodule Philomena.Images do
   Authorization requires both `:show` on `:identity_metadata` and
   `:update_uploader` on the loaded image. The identity capability is checked
   first; malformed and missing image ids are otherwise `{:error, :not_found}`.
-  On success the uploader is reassigned, the image is
+  On success the uploader is reassigned, the image and its tag changes are
   reindexed, and a moderation log is written attributing the change to `actor`.
 
   Returns `{:ok, image}` with the updated image (its new uploader and their awards
@@ -2744,6 +2744,7 @@ defmodule Philomena.Images do
         }
       end)
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> TagChanges.reindex_tag_changes_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
@@ -2763,7 +2764,7 @@ defmodule Philomena.Images do
   Authorization requires both `:show` on `:identity_metadata` and
   `:update_anonymous` on the loaded image. The identity capability is checked
   first; malformed and missing image ids are otherwise `{:error, :not_found}`.
-  On success the anonymity is toggled, the image is
+  On success the anonymity is toggled, the image and its tag changes are
   reindexed, and a moderation log is written attributing the change to `actor`.
 
   Returns `{:ok, image}` with the updated image.
@@ -2794,6 +2795,7 @@ defmodule Philomena.Images do
         {log_type, Paths.image_path(image), "Updated anonymity of image #{image.id}"}
       end)
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> TagChanges.reindex_tag_changes_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
@@ -2942,7 +2944,7 @@ defmodule Philomena.Images do
   observe either the source or canonical physical tagging without creating a
   duplicate or losing an inverse removal.
   """
-  @spec batch_revert([map()], map()) :: {:ok, [integer()]} | :error
+  @spec batch_revert([map()], map()) :: {:ok, [integer()]} | {:error, term()}
   def batch_revert(changes, attributes) do
     Multi.new()
     |> put_batch_revert_tag_changes(changes, attributes)
@@ -2951,8 +2953,8 @@ defmodule Philomena.Images do
       {:ok, %{locked_image_ids: image_ids}} ->
         {:ok, image_ids}
 
-      _error ->
-        :error
+      {:error, _step, reason, _changes} ->
+        {:error, reason}
     end
   end
 
