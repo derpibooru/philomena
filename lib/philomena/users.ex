@@ -2162,10 +2162,10 @@ defmodule Philomena.Users do
   @doc """
   Erases the user named by `slug`, on behalf of `actor`.
 
-  The target is loaded and guarded following `load_user_for_erase/2`. On success
-  the account is deactivated, renamed to a random handle, enqueued for the
-  remaining data deletion, and a moderation log is written naming the original
-  account.
+  The target is loaded and guarded following `new_user_erase/2`. On success
+  the account is deactivated (unless it already is), renamed to a random
+  handle, enqueued for the remaining data deletion, and a moderation log is
+  written naming the original account.
 
   Returns `{:ok, user}` with the renamed account.
 
@@ -2181,18 +2181,26 @@ defmodule Philomena.Users do
   @spec create_user_erase(Actor.t(), String.t()) ::
           {:ok, User.t()}
           | {:error,
-             :ban | :unauthorized | :not_found | {:privileged, User.t()} | {:verified, User.t()}}
+             :ban
+             | :unauthorized
+             | :not_found
+             | {:privileged, User.t()}
+             | {:verified, User.t()}
+             | Ecto.Changeset.t()}
   def create_user_erase(%Actor{} = actor, slug) do
     with {:ok, user} <- new_user_erase(actor, slug) do
       original_name = user.name
       random_hex = Base.encode16(:crypto.strong_rand_bytes(16), case: :lower)
 
+      changeset = update_user_changeset(user, %{"name" => "deactivated_#{random_hex}"})
+
+      changeset =
+        if user.deleted_at,
+          do: changeset,
+          else: User.deactivate_changeset(changeset, actor.user)
+
       Multi.new()
-      |> Multi.update(:user, fn _ ->
-        user
-        |> update_user_changeset(%{"name" => "deactivated_#{random_hex}"})
-        |> User.deactivate_changeset(actor.user)
-      end)
+      |> Multi.update(:user, changeset)
       |> ModerationLogs.put_log(:moderation_log, actor, fn %{user: user} ->
         {"Admin.User.Erase:create", Paths.profile_path(user), "Erased #{original_name}"}
       end)
