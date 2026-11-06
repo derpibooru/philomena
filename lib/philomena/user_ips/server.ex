@@ -7,7 +7,6 @@ defmodule Philomena.UserIps.Server do
 
   alias Philomena.UserIps
 
-  @timeout 0
   @flush_interval to_timeout(second: 60)
 
   @doc """
@@ -38,20 +37,24 @@ defmodule Philomena.UserIps.Server do
   @impl true
   @doc false
   def init(_) do
-    {:ok, %{}, @timeout}
+    schedule_flush()
+    {:ok, %{}}
   end
 
   @impl true
   @doc false
   def handle_cast({user_id, ip_address, updated_at}, user_ips) do
-    {:noreply, Map.put(user_ips, {user_id, ip_address}, updated_at), @timeout}
+    {:noreply, Map.put(user_ips, {user_id, ip_address}, updated_at)}
   end
 
   @impl true
   @doc false
-  def handle_info(:timeout, user_ips) do
+  def handle_info(:flush, user_ips) do
     UserIps.persist_usage_batch(user_ips)
 
-    {:noreply, %{}, @flush_interval}
+    schedule_flush()
+    {:noreply, %{}}
   end
+
+  defp schedule_flush, do: Process.send_after(self(), :flush, @flush_interval)
 end

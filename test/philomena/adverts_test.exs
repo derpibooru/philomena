@@ -395,6 +395,22 @@ defmodule Philomena.AdvertsTest do
       assert %{impressions: 25, clicks: 12} = Repo.get!(Advert, disabled.id)
       refute Repo.get(Advert, absent_id)
     end
+
+    test "impressions and clicks are written once per flush" do
+      advert = advert_fixture()
+      server = start_supervised!(Adverts.Server)
+      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server)
+
+      assert Adverts.record_impression(advert) == :ok
+      assert Adverts.record_impression(advert) == :ok
+      assert {:ok, _advert} = Adverts.record_click(advert.id)
+      :sys.get_state(server)
+      assert %{impressions: 0, clicks: 0} = Repo.get!(Advert, advert.id)
+
+      send(server, :flush)
+      :sys.get_state(server)
+      assert %{impressions: 2, clicks: 1} = Repo.get!(Advert, advert.id)
+    end
   end
 
   describe "global write prerequisite" do
