@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
 
   defp maybe_check_captcha(conn, _user), do: conn
 
-  defp valid_solution?(%{"h-captcha-response" => captcha_token}) do
+  defp valid_solution?(%{"h-captcha-response" => captcha_token}) when is_binary(captcha_token) do
     with {:ok, %{body: body, status: 200}} <-
            PhilomenaProxy.Http.post(
              "https://hcaptcha.com/siteverify",
