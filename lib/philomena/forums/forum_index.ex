@@ -8,5 +8,5 @@ defmodule Philomena.Forums.ForumIndex do
   @enforce_keys [:forums, :topic_count]
   defstruct @enforce_keys
 
-  @type t :: %__MODULE__{forums: [Forum.t()], topic_count: non_neg_integer()}
+  @type t :: %__MODULE__{forums: Scrivener.Page.t(Forum.t()), topic_count: non_neg_integer()}
 end

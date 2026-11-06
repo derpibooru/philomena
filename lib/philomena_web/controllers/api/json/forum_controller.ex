@@ -5,9 +5,9 @@ defmodule PhilomenaWeb.Api.Json.ForumController do
   import PhilomenaWeb.Api.Json.NotFound
 
   def index(conn, _params) do
-    forums = Forums.list_forums(conn.assigns.actor, conn.assigns.scrivener)
+    forum_index = Forums.list_forums(conn.assigns.actor, conn.assigns.scrivener)
 
-    render(conn, forums: forums, total: forums.total_entries)
+    render(conn, forums: forum_index.forums, total: forum_index.forums.total_entries)
   end
 
   def show(conn, %{"id" => id}) do

@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.ForumController do
   action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, _params) do
-    index = Forums.load_forum_index(conn.assigns.actor)
+    index = Forums.list_forums(conn.assigns.actor, conn.assigns.scrivener)
 
     render(conn, "index.html",
       title: "Forums",
