@@ -3150,7 +3150,7 @@ defmodule Philomena.Images do
          {:ok, image} <- load_image_member(actor, :vote, image_id) do
       Multi.new()
       |> ImageHides.put_hide_for_loaded_image(image, actor.user)
-      |> Multi.transact_with_automatic_retry()
+      |> Multi.transact()
       |> case do
         {:ok, _changes} ->
           {:ok, Repo.reload!(image)}
@@ -3214,7 +3214,7 @@ defmodule Philomena.Images do
       Multi.new()
       |> ImageFaves.put_fave_for_loaded_image(image, user)
       |> ImageVotes.put_vote_for_loaded_image(image, user, true)
-      |> Multi.transact_with_automatic_retry()
+      |> Multi.transact()
       |> case do
         {:ok, _changes} ->
           {:ok, Repo.reload!(image)}
@@ -3288,7 +3288,7 @@ defmodule Philomena.Images do
            |> VoteForm.apply(image) do
       Multi.new()
       |> ImageVotes.put_vote_for_loaded_image(image, user, up)
-      |> Multi.transact_with_automatic_retry()
+      |> Multi.transact()
       |> case do
         {:ok, _changes} ->
           {:ok, Repo.reload!(image)}

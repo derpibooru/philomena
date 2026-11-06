@@ -37,14 +37,11 @@ defmodule Philomena.ImageHides do
   therefore idempotent. The changes are named `:unhide`, `:dec_hides_count`,
   `:hide`, and `:inc_hides_count`
 
-  A concurrent request for the same hide can make the insert fail with
-  `:conflict`, so run the Multi with `Multi.transact_with_automatic_retry/2`.
-
   ## Examples
 
       iex> (Multi.new()
       ...> |> put_hide_for_loaded_image(image, user)
-      ...> |> Multi.transact_with_automatic_retry())
+      ...> |> Multi.transact())
       {:ok, %{hide: %ImageHide{}}}
 
   """
@@ -56,7 +53,7 @@ defmodule Philomena.ImageHides do
 
     multi
     |> delete_hide_steps(image, user)
-    |> Multi.insert_or_conflict(:hide, hide)
+    |> Multi.insert(:hide, hide)
     |> Images.put_image_counter_delta(:inc_hides_count, image.id, :hides_count, 1)
   end
 
