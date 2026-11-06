@@ -466,6 +466,12 @@ defmodule Philomena.ReportsTest do
     test "system reports use the named rule, or Legacy when it is missing" do
       image = image_fixture()
       rule = rule_fixture()
+
+      assert {:error, :report, :not_found, _changes} =
+               Multi.new()
+               |> Reports.put_create_system_report("Approval", "reason", :image_id, image.id)
+               |> Multi.transact()
+
       legacy = rule_fixture(name: "Legacy")
 
       {:ok, %{report: named}} =
@@ -475,12 +481,12 @@ defmodule Philomena.ReportsTest do
 
       {:ok, %{report: fallback}} =
         Multi.new()
-        |> Reports.put_create_system_report("missing rule", "reason", :image_id, image.id)
+        |> Reports.put_create_system_report("Approval", "reason", :image_id, image.id)
         |> Multi.transact()
 
       assert %Report{system: true, rule_id: rule_id} = named
       assert rule_id == rule.id
-      assert %Report{system: true, rule_id: legacy_id, reason: "reason"} = fallback
+      assert %Report{system: true, rule_id: legacy_id, reason: "Approval: reason"} = fallback
       assert legacy_id == legacy.id
     end
   end

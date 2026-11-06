@@ -178,6 +178,12 @@
       "hidden": true
     },
     {
+      "name": "Legacy",
+      "hidden": true,
+      "internal": true,
+      "position": 1000
+    },
+    {
       "name": "Verification",
       "hidden": true,
       "internal": true,

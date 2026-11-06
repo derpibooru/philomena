@@ -607,7 +607,10 @@ defmodule Philomena.Reports do
   @doc """
   Creates an internal system report within the transaction described by `multi`.
 
-  The report falls back to the `Legacy` rule when no rule is named `rule_name`.
+  When no rule is named `rule_name`, the report falls back to the `Legacy` rule
+  with the rule name prefixed to its reason, so `LegacyConverter` can move it
+  once the rule exists. The transaction fails with `:not_found` when neither
+  rule exists.
   This trusted service is used by owning contexts to add a report when their
   target has been created or moderated.
 
@@ -632,26 +635,39 @@ defmodule Philomena.Reports do
         ) ::
           Multi.t()
   def put_create_system_report(multi, rule_name, reason, target_column, target_id) do
-    {:ok, rule} =
-      with {:error, :not_found} <- Rules.fetch_rule_by_name(rule_name) do
-        Rules.fetch_rule_by_name("Legacy")
-      end
+    case fetch_system_report_rule(rule_name, reason) do
+      {:ok, rule, reason} ->
+        attrs = %{reason: reason, user_agent: "system"}
 
-    attrs = %{reason: reason, user_agent: "system"}
+        actor = %Actor{
+          ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32},
+          fingerprint: "ffff"
+        }
 
-    actor = %Actor{
-      ip: %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32},
-      fingerprint: "ffff"
-    }
+        report_changeset =
+          Report
+          |> struct([{target_column, target_id}])
+          |> Report.system_creation_changeset(attrs, actor, rule)
 
-    report_changeset =
-      Report
-      |> struct([{target_column, target_id}])
-      |> Report.system_creation_changeset(attrs, actor, rule)
+        multi
+        |> Multi.insert(:report, report_changeset)
+        |> put_reindex_report()
 
-    multi
-    |> Multi.insert(:report, report_changeset)
-    |> put_reindex_report()
+      {:error, :not_found} ->
+        Multi.error(multi, :report, :not_found)
+    end
+  end
+
+  defp fetch_system_report_rule(rule_name, reason) do
+    case Rules.fetch_rule_by_name(rule_name) do
+      {:ok, rule} ->
+        {:ok, rule, reason}
+
+      {:error, :not_found} ->
+        with {:ok, legacy} <- Rules.fetch_rule_by_name("Legacy") do
+          {:ok, legacy, "#{rule_name}: #{reason}"}
+        end
+    end
   end
 
   @doc """
