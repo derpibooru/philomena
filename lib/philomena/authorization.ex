@@ -90,4 +90,16 @@ defmodule Philomena.Authorization do
   def verify_write_access(%Actor{ban: ban}) when not is_nil(ban), do: {:error, :ban}
   def verify_write_access(%Actor{fingerprint: nil}), do: {:error, :unauthorized}
   def verify_write_access(%Actor{}), do: :ok
+
+  @doc """
+  Verifies that `actor` may be offered a write, for pages and forms that
+  prepare one.
+
+  Returns `{:error, :ban}` when the actor carries an active ban, otherwise
+  `:ok`. Unlike `verify_write_access/1` it does not require a fingerprint,
+  which a visitor's first request lacks; the write itself still does.
+  """
+  @spec verify_not_banned(actor :: Actor.t()) :: :ok | {:error, :ban}
+  def verify_not_banned(%Actor{ban: nil}), do: :ok
+  def verify_not_banned(%Actor{}), do: {:error, :ban}
 end

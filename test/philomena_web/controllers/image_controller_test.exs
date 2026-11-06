@@ -236,6 +236,20 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert response =~ "Sign in to create a gallery"
     end
 
+    test "renders every control for a moderator whose first request has no fingerprint" do
+      image = image_fixture()
+      conn = log_in_user(build_conn(), moderator_user_fixture())
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "interaction--fave"
+      assert response =~ ~s(id="edit-tags")
+      assert response =~ ~s(id="uploader-form")
+      assert response =~ ~s(action="/images/#{image.id}/comments")
+      assert response =~ "Deletion reason (cannot be empty)"
+      assert response =~ "Clear hash"
+    end
+
     test "renders the page without moderation forms for a banned admin", %{conn: conn} do
       %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
       image = image_fixture()
@@ -356,6 +370,12 @@ defmodule PhilomenaWeb.ImageControllerTest do
       %{conn: conn} = register_and_log_in_user(%{conn: conn})
 
       conn = get(conn, ~p"/images/new")
+
+      assert html_response(conn, 200) =~ "New Image - Derpibooru"
+    end
+
+    test "renders the upload form on a first request with no fingerprint" do
+      conn = get(build_conn(), ~p"/images/new")
 
       assert html_response(conn, 200) =~ "New Image - Derpibooru"
     end

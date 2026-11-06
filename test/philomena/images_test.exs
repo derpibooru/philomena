@@ -1007,6 +1007,20 @@ defmodule Philomena.ImagesTest do
       assert loaded.id == image.id
     end
 
+    test "a moderator whose first request has no fingerprint loads the image" do
+      image = image_fixture()
+      actor = actor(moderator_user_fixture(), fingerprint: nil)
+
+      assert {:ok, loaded} = Images.load_hidable_image(actor, image.id)
+      assert loaded.id == image.id
+    end
+
+    test "a banned moderator is rejected" do
+      actor = actor(moderator_user_fixture(), ban: @ban)
+
+      assert Images.load_hidable_image(actor, image_fixture().id) == {:error, :ban}
+    end
+
     test "an admin loads a known image" do
       admin = admin_user_fixture()
       image = image_fixture()
@@ -4506,6 +4520,21 @@ defmodule Philomena.ImagesTest do
       refute page.can_interact
     end
 
+    test "a viewer whose first request has no fingerprint still gets write controls" do
+      image = image_fixture()
+
+      page =
+        Images.show_image_page(actor(moderator_user_fixture(), fingerprint: nil), image,
+          page: 1,
+          page_size: 25
+        )
+
+      assert page.can_interact
+      assert %Ecto.Changeset{} = page.comment_changeset
+      assert %Ecto.Changeset{} = page.tag_changeset
+      assert %Ecto.Changeset{} = page.hide_changeset
+    end
+
     test "a banned viewer gets no write controls or mutation changesets" do
       user = confirmed_user_fixture()
       image = image_fixture()
@@ -4682,8 +4711,8 @@ defmodule Philomena.ImagesTest do
       assert Images.new_image(actor) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint may not reach the form" do
-      assert Images.new_image(actor(nil, fingerprint: nil)) == {:error, :unauthorized}
+    test "an actor whose first request has no fingerprint gets the form changeset" do
+      assert {:ok, %Ecto.Changeset{}} = Images.new_image(actor(nil, fingerprint: nil))
     end
   end
 
