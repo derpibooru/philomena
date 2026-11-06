@@ -620,9 +620,8 @@ defmodule Philomena.Reports do
   @doc """
   Creates an internal system report within the transaction described by `multi`.
 
-  The report falls back to the `Legacy` rule when no rule is named `rule_name`.
-  This trusted service is used by owning contexts to add a report when their
-  target has been created or moderated.
+  The rule name must identify a reportable rule. This trusted service is used by
+  owning contexts to add a report when their target has been created or moderated.
 
   ## Examples
 
@@ -645,10 +644,7 @@ defmodule Philomena.Reports do
         ) ::
           Multi.t()
   def put_create_system_report(multi, rule_name, reason, target_column, target_id) do
-    {:ok, rule} =
-      with {:error, :not_found} <- Rules.fetch_rule_by_name(rule_name) do
-        Rules.fetch_rule_by_name("Legacy")
-      end
+    {:ok, rule} = Rules.fetch_rule_by_name(rule_name)
 
     attrs = %{reason: reason, user_agent: "system"}
 

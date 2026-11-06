@@ -463,25 +463,22 @@ defmodule Philomena.ReportsTest do
       assert closed.admin_id == moderator.id
     end
 
-    test "system reports use the named rule, or Legacy when it is missing" do
+    test "system reports require a real rule" do
       image = image_fixture()
       rule = rule_fixture()
-      legacy = rule_fixture(name: "Legacy")
 
-      {:ok, %{report: named}} =
+      {:ok, _} =
         Multi.new()
         |> Reports.put_create_system_report(rule.name, "Automated review", :image_id, image.id)
         |> Multi.transact()
 
-      {:ok, %{report: fallback}} =
+      assert Repo.aggregate(where(Report, system: true), :count) == 1
+
+      assert_raise(MatchError, fn ->
         Multi.new()
         |> Reports.put_create_system_report("missing rule", "reason", :image_id, image.id)
         |> Multi.transact()
-
-      assert %Report{system: true, rule_id: rule_id} = named
-      assert rule_id == rule.id
-      assert %Report{system: true, rule_id: legacy_id, reason: "reason"} = fallback
-      assert legacy_id == legacy.id
+      end)
     end
   end
 
