@@ -86,6 +86,7 @@ COPY --from=builder /usr/local/bin/mediastat /usr/bin/mediastat
 COPY --from=builder /usr/local/bin/svgstat /usr/bin/svgstat
 COPY --from=builder /usr/local/bin/mediathumb /usr/bin/mediathumb
 COPY docker/mediaproc/safe-rsvg-convert /usr/bin/safe-rsvg-convert
+COPY docker/mediaproc/policy.xml /etc/ImageMagick-7/policy.xml
 
 # Set up unprivileged user account.
 RUN useradd -ms /bin/bash mediaproc
