@@ -96,6 +96,16 @@ defmodule PhilomenaWeb.Image.NavigateControllerTest do
       end
     end
 
+    test "redirects back to the image with the parser error for a malformed query",
+         %{conn: conn} do
+      image = image_fixture()
+
+      conn = get(conn, ~p"/images/#{image}/navigate?#{[rel: "next", q: "(safe"]}")
+
+      assert redirected_to(conn) == ~p"/images/#{image}?#{[q: "(safe"]}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Your search query was invalid:"
+    end
+
     test "redirects to / for an unknown image", %{conn: conn} do
       conn = get(conn, ~p"/images/999999999/navigate?rel=next")
 
