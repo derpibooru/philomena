@@ -365,6 +365,29 @@ defmodule Philomena.ImagesTest do
 
       assert Repo.reload!(target).first_seen_at == source_first_seen_at
     end
+
+    test "notifies subscribers of either image that the source merged into the target" do
+      source = image_fixture()
+      target = image_fixture()
+      source_subscriber = user_fixture()
+      target_subscriber = user_fixture()
+      {:ok, _} = Images.create_subscription(source, source_subscriber)
+      {:ok, _} = Images.create_subscription(target, target_subscriber)
+
+      assert {:ok, _result} =
+               Multi.new()
+               |> Images.put_merge_image(source, target, user_fixture())
+               |> Multi.transact()
+
+      notifications =
+        Repo.all(from n in ImageMergeNotification, select: {n.user_id, n.target_id, n.source_id})
+
+      assert Enum.sort(notifications) ==
+               Enum.sort([
+                 {source_subscriber.id, target.id, source.id},
+                 {target_subscriber.id, target.id, source.id}
+               ])
+    end
   end
 
   describe "update_image_file/3 duplicate detection" do
