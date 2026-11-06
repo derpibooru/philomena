@@ -621,10 +621,14 @@ defmodule Philomena.Users do
       {:error, :ban}
 
   """
+  # The fingerprint cookie is only set once a page has loaded, so a first visit
+  # has none yet; `create_registration/2` performs the full write-access check.
   @spec new_registration(Actor.t(), User.t(), map()) ::
-          {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
-  def new_registration(%Actor{} = actor, %User{} = user, attrs \\ %{}) do
-    with :ok <- verify_write_access(actor) do
+          {:ok, Ecto.Changeset.t()} | {:error, :ban}
+  def new_registration(%Actor{ban: ban}, %User{} = user, attrs \\ %{}) do
+    if ban do
+      {:error, :ban}
+    else
       {:ok, User.registration_changeset(user, &password_compromised?/1, attrs)}
     end
   end
