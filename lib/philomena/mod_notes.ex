@@ -9,7 +9,9 @@ defmodule Philomena.ModNotes do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.IntegerId
   alias Philomena.Multi
@@ -144,7 +146,7 @@ defmodule Philomena.ModNotes do
   @spec new_mod_note(Actor.t(), map()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :not_found | :unauthorized}
   def new_mod_note(%Actor{user: moderator} = actor, params) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, ModNote),
          {:ok, target} <- Target.from_params(params),
          {:ok, _} <- fetch_and_authorize_target(actor, target, :annotate) do
@@ -216,7 +218,7 @@ defmodule Philomena.ModNotes do
           {:ok, {ModNote.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_mod_note(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, mod_note} <- load_mod_note(actor, id, :edit) do
       {:ok, {mod_note, ModNote.changeset(mod_note)}}
     end

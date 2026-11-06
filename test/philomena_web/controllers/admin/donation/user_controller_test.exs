@@ -60,5 +60,12 @@ defmodule PhilomenaWeb.Admin.Donation.UserControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the donation form without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+      conn = get(without_fingerprint(conn), ~p"/admin/donations/user/#{target.slug}")
+
+      assert html_response(conn, 200) =~ "Add Donation"
+    end
   end
 end

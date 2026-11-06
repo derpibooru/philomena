@@ -9,7 +9,9 @@ defmodule Philomena.SiteNotices do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.Authorization
@@ -76,7 +78,7 @@ defmodule Philomena.SiteNotices do
   @doc """
   Builds the changeset for a new site notice, on behalf of `actor`.
 
-  Verifies write access, then authorizes `:new` against the site-notice model.
+  Rejects a banned actor, then authorizes `:new` against the site-notice model.
 
   ## Examples
 
@@ -90,7 +92,7 @@ defmodule Philomena.SiteNotices do
   @spec new_site_notice(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | Authorization.write_error()
   def new_site_notice(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, SiteNotice) do
       {:ok, SiteNotice.changeset(%SiteNotice{})}
     end
@@ -128,7 +130,7 @@ defmodule Philomena.SiteNotices do
   Loads the site notice named by the `id` for editing, on behalf of
   `actor`, pairing it with a change-tracking changeset.
 
-  Verifies write access, then loads the notice and authorizes `:edit` against
+  Rejects a banned actor, then loads the notice and authorizes `:edit` against
   the real record. Malformed and absent IDs are always not found.
 
   ## Examples
@@ -144,7 +146,7 @@ defmodule Philomena.SiteNotices do
           {:ok, {SiteNotice.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_site_notice(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, site_notice} <- load_site_notice(actor, id, :edit) do
       {:ok, {site_notice, SiteNotice.changeset(site_notice)}}
     end

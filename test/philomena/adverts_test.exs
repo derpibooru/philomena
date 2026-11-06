@@ -398,14 +398,22 @@ defmodule Philomena.AdvertsTest do
   end
 
   describe "global write prerequisite" do
-    test "forms and mutations reject banned and unattributed administrators" do
+    test "forms reject banned but not unattributed administrators" do
+      admin = admin_user_fixture()
+      advert = advert_fixture()
+
+      for operation <- [&Adverts.new_advert/1, &Adverts.edit_advert(&1, advert.id)] do
+        assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
+        assert {:ok, _} = operation.(actor(admin, fingerprint: nil))
+      end
+    end
+
+    test "mutations reject banned and unattributed administrators" do
       admin = admin_user_fixture()
       advert = advert_fixture(%{title: "Unchanged by policy"})
 
       operations = [
-        fn actor -> Adverts.new_advert(actor) end,
         fn actor -> Adverts.create_advert(actor, %{}, nil) end,
-        fn actor -> Adverts.edit_advert(actor, advert.id) end,
         fn actor -> Adverts.update_advert(actor, advert.id, %{"title" => "Changed"}) end,
         fn actor -> Adverts.update_advert_image(actor, advert.id, nil) end,
         fn actor -> Adverts.delete_advert(actor, advert.id) end

@@ -165,6 +165,14 @@ defmodule PhilomenaWeb.TagControllerTest do
       assert role_response =~ ~p"/tags/#{tag}/alias/edit"
       assert role_response =~ "Tag Processing"
     end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, moderator_user_fixture())
+      conn = get(without_fingerprint(conn), ~p"/tags/#{tag}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Tag"
+    end
   end
 
   describe "PUT/PATCH /tags/:slug (update)" do
@@ -229,6 +237,20 @@ defmodule PhilomenaWeb.TagControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, moderator_user_fixture())
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/tags/#{tag}", %{
+          "tag" => %{"category" => "character"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(Tag, tag.id).category == tag.category
     end
   end
 

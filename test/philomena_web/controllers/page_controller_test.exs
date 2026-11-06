@@ -174,6 +174,13 @@ defmodule PhilomenaWeb.PageControllerTest do
       assert response =~ "New Page - Derpibooru"
       assert response =~ "New static page"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/pages/new")
+
+      assert html_response(conn, 200) =~ "New Page - Derpibooru"
+    end
   end
 
   describe "POST /pages (create)" do
@@ -237,6 +244,19 @@ defmodule PhilomenaWeb.PageControllerTest do
       assert html_response(conn, 200) =~ "New static page"
       refute Repo.get_by(StaticPage, slug: "invalid-page")
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/pages", %{
+          "static_page" => valid_page_params(%{"slug" => "fingerprintless-page"})
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(StaticPage, slug: "fingerprintless-page")
+    end
   end
 
   describe "GET /pages/:slug/edit" do
@@ -278,6 +298,14 @@ defmodule PhilomenaWeb.PageControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking"
+    end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: admin} = register_and_log_in_admin(%{conn: conn})
+      page = static_page_fixture(admin)
+      conn = get(without_fingerprint(conn), ~p"/pages/#{page}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Page - Derpibooru"
     end
   end
 
@@ -322,6 +350,20 @@ defmodule PhilomenaWeb.PageControllerTest do
 
       assert html_response(conn, 200) =~ "Editing static page"
       assert Repo.get(StaticPage, page.id).title == "Original Title"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: admin} = register_and_log_in_admin(%{conn: conn})
+      page = static_page_fixture(admin)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/pages/#{page}", %{
+          "static_page" => %{"title" => "Renamed Title", "slug" => page.slug, "body" => page.body}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(StaticPage, page.id).title == page.title
     end
   end
 

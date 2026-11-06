@@ -124,5 +124,16 @@ defmodule PhilomenaWeb.Admin.DonationControllerTest do
         post(conn, ~p"/admin/donations")
       end
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/donations",
+          donation: %{"email" => "fingerprintless@example.com"}
+        )
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Donation, email: "fingerprintless@example.com")
+    end
   end
 end

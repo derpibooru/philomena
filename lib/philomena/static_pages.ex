@@ -8,7 +8,9 @@ defmodule Philomena.StaticPages do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Loader
   alias Philomena.Multi
@@ -132,8 +134,8 @@ defmodule Philomena.StaticPages do
   @doc """
   Prepares a new static page, on behalf of `actor`.
 
-  The form enforces the same write-access and `:new` authorization checks as
-  creation.
+  The form enforces the same ban and `:new` authorization checks as creation,
+  which additionally requires a fingerprint.
 
   ## Examples
 
@@ -147,7 +149,7 @@ defmodule Philomena.StaticPages do
   @spec new_page(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_page(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, StaticPage) do
       {:ok, change_static_page(%StaticPage{})}
     end
@@ -189,7 +191,7 @@ defmodule Philomena.StaticPages do
   @doc """
   Loads the static page named by `slug` for edit, on behalf of `actor`.
 
-  The form enforces the same write-access and `:edit` authorization checks as
+  The form enforces the same ban and `:edit` authorization checks as
   update. Missing pages are always not-found.
 
   ## Examples
@@ -202,7 +204,7 @@ defmodule Philomena.StaticPages do
           {:ok, {StaticPage.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_page(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, static_page} <- load_static_page(actor, :edit, slug) do
       {:ok, {static_page, change_static_page(static_page)}}
     end

@@ -59,6 +59,15 @@ defmodule PhilomenaWeb.Admin.Advert.ImageControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      advert = advert_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/adverts/#{advert}/image/edit")
+
+      assert html_response(conn, 200) =~ "Editing Advert - Derpibooru"
+    end
   end
 
   describe "PATCH /admin/adverts/:advert_id/image (update)" do
@@ -110,6 +119,20 @@ defmodule PhilomenaWeb.Admin.Advert.ImageControllerTest do
 
       assert html_response(conn, 200) =~ "Edit Advert"
       assert Repo.get(Advert, advert.id).image == "test.png"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      advert = advert_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/adverts/#{advert}/image", %{
+          "advert" => %{"image" => png_upload()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(Advert, advert.id).image == advert.image
     end
   end
 

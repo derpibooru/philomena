@@ -240,14 +240,22 @@ defmodule Philomena.RulesTest do
   end
 
   describe "write access prerequisite" do
-    test "form and mutation paths reject bans and missing fingerprints" do
+    test "forms reject bans but not missing fingerprints" do
+      admin = admin_user_fixture()
+      rule = rule_fixture()
+
+      for operation <- [&Rules.new_rule/1, &Rules.edit_rule(&1, rule.position)] do
+        assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
+        assert {:ok, _} = operation.(actor(admin, fingerprint: nil))
+      end
+    end
+
+    test "mutations reject bans and missing fingerprints" do
       admin = admin_user_fixture()
       rule = rule_fixture()
 
       operations = [
-        &Rules.new_rule/1,
         &Rules.create_rule(&1, %{name: "Blocked", position: -1}),
-        &Rules.edit_rule(&1, rule.position),
         &Rules.update_rule(&1, rule.position, %{title: "Blocked"})
       ]
 

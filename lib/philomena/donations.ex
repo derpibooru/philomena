@@ -4,7 +4,9 @@ defmodule Philomena.Donations do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.Authorization
@@ -44,7 +46,7 @@ defmodule Philomena.Donations do
   Loads the user named by `slug` with their donations and a new-donation
   changeset.
 
-  This form loader verifies write access, authorizes the routed `:show` action
+  This form loader rejects a banned actor, authorizes the routed `:show` action
   against donations, then loads and authorizes the target user's
   donation history.
 
@@ -69,7 +71,7 @@ defmodule Philomena.Donations do
       |> where(slug: ^slug)
       |> preload(donations: :user)
 
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :show, Donation),
          {:ok, user} <- Loader.one(user_query),
          :ok <- authorize(actor, :show_donations, user) do

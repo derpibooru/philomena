@@ -81,6 +81,14 @@ defmodule PhilomenaWeb.Admin.AdvertControllerTest do
       assert response =~ "New Advert - Derpibooru"
       assert response =~ "New advert"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/adverts/new")
+
+      assert html_response(conn, 200) =~ "New Advert - Derpibooru"
+    end
   end
 
   describe "POST /admin/adverts (create)" do
@@ -124,6 +132,17 @@ defmodule PhilomenaWeb.Admin.AdvertControllerTest do
       assert html_response(conn, 200) =~ "New advert"
       refute Repo.get_by(Advert, link: "https://example.com/created")
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/adverts", %{"advert" => valid_advert_params()})
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Advert, title: "Created Advert")
+    end
   end
 
   describe "GET /admin/adverts/:id/edit" do
@@ -158,6 +177,15 @@ defmodule PhilomenaWeb.Admin.AdvertControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      advert = advert_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/adverts/#{advert}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Advert - Derpibooru"
+    end
   end
 
   describe "PATCH /admin/adverts/:id (update)" do
@@ -186,6 +214,20 @@ defmodule PhilomenaWeb.Admin.AdvertControllerTest do
       conn = patch(conn, ~p"/admin/adverts/#{advert}", %{"advert" => %{"title" => ""}})
       assert html_response(conn, 200) =~ "Editing advert"
       refute Repo.get(Advert, advert.id).title == ""
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      advert = advert_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/adverts/#{advert}", %{
+          "advert" => %{"title" => "Renamed Advert"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(Advert, advert.id).title == advert.title
     end
   end
 

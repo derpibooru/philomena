@@ -54,6 +54,14 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
 
       assert html_response(conn, 200) =~ "Editing Tag Alias"
     end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, admin_user_fixture())
+      conn = get(without_fingerprint(conn), ~p"/tags/#{tag}/alias/edit")
+
+      assert html_response(conn, 200) =~ "Editing Tag Alias"
+    end
   end
 
   describe "PUT/PATCH /tags/:tag_id/alias (update)" do
@@ -124,6 +132,21 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
       assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      tag = tag_fixture()
+      target = tag_fixture(name: "target tag alias")
+      conn = log_in_user(conn, admin_user_fixture())
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/tags/#{tag}/alias", %{
+          "tag" => %{"target_tag" => target.name}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get!(Tag, tag.id).aliased_tag_id
     end
   end
 

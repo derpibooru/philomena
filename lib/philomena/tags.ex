@@ -9,7 +9,9 @@ defmodule Philomena.Tags do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.ArtistLinks
   alias Philomena.ArtistLinks.ArtistLink
@@ -692,7 +694,8 @@ defmodule Philomena.Tags do
   @doc """
   Loads the tag named by `slug` for editing, on behalf of `actor`.
 
-  Write access and `:edit` authorization match the update action. Missing and
+  Ban and `:edit` authorization checks match the update action, which
+  additionally requires a fingerprint. Missing and
   malformed slugs are always not found.
 
   Returns `{:ok, {tag, changeset}}`, `{:error, :not_found}`, or
@@ -708,7 +711,7 @@ defmodule Philomena.Tags do
           {:ok, {Tag.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_tag(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, tag} <- load_tag_for_action(actor, :edit, slug, @show_preloads) do
       {:ok, {tag, Tag.changeset(tag)}}
     end
@@ -717,7 +720,8 @@ defmodule Philomena.Tags do
   @doc """
   Loads the tag spoiler-image form on behalf of `actor`.
 
-  Write access and `:edit_image` authorization match both image mutations.
+  Ban and `:edit_image` authorization checks match both image mutations, which
+  additionally require a fingerprint.
 
   ## Examples
 
@@ -729,7 +733,7 @@ defmodule Philomena.Tags do
           {:ok, {Tag.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_tag_image(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, tag} <- load_tag_for_action(actor, :edit_image, slug, @image_preloads) do
       {:ok, {tag, Tag.changeset(tag)}}
     end
@@ -738,7 +742,8 @@ defmodule Philomena.Tags do
   @doc """
   Loads the tag named by `slug` for editing its aliasing, on behalf of `actor`.
 
-  Write access and `:edit_alias` authorization match alias mutations. Missing
+  Ban and `:edit_alias` authorization checks match alias mutations, which
+  additionally require a fingerprint. Missing
   and malformed slugs are always not found.
 
   Returns `{:ok, {tag, changeset}}`, `{:error, :not_found}`, or
@@ -754,7 +759,7 @@ defmodule Philomena.Tags do
           {:ok, {Tag.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_tag_alias(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, tag} <- load_tag_for_action(actor, :edit_alias, slug, @alias_preloads) do
       {:ok, {tag, Tag.alias_form_changeset(tag)}}
     end

@@ -114,6 +114,14 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      target = confirmed_user_fixture()
+      conn = get(without_fingerprint(conn), ~p"/admin/mod_notes/new?#{[user_id: target.id]}")
+
+      assert html_response(conn, 200) =~ "New mod note for User #{target.id}"
+    end
   end
 
   describe "POST /admin/mod_notes (create)" do
@@ -182,6 +190,22 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
       assert html_response(conn, 200) =~ "New mod note for User #{target.id}"
       refute Repo.exists?(ModNote)
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/mod_notes", %{
+          "mod_note" => %{
+            "user_id" => confirmed_user_fixture().id,
+            "body" => "Fingerprintless note"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(ModNote, body: "Fingerprintless note")
+    end
   end
 
   describe "GET /admin/mod_notes/:id/edit" do
@@ -231,6 +255,14 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form for its moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: mod} = register_and_log_in_moderator(%{conn: conn})
+      note = mod_note_fixture(mod)
+      conn = get(without_fingerprint(conn), ~p"/admin/mod_notes/#{note}/edit")
+
+      assert html_response(conn, 200) =~ "Editing mod note for"
+    end
   end
 
   describe "PATCH /admin/mod_notes/:id (update)" do
@@ -266,6 +298,20 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
 
       assert html_response(conn, 200) =~ "Editing mod note for"
       assert Repo.get(ModNote, note.id).body == "Keeping an eye on this one"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: mod} = register_and_log_in_moderator(%{conn: conn})
+      note = mod_note_fixture(mod)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/mod_notes/#{note}", %{
+          "mod_note" => %{"body" => "Updated note body"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(ModNote, note.id).body == note.body
     end
   end
 

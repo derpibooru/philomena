@@ -83,6 +83,14 @@ defmodule PhilomenaWeb.Admin.FingerprintBanControllerTest do
       conn = get(conn, ~p"/admin/fingerprint_bans/new?#{[fingerprint: "abcdef0123456789"]}")
       assert html_response(conn, 200) =~ "New Fingerprint Ban"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/fingerprint_bans/new")
+
+      assert html_response(conn, 200) =~ "New Fingerprint Ban"
+    end
   end
 
   describe "POST /admin/fingerprint_bans (create)" do
@@ -152,6 +160,23 @@ defmodule PhilomenaWeb.Admin.FingerprintBanControllerTest do
       assert html_response(conn, 200) =~ "New Fingerprint Ban"
       refute Repo.exists?(FingerprintBan)
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/fingerprint_bans", %{
+          "fingerprint" => %{
+            "fingerprint" => "abcdef0123456789",
+            "reason" => "Fingerprintless ban",
+            "valid_until" => "5 years from now"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(FingerprintBan, reason: "Fingerprintless ban")
+    end
   end
 
   describe "GET /admin/fingerprint_bans/:id/edit" do
@@ -183,6 +208,15 @@ defmodule PhilomenaWeb.Admin.FingerprintBanControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      ban = fingerprint_ban_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/fingerprint_bans/#{ban}/edit")
+
+      assert html_response(conn, 200) =~ "Editing ban"
     end
   end
 
@@ -227,6 +261,20 @@ defmodule PhilomenaWeb.Admin.FingerprintBanControllerTest do
 
       assert html_response(conn, 200) =~ "Editing ban"
       assert Repo.get(FingerprintBan, ban.id).reason == "Test fingerprint reason"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      ban = fingerprint_ban_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/fingerprint_bans/#{ban}", %{
+          "fingerprint" => %{"reason" => "Updated reason"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(FingerprintBan, ban.id).reason == ban.reason
     end
   end
 

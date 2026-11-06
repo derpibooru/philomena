@@ -108,13 +108,11 @@ defmodule Philomena.StaticPagesTest do
       assert StaticPages.new_page(actor(confirmed_user_fixture())) == {:error, :unauthorized}
     end
 
-    test "write-access failures precede authorization" do
+    test "a ban is refused but a missing fingerprint is not" do
       admin = admin_user_fixture()
 
       assert StaticPages.new_page(actor(admin, ban: %{})) == {:error, :ban}
-
-      assert StaticPages.new_page(actor(admin, fingerprint: nil)) ==
-               {:error, :unauthorized}
+      assert {:ok, %Ecto.Changeset{}} = StaticPages.new_page(actor(admin, fingerprint: nil))
     end
   end
 
