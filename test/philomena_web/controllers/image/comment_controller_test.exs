@@ -169,19 +169,24 @@ defmodule PhilomenaWeb.Image.CommentControllerTest do
       assert response =~ "Delete Contents"
     end
 
-    test "does not render hidden comment content or moderation data to a regular user", %{
+    test "renders a hidden comment as its deletion reason to an anonymous visitor", %{
       conn: conn
     } do
       image = image_fixture()
       {comment, moderator} = hidden_comment(image, "Private hidden comment body")
-      %{conn: conn} = register_and_log_in_user(%{conn: conn})
 
-      response = html_response(get(conn, ~p"/images/#{image}/comments"), 200)
+      for path <- [~p"/images/#{image}/comments", ~p"/images/#{image}/comments/#{comment}"] do
+        response = html_response(get(conn, path), 200)
 
-      refute response =~ "Private hidden comment body"
-      refute response =~ "Comment policy violation"
-      refute response =~ moderator.name
-      refute response =~ ~p"/images/#{image}/comments/#{comment}/delete"
+        assert response =~ "Deletion reason:"
+        assert response =~ "Comment policy violation"
+        refute response =~ "Private hidden comment body"
+        refute response =~ moderator.name
+        refute response =~ ~p"/images/#{image}/comments/#{comment}/delete"
+      end
+
+      conn = get(conn, ~p"/images/#{image}/comments?comment_id=#{comment.id}")
+      assert redirected_to(conn) == ~p"/images/#{image}/comments?#{[page: 1]}"
     end
 
     test "renders destroyed state without the original body", %{conn: conn} do

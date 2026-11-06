@@ -4,12 +4,14 @@ defmodule PhilomenaWeb.ImageControllerTest do
   @moduletag :search
 
   import Philomena.AsyncUpload
+  import Philomena.AttributionFixtures
   import Philomena.CommentsFixtures
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
 
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
+  alias Philomena.Comments
   alias Philomena.Images.Image
   alias Philomena.Tags.Tag
   alias Philomena.Repo
@@ -102,6 +104,26 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert response =~ "##{image.id} - safe - Derpibooru"
       assert response =~ "An image <em>described</em> in markdown."
       assert response =~ "Test image comment body"
+    end
+
+    test "renders a hidden comment's deletion reason but not its body to anonymous users",
+         %{conn: conn} do
+      image = image_fixture()
+      comment = comment_fixture(image, nil, %{"body" => "Hidden image comment body"})
+
+      {:ok, _} =
+        Comments.create_comment_hide(
+          actor(moderator_user_fixture()),
+          image.id,
+          comment.id,
+          %{"deletion_reason" => "Off-topic comment"}
+        )
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "Deletion reason:"
+      assert response =~ "Off-topic comment"
+      refute response =~ "Hidden image comment body"
     end
 
     test "renders an image for logged-in users", %{conn: conn} do

@@ -45,6 +45,12 @@ defmodule Philomena.Comments do
     |> Loader.fetch_and_authorize(actor, action, comment_id, preloads)
   end
 
+  defp load_visible_comment(queryable, %Actor{} = actor, comment_id, preloads) do
+    queryable
+    |> Visibility.visible_comments(actor)
+    |> Loader.fetch(comment_id, preloads)
+  end
+
   defp notify_comment(_repo, %{locked_image: image, comment: comment}) do
     Notifications.broadcast_image_comment(comment.user, image, comment)
   end
@@ -141,10 +147,11 @@ defmodule Philomena.Comments do
   def new_comment_changeset, do: Comment.changeset(%Comment{})
 
   @doc """
-  Loads a globally addressed comment visible to `actor`.
+  Loads a globally addressed comment visible to `actor` in its image thread.
 
-  Destroyed comments and missing IDs are not-found. The parent image is authorized
-  alongside the comment, so either forbidden resource returns unauthorized.
+  Hidden comments load so callers can show a placeholder. Destroyed comments,
+  comments outside the actor's thread visibility, and missing IDs are
+  not-found. A forbidden parent image is unauthorized.
 
   ## Examples
 
@@ -158,7 +165,10 @@ defmodule Philomena.Comments do
   @spec show_comment(Actor.t(), IntegerId.integer_id()) ::
           {:ok, Comment.t()} | {:error, :unauthorized | :not_found}
   def show_comment(%Actor{} = actor, id) do
-    with {:ok, comment} <- Loader.fetch_and_authorize(Comment, actor, :show, id, @preloads),
+    with {:ok, comment} <-
+           Comment
+           |> where(destroyed_content: false)
+           |> load_visible_comment(actor, id, @preloads),
          :ok <- authorize(actor, :show, comment.image) do
       {:ok, comment}
     end
@@ -265,8 +275,7 @@ defmodule Philomena.Comments do
   on behalf of `actor`.
 
   Missing, malformed, mismatched, or collection-invisible comments are
-  not-found. A loaded comment forbidden to the actor is unauthorized.
-  Returns the loaded image for the caller to reuse.
+  not-found. Returns the loaded image for the caller to reuse.
 
   ## Examples
 
@@ -283,7 +292,10 @@ defmodule Philomena.Comments do
           {:ok, {Image.t(), pos_integer()}} | {:error, :unauthorized | :not_found}
   def list_comment_page(%Actor{} = actor, image_id, comment_id, pagination) do
     with {:ok, image} <- load_image(actor, image_id, :index),
-         {:ok, comment} <- load_image_comment(actor, image, comment_id, :show, []) do
+         {:ok, comment} <-
+           Comment
+           |> where(image_id: ^image.id)
+           |> load_visible_comment(actor, comment_id, []) do
       offset =
         Comment
         |> where(image_id: ^image.id)
@@ -415,10 +427,11 @@ defmodule Philomena.Comments do
   end
 
   @doc """
-  Loads a visible comment through its parent image.
+  Loads a comment shown in its parent image's thread for `actor`.
 
-  The parent image and scoped comment are independently authorized for `:show`.
-  The loaded image is returned for the caller to reuse.
+  Hidden comments load so callers can show a placeholder. Comments outside the
+  actor's thread visibility are not-found. The loaded image is returned for the
+  caller to reuse.
 
   ## Examples
 
@@ -437,7 +450,10 @@ defmodule Philomena.Comments do
           {:ok, {Image.t(), Comment.t()}} | {:error, :unauthorized | :not_found}
   def show_comment(%Actor{} = actor, image_id, comment_id) do
     with {:ok, image} <- load_image(actor, image_id, :show),
-         {:ok, comment} <- load_image_comment(actor, image, comment_id, :show, @preloads) do
+         {:ok, comment} <-
+           Comment
+           |> where(image_id: ^image.id)
+           |> load_visible_comment(actor, comment_id, @preloads) do
       {:ok, {image, comment}}
     end
   end

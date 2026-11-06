@@ -220,19 +220,21 @@ defmodule Philomena.CommentsTest do
   end
 
   describe "show_comment/2 visibility matrix" do
-    test "normalizes malformed, missing, hidden-parent, and hidden-comment rows" do
+    test "loads hidden comments and normalizes destroyed, pending, and hidden-parent rows" do
+      author = confirmed_user_fixture()
       user = confirmed_user_fixture()
       moderator = moderator_user_fixture()
-      assistant = assistant_user_fixture()
-      comment_assistant = %{assistant | role_map: %{"Comment" => %{"moderator" => []}}}
+      comment_assistant = role_assistant_fixture("Comment")
 
       visible_image = image_fixture()
       visible_comment = comment_fixture(visible_image)
+      hidden_comment = already_hidden_comment(visible_image)
+      pending = pending_comment(visible_image, author)
 
-      hidden_comment =
+      destroyed =
         visible_image
-        |> comment_fixture()
-        |> Ecto.Changeset.change(hidden_from_users: true)
+        |> already_hidden_comment()
+        |> Ecto.Changeset.change(destroyed_content: true)
         |> Repo.update!()
 
       hidden_image = image_fixture(hidden_from_users: true)
@@ -241,31 +243,31 @@ defmodule Philomena.CommentsTest do
       for viewer <- [actor(), actor(user), actor(moderator), actor(comment_assistant)] do
         assert Comments.show_comment(viewer, "not-an-id") == {:error, :not_found}
         assert Comments.show_comment(viewer, "2147483647") == {:error, :not_found}
+        assert Comments.show_comment(viewer, destroyed.id) == {:error, :not_found}
+
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, visible_comment.id)
+        assert id == visible_comment.id
+
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, hidden_comment.id)
+        assert id == hidden_comment.id
       end
 
       for viewer <- [actor(), actor(user)] do
-        assert Comments.show_comment(viewer, hidden_comment.id) == {:error, :unauthorized}
+        assert Comments.show_comment(viewer, pending.id) == {:error, :not_found}
+      end
 
+      for viewer <- [actor(author), actor(moderator), actor(comment_assistant)] do
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, pending.id)
+        assert id == pending.id
+      end
+
+      for viewer <- [actor(), actor(user), actor(comment_assistant)] do
         assert Comments.show_comment(viewer, parent_hidden_comment.id) ==
                  {:error, :unauthorized}
       end
 
-      assert {:ok, %{id: id}} = Comments.show_comment(actor(moderator), hidden_comment.id)
-      assert id == hidden_comment.id
-
       assert {:ok, %{id: id}} = Comments.show_comment(actor(moderator), parent_hidden_comment.id)
       assert id == parent_hidden_comment.id
-
-      assert {:ok, %{id: id}} =
-               Comments.show_comment(actor(comment_assistant), hidden_comment.id)
-
-      assert id == hidden_comment.id
-
-      assert Comments.show_comment(actor(comment_assistant), parent_hidden_comment.id) ==
-               {:error, :unauthorized}
-
-      assert {:ok, %{id: id}} = Comments.show_comment(actor(), visible_comment.id)
-      assert id == visible_comment.id
     end
   end
 
@@ -1148,11 +1150,16 @@ defmodule Philomena.CommentsTest do
       assert %User{} = loaded.user
     end
 
-    test "rejects a hidden comment for an anonymous actor", %{image: image} do
-      comment = already_hidden_comment(image)
+    test "an anonymous actor loads a hidden comment but not another user's pending one",
+         %{image: image} do
+      hidden = already_hidden_comment(image)
+      pending = pending_comment(image)
 
-      assert Comments.show_comment(actor(), image.id, "#{comment.id}") ==
-               {:error, :unauthorized}
+      assert {:ok, {_image, %Comment{id: id, hidden_from_users: true}}} =
+               Comments.show_comment(actor(), image.id, "#{hidden.id}")
+
+      assert id == hidden.id
+      assert Comments.show_comment(actor(), image.id, pending.id) == {:error, :not_found}
     end
 
     test "an unknown comment id is not found", %{image: image} do
@@ -1631,14 +1638,16 @@ defmodule Philomena.CommentsTest do
       assert Enum.map(page.entries, & &1.id) == [c1.id, c2.id, c3.id]
     end
 
-    test "an anonymous viewer sees only approved, non-destroyed comments", %{image: image} do
+    test "an anonymous viewer sees approved and hidden comments, not pending or destroyed ones",
+         %{image: image} do
       approved = comment_fixture(image, confirmed_user_fixture())
+      hidden = already_hidden_comment(image)
       _pending = pending_comment(image)
       _destroyed = destroyed_comment(image)
 
       page = Comments.list_image_comments(actor(nil), image, page: 1, page_size: 25)
 
-      assert Enum.map(page.entries, & &1.id) == [approved.id]
+      assert Enum.sort(Enum.map(page.entries, & &1.id)) == Enum.sort([approved.id, hidden.id])
     end
 
     test "a signed-in user additionally sees their own non-approved comments",
