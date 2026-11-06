@@ -6,6 +6,7 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedControllerTest do
   import Philomena.UsersFixtures
 
   alias Philomena.ImageFeatures.ImageFeature
+  alias Philomena.ImageHides.ImageHide
   alias Philomena.Repo
 
   defp feature!(user, image) do
@@ -56,6 +57,18 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedControllerTest do
       # to visible images, so the newest visible feature wins.
       assert %{"image" => %{"id" => id}} = json_response(conn, 200)
       assert id == visible.id
+    end
+
+    test "shows the featured image to a key holder who hid it", %{conn: conn} do
+      %{user: user, api_key: api_key} = create_api_user(%{})
+      image = image_fixture()
+      feature!(admin_user_fixture(), image)
+      Repo.insert!(%ImageHide{image_id: image.id, user_id: user.id})
+
+      conn = get(conn, ~p"/api/v1/json/images/featured?#{[key: api_key]}")
+
+      assert %{"image" => %{"id" => id}} = json_response(conn, 200)
+      assert id == image.id
     end
 
     test "returns 404 when no image has ever been featured", %{conn: conn} do
