@@ -1,6 +1,13 @@
 name: Philomena Build
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - 'master'
+      - '*_stable'
+    tags:
+      - '*'
+  pull_request:
 
 jobs:
   build:
