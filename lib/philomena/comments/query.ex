@@ -19,11 +19,12 @@ defmodule Philomena.Comments.Query do
   defp anonymous_fields do
     [
       int_fields: ~W(id),
-      numeric_fields: ~W(author_id image_id),
+      numeric_fields: ~W(author_id user_id image_id),
       date_fields: ~W(created_at updated_at),
       literal_fields: ~W(author image.tags),
       ngram_fields: ~W(body),
-      default_field: {"body", :ngram}
+      default_field: {"body", :ngram},
+      aliases: %{"user_id" => "author_id"}
     ]
   end
 
@@ -45,10 +46,11 @@ defmodule Philomena.Comments.Query do
       ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
       ip_fields: ~W(ip),
       bool_fields: ~W(anonymous deleted image.deleted approved image.approved),
-      aliases: %{
-        "deleted" => "hidden_from_users",
-        "image.deleted" => "image.hidden_from_users"
-      },
+      aliases:
+        Map.merge(fields[:aliases], %{
+          "deleted" => "hidden_from_users",
+          "image.deleted" => "image.hidden_from_users"
+        }),
       normalizations: %{"image.tags" => &Tag.clean_tag_name/1}
     )
   end
