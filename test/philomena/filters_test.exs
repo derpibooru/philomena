@@ -87,6 +87,7 @@ defmodule Philomena.FiltersTest do
         image_filter = Filters.compile_image_filter(actor(), current_filter, forced_filter)
 
         assert Evaluator.hits?(document, image_filter.query)
+        assert [{:hidden_complex_str, _message}] = image_filter.errors
       end
     end
 
@@ -98,6 +99,7 @@ defmodule Philomena.FiltersTest do
 
       refute Evaluator.hits?(Filtering.document(image), image_filter.query)
       assert Images.filter_or_spoiler_hits?(image, image_filter)
+      assert [{:spoilered_complex_str, _message}] = image_filter.errors
     end
 
     test "an empty selection excludes and spoilers nothing" do
@@ -106,6 +108,7 @@ defmodule Philomena.FiltersTest do
                Filters.compile_image_filter(actor(), nil, nil)
 
       assert image_filter.display_tag_ids == []
+      assert image_filter.errors == []
 
       assert image_filter.query == %{
                bool: %{

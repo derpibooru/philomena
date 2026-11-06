@@ -12,12 +12,15 @@ defmodule Philomena.Filters.ImageFilter do
   alias PhilomenaQuery.Parse
 
   @enforce_keys [:query, :display_query, :display_tag_ids]
-  defstruct [:query, :display_query, :display_tag_ids]
+  defstruct [:query, :display_query, :display_tag_ids, errors: []]
+
+  @type error :: {:hidden_complex_str | :spoilered_complex_str, String.t()}
 
   @type t :: %__MODULE__{
           query: map(),
           display_query: map(),
-          display_tag_ids: [integer()]
+          display_tag_ids: [integer()],
+          errors: [error()]
         }
 
   @spec compile(Actor.t(), Filter.t() | nil, Filter.t() | nil) :: t()
@@ -25,14 +28,16 @@ defmodule Philomena.Filters.ImageFilter do
     current = defaults(current_filter)
     forced = defaults(forced_filter)
 
-    hidden_query = %{
-      bool: %{
-        should: [
-          compile_expression(actor, current.hidden_complex_str),
-          compile_expression(actor, forced.hidden_complex_str)
-        ]
-      }
-    }
+    {current_hidden, current_hidden_errors} =
+      compile_expression(actor, :hidden_complex_str, current.hidden_complex_str)
+
+    {forced_hidden, forced_hidden_errors} =
+      compile_expression(actor, :hidden_complex_str, forced.hidden_complex_str)
+
+    {current_spoiler, current_spoiler_errors} =
+      compile_expression(actor, :spoilered_complex_str, current.spoilered_complex_str)
+
+    hidden_query = %{bool: %{should: [current_hidden, forced_hidden]}}
 
     %__MODULE__{
       query: %{
@@ -43,25 +48,22 @@ defmodule Philomena.Filters.ImageFilter do
           ]
         }
       },
-      display_query: %{
-        bool: %{
-          should: [hidden_query, compile_expression(actor, current.spoilered_complex_str)]
-        }
-      },
-      display_tag_ids: current.spoilered_tag_ids ++ current.hidden_tag_ids
+      display_query: %{bool: %{should: [hidden_query, current_spoiler]}},
+      display_tag_ids: current.spoilered_tag_ids ++ current.hidden_tag_ids,
+      errors: current_hidden_errors ++ forced_hidden_errors ++ current_spoiler_errors
     }
   end
 
   # An expression that does not compile for this viewer matches every image,
   # so an invalid hidden expression hides everything and an invalid spoiler
-  # expression spoilers everything.
-  defp compile_expression(actor, expression) do
+  # expression spoilers everything. The error is kept for display.
+  defp compile_expression(actor, field, expression) do
     expression
     |> Parse.String.normalize()
     |> Query.compile(user: actor.user, filter: true)
     |> case do
-      {:ok, query} -> query
-      {:error, _reason} -> %{match_all: %{}}
+      {:ok, query} -> {query, []}
+      {:error, message} -> {%{match_all: %{}}, [{field, message}]}
     end
   end
 
