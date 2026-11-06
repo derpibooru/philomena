@@ -10,7 +10,7 @@ defmodule Philomena.Comments do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -466,8 +466,8 @@ defmodule Philomena.Comments do
   @doc """
   Loads an editable comment and changeset through its parent image.
 
-  Write access is checked before image authorization, forced-filter enforcement,
-  and comment authorization.
+  A ban is checked before image authorization, forced-filter enforcement, and
+  comment authorization; a missing fingerprint is left to `update_comment/4`.
 
   ## Examples
 
@@ -485,7 +485,7 @@ defmodule Philomena.Comments do
         ) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found | :forced_filter}
   def edit_comment(%Actor{} = actor, image_id, comment_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, image} <- load_image(actor, image_id, :create_comment),
          :ok <- Images.verify_forced_filter_access(actor, image),
          {:ok, comment} <- load_image_comment(actor, image, comment_id, :edit, @preloads) do

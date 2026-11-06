@@ -762,31 +762,43 @@ defmodule Philomena.FiltersTest do
       user = confirmed_user_fixture()
       filter = filter_fixture(user)
 
-      operations = [
+      forms = [
         new: fn actor -> Filters.new_filter(actor, nil) end,
-        edit: fn actor -> Filters.edit_filter(actor, filter.id) end,
+        edit: fn actor -> Filters.edit_filter(actor, filter.id) end
+      ]
+
+      mutations = [
         create: fn actor -> Filters.create_filter(actor, %{"name" => "Created"}) end,
         update: fn actor -> Filters.update_filter(actor, filter.id, %{"name" => "Updated"}) end,
         publish: fn actor -> Filters.create_filter_public(actor, filter.id) end,
         delete: fn actor -> Filters.delete_filter(actor, filter.id) end
       ]
 
-      %{user: user, operations: operations}
+      %{user: user, forms: forms, mutations: mutations}
     end
 
     test "all form and mutation entry points reject a banned actor first", context do
       banned_actor = actor(context.user, ban: @ban)
 
-      for {operation, invoke} <- context.operations do
+      for {operation, invoke} <- context.forms ++ context.mutations do
         assert invoke.(banned_actor) == {:error, :ban},
                "expected #{operation} to reject a banned actor"
       end
     end
 
-    test "all form and mutation entry points reject a missing fingerprint", context do
+    test "forms load without a fingerprint", context do
       unidentified_actor = actor(context.user, fingerprint: nil)
 
-      for {operation, invoke} <- context.operations do
+      for {operation, invoke} <- context.forms do
+        assert {:ok, _} = invoke.(unidentified_actor),
+               "expected #{operation} to load without a fingerprint"
+      end
+    end
+
+    test "mutations reject a missing fingerprint", context do
+      unidentified_actor = actor(context.user, fingerprint: nil)
+
+      for {operation, invoke} <- context.mutations do
         assert invoke.(unidentified_actor) == {:error, :unauthorized},
                "expected #{operation} to reject an actor without a fingerprint"
       end

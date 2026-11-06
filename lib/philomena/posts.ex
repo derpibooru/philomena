@@ -6,7 +6,7 @@ defmodule Philomena.Posts do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   import Philomena.Forums.TransactionWorkflow
 
@@ -343,8 +343,8 @@ defmodule Philomena.Posts do
   `topic_slug` in the forum named by `forum_slug` for editing, on behalf of
   `actor`.
 
-  The same full write-access check used by update runs first. The forum, topic,
-  and post are then parent-scoped and authorized for `:edit`.
+  A ban is checked first; a missing fingerprint is left to `update_post/5`.
+  The forum, topic, and post are then parent-scoped and authorized for `:edit`.
 
   Returns `{:ok, changeset}` - the changeset's data is the post with its topic,
   forum, and author preloaded -
@@ -367,7 +367,7 @@ defmodule Philomena.Posts do
           {:ok, Ecto.Changeset.t()}
           | {:error, :ban | :unauthorized | :not_found}
   def edit_post(actor, forum_slug, topic_slug, post_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, forum} <- Forums.show_forum(actor, forum_slug),
          {:ok, topic} <- Topics.show_forum_topic(actor, forum, topic_slug, :create_post),
          {:ok, post} <- load_post_in_topic(actor, topic, post_id, :edit) do

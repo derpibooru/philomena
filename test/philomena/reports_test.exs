@@ -98,7 +98,7 @@ defmodule Philomena.ReportsTest do
       end
     end
 
-    test "the form and create paths share write-access precedence" do
+    test "both paths refuse bans first, only create requires a fingerprint" do
       locator = {:image, "not-an-id"}
       banned = actor(confirmed_user_fixture(), ban: @ban)
       no_fingerprint = actor(nil, fingerprint: nil)
@@ -106,7 +106,7 @@ defmodule Philomena.ReportsTest do
       assert Reports.new_report(banned, locator) == {:error, :ban}
       assert Reports.create_report(banned, locator, report_params()) == {:error, :ban}
 
-      assert Reports.new_report(no_fingerprint, locator) == {:error, :unauthorized}
+      assert Reports.new_report(no_fingerprint, locator) == {:error, :not_found}
 
       assert Reports.create_report(no_fingerprint, locator, report_params()) ==
                {:error, :unauthorized}

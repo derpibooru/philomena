@@ -404,6 +404,16 @@ defmodule PhilomenaWeb.Image.CommentControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the edit form for the author without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      image = image_fixture()
+      comment = comment_fixture(image, user)
+
+      conn = get(without_fingerprint(conn), ~p"/images/#{image}/comments/#{comment}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Comment - Derpibooru"
+    end
   end
 
   describe "PATCH /images/:image_id/comments/:id" do
@@ -501,6 +511,21 @@ defmodule PhilomenaWeb.Image.CommentControllerTest do
                "Couldn't find what you were looking for!"
 
       assert Repo.reload!(comment).body == "Original"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      image = image_fixture()
+      comment = comment_fixture(image, user, %{"body" => "Original comment body"})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/images/#{image}/comments/#{comment}", %{
+          "comment" => %{"body" => "Edited without a fingerprint"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.reload!(comment).body == "Original comment body"
     end
   end
 end

@@ -1169,8 +1169,8 @@ defmodule Philomena.CommentsTest do
   end
 
   describe "edit_comment/3" do
-    # Backs the edit write, so it runs the global write prerequisite before
-    # loading and authorizing the comment for :edit.
+    # Backs the edit form, so it refuses bans before loading and authorizing
+    # the comment for :edit.
 
     setup do
       %{image: image_fixture()}
@@ -1183,17 +1183,12 @@ defmodule Philomena.CommentsTest do
       assert Comments.edit_comment(actor, image.id, "#{comment.id}") == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading", %{image: image} do
-      assert Comments.edit_comment(actor(nil, fingerprint: nil), image.id, "1") ==
-               {:error, :unauthorized}
-    end
-
-    test "the author loads the form", %{image: image} do
+    test "the author loads the form, even without a fingerprint", %{image: image} do
       author = confirmed_user_fixture()
       comment = comment_fixture(image, author, %{"body" => "My comment"})
 
       assert {:ok, %Ecto.Changeset{} = changeset} =
-               Comments.edit_comment(actor(author), image.id, "#{comment.id}")
+               Comments.edit_comment(actor(author, fingerprint: nil), image.id, "#{comment.id}")
 
       assert changeset.data.id == comment.id
 

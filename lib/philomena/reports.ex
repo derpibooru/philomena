@@ -4,7 +4,9 @@ defmodule Philomena.Reports do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -333,8 +335,8 @@ defmodule Philomena.Reports do
   @doc """
   Builds a report form for the target described by `locator`.
 
-  Write access is verified before the owning context safely loads and authorizes
-  the target. The returned `ReportForm` retains both the target and its empty
+  A ban is checked before the owning context safely loads and authorizes the
+  target; a missing fingerprint is left to `create_report/3`. The returned `ReportForm` retains both the target and its empty
   report changeset. Malformed and missing locators are not-found for every
   actor. Hidden or otherwise forbidden real targets are unauthorized.
 
@@ -350,7 +352,7 @@ defmodule Philomena.Reports do
   @spec new_report(Actor.t(), target_locator()) ::
           {:ok, ReportForm.t()} | {:error, :ban | :unauthorized | :not_found}
   def new_report(%Actor{} = actor, locator) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, target} <- load_report_target(actor, locator) do
       changeset =
         target
@@ -369,7 +371,8 @@ defmodule Philomena.Reports do
   @doc """
   Creates a report for the safely loaded target described by `locator`.
 
-  The same write-access, loading, and visibility checks as `new_report/2` run.
+  The same loading and visibility checks as `new_report/2` run, after full write
+  access is verified.
   Normal and anonymous users are subject to an open report limit; staff are
   exempt. A rejected insert returns a `ReportForm` carrying the loaded target
   and rejected changeset, while a successful insert queues the report for

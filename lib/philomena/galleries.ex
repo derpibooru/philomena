@@ -20,7 +20,7 @@ defmodule Philomena.Galleries do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Repo
@@ -258,7 +258,7 @@ defmodule Philomena.Galleries do
   @spec new_gallery(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_gallery(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Gallery) do
       {:ok, Gallery.changeset(%Gallery{})}
     end
@@ -364,7 +364,8 @@ defmodule Philomena.Galleries do
   Loads the gallery named by `gallery_id` for editing, on
   behalf of `actor`, pairing it with a change-tracking changeset for it.
 
-  Loading and authorization otherwise follow `update_gallery/3`, authorizing `:edit`.
+  Loading and authorization otherwise follow `update_gallery/3`, authorizing
+  `:edit`, except that a missing fingerprint is not refused.
 
   ## Examples
 
@@ -385,7 +386,7 @@ defmodule Philomena.Galleries do
           {:ok, {Gallery.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def edit_gallery(%Actor{} = actor, gallery_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, gallery} <- load_gallery(actor, gallery_id, :edit) do
       {:ok, {gallery, Gallery.changeset(gallery)}}
     end

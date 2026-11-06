@@ -171,6 +171,17 @@ defmodule PhilomenaWeb.Topic.PostControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the form for the author without a fingerprint",
+         %{conn: conn, forum: forum, topic: topic} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      post = post_fixture(topic, user)
+
+      conn =
+        get(without_fingerprint(conn), ~p"/forums/#{forum}/topics/#{topic}/posts/#{post}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Post - Derpibooru"
+    end
   end
 
   describe "PATCH /forums/:forum_id/topics/:topic_id/posts/:id" do
@@ -238,6 +249,21 @@ defmodule PhilomenaWeb.Topic.PostControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
       assert Repo.reload!(post).body == post.body
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash",
+         %{conn: conn, forum: forum, topic: topic} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      post = post_fixture(topic, user, %{"body" => "Original reply body"})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/forums/#{forum}/topics/#{topic}/posts/#{post}", %{
+          "post" => %{"body" => "Edited without a fingerprint"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.reload!(post).body == "Original reply body"
     end
   end
 end

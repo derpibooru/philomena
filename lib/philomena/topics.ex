@@ -6,7 +6,7 @@ defmodule Philomena.Topics do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   import Philomena.Forums.TransactionWorkflow
 
@@ -439,8 +439,8 @@ defmodule Philomena.Topics do
   @doc """
   Returns a new-topic changeset for `actor` in the forum named by `forum_slug`.
 
-  Write access is verified first; the forum is then loaded by short name
-  and authorized for `:create_topic`. The returned changeset is
+  A ban is checked first, leaving a missing fingerprint to `create_topic/3`;
+  the forum is then loaded by short name and authorized for `:create_topic`. The returned changeset is
   seeded with an empty first post and a two-option poll so those nested fields
   are present.
 
@@ -458,7 +458,7 @@ defmodule Philomena.Topics do
           {:ok, {Forum.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def new_topic(%Actor{} = actor, forum_slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, forum} <- Forums.show_forum(actor, forum_slug),
          :ok <- authorize(actor, :create_topic, forum) do
       changeset =

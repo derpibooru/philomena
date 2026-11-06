@@ -45,6 +45,17 @@ defmodule PhilomenaWeb.Topic.Post.ReportControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the report form without a fingerprint",
+         %{conn: conn, forum: forum, topic: topic, post: post} do
+      conn =
+        get(
+          without_fingerprint(conn),
+          ~p"/forums/#{forum}/topics/#{topic}/posts/#{post}/reports/new"
+        )
+
+      assert html_response(conn, 200) =~ "Submit a report"
+    end
   end
 
   describe "POST /forums/:forum_id/topics/:topic_id/posts/:post_id/reports" do
@@ -132,6 +143,30 @@ defmodule PhilomenaWeb.Topic.Post.ReportControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{
+      conn: conn,
+      forum: forum,
+      topic: topic,
+      post: post
+    } do
+      conn =
+        post(
+          without_fingerprint(conn),
+          ~p"/forums/#{forum}/topics/#{topic}/posts/#{post}/reports",
+          %{
+            "report" => %{
+              "reason" => "Reported without a fingerprint",
+              "rule_id" => rule_fixture().id,
+              "user_agent" => "Test Browser/1.0"
+            }
+          }
+        )
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.aggregate(Report, :count) == 0
     end
   end
 end

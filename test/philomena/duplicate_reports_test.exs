@@ -184,7 +184,7 @@ defmodule Philomena.DuplicateReportsTest do
       assert changeset.data.image.id == image.id
     end
 
-    test "form and submission share write access and image visibility" do
+    test "the form refuses bans and invisible images but not a missing fingerprint" do
       image = image_fixture()
 
       assert DuplicateReports.new_duplicate_report(
@@ -192,10 +192,11 @@ defmodule Philomena.DuplicateReportsTest do
                image.id
              ) == {:error, :ban}
 
-      assert DuplicateReports.new_duplicate_report(
-               actor(confirmed_user_fixture(), fingerprint: nil),
-               image.id
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               DuplicateReports.new_duplicate_report(
+                 actor(confirmed_user_fixture(), fingerprint: nil),
+                 image.id
+               )
 
       hidden = hide_image(image_fixture())
 

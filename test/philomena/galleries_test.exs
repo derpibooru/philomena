@@ -266,12 +266,12 @@ defmodule Philomena.GalleriesTest do
   end
 
   describe "edit_gallery/2" do
-    test "the owner loads the gallery paired with its edit changeset" do
+    test "the owner loads the gallery paired with its edit changeset, even without a fingerprint" do
       user = confirmed_user_fixture()
       gallery = gallery_fixture(user)
 
       assert {:ok, {%Gallery{} = loaded, %Ecto.Changeset{} = changeset}} =
-               Galleries.edit_gallery(actor(user), "#{gallery.id}")
+               Galleries.edit_gallery(actor(user, fingerprint: nil), "#{gallery.id}")
 
       assert loaded.id == gallery.id
       assert changeset.data.id == gallery.id
@@ -288,11 +288,6 @@ defmodule Philomena.GalleriesTest do
       actor = actor(confirmed_user_fixture(), ban: @ban)
 
       assert Galleries.edit_gallery(actor, "abc") == {:error, :ban}
-    end
-
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Galleries.edit_gallery(actor(nil, fingerprint: nil), "abc") ==
-               {:error, :unauthorized}
     end
 
     test "a non-castable id is not-found" do

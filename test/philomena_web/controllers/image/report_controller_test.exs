@@ -162,4 +162,29 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
     assert redirected_to(conn) == "/"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
   end
+
+  test "GET new renders the report form without a fingerprint", %{conn: conn} do
+    image = image_fixture()
+
+    conn = get(without_fingerprint(conn), ~p"/images/#{image}/reports/new")
+
+    assert html_response(conn, 200) =~ "Reporting Image - Derpibooru"
+  end
+
+  test "POST without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+    image = image_fixture()
+
+    conn =
+      post(without_fingerprint(conn), ~p"/images/#{image}/reports", %{
+        "report" => %{
+          "reason" => "Reported without a fingerprint",
+          "rule_id" => rule_fixture().id,
+          "user_agent" => "Test Browser/1.0"
+        }
+      })
+
+    assert redirected_to(conn) == "/"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    assert Repo.aggregate(Report, :count) == 0
+  end
 end

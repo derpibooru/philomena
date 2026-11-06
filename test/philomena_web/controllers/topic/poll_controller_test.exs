@@ -77,6 +77,15 @@ defmodule PhilomenaWeb.Topic.PollControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the edit form for a moderator without a fingerprint",
+         %{conn: conn, forum: forum, topic: topic} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/forums/#{forum}/topics/#{topic}/poll/edit")
+
+      assert html_response(conn, 200) =~ "Editing Poll - Derpibooru"
+    end
   end
 
   describe "PATCH /forums/:forum_id/topics/:topic_id/poll" do
@@ -178,6 +187,20 @@ defmodule PhilomenaWeb.Topic.PollControllerTest do
 
       assert html_response(conn, 200) =~ "Editing Poll"
       assert Repo.reload!(poll).title == "Best test option?"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash",
+         %{conn: conn, forum: forum, topic: topic, poll: poll} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/forums/#{forum}/topics/#{topic}/poll", %{
+          "poll" => %{"title" => "Moderator updated title"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.reload!(poll).title == poll.title
     end
   end
 end

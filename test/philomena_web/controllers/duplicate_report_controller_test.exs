@@ -289,5 +289,21 @@ defmodule PhilomenaWeb.DuplicateReportControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      source = image_fixture()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/duplicate_reports", %{
+          "duplicate_report" => %{
+            "image_id" => source.id,
+            "duplicate_of_image_id" => image_fixture().id
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(DuplicateReport, image_id: source.id)
+    end
   end
 end

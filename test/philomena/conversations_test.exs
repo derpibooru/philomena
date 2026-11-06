@@ -225,11 +225,10 @@ defmodule Philomena.ConversationsTest do
       assert Conversations.new_conversation(actor, %{"recipient" => "anyone"}) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint may not reach the form" do
-      assert Conversations.new_conversation(actor(nil, fingerprint: nil), %{
-               "recipient" => "anyone"
-             }) ==
-               {:error, :unauthorized}
+    test "an actor without a fingerprint still reaches the form" do
+      actor = actor(confirmed_user_fixture(), fingerprint: nil)
+
+      assert {:ok, _} = Conversations.new_conversation(actor, %{"recipient" => "anyone"})
     end
   end
 

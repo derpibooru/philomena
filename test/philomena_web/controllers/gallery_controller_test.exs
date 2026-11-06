@@ -216,6 +216,14 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/galleries/new")
+
+      assert html_response(conn, 200) =~ "New Gallery - Derpibooru"
+    end
   end
 
   describe "POST /galleries" do
@@ -262,6 +270,22 @@ defmodule PhilomenaWeb.GalleryControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/galleries", %{
+          "gallery" => %{
+            "title" => "A new test gallery",
+            "thumbnail_id" => to_string(image_fixture().id)
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Philomena.Repo.exists?(from g in Gallery, where: g.user_id == ^user.id)
     end
   end
 
@@ -310,6 +334,15 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      gallery = gallery_fixture(user)
+
+      conn = get(without_fingerprint(conn), ~p"/galleries/#{gallery}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Gallery - Derpibooru"
+    end
   end
 
   describe "PATCH /galleries/:id" do
@@ -353,6 +386,20 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       gallery = gallery_fixture(confirmed_user_fixture())
 
       conn = patch(conn, ~p"/galleries/#{gallery}", %{"gallery" => %{"title" => "Hijacked"}})
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Philomena.Repo.reload!(gallery).title == gallery.title
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      gallery = gallery_fixture(user)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/galleries/#{gallery}", %{
+          "gallery" => %{"title" => "Renamed test gallery"}
+        })
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."

@@ -34,6 +34,14 @@ defmodule PhilomenaWeb.Gallery.ReportControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the report form without a fingerprint", %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+
+      conn = get(without_fingerprint(conn), ~p"/galleries/#{gallery}/reports/new")
+
+      assert html_response(conn, 200) =~ "Reporting Gallery - Derpibooru"
+    end
   end
 
   describe "POST /galleries/:gallery_id/reports" do
@@ -120,6 +128,23 @@ defmodule PhilomenaWeb.Gallery.ReportControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+
+      conn =
+        post(without_fingerprint(conn), ~p"/galleries/#{gallery}/reports", %{
+          "report" => %{
+            "reason" => "Reported without a fingerprint",
+            "rule_id" => rule_fixture().id,
+            "user_agent" => "Test Browser/1.0"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.aggregate(Report, :count) == 0
     end
   end
 end

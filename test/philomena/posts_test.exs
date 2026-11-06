@@ -985,8 +985,8 @@ defmodule Philomena.PostsTest do
   end
 
   describe "edit_post/4" do
-    # This backs the edit write, so it runs the global write prerequisite and
-    # then the same load-and-authorize chain update_post/5 uses.
+    # This backs the edit form, so it refuses bans and then runs the same
+    # load-and-authorize chain update_post/5 uses.
 
     test "a banned actor is rejected before any loading, even with an unknown forum" do
       actor = actor(confirmed_user_fixture(), ban: @ban)
@@ -995,21 +995,18 @@ defmodule Philomena.PostsTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Posts.edit_post(
-               actor(nil, fingerprint: nil),
-               "nonexistent",
-               "whatever",
-               "1"
-             ) == {:error, :unauthorized}
-    end
-
-    test "the post's author loads the form", %{forum: forum, topic: topic} do
+    test "the post's author loads the form, even without a fingerprint",
+         %{forum: forum, topic: topic} do
       author = confirmed_user_fixture()
       post = post_fixture(topic, author)
 
       assert {:ok, %Ecto.Changeset{data: %Post{} = loaded} = changeset} =
-               Posts.edit_post(actor(author), forum.short_name, topic.slug, "#{post.id}")
+               Posts.edit_post(
+                 actor(author, fingerprint: nil),
+                 forum.short_name,
+                 topic.slug,
+                 "#{post.id}"
+               )
 
       assert loaded.id == post.id
 

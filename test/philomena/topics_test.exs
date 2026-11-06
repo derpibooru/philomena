@@ -1319,16 +1319,12 @@ defmodule Philomena.TopicsTest do
       assert Topics.new_topic(actor, "nonexistent") == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Topics.new_topic(actor(nil, fingerprint: nil), "nonexistent") ==
-               {:error, :unauthorized}
-    end
-
     test "a regular actor gets the forum and a changeset seeded with a poll and one post" do
       forum = forum_fixture()
 
-      assert {:ok, {loaded_forum, changeset}} =
-               Topics.new_topic(actor(confirmed_user_fixture()), forum.short_name)
+      actor = actor(confirmed_user_fixture(), fingerprint: nil)
+
+      assert {:ok, {loaded_forum, changeset}} = Topics.new_topic(actor, forum.short_name)
 
       assert loaded_forum.id == forum.id
       assert %Ecto.Changeset{} = changeset
