@@ -103,7 +103,7 @@ defmodule PhilomenaWeb.Image.NavigateControllerTest do
       conn = get(conn, ~p"/images/#{image}/navigate?#{[rel: "next", q: "(safe"]}")
 
       assert redirected_to(conn) == ~p"/images/#{image}?#{[q: "(safe"]}"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Your search query was invalid:"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Imbalanced parentheses."
     end
 
     test "redirects to / for an unknown image", %{conn: conn} do
