@@ -2,6 +2,7 @@ defmodule Philomena.DuplicateReportsTest do
   use Philomena.DataCase, async: true
 
   alias Philomena.DuplicateReports
+  alias Philomena.DuplicateReports.Comparison
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DuplicateReports.SearchResult
   alias Philomena.Images.Image
@@ -351,6 +352,7 @@ defmodule Philomena.DuplicateReportsTest do
                %{report.id => "accepted", other.id => "rejected"}
 
       assert Enum.all?(affected_reports, &Ecto.assoc_loaded?(&1.image.tags))
+      refute Enum.any?(affected_reports, &Comparison.mergeable?/1)
       assert Repo.get!(DuplicateReport, other.id).state == "rejected"
 
       source = Repo.get!(Image, source.id)
@@ -458,6 +460,8 @@ defmodule Philomena.DuplicateReportsTest do
 
       assert Map.new(affected_reports, &{&1.id, &1.state}) ==
                %{original.id => "rejected", result.id => "accepted"}
+
+      refute Enum.any?(affected_reports, &Comparison.mergeable?/1)
 
       target = Repo.get!(Image, target.id)
       assert target.hidden_from_users

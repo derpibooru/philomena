@@ -412,9 +412,6 @@ defmodule Philomena.DuplicateReports do
       |> Multi.update(:duplicate_report, fn %{locked_duplicate_report: duplicate_report} ->
         DuplicateReport.accept_changeset(duplicate_report, user)
       end)
-      |> Multi.all(:affected_reports, fn %{rejected_open_reports: reports} ->
-        affected_reports(report, reports)
-      end)
       |> ModerationLogs.put_log(
         :moderation_log,
         actor,
@@ -429,6 +426,9 @@ defmodule Philomena.DuplicateReports do
       |> Multi.merge(fn
         %{locked_source_image: source, locked_target_image: target} ->
           Images.put_merge_image(Multi.new(), source, target, user)
+      end)
+      |> Multi.all(:affected_reports, fn %{rejected_open_reports: reports} ->
+        affected_reports(report, reports)
       end)
       |> Multi.transact()
       |> case do
@@ -496,10 +496,6 @@ defmodule Philomena.DuplicateReports do
         %{existing_reverse_report: reverse_report} ->
           DuplicateReport.accept_changeset(reverse_report, user)
       end)
-      |> Multi.all(:affected_reports, fn
-        %{rejected_open_reports: reports, reverse_report: report} ->
-          affected_reports(report, reports)
-      end)
       |> ModerationLogs.put_log(
         :moderation_log,
         actor,
@@ -514,6 +510,10 @@ defmodule Philomena.DuplicateReports do
       |> Multi.merge(fn
         %{locked_source_image: source, locked_target_image: target} ->
           Images.put_merge_image(Multi.new(), target, source, user)
+      end)
+      |> Multi.all(:affected_reports, fn
+        %{rejected_open_reports: reports, reverse_report: report} ->
+          affected_reports(report, reports)
       end)
       |> Multi.transact()
       |> case do
