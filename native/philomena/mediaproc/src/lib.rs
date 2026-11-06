@@ -6,7 +6,8 @@ pub mod client;
 
 #[tarpc::service]
 pub trait MediaProcessor {
-    /// Executes a command on the media processor server.
+    /// Executes a command on the media processor server, returning the files
+    /// in `file_map` whose contents the command changed.
     async fn execute_command(
         program: String,
         arguments: Vec<String>,

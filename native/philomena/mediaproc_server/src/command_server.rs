@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::path::Path;
 
 use mediaproc::{CommandReply, ExecuteCommandError, FileMap, PERMITTED_PROGRAMS};
 use tokio::process::Command;
@@ -16,7 +16,7 @@ pub async fn execute_command(
     arguments: Vec<String>,
     file_map: FileMap,
 ) -> Result<(CommandReply, FileMap), ExecuteCommandError> {
-    use std::fs::{read, write};
+    use std::fs::write;
 
     // Check program name.
     if !PERMITTED_PROGRAMS.contains(&program.as_ref()) {
@@ -27,13 +27,10 @@ pub async fn execute_command(
     let dir = tempfile::tempdir().map_err(|_| ExecuteCommandError::RemoteFilesystemError)?;
 
     // Verify and write out all files.
-    let mut files = HashSet::<String>::new();
-    for (name, contents) in file_map {
-        validate_name(&name)?;
-        files.insert(name.clone());
-
-        let path = dir.path().join(name);
-        write(path, contents).map_err(|_| ExecuteCommandError::RemoteFilesystemError)?;
+    for (name, contents) in &file_map {
+        validate_name(name)?;
+        write(dir.path().join(name), contents)
+            .map_err(|_| ExecuteCommandError::RemoteFilesystemError)?;
     }
 
     // Run the command.
@@ -44,13 +41,7 @@ pub async fn execute_command(
         .await
         .map_err(|_| ExecuteCommandError::ExecutionError)?;
 
-    // Read back all files.
-    let mut file_map = FileMap::new();
-    for name in files {
-        let path = dir.path().join(name.clone());
-        let contents = read(path).map_err(|_| ExecuteCommandError::RemoteFilesystemError)?;
-        file_map.insert(name, contents);
-    }
+    let file_map = changed_files(dir.path(), file_map)?;
 
     let reply = CommandReply {
         status: output.status.code().unwrap_or(255) as u8,
@@ -59,6 +50,19 @@ pub async fn execute_command(
     };
 
     Ok((reply, file_map))
+}
+
+/// Reads back the files in `dir` whose contents differ from `inputs`, so the
+/// client never rewrites inputs that other jobs may be reading.
+fn changed_files(dir: &Path, inputs: FileMap) -> Result<FileMap, ExecuteCommandError> {
+    inputs
+        .into_iter()
+        .filter_map(|(name, original)| match std::fs::read(dir.join(&name)) {
+            Ok(contents) if contents == original => None,
+            Ok(contents) => Some(Ok((name, contents))),
+            Err(_) => Some(Err(ExecuteCommandError::RemoteFilesystemError)),
+        })
+        .collect()
 }
 
 pub async fn get_mime(content: Vec<u8>) -> Result<String, ExecuteCommandError> {
@@ -84,5 +88,29 @@ pub async fn get_mime(content: Vec<u8>) -> Result<String, ExecuteCommandError> {
     match String::from_utf8(output.stdout) {
         Ok(mime) => Ok(mime.trim().to_string()),
         Err(_) => Err(ExecuteCommandError::UnknownError),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn changed_files_returns_only_files_the_command_wrote() {
+        let dir = tempfile::tempdir().unwrap();
+        let inputs = FileMap::from([
+            ("0.icc".to_string(), b"profile".to_vec()),
+            ("1.png".to_string(), Vec::new()),
+        ]);
+
+        std::fs::write(dir.path().join("0.icc"), b"profile").unwrap();
+        std::fs::write(dir.path().join("1.png"), b"output").unwrap();
+
+        let changed = changed_files(dir.path(), inputs).unwrap();
+
+        assert_eq!(
+            changed,
+            FileMap::from([("1.png".to_string(), b"output".to_vec())])
+        );
     }
 }
