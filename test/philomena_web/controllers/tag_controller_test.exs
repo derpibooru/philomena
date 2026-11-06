@@ -275,6 +275,16 @@ defmodule PhilomenaWeb.TagControllerTest do
       assert Repo.get(Tag, tag.id)
     end
 
+    test "a rating tag is not deleted", %{conn: conn} do
+      tag = tag_fixture(category: "rating")
+      conn = log_in_user(conn, admin_user_fixture())
+      conn = delete(conn, ~p"/tags/#{tag}")
+
+      assert redirected_to(conn) == ~p"/tags/#{tag}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Rating tags cannot be deleted"
+      assert Repo.get(Tag, tag.id)
+    end
+
     test "a Tag-admin role_map moderator can delete", %{conn: conn} do
       tag = tag_fixture()
       conn = log_in_role_moderator(conn, "Tag")

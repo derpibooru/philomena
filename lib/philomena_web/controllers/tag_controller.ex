@@ -88,10 +88,19 @@ defmodule PhilomenaWeb.TagController do
   end
 
   def delete(conn, params) do
-    with {:ok, _tag} <- Tags.delete_tag(conn.assigns.actor, params["id"]) do
-      conn
-      |> put_flash(:info, "Tag queued for deletion.")
-      |> redirect(to: "/")
+    case Tags.delete_tag(conn.assigns.actor, params["id"]) do
+      {:ok, _tag} ->
+        conn
+        |> put_flash(:info, "Tag queued for deletion.")
+        |> redirect(to: "/")
+
+      {:error, %Ecto.Changeset{data: tag}} ->
+        conn
+        |> put_flash(:error, "Rating tags cannot be deleted.")
+        |> redirect(to: ~p"/tags/#{tag}")
+
+      error ->
+        error
     end
   end
 end

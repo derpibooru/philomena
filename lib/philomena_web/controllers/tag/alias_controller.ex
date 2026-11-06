@@ -28,10 +28,19 @@ defmodule PhilomenaWeb.Tag.AliasController do
   end
 
   def delete(conn, params) do
-    with {:ok, tag} <- Tags.delete_tag_alias(conn.assigns.actor, params["tag_id"]) do
-      conn
-      |> put_flash(:info, "Tag dealias successful.")
-      |> redirect(to: ~p"/tags/#{tag}")
+    case Tags.delete_tag_alias(conn.assigns.actor, params["tag_id"]) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag dealias successful.")
+        |> redirect(to: ~p"/tags/#{tag}")
+
+      {:error, %Ecto.Changeset{data: tag}} ->
+        conn
+        |> put_flash(:error, "Tag is not aliased.")
+        |> redirect(to: ~p"/tags/#{tag}/alias/edit")
+
+      error ->
+        error
     end
   end
 end

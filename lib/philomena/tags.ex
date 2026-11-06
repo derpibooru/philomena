@@ -1070,9 +1070,9 @@ defmodule Philomena.Tags do
           | {:error, :ban | :not_found | :unauthorized | Ecto.Changeset.t()}
   def update_tag_alias(%Actor{} = actor, slug, attrs) do
     with :ok <- verify_write_access(actor),
-         {:ok, %{name: source_tag_name}} <- load_tag_for_action(actor, :alias, slug, []),
-         {:ok, %{target_tag: target_tag_name}} =
-           %Tag{}
+         {:ok, tag} <- load_tag_for_action(actor, :alias, slug, @alias_preloads),
+         {:ok, %{name: source_tag_name, target_tag: target_tag_name}} <-
+           tag
            |> Tag.alias_form_changeset(attrs)
            |> Ecto.Changeset.apply_action(:update) do
       tag_query =
