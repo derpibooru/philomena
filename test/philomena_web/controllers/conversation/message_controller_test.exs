@@ -61,6 +61,16 @@ defmodule PhilomenaWeb.Conversation.MessageControllerTest do
     assert message_count(conversation) == 1
   end
 
+  test "POST without a message re-renders the conversation with errors", %{conn: conn} do
+    %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+    conversation = conversation_fixture(confirmed_user_fixture(), user)
+
+    conn = post(conn, ~p"/conversations/#{conversation}/messages", %{})
+
+    assert html_response(conn, 200) =~ "can&#39;t be blank"
+    assert message_count(conversation) == 1
+  end
+
   test "POST as a non-participant moderator creates the message", %{conn: conn} do
     # NOTE: create maps to the :show ability, so any moderator can post
     # into any conversation.

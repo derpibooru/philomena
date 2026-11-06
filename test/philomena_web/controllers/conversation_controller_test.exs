@@ -197,6 +197,15 @@ defmodule PhilomenaWeb.ConversationControllerTest do
     assert Repo.aggregate(from(c in Conversation, where: c.from_id == ^user.id), :count) == 0
   end
 
+  test "POST /conversations without a conversation re-renders the form", %{conn: conn} do
+    %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+    conn = post(conn, ~p"/conversations", %{})
+
+    assert html_response(conn, 200) =~ "New Conversation"
+    assert Repo.aggregate(from(c in Conversation, where: c.from_id == ^user.id), :count) == 0
+  end
+
   test "POST /conversations with non-map params raises", %{conn: conn} do
     %{conn: conn} = register_and_log_in_user(%{conn: conn})
 

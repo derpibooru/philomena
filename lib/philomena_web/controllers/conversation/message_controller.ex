@@ -10,7 +10,11 @@ defmodule PhilomenaWeb.Conversation.MessageController do
   @page_size 25
 
   def create(conn, %{"conversation_id" => conversation_id} = params) do
-    case Conversations.create_message(conn.assigns.actor, conversation_id, params["message"]) do
+    case Conversations.create_message(
+           conn.assigns.actor,
+           conversation_id,
+           params["message"] || %{}
+         ) do
       {:ok, %{conversation: conversation}} ->
         page = div(conversation.message_count + @page_size - 1, @page_size)
 
