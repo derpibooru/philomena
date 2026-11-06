@@ -6,17 +6,7 @@ set -e
 
 . "$(dirname "$0")/common.sh"
 
-duplicate_commissions=$(sql -F '|' -c "SELECT user_id, string_agg(id::text, ',' ORDER BY id)
-  FROM commissions GROUP BY user_id HAVING count(*) > 1 ORDER BY user_id")
-
-if [ -n "$duplicate_commissions" ]; then
-  echo "Each user may have only one commission from this release on."
-  echo "These users have more than one:"
-  echo "user id|commission ids"
-  echo "$duplicate_commissions"
-  echo "Delete all but one commission of each user, then try again."
-  exit 1
-fi
+check_duplicate_commissions
 
 if name_index_exists || [ "$(colliding_name_groups)" = 0 ]; then
   exit 0
