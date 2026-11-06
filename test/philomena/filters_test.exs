@@ -573,6 +573,30 @@ defmodule Philomena.FiltersTest do
     end
   end
 
+  describe "recent_and_user_filters/1" do
+    test "a user with a full recent list still sees their own filters" do
+      user = confirmed_user_fixture()
+      own_filters = [filter_fixture(user), filter_fixture(user)]
+      recent_filters = for _ <- 1..10, do: system_filter_fixture()
+
+      user =
+        Enum.reduce(recent_filters, user, fn filter, user ->
+          user |> User.filter_changeset(filter) |> Repo.update!()
+        end)
+
+      assert {:ok, selection} = Filters.recent_and_user_filters(actor(user))
+
+      assert Enum.map(selection.recent_filters, & &1.id) ==
+               Enum.reverse(Enum.map(recent_filters, & &1.id))
+
+      assert Enum.map(selection.user_filters, & &1.id) == Enum.map(own_filters, & &1.id)
+    end
+
+    test "an anonymous visitor is unauthorized" do
+      assert Filters.recent_and_user_filters(actor()) == {:error, :unauthorized}
+    end
+  end
+
   describe "load_selected_filters/2" do
     test "an anonymous malformed cookie selection falls back to the default" do
       default = system_filter_fixture(%{name: "Default"})

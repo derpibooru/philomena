@@ -655,7 +655,10 @@ defmodule Philomena.Filters do
   def recent_and_user_filters(%Actor{user: user} = actor) do
     with :ok <- authorize(actor, :index_own, Filter) do
       recent_filter_ids =
-        Enum.reject([user.current_filter_id | user.recent_filter_ids], &is_nil/1)
+        [user.current_filter_id | user.recent_filter_ids]
+        |> Enum.reject(&is_nil/1)
+        |> Enum.uniq()
+        |> Enum.take(10)
 
       positions =
         recent_filter_ids
@@ -673,7 +676,6 @@ defmodule Philomena.Filters do
         Filter
         |> select([f], %{struct(f, [:id, :name]) | recent: true})
         |> where([f], f.id in ^recent_filter_ids)
-        |> limit(10)
 
       {recent_filters, user_filters} =
         recent_filter_query
