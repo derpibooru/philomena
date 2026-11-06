@@ -2944,7 +2944,7 @@ defmodule Philomena.Images do
   observe either the source or canonical physical tagging without creating a
   duplicate or losing an inverse removal.
   """
-  @spec batch_revert([map()], map()) :: {:ok, [integer()]} | {:error, term()}
+  @spec batch_revert([map()], map()) :: {:ok, [integer()]} | :error
   def batch_revert(changes, attributes) do
     Multi.new()
     |> put_batch_revert_tag_changes(changes, attributes)
@@ -2953,8 +2953,8 @@ defmodule Philomena.Images do
       {:ok, %{locked_image_ids: image_ids}} ->
         {:ok, image_ids}
 
-      {:error, _step, reason, _changes} ->
-        {:error, reason}
+      _error ->
+        :error
     end
   end
 
