@@ -1301,6 +1301,19 @@ defmodule Philomena.CommentsTest do
       assert Repo.reload!(comment).body == "Original comment body"
     end
 
+    test "a moderator and a comment assistant edit another user's comment", %{image: image} do
+      comment = comment_fixture(image, confirmed_user_fixture(), %{"body" => "Original"})
+
+      for staff <- [moderator_user_fixture(), role_assistant_fixture("Comment")] do
+        body = "Edited by #{staff.role}"
+
+        assert {:ok, {_image, %Comment{body: ^body}}} =
+                 Comments.update_comment(actor(staff), image.id, comment.id, %{"body" => body})
+
+        assert Repo.reload!(comment).body == body
+      end
+    end
+
     test "a blank body is a rejected changeset carrying the loaded comment", %{image: image} do
       author = confirmed_user_fixture()
       comment = comment_fixture(image, author, %{"body" => "Original comment body"})
