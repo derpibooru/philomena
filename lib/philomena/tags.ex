@@ -1435,8 +1435,6 @@ defmodule Philomena.Tags do
     |> Multi.on_commit(fn _changes -> Search.delete_document(tag.id, Tag) end)
     |> Multi.transact()
 
-    TagChanges.cleanup_empty_for_tag_deletion()
-
     :ok
   end
 

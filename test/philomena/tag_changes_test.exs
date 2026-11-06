@@ -603,23 +603,4 @@ defmodule Philomena.TagChangesTest do
       assert {:enqueue, reindex} in history(Exq)
     end
   end
-
-  describe "cleanup_empty_for_tag_deletion/0" do
-    test "deletes only empty changes and returns their ids" do
-      {_image, retained} = tag_change!(confirmed_user_fixture())
-      image = image_fixture()
-      attribution = actor()
-
-      empty =
-        Repo.insert!(%TagChange{
-          image_id: image.id,
-          ip: attribution.ip,
-          fingerprint: attribution.fingerprint
-        })
-
-      assert TagChanges.cleanup_empty_for_tag_deletion() == {1, [empty.id]}
-      refute Repo.get(TagChange, empty.id)
-      assert Repo.get(TagChange, retained.id)
-    end
-  end
 end

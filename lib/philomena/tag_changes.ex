@@ -579,40 +579,6 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
-  Deletes tag-change rows left empty by tag deletion and removes their search
-  documents.
-
-  Returns `{count, ids}` using the database's explicit `RETURNING id` result.
-
-  ## Examples
-
-      iex> cleanup_empty_for_tag_deletion()
-      {2, [12, 13]}
-
-  """
-  @spec cleanup_empty_for_tag_deletion() :: {non_neg_integer(), [integer()]}
-  def cleanup_empty_for_tag_deletion do
-    empty_changes =
-      TagChange
-      |> from(as: :tag_change)
-      |> where(
-        not exists(
-          where(
-            TagChangeTag,
-            [tag_change_tag],
-            tag_change_tag.tag_change_id == parent_as(:tag_change).id
-          )
-        )
-      )
-      |> select([tag_change], tag_change.id)
-
-    {count, tag_change_ids} = Repo.delete_all(empty_changes)
-    Enum.each(tag_change_ids, &Search.delete_document(&1, TagChange))
-
-    {count, tag_change_ids}
-  end
-
-  @doc """
   Counts tag-change batches and changed tags for an already-loaded image.
 
   ## Examples
@@ -709,11 +675,15 @@ defmodule Philomena.TagChanges do
 
   @doc """
   Adds deletion of tag change tag join table rows represented by `query` to
-  `multi` and queues the affected tag changes after commit.
+  `multi`, along with any affected tag change left without tags.
+
+  After commit, the search documents of deleted tag changes are removed and the
+  remaining affected tag changes are queued for reindexing.
   """
   @spec put_delete_tag_change_tags(Multi.t(), Multi.name(), Ecto.Query.t()) :: Multi.t()
   def put_delete_tag_change_tags(%Multi{} = multi, step, %Ecto.Query{} = query) do
     tag_change_ids_step = {:tag_change_ids, step}
+    empty_tag_changes_step = {:empty_tag_changes, step}
 
     multi
     |> Multi.all(
@@ -721,8 +691,27 @@ defmodule Philomena.TagChanges do
       select(query, [tag_change_tag], tag_change_tag.tag_change_id)
     )
     |> Multi.delete_all(step, query)
-    |> Multi.on_commit(fn %{^tag_change_ids_step => tag_change_ids} ->
-      reindex_tag_changes(tag_change_ids)
+    |> Multi.delete_all(empty_tag_changes_step, fn %{^tag_change_ids_step => tag_change_ids} ->
+      TagChange
+      |> from(as: :tag_change)
+      |> where([tag_change], tag_change.id in ^tag_change_ids)
+      |> where(
+        not exists(
+          where(
+            TagChangeTag,
+            [tag_change_tag],
+            tag_change_tag.tag_change_id == parent_as(:tag_change).id
+          )
+        )
+      )
+      |> select([tag_change], tag_change.id)
+    end)
+    |> Multi.on_commit(fn %{
+                            ^tag_change_ids_step => tag_change_ids,
+                            ^empty_tag_changes_step => {_count, empty_ids}
+                          } ->
+      Enum.each(empty_ids, &Search.delete_document(&1, TagChange))
+      reindex_tag_changes(tag_change_ids -- empty_ids)
     end)
   end
 
