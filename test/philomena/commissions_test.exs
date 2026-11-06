@@ -258,6 +258,20 @@ defmodule Philomena.CommissionsTest do
       assert updated.id == commission.id
       assert Repo.get(Commission, commission.id).information == "Updated information"
     end
+
+    test "a sheet image id naming no image is a changeset error" do
+      user = verified_user_with_link()
+      commission_fixture(user)
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Commissions.update_commission(
+                 actor(user),
+                 user.slug,
+                 commission_params(%{"sheet_image_id" => "999999999"})
+               )
+
+      assert {"does not exist", _} = changeset.errors[:sheet_image_id]
+    end
   end
 
   describe "delete_commission/2" do
