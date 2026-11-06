@@ -8,26 +8,30 @@ defmodule Philomena.Reports.LegacyConverter do
   alias PhilomenaQuery.Batch
   alias Philomena.Reports.Report
   alias Philomena.Rules
+  alias Philomena.Rules.Rule
   alias Philomena.Reports
 
-  @reason_regex ~r/^(Rule|Other|Takedown|Verification|Approval|Review|System)([^:]*): (.*)$/
+  # Legacy categories whose rule carries a longer name.
+  @category_rule_names %{"Other" => "Other (please explain)"}
 
-  defp convert_report(%Report{rule_id: 1, reason: report_reason} = report, rules) do
-    case Regex.run(@reason_regex, report_reason) do
-      [_, prefix, suffix, reason] ->
-        rule = Map.get(rules, "#{prefix}#{suffix}", %{id: 1})
+  # Legacy reasons are "<category>: <details>", or only the category when the
+  # reporter gave no details.
+  defp convert_report(%Report{rule: %Rule{name: "Legacy"}, reason: reason} = report, rules) do
+    [category | details] = String.split(reason, ": ", parts: 2)
+    details = details |> Enum.join() |> String.trim()
 
-        Reports.convert_legacy_report!(report, reason, rule)
-
-      _other ->
-        {:error, report}
+    with {:ok, rule} <- Map.fetch(rules, Map.get(@category_rule_names, category, category)) do
+      Reports.convert_legacy_report!(report, if(details == "", do: reason, else: details), rule)
     end
   end
 
-  defp convert_report(report, _rules), do: {:ok, report}
+  defp convert_report(_report, _rules), do: :ok
 
   @doc """
   Converts legacy report reasons to their structured rule and reason fields.
+
+  A report keeps the `Legacy` rule and its full reason when its category names
+  no rule.
 
   ## Examples
 
@@ -37,9 +41,7 @@ defmodule Philomena.Reports.LegacyConverter do
   """
   @spec convert_reports!() :: :ok
   def convert_reports! do
-    rules =
-      Rules.list_reportable_rules()
-      |> Map.new(&{&1.name, &1})
+    rules = Map.new(Rules.list_rules(), &{&1.name, &1})
 
     Report
     |> preload(:rule)

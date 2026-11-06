@@ -20,7 +20,17 @@ defmodule Philomena.Rules do
   alias Philomena.Rules.RuleVersion
   alias Philomena.Users.User
 
-  defp list_rules do
+  @doc """
+  Returns every rule, including hidden and internal ones, ordered by position.
+
+  ## Examples
+
+      iex> list_rules()
+      [%Rule{name: "Rule #0", ...}, ..., %Rule{name: "Legacy", ...}]
+
+  """
+  @spec list_rules() :: [Rule.t()]
+  def list_rules do
     Repo.all(from r in Rule, order_by: [asc: r.position])
   end
 
