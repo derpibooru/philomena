@@ -11,6 +11,7 @@ defmodule Philomena.TagChangesTest do
   """
 
   use Philomena.DataCase, async: false
+  use Patch
 
   # delete_tag_change/2 removes the record's search document, so this module
   # follows the OpenSearch test rules (async: false, index cycled in setup).
@@ -575,6 +576,24 @@ defmodule Philomena.TagChangesTest do
              ) == {:error, :not_found}
 
       assert Repo.aggregate(ModerationLog, :count) == 0
+    end
+  end
+
+  describe "wipe_user_attribution!/3" do
+    test "replaces the user's IP and fingerprint and queues the rows for reindexing" do
+      user = confirmed_user_fixture()
+      {_image, tag_change} = tag_change!(user)
+      {_image, other_change} = tag_change!(confirmed_user_fixture())
+      wipe_ip = %Postgrex.INET{address: {127, 0, 1, 1}, netmask: 32}
+      spy(Exq)
+
+      assert TagChanges.wipe_user_attribution!(user.id, wipe_ip, "ffff") == :ok
+
+      assert %TagChange{ip: ^wipe_ip, fingerprint: "ffff"} = Repo.reload!(tag_change)
+      refute Repo.reload!(other_change).fingerprint == "ffff"
+
+      reindex = [Exq, "indexing", Philomena.IndexWorker, ["TagChanges", "id", [tag_change.id]]]
+      assert {:enqueue, reindex} in history(Exq)
     end
   end
 

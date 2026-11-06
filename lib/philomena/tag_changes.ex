@@ -685,14 +685,22 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
-  Replaces attribution data on a user's tag change history in batches.
+  Replaces attribution data on a user's tag change history in batches and
+  queues the updated rows for reindexing.
   """
   @spec wipe_user_attribution!(integer(), term(), String.t()) :: :ok
   def wipe_user_attribution!(user_id, ip, fingerprint) do
     TagChange
     |> where(user_id: ^user_id)
     |> Batch.query_batches()
-    |> Enum.each(&Repo.update_all(&1, set: [ip: ip, fingerprint: fingerprint]))
+    |> Enum.each(fn batch_query ->
+      {_count, ids} =
+        batch_query
+        |> select([tag_change], tag_change.id)
+        |> Repo.update_all(set: [ip: ip, fingerprint: fingerprint])
+
+      reindex_tag_changes(ids)
+    end)
 
     :ok
   end
