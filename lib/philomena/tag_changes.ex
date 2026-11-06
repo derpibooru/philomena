@@ -310,7 +310,8 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
-  Searches tag changes involving the tag named by `slug`.
+  Searches tag changes involving the canonical tag named by `slug` or any of
+  its aliases.
 
   Missing tags are not found before OpenSearch is queried.
 
@@ -325,7 +326,8 @@ defmodule Philomena.TagChanges do
           | {:error, :not_found | :unauthorized | Ecto.Changeset.t()}
   def list_tag_tag_changes(%Actor{} = actor, slug, params, pagination) when is_binary(slug) do
     with {:ok, tag} <- Tags.load_canonical_tag(actor, slug) do
-      search_tag_changes(actor, tag, %{term: %{tag_id: tag.id}}, params, pagination)
+      tag_ids = [tag.id | Enum.map(tag.aliases, & &1.id)]
+      search_tag_changes(actor, tag, %{terms: %{tag_id: tag_ids}}, params, pagination)
     end
   end
 

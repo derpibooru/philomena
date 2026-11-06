@@ -19,7 +19,6 @@ defmodule Philomena.TagChangesTest do
 
   import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
-  import Philomena.TagsFixtures
   import Philomena.UsersFixtures
 
   import Ecto.Query
@@ -146,26 +145,34 @@ defmodule Philomena.TagChangesTest do
       assert Enum.map(page.entries, & &1.id) == [tag_change.id]
     end
 
-    test "the tag resource resolves aliases to their canonical target" do
+    test "the tag resource resolves aliases and includes their pre-alias history" do
       {_image, tag_change} = tag_change!(confirmed_user_fixture())
       canonical = Repo.get_by!(Tag, name: "added test tag")
+      image = image_fixture()
+
+      {:ok, _result} =
+        Images.update_image_tags(actor(), image.id, %{
+          "old_tag_input" => "safe",
+          "tag_input" => "safe, former added test tag, other former tag"
+        })
+
+      alias_change = Repo.get_by!(TagChange, image_id: image.id)
 
       alias_tag =
-        tag_fixture(name: "former added test tag")
+        Tag
+        |> Repo.get_by!(name: "former added test tag")
         |> Ecto.Changeset.change(aliased_tag_id: canonical.id)
         |> Repo.update!()
 
       reindex_tag_changes!()
 
-      assert {:ok,
-              %TagChangePage{
-                target: loaded_tag,
-                tag_changes: page
-              }, _changeset} =
-               TagChanges.list_tag_tag_changes(actor(), alias_tag.slug, %{}, @pagination)
+      for slug <- [alias_tag.slug, canonical.slug] do
+        assert {:ok, %TagChangePage{target: loaded_tag, tag_changes: page}, _changeset} =
+                 TagChanges.list_tag_tag_changes(actor(), slug, %{}, @pagination)
 
-      assert loaded_tag.id == canonical.id
-      assert Enum.map(page.entries, & &1.id) == [tag_change.id]
+        assert loaded_tag.id == canonical.id
+        assert Enum.sort(Enum.map(page.entries, & &1.id)) == [tag_change.id, alias_change.id]
+      end
     end
 
     test "resource filters compose with tcq rather than replacing it" do

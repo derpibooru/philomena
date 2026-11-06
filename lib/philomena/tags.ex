@@ -488,7 +488,7 @@ defmodule Philomena.Tags do
   end
 
   @doc """
-  Loads the visible canonical tag named by `slug`.
+  Loads the visible canonical tag named by `slug`, with its aliases preloaded.
 
   Aliases resolve to their target before `:show` authorization. TagChanges uses
   this boundary for history links. Missing and malformed slugs are not found.
@@ -505,7 +505,7 @@ defmodule Philomena.Tags do
   @spec load_canonical_tag(Actor.t(), String.t()) ::
           {:ok, Tag.t()} | {:error, :not_found | :unauthorized}
   def load_canonical_tag(%Actor{} = actor, slug) do
-    with {:ok, tag} <- load_tag_for_action(actor, :show, slug, [:aliased_tag]),
+    with {:ok, tag} <- load_tag_for_action(actor, :show, slug, [:aliases, aliased_tag: :aliases]),
          tag = tag.aliased_tag || tag,
          :ok <- authorize(actor, :show, tag) do
       {:ok, tag}
