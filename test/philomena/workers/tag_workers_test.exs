@@ -158,15 +158,19 @@ defmodule Philomena.TagWorkersTest do
 
     emptied = insert_tag_change!.([tag])
     retained = insert_tag_change!.([tag, other_tag])
+    unrelated = insert_tag_change!.([])
 
     assert :ok = TagDeleteWorker.perform(tag.id)
 
     refute Repo.get(TagChange, emptied.id)
     emptied_id = emptied.id
     retained_id = retained.id
+    unrelated_id = unrelated.id
     assert_called(Search.delete_document(^emptied_id, TagChange))
     refute_called(Search.delete_document(^retained_id, TagChange))
+    refute_called(Search.delete_document(^unrelated_id, TagChange))
     assert Repo.get(TagChange, retained.id)
+    assert Repo.get(TagChange, unrelated.id)
     refute Repo.get_by(TagChangeTag, tag_id: tag.id)
     assert Repo.get_by(TagChangeTag, tag_change_id: retained.id, tag_id: other_tag.id)
   end
