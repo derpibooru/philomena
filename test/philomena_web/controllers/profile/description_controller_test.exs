@@ -44,6 +44,14 @@ defmodule PhilomenaWeb.Profile.DescriptionControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
     end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{user}/description/edit")
+
+      assert html_response(conn, 200) =~ "Editing Profile Description - Derpibooru"
+    end
   end
 
   describe "PATCH /profiles/:profile_id/description" do
@@ -101,6 +109,19 @@ defmodule PhilomenaWeb.Profile.DescriptionControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/profiles/#{user}/description", %{
+          "user" => %{"description" => "My updated bio"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(User, user.id).description == user.description
     end
   end
 end

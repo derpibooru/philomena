@@ -64,6 +64,14 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Cannot erase a verified user"
     end
+
+    test "renders the erase confirmation form without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/erase/new")
+
+      assert html_response(conn, 200) =~ "Erase user"
+    end
   end
 
   describe "POST /admin/users/:user_id/erase (create) authorization" do
@@ -135,6 +143,16 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Cannot erase a verified user"
       assert Repo.get(User, target.id).deleted_at == nil
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = post(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/erase")
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get(User, target.id).deleted_at
     end
   end
 

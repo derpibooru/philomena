@@ -266,7 +266,7 @@ defmodule Philomena.BadgesTest do
   end
 
   describe "global write prerequisite" do
-    test "badge and award form loaders reject banned and unattributed staff" do
+    test "badge and award form loaders reject banned but not unattributed staff" do
       admin = admin_user_fixture()
       user = awardee_fixture()
       badge = badge_fixture()
@@ -279,7 +279,7 @@ defmodule Philomena.BadgesTest do
             fn actor -> Badges.edit_award(actor, user.slug, award.id) end
           ] do
         assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
-        assert operation.(actor(admin, fingerprint: nil)) == {:error, :unauthorized}
+        assert {:ok, _} = operation.(actor(admin, fingerprint: nil))
       end
     end
 

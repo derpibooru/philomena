@@ -4,7 +4,9 @@ defmodule Philomena.DnpEntries do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.DnpEntries.{DnpEntry, DnpEntryForm, DnpEntryPage, DnpListing}
@@ -183,7 +185,8 @@ defmodule Philomena.DnpEntries do
   @doc """
   Builds a new DNP request form on behalf of `actor`.
 
-  Write access and the `:new` ability are checked before tag selection. Normal
+  A ban and the `:new` ability are checked before tag selection; a missing
+  fingerprint is not. Normal
   users may select from verified linked tags; staff may request one arbitrary
   tag by ID. Malformed or missing privileged tag IDs are not-found.
 
@@ -199,7 +202,7 @@ defmodule Philomena.DnpEntries do
   @spec new_dnp_entry(Actor.t(), map()) ::
           {:ok, DnpEntryForm.t()} | {:error, :ban | :unauthorized | :not_found}
   def new_dnp_entry(%Actor{} = actor, params) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, DnpEntry),
          default_tag = get_tag_from_params(params),
          {:ok, tags} <- selectable_tags(actor, default_tag) do
@@ -271,7 +274,7 @@ defmodule Philomena.DnpEntries do
   @spec edit_dnp_entry(Actor.t(), Loader.integer_id()) ::
           {:ok, DnpEntryForm.t()} | {:error, :ban | :unauthorized | :not_found}
   def edit_dnp_entry(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, dnp_entry} <- load_authorized_dnp_entry(actor, id, :edit),
          {:ok, tags} <- selectable_tags(actor, dnp_entry.tag) do
       {:ok, dnp_entry_form(dnp_entry, tags)}

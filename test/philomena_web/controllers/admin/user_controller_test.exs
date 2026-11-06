@@ -108,6 +108,14 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/edit")
+
+      assert html_response(conn, 200) =~ "Editing user"
+    end
   end
 
   describe "GET /admin/users/:id/edit (edit) authorization" do
@@ -195,6 +203,19 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/users/#{target.slug}", %{
+          "user" => %{"name" => target.name, "email" => target.email, "role" => "assistant"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(User, target.id).role == target.role
     end
   end
 

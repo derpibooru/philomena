@@ -59,6 +59,15 @@ defmodule PhilomenaWeb.Admin.Badge.ImageControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      badge = badge_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/badges/#{badge}/image/edit")
+
+      assert html_response(conn, 200) =~ "Editing Badge - Derpibooru"
+    end
   end
 
   describe "PATCH /admin/badges/:badge_id/image (update)" do
@@ -108,6 +117,20 @@ defmodule PhilomenaWeb.Admin.Badge.ImageControllerTest do
       assert response =~ "Upload SVG image"
       assert response =~ "Oops, something went wrong!"
       assert Repo.get(Badge, badge.id).image == "test.svg"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      badge = badge_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/badges/#{badge}/image", %{
+          "badge" => %{"image" => svg_upload()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(Badge, badge.id).image == badge.image
     end
   end
 

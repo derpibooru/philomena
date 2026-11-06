@@ -975,13 +975,10 @@ defmodule Philomena.UsersTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before authorization" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_profile_description(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_profile_description(actor(user, fingerprint: nil), user.slug)
     end
 
     test "an unknown slug is not-found before instance authorization" do
@@ -1088,13 +1085,14 @@ defmodule Philomena.UsersTest do
              ) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before the mod-note check" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_profile_scratchpad(
-               actor(moderator_user_fixture(), fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               Users.edit_profile_scratchpad(
+                 actor(moderator_user_fixture(), fingerprint: nil),
+                 user.slug
+               )
     end
 
     test "a permitted actor naming an unknown slug is not-found" do
@@ -1277,11 +1275,10 @@ defmodule Philomena.UsersTest do
       assert Users.edit_name(actor(user, ban: @ban)) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before authorization" do
-      user = confirmed_user_fixture()
+    test "an actor without a fingerprint still gets the form" do
+      user = renameable_user()
 
-      assert Users.edit_name(actor(user, fingerprint: nil)) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_name(actor(user, fingerprint: nil))
     end
 
     test "a user who renamed within the window is unauthorized" do
@@ -1385,11 +1382,10 @@ defmodule Philomena.UsersTest do
       assert Users.edit_avatar(actor(user, ban: @ban)) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_avatar(actor(user, fingerprint: nil)) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_avatar(actor(user, fingerprint: nil))
     end
   end
 

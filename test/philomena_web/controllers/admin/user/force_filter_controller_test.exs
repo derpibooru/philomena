@@ -58,6 +58,15 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/force_filter/new")
+
+      assert html_response(conn, 200) =~ "Forcing filter for user"
+    end
   end
 
   describe "POST /admin/users/:user_id/force_filter (create) authorization" do
@@ -129,6 +138,19 @@ defmodule PhilomenaWeb.Admin.User.ForceFilterControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/force_filter", %{
+          "user" => %{"forced_filter_id" => filter_fixture(target).id}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get(User, target.id).forced_filter_id
     end
   end
 

@@ -128,13 +128,10 @@ defmodule Philomena.CommissionsTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before gating" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
 
-      assert Commissions.new_commission(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Commissions.new_commission(actor(user, fingerprint: nil), user.slug)
     end
 
     test "an owner whose profile already has a commission is unauthorized" do
@@ -232,14 +229,11 @@ defmodule Philomena.CommissionsTest do
                {:error, :unauthorized}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
       commission_fixture(user)
 
-      assert Commissions.edit_commission(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Commissions.edit_commission(actor(user, fingerprint: nil), user.slug)
     end
   end
 
@@ -328,12 +322,11 @@ defmodule Philomena.CommissionsTest do
       end
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
       commission_fixture(user)
 
-      assert Commissions.new_item(actor(user, fingerprint: nil), user.slug) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Commissions.new_item(actor(user, fingerprint: nil), user.slug)
     end
   end
 
@@ -389,15 +382,12 @@ defmodule Philomena.CommissionsTest do
       end
     end
 
-    test "an actor without a fingerprint is rejected before the item lookup" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
-      commission_fixture(user)
+      item = user |> commission_fixture() |> commission_item_fixture()
 
-      assert Commissions.edit_item(
-               actor(user, fingerprint: nil),
-               user.slug,
-               "2147483647"
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               Commissions.edit_item(actor(user, fingerprint: nil), user.slug, "#{item.id}")
     end
   end
 

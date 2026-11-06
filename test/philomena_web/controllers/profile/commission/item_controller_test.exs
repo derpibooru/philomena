@@ -59,6 +59,15 @@ defmodule PhilomenaWeb.Profile.Commission.ItemControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      commission_fixture(user)
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{user}/commission/items/new")
+
+      assert html_response(conn, 200) =~ "New Commission Item - Derpibooru"
+    end
   end
 
   describe "POST /profiles/:profile_id/commission/items" do
@@ -99,6 +108,20 @@ defmodule PhilomenaWeb.Profile.Commission.ItemControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      commission = commission_fixture(user)
+
+      conn =
+        post(without_fingerprint(conn), ~p"/profiles/#{user}/commission/items", %{
+          "item" => valid_item_params()
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Item, commission_id: commission.id)
+    end
   end
 
   describe "GET /profiles/:profile_id/commission/items/:id/edit" do
@@ -125,6 +148,15 @@ defmodule PhilomenaWeb.Profile.Commission.ItemControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking for!"
+    end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      item = user |> commission_fixture() |> commission_item_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{user}/commission/items/#{item}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Commission Item - Derpibooru"
     end
   end
 
@@ -171,6 +203,20 @@ defmodule PhilomenaWeb.Profile.Commission.ItemControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
       assert Repo.get!(Item, other_item.id).description == other_item.description
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      item = user |> commission_fixture() |> commission_item_fixture()
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/profiles/#{user}/commission/items/#{item}", %{
+          "item" => %{"description" => "Updated item description"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(Item, item.id).description == item.description
     end
   end
 
