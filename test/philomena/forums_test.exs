@@ -21,8 +21,6 @@ defmodule Philomena.ForumsTest do
   alias Philomena.Forums.ForumIndex
   alias Philomena.Forums.Subscription
 
-  @pagination %{page_number: 1, page_size: 25}
-
   defp subscribed?(forum, user) do
     Repo.exists?(
       from s in Subscription,
@@ -37,7 +35,7 @@ defmodule Philomena.ForumsTest do
     )
   end
 
-  describe "list_forums/1" do
+  describe "load_forum_index/1" do
     test "forum and topic counts include hidden topics but not inaccessible forums" do
       user = confirmed_user_fixture()
       moderator = moderator_user_fixture()
@@ -56,15 +54,25 @@ defmodule Philomena.ForumsTest do
         )
 
       assert %ForumIndex{forums: user_forums, topic_count: 1} =
-               Forums.list_forums(actor(user), @pagination)
+               Forums.load_forum_index(actor(user))
 
       assert Enum.map(user_forums, & &1.id) == [public_forum.id]
 
       assert %ForumIndex{forums: moderator_forums, topic_count: 2} =
-               Forums.list_forums(actor(moderator), @pagination)
+               Forums.load_forum_index(actor(moderator))
 
       assert Enum.sort(Enum.map(moderator_forums, & &1.id)) ==
                Enum.sort([public_forum.id, restricted_forum.id])
+    end
+
+    test "lists every visible forum, ordered by name, without paginating" do
+      forums =
+        for _ <- 1..26, do: forum_fixture(name: "Forum #{System.unique_integer([:positive])}")
+
+      assert %ForumIndex{forums: listed} = Forums.load_forum_index(actor())
+
+      assert Enum.map(listed, & &1.id) ==
+               forums |> Enum.sort_by(& &1.name) |> Enum.map(& &1.id)
     end
   end
 

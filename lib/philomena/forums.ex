@@ -45,29 +45,42 @@ defmodule Philomena.Forums do
   end
 
   @doc """
-  Lists the forums visible to `actor`, ordered by name, with pagination and
-  aggregate topic count.
+  Paginates the forums visible to `actor`, ordered by name.
+
+  ## Examples
+
+      iex> list_forums(actor, pagination)
+      %Scrivener.Page{entries: [%Forum{}, ...]}
+
+  """
+  @spec list_forums(Actor.t(), Repo.pagination_params()) :: Scrivener.Page.t(Forum.t())
+  def list_forums(%Actor{} = actor, pagination) do
+    actor
+    |> visible_forums_query()
+    |> Repo.paginate(pagination)
+  end
+
+  @doc """
+  Loads every forum visible to `actor`, ordered by name, with last posts
+  preloaded and the aggregate topic count.
 
   The topic count includes only topics whose parent forum and topic are visible
   to the actor.
 
   ## Examples
 
-      iex> list_forums(actor)
+      iex> load_forum_index(actor)
       %ForumIndex{forums: [%Forum{}], topic_count: 42}
 
   """
-  @spec list_forums(Actor.t(), Repo.pagination_params()) :: ForumIndex.t()
-  def list_forums(%Actor{} = actor, pagination) do
+  @spec load_forum_index(Actor.t()) :: ForumIndex.t()
+  def load_forum_index(%Actor{} = actor) do
     forums = visible_forums_query(actor)
-    topic_count = Repo.aggregate(forums, :sum, :topic_count)
 
-    forums =
-      forums
-      |> preload(last_post: [:user, topic: :forum])
-      |> Repo.paginate(pagination)
-
-    %ForumIndex{forums: forums, topic_count: topic_count}
+    %ForumIndex{
+      forums: forums |> preload(last_post: [:user, topic: :forum]) |> Repo.all(),
+      topic_count: Repo.aggregate(forums, :sum, :topic_count)
+    }
   end
 
   @doc """
