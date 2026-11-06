@@ -2149,13 +2149,16 @@ defmodule Philomena.ImagesTest do
       assert feature_row_count(image) == 1
     end
 
-    test "a hidden image is accepted" do
+    test "a deleted image is rejected without a feature or log" do
       moderator = moderator_user_fixture()
       image = image_fixture(hidden_from_users: true)
 
-      assert {:ok, %ImageFeature{}} = Images.create_image_feature(actor(moderator), image.id)
-      assert feature_row_count(image) == 1
-      assert moderation_log_count() == 1
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Images.create_image_feature(actor(moderator), image.id)
+
+      assert %{image: ["cannot be a deleted image"]} = errors_on(changeset)
+      assert feature_row_count(image) == 0
+      assert moderation_log_count() == 0
     end
 
     test "a regular user on a hidden image is unauthorized, not deleted" do

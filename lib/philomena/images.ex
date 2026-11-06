@@ -1704,7 +1704,8 @@ defmodule Philomena.Images do
   The image is loaded by id and authorized for `:feature`. On success the feature is
   recorded and a moderation log is written attributing it to `actor`.
 
-  Returns `{:ok, feature}` with the created feature.
+  Returns `{:ok, feature}` with the created feature, or
+  `{:error, %Ecto.Changeset{}}` when the image is deleted.
 
   ## Examples
 
@@ -1716,17 +1717,17 @@ defmodule Philomena.Images do
 
   """
   @spec create_image_feature(Actor.t(), IntegerId.integer_id()) ::
-          {:ok, ImageFeature.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, ImageFeature.t()}
+          | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def create_image_feature(%Actor{} = actor, image_id) do
     with :ok <- verify_write_access(actor),
          {:ok, image} <- load_image_member(actor, :feature, image_id) do
-      feature_changeset =
-        %ImageFeature{user_id: actor.user.id, image_id: image.id}
-        |> ImageFeature.changeset()
-
       Multi.new()
       |> Multi.lock_one(:locked_image, where(Image, id: ^image.id))
-      |> Multi.insert(:feature, feature_changeset)
+      |> Multi.insert(:feature, fn %{locked_image: image} ->
+        %ImageFeature{user_id: actor.user.id, image_id: image.id}
+        |> ImageFeature.feature_changeset(image)
+      end)
       |> ModerationLogs.put_log(:moderation_log, actor, fn %{locked_image: image} ->
         {"Image.Feature:create", Paths.image_path(image), "Featured image #{image.id}"}
       end)
@@ -1734,6 +1735,9 @@ defmodule Philomena.Images do
       |> case do
         {:ok, %{feature: %ImageFeature{} = feature}} ->
           {:ok, feature}
+
+        {:error, :feature, %Ecto.Changeset{} = changeset, _changes} ->
+          {:error, changeset}
       end
     end
   end
