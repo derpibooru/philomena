@@ -373,21 +373,21 @@ defmodule Philomena.PostsTest do
     test "hiding a topic's only post keeps the topic's place and the forum's last post",
          %{forum: forum, topic: topic} do
       moderator = moderator_user_fixture()
-      %{posts: [only_post]} = rejected_topic = topic_fixture(forum)
       created_at = DateTime.add(DateTime.utc_now(:second), -1, :hour)
 
-      Repo.update_all(where(Topic, id: ^rejected_topic.id),
+      Repo.update_all(where(Topic, id: ^topic.id),
         set: [created_at: created_at, last_replied_to_at: created_at]
       )
 
-      Repo.update_all(where(Post, id: ^only_post.id), set: [created_at: created_at])
+      %{posts: [only_post]} = rejected_topic = topic_fixture(forum)
+      last_replied_to_at = Repo.reload!(rejected_topic).last_replied_to_at
 
       assert {:ok, _} =
                hide_post(actor(moderator), "#{only_post.id}", %{"deletion_reason" => "Spam"})
 
       rejected_topic = Repo.reload!(rejected_topic)
       assert rejected_topic.last_post_id == nil
-      assert rejected_topic.last_replied_to_at == created_at
+      assert rejected_topic.last_replied_to_at == last_replied_to_at
       assert Repo.reload!(forum).last_post_id == Repo.reload!(topic).last_post_id
 
       assert {:ok, %{topics: topics}} =
@@ -396,7 +396,7 @@ defmodule Philomena.PostsTest do
                  page_size: 25
                })
 
-      assert Enum.map(topics, & &1.id) == [topic.id, rejected_topic.id]
+      assert Enum.map(topics, & &1.id) == [rejected_topic.id, topic.id]
     end
 
     test "a blank deletion reason is a rejected changeset carrying the loaded post",
