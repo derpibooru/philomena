@@ -380,11 +380,11 @@ defmodule Philomena.SourceChangesTest do
              ) == {:error, :not_found}
     end
 
-    test "a deactivated profile is not found before detailed-profile authorization" do
+    test "a deactivated profile is not found for a non-staff viewer" do
       user = deactivated_user_fixture()
 
       assert SourceChanges.list_user_source_changes(
-               actor(moderator_user_fixture()),
+               actor(confirmed_user_fixture()),
                user.slug,
                %{},
                @pagination

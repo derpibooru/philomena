@@ -289,10 +289,11 @@ defmodule Philomena.Users do
 
   @doc group: "Public reads"
   @doc """
-  Loads the visible, active profile named by `slug` for `actor`.
+  Loads the visible profile named by `slug` for `actor`.
 
-  Missing and deactivated profiles are always not found. A real active profile
-  that the actor may not show is unauthorized.
+  Missing profiles are not found. Deactivated profiles are not found unless the
+  actor may show user details. A real profile that the actor may not show is
+  unauthorized.
 
   ## Examples
 
@@ -306,8 +307,14 @@ defmodule Philomena.Users do
   @spec load_profile(Actor.t(), String.t(), list()) ::
           {:ok, User.t()} | {:error, :unauthorized | :not_found}
   def load_profile(%Actor{} = actor, slug, preloads \\ []) do
-    User
-    |> where([user], user.slug == ^slug and is_nil(user.deleted_at))
+    query = where(User, [user], user.slug == ^slug)
+
+    query =
+      if authorize(actor, :show_details, %User{}) == :ok,
+        do: query,
+        else: where(query, [user], is_nil(user.deleted_at))
+
+    query
     |> preload(^preloads)
     |> Loader.one_and_authorize(actor, :show)
   end
@@ -340,9 +347,8 @@ defmodule Philomena.Users do
 
   @doc group: "Public reads"
   @doc """
-  Loads a visible profile by slug as a report target on behalf of `actor`.
-
-  Deactivated and missing profiles are always not-found.
+  Loads a visible profile by slug as a report target on behalf of `actor`,
+  following `load_profile/3`.
 
   ## Examples
 

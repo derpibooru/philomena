@@ -133,9 +133,9 @@ defmodule Philomena.SourceChanges do
   end
 
   @doc """
-  Loads a page of source changes attributed to the active user named by `slug`.
+  Loads a page of source changes attributed to the user named by `slug`.
 
-  Missing and deactivated profiles are not found. No history or count query
+  The profile is loaded following `Users.load_profile/3`. No history or count query
   runs for a forbidden target. Changes to the user's own anonymous uploads are
   excluded. `params` may include an `added` filter (`true`/`"1"` for additions,
   `false`/`"0"` for removals). `image_count` counts the distinct images

@@ -79,7 +79,7 @@ defmodule Philomena.CommissionsTest do
       assert Enum.map(loaded_commission.items, & &1.id) == [cheap.id, expensive.id]
     end
 
-    test "missing and deactivated profiles are not found for every viewer" do
+    test "missing and deactivated profiles are not found for non-staff viewers" do
       deactivated = confirmed_user_fixture()
       commission_fixture(deactivated)
 
@@ -87,7 +87,7 @@ defmodule Philomena.CommissionsTest do
       |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
       |> Repo.update!()
 
-      for viewer <- [actor(), actor(admin_user_fixture())] do
+      for viewer <- [actor(), actor(confirmed_user_fixture())] do
         assert Commissions.show_commission(viewer, "no-such-user") ==
                  {:error, :not_found}
 

@@ -191,15 +191,18 @@ defmodule Philomena.UsersTest do
       assert loaded.id == user.id
     end
 
-    test "returns not found for missing and deactivated profiles for every actor" do
-      user =
-        confirmed_user_fixture()
-        |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
-        |> Repo.update!()
+    test "hides missing profiles from everyone and deactivated profiles from non-staff" do
+      user = deactivated_user_fixture()
 
-      for viewer <- [actor(), actor(confirmed_user_fixture()), actor(admin_user_fixture())] do
+      for viewer <- [actor(), actor(confirmed_user_fixture())] do
         assert Users.load_profile(viewer, "missing-profile") == {:error, :not_found}
         assert Users.load_profile(viewer, user.slug) == {:error, :not_found}
+      end
+
+      for viewer <- [actor(moderator_user_fixture()), actor(admin_user_fixture())] do
+        assert Users.load_profile(viewer, "missing-profile") == {:error, :not_found}
+        assert {:ok, %{id: id}} = Users.load_profile(viewer, user.slug)
+        assert id == user.id
       end
     end
   end

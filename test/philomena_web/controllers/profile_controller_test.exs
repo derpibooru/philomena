@@ -287,19 +287,29 @@ defmodule PhilomenaWeb.ProfileControllerTest do
                "Couldn't find what you were looking for!"
     end
 
-    test "redirects to / for a deactivated profile", %{conn: conn} do
-      user = confirmed_user_fixture()
+    test "hides a deactivated profile from the public but not from moderators", %{conn: conn} do
+      user = deactivated_user_fixture()
 
-      user
-      |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
-      |> Repo.update!()
+      public_conn = get(conn, ~p"/profiles/#{user}")
 
-      conn = get(conn, ~p"/profiles/#{user}")
+      assert redirected_to(public_conn) == "/"
 
-      assert redirected_to(conn) == "/"
-
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+      assert Phoenix.Flash.get(public_conn.assigns.flash, :error) ==
                "Couldn't find what you were looking for!"
+
+      moderator_response =
+        html_response(
+          get(log_in_user(conn, moderator_user_fixture()), ~p"/profiles/#{user}"),
+          200
+        )
+
+      assert moderator_response =~ user.name
+      assert moderator_response =~ ~p"/profiles/#{user}/ip_history"
+
+      admin_response =
+        html_response(get(log_in_user(conn, admin_user_fixture()), ~p"/profiles/#{user}"), 200)
+
+      assert admin_response =~ "Reactivate Account"
     end
   end
 end

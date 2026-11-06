@@ -156,7 +156,7 @@ defmodule Philomena.ProfilesTest do
       end
     end
 
-    test "a deactivated profile is not found for every viewer" do
+    test "a deactivated profile is not found for a non-staff viewer" do
       user = confirmed_user_fixture()
 
       user
@@ -164,7 +164,7 @@ defmodule Philomena.ProfilesTest do
       |> Repo.update!()
 
       assert Profiles.show_profile(
-               actor(admin_user_fixture()),
+               actor(confirmed_user_fixture()),
                scope(),
                current_filter(),
                user.slug

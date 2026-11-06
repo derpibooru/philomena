@@ -110,9 +110,10 @@ defmodule Philomena.Commissions do
   end
 
   @doc """
-  Loads the active profile named by `slug` and its visible commission listing.
+  Loads the profile named by `slug` and its visible commission listing.
 
-  Missing or deactivated profiles and profiles without a listing are not found.
+  The profile is loaded following `Users.load_profile/3`; one without a
+  listing is not found.
   Items are returned by ascending base price with ID as a deterministic tie
   breaker.
 

@@ -233,11 +233,10 @@ defmodule Philomena.Profiles do
   end
 
   @doc """
-  Assembles the public profile page for the active user named by `slug`.
+  Assembles the public profile page for the user named by `slug`.
 
-  The actor is carried separately from the image-search scope and the loaded
-  profile is authorized with `:show`. Missing and deactivated profiles are
-  always not found. `current_filter` scopes the recent comments strip. Posts
+  The actor is carried separately from the image-search scope and the profile
+  is loaded following `Users.load_profile/3`. `current_filter` scopes the recent comments strip. Posts
   and comments whose parents the actor cannot show are removed after search.
   The loaded user includes its forced filter for the caller's owner/staff-only
   presentation gate.
