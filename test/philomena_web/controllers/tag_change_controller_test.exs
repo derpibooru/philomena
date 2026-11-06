@@ -291,7 +291,7 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
       # login-required one, so an anonymous visitor gets {:error, :unauthorized}
       # from the context (redirect to "/" with the can't-access flash) rather
       # than a login redirect.
-      conn = delete(conn, ~p"/tag_changes/#{tc}", %{"redirect" => ~p"/images/#{image}"})
+      conn = delete(conn, ~p"/tag_changes/#{tc}")
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "can't access"
@@ -304,24 +304,26 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
       tc = tag_change_row!(image)
 
       conn = log_in_user(conn, confirmed_user_fixture())
-      conn = delete(conn, ~p"/tag_changes/#{tc}", %{"redirect" => ~p"/images/#{image}"})
+      conn = delete(conn, ~p"/tag_changes/#{tc}")
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "can't access"
       assert Repo.get(TagChange, tc.id)
     end
 
-    test "a moderator deletes the tag change and is redirected to the redirect param", %{
-      conn: conn
-    } do
+    test "a moderator deletes the tag change and is redirected back", %{conn: conn} do
       user = confirmed_user_fixture()
       image = tag_change_fixture!(user)
       tc = tag_change_row!(image)
+      referrer = "http://localhost/images/#{image.id}/tag_changes"
 
-      conn = log_in_user(conn, moderator_user_fixture())
-      conn = delete(conn, ~p"/tag_changes/#{tc}", %{"redirect" => ~p"/images/#{image}"})
+      conn =
+        conn
+        |> log_in_user(moderator_user_fixture())
+        |> put_req_header("referer", referrer)
+        |> delete(~p"/tag_changes/#{tc}")
 
-      assert redirected_to(conn) == ~p"/images/#{image}"
+      assert redirected_to(conn) == referrer
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Successfully deleted tag change"
       refute Repo.get(TagChange, tc.id)
     end
@@ -329,7 +331,7 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
     test "an unknown id takes the not-found redirect", %{conn: conn} do
       conn = log_in_user(conn, moderator_user_fixture())
 
-      conn = delete(conn, ~p"/tag_changes/#{123_456_789}", %{"redirect" => "/"})
+      conn = delete(conn, ~p"/tag_changes/#{123_456_789}")
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
@@ -338,7 +340,7 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
     test "a non-integer id redirects with the not-found flash", %{conn: conn} do
       conn = log_in_user(conn, moderator_user_fixture())
 
-      conn = delete(conn, ~p"/tag_changes/not-an-integer", %{"redirect" => "/"})
+      conn = delete(conn, ~p"/tag_changes/not-an-integer")
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"

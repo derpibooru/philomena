@@ -37,12 +37,12 @@ defmodule PhilomenaWeb.TagChangeController do
       {:ok, _tag_change} ->
         conn
         |> put_flash(:info, "Successfully deleted tag change from history.")
-        |> redirect(to: params["redirect"])
+        |> redirect(external: conn.assigns.referrer)
 
       {:error, %Ecto.Changeset{}} ->
         conn
         |> put_flash(:error, "Failed to delete tag change from history.")
-        |> redirect(to: params["redirect"])
+        |> redirect(external: conn.assigns.referrer)
 
       {:error, _} = error ->
         error
