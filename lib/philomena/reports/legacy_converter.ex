@@ -21,11 +21,12 @@ defmodule Philomena.Reports.LegacyConverter do
     details = details |> Enum.join() |> String.trim()
 
     with {:ok, rule} <- Map.fetch(rules, Map.get(@category_rule_names, category, category)) do
-      Reports.convert_legacy_report!(report, if(details == "", do: reason, else: details), rule)
+      {:ok,
+       Reports.convert_legacy_report!(report, if(details == "", do: reason, else: details), rule)}
     end
   end
 
-  defp convert_report(_report, _rules), do: :ok
+  defp convert_report(_report, _rules), do: :error
 
   @doc """
   Converts legacy report reasons to their structured rule and reason fields.
@@ -45,7 +46,13 @@ defmodule Philomena.Reports.LegacyConverter do
 
     Report
     |> preload(:rule)
-    |> Batch.records(batch_size: 128)
-    |> Enum.each(&convert_report(&1, rules))
+    |> Batch.record_batches(batch_size: 128)
+    |> Enum.each(fn reports ->
+      Reports.reindex_reports(
+        for report <- reports,
+            {:ok, converted} <- [convert_report(report, rules)],
+            do: converted.id
+      )
+    end)
   end
 end

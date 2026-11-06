@@ -151,8 +151,21 @@ defmodule Philomena.Reports do
       ]
   end
 
-  defp reindex_closed_reports(report_ids) do
+  @doc """
+  Enqueues a search reindex of the reports with the given ids.
+
+  ## Examples
+
+      iex> reindex_reports([1, 2])
+      :ok
+
+  """
+  @spec reindex_reports([integer()]) :: :ok
+  def reindex_reports([]), do: :ok
+
+  def reindex_reports(report_ids) do
     Exq.enqueue(Exq, "indexing", IndexWorker, ["Reports", "id", report_ids])
+    :ok
   end
 
   defp put_reindex_report(%Multi{} = multi, report_step \\ :report) do
@@ -600,7 +613,7 @@ defmodule Philomena.Reports do
     multi
     |> Multi.update_all(step, fn _ -> close_report_query(closing_user, target) end, [])
     |> Multi.on_commit(fn %{^step => {_count, report_ids}} ->
-      reindex_closed_reports(report_ids)
+      reindex_reports(report_ids)
     end)
   end
 

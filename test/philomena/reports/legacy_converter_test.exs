@@ -1,5 +1,6 @@
 defmodule Philomena.Reports.LegacyConverterTest do
-  use Philomena.DataCase, async: true
+  use Philomena.DataCase, async: false
+  use Patch
 
   import Philomena.ImagesFixtures
   import Philomena.RulesFixtures
@@ -24,7 +25,7 @@ defmodule Philomena.Reports.LegacyConverterTest do
     {report.rule_id, report.reason}
   end
 
-  test "moves legacy categories onto their rules and keeps unknown ones" do
+  test "moves legacy categories onto their rules, keeps unknown ones and reindexes" do
     legacy = rule_fixture(name: "Legacy", hidden: true, internal: true)
     rule = rule_fixture(name: "Rule #0")
     other = rule_fixture(name: "Other (please explain)", hidden: true)
@@ -37,7 +38,13 @@ defmodule Philomena.Reports.LegacyConverterTest do
     unknown = report_fixture("Legacy", "Rule #42: Gone")
     structured = report_fixture("Rule #0", "Other: Already converted")
 
+    spy(Exq)
+
     assert LegacyConverter.convert_reports!() == :ok
+
+    reindexed = [multiline.id, explained.id, system.id, blank.id]
+    reindex = [Exq, "indexing", Philomena.IndexWorker, ["Reports", "id", reindexed]]
+    assert {:enqueue, reindex} in history(Exq)
 
     assert converted(multiline) == {rule.id, "Insults\nin two lines"}
     assert converted(explained) == {other.id, "See the description"}

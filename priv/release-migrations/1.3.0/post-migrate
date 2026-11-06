@@ -38,5 +38,12 @@ fi
 echo "Copying user settings..."
 philomena eval 'Philomena.Release.backfill_user_settings()'
 
+echo "Reports are matched to rules by name: 1.2 report categories such as"
+echo "\"Rule #0\" and \"Takedown request\" need rules with those names, and"
+echo "\"Other\" needs a rule named \"Other (please explain)\"."
+echo "Reports without a matching rule stay on the hidden Legacy rule and keep"
+echo "their full reason. Once the rules exist, rerun this step with:"
+echo "  philomena eval 'Philomena.Release.convert_reports()'"
+echo
 echo "Linking reports to rules..."
 philomena eval 'Philomena.Release.convert_reports()'
