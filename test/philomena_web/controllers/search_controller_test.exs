@@ -44,6 +44,12 @@ defmodule PhilomenaWeb.SearchControllerTest do
       assert html_response(conn, 200) =~ ~p"/images/#{image.id}"
     end
 
+    test "renders a page number far past the search window", %{conn: conn} do
+      conn = get(conn, ~p"/search?q=safe&page=999999999999")
+
+      assert html_response(conn, 200)
+    end
+
     test "renders with no query", %{conn: conn} do
       image = image_fixture()
       SearchHelpers.reindex_all!(Image)

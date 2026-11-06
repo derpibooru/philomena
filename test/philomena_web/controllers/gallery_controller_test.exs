@@ -80,6 +80,14 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert response =~ ~p"/images/#{image.id}"
     end
 
+    test "renders a page number far past the search window", %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture(), title: "Test Deep Gallery")
+
+      conn = get(conn, ~p"/galleries/#{gallery}?page=128739609")
+
+      assert html_response(conn, 200) =~ "Test Deep Gallery"
+    end
+
     test "renders an empty gallery", %{conn: conn} do
       user = confirmed_user_fixture()
       gallery = gallery_fixture(user, title: "Test Empty Gallery")

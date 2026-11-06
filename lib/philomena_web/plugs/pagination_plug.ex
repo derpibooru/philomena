@@ -15,11 +15,26 @@ defmodule PhilomenaWeb.PaginationPlug do
     image_page_size = page_size || image_page_size(user)
     comment_page_size = page_size || comment_page_size(user)
 
+    default_page_number = clamp_page_number(page_number, page_size || 25)
+    image_page_number = clamp_page_number(page_number, image_page_size)
+    comment_page_number = clamp_page_number(page_number, comment_page_size)
+
     conn
-    |> assign(:pagination, %{page_number: page_number, page_size: page_size || 25})
-    |> assign(:image_pagination, %{page_number: page_number, page_size: image_page_size})
-    |> assign(:scrivener, page: page_number, page_size: page_size || 25)
-    |> assign(:comment_scrivener, page: page_number, page_size: comment_page_size)
+    |> assign(:pagination, %{page_number: default_page_number, page_size: page_size || 25})
+    |> assign(:image_pagination, %{page_number: image_page_number, page_size: image_page_size})
+    |> assign(:scrivener, page: default_page_number, page_size: page_size || 25)
+    |> assign(:comment_scrivener, page: comment_page_number, page_size: comment_page_size)
+  end
+
+  # Search indexes return at most the first 10,000,000 results
+  # (max_result_window), and OpenSearch rejects queries for offsets past that,
+  # or past the range of a 32-bit integer. Pages that deep can never have
+  # results, so cap the page number to keep every search offset inside the
+  # window, including the probe for the image after a gallery page.
+  @max_search_results 10_000_000
+
+  defp clamp_page_number(page_number, page_size) do
+    min(page_number, div(@max_search_results, page_size) - 1)
   end
 
   defp get_page_number(%{"page" => page}) do
