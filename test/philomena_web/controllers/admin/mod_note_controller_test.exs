@@ -51,17 +51,15 @@ defmodule PhilomenaWeb.Admin.ModNoteControllerTest do
       assert response =~ "Keeping an eye on this one"
     end
 
-    test "filters by target column", %{conn: conn, user: admin} do
+    test "filters by target column, keeping the filter across pages", %{conn: conn, user: admin} do
       note = mod_note_fixture(admin)
+      mod_note_fixture_for(admin, %{"user_id" => note.user_id})
 
-      conn =
-        get(
-          conn,
-          ~p"/admin/mod_notes?#{[user_id: note.user_id]}"
-        )
+      conn = get(conn, ~p"/admin/mod_notes?#{[user_id: note.user_id, per_page: 1]}")
 
       response = html_response(conn, 200)
       assert response =~ "Keeping an eye on this one"
+      assert response =~ "/admin/mod_notes?page=2&amp;user_id=#{note.user_id}"
     end
 
     # An orphaned note has all columns NULL, as if its target had been
