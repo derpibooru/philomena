@@ -3097,7 +3097,8 @@ defmodule Philomena.Images do
 
   This personal read-state operation is deliberately exempt from
   `verify_write_access/1`. The image is loaded before `:mark_read`
-  authorization. Missing IDs are actor-independent.
+  authorization, which allows dismissing notifications even when the image
+  is hidden. Missing IDs are actor-independent.
 
   Returns `{:ok, image}` after clearing `actor`'s image comment and image merge
   notifications for it.

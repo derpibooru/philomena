@@ -7,8 +7,10 @@ defmodule PhilomenaWeb.Topic.ReadControllerTest do
   import Philomena.TopicsFixtures
   import Philomena.UsersFixtures
 
+  alias Philomena.Forums
   alias Philomena.Notifications
   alias Philomena.Notifications.ForumPostNotification
+  alias Philomena.Notifications.ForumTopicNotification
   alias Philomena.Repo
   alias Philomena.Topics
 
@@ -52,12 +54,20 @@ defmodule PhilomenaWeb.Topic.ReadControllerTest do
   end
 
   test "POST for a hidden topic still clears the notification", %{conn: conn} do
-    # the context loads the topic with show_hidden: true here, so hidden topics
-    # can be marked read
     %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
     forum = forum_fixture()
     topic = topic_fixture(forum)
     {:ok, _} = Topics.create_subscription(topic, user)
+    other_user = confirmed_user_fixture()
+    {:ok, _} = Topics.create_subscription(topic, other_user)
+
+    for subscriber <- [user, other_user] do
+      {:ok, _} = Forums.create_subscription(forum, subscriber)
+    end
+
+    author = confirmed_user_fixture()
+    {:ok, 2} = Notifications.broadcast_forum_post(author, topic, hd(topic.posts))
+    {:ok, 2} = Notifications.broadcast_forum_topic(author, topic)
     moderator = moderator_user_fixture()
 
     {:ok, {_forum, topic}} =
@@ -71,5 +81,10 @@ defmodule PhilomenaWeb.Topic.ReadControllerTest do
     conn = post(conn, ~p"/forums/#{forum}/topics/#{topic}/read")
 
     assert response(conn, 200) == ""
+
+    for schema <- [ForumPostNotification, ForumTopicNotification] do
+      refute Repo.exists?(from n in schema, where: n.user_id == ^user.id)
+      assert Repo.exists?(from n in schema, where: n.user_id == ^other_user.id)
+    end
   end
 end

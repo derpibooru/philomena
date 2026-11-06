@@ -10,6 +10,7 @@ defmodule PhilomenaWeb.Image.ReadControllerTest do
   alias Philomena.Images
   alias Philomena.Notifications
   alias Philomena.Notifications.ImageCommentNotification
+  alias Philomena.Notifications.ImageMergeNotification
   alias Philomena.Repo
 
   # require_authenticated_user halts before the resource loads, so the ids in
@@ -37,6 +38,35 @@ defmodule PhilomenaWeb.Image.ReadControllerTest do
   end
 
   read_singleton_tests()
+
+  test "POST for a hidden image clears comment and merge notifications only for the current user",
+       %{
+         conn: conn
+       } do
+    %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+    image = image_fixture()
+    source = image_fixture()
+    other_user = confirmed_user_fixture()
+    author = confirmed_user_fixture()
+    comment = comment_fixture(image, author)
+
+    for subscriber <- [user, other_user] do
+      {:ok, _} = Images.create_subscription(image, subscriber)
+    end
+
+    {:ok, 2} = Notifications.broadcast_image_comment(author, image, comment)
+    {:ok, 3} = Notifications.broadcast_image_merge(image, source)
+    image |> Ecto.Changeset.change(hidden_from_users: true) |> Repo.update!()
+
+    conn = post(conn, ~p"/images/#{image}/read")
+
+    assert response(conn, 200) == ""
+
+    for schema <- [ImageCommentNotification, ImageMergeNotification] do
+      refute Repo.exists?(from n in schema, where: n.user_id == ^user.id)
+      assert Repo.exists?(from n in schema, where: n.user_id == ^other_user.id)
+    end
+  end
 
   test "POST for an unknown image redirects with the not-found flash", %{conn: conn} do
     # NOTE: the context authorizes the loaded record on :create; id 999999999
