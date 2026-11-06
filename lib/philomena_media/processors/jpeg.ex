@@ -8,8 +8,6 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   alias PhilomenaMedia.Strip
   alias PhilomenaMedia.Processors
 
-  require Logger
-
   @behaviour Processor
 
   @exit_success 0
@@ -22,11 +20,7 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
-    source =
-      case strip(file) do
-        {:ok, stripped} -> optimize(stripped)
-        :error -> file
-      end
+    source = file |> strip() |> optimize()
 
     {:ok, intensities} = Intensities.file(source)
 
@@ -51,15 +45,12 @@ defmodule PhilomenaMedia.Processors.Jpeg do
     # be more clever
     if Strip.requires_strip?(file) do
       # Transcode: normalize orientation, ICC profile and strip metadata
-      with :error <- Strip.strip(file, ".jpg") do
-        Logger.warning("Failed to strip #{file}, keeping the original")
-        :error
-      end
+      Strip.strip(file, ".jpg")
     else
       # Transmux only: Strip EXIF without touching pixel data
       stripped = Briefly.create!(extname: ".jpg")
       validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
-      {:ok, stripped}
+      stripped
     end
   end
 

@@ -17,20 +17,20 @@ defmodule PhilomenaMedia.Strip do
     end
   end
 
-  @spec strip(Path.t(), String.t()) :: {:ok, Path.t()} | :error
+  @spec strip(Path.t(), String.t()) :: Path.t()
   def strip(file, extname) do
     stripped = Briefly.create!(extname: extname)
 
-    case Remote.cmd("magick", [
-           file,
-           "-profile",
-           Icc.srgb_profile(),
-           "-auto-orient",
-           "-strip",
-           stripped
-         ]) do
-      {_output, 0} -> {:ok, stripped}
-      _ -> :error
-    end
+    {_output, 0} =
+      Remote.cmd("magick", [
+        file,
+        "-profile",
+        Icc.srgb_profile(),
+        "-auto-orient",
+        "-strip",
+        stripped
+      ])
+
+    stripped
   end
 end
