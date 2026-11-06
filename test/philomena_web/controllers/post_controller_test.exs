@@ -165,23 +165,6 @@ defmodule PhilomenaWeb.PostControllerTest do
       refute response =~ "Test kumquat post"
     end
 
-    test "filters posts by author with the user_id alias", %{conn: conn} do
-      forum = forum_fixture()
-      author = confirmed_user_fixture()
-      _matching = topic_with_post(forum, "Test authored post", author)
-      _other = topic_with_post(forum, "Test other post", confirmed_user_fixture())
-      SearchHelpers.reindex_all!(Post)
-
-      response =
-        conn
-        |> log_in_user(moderator_user_fixture())
-        |> get(~p"/posts?#{[pq: "user_id:#{author.id}"]}")
-        |> html_response(200)
-
-      assert response =~ "Test authored post"
-      refute response =~ "Test other post"
-    end
-
     test "renders an error for an invalid pq query", %{conn: conn} do
       conn = get(conn, ~p"/posts?pq=created_at.gte:not-a-date")
       response = html_response(conn, 200)

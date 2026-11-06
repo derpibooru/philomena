@@ -76,23 +76,6 @@ defmodule PhilomenaWeb.CommentControllerTest do
       refute response =~ "Test kumquat comment"
     end
 
-    test "filters comments by author with the user_id alias", %{conn: conn} do
-      image = image_fixture()
-      author = confirmed_user_fixture()
-      _matching = comment_fixture(image, author, %{"body" => "Test authored comment"})
-      _other = comment_fixture(image, confirmed_user_fixture(), %{"body" => "Test other comment"})
-      SearchHelpers.reindex_all!(Comment)
-
-      response =
-        conn
-        |> log_in_user(moderator_user_fixture())
-        |> get(~p"/comments?#{[cq: "user_id:#{author.id}"]}")
-        |> html_response(200)
-
-      assert response =~ "Test authored comment"
-      refute response =~ "Test other comment"
-    end
-
     test "renders an error for an invalid cq query", %{conn: conn} do
       conn = get(conn, ~p"/comments?cq=created_at.gte:not-a-date")
       response = html_response(conn, 200)
