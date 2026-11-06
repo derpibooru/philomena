@@ -123,14 +123,13 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
       assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
     end
 
-    test "aliasing into an unknown target redirects with an error", %{conn: conn} do
+    test "an unknown target re-renders the form with an error", %{conn: conn} do
       tag = tag_fixture()
       conn = log_in_user(conn, admin_user_fixture())
 
       conn = patch(conn, ~p"/tags/#{tag}/alias", %{"tag" => %{"target_tag" => "no such tag"}})
 
-      assert redirected_to(conn) == "/"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+      assert html_response(conn, 200) =~ "does not exist"
       assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
     end
 

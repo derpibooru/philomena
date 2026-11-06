@@ -1092,7 +1092,7 @@ defmodule Philomena.Tags do
         source_tag = Enum.find(locked_tags, &(&1.name == source_tag_name))
         target_tag = Enum.find(locked_tags, &(&1.name == target_tag_name))
 
-        if is_nil(source_tag) or is_nil(target_tag) do
+        if is_nil(source_tag) do
           {:error, :not_found}
         else
           {:ok, {source_tag, target_tag}}
