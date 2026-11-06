@@ -12,7 +12,7 @@ defmodule Philomena.Repo.Migrations.CreateInternalRules do
           ('Approval', 1002, true, true, NOW(), NOW()),
           ('Review', 1003, true, true, NOW(), NOW()),
           ('System', 1004, true, true, NOW(), NOW())
-        ON CONFLICT (name) DO NOTHING
+        ON CONFLICT DO NOTHING
         RETURNING id, name, created_at
       )
       INSERT INTO rule_versions (rule_id, name, created_at)
