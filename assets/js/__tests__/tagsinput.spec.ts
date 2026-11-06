@@ -106,6 +106,14 @@ describe('Fancy tags input', () => {
     expect($$('span.tag', fancyInput)).toHaveLength(0);
   });
 
+  it('should leave clicks elsewhere in the tag block alone', () => {
+    setupTagsInput(tagBlock);
+    addTag(plainInput, 'a');
+    const tag = assertNotNull($<HTMLSpanElement>('span.tag', fancyInput));
+    expect(tag.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))).toBe(true);
+    expect($$('span.tag', fancyInput)).toHaveLength(1);
+  });
+
   it('should allow removing previously added tags by adding one with a minus sign prepended', () => {
     setupTagsInput(tagBlock);
     addTag(plainInput, 'a');
