@@ -1,11 +1,13 @@
 defmodule PhilomenaWeb.TagChange.RevertControllerTest do
-  use PhilomenaWeb.ConnCase, async: true
+  use PhilomenaWeb.ConnCase, async: false
+  use Patch, alias: [patch: :mock]
 
   import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
 
   alias Philomena.Images
+  alias Philomena.Multi
   alias Philomena.Repo
   alias Philomena.TagChanges.TagChange
 
@@ -72,6 +74,21 @@ defmodule PhilomenaWeb.TagChange.RevertControllerTest do
       refute "added test tag" in names
       refute "other added tag" in names
       assert "safe" in names
+    end
+
+    test "a failed revert transaction redirects with the failure flash", %{conn: conn} do
+      {image, tc} = tag_change!(confirmed_user_fixture())
+
+      mock(Philomena.Tags, :put_lock_tag_alias_families, fn multi, _tag_ids ->
+        Multi.error(multi, :tag_alias_families, :boom)
+      end)
+
+      conn = log_in_user(conn, moderator_user_fixture())
+      conn = post(conn, ~p"/tag_changes/revert", %{"ids" => ["#{tc.id}"]})
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Couldn't revert those tag changes!"
+      assert "added test tag" in image_tag_names(image)
     end
 
     test "an empty id list reverts nothing and reports zero", %{conn: conn} do

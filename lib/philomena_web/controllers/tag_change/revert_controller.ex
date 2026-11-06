@@ -12,13 +12,13 @@ defmodule PhilomenaWeb.TagChange.RevertController do
         |> put_flash(:info, "Successfully reverted #{length(tag_changes)} tag changes.")
         |> redirect(external: conn.assigns.referrer)
 
-      {:error, %Ecto.Changeset{}} ->
+      {:error, :unauthorized} = error ->
+        error
+
+      {:error, _reason} ->
         conn
         |> put_flash(:error, "Couldn't revert those tag changes!")
         |> redirect(external: conn.assigns.referrer)
-
-      error ->
-        error
     end
   end
 end
