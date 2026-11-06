@@ -3149,6 +3149,7 @@ defmodule Philomena.Images do
     with :ok <- verify_write_access(actor),
          {:ok, image} <- load_image_member(actor, :vote, image_id) do
       Multi.new()
+      |> Multi.lock_one(:locked_image, where(Image, id: ^image.id))
       |> ImageHides.put_hide_for_loaded_image(image, actor.user)
       |> Multi.transact()
       |> case do
@@ -3212,6 +3213,7 @@ defmodule Philomena.Images do
            load_image_member(actor, :vote, image_id, [:sources, tags: :aliases]),
          :ok <- Filtering.verify_not_forced(actor, image) do
       Multi.new()
+      |> Multi.lock_one(:locked_image, where(Image, id: ^image.id))
       |> ImageFaves.put_fave_for_loaded_image(image, user)
       |> ImageVotes.put_vote_for_loaded_image(image, user, true)
       |> Multi.transact()
@@ -3287,6 +3289,7 @@ defmodule Philomena.Images do
            |> VoteForm.changeset(attrs)
            |> VoteForm.apply(image) do
       Multi.new()
+      |> Multi.lock_one(:locked_image, where(Image, id: ^image.id))
       |> ImageVotes.put_vote_for_loaded_image(image, user, up)
       |> Multi.transact()
       |> case do

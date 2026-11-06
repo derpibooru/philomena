@@ -72,6 +72,9 @@ defmodule Philomena.ImageFaves do
   the image and user counters by that exact number, so deleting an absent
   favorite changes nothing.
 
+  A concurrent request for the same fave can make the insert fail.
+  The caller is expected to manage locking in this case.
+
   ## Examples
 
       iex> (Multi.new()

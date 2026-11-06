@@ -50,6 +50,9 @@ defmodule Philomena.ImageVotes do
   and direction changes are idempotent. The changes are named `:unupvote`,
   `:undownvote`, `:dec_votes_count`, `:vote`, `:inc_vote_count`, and `:inc_vote_stat`.
 
+  A concurrent request for the same vote can make the insert fail.
+  The caller is expected to manage locking in this case.
+
   ## Examples
 
       iex> (Multi.new()

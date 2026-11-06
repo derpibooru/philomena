@@ -37,6 +37,9 @@ defmodule Philomena.ImageHides do
   therefore idempotent. The changes are named `:unhide`, `:dec_hides_count`,
   `:hide`, and `:inc_hides_count`
 
+  A concurrent request for the same hide can make the insert fail.
+  The caller is expected to manage locking in this case.
+
   ## Examples
 
       iex> (Multi.new()
