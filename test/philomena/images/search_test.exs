@@ -139,14 +139,19 @@ defmodule Philomena.Images.SearchTest do
       refute image.id in result_ids(definition)
     end
 
-    test "an anonymous viewer passing del=1 can see hidden images" do
+    test "a regular user passing del=1 still does not see hidden images" do
       image = image_fixture(hidden_from_users: true)
       SearchHelpers.reindex_all!(Image)
 
       {definition, _tags} =
-        Search.query(actor(), scope(params: %{"del" => "1"}), sort(), %{match_all: %{}})
+        Search.query(
+          actor(confirmed_user_fixture()),
+          scope(params: %{"del" => "1"}),
+          sort(),
+          %{match_all: %{}}
+        )
 
-      assert image.id in result_ids(definition)
+      refute image.id in result_ids(definition)
     end
 
     # NOTE: a viewer who can :hide images (admin here) still has hidden images

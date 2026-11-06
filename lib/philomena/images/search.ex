@@ -232,7 +232,7 @@ defmodule Philomena.Images.Search do
     |> hide_non_approved()
   end
 
-  defp maybe_show_deleted(filters, _show_hidden?, "1"),
+  defp maybe_show_deleted(filters, true, "1"),
     do: filters
 
   defp maybe_show_deleted(filters, false, _param),
