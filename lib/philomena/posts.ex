@@ -84,12 +84,13 @@ defmodule Philomena.Posts do
   end
 
   @doc """
-  Adds a system approval report when a post becomes unapproved.
+  Adds the steps for a post's approval transition.
 
   The callback receives the transaction changes and returns the post to
   inspect. If `became_unapproved?` is true, the post author's approved-post
-  count is decremented and an Approval report is created; otherwise no steps
-  are added.
+  count is decremented and an Approval report is created. If
+  `became_approved?` is true, the count is incremented again. Otherwise no
+  steps are added.
 
   ## Examples
 
@@ -103,17 +104,22 @@ defmodule Philomena.Posts do
     Multi.merge(multi, fn changes ->
       post = post_callback.(changes)
 
-      if post.became_unapproved? do
-        Multi.new()
-        |> UserStatistics.put_increment(post.user_id, :posts_count, -1)
-        |> Reports.put_create_system_report(
-          "Approval",
-          "Post contains external links",
-          :post_id,
-          post.id
-        )
-      else
-        Multi.new()
+      cond do
+        post.became_unapproved? ->
+          Multi.new()
+          |> UserStatistics.put_increment(post.user_id, :posts_count, -1)
+          |> Reports.put_create_system_report(
+            "Approval",
+            "Post contains external links",
+            :post_id,
+            post.id
+          )
+
+        post.became_approved? ->
+          UserStatistics.put_increment(Multi.new(), post.user_id, :posts_count)
+
+        true ->
+          Multi.new()
       end
     end)
   end

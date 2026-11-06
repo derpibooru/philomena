@@ -1122,6 +1122,19 @@ defmodule Philomena.PostsTest do
       assert Repo.get!(User, author.id).posts_count == before
     end
 
+    test "editing the external link out of a withheld post approves it and restores its count",
+         %{forum: forum, topic: topic} do
+      {post, author} = unapproved_post(topic)
+      before = Repo.get!(User, author.id).posts_count
+
+      assert {:ok, %Post{approved: true}} =
+               Posts.update_post(actor(author), forum.short_name, topic.slug, post.id, %{
+                 "body" => "check this out"
+               })
+
+      assert Repo.get!(User, author.id).posts_count == before + 1
+    end
+
     test "another regular user cannot edit, leaving the body unchanged",
          %{forum: forum, topic: topic} do
       post = post_fixture(topic, confirmed_user_fixture(), %{"body" => "Original reply body"})
