@@ -10,9 +10,16 @@ defmodule PhilomenaWeb.DeactivationController do
   end
 
   def delete(conn, _params) do
-    with {:ok, _user} <-
-           Users.delete_deactivation(conn.assigns.actor, &url(~p"/reactivations/#{&1}")) do
-      UserAuth.log_out_user(conn)
+    case Users.delete_deactivation(conn.assigns.actor, &url(~p"/reactivations/#{&1}")) do
+      {:ok, _user} ->
+        UserAuth.log_out_user(conn)
+
+      # A double submit finds the account already deactivated.
+      {:error, %Ecto.Changeset{}} ->
+        UserAuth.log_out_user(conn)
+
+      error ->
+        error
     end
   end
 end
