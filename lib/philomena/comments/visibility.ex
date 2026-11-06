@@ -68,7 +68,7 @@ defmodule Philomena.Comments.Visibility do
       %{
         bool: %{
           must: [%{term: %{approved: false}}],
-          must_not: [%{term: %{user_id: user_id}}]
+          must_not: [%{term: %{true_author_id: user_id}}]
         }
       }
       | filters

@@ -177,6 +177,27 @@ defmodule Philomena.CommentsTest do
       assert Enum.map(moderator_ip_results.entries, & &1.id) == [comment.id]
     end
 
+    test "shows a pending comment to its author but not to another user" do
+      author = confirmed_user_fixture()
+      image = image_fixture()
+      comment = pending_comment(image, author)
+      Repo.update!(Ecto.Changeset.change(comment, body: "Test grapefruit comment"))
+      SearchHelpers.reindex_all!(Comment)
+
+      assert {:ok, %{entries: [%Comment{id: id}]}} =
+               Comments.query_comments(actor(author), @empty_filter, "grapefruit", @pagination)
+
+      assert id == comment.id
+
+      assert {:ok, %{entries: []}} =
+               Comments.query_comments(
+                 actor(confirmed_user_fixture()),
+                 @empty_filter,
+                 "grapefruit",
+                 @pagination
+               )
+    end
+
     test "excludes a comment on an image carrying a hidden tag" do
       image = image_fixture(tags: "grimdark")
       tag = Enum.find(image.tags, &(&1.name == "grimdark"))
@@ -1499,30 +1520,6 @@ defmodule Philomena.CommentsTest do
       assert %{terms: %{"image.tag_ids" => [7, 8]}} in filters
     end
 
-    test "a signed-in viewer scopes the approved exception to their own id" do
-      user = confirmed_user_fixture()
-
-      filters =
-        must_not(
-          Comments.comment_search_definition(actor(user), @empty_filter, %{match_all: %{}})
-        )
-
-      # Comment and image approval are independent. The comment exclusion keeps
-      # the viewer's own pending comment; an unapproved image stays excluded.
-      assert %{
-               bool: %{
-                 must: [%{term: %{approved: false}}],
-                 must_not: [%{term: %{user_id: user.id}}]
-               }
-             } in filters
-
-      refute %{term: %{approved: false}} in filters
-      assert %{term: %{"image.approved" => false}} in filters
-
-      # The deleted and hidden-tag excludes still apply.
-      assert %{term: %{hidden_from_users: true}} in filters
-    end
-
     test "an authorized moderator drops deleted and non-approved excludes by default" do
       moderator = moderator_user_fixture()
       filter = %Filter{hidden_tag_ids: [7]}
@@ -1549,7 +1546,7 @@ defmodule Philomena.CommentsTest do
       assert %{
                bool: %{
                  must: [%{term: %{approved: false}}],
-                 must_not: [%{term: %{user_id: moderator.id}}]
+                 must_not: [%{term: %{true_author_id: moderator.id}}]
                }
              } in filters
 
