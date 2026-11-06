@@ -1254,6 +1254,7 @@ defmodule Philomena.ImagesTest do
       # subscribing is not staff-gated.
       user = confirmed_user_fixture()
       image = image_fixture()
+      spy(Exq)
 
       assert {:ok, subscribed} =
                Images.create_image_subscription(actor(user), to_string(image.id))
@@ -1343,6 +1344,7 @@ defmodule Philomena.ImagesTest do
       image = image_fixture()
       {:ok, _} = Images.create_subscription(image, user)
       assert Images.subscribed?(image, user)
+      spy(Exq)
 
       assert {:ok, unsubscribed} =
                Images.delete_image_subscription(actor(user), to_string(image.id))
@@ -1421,6 +1423,16 @@ defmodule Philomena.ImagesTest do
   end
 
   describe "create_image_approve/2" do
+    test "queues the image's comments for reindexing with the approved image" do
+      image = image_fixture(approved: false)
+      spy(Exq)
+
+      assert {:ok, _} = Images.create_image_approve(actor(moderator_user_fixture()), image.id)
+
+      reindex = [Exq, "indexing", Philomena.IndexWorker, ["Comments", "image_id", [image.id]]]
+      assert {:enqueue, reindex} in history(Exq)
+    end
+
     test "a moderator approves an unapproved image and gets the image" do
       moderator = moderator_user_fixture()
       image = image_fixture(approved: false)

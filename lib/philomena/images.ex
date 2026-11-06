@@ -1623,9 +1623,9 @@ defmodule Philomena.Images do
 
   An image that is already approved returns an error changeset and is left
   untouched. On success the image is made visible, statistics are updated, the
-  image is reindexed, and a moderation log is written attributing the approval
-  to `actor`. Approval at the uploader's fifth approved image also creates a
-  verification report in the same transaction.
+  image and its comments are reindexed, and a moderation log is written
+  attributing the approval to `actor`. Approval at the uploader's fifth
+  approved image also creates a verification report in the same transaction.
 
   Returns `{:ok, image}` with the approved image.
 
@@ -1653,6 +1653,7 @@ defmodule Philomena.Images do
       end)
       |> put_approval_steps()
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> Comments.reindex_comments_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
