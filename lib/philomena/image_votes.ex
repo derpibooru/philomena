@@ -50,11 +50,14 @@ defmodule Philomena.ImageVotes do
   and direction changes are idempotent. The changes are named `:unupvote`,
   `:undownvote`, `:dec_votes_count`, `:vote`, `:inc_vote_count`, and `:inc_vote_stat`.
 
+  A concurrent request for the same vote can make the insert fail with
+  `:conflict`, so run the Multi with `Multi.transact_with_automatic_retry/2`.
+
   ## Examples
 
       iex> (Multi.new()
       ...> |> put_vote_for_loaded_image(image, user, true)
-      ...> |> Multi.transact())
+      ...> |> Multi.transact_with_automatic_retry())
       {:ok, %{vote: %ImageVote{up: true}}}
 
   """
@@ -70,7 +73,7 @@ defmodule Philomena.ImageVotes do
 
     multi
     |> delete_vote_steps(image, user)
-    |> Multi.insert(:vote, vote)
+    |> Multi.insert_or_conflict(:vote, vote)
     |> Images.put_image_counter_delta(:inc_upvotes_count, image.id, :upvotes_count, upvotes)
     |> Images.put_image_counter_delta(:inc_downvotes_count, image.id, :downvotes_count, downvotes)
     |> Images.put_image_counter_delta(:inc_score, image.id, :score, upvotes - downvotes)

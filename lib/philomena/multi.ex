@@ -212,6 +212,54 @@ defmodule Philomena.Multi do
   end
 
   @doc """
+  Adds an insert operation which fails with `:conflict` instead of the
+  changeset when the insert violates a unique constraint.
+
+  Use this for rows a concurrent transaction may insert first, such as a row
+  that is replaced by deleting and inserting it again: both transactions can
+  miss each other's row in the delete, and the second insert then fails. With
+  `transact_with_automatic_retry/2`, the transaction restarts and sees the
+  committed row.
+
+  Accepts the same options as `c:Ecto.Repo.insert/2`.
+
+  ## Example
+
+      Multi.new()
+      |> Multi.delete_all(:unfave, fave_query)
+      |> Multi.insert_or_conflict(:fave, fave_changeset)
+      |> Multi.transact_with_automatic_retry()
+
+  """
+  @spec insert_or_conflict(t(), Ecto.Multi.name(), Ecto.Changeset.t(), Keyword.t()) :: t()
+  def insert_or_conflict(
+        %__MODULE__{} = multi,
+        name,
+        %Ecto.Changeset{} = changeset,
+        opts \\ []
+      ) do
+    run(multi, name, fn repo, _changes ->
+      case repo.insert(changeset, opts) do
+        {:ok, record} ->
+          {:ok, record}
+
+        {:error, changeset} ->
+          if unique_constraint_error?(changeset) do
+            {:error, :conflict}
+          else
+            {:error, changeset}
+          end
+      end
+    end)
+  end
+
+  defp unique_constraint_error?(changeset) do
+    Enum.any?(changeset.errors, fn {_field, {_message, meta}} ->
+      meta[:constraint] == :unique
+    end)
+  end
+
+  @doc """
   Adds an `insert_all` operation to the Multi.
 
   Accepts the same arguments and options as `c:Ecto.Repo.insert_all/3`.
