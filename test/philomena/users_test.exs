@@ -1737,7 +1737,7 @@ defmodule Philomena.UsersTest do
         "name" => target.name,
         "email" => target.email,
         "role" => "user",
-        "roles" => [to_string(role.id)]
+        "roles" => ["", to_string(role.id), ""]
       }
 
       assert {:ok, updated} =

@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
   import Philomena.UsersFixtures
 
+  alias Philomena.Roles.Role
   alias Philomena.Users.User
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
@@ -122,20 +123,41 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
     test "updates the user and redirects to their profile", %{conn: conn} do
       target = confirmed_user_fixture()
+      role = Repo.insert!(%Role{name: "admin", resource_type: "Forum"})
 
+      # Each role checkbox group submits a blank sentinel, as the edit form does.
       conn =
         patch(conn, ~p"/admin/users/#{target.slug}", %{
           "user" => %{
             "name" => target.name,
             "email" => target.email,
-            "role" => "assistant"
+            "role" => "assistant",
+            "roles" => ["", to_string(role.id), "", ""]
           }
         })
 
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "successfully updated"
 
-      assert Repo.get(User, target.id).role == "assistant"
+      updated = User |> Repo.get(target.id) |> Repo.preload(:roles)
+      assert updated.role == "assistant"
+      assert Enum.map(updated.roles, & &1.id) == [role.id]
+    end
+
+    test "shows the error for an unknown role id", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn =
+        patch(conn, ~p"/admin/users/#{target.slug}", %{
+          "user" => %{
+            "name" => target.name,
+            "email" => target.email,
+            "role" => "user",
+            "roles" => ["", "not-an-id"]
+          }
+        })
+
+      assert html_response(conn, 200) =~ "contains an invalid role"
     end
 
     # NOTE: unlike the admin user-ban create branch, the update error branch
