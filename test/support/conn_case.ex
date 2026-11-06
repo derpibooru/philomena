@@ -219,6 +219,14 @@ defmodule PhilomenaWeb.ConnCase do
   end
 
   @doc """
+  Drops the `_ses` fingerprint cookie from `conn`, as on a visitor's first
+  request before the frontend has set it.
+
+  It returns an updated `conn`.
+  """
+  def without_fingerprint(conn), do: Phoenix.ConnTest.delete_req_cookie(conn, "_ses")
+
+  @doc """
   Gives the `conn` a fresh, unique `remote_ip`.
 
   It returns an updated `conn`.

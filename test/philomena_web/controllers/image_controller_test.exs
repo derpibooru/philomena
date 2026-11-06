@@ -236,9 +236,10 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert response =~ "Sign in to create a gallery"
     end
 
-    test "renders every control for a moderator whose first request has no fingerprint" do
+    test "renders every control for a moderator whose first request has no fingerprint",
+         %{conn: conn} do
       image = image_fixture()
-      conn = log_in_user(build_conn(), moderator_user_fixture())
+      conn = log_in_user(without_fingerprint(conn), moderator_user_fixture())
 
       response = html_response(get(conn, ~p"/images/#{image}"), 200)
 
@@ -374,8 +375,8 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert html_response(conn, 200) =~ "New Image - Derpibooru"
     end
 
-    test "renders the upload form on a first request with no fingerprint" do
-      conn = get(build_conn(), ~p"/images/new")
+    test "renders the upload form on a first request with no fingerprint", %{conn: conn} do
+      conn = get(without_fingerprint(conn), ~p"/images/new")
 
       assert html_response(conn, 200) =~ "New Image - Derpibooru"
     end
