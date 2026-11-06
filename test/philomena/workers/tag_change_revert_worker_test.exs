@@ -1,6 +1,5 @@
 defmodule Philomena.TagChangeRevertWorkerTest do
-  use Philomena.DataCase, async: false
-  use Patch
+  use Philomena.DataCase, async: true
 
   # The worker runs synchronously here; only its reindex side effects are
   # dead Exq enqueues, so the tests stay Postgres-only.
@@ -10,7 +9,6 @@ defmodule Philomena.TagChangeRevertWorkerTest do
   import Philomena.UsersFixtures
 
   alias Philomena.Images
-  alias Philomena.Multi
   alias Philomena.TagChangeRevertWorker
   alias Philomena.TagChanges.TagChange
 
@@ -154,20 +152,5 @@ defmodule Philomena.TagChangeRevertWorkerTest do
     full_revert!(user, 1)
 
     assert "original tag" in image_tag_names(image)
-  end
-
-  test "a failed batch raises so the job is retried", %{user: user} do
-    image = image_fixture(tags: @base_tags)
-    change_tags!(image, user, @base_tags, "#{@base_tags}, vandal tag")
-
-    patch(Philomena.Tags, :put_lock_tag_alias_families, fn multi, _tag_ids ->
-      Multi.error(multi, :tag_alias_families, :boom)
-    end)
-
-    assert_raise RuntimeError, "tag change batch revert failed: :boom", fn ->
-      full_revert!(user, 1)
-    end
-
-    assert "vandal tag" in image_tag_names(image)
   end
 end

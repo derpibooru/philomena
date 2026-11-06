@@ -479,7 +479,7 @@ defmodule Philomena.TagChanges do
 
   """
   @spec create_tag_change_revert(Actor.t(), map()) ::
-          {:ok, [TagChange.t()]} | {:error, :unauthorized | Ecto.Changeset.t() | term()}
+          {:ok, [TagChange.t()]} | {:error, :unauthorized | Ecto.Changeset.t()}
   def create_tag_change_revert(%Actor{} = actor, params) do
     with :ok <- authorize(actor, :revert, TagChange),
          {:ok, revert_form} <-
@@ -518,7 +518,7 @@ defmodule Philomena.TagChanges do
 
   """
   @spec revert_for_worker([IntegerId.integer_id()], map()) ::
-          {:ok, [TagChange.t()]} | {:error, Ecto.Changeset.t() | term()}
+          {:ok, [TagChange.t()]} | {:error, Ecto.Changeset.t()}
   def revert_for_worker(ids, attributes) do
     with {:ok, revert_form} <-
            %RevertForm{}
