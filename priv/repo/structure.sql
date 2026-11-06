@@ -2,9 +2,9 @@
 -- PostgreSQL database dump
 --
 
-\restrict iIwhWzMVL1AnNJeup0JluyJGI3BEWbDJrHsMGO7h6lkVKtIwfF6RzrkZlphId3r
+\restrict CRSH5T57rmsz3T55boQIMJv9CDQarP7KWmGNYYFgh18yiJK3gDpjBcPAOYpwh6X
 
--- Dumped from database version 18.4
+-- Dumped from database version 18.6
 -- Dumped by pg_dump version 18.6
 
 SET statement_timeout = 0;
@@ -5973,7 +5973,7 @@ ALTER TABLE ONLY public.users
 -- PostgreSQL database dump complete
 --
 
-\unrestrict iIwhWzMVL1AnNJeup0JluyJGI3BEWbDJrHsMGO7h6lkVKtIwfF6RzrkZlphId3r
+\unrestrict CRSH5T57rmsz3T55boQIMJv9CDQarP7KWmGNYYFgh18yiJK3gDpjBcPAOYpwh6X
 
 INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
 INSERT INTO public."schema_migrations" (version) VALUES (20200607000511);
@@ -6021,3 +6021,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20260806180557);
 INSERT INTO public."schema_migrations" (version) VALUES (20260810212302);
 INSERT INTO public."schema_migrations" (version) VALUES (20260831235832);
 INSERT INTO public."schema_migrations" (version) VALUES (20261001000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20261106000000);
