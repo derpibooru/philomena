@@ -48,6 +48,7 @@ defmodule Philomena.Comments.Query do
       bool_fields: ~W(anonymous deleted image.deleted approved image.approved),
       aliases:
         Map.merge(fields[:aliases], %{
+          "user_id" => "true_author_id",
           "deleted" => "hidden_from_users",
           "image.deleted" => "image.hidden_from_users"
         }),

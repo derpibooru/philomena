@@ -76,10 +76,17 @@ defmodule PhilomenaWeb.CommentControllerTest do
       refute response =~ "Test kumquat comment"
     end
 
-    test "filters comments by author with the user_id alias", %{conn: conn} do
+    test "filters comments by true author with the user_id alias", %{conn: conn} do
       image = image_fixture()
       author = confirmed_user_fixture()
       _matching = comment_fixture(image, author, %{"body" => "Test authored comment"})
+
+      _anonymous =
+        comment_fixture(image, author, %{
+          "body" => "Test anonymous comment",
+          "anonymous" => "true"
+        })
+
       _other = comment_fixture(image, confirmed_user_fixture(), %{"body" => "Test other comment"})
       SearchHelpers.reindex_all!(Comment)
 
@@ -90,6 +97,7 @@ defmodule PhilomenaWeb.CommentControllerTest do
         |> html_response(200)
 
       assert response =~ "Test authored comment"
+      assert response =~ "Test anonymous comment"
       refute response =~ "Test other comment"
     end
 
