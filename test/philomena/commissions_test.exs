@@ -79,7 +79,7 @@ defmodule Philomena.CommissionsTest do
       assert Enum.map(loaded_commission.items, & &1.id) == [cheap.id, expensive.id]
     end
 
-    test "missing and deactivated profiles are not found for non-staff viewers" do
+    test "a missing profile is not found and a deactivated one loads only for staff" do
       deactivated = confirmed_user_fixture()
       commission_fixture(deactivated)
 
@@ -94,6 +94,11 @@ defmodule Philomena.CommissionsTest do
         assert Commissions.show_commission(viewer, deactivated.slug) ==
                  {:error, :not_found}
       end
+
+      assert {:ok, %Commission{user: %{id: user_id}}} =
+               Commissions.show_commission(actor(moderator_user_fixture()), deactivated.slug)
+
+      assert user_id == deactivated.id
     end
 
     test "a user without a commission is not-found" do
