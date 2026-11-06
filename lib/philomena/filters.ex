@@ -125,7 +125,9 @@ defmodule Philomena.Filters do
   Compiles the effective image-filter policy for `actor`.
 
   The current filter supplies hidden and spoiler rules; a forced filter adds
-  hidden rules. Invalid stored expressions fail closed to an all-hidden filter.
+  hidden rules. An expression that does not compile for `actor` matches every
+  image: an invalid hidden expression hides all images, and an invalid spoiler
+  expression spoilers them.
   """
   @spec compile_image_filter(Actor.t(), Filter.t() | nil, Filter.t() | nil) :: ImageFilter.t()
   def compile_image_filter(%Actor{} = actor, current_filter, forced_filter) do

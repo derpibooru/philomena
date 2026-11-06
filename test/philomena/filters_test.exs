@@ -26,10 +26,10 @@ defmodule Philomena.FiltersTest do
   alias Philomena.Filters.FilterPage
   alias Philomena.Filters.ImageFilter
   alias Philomena.Images
-  alias Philomena.Images.Query
+  alias Philomena.Images.Filtering
   alias Philomena.Repo
   alias Philomena.Users.User
-  alias PhilomenaQuery.Parse.String, as: QueryString
+  alias PhilomenaQuery.Parse.Evaluator
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
 
@@ -77,26 +77,27 @@ defmodule Philomena.FiltersTest do
       assert safe_id == safe.id
     end
 
-    test "fails closed for invalid stored expressions" do
-      invalid_filters = [
-        {%Filter{id: 42, hidden_complex_str: "("}, nil, :hidden_complex_str},
-        {%Filter{id: 43, spoilered_complex_str: "("}, nil, :spoilered_complex_str},
-        {nil, %Filter{id: 44, hidden_complex_str: "("}, :hidden_complex_str}
-      ]
+    test "an invalid hidden expression hides every image" do
+      document = Filtering.document(Repo.preload(image_fixture(), tags: :aliases))
 
-      for {current_filter, forced_filter, field} <- invalid_filters do
-        assert %ImageFilter{} =
-                 image_filter =
-                 Filters.compile_image_filter(actor(), current_filter, forced_filter)
+      for {current_filter, forced_filter} <- [
+            {%Filter{hidden_complex_str: "("}, nil},
+            {nil, %Filter{hidden_complex_str: "("}}
+          ] do
+        image_filter = Filters.compile_image_filter(actor(), current_filter, forced_filter)
 
-        assert {:error, message} =
-                 Query.compile(QueryString.normalize("("), user: actor().user, filter: true)
-
-        assert image_filter.query == %{match_all: %{}}
-        assert image_filter.display_query == %{match_all: %{}}
-        assert image_filter.display_tag_ids == []
-        assert image_filter.errors == [{field, message}]
+        assert Evaluator.hits?(document, image_filter.query)
       end
+    end
+
+    test "a spoiler expression the viewer cannot use spoilers images without hiding them" do
+      image = Repo.preload(image_fixture(), tags: :aliases)
+      current = %Filter{spoilered_complex_str: "my:faves"}
+
+      image_filter = Filters.compile_image_filter(actor(), current, nil)
+
+      refute Evaluator.hits?(Filtering.document(image), image_filter.query)
+      assert Images.filter_or_spoiler_hits?(image, image_filter)
     end
 
     test "an empty selection excludes and spoilers nothing" do
