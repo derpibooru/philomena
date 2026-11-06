@@ -18,6 +18,7 @@ function getFieldAndRangeQualifier(field: string): [string, RangeEqualQualifier]
     ['gte', '.gte'],
     ['lt', '.lt'],
     ['lte', '.lte'],
+    ['eq', '.eq'],
   ];
 
   for (const [qualifier, match] of qualifiersAndMatches) {
