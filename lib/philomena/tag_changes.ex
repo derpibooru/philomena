@@ -813,6 +813,24 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
+  Queues every tag change on `image` for indexing and returns the image unchanged.
+
+  Tag-change documents derive their anonymity from the image uploader, so
+  changes to the image's uploader or anonymity must call this.
+
+  ## Examples
+
+      iex> reindex_tag_changes_on_image(image)
+      %Image{}
+
+  """
+  @spec reindex_tag_changes_on_image(Image.t()) :: Image.t()
+  def reindex_tag_changes_on_image(%Image{} = image) do
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["TagChanges", "image_id", [image.id]])
+    image
+  end
+
+  @doc """
   Returns the association projection required to serialize tag-change search
   documents.
 
