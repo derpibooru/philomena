@@ -6,18 +6,36 @@ defmodule PhilomenaWeb.Admin.User.ActivationController do
   action_fallback PhilomenaWeb.FallbackController
 
   def create(conn, %{"user_id" => slug}) do
-    with {:ok, user} <- Users.create_user_activation(conn.assigns.actor, slug) do
-      conn
-      |> put_flash(:info, "User was reactivated.")
-      |> redirect(to: ~p"/profiles/#{user}")
+    case Users.create_user_activation(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User was reactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "User is already active.")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        error
     end
   end
 
   def delete(conn, %{"user_id" => slug}) do
-    with {:ok, user} <- Users.delete_user_activation(conn.assigns.actor, slug) do
-      conn
-      |> put_flash(:info, "User was deactivated.")
-      |> redirect(to: ~p"/profiles/#{user}")
+    case Users.delete_user_activation(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User was deactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "User is already deactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        error
     end
   end
 end

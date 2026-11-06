@@ -47,6 +47,15 @@ defmodule PhilomenaWeb.Admin.User.ActivationControllerTest do
       assert Repo.get(User, target.id).deleted_at == nil
     end
 
+    test "redirects to the profile when the user is already active", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = post(conn, ~p"/admin/users/#{target.slug}/activation")
+
+      assert redirected_to(conn) == ~p"/profiles/#{target}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "User is already active."
+    end
+
     # NOTE: the context authorizes the loaded record on :create; an unknown slug
     # loads nil, the admin is authorized on it, so it redirects with the
     # not-found flash rather than passing nil into Users.reactivate_user/1.
@@ -119,6 +128,19 @@ defmodule PhilomenaWeb.Admin.User.ActivationControllerTest do
       reloaded = Repo.get(User, target.id)
       assert reloaded.deleted_at != nil
       assert reloaded.deleted_by_user_id == admin.id
+    end
+
+    test "keeps the original deactivator when the user is already deactivated", %{conn: conn} do
+      target = deactivated_user_fixture()
+      %{deleted_at: deleted_at, deleted_by_user_id: deactivator_id} = Repo.get(User, target.id)
+
+      conn = delete(conn, ~p"/admin/users/#{target.slug}/activation")
+
+      assert redirected_to(conn) == ~p"/profiles/#{target}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "User is already deactivated."
+
+      assert %{deleted_at: ^deleted_at, deleted_by_user_id: ^deactivator_id} =
+               Repo.get(User, target.id)
     end
 
     # NOTE: an unknown slug loads nil and the admin is authorized on it, so this

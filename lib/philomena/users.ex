@@ -1905,7 +1905,7 @@ defmodule Philomena.Users do
   real targets are authorized with the action-specific ability. On success the
   account is reactivated, reindexed, and a moderation log is written.
 
-  Returns `{:ok, user}`.
+  Returns `{:ok, user}`, or `{:error, changeset}` when the account is already active.
 
   ## Examples
 
@@ -1917,7 +1917,7 @@ defmodule Philomena.Users do
 
   """
   @spec create_user_activation(Actor.t(), String.t()) ::
-          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def create_user_activation(%Actor{} = actor, slug) do
     with :ok <- verify_write_access(actor),
          {:ok, user} <- load_user_by_slug(actor, :reactivate, slug) do
@@ -1956,7 +1956,8 @@ defmodule Philomena.Users do
   real targets are authorized with the action-specific ability. On success the
   account is deactivated, reindexed, and a moderation log is written.
 
-  Returns `{:ok, user}`.
+  Returns `{:ok, user}`, or `{:error, changeset}` when the account is already
+  deactivated.
 
   ## Examples
 
@@ -1968,7 +1969,7 @@ defmodule Philomena.Users do
 
   """
   @spec delete_user_activation(Actor.t(), String.t()) ::
-          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def delete_user_activation(%Actor{} = actor, slug) do
     with :ok <- verify_write_access(actor),
          {:ok, user} <- load_user_by_slug(actor, :deactivate, slug) do
