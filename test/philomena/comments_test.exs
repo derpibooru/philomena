@@ -1314,6 +1314,19 @@ defmodule Philomena.CommentsTest do
       assert Repo.get!(User, author.id).comments_count == before
     end
 
+    test "editing the external link out of a withheld comment approves it and restores its count",
+         %{image: image} do
+      {comment, author} = unapproved_comment(image)
+      before = Repo.get!(User, author.id).comments_count
+
+      assert {:ok, {_image, %Comment{approved: true}}} =
+               Comments.update_comment(actor(author), image.id, comment.id, %{
+                 "body" => "No links here"
+               })
+
+      assert Repo.get!(User, author.id).comments_count == before + 1
+    end
+
     test "a forced-filter match prevents an update", %{image: image} do
       user = confirmed_user_fixture()
       comment = comment_fixture(image, user, %{"body" => "Original"})

@@ -94,17 +94,22 @@ defmodule Philomena.Comments do
 
   defp put_approval_report(%Multi{} = multi) do
     Multi.merge(multi, fn %{comment: comment} ->
-      if comment.became_unapproved? do
-        Multi.new()
-        |> UserStatistics.put_increment(comment.user_id, :comments_count, -1)
-        |> Reports.put_create_system_report(
-          "Approval",
-          "Comment contains external links",
-          :comment_id,
-          comment.id
-        )
-      else
-        Multi.new()
+      cond do
+        comment.became_unapproved? ->
+          Multi.new()
+          |> UserStatistics.put_increment(comment.user_id, :comments_count, -1)
+          |> Reports.put_create_system_report(
+            "Approval",
+            "Comment contains external links",
+            :comment_id,
+            comment.id
+          )
+
+        comment.became_approved? ->
+          UserStatistics.put_increment(Multi.new(), comment.user_id, :comments_count)
+
+        true ->
+          Multi.new()
       end
     end)
   end
