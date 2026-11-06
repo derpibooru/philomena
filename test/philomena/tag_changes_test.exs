@@ -54,7 +54,7 @@ defmodule Philomena.TagChangesTest do
     arrangement_actor =
       case user do
         nil ->
-          actor()
+          actor(nil, ip: random_ip())
 
         user ->
           actor(%{user | bypass_rate_limits: true})
@@ -151,7 +151,7 @@ defmodule Philomena.TagChangesTest do
       image = image_fixture()
 
       {:ok, _result} =
-        Images.update_image_tags(actor(), image.id, %{
+        Images.update_image_tags(actor(nil, ip: random_ip()), image.id, %{
           "old_tag_input" => "safe",
           "tag_input" => "safe, former added test tag, other former tag"
         })
