@@ -27,13 +27,18 @@ defmodule PhilomenaWeb.SettingControllerTest do
     test "sets local-setting cookies for anonymous users", %{conn: conn} do
       conn =
         patch(conn, ~p"/settings", %{
-          "user" => %{"hidpi" => "true", "webm" => "false"}
+          "user" => %{
+            "hidpi" => "true",
+            "webm" => "false",
+            "autocomplete_properties_hidden" => "true"
+          }
         })
 
       assert redirected_to(conn) == ~p"/settings/edit"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Settings updated successfully."
       assert conn.resp_cookies["hidpi"].value == "true"
       assert conn.resp_cookies["webm"].value == "false"
+      assert conn.resp_cookies["autocomplete_properties_hidden"].value == "true"
     end
 
     test "updates user settings and sets cookies for logged-in users", %{conn: conn} do
