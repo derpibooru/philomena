@@ -419,6 +419,26 @@ defmodule Philomena.DuplicateReportsTest do
                %{original.id => "rejected", reverse.id => "accepted"}
     end
 
+    test "inserts a fresh reverse report when the existing one was rejected" do
+      moderator = actor(moderator_user_fixture())
+      source = image_fixture()
+      target = image_fixture()
+      rejected = duplicate_report_fixture(target, source)
+      {:ok, _rejected} = DuplicateReports.create_duplicate_report_reject(moderator, rejected.id)
+      original = duplicate_report_fixture(source, target)
+
+      assert {:ok, accepted, affected_reports} =
+               DuplicateReports.create_duplicate_report_accept_reverse(moderator, original.id)
+
+      assert accepted.id not in [rejected.id, original.id]
+      assert accepted.state == "accepted"
+
+      assert Map.new(affected_reports, &{&1.id, &1.state}) ==
+               %{original.id => "rejected", accepted.id => "accepted"}
+
+      assert Repo.get!(DuplicateReport, rejected.id).state == "rejected"
+    end
+
     test "rejects the original, accepts the reverse report, merges, and logs" do
       moderator = moderator_user_fixture()
       source = image_fixture()

@@ -96,7 +96,7 @@ defmodule Philomena.DuplicateReports do
           where:
             (report.image_id == ^source_id and report.duplicate_of_image_id == ^target_id) or
               (report.duplicate_of_image_id == ^source_id and report.image_id == ^target_id),
-          where: report.state in ~w(open claimed),
+          where: report.state in ^DuplicateReport.open_states(),
           select: report.id
       end,
       set: [state: "rejected"]
@@ -480,6 +480,7 @@ defmodule Philomena.DuplicateReports do
           where: reverse_report.id != ^forward_report.id,
           where: reverse_report.image_id == ^forward_report.duplicate_of_image_id,
           where: reverse_report.duplicate_of_image_id == ^forward_report.image_id,
+          where: reverse_report.state in ^DuplicateReport.open_states(),
           order_by: [desc: :id],
           limit: 1
       end)
