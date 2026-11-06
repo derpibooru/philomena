@@ -183,16 +183,18 @@ defmodule Philomena.BadgesTest do
     test "an admin updates an award and writes a byte-exact update log" do
       admin = admin_user_fixture()
       user = awardee_fixture()
+      award = badge_award_fixture(admin, user, badge_fixture(%{title: "Test Old Badge"}))
       badge = badge_fixture(%{title: "Test Award Badge"})
-      award = badge_award_fixture(admin, user, badge)
 
       assert {:ok, {loaded_user, updated}} =
                Badges.update_award(actor(admin), user.slug, "#{award.id}", %{
+                 "badge_id" => "#{badge.id}",
                  "label" => "Best"
                })
 
       assert loaded_user.id == user.id
-      assert Repo.get(Award, updated.id).label == "Best"
+      assert %Award{label: "Best", badge_id: badge_id} = Repo.get(Award, updated.id)
+      assert badge_id == badge.id
 
       assert [log] = moderation_logs()
       assert log.user_id == admin.id

@@ -449,6 +449,8 @@ defmodule Philomena.Badges do
         :moderation_log,
         actor,
         fn %{award: award} ->
+          award = Repo.preload(award, :badge, force: true)
+
           {
             "Profile.Award:update",
             Paths.profile_path(award.user),
