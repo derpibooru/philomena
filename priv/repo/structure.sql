@@ -6020,4 +6020,4 @@ INSERT INTO public."schema_migrations" (version) VALUES (20260806180557);
 INSERT INTO public."schema_migrations" (version) VALUES (20260810212302);
 INSERT INTO public."schema_migrations" (version) VALUES (20260831235832);
 INSERT INTO public."schema_migrations" (version) VALUES (20261001000000);
-INSERT INTO public."schema_migrations" (version) VALUES (20261106000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20261106213604);
