@@ -86,12 +86,21 @@ defmodule Philomena.Topics do
       |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
       |> Repo.all()
 
+    # Destroyed posts keep their positions but leave post_count.
+    last_position =
+      Post
+      |> where(topic_id: ^topic.id)
+      |> select([p], max(p.topic_position))
+      |> Repo.one()
+
+    total_entries = last_position + 1
+
     %Scrivener.Page{
       entries: entries,
       page_number: page_number,
       page_size: page_size,
-      total_entries: topic.post_count,
-      total_pages: div(topic.post_count + page_size - 1, page_size)
+      total_entries: total_entries,
+      total_pages: div(total_entries + page_size - 1, page_size)
     }
   end
 

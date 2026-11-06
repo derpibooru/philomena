@@ -26,6 +26,7 @@ defmodule Philomena.TopicsTest do
   alias Philomena.ModerationLogs.ModerationLog
   alias Philomena.Notifications
   alias Philomena.Notifications.ForumPostNotification
+  alias Philomena.Posts
   alias Philomena.Posts.Post
   alias Philomena.Reports.Report
   alias Philomena.Repo
@@ -1240,6 +1241,28 @@ defmodule Philomena.TopicsTest do
 
       assert page.posts.page_number == 2
       assert Enum.map(page.posts.entries, & &1.id) == [last.id]
+    end
+
+    test "pages cover every position when a destroyed post leaves post_count" do
+      {forum, topic} = visible_topic()
+      moderator = actor(moderator_user_fixture())
+      [destroyed | _] = for _ <- 1..25, do: post_fixture(topic)
+
+      {:ok, _} =
+        Posts.create_post_hide(moderator, forum.short_name, topic.slug, "#{destroyed.id}", %{
+          "deletion_reason" => "Spam"
+        })
+
+      {:ok, _} =
+        Posts.create_post_delete(moderator, forum.short_name, topic.slug, "#{destroyed.id}")
+
+      assert Repo.reload!(topic).post_count == 25
+
+      assert {:ok, page} =
+               Topics.show_topic_page(actor(), forum.short_name, topic.slug, nil, @first_page)
+
+      assert page.posts.total_entries == 26
+      assert page.posts.total_pages == 2
     end
 
     test "a subscribed user has watching set true" do
