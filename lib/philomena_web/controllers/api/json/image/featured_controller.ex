@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Api.Json.Image.FeaturedController do
   import PhilomenaWeb.Api.Json.NotFound
 
   def show(conn, _params) do
-    case Images.show_featured_image(conn.assigns.actor, true) do
+    case Images.show_featured_image(conn.assigns.actor, false) do
       {:ok, image} ->
         interactions = Interactions.user_interactions(conn.assigns.actor, [image])
 
