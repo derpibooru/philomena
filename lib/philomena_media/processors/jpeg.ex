@@ -45,14 +45,16 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   defp strip(file) do
     # ImageMagick always reencodes the image, resulting in quality loss, so
     # be more clever
-    if Strip.requires_strip?(file) do
-      # Transcode: normalize orientation, ICC profile and strip metadata
-      Strip.strip(file, ".jpg")
-    else
-      # Transmux only: Strip EXIF without touching pixel data
-      stripped = Briefly.create!(extname: ".jpg")
-      validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+    # Transcode: normalize orientation, ICC profile and strip metadata
+    with true <- Strip.requires_strip?(file),
+         {:ok, stripped} <- Strip.strip(file, ".jpg") do
       stripped
+    else
+      _ ->
+        # Transmux only: Strip EXIF without touching pixel data
+        stripped = Briefly.create!(extname: ".jpg")
+        validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+        stripped
     end
   end
 
