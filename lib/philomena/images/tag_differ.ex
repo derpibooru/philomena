@@ -47,8 +47,8 @@ defmodule Philomena.Images.TagDiffer do
 
     desired_tags =
       tag_set
-      |> Map.merge(added_set)
       |> Map.drop(Map.keys(removed_set))
+      |> Map.merge(added_set)
 
     actually_added =
       Map.drop(desired_tags, Map.keys(tag_set))
