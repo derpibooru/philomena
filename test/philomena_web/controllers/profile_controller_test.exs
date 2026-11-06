@@ -266,6 +266,9 @@ defmodule PhilomenaWeb.ProfileControllerTest do
       assert response =~ ~p"/images/#{image.id}"
       assert response =~ "Test profile comment body"
       assert response =~ topic.title
+      assert response =~ ~p"/comments?#{[cq: "author_id:#{user.id}"]}"
+      assert response =~ ~p"/posts?#{[pq: "author_id:#{user.id}"]}"
+      refute response =~ "q=user_id"
     end
 
     test "redirects to / for an unknown slug", %{conn: conn} do
