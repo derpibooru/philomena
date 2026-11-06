@@ -1046,6 +1046,17 @@ defmodule Philomena.CommentsTest do
       assert Repo.get!(Image, image.id).comments_count == 0
     end
 
+    test "an untrusted author's link to this site stays approved", %{image: image} do
+      [domain | _] = String.split(Application.get_env(:philomena, :site_domains), ",")
+
+      assert {:ok, %Comment{} = comment} =
+               Comments.create_comment(actor(confirmed_user_fixture()), image.id, %{
+                 "body" => "see https://#{domain}/images/1"
+               })
+
+      assert comment.approved
+    end
+
     test "an approved comment increments the author's comments_count by one", %{image: image} do
       author = confirmed_user_fixture()
       before = Repo.get!(User, author.id).comments_count
