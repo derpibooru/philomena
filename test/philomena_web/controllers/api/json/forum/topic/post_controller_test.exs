@@ -6,6 +6,8 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostControllerTest do
   import Philomena.TopicsFixtures
   import Philomena.UsersFixtures
 
+  alias Philomena.Notifications
+  alias Philomena.Notifications.ForumPostNotification
   alias Philomena.Posts
   alias Philomena.Repo
   alias Philomena.Topics
@@ -25,6 +27,25 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostControllerTest do
       assert author == user.name
       assert %{"body" => "Second post", "id" => reply_id} = second
       assert reply_id == reply.id
+    end
+
+    test "leaves the key holder's topic notification unread", %{conn: conn} do
+      user = confirmed_user_fixture()
+      forum = forum_fixture()
+      topic = topic_fixture(forum)
+      {:ok, _} = Topics.create_subscription(topic, user)
+
+      {:ok, 1} =
+        Notifications.broadcast_forum_post(confirmed_user_fixture(), topic, hd(topic.posts))
+
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/json/forums/#{forum}/topics/#{topic}/posts?key=#{user.authentication_token}"
+        )
+
+      assert %{"posts" => [_]} = json_response(conn, 200)
+      assert Repo.get_by(ForumPostNotification, topic_id: topic.id, user_id: user.id)
     end
 
     test "does not exclude hidden posts", %{conn: conn} do

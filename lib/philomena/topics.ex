@@ -328,6 +328,28 @@ defmodule Philomena.Topics do
   end
 
   @doc """
+  Paginates the posts of the topic named by `topic_slug` within the forum
+  named by `forum_slug`, on behalf of `actor`.
+
+  Authorization and post visibility match `show_topic_page/5`, but nothing is
+  written: the actor's topic notifications stay unread.
+
+  ## Examples
+
+      iex> list_topic_posts(actor, "dis", "some-topic", %{page_number: 1, page_size: 25})
+      {:ok, %Scrivener.Page{}}
+
+  """
+  @spec list_topic_posts(Actor.t(), String.t(), String.t(), Repo.pagination_params()) ::
+          {:ok, Scrivener.Page.t()} | {:error, :unauthorized | :not_found}
+  def list_topic_posts(%Actor{} = actor, forum_slug, topic_slug, pagination) do
+    with {:ok, forum} <- Forums.show_forum(actor, forum_slug),
+         {:ok, topic} <- show_forum_topic(actor, forum, topic_slug, :show) do
+      {:ok, load_topic_posts(actor, topic, pagination)}
+    end
+  end
+
+  @doc """
   Loads a visible topic beneath its route forum, with its author preloaded.
 
   ## Examples
