@@ -6007,7 +6007,6 @@ INSERT INTO public."schema_migrations" (version) VALUES (20250502110018);
 INSERT INTO public."schema_migrations" (version) VALUES (20250507183410);
 INSERT INTO public."schema_migrations" (version) VALUES (20250617121030);
 INSERT INTO public."schema_migrations" (version) VALUES (20250617122513);
-INSERT INTO public."schema_migrations" (version) VALUES (20250921082812);
 INSERT INTO public."schema_migrations" (version) VALUES (20251103173014);
 INSERT INTO public."schema_migrations" (version) VALUES (20260716190444);
 INSERT INTO public."schema_migrations" (version) VALUES (20260717000000);
