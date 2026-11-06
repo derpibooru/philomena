@@ -723,6 +723,23 @@ defmodule Philomena.GalleriesTest do
     end
   end
 
+  describe "query_galleries/3" do
+    test "finds galleries by thumbnail and spoiler warning" do
+      user = confirmed_user_fixture()
+      thumbnail = image_fixture()
+      wanted = gallery_fixture(user, thumbnail_id: thumbnail.id, spoiler_warning: "grapefruit")
+      _other = gallery_fixture(user)
+      SearchHelpers.reindex_all!(Gallery)
+
+      for query <- ["thumbnail_id:#{thumbnail.id}", "spoiler_warning:grapefruit"] do
+        assert {:ok, %{entries: [%Gallery{id: id}]}} =
+                 Galleries.query_galleries(actor(), query, @pagination)
+
+        assert id == wanted.id
+      end
+    end
+  end
+
   describe "gallery_choices_for_image/2" do
     test "returns no choices for an anonymous actor" do
       assert Galleries.gallery_choices_for_image(actor(), image_fixture()) == {:ok, []}
