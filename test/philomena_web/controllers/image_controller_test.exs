@@ -236,6 +236,17 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert response =~ "Sign in to create a gallery"
     end
 
+    test "renders the page without moderation forms for a banned admin", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+      image = image_fixture()
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "Manage"
+      refute response =~ "Deletion reason (cannot be empty)"
+      refute response =~ ~s(id="uploader-form")
+    end
+
     test "renders the deleted page for an anonymous viewer", %{conn: conn} do
       image = image_fixture(hidden_from_users: true)
 
