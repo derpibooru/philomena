@@ -304,8 +304,8 @@ defmodule Philomena.ReportsTest do
 
       Reports.user_name_reindex(target.name, new_name)
 
-      # The update runs asynchronously in the search engine.
-      assert Enum.any?(1..50, fn _ ->
+      # The update runs asynchronously in the search engine; poll for up to 5 s.
+      assert Enum.any?(1..250, fn _ ->
                Process.sleep(20)
                :ok = Search.refresh_index!(Report)
 
