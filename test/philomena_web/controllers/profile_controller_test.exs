@@ -91,15 +91,21 @@ defmodule PhilomenaWeb.ProfileControllerTest do
       refute moderator_response =~ ~p"/admin/users/#{target}/edit"
       assert moderator_response =~ ~p"/profiles/#{target}/artist_links/new"
       assert moderator_response =~ ~p"/admin/user_bans/new?#{[user_id: target.id]}"
-      assert moderator_response =~ ~p"/admin/users/#{target}/api_key"
-      assert moderator_response =~ ~p"/admin/users/#{target}/verification"
-      assert moderator_response =~ ~p"/admin/users/#{target}/votes"
+      refute moderator_response =~ ~p"/admin/users/#{target}/api_key"
+      refute moderator_response =~ ~p"/admin/users/#{target}/verification"
+      refute moderator_response =~ ~p"/admin/users/#{target}/votes"
+      refute moderator_response =~ ~p"/admin/users/#{target}/erase/new"
       assert moderator_response =~ ~p"/profiles/#{target}/tag_changes/revert"
 
       %{conn: role_conn} = register_and_log_in_user_role_moderator(%{conn: conn})
       role_moderator_response = html_response(get(role_conn, ~p"/profiles/#{target}"), 200)
 
       assert role_moderator_response =~ ~p"/admin/users/#{target}/edit"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/api_key"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/verification"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/votes"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/downvotes"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/erase/new"
 
       admin_response =
         html_response(
