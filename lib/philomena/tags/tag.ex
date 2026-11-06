@@ -160,6 +160,7 @@ defmodule Philomena.Tags.Tag do
   def alias_form_changeset(tag, attrs \\ %{}) do
     tag
     |> cast(attrs, [:target_tag])
+    |> update_change(:target_tag, &clean_tag_name/1)
     |> validate_required(:target_tag)
   end
 

@@ -93,6 +93,18 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
       assert Repo.get!(Tag, tag.id).aliased_tag_id == target.id
     end
 
+    test "an admin aliases into a target typed with different case and spacing", %{conn: conn} do
+      tag = tag_fixture()
+      target = tag_fixture(name: "target tag alias")
+      conn = log_in_user(conn, admin_user_fixture())
+
+      conn =
+        patch(conn, ~p"/tags/#{tag}/alias", %{"tag" => %{"target_tag" => " Target  Tag Alias "}})
+
+      assert redirected_to(conn) == ~p"/tags/#{tag}/alias/edit"
+      assert Repo.get!(Tag, tag.id).aliased_tag_id == target.id
+    end
+
     test "a blank target re-renders the form with an error", %{conn: conn} do
       tag = tag_fixture()
       conn = log_in_user(conn, admin_user_fixture())
