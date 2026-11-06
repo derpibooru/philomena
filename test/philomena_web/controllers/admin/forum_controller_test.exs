@@ -87,6 +87,23 @@ defmodule PhilomenaWeb.Admin.ForumControllerTest do
   end
 
   describe "POST /admin/forums (create)" do
+    test "gives a banned admin the ban response", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+
+      conn =
+        post(conn, ~p"/admin/forums", %{
+          "forum" => %{
+            "name" => "Banned Forum",
+            "short_name" => "bannedforum",
+            "description" => "nope",
+            "access_level" => "normal"
+          }
+        })
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      refute Repo.get_by(Forum, short_name: "bannedforum")
+    end
+
     test "rejects a plain moderator", %{conn: conn} do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
 

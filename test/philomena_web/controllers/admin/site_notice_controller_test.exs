@@ -75,6 +75,23 @@ defmodule PhilomenaWeb.Admin.SiteNoticeControllerTest do
   end
 
   describe "POST /admin/site_notices (create)" do
+    test "gives a banned admin the ban response", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+
+      conn =
+        post(conn, ~p"/admin/site_notices", %{
+          "site_notice" => %{
+            "title" => "nope",
+            "text" => "nope",
+            "start_date" => "now",
+            "finish_date" => "5 years from now"
+          }
+        })
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      refute Repo.exists?(SiteNotice)
+    end
+
     test "rejects a plain moderator", %{conn: conn} do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
 

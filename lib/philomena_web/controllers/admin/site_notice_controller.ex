@@ -28,7 +28,7 @@ defmodule PhilomenaWeb.Admin.SiteNoticeController do
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
 
-      {:error, :unauthorized} = error ->
+      {:error, reason} = error when reason in [:ban, :unauthorized] ->
         error
     end
   end

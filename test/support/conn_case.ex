@@ -91,6 +91,17 @@ defmodule PhilomenaWeb.ConnCase do
   end
 
   @doc """
+  Setup helper that registers and logs in an admin with an active ban.
+
+      setup :register_and_log_in_banned_admin
+  """
+  def register_and_log_in_banned_admin(%{conn: conn}) do
+    user = Philomena.UsersFixtures.admin_user_fixture()
+    Philomena.BansFixtures.user_ban_fixture(user)
+    %{conn: log_in_user(conn, user), user: user}
+  end
+
+  @doc """
   Setup helper that registers and logs in a TOTP-enabled user, including
   the TOTP session token.
 

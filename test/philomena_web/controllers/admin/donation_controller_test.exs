@@ -67,6 +67,16 @@ defmodule PhilomenaWeb.Admin.DonationControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
     end
+
+    test "gives a banned admin the ban response", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+      before = Repo.aggregate(Donation, :count)
+
+      conn = post(conn, ~p"/admin/donations", donation: %{"amount" => "5.00"})
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      assert Repo.aggregate(Donation, :count) == before
+    end
   end
 
   describe "POST /admin/donations (create)" do

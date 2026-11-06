@@ -35,6 +35,7 @@ One test per auth level that can reach the action:
 | moderator    | `setup :register_and_log_in_moderator`                           |
 | admin        | `setup :register_and_log_in_admin`                               |
 | banned       | `setup :register_and_log_in_banned_user`                         |
+| banned admin | `setup :register_and_log_in_banned_admin`                        |
 | TOTP-enabled | `setup :register_and_log_in_totp_user` (or `log_in_totp_user/2`) |
 | API key      | `setup :create_api_user`, then request with `?key=#{api_key}`    |
 

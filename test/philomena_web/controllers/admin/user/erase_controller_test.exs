@@ -140,4 +140,17 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       refute reloaded.name =~ ~r/^deactivated_/
     end
   end
+
+  describe "POST /admin/users/:user_id/erase (create) as a banned admin" do
+    setup [:register_and_log_in_banned_admin]
+
+    test "gives the ban response without erasing", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = post(conn, ~p"/admin/users/#{target.slug}/erase")
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      assert Repo.get(User, target.id).deleted_at == nil
+    end
+  end
 end
