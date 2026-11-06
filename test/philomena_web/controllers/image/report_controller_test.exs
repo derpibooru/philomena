@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
     response = html_response(get(conn, ~p"/images/#{image}/reports/new"), 200)
 
     assert response =~ "Reporting Image - Derpibooru"
+    assert response =~ ~r/<textarea[^>]*name="report\[reason\]"[^>]*required/
   end
 
   test "GET new renders the report form for logged-in users", %{conn: conn} do
