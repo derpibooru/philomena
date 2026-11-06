@@ -23,6 +23,7 @@ defmodule Philomena.TopicsTest do
   import Philomena.TopicsFixtures
   import Philomena.UsersFixtures
 
+  alias Philomena.Forums.Forum
   alias Philomena.ModerationLogs.ModerationLog
   alias Philomena.Notifications
   alias Philomena.Notifications.ForumPostNotification
@@ -1068,6 +1069,24 @@ defmodule Philomena.TopicsTest do
       assert log.type == "Topic.Move:create"
       assert log.subject_path == "/forums/#{target.short_name}/topics/#{topic.slug}"
       assert log.body == "Topic '#{topic.title}' moved to #{target.name}"
+    end
+
+    test "a slug already taken in the target forum rejects the move" do
+      moderator = moderator_user_fixture()
+      forum = forum_fixture()
+      target = forum_fixture()
+      topic = topic_fixture(forum, nil, %{"title" => "Shared title"})
+      _taken = topic_fixture(target, nil, %{"title" => "Shared title"})
+
+      assert {:error, %Forum{} = source_forum, %Topic{} = rejected_topic} =
+               Topics.create_topic_move(actor(moderator), forum.short_name, topic.slug, %{
+                 "target_forum" => target.short_name
+               })
+
+      assert source_forum.id == forum.id
+      assert rejected_topic.id == topic.id
+      assert Repo.reload!(topic).forum_id == forum.id
+      assert moderation_log_count() == 0
     end
 
     test "a moderator with empty params gets not-found" do
