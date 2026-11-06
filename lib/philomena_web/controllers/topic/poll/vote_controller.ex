@@ -16,10 +16,7 @@ defmodule PhilomenaWeb.Topic.Poll.VoteController do
   end
 
   def create(conn, %{"forum_id" => forum_slug, "topic_id" => topic_slug} = params) do
-    # An empty multiple-choice form submits no poll params.
-    attrs = params["poll"] || %{}
-
-    case PollVotes.create_votes(conn.assigns.actor, forum_slug, topic_slug, attrs) do
+    case PollVotes.create_votes(conn.assigns.actor, forum_slug, topic_slug, params["poll"] || %{}) do
       {:ok, ballot} ->
         conn
         |> put_flash(:info, "Your vote has been recorded.")
