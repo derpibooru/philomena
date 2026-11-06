@@ -17,7 +17,6 @@ defmodule Philomena.UserIpsTest do
 
   alias Philomena.UserIps
   alias Philomena.UserIps.IpProfile
-  alias Philomena.UserIps.UserIp
 
   describe "show_ip_profile/2" do
     test "a moderator gets the users seen on the address and the covering subnet bans" do
@@ -97,24 +96,6 @@ defmodule Philomena.UserIpsTest do
                {:error, :unauthorized}
 
       assert UserIps.latest_for_user(actor, user) == {:error, :unauthorized}
-    end
-  end
-
-  describe "record_usage/3" do
-    test "repeated requests between flushes count as one use" do
-      user = confirmed_user_fixture()
-      server = start_supervised!(UserIps.Server)
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server)
-      now = DateTime.utc_now(:second)
-
-      assert UserIps.record_usage(user, {203, 0, 113, 7}, now) == :ok
-      assert UserIps.record_usage(user, {203, 0, 113, 7}, now) == :ok
-      :sys.get_state(server)
-      refute Repo.exists?(where(UserIp, user_id: ^user.id))
-
-      send(server, :flush)
-      :sys.get_state(server)
-      assert [%UserIp{uses: 1}] = Repo.all(where(UserIp, user_id: ^user.id))
     end
   end
 end

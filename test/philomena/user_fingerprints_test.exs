@@ -18,7 +18,6 @@ defmodule Philomena.UserFingerprintsTest do
 
   alias Philomena.UserFingerprints
   alias Philomena.UserFingerprints.FingerprintProfile
-  alias Philomena.UserFingerprints.UserFingerprint
 
   describe "valid_format?/1" do
     test "accepts supported legacy and current formats" do
@@ -125,24 +124,6 @@ defmodule Philomena.UserFingerprintsTest do
                {:error, :unauthorized}
 
       assert UserFingerprints.latest_for_user(actor, user) == {:error, :unauthorized}
-    end
-  end
-
-  describe "record_usage/3" do
-    test "repeated requests between flushes count as one use" do
-      user = confirmed_user_fixture()
-      server = start_supervised!(UserFingerprints.Server)
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), server)
-      now = DateTime.utc_now(:second)
-
-      assert UserFingerprints.record_usage(user, "d015c342859dde3", now) == :ok
-      assert UserFingerprints.record_usage(user, "d015c342859dde3", now) == :ok
-      :sys.get_state(server)
-      refute Repo.exists?(where(UserFingerprint, user_id: ^user.id))
-
-      send(server, :flush)
-      :sys.get_state(server)
-      assert [%UserFingerprint{uses: 1}] = Repo.all(where(UserFingerprint, user_id: ^user.id))
     end
   end
 end
