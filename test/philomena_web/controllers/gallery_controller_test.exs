@@ -122,6 +122,18 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert response =~ "Test Empty Gallery"
     end
 
+    test "shows when the gallery was created", %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+
+      Gallery
+      |> where(id: ^gallery.id)
+      |> Philomena.Repo.update_all(set: [created_at: ~U[2020-01-01 00:00:00Z]])
+
+      conn = get(conn, ~p"/galleries/#{gallery}")
+
+      assert html_response(conn, 200) =~ ~s(datetime="2020-01-01T00:00:00Z")
+    end
+
     test "renders a gallery for logged-in users", %{conn: conn} do
       %{conn: conn} = register_and_log_in_user(%{conn: conn})
       gallery = gallery_fixture(confirmed_user_fixture())

@@ -55,7 +55,7 @@ elixir:
         ' , last updated
         => pretty_time(@gallery.updated_at)
         ' (created
-        = pretty_time(@gallery.updated_at)
+        = pretty_time(@gallery.created_at)
         ' )
 
     .block__content.flex.js-imagelist-info
