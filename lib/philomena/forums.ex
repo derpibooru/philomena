@@ -411,6 +411,7 @@ defmodule Philomena.Forums do
             SELECT last_post_id FROM topics
             WHERE forum_id = ?
             AND hidden_from_users IS FALSE
+            AND last_post_id IS NOT NULL
             ORDER BY last_replied_to_at DESC, id DESC
             LIMIT 1
             """,

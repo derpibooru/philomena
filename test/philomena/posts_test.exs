@@ -25,8 +25,10 @@ defmodule Philomena.PostsTest do
   alias Philomena.Posts.Post
   alias Philomena.Posts.PostVersion
   alias Philomena.Reports.Report
+  alias Philomena.Forums
   alias Philomena.Forums.Forum
   alias Philomena.Repo
+  alias Philomena.Topics.Topic
   alias Philomena.Users.User
 
   # A truthy ban value in the shape production passes (the result of
@@ -366,6 +368,35 @@ defmodule Philomena.PostsTest do
 
       assert log.subject_path ==
                "/forums/#{forum.short_name}/topics/#{topic.slug}?post_id=#{post.id}#post_#{post.id}"
+    end
+
+    test "hiding a topic's only post keeps the topic's place and the forum's last post",
+         %{forum: forum, topic: topic} do
+      moderator = moderator_user_fixture()
+      %{posts: [only_post]} = rejected_topic = topic_fixture(forum)
+      created_at = DateTime.add(DateTime.utc_now(:second), -1, :hour)
+
+      Repo.update_all(where(Topic, id: ^rejected_topic.id),
+        set: [created_at: created_at, last_replied_to_at: created_at]
+      )
+
+      Repo.update_all(where(Post, id: ^only_post.id), set: [created_at: created_at])
+
+      assert {:ok, _} =
+               hide_post(actor(moderator), "#{only_post.id}", %{"deletion_reason" => "Spam"})
+
+      rejected_topic = Repo.reload!(rejected_topic)
+      assert rejected_topic.last_post_id == nil
+      assert rejected_topic.last_replied_to_at == created_at
+      assert Repo.reload!(forum).last_post_id == Repo.reload!(topic).last_post_id
+
+      assert {:ok, %{topics: topics}} =
+               Forums.show_forum_page(actor(moderator), forum.short_name, %{
+                 page_number: 1,
+                 page_size: 25
+               })
+
+      assert Enum.map(topics, & &1.id) == [topic.id, rejected_topic.id]
     end
 
     test "a blank deletion reason is a rejected changeset carrying the loaded post",

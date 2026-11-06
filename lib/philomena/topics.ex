@@ -896,8 +896,10 @@ defmodule Philomena.Topics do
   Adds an update step that recalculates a topic's cached last visible post.
 
   Maintains `Topic.last_post_id` and `Topic.last_replied_to_at` from the
-  newest post visible to users in that topic. The step reads the locked topic
-  from `topic_step`, which defaults to `:locked_topic`. Add it after inserting,
+  newest post visible to users in that topic. Without a visible post,
+  `last_post_id` is `nil` and `last_replied_to_at` falls back to the topic's
+  creation time. The step reads the locked topic from `topic_step`, which
+  defaults to `:locked_topic`. Add it after inserting,
   hiding, or restoring a post, and after hiding or restoring a topic. For topic
   creation, pass `:topic` because the inserted topic is the row whose initial
   post must be considered. A destruction-only operation does not need this
@@ -985,7 +987,7 @@ defmodule Philomena.Topics do
   defp update_last_post_query(topic_id) do
     Topic
     |> where(id: ^topic_id)
-    |> update(
+    |> update([topic],
       set: [
         last_post_id:
           fragment(
@@ -1000,12 +1002,15 @@ defmodule Philomena.Topics do
         last_replied_to_at:
           fragment(
             """
-            SELECT created_at FROM posts
-            WHERE topic_id = ?
-            AND hidden_from_users IS FALSE
-            ORDER BY topic_position DESC LIMIT 1
+            COALESCE((
+              SELECT created_at FROM posts
+              WHERE topic_id = ?
+              AND hidden_from_users IS FALSE
+              ORDER BY topic_position DESC LIMIT 1
+            ), ?)
             """,
-            ^topic_id
+            ^topic_id,
+            topic.created_at
           )
       ]
     )
