@@ -85,6 +85,13 @@
 		file_server
 	}
 
+	handle_errors 503 {
+		log_skip
+		rewrite * /downtime.html
+		root /var/www
+		file_server
+	}
+
 	handle @static {
 		encode zstd gzip
 		header Cache-Control "public, max-age=2147483647"
