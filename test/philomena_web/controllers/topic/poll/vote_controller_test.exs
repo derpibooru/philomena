@@ -78,6 +78,17 @@ defmodule PhilomenaWeb.Topic.Poll.VoteControllerTest do
       assert Repo.aggregate(PollVote, :count) == 0
     end
 
+    test "rejects a submission with no option selected",
+         %{conn: conn, forum: forum, topic: topic} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = post(conn, ~p"/forums/#{forum}/topics/#{topic}/poll/votes", %{})
+
+      assert redirected_to(conn) == ~p"/forums/#{forum}/topics/#{topic}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Your vote was not recorded."
+      assert Repo.aggregate(PollVote, :count) == 0
+    end
+
     test "does not record a second vote by the same user",
          %{conn: conn, forum: forum, topic: topic, option_a: option_a, option_b: option_b} do
       %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
