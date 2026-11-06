@@ -1870,6 +1870,19 @@ defmodule Philomena.UsersTest do
       assert log.subject_path == Paths.profile_path(user)
     end
 
+    test "revokes a reactivation token issued while the account was active" do
+      target = managed_target()
+
+      token =
+        extract_user_token(fn url ->
+          Users.deliver_user_reactivation_instructions(target, url)
+        end)
+
+      assert {:ok, _user} = Users.delete_user_activation(actor(admin_user_fixture()), target.slug)
+      assert Users.create_reactivation(token) == :error
+      assert Users.fetch_user_for_worker!(target.id).deleted_at
+    end
+
     test "a plain moderator is rejected" do
       target = managed_target()
 
@@ -2267,6 +2280,23 @@ defmodule Philomena.UsersTest do
       assert log.type == "Admin.User.Erase:create"
       assert log.body == "Erased #{original_name}"
       assert log.subject_path == Paths.profile_path(erased)
+    end
+
+    test "erasing a self-deactivated account revokes its reactivation token" do
+      target = managed_target()
+
+      {:ok, _user} =
+        Users.delete_deactivation(actor(target), fn token ->
+          send(self(), {:reactivation_token, token})
+          "url"
+        end)
+
+      assert_received {:reactivation_token, token}
+
+      assert {:ok, erased} = Users.create_user_erase(actor(admin_user_fixture()), target.slug)
+      assert erased.deleted_by_user_id == target.id
+      assert Users.create_reactivation(token) == :error
+      assert Users.fetch_user_for_worker!(target.id).deleted_at
     end
 
     test "an unauthorized actor is rejected" do

@@ -1986,6 +1986,10 @@ defmodule Philomena.Users do
       |> Multi.update(:user, fn %{locked_user: user} ->
         User.deactivate_changeset(user, actor.user)
       end)
+      |> Multi.delete_all(
+        :reactivation_tokens,
+        UserToken.user_and_contexts_query(user, ["reactivate"])
+      )
       |> ModerationLogs.put_log(:moderation_log, actor, fn %{user: user} ->
         {"Admin.User.Activation:delete", Paths.profile_path(user), "Deactivated #{user.name}"}
       end)
@@ -2200,20 +2204,23 @@ defmodule Philomena.Users do
   def create_user_erase(%Actor{} = actor, slug) do
     with :ok <- verify_write_access(actor),
          {:ok, user} <- new_user_erase(actor, slug) do
-      original_name = user.name
       random_hex = Base.encode16(:crypto.strong_rand_bytes(16), case: :lower)
 
-      changeset = update_user_changeset(user, %{"name" => "deactivated_#{random_hex}"})
+      Multi.new()
+      |> Multi.lock_one(:locked_user, user_lock_query(user))
+      |> Multi.update(:user, fn %{locked_user: user} ->
+        changeset = update_user_changeset(user, %{"name" => "deactivated_#{random_hex}"})
 
-      changeset =
         if user.deleted_at,
           do: changeset,
           else: User.deactivate_changeset(changeset, actor.user)
-
-      Multi.new()
-      |> Multi.update(:user, changeset)
-      |> ModerationLogs.put_log(:moderation_log, actor, fn %{user: user} ->
-        {"Admin.User.Erase:create", Paths.profile_path(user), "Erased #{original_name}"}
+      end)
+      |> Multi.delete_all(
+        :reactivation_tokens,
+        UserToken.user_and_contexts_query(user, ["reactivate"])
+      )
+      |> ModerationLogs.put_log(:moderation_log, actor, fn %{locked_user: original, user: user} ->
+        {"Admin.User.Erase:create", Paths.profile_path(user), "Erased #{original.name}"}
       end)
       |> put_reindex_user()
       |> put_erase_user_job(actor)
