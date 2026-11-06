@@ -32,6 +32,7 @@ defmodule PhilomenaWeb.IpProfileControllerTest do
 
       assert response =~ "203.0.113.1&#39;s IP profile"
       assert response =~ user.name
+      assert response =~ ~p"/admin/reports?#{[rq: [query: "ip:203.0.113.1"]]}"
     end
 
     test "renders an empty profile for an IP with no activity", %{conn: conn} do

@@ -64,7 +64,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
         i.fa.fa-fw.fa-eye-slash
         span.admin__button Hidden Images
     li
-      = link to: ~p"/admin/reports?#{[rq: "user_id:#{@user.id}"]}" do
+      = link to: ~p"/admin/reports?#{[rq: [query: "user_id:#{@user.id}"]]}" do
         i.fa.fa-fw.fa-exclamation
         span.admin__button Reports
     li

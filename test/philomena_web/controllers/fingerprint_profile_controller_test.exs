@@ -33,6 +33,7 @@ defmodule PhilomenaWeb.FingerprintProfileControllerTest do
 
       assert response =~ "d015c342859dde3&#39;s fingerprint profile"
       assert response =~ user.name
+      assert response =~ ~p"/admin/reports?#{[rq: [query: "fingerprint:d015c342859dde3"]]}"
     end
 
     test "renders an empty profile for a valid fingerprint with no activity", %{conn: conn} do

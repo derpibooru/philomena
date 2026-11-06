@@ -91,6 +91,7 @@ defmodule PhilomenaWeb.ProfileControllerTest do
       refute moderator_response =~ ~p"/admin/users/#{target}/edit"
       assert moderator_response =~ ~p"/profiles/#{target}/artist_links/new"
       assert moderator_response =~ ~p"/admin/user_bans/new?#{[user_id: target.id]}"
+      assert moderator_response =~ ~p"/admin/reports?#{[rq: [query: "user_id:#{target.id}"]]}"
       refute moderator_response =~ ~p"/admin/users/#{target}/api_key"
       refute moderator_response =~ ~p"/admin/users/#{target}/verification"
       refute moderator_response =~ ~p"/admin/users/#{target}/votes"
