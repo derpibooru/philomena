@@ -2209,11 +2209,7 @@ defmodule Philomena.Users do
       Multi.new()
       |> Multi.lock_one(:locked_user, user_lock_query(user))
       |> Multi.update(:user, fn %{locked_user: user} ->
-        changeset = update_user_changeset(user, %{"name" => "deactivated_#{random_hex}"})
-
-        if user.deleted_at,
-          do: changeset,
-          else: User.deactivate_changeset(changeset, actor.user)
+        User.erase_changeset(user, "deactivated_#{random_hex}", actor.user)
       end)
       |> Multi.delete_all(
         :reactivation_tokens,
