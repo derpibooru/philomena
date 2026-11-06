@@ -3045,7 +3045,7 @@ defmodule Philomena.Images do
 
   The image is loaded by id and authorized for `:subscribe`. Subscribing is
   idempotent and, as subscription management, is deliberately exempt from
-  `verify_write_access/1`.
+  `verify_write_access/1`. The image is reindexed so `my:subs` finds it.
 
   Returns `{:ok, image}`, or `{:error, %Ecto.Changeset{}}` if the subscription
   insert is rejected.
@@ -3064,7 +3064,7 @@ defmodule Philomena.Images do
   def create_image_subscription(%Actor{} = actor, image_id) do
     with {:ok, image} <- load_image_member(actor, :subscribe, image_id),
          {:ok, _subscription} <- create_subscription(image, actor.user) do
-      {:ok, image}
+      {:ok, reindex_image(image)}
     end
   end
 
@@ -3072,10 +3072,10 @@ defmodule Philomena.Images do
   @doc """
   Unsubscribes `actor` from the image named by `image_id`.
 
-  Loading and authorization mirror `subscribe_image/2`. Unsubscribing is
+  Loading and authorization mirror `create_image_subscription/2`. Unsubscribing is
   idempotent and cannot fail, so there is no changeset error shape. Like
   subscription creation, deletion is deliberately exempt from
-  `verify_write_access/1`.
+  `verify_write_access/1` and reindexes the image.
 
   Returns `{:ok, image}`, `{:error, :unauthorized}`, or `{:error, :not_found}`.
 
@@ -3091,7 +3091,7 @@ defmodule Philomena.Images do
     with {:ok, image} <- load_image_member(actor, :unsubscribe, image_id) do
       # Deletion is idempotent and cannot fail; the hard match crashes if it does.
       {:ok, _subscription} = delete_subscription(image, actor.user)
-      {:ok, image}
+      {:ok, reindex_image(image)}
     end
   end
 

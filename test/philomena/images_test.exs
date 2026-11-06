@@ -3,6 +3,7 @@ defmodule Philomena.ImagesTest do
   # (Images.async_upload/2) that hits the Repo; it is only allowed on the
   # sandbox connection in shared mode, which is enabled for sync tests.
   use Philomena.DataCase, async: false
+  use Patch
 
   import Ecto.Query
 
@@ -197,6 +198,9 @@ defmodule Philomena.ImagesTest do
     |> Enum.map(& &1.name)
     |> Enum.sort()
   end
+
+  defp image_reindex(image),
+    do: [Exq, "indexing", Philomena.IndexWorker, ["Images", "id", [image.id]]]
 
   defp tag_attrs(old_tag_input, tag_input) do
     %{"old_tag_input" => old_tag_input, "tag_input" => tag_input}
@@ -1218,6 +1222,7 @@ defmodule Philomena.ImagesTest do
 
       assert subscribed.id == image.id
       assert Images.subscribed?(image, user)
+      assert {:enqueue, image_reindex(image)} in history(Exq)
     end
 
     test "a moderator subscribes to a visible image" do
@@ -1306,6 +1311,7 @@ defmodule Philomena.ImagesTest do
 
       assert unsubscribed.id == image.id
       refute Images.subscribed?(image, user)
+      assert {:enqueue, image_reindex(image)} in history(Exq)
     end
 
     test "unsubscribing with no existing subscription still succeeds" do
