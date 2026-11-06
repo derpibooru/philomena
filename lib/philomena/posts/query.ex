@@ -37,7 +37,7 @@ defmodule Philomena.Posts.Query do
       ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
       ip_fields: ~W(ip),
       bool_fields: ~W(anonymous deleted destroyed_content),
-      aliases: %{"user_id" => "true_author_id", "deleted" => "hidden_from_users"}
+      aliases: Map.merge(fields[:aliases], %{"deleted" => "hidden_from_users"})
     )
   end
 

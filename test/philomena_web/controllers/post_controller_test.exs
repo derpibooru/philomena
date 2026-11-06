@@ -165,17 +165,10 @@ defmodule PhilomenaWeb.PostControllerTest do
       refute response =~ "Test kumquat post"
     end
 
-    test "filters posts by true author with the user_id alias", %{conn: conn} do
+    test "filters posts by author with the user_id alias", %{conn: conn} do
       forum = forum_fixture()
       author = confirmed_user_fixture()
       _matching = topic_with_post(forum, "Test authored post", author)
-
-      _anonymous =
-        post_fixture(topic_fixture(forum), author, %{
-          "body" => "Test anonymous post",
-          "anonymous" => "true"
-        })
-
       _other = topic_with_post(forum, "Test other post", confirmed_user_fixture())
       SearchHelpers.reindex_all!(Post)
 
@@ -186,7 +179,6 @@ defmodule PhilomenaWeb.PostControllerTest do
         |> html_response(200)
 
       assert response =~ "Test authored post"
-      assert response =~ "Test anonymous post"
       refute response =~ "Test other post"
     end
 
