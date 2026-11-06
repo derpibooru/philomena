@@ -56,12 +56,14 @@ defmodule PhilomenaWeb.PaginationPlug do
 
   defp get_page_size(_params), do: nil
 
-  defp to_integer(string) do
+  defp to_integer(string) when is_binary(string) do
     case Integer.parse(string) do
       {int, _rest} -> int
       _ -> nil
     end
   end
+
+  defp to_integer(_param), do: nil
 
   defp image_page_size(%{settings: %{images_per_page: x}}), do: x
   defp image_page_size(_user), do: 15
