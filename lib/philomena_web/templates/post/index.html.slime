@@ -92,6 +92,13 @@ table.table
         code = link "author:Joey", to: ~p"/posts?#{[pq: "author:Joey"]}"
     tr
       td
+        code author_id
+      td Literal
+      td Matches posts with the specified author_id. Anonymous users will never match this term.
+      td
+        code = link "author_id:211190", to: ~p"/posts?#{[pq: "author_id:211190"]}"
+    tr
+      td
         code body
       td Full Text
       td Matches the body of this post. This is the default field.
@@ -148,13 +155,6 @@ table.table
       td Matches the creation or last edit time of this post.
       td
         code = link "updated_at.gte:2 weeks ago", to: ~p"/posts?#{[pq: "updated_at.gte:2 weeks ago"]}"
-    tr
-      td
-        code user_id
-      td Literal
-      td Matches posts with the specified user_id. Anonymous users will never match this term.
-      td
-        code = link "user_id:211190", to: ~p"/posts?#{[pq: "user_id:211190"]}"
     tr
       td
         code forum

@@ -80,6 +80,13 @@ table.table
         code = link "author:Joey", to: ~p"/comments?#{[cq: "author:Joey"]}"
     tr
       td
+        code author_id
+      td Literal
+      td Matches comments with the specified author_id. Anonymous users will never match this term.
+      td
+        code = link "author_id:211190", to: ~p"/comments?#{[cq: "author_id:211190"]}"
+    tr
+      td
         code body
       td Full Text
       td Matches the body of this comment. This is the default field.
@@ -115,10 +122,3 @@ table.table
         ' matches comments you have posted if you are signed in.
       td
         code = link "my:comments", to: ~p"/comments?#{[cq: "my:comments"]}"
-    tr
-      td
-        code user_id
-      td Literal
-      td Matches comments with the specified user_id. Anonymous users will never match this term.
-      td
-        code = link "user_id:211190", to: ~p"/comments?#{[cq: "user_id:211190"]}"
