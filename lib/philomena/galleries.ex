@@ -216,13 +216,17 @@ defmodule Philomena.Galleries do
     limit = scope.pagination.page_size
     offset = (scope.pagination.page_number - 1) * limit
 
+    # The leading and trailing queries fetch the single images just before and
+    # just after this page. With a page size of 1, the image at zero-based
+    # index i is on page i + 1.
+    #
     # The leading query will not be possible on the first page, so a map key
     # with an empty page is inserted if no search was performed.
 
     []
     |> put_query(:images, params, scope.pagination)
-    |> put_query(:leading, params, %{page_number: offset - 1, page_size: 1})
-    |> put_query(:trailing, params, %{page_number: offset + limit, page_size: 1})
+    |> put_query(:leading, params, %{page_number: offset, page_size: 1})
+    |> put_query(:trailing, params, %{page_number: offset + limit + 1, page_size: 1})
     |> Search.msearch_records_with_hits()
     |> Map.put_new(:leading, %Scrivener.Page{})
   end

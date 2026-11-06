@@ -624,6 +624,30 @@ defmodule Philomena.GalleriesTest do
       assert is_list(page.interactions)
     end
 
+    test "the images flanking a page are the ones just before and after it" do
+      user = confirmed_user_fixture()
+      gallery = gallery_fixture(user)
+
+      for image <- [image_fixture(), image_fixture(), image_fixture()] do
+        gallery_image_fixture(gallery, image)
+      end
+
+      SearchHelpers.reindex_all!(Image)
+
+      page_ids = fn page_number ->
+        page_scope = Scope.new(default_filter(), %{page_number: page_number, page_size: 1})
+        {:ok, page} = Galleries.show_gallery(actor(user), page_scope, "#{gallery.id}")
+        {page, Enum.map(page.images, fn {image, _hit} -> image.id end)}
+      end
+
+      {_page, [first]} = page_ids.(1)
+      {middle_page, [middle]} = page_ids.(2)
+      {_page, [last]} = page_ids.(3)
+
+      assert Enum.map(middle_page.gallery_images, fn {image, _hit} -> image.id end) ==
+               [first, middle, last]
+    end
+
     test "an anonymous viewer sees an empty gallery's page" do
       gallery = gallery_fixture(confirmed_user_fixture())
       SearchHelpers.reindex_all!(Image)
