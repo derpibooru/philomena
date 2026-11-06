@@ -79,8 +79,9 @@ defmodule Philomena.GalleriesTest do
       assert Galleries.new_gallery(actor) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint may not reach the form" do
-      assert Galleries.new_gallery(actor(nil, fingerprint: nil)) == {:error, :unauthorized}
+    test "an actor without a fingerprint still gets the form" do
+      assert {:ok, %Ecto.Changeset{}} =
+               Galleries.new_gallery(actor(confirmed_user_fixture(), fingerprint: nil))
     end
   end
 
