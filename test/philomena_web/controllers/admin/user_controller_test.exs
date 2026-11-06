@@ -33,10 +33,14 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
     end
 
-    test "allows a moderator", %{conn: conn} do
+    test "allows a moderator, who may add artist links", %{conn: conn} do
+      target = confirmed_user_fixture()
+      SearchHelpers.reindex_all!(User)
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
       conn = get(conn, ~p"/admin/users")
-      assert html_response(conn, 200) =~ "Users"
+
+      assert html_response(conn, 200) =~ ~p"/profiles/#{target}/artist_links/new"
     end
 
     test "allows an admin", %{conn: conn} do

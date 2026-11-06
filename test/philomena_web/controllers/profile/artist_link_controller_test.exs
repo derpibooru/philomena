@@ -143,7 +143,7 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
       assert response =~ link.uri
     end
 
-    test "renders artist-link management controls only for link moderators", %{conn: conn} do
+    test "renders artist-link management controls only to link staff", %{conn: conn} do
       artist = confirmed_user_fixture()
       link = artist_link_fixture(artist)
 
@@ -163,9 +163,9 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
 
       assistant_response = html_response(assistant_conn, 200)
 
-      refute assistant_response =~ ~p"/profiles/#{artist}/artist_links/#{link}/edit"
-      refute assistant_response =~ ~p"/admin/artist_links/#{link}/verification"
-      refute assistant_response =~ ~p"/admin/artist_links/#{link}/reject"
+      assert assistant_response =~ ~p"/profiles/#{artist}/artist_links/#{link}/edit"
+      assert assistant_response =~ ~p"/admin/artist_links/#{link}/verification"
+      assert assistant_response =~ ~p"/admin/artist_links/#{link}/reject"
 
       moderator_response =
         html_response(

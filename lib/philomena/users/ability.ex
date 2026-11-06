@@ -600,7 +600,7 @@ defimpl Canada.Can, for: Philomena.Users.User do
   def can?(
         %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :index,
-        %ArtistLink{}
+        ArtistLink
       ),
       do: true
 
