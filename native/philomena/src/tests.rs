@@ -145,6 +145,35 @@ fn greentext_preserved() {
 }
 
 #[test]
+fn greentext_and_embed_after_quote_closes_the_quote() {
+    html_opts_i(
+        "> quote\n>>1p\nreply",
+        "<blockquote>\n<div class=\"paragraph\">quote</div>\n</blockquote>\n<div class=\"paragraph\"><div id=\"1\">p</div><br />\nreply</div>\n",
+        |opts| {
+            let mut replacements = HashMap::new();
+            replacements.insert("1p".to_string(), "<div id=\"1\">p</div>".to_string());
+
+            opts.extension.replacements = Some(replacements);
+        },
+    );
+
+    html(
+        "> quote\n>implying",
+        "<blockquote>\n<div class=\"paragraph\">quote</div>\n</blockquote>\n<div class=\"paragraph\">&gt;implying</div>\n",
+    );
+
+    html(
+        "> a\n>> b",
+        "<blockquote>\n<div class=\"paragraph\">a</div>\n</blockquote>\n<div class=\"paragraph\">&gt;&gt; b</div>\n",
+    );
+
+    html(
+        "> quote\n>\treply",
+        "<blockquote>\n<div class=\"paragraph\">quote<br />\nreply</div>\n</blockquote>\n",
+    );
+}
+
+#[test]
 fn separate_quotes_on_line_end() {
     html(
         "> 1\n>\n> 2",

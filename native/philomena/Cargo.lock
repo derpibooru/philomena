@@ -202,7 +202,7 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 [[package]]
 name = "comrak"
 version = "0.59.0"
-source = "git+https://github.com/philomena-dev/comrak?branch=philomena-0.59.0#1548c1139f46ab7174f99910f0fd942a69c0c8e2"
+source = "git+https://github.com/philomena-dev/comrak?branch=philomena-0.59.0.1#e199f4ec605bd9c452af3b5e2f7f18766f0a74de"
 dependencies = [
  "caseless",
  "entities",
