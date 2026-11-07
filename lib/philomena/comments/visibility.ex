@@ -28,11 +28,6 @@ defmodule Philomena.Comments.Visibility do
     }
   end
 
-  defp filter_hidden_comments(query, true), do: query
-
-  defp filter_hidden_comments(query, false),
-    do: where(query, [comment], not comment.hidden_from_users)
-
   defp filter_destroyed_comments(query, true), do: query
 
   defp filter_destroyed_comments(query, false),
@@ -68,7 +63,7 @@ defmodule Philomena.Comments.Visibility do
       %{
         bool: %{
           must: [%{term: %{approved: false}}],
-          must_not: [%{term: %{user_id: user_id}}]
+          must_not: [%{term: %{true_author_id: user_id}}]
         }
       }
       | filters
@@ -84,11 +79,16 @@ defmodule Philomena.Comments.Visibility do
     do: [%{term: %{"image.approved" => false}} | filters]
 
   @doc """
-  Restricts a comment query to comments visible to `actor`.
+  Restricts a comment query to comments shown in an image's comment thread
+  for `actor`.
+
+  Hidden comments stay in the thread so their deletion reason can be shown.
+  Destroyed comments are visible only to actors who can destroy comments, and
+  unapproved comments only to approvers and their author.
 
   ## Examples
 
-      iex> visible_forums(Forum, actor)
+      iex> visible_comments(Comment, actor)
       #Ecto.Query<...>
 
   """
@@ -97,7 +97,6 @@ defmodule Philomena.Comments.Visibility do
     policy = visibility_policy(actor, true)
 
     queryable
-    |> filter_hidden_comments(policy.show_hidden_comments?)
     |> filter_destroyed_comments(policy.show_destroyed_comments?)
     |> filter_non_approved(actor.user, policy.show_unapproved_comments?)
   end

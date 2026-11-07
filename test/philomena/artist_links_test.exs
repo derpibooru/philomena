@@ -116,13 +116,10 @@ defmodule Philomena.ArtistLinksTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before authorization" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert ArtistLinks.new_artist_link(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = ArtistLinks.new_artist_link(actor(user, fingerprint: nil), user.slug)
     end
 
     test "an unrelated user may not open another user's new form" do

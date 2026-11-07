@@ -4,12 +4,14 @@ defmodule PhilomenaWeb.ImageControllerTest do
   @moduletag :search
 
   import Philomena.AsyncUpload
+  import Philomena.AttributionFixtures
   import Philomena.CommentsFixtures
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
 
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
+  alias Philomena.Comments
   alias Philomena.Images.Image
   alias Philomena.Tags.Tag
   alias Philomena.Repo
@@ -104,6 +106,26 @@ defmodule PhilomenaWeb.ImageControllerTest do
       assert response =~ "Test image comment body"
     end
 
+    test "renders a hidden comment's deletion reason but not its body to anonymous users",
+         %{conn: conn} do
+      image = image_fixture()
+      comment = comment_fixture(image, nil, %{"body" => "Hidden image comment body"})
+
+      {:ok, _} =
+        Comments.create_comment_hide(
+          actor(moderator_user_fixture()),
+          image.id,
+          comment.id,
+          %{"deletion_reason" => "Off-topic comment"}
+        )
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "Deletion reason:"
+      assert response =~ "Off-topic comment"
+      refute response =~ "Hidden image comment body"
+    end
+
     test "renders an image for logged-in users", %{conn: conn} do
       %{conn: conn} = register_and_log_in_user(%{conn: conn})
       image = image_fixture()
@@ -184,7 +206,7 @@ defmodule PhilomenaWeb.ImageControllerTest do
 
     test "does not render mutation controls for a banned viewer", %{conn: conn} do
       %{conn: conn} = register_and_log_in_banned_user(%{conn: conn})
-      image = image_fixture()
+      image = image_fixture(faves_count: 7)
 
       conn = get(conn, ~p"/images/#{image}")
       response = html_response(conn, 200)
@@ -195,6 +217,49 @@ defmodule PhilomenaWeb.ImageControllerTest do
       refute response =~ "interaction--fave"
       refute response =~ "interaction--upvote"
       refute response =~ "interaction--downvote"
+      assert response =~ ~r/class="favorites"[^>]*>7</
+      assert response =~ "Unsubscribe"
+    end
+
+    test "shows anonymous visitors the counts, login prompts, and gallery links", %{conn: conn} do
+      image = image_fixture(faves_count: 7, upvotes_count: 5, downvotes_count: 2, score: 3)
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ ~r/class="favorites"[^>]*>7</
+      assert response =~ ~r/class="upvotes"[^>]*>5</
+      assert response =~ ~r/class="downvotes"[^>]*>2</
+      assert response =~ ~r/class="score[^"]*"[^>]*>3</
+      assert response =~ "interaction--fave"
+      assert response =~ ~s(href="/sessions/new"><i class="fa fa-bell">)
+      assert response =~ "Featured in"
+      assert response =~ "Sign in to create a gallery"
+    end
+
+    test "renders every control for a moderator whose first request has no fingerprint",
+         %{conn: conn} do
+      image = image_fixture()
+      conn = log_in_user(without_fingerprint(conn), moderator_user_fixture())
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "interaction--fave"
+      assert response =~ ~s(id="edit-tags")
+      assert response =~ ~s(id="uploader-form")
+      assert response =~ ~s(action="/images/#{image.id}/comments")
+      assert response =~ "Deletion reason (cannot be empty)"
+      assert response =~ "Clear hash"
+    end
+
+    test "renders the page without moderation forms for a banned admin", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+      image = image_fixture()
+
+      response = html_response(get(conn, ~p"/images/#{image}"), 200)
+
+      assert response =~ "Manage"
+      refute response =~ "Deletion reason (cannot be empty)"
+      refute response =~ ~s(id="uploader-form")
     end
 
     test "renders the deleted page for an anonymous viewer", %{conn: conn} do
@@ -306,6 +371,12 @@ defmodule PhilomenaWeb.ImageControllerTest do
       %{conn: conn} = register_and_log_in_user(%{conn: conn})
 
       conn = get(conn, ~p"/images/new")
+
+      assert html_response(conn, 200) =~ "New Image - Derpibooru"
+    end
+
+    test "renders the upload form on a first request with no fingerprint", %{conn: conn} do
+      conn = get(without_fingerprint(conn), ~p"/images/new")
 
       assert html_response(conn, 200) =~ "New Image - Derpibooru"
     end

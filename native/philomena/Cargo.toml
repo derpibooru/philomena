@@ -17,7 +17,7 @@ members = [
 
 [dependencies]
 base64 = "0.23"
-comrak = { git = "https://github.com/philomena-dev/comrak", branch = "philomena-0.59.0", default-features = false }
+comrak = { git = "https://github.com/philomena-dev/comrak", branch = "philomena-0.59.0.1", default-features = false }
 http = "1.5"
 jemallocator = { version = "0.5", features = ["disable_initial_exec_tls"] }
 mediaproc = { path = "./mediaproc" }

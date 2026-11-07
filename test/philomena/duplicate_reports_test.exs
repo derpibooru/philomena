@@ -2,6 +2,7 @@ defmodule Philomena.DuplicateReportsTest do
   use Philomena.DataCase, async: true
 
   alias Philomena.DuplicateReports
+  alias Philomena.DuplicateReports.Comparison
   alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DuplicateReports.SearchResult
   alias Philomena.Images.Image
@@ -183,7 +184,7 @@ defmodule Philomena.DuplicateReportsTest do
       assert changeset.data.image.id == image.id
     end
 
-    test "form and submission share write access and image visibility" do
+    test "the form refuses bans and invisible images but not a missing fingerprint" do
       image = image_fixture()
 
       assert DuplicateReports.new_duplicate_report(
@@ -191,10 +192,11 @@ defmodule Philomena.DuplicateReportsTest do
                image.id
              ) == {:error, :ban}
 
-      assert DuplicateReports.new_duplicate_report(
-               actor(confirmed_user_fixture(), fingerprint: nil),
-               image.id
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               DuplicateReports.new_duplicate_report(
+                 actor(confirmed_user_fixture(), fingerprint: nil),
+                 image.id
+               )
 
       hidden = hide_image(image_fixture())
 
@@ -351,6 +353,7 @@ defmodule Philomena.DuplicateReportsTest do
                %{report.id => "accepted", other.id => "rejected"}
 
       assert Enum.all?(affected_reports, &Ecto.assoc_loaded?(&1.image.tags))
+      refute Enum.any?(affected_reports, &Comparison.mergeable?/1)
       assert Repo.get!(DuplicateReport, other.id).state == "rejected"
 
       source = Repo.get!(Image, source.id)
@@ -419,6 +422,26 @@ defmodule Philomena.DuplicateReportsTest do
                %{original.id => "rejected", reverse.id => "accepted"}
     end
 
+    test "inserts a fresh reverse report when the existing one was rejected" do
+      moderator = actor(moderator_user_fixture())
+      source = image_fixture()
+      target = image_fixture()
+      rejected = duplicate_report_fixture(target, source)
+      {:ok, _rejected} = DuplicateReports.create_duplicate_report_reject(moderator, rejected.id)
+      original = duplicate_report_fixture(source, target)
+
+      assert {:ok, accepted, affected_reports} =
+               DuplicateReports.create_duplicate_report_accept_reverse(moderator, original.id)
+
+      assert accepted.id not in [rejected.id, original.id]
+      assert accepted.state == "accepted"
+
+      assert Map.new(affected_reports, &{&1.id, &1.state}) ==
+               %{original.id => "rejected", accepted.id => "accepted"}
+
+      assert Repo.get!(DuplicateReport, rejected.id).state == "rejected"
+    end
+
     test "rejects the original, accepts the reverse report, merges, and logs" do
       moderator = moderator_user_fixture()
       source = image_fixture()
@@ -438,6 +461,8 @@ defmodule Philomena.DuplicateReportsTest do
 
       assert Map.new(affected_reports, &{&1.id, &1.state}) ==
                %{original.id => "rejected", result.id => "accepted"}
+
+      refute Enum.any?(affected_reports, &Comparison.mergeable?/1)
 
       target = Repo.get!(Image, target.id)
       assert target.hidden_from_users

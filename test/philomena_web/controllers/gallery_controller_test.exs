@@ -80,6 +80,29 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert response =~ ~p"/images/#{image.id}"
     end
 
+    test "links images in gallery order so image navigation stays in the gallery",
+         %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+      first = image_fixture()
+      second = image_fixture()
+      gallery_image_fixture(gallery, first)
+      gallery_image_fixture(gallery, second)
+      image_fixture()
+      SearchHelpers.reindex_all!(Image)
+
+      response = conn |> get(~p"/galleries/#{gallery}") |> html_response(200)
+
+      [query_string] =
+        Regex.run(~r{/images/#{second.id}\?([^"]+)"}, response, capture: :all_but_first)
+
+      query_string = String.replace(query_string, "&amp;", "&")
+      assert query_string =~ "sf=gallery_id%3A#{gallery.id}"
+
+      conn = get(build_conn(), "/images/#{second.id}/navigate?rel=next&#{query_string}")
+
+      assert redirected_to(conn) =~ ~p"/images/#{first.id}"
+    end
+
     test "renders a page number far past the search window", %{conn: conn} do
       gallery = gallery_fixture(confirmed_user_fixture(), title: "Test Deep Gallery")
 
@@ -97,6 +120,18 @@ defmodule PhilomenaWeb.GalleryControllerTest do
 
       assert response =~ "Showing Gallery - Derpibooru"
       assert response =~ "Test Empty Gallery"
+    end
+
+    test "shows when the gallery was created", %{conn: conn} do
+      gallery = gallery_fixture(confirmed_user_fixture())
+
+      Gallery
+      |> where(id: ^gallery.id)
+      |> Philomena.Repo.update_all(set: [created_at: ~U[2020-01-01 00:00:00Z]])
+
+      conn = get(conn, ~p"/galleries/#{gallery}")
+
+      assert html_response(conn, 200) =~ ~s(datetime="2020-01-01T00:00:00Z")
     end
 
     test "renders a gallery for logged-in users", %{conn: conn} do
@@ -181,6 +216,14 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/galleries/new")
+
+      assert html_response(conn, 200) =~ "New Gallery - Derpibooru"
+    end
   end
 
   describe "POST /galleries" do
@@ -227,6 +270,22 @@ defmodule PhilomenaWeb.GalleryControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/galleries", %{
+          "gallery" => %{
+            "title" => "A new test gallery",
+            "thumbnail_id" => to_string(image_fixture().id)
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Philomena.Repo.exists?(from g in Gallery, where: g.user_id == ^user.id)
     end
   end
 
@@ -275,6 +334,15 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      gallery = gallery_fixture(user)
+
+      conn = get(without_fingerprint(conn), ~p"/galleries/#{gallery}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Gallery - Derpibooru"
+    end
   end
 
   describe "PATCH /galleries/:id" do
@@ -318,6 +386,20 @@ defmodule PhilomenaWeb.GalleryControllerTest do
       gallery = gallery_fixture(confirmed_user_fixture())
 
       conn = patch(conn, ~p"/galleries/#{gallery}", %{"gallery" => %{"title" => "Hijacked"}})
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Philomena.Repo.reload!(gallery).title == gallery.title
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      gallery = gallery_fixture(user)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/galleries/#{gallery}", %{
+          "gallery" => %{"title" => "Renamed test gallery"}
+        })
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."

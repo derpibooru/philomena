@@ -8,7 +8,9 @@ defmodule Philomena.Rules do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.IntegerId
   alias Philomena.Authorization
@@ -20,7 +22,17 @@ defmodule Philomena.Rules do
   alias Philomena.Rules.RuleVersion
   alias Philomena.Users.User
 
-  defp list_rules do
+  @doc """
+  Returns every rule, including hidden and internal ones, ordered by position.
+
+  ## Examples
+
+      iex> list_rules()
+      [%Rule{name: "Rule #0", ...}, ..., %Rule{name: "Legacy", ...}]
+
+  """
+  @spec list_rules() :: [Rule.t()]
+  def list_rules do
     Repo.all(from r in Rule, order_by: [asc: r.position])
   end
 
@@ -203,7 +215,7 @@ defmodule Philomena.Rules do
   @doc """
   Prepares a new rule on behalf of `actor`.
 
-  Verifies write access and authorizes `:new` before returning the changeset.
+  Rejects a banned actor and authorizes `:new` before returning the changeset.
 
   ## Examples
 
@@ -216,7 +228,7 @@ defmodule Philomena.Rules do
   @spec new_rule(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | Authorization.write_error()
   def new_rule(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Rule) do
       {:ok, change_rule(%Rule{})}
     end
@@ -251,7 +263,7 @@ defmodule Philomena.Rules do
   @doc """
   Loads the rule at `position` for `actor` to edit.
 
-  Verifies write access before safely loading the position and authorizing
+  Rejects a banned actor before safely loading the position and authorizing
   `:edit` on the real rule.
 
   ## Examples
@@ -267,7 +279,7 @@ defmodule Philomena.Rules do
           {:ok, {Rule.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_rule(%Actor{} = actor, position) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, rule} <- load_authorized_rule(actor, position, :edit) do
       {:ok, {rule, change_rule(rule)}}
     end

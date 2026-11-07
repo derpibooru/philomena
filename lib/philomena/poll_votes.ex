@@ -76,7 +76,7 @@ defmodule Philomena.PollVotes do
       {:error, %Ecto.Changeset{}}
 
   """
-  @spec create_votes(Actor.t(), String.t(), String.t(), map() | nil) ::
+  @spec create_votes(Actor.t(), String.t(), String.t(), map()) ::
           {:ok, Ballot.t()}
           | {:error, Ecto.Changeset.t()}
           | {:error, :ban | :not_found | :unauthorized}

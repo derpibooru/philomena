@@ -184,6 +184,14 @@ defmodule PhilomenaWeb.FilterControllerTest do
 
       assert response =~ "Creating New Filter"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/filters/new")
+
+      assert html_response(conn, 200) =~ "New Filter - Derpibooru"
+    end
   end
 
   describe "POST /filters" do
@@ -221,6 +229,17 @@ defmodule PhilomenaWeb.FilterControllerTest do
       assert response =~ "Creating New Filter"
       assert Repo.aggregate(Filter, :count) == 1
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+      name = unique_filter_name()
+
+      conn = post(without_fingerprint(conn), ~p"/filters", %{"filter" => %{"name" => name}})
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Filter, name: name)
+    end
   end
 
   describe "GET /filters/:id/edit" do
@@ -251,6 +270,15 @@ defmodule PhilomenaWeb.FilterControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "renders the form for the owner without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      filter = filter_fixture(user)
+
+      conn = get(without_fingerprint(conn), ~p"/filters/#{filter}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Filter - Derpibooru"
     end
   end
 
@@ -297,6 +325,20 @@ defmodule PhilomenaWeb.FilterControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      filter = filter_fixture(user)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/filters/#{filter}", %{
+          "filter" => %{"name" => "Renamed #{filter.name}"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(Filter, filter.id).name == filter.name
     end
   end
 

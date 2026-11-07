@@ -177,6 +177,27 @@ defmodule Philomena.CommentsTest do
       assert Enum.map(moderator_ip_results.entries, & &1.id) == [comment.id]
     end
 
+    test "shows a pending comment to its author but not to another user" do
+      author = confirmed_user_fixture()
+      image = image_fixture()
+      comment = pending_comment(image, author)
+      Repo.update!(Ecto.Changeset.change(comment, body: "Test grapefruit comment"))
+      SearchHelpers.reindex_all!(Comment)
+
+      assert {:ok, %{entries: [%Comment{id: id}]}} =
+               Comments.query_comments(actor(author), @empty_filter, "grapefruit", @pagination)
+
+      assert id == comment.id
+
+      assert {:ok, %{entries: []}} =
+               Comments.query_comments(
+                 actor(confirmed_user_fixture()),
+                 @empty_filter,
+                 "grapefruit",
+                 @pagination
+               )
+    end
+
     test "excludes a comment on an image carrying a hidden tag" do
       image = image_fixture(tags: "grimdark")
       tag = Enum.find(image.tags, &(&1.name == "grimdark"))
@@ -199,19 +220,21 @@ defmodule Philomena.CommentsTest do
   end
 
   describe "show_comment/2 visibility matrix" do
-    test "normalizes malformed, missing, hidden-parent, and hidden-comment rows" do
+    test "loads hidden comments and normalizes destroyed, pending, and hidden-parent rows" do
+      author = confirmed_user_fixture()
       user = confirmed_user_fixture()
       moderator = moderator_user_fixture()
-      assistant = assistant_user_fixture()
-      comment_assistant = %{assistant | role_map: %{"Comment" => %{"moderator" => []}}}
+      comment_assistant = role_assistant_fixture("Comment")
 
       visible_image = image_fixture()
       visible_comment = comment_fixture(visible_image)
+      hidden_comment = already_hidden_comment(visible_image)
+      pending = pending_comment(visible_image, author)
 
-      hidden_comment =
+      destroyed =
         visible_image
-        |> comment_fixture()
-        |> Ecto.Changeset.change(hidden_from_users: true)
+        |> already_hidden_comment()
+        |> Ecto.Changeset.change(destroyed_content: true)
         |> Repo.update!()
 
       hidden_image = image_fixture(hidden_from_users: true)
@@ -220,31 +243,31 @@ defmodule Philomena.CommentsTest do
       for viewer <- [actor(), actor(user), actor(moderator), actor(comment_assistant)] do
         assert Comments.show_comment(viewer, "not-an-id") == {:error, :not_found}
         assert Comments.show_comment(viewer, "2147483647") == {:error, :not_found}
+        assert Comments.show_comment(viewer, destroyed.id) == {:error, :not_found}
+
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, visible_comment.id)
+        assert id == visible_comment.id
+
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, hidden_comment.id)
+        assert id == hidden_comment.id
       end
 
       for viewer <- [actor(), actor(user)] do
-        assert Comments.show_comment(viewer, hidden_comment.id) == {:error, :unauthorized}
+        assert Comments.show_comment(viewer, pending.id) == {:error, :not_found}
+      end
 
+      for viewer <- [actor(author), actor(moderator), actor(comment_assistant)] do
+        assert {:ok, %{id: id}} = Comments.show_comment(viewer, pending.id)
+        assert id == pending.id
+      end
+
+      for viewer <- [actor(), actor(user), actor(comment_assistant)] do
         assert Comments.show_comment(viewer, parent_hidden_comment.id) ==
                  {:error, :unauthorized}
       end
 
-      assert {:ok, %{id: id}} = Comments.show_comment(actor(moderator), hidden_comment.id)
-      assert id == hidden_comment.id
-
       assert {:ok, %{id: id}} = Comments.show_comment(actor(moderator), parent_hidden_comment.id)
       assert id == parent_hidden_comment.id
-
-      assert {:ok, %{id: id}} =
-               Comments.show_comment(actor(comment_assistant), hidden_comment.id)
-
-      assert id == hidden_comment.id
-
-      assert Comments.show_comment(actor(comment_assistant), parent_hidden_comment.id) ==
-               {:error, :unauthorized}
-
-      assert {:ok, %{id: id}} = Comments.show_comment(actor(), visible_comment.id)
-      assert id == visible_comment.id
     end
   end
 
@@ -1046,6 +1069,17 @@ defmodule Philomena.CommentsTest do
       assert Repo.get!(Image, image.id).comments_count == 0
     end
 
+    test "an untrusted author's link to this site stays approved", %{image: image} do
+      [domain | _] = String.split(Application.get_env(:philomena, :site_domains), ",")
+
+      assert {:ok, %Comment{} = comment} =
+               Comments.create_comment(actor(confirmed_user_fixture()), image.id, %{
+                 "body" => "see https://#{domain}/images/1"
+               })
+
+      assert comment.approved
+    end
+
     test "an approved comment increments the author's comments_count by one", %{image: image} do
       author = confirmed_user_fixture()
       before = Repo.get!(User, author.id).comments_count
@@ -1116,11 +1150,16 @@ defmodule Philomena.CommentsTest do
       assert %User{} = loaded.user
     end
 
-    test "rejects a hidden comment for an anonymous actor", %{image: image} do
-      comment = already_hidden_comment(image)
+    test "an anonymous actor loads a hidden comment but not another user's pending one",
+         %{image: image} do
+      hidden = already_hidden_comment(image)
+      pending = pending_comment(image)
 
-      assert Comments.show_comment(actor(), image.id, "#{comment.id}") ==
-               {:error, :unauthorized}
+      assert {:ok, {_image, %Comment{id: id, hidden_from_users: true}}} =
+               Comments.show_comment(actor(), image.id, "#{hidden.id}")
+
+      assert id == hidden.id
+      assert Comments.show_comment(actor(), image.id, pending.id) == {:error, :not_found}
     end
 
     test "an unknown comment id is not found", %{image: image} do
@@ -1130,8 +1169,8 @@ defmodule Philomena.CommentsTest do
   end
 
   describe "edit_comment/3" do
-    # Backs the edit write, so it runs the global write prerequisite before
-    # loading and authorizing the comment for :edit.
+    # Backs the edit form, so it refuses bans before loading and authorizing
+    # the comment for :edit.
 
     setup do
       %{image: image_fixture()}
@@ -1144,17 +1183,12 @@ defmodule Philomena.CommentsTest do
       assert Comments.edit_comment(actor, image.id, "#{comment.id}") == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading", %{image: image} do
-      assert Comments.edit_comment(actor(nil, fingerprint: nil), image.id, "1") ==
-               {:error, :unauthorized}
-    end
-
-    test "the author loads the form", %{image: image} do
+    test "the author loads the form, even without a fingerprint", %{image: image} do
       author = confirmed_user_fixture()
       comment = comment_fixture(image, author, %{"body" => "My comment"})
 
       assert {:ok, %Ecto.Changeset{} = changeset} =
-               Comments.edit_comment(actor(author), image.id, "#{comment.id}")
+               Comments.edit_comment(actor(author, fingerprint: nil), image.id, "#{comment.id}")
 
       assert changeset.data.id == comment.id
 
@@ -1275,6 +1309,19 @@ defmodule Philomena.CommentsTest do
       assert Repo.get!(User, author.id).comments_count == before
     end
 
+    test "editing the external link out of a withheld comment approves it and restores its count",
+         %{image: image} do
+      {comment, author} = unapproved_comment(image)
+      before = Repo.get!(User, author.id).comments_count
+
+      assert {:ok, {_image, %Comment{approved: true}}} =
+               Comments.update_comment(actor(author), image.id, comment.id, %{
+                 "body" => "No links here"
+               })
+
+      assert Repo.get!(User, author.id).comments_count == before + 1
+    end
+
     test "a forced-filter match prevents an update", %{image: image} do
       user = confirmed_user_fixture()
       comment = comment_fixture(image, user, %{"body" => "Original"})
@@ -1299,6 +1346,19 @@ defmodule Philomena.CommentsTest do
                {:error, :unauthorized}
 
       assert Repo.reload!(comment).body == "Original comment body"
+    end
+
+    test "a moderator and a comment assistant edit another user's comment", %{image: image} do
+      comment = comment_fixture(image, confirmed_user_fixture(), %{"body" => "Original"})
+
+      for staff <- [moderator_user_fixture(), role_assistant_fixture("Comment")] do
+        body = "Edited by #{staff.role}"
+
+        assert {:ok, {_image, %Comment{body: ^body}}} =
+                 Comments.update_comment(actor(staff), image.id, comment.id, %{"body" => body})
+
+        assert Repo.reload!(comment).body == body
+      end
     end
 
     test "a blank body is a rejected changeset carrying the loaded comment", %{image: image} do
@@ -1475,30 +1535,6 @@ defmodule Philomena.CommentsTest do
       assert %{terms: %{"image.tag_ids" => [7, 8]}} in filters
     end
 
-    test "a signed-in viewer scopes the approved exception to their own id" do
-      user = confirmed_user_fixture()
-
-      filters =
-        must_not(
-          Comments.comment_search_definition(actor(user), @empty_filter, %{match_all: %{}})
-        )
-
-      # Comment and image approval are independent. The comment exclusion keeps
-      # the viewer's own pending comment; an unapproved image stays excluded.
-      assert %{
-               bool: %{
-                 must: [%{term: %{approved: false}}],
-                 must_not: [%{term: %{user_id: user.id}}]
-               }
-             } in filters
-
-      refute %{term: %{approved: false}} in filters
-      assert %{term: %{"image.approved" => false}} in filters
-
-      # The deleted and hidden-tag excludes still apply.
-      assert %{term: %{hidden_from_users: true}} in filters
-    end
-
     test "an authorized moderator drops deleted and non-approved excludes by default" do
       moderator = moderator_user_fixture()
       filter = %Filter{hidden_tag_ids: [7]}
@@ -1525,7 +1561,7 @@ defmodule Philomena.CommentsTest do
       assert %{
                bool: %{
                  must: [%{term: %{approved: false}}],
-                 must_not: [%{term: %{user_id: moderator.id}}]
+                 must_not: [%{term: %{true_author_id: moderator.id}}]
                }
              } in filters
 
@@ -1610,14 +1646,16 @@ defmodule Philomena.CommentsTest do
       assert Enum.map(page.entries, & &1.id) == [c1.id, c2.id, c3.id]
     end
 
-    test "an anonymous viewer sees only approved, non-destroyed comments", %{image: image} do
+    test "an anonymous viewer sees approved and hidden comments, not pending or destroyed ones",
+         %{image: image} do
       approved = comment_fixture(image, confirmed_user_fixture())
+      hidden = already_hidden_comment(image)
       _pending = pending_comment(image)
       _destroyed = destroyed_comment(image)
 
       page = Comments.list_image_comments(actor(nil), image, page: 1, page_size: 25)
 
-      assert Enum.map(page.entries, & &1.id) == [approved.id]
+      assert Enum.sort(Enum.map(page.entries, & &1.id)) == Enum.sort([approved.id, hidden.id])
     end
 
     test "a signed-in user additionally sees their own non-approved comments",

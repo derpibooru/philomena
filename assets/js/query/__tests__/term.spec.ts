@@ -77,7 +77,8 @@ describe('Search terms', () => {
     getAstMatcherForTerm('created_at.lt:2024', 0, factory);
     getAstMatcherForTerm('created_at.gte:2024', 0, factory);
     getAstMatcherForTerm('created_at.gt:2024', 0, factory);
-    expect(factory.dateVals).toEqual(['2024', '2024', '2024', '2024']);
+    getAstMatcherForTerm('created_at.eq:2024', 0, factory);
+    expect(factory.dateVals).toEqual(['2024', '2024', '2024', '2024', '2024']);
   });
 
   it('should parse exact number field values', () => {
@@ -90,7 +91,8 @@ describe('Search terms', () => {
     getAstMatcherForTerm('width.lt:1920', 0, factory);
     getAstMatcherForTerm('width.gte:1920', 0, factory);
     getAstMatcherForTerm('width.gt:1920', 0, factory);
-    expect(factory.numberVals).toEqual([1920, 1920, 1920, 1920]);
+    getAstMatcherForTerm('width.eq:1920', 0, factory);
+    expect(factory.numberVals).toEqual([1920, 1920, 1920, 1920, 1920]);
   });
 
   it('should parse literal field values', () => {

@@ -79,8 +79,9 @@ defmodule Philomena.GalleriesTest do
       assert Galleries.new_gallery(actor) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint may not reach the form" do
-      assert Galleries.new_gallery(actor(nil, fingerprint: nil)) == {:error, :unauthorized}
+    test "an actor without a fingerprint still gets the form" do
+      assert {:ok, %Ecto.Changeset{}} =
+               Galleries.new_gallery(actor(confirmed_user_fixture(), fingerprint: nil))
     end
   end
 
@@ -266,12 +267,12 @@ defmodule Philomena.GalleriesTest do
   end
 
   describe "edit_gallery/2" do
-    test "the owner loads the gallery paired with its edit changeset" do
+    test "the owner loads the gallery paired with its edit changeset, even without a fingerprint" do
       user = confirmed_user_fixture()
       gallery = gallery_fixture(user)
 
       assert {:ok, {%Gallery{} = loaded, %Ecto.Changeset{} = changeset}} =
-               Galleries.edit_gallery(actor(user), "#{gallery.id}")
+               Galleries.edit_gallery(actor(user, fingerprint: nil), "#{gallery.id}")
 
       assert loaded.id == gallery.id
       assert changeset.data.id == gallery.id
@@ -288,11 +289,6 @@ defmodule Philomena.GalleriesTest do
       actor = actor(confirmed_user_fixture(), ban: @ban)
 
       assert Galleries.edit_gallery(actor, "abc") == {:error, :ban}
-    end
-
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Galleries.edit_gallery(actor(nil, fingerprint: nil), "abc") ==
-               {:error, :unauthorized}
     end
 
     test "a non-castable id is not-found" do
@@ -720,6 +716,23 @@ defmodule Philomena.GalleriesTest do
       :ok = Search.refresh_index!(Gallery)
       assert {:ok, page, _changeset} = Galleries.list_galleries(actor(), params, @pagination)
       refute Enum.any?(page.entries, &(&1.id == gallery.id))
+    end
+  end
+
+  describe "query_galleries/3" do
+    test "finds galleries by thumbnail and spoiler warning" do
+      user = confirmed_user_fixture()
+      thumbnail = image_fixture()
+      wanted = gallery_fixture(user, thumbnail_id: thumbnail.id, spoiler_warning: "grapefruit")
+      _other = gallery_fixture(user)
+      SearchHelpers.reindex_all!(Gallery)
+
+      for query <- ["thumbnail_id:#{thumbnail.id}", "spoiler_warning:grapefruit"] do
+        assert {:ok, %{entries: [%Gallery{id: id}]}} =
+                 Galleries.query_galleries(actor(), query, @pagination)
+
+        assert id == wanted.id
+      end
     end
   end
 

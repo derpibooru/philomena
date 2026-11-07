@@ -249,6 +249,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidationErrors'
+        '401':
+          description: No valid API key was provided.
+        '403':
+          description: The user is banned.
+        '429':
+          description: The user uploaded another image within the last 5 seconds.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                required: [error]
 
   /json/images/featured:
     get:
@@ -763,6 +777,14 @@ paths:
       parameters:
         - $ref: '#/components/parameters/ForumShortName'
         - $ref: '#/components/parameters/TopicSlug'
+        - name: post_id
+          in: query
+          required: false
+          description: >
+            The ID of a post in the topic. When given, the page containing that
+            post is returned instead of `page`.
+          schema:
+            type: integer
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
       responses:

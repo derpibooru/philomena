@@ -27,7 +27,7 @@ defmodule PhilomenaWeb.Admin.ForumController do
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
 
-      {:error, :unauthorized} = error ->
+      {:error, reason} = error when reason in [:ban, :unauthorized] ->
         error
     end
   end

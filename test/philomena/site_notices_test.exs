@@ -346,14 +346,25 @@ defmodule Philomena.SiteNoticesTest do
   end
 
   describe "write access prerequisite" do
-    test "form and mutation paths consistently reject bans and missing fingerprints" do
+    test "forms reject bans but not missing fingerprints" do
+      admin = admin_user_fixture()
+      notice = site_notice_fixture()
+
+      for operation <- [
+            &SiteNotices.new_site_notice/1,
+            &SiteNotices.edit_site_notice(&1, notice.id)
+          ] do
+        assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
+        assert {:ok, _} = operation.(actor(admin, fingerprint: nil))
+      end
+    end
+
+    test "mutations reject bans and missing fingerprints" do
       admin = admin_user_fixture()
       notice = site_notice_fixture()
 
       operations = [
-        &SiteNotices.new_site_notice/1,
         &SiteNotices.create_site_notice(&1, valid_attrs()),
-        &SiteNotices.edit_site_notice(&1, notice.id),
         &SiteNotices.update_site_notice(&1, notice.id, %{"title" => "Changed"}),
         &SiteNotices.delete_site_notice(&1, notice.id)
       ]

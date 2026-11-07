@@ -72,6 +72,14 @@ defmodule PhilomenaWeb.Admin.BadgeControllerTest do
       assert response =~ "New Badge - Derpibooru"
       assert response =~ "New Badge"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/badges/new")
+
+      assert html_response(conn, 200) =~ "New Badge - Derpibooru"
+    end
   end
 
   describe "POST /admin/badges (create)" do
@@ -122,6 +130,19 @@ defmodule PhilomenaWeb.Admin.BadgeControllerTest do
       assert response =~ "Oops, something went wrong!"
       refute Repo.get_by(Badge, title: "No Image Badge")
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/badges", %{
+          "badge" => %{"title" => "Fingerprintless Badge", "image" => svg_upload()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Badge, title: "Fingerprintless Badge")
+    end
   end
 
   describe "GET /admin/badges/:id/edit" do
@@ -156,6 +177,15 @@ defmodule PhilomenaWeb.Admin.BadgeControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      badge = badge_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/badges/#{badge}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Badge - Derpibooru"
+    end
   end
 
   describe "PATCH /admin/badges/:id (update)" do
@@ -188,6 +218,20 @@ defmodule PhilomenaWeb.Admin.BadgeControllerTest do
       response = html_response(conn, 200)
       assert response =~ "Edit Badge"
       assert response =~ "Oops, something went wrong!"
+      assert Repo.get(Badge, badge.id).title == badge.title
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      badge = badge_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/badges/#{badge}", %{
+          "badge" => %{"title" => "Updated Title"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
       assert Repo.get(Badge, badge.id).title == badge.title
     end
   end

@@ -35,6 +35,14 @@ defmodule PhilomenaWeb.AvatarControllerTest do
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :error) =~ "You are currently banned."
     end
+
+    test "renders the avatar form without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/avatar/edit")
+
+      assert html_response(conn, 200) =~ "Editing Avatar - Derpibooru"
+    end
   end
 
   describe "PATCH /avatar" do
@@ -64,6 +72,18 @@ defmodule PhilomenaWeb.AvatarControllerTest do
       conn = build_conn()
       conn = patch(conn, ~p"/avatar", %{"user" => %{}})
       assert redirected_to(conn) == ~p"/sessions/new"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{
+      conn: conn,
+      user: user
+    } do
+      conn =
+        patch(without_fingerprint(conn), ~p"/avatar", %{"user" => %{"avatar" => png_upload()}})
+
+      assert redirected_to(conn) == "/"
+      assert Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Users.fetch_user_for_worker!(user.id).avatar
     end
   end
 

@@ -37,5 +37,7 @@ defmodule Philomena.Rules.Rule do
       :name,
       :position
     ])
+    |> unique_constraint(:name)
+    |> unique_constraint(:position)
   end
 end

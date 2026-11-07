@@ -244,13 +244,13 @@ export function setupImageUpload() {
   // return true if all checks pass
   // return false if any check fails
   const validateTags = (): boolean => {
-    const tagInput = $<HTMLDivElement>('.js-taginput');
+    const tagInput = $<HTMLTextAreaElement>('textarea.js-taginput', form);
 
-    if (!tagInput || !tagInput.innerText) {
+    if (!tagInput) {
       return true;
     }
 
-    const tagsArr = tagInput.innerText.split(',').map(t => t.trim());
+    const tagsArr = tagInput.value.split(',').map(t => t.trim());
     const errors: string[] = [];
 
     let hasRating = false;

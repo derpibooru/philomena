@@ -86,10 +86,9 @@ defmodule Philomena.Reports.SearchIndex do
       },
       replacements: [
         %{path: ["user"], old: old_name, new: new_name},
-        %{path: ["admin"], old: old_name, new: new_name},
-        %{path: ["related_users"], old: old_name, new: new_name}
+        %{path: ["admin"], old: old_name, new: new_name}
       ],
-      set_replacements: []
+      set_replacements: [%{path: ["related_users"], old: old_name, new: new_name}]
     }
   end
 

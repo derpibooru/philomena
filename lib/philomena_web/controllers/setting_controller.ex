@@ -54,6 +54,11 @@ defmodule PhilomenaWeb.SettingController do
       "autocomplete_search_history_hidden",
       "autocomplete_search_history_hidden"
     )
+    |> set_bool_cookie(
+      user_params,
+      "autocomplete_properties_hidden",
+      "autocomplete_properties_hidden"
+    )
     |> set_cookie(
       "autocomplete_search_history_max_suggestions_when_typing",
       user_params["autocomplete_search_history_max_suggestions_when_typing"]

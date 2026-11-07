@@ -4,7 +4,9 @@ defmodule Philomena.Forums do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.Forums.{Forum, ForumIndex, ForumPage}
@@ -187,7 +189,7 @@ defmodule Philomena.Forums do
   @spec new_forum(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_forum(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Forum) do
       {:ok, Forum.changeset(%Forum{})}
     end
@@ -228,7 +230,7 @@ defmodule Philomena.Forums do
   @spec edit_forum(Actor.t(), String.t()) ::
           {:ok, {Forum.t(), Ecto.Changeset.t()}} | {:error, :ban | :not_found | :unauthorized}
   def edit_forum(%Actor{} = actor, short_name) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, forum} <- load_authorized_forum(actor, :edit, short_name) do
       {:ok, {forum, Forum.changeset(forum, %{})}}
     end
@@ -411,6 +413,7 @@ defmodule Philomena.Forums do
             SELECT last_post_id FROM topics
             WHERE forum_id = ?
             AND hidden_from_users IS FALSE
+            AND last_post_id IS NOT NULL
             ORDER BY last_replied_to_at DESC, id DESC
             LIMIT 1
             """,

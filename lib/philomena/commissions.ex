@@ -4,7 +4,9 @@ defmodule Philomena.Commissions do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -110,9 +112,10 @@ defmodule Philomena.Commissions do
   end
 
   @doc """
-  Loads the active profile named by `slug` and its visible commission listing.
+  Loads the profile named by `slug` and its visible commission listing.
 
-  Missing or deactivated profiles and profiles without a listing are not found.
+  The profile is loaded following `Users.load_profile/3`; one without a
+  listing is not found.
   Items are returned by ascending base price with ID as a deterministic tie
   breaker.
 
@@ -150,9 +153,9 @@ defmodule Philomena.Commissions do
   @doc """
   Builds a new commission form for the active profile named by `slug`.
 
-  Write access is checked before loading. The owner, moderators, and admins may
-  manage a commission on the profile's behalf. The profile must have a verified
-  artist link and no existing commission.
+  A ban is checked before loading; a missing fingerprint is not. The owner,
+  moderators, and admins may manage a commission on the profile's behalf. The
+  profile must have a verified artist link and no existing commission.
 
   ## Examples
 
@@ -164,7 +167,7 @@ defmodule Philomena.Commissions do
           {:ok, Ecto.Changeset.t()}
           | {:error, :ban | :unauthorized | :not_found | :no_verified_links}
   def new_commission(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_profile(actor, slug, :show),
          {:ok, commission} <- new_commission(actor, user, :new) do
       {:ok, Commission.changeset(commission)}
@@ -206,8 +209,8 @@ defmodule Philomena.Commissions do
   @doc """
   Loads the existing commission form for the active profile named by `slug`.
 
-  Write access, owner/staff authorization, and verified link requirements match
-  the update operation.
+  Ban, owner/staff authorization, and verified link requirements match the
+  update operation, which additionally requires a fingerprint.
 
   ## Examples
 
@@ -219,7 +222,7 @@ defmodule Philomena.Commissions do
           {:ok, Ecto.Changeset.t()}
           | {:error, :ban | :unauthorized | :not_found}
   def edit_commission(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_profile(actor, slug, :show),
          {:ok, commission} <- load_profile_commission(actor, user, :edit) do
       {:ok, Commission.changeset(commission)}
@@ -289,8 +292,9 @@ defmodule Philomena.Commissions do
   Builds a new item changeset for the commission belonging to the active profile
   named by `slug`.
 
-  Creating commission items requires permission to edit the commission. Write access
-  is checked before the profile and commission are loaded.
+  Creating commission items requires permission to edit the commission. A ban is
+  checked before the profile and commission are loaded; a missing fingerprint
+  is not.
 
   ## Examples
 
@@ -301,7 +305,7 @@ defmodule Philomena.Commissions do
   @spec new_item(Actor.t(), String.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found}
   def new_item(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_profile(actor, slug, :show),
          {:ok, commission} <- load_profile_commission(actor, user, :new_item) do
       {:ok,
@@ -375,7 +379,7 @@ defmodule Philomena.Commissions do
   @spec edit_item(Actor.t(), String.t(), IntegerId.integer_id()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found}
   def edit_item(%Actor{} = actor, slug, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_profile(actor, slug, :show),
          {:ok, commission} <- load_profile_commission(actor, user, :edit_item),
          {:ok, item} <- load_commission_item(commission, id) do

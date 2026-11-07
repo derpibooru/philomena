@@ -8,7 +8,6 @@ defmodule Philomena.UserFingerprints.Server do
 
   alias Philomena.UserFingerprints
 
-  @timeout 0
   @flush_interval to_timeout(second: 60)
 
   @doc """
@@ -41,20 +40,24 @@ defmodule Philomena.UserFingerprints.Server do
   @impl true
   @doc false
   def init(_) do
-    {:ok, %{}, @timeout}
+    schedule_flush()
+    {:ok, %{}}
   end
 
   @impl true
   @doc false
   def handle_cast({user_id, fingerprint, updated_at}, user_fingerprints) do
-    {:noreply, Map.put(user_fingerprints, {user_id, fingerprint}, updated_at), @timeout}
+    {:noreply, Map.put(user_fingerprints, {user_id, fingerprint}, updated_at)}
   end
 
   @impl true
   @doc false
-  def handle_info(:timeout, user_fingerprints) do
+  def handle_info(:flush, user_fingerprints) do
     UserFingerprints.persist_usage_batch(user_fingerprints)
 
-    {:noreply, %{}, @flush_interval}
+    schedule_flush()
+    {:noreply, %{}}
   end
+
+  defp schedule_flush, do: Process.send_after(self(), :flush, @flush_interval)
 end

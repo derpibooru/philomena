@@ -79,6 +79,14 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{user}/artist_links/new")
+
+      assert html_response(conn, 200) =~ "New Artist Link - Derpibooru"
+    end
   end
 
   describe "POST /profiles/:profile_id/artist_links" do
@@ -129,6 +137,22 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
       assert html_response(conn, 200) =~ "Request Artist Link"
       refute Repo.get_by(ArtistLink, user_id: user.id)
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/profiles/#{user}/artist_links", %{
+          "artist_link" => %{
+            "tag_name" => artist_tag_fixture().name,
+            "uri" => "https://example.com/my-gallery"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(ArtistLink, user_id: user.id)
+    end
   end
 
   describe "GET /profiles/:profile_id/artist_links/:id" do
@@ -143,7 +167,7 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
       assert response =~ link.uri
     end
 
-    test "renders artist-link management controls only for link moderators", %{conn: conn} do
+    test "renders artist-link management controls only to link staff", %{conn: conn} do
       artist = confirmed_user_fixture()
       link = artist_link_fixture(artist)
 
@@ -163,9 +187,9 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
 
       assistant_response = html_response(assistant_conn, 200)
 
-      refute assistant_response =~ ~p"/profiles/#{artist}/artist_links/#{link}/edit"
-      refute assistant_response =~ ~p"/admin/artist_links/#{link}/verification"
-      refute assistant_response =~ ~p"/admin/artist_links/#{link}/reject"
+      assert assistant_response =~ ~p"/profiles/#{artist}/artist_links/#{link}/edit"
+      assert assistant_response =~ ~p"/admin/artist_links/#{link}/verification"
+      assert assistant_response =~ ~p"/admin/artist_links/#{link}/reject"
 
       moderator_response =
         html_response(
@@ -224,6 +248,16 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
                200
              ) =~ "Editing Artist Link - Derpibooru"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      artist = confirmed_user_fixture()
+      link = artist_link_fixture(artist)
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{artist}/artist_links/#{link}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Artist Link - Derpibooru"
+    end
   end
 
   describe "PATCH /profiles/:profile_id/artist_links/:id" do
@@ -256,6 +290,21 @@ defmodule PhilomenaWeb.Profile.ArtistLinkControllerTest do
 
       conn =
         patch(conn, ~p"/profiles/#{user}/artist_links/#{link}", %{
+          "artist_link" => %{"uri" => "https://example.com/updated"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(ArtistLink, link.id).uri == link.uri
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      artist = confirmed_user_fixture()
+      link = artist_link_fixture(artist)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/profiles/#{artist}/artist_links/#{link}", %{
           "artist_link" => %{"uri" => "https://example.com/updated"}
         })
 

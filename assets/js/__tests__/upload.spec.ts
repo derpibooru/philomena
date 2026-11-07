@@ -27,7 +27,7 @@ const errorResponse = {
 /* eslint-enable camelcase */
 
 const tagSets = ['', 'a tag', 'safe', 'one, two, three', 'safe, explicit', 'safe, explicit, three', 'safe, two, three'];
-const tagErrorCounts = [0, 2, 1, 1, 2, 1, 0];
+const tagErrorCounts = [2, 2, 1, 1, 2, 1, 0];
 
 describe('Image upload form', () => {
   let mockPng: File;
@@ -68,7 +68,6 @@ describe('Image upload form', () => {
   let scraperError: HTMLDivElement;
   let fetchButton: HTMLButtonElement;
   let tagsEl: HTMLTextAreaElement;
-  let taginputEl: HTMLDivElement;
   let sourceEl: HTMLInputElement;
   let descrEl: HTMLTextAreaElement;
   let submitButton: HTMLButtonElement;
@@ -117,7 +116,6 @@ describe('Image upload form', () => {
     remoteUrl = assertNotUndefined($$<HTMLInputElement>('.js-scraper')[1]);
     scraperError = assertNotUndefined($$<HTMLInputElement>('.js-scraper')[2]);
     tagsEl = assertNotNull($<HTMLTextAreaElement>('.js-image-tags-input'));
-    taginputEl = assertNotNull($<HTMLDivElement>('.js-taginput'));
     sourceEl = assertNotNull($<HTMLInputElement>('.js-source-url'));
     descrEl = assertNotNull($<HTMLTextAreaElement>('.js-image-descr-input'));
     fetchButton = assertNotNull($<HTMLButtonElement>('#js-scraper-preview'));
@@ -186,7 +184,7 @@ describe('Image upload form', () => {
 
     it('should block navigation away after an image file is attached, but not after form submission', async () => {
       // Set valid tags first
-      taginputEl.innerText = 'safe, two, three';
+      tagsEl.value = 'safe, two, three';
 
       fireEvent.change(fileField, { target: { files: [mockPng] } });
       await waitFor(() => {
@@ -327,7 +325,7 @@ describe('Image upload form', () => {
       for (let i = 0; i < tagSets.length; i += 1) {
         if (tagErrorCounts[i] === 0) continue;
 
-        taginputEl.innerText = tagSets[i];
+        tagsEl.value = tagSets[i];
         await submitForm(form);
 
         const frm = form;
@@ -342,7 +340,7 @@ describe('Image upload form', () => {
       for (let i = 0; i < tagSets.length; i += 1) {
         if (tagErrorCounts[i] !== 0) continue;
 
-        taginputEl.innerText = tagSets[i];
+        tagsEl.value = tagSets[i];
         await submitForm(form);
 
         await waitFor(() => {
@@ -359,7 +357,7 @@ describe('Image upload form', () => {
       if (saveButton) saveButton.remove();
 
       // Set invalid tags
-      taginputEl.innerText = 'one';
+      tagsEl.value = 'one';
 
       // Try to submit
       fireEvent.submit(form);
@@ -370,7 +368,7 @@ describe('Image upload form', () => {
 
     it('should return early from disableUploadButton if submitButton not disabled on pagehide', async () => {
       // Set valid tags
-      taginputEl.innerText = 'safe, two, three';
+      tagsEl.value = 'safe, two, three';
 
       // Submit the form
       await submitForm(form);
@@ -399,7 +397,7 @@ describe('Image upload form', () => {
 
     it('should restore button state when user navigates back after form submission', async () => {
       // Set valid tags
-      taginputEl.innerText = 'safe, two, three';
+      tagsEl.value = 'safe, two, three';
 
       const originalText = submitButton.innerText;
 
@@ -456,7 +454,7 @@ describe('Image upload form', () => {
       setupImageUpload();
 
       // Set valid tags
-      taginputEl.innerText = 'safe, two, three';
+      tagsEl.value = 'safe, two, three';
 
       // Submit form should work without error
       const submitted = await submitForm(form);

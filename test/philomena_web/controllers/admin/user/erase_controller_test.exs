@@ -64,6 +64,14 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Cannot erase a verified user"
     end
+
+    test "renders the erase confirmation form without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/erase/new")
+
+      assert html_response(conn, 200) =~ "Erase user"
+    end
   end
 
   describe "POST /admin/users/:user_id/erase (create) authorization" do
@@ -99,6 +107,19 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       assert reloaded.name =~ ~r/^deactivated_[0-9a-f]{32}$/
     end
 
+    test "erases an already deactivated user, keeping its deactivation", %{conn: conn} do
+      target = deactivated_user_fixture()
+
+      conn = post(conn, ~p"/admin/users/#{target.slug}/erase")
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "User erase started"
+
+      reloaded = Repo.get(User, target.id)
+      assert reloaded.name =~ ~r/^deactivated_[0-9a-f]{32}$/
+      assert reloaded.deleted_at == target.deleted_at
+      assert reloaded.deleted_by_user_id == target.id
+    end
+
     # NOTE: the nonexistent-user guard redirects to the user index (no crash)
     # for an unknown slug - the create write action's failure path.
     test "redirects an unknown slug to the user index", %{conn: conn} do
@@ -121,6 +142,29 @@ defmodule PhilomenaWeb.Admin.User.EraseControllerTest do
       conn = post(conn, ~p"/admin/users/#{target.slug}/erase")
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Cannot erase a verified user"
+      assert Repo.get(User, target.id).deleted_at == nil
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = post(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/erase")
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get(User, target.id).deleted_at
+    end
+  end
+
+  describe "POST /admin/users/:user_id/erase (create) as a banned admin" do
+    setup [:register_and_log_in_banned_admin]
+
+    test "gives the ban response without erasing", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = post(conn, ~p"/admin/users/#{target.slug}/erase")
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
       assert Repo.get(User, target.id).deleted_at == nil
     end
   end

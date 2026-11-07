@@ -126,19 +126,23 @@ defmodule Philomena.DonationsTest do
   end
 
   describe "write access prerequisite" do
-    test "the per-user form and create reject bans and missing fingerprints" do
+    test "the per-user form rejects bans but not missing fingerprints" do
       admin = admin_user_fixture()
       target = confirmed_user_fixture()
 
-      operations = [
-        &Donations.show_user_donations(&1, target.slug),
-        &Donations.create_donation(&1, %{})
-      ]
+      assert Donations.show_user_donations(actor(admin, ban: @ban), target.slug) ==
+               {:error, :ban}
 
-      for operation <- operations do
-        assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
-        assert operation.(actor(admin, fingerprint: nil)) == {:error, :unauthorized}
-      end
+      assert {:ok, _} = Donations.show_user_donations(actor(admin, fingerprint: nil), target.slug)
+    end
+
+    test "create rejects bans and missing fingerprints" do
+      admin = admin_user_fixture()
+
+      assert Donations.create_donation(actor(admin, ban: @ban), %{}) == {:error, :ban}
+
+      assert Donations.create_donation(actor(admin, fingerprint: nil), %{}) ==
+               {:error, :unauthorized}
     end
   end
 end

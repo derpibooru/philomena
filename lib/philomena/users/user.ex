@@ -423,6 +423,17 @@ defmodule Philomena.Users.User do
     end
   end
 
+  def erase_changeset(user, name, deactivator) do
+    changeset = name_changeset(user, %{"name" => name})
+
+    if get_field(changeset, :deleted_at) do
+      changeset
+    else
+      now = DateTime.utc_now(:second)
+      change(changeset, deleted_at: now, deleted_by_user_id: deactivator.id)
+    end
+  end
+
   def deactivate_changeset(user, deactivator) do
     changeset = change(user)
 

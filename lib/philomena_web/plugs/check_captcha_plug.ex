@@ -28,17 +28,18 @@ defmodule PhilomenaWeb.CheckCaptchaPlug do
 
   defp maybe_check_captcha(conn, _user), do: conn
 
-  defp valid_solution?(%{"h-captcha-response" => captcha_token}) do
-    {:ok, %{body: body, status: 200}} =
-      PhilomenaProxy.Http.post(
-        "https://hcaptcha.com/siteverify",
-        URI.encode_query(%{"response" => captcha_token, "secret" => hcaptcha_secret_key()}),
-        [{"Content-Type", "application/x-www-form-urlencoded"}]
-      )
-
-    body
-    |> JSON.decode!()
-    |> Map.get("success", false)
+  defp valid_solution?(%{"h-captcha-response" => captcha_token}) when is_binary(captcha_token) do
+    with {:ok, %{body: body, status: 200}} <-
+           PhilomenaProxy.Http.post(
+             "https://hcaptcha.com/siteverify",
+             URI.encode_query(%{"response" => captcha_token, "secret" => hcaptcha_secret_key()}),
+             [{"Content-Type", "application/x-www-form-urlencoded"}]
+           ),
+         {:ok, %{"success" => true}} <- JSON.decode(body) do
+      true
+    else
+      _ -> false
+    end
   end
 
   defp valid_solution?(_params), do: false

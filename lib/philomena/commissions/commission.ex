@@ -46,6 +46,7 @@ defmodule Philomena.Commissions.Commission do
     |> validate_length(:will_not_create, max: 1000, count: :bytes)
     |> validate_subset(:categories, Keyword.values(categories()))
     |> unique_constraint(:user_id, name: :index_commissions_on_user_id)
+    |> foreign_key_constraint(:sheet_image_id, name: :fk_rails_3dabda470b)
   end
 
   defp drop_blank_categories(changeset) do

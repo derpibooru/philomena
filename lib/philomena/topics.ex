@@ -6,7 +6,7 @@ defmodule Philomena.Topics do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   import Philomena.Forums.TransactionWorkflow
 
@@ -86,12 +86,21 @@ defmodule Philomena.Topics do
       |> preload([:deleted_by, :topic, topic: :forum, user: [awards: :badge]])
       |> Repo.all()
 
+    # Destroyed posts keep their positions but leave post_count.
+    last_position =
+      Post
+      |> where(topic_id: ^topic.id)
+      |> select([p], max(p.topic_position))
+      |> Repo.one()
+
+    total_entries = (last_position || -1) + 1
+
     %Scrivener.Page{
       entries: entries,
       page_number: page_number,
       page_size: page_size,
-      total_entries: topic.post_count,
-      total_pages: div(topic.post_count + page_size - 1, page_size)
+      total_entries: total_entries,
+      total_pages: div(total_entries + page_size - 1, page_size)
     }
   end
 
@@ -319,6 +328,35 @@ defmodule Philomena.Topics do
   end
 
   @doc """
+  Paginates the posts of the topic named by `topic_slug` within the forum
+  named by `forum_slug`, on behalf of `actor`.
+
+  Authorization, post visibility and the `post_id` page jump match
+  `show_topic_page/5`, but nothing is written: the actor's topic notifications
+  stay unread.
+
+  ## Examples
+
+      iex> list_topic_posts(actor, "dis", "some-topic", %{page_number: 1, page_size: 25})
+      {:ok, %Scrivener.Page{}}
+
+  """
+  @spec list_topic_posts(
+          Actor.t(),
+          String.t(),
+          String.t(),
+          String.t() | nil,
+          Repo.pagination_params()
+        ) ::
+          {:ok, Scrivener.Page.t()} | {:error, :unauthorized | :not_found}
+  def list_topic_posts(%Actor{} = actor, forum_slug, topic_slug, post_id, pagination) do
+    with {:ok, forum} <- Forums.show_forum(actor, forum_slug),
+         {:ok, topic} <- show_forum_topic(actor, forum, topic_slug, :show) do
+      {:ok, load_topic_posts(actor, topic, topic_pagination(actor, topic, post_id, pagination))}
+    end
+  end
+
+  @doc """
   Loads a visible topic beneath its route forum, with its author preloaded.
 
   ## Examples
@@ -408,8 +446,8 @@ defmodule Philomena.Topics do
   @doc """
   Returns a new-topic changeset for `actor` in the forum named by `forum_slug`.
 
-  Write access is verified first; the forum is then loaded by short name
-  and authorized for `:create_topic`. The returned changeset is
+  A ban is checked first, leaving a missing fingerprint to `create_topic/3`;
+  the forum is then loaded by short name and authorized for `:create_topic`. The returned changeset is
   seeded with an empty first post and a two-option poll so those nested fields
   are present.
 
@@ -427,7 +465,7 @@ defmodule Philomena.Topics do
           {:ok, {Forum.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def new_topic(%Actor{} = actor, forum_slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, forum} <- Forums.show_forum(actor, forum_slug),
          :ok <- authorize(actor, :create_topic, forum) do
       changeset =
@@ -896,8 +934,10 @@ defmodule Philomena.Topics do
   Adds an update step that recalculates a topic's cached last visible post.
 
   Maintains `Topic.last_post_id` and `Topic.last_replied_to_at` from the
-  newest post visible to users in that topic. The step reads the locked topic
-  from `topic_step`, which defaults to `:locked_topic`. Add it after inserting,
+  newest post visible to users in that topic. Without a visible post,
+  `last_post_id` is `nil` and `last_replied_to_at` falls back to the topic's
+  creation time. The step reads the locked topic from `topic_step`, which
+  defaults to `:locked_topic`. Add it after inserting,
   hiding, or restoring a post, and after hiding or restoring a topic. For topic
   creation, pass `:topic` because the inserted topic is the row whose initial
   post must be considered. A destruction-only operation does not need this
@@ -985,7 +1025,7 @@ defmodule Philomena.Topics do
   defp update_last_post_query(topic_id) do
     Topic
     |> where(id: ^topic_id)
-    |> update(
+    |> update([topic],
       set: [
         last_post_id:
           fragment(
@@ -1000,12 +1040,15 @@ defmodule Philomena.Topics do
         last_replied_to_at:
           fragment(
             """
-            SELECT created_at FROM posts
-            WHERE topic_id = ?
-            AND hidden_from_users IS FALSE
-            ORDER BY topic_position DESC LIMIT 1
+            COALESCE((
+              SELECT created_at FROM posts
+              WHERE topic_id = ?
+              AND hidden_from_users IS FALSE
+              ORDER BY topic_position DESC LIMIT 1
+            ), ?)
             """,
-            ^topic_id
+            ^topic_id,
+            topic.created_at
           )
       ]
     )

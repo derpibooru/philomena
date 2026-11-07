@@ -143,6 +143,18 @@ defmodule Philomena.RulesTest do
       refute changeset.valid?
     end
 
+    test "a taken position is a rejected changeset" do
+      rule = rule_fixture()
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Rules.create_rule(actor(admin_user_fixture()), %{
+                 name: "Another Rule",
+                 position: rule.position
+               })
+
+      assert %{position: ["has already been taken"]} = errors_on(changeset)
+    end
+
     test "a regular user is unauthorized" do
       assert Rules.create_rule(actor(confirmed_user_fixture()), %{name: "x", position: 1}) ==
                {:error, :unauthorized}
@@ -200,6 +212,19 @@ defmodule Philomena.RulesTest do
       refute changeset.valid?
     end
 
+    test "renaming to a taken name carries the unchanged rule for re-rendering" do
+      rule = rule_fixture()
+      other = rule_fixture()
+
+      assert {:error, {%Rule{} = carried, changeset}} =
+               Rules.update_rule(actor(admin_user_fixture()), to_string(rule.position), %{
+                 name: other.name
+               })
+
+      assert carried.id == rule.id
+      assert %{name: ["has already been taken"]} = errors_on(changeset)
+    end
+
     test "a regular user is unauthorized" do
       rule = rule_fixture()
 
@@ -215,14 +240,22 @@ defmodule Philomena.RulesTest do
   end
 
   describe "write access prerequisite" do
-    test "form and mutation paths reject bans and missing fingerprints" do
+    test "forms reject bans but not missing fingerprints" do
+      admin = admin_user_fixture()
+      rule = rule_fixture()
+
+      for operation <- [&Rules.new_rule/1, &Rules.edit_rule(&1, rule.position)] do
+        assert operation.(actor(admin, ban: @ban)) == {:error, :ban}
+        assert {:ok, _} = operation.(actor(admin, fingerprint: nil))
+      end
+    end
+
+    test "mutations reject bans and missing fingerprints" do
       admin = admin_user_fixture()
       rule = rule_fixture()
 
       operations = [
-        &Rules.new_rule/1,
         &Rules.create_rule(&1, %{name: "Blocked", position: -1}),
-        &Rules.edit_rule(&1, rule.position),
         &Rules.update_rule(&1, rule.position, %{title: "Blocked"})
       ]
 

@@ -37,6 +37,14 @@ defmodule PhilomenaWeb.Tag.ImageControllerTest do
 
       assert html_response(conn, 200) =~ "Editing Tag Spoiler Image"
     end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, moderator_user_fixture())
+      conn = get(without_fingerprint(conn), ~p"/tags/#{tag}/image/edit")
+
+      assert html_response(conn, 200) =~ "Editing Tag Spoiler Image"
+    end
   end
 
   describe "PUT/PATCH /tags/:tag_id/image (update)" do
@@ -101,6 +109,20 @@ defmodule PhilomenaWeb.Tag.ImageControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, moderator_user_fixture())
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/tags/#{tag}/image", %{
+          "tag" => %{"image" => png_upload()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get!(Tag, tag.id).image
     end
   end
 

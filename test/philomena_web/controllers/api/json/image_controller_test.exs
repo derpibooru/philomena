@@ -5,10 +5,12 @@ defmodule PhilomenaWeb.Api.Json.ImageControllerTest do
   use PhilomenaWeb.ConnCase, async: false
 
   import Philomena.AsyncUpload
+  import Philomena.AttributionFixtures, only: [actor: 1]
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
 
   alias Philomena.Multi
+  alias Philomena.RateLimiter
   alias Philomena.ImageFaves
   alias Philomena.Images.Image
   alias Philomena.Repo
@@ -303,6 +305,24 @@ defmodule PhilomenaWeb.Api.Json.ImageControllerTest do
         })
 
       assert %{"errors" => _} = json_response(conn, 400)
+    end
+
+    test "returns 429 once the user exceeds the upload rate limit", %{conn: conn} do
+      user = confirmed_user_fixture()
+      actor = actor(user)
+      :ok = RateLimiter.record_action(actor, :image_create, 5)
+      :ok = RateLimiter.record_action(actor, :image_create, 5)
+
+      conn =
+        conn
+        |> put_req_header("user-agent", "Test/1.0")
+        |> post(~p"/api/v1/json/images?key=#{user.authentication_token}", %{
+          "image" => %{"image" => png_upload(), "tag_input" => "safe, solo, pony"}
+        })
+
+      assert json_response(conn, 429) == %{
+               "error" => "You may only upload images once every 5 seconds."
+             }
     end
 
     test "returns 401 with an empty body when no API key is given", %{conn: conn} do

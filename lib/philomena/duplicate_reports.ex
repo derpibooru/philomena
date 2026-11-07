@@ -8,7 +8,7 @@ defmodule Philomena.DuplicateReports do
   import Philomena.DuplicateReports.Power
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   import Philomena.DuplicateReports.TransactionWorkflow
 
@@ -96,7 +96,7 @@ defmodule Philomena.DuplicateReports do
           where:
             (report.image_id == ^source_id and report.duplicate_of_image_id == ^target_id) or
               (report.duplicate_of_image_id == ^source_id and report.image_id == ^target_id),
-          where: report.state in ~w(open claimed),
+          where: report.state in ^DuplicateReport.open_states(),
           select: report.id
       end,
       set: [state: "rejected"]
@@ -169,7 +169,8 @@ defmodule Philomena.DuplicateReports do
   @doc """
   Prepares the duplicate-report form for one visible image.
 
-  The form uses the same write-access and `:create` prerequisites as submission.
+  The form uses the same ban and `:create` prerequisites as submission; a
+  missing fingerprint is left to `create_duplicate_report/4`.
   A list of all existing reports is provided for the actor to review before
   submitting a new report.
 
@@ -186,7 +187,7 @@ defmodule Philomena.DuplicateReports do
           {:ok, {Image.t(), [DuplicateReport.t()], Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def new_duplicate_report(%Actor{} = actor, image_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :create, DuplicateReport),
          {:ok, image} <- Images.load_report_target(actor, image_id) do
       changeset =
@@ -412,9 +413,6 @@ defmodule Philomena.DuplicateReports do
       |> Multi.update(:duplicate_report, fn %{locked_duplicate_report: duplicate_report} ->
         DuplicateReport.accept_changeset(duplicate_report, user)
       end)
-      |> Multi.all(:affected_reports, fn %{rejected_open_reports: reports} ->
-        affected_reports(report, reports)
-      end)
       |> ModerationLogs.put_log(
         :moderation_log,
         actor,
@@ -429,6 +427,9 @@ defmodule Philomena.DuplicateReports do
       |> Multi.merge(fn
         %{locked_source_image: source, locked_target_image: target} ->
           Images.put_merge_image(Multi.new(), source, target, user)
+      end)
+      |> Multi.all(:affected_reports, fn %{rejected_open_reports: reports} ->
+        affected_reports(report, reports)
       end)
       |> Multi.transact()
       |> case do
@@ -480,6 +481,7 @@ defmodule Philomena.DuplicateReports do
           where: reverse_report.id != ^forward_report.id,
           where: reverse_report.image_id == ^forward_report.duplicate_of_image_id,
           where: reverse_report.duplicate_of_image_id == ^forward_report.image_id,
+          where: reverse_report.state in ^DuplicateReport.open_states(),
           order_by: [desc: :id],
           limit: 1
       end)
@@ -495,10 +497,6 @@ defmodule Philomena.DuplicateReports do
         %{existing_reverse_report: reverse_report} ->
           DuplicateReport.accept_changeset(reverse_report, user)
       end)
-      |> Multi.all(:affected_reports, fn
-        %{rejected_open_reports: reports, reverse_report: report} ->
-          affected_reports(report, reports)
-      end)
       |> ModerationLogs.put_log(
         :moderation_log,
         actor,
@@ -513,6 +511,10 @@ defmodule Philomena.DuplicateReports do
       |> Multi.merge(fn
         %{locked_source_image: source, locked_target_image: target} ->
           Images.put_merge_image(Multi.new(), target, source, user)
+      end)
+      |> Multi.all(:affected_reports, fn
+        %{rejected_open_reports: reports, reverse_report: report} ->
+          affected_reports(report, reports)
       end)
       |> Multi.transact()
       |> case do

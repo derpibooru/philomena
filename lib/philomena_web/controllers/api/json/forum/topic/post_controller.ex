@@ -6,18 +6,15 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
   import PhilomenaWeb.Api.Json.NotFound
 
   def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
-    case Topics.show_topic_page(
+    case Topics.list_topic_posts(
            conn.assigns.actor,
            forum_id,
            topic_id,
            params["post_id"],
            conn.assigns.pagination
          ) do
-      {:ok, page} ->
-        render(conn, "index.json",
-          posts: page.posts.entries,
-          total: page.posts.total_entries
-        )
+      {:ok, posts} ->
+        render(conn, "index.json", posts: posts.entries, total: posts.total_entries)
 
       {:error, reason} when reason in [:not_found, :unauthorized] ->
         not_found(conn)

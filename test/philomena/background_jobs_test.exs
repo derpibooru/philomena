@@ -115,6 +115,26 @@ defmodule Philomena.BackgroundJobsTest do
       ])
     end
 
+    test "image uploader and anonymity changes enqueue the image's tag changes" do
+      moderator = moderator_user_fixture()
+      image = image_fixture()
+      spy(Exq)
+
+      assert {:ok, _image} = Images.update_anonymous(actor(moderator), image.id, true)
+
+      assert {:ok, _image} =
+               Images.update_image_uploader(actor(moderator), image.id, %{
+                 "username" => moderator.name
+               })
+
+      assert_enqueued(
+        "indexing",
+        Philomena.IndexWorker,
+        ["TagChanges", "image_id", [image.id]],
+        2
+      )
+    end
+
     test "tags enqueue a batch of ids" do
       tag = %Tag{id: 71}
       other_tag = %Tag{id: 72}

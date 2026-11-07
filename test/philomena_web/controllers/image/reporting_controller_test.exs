@@ -53,5 +53,14 @@ defmodule PhilomenaWeb.Image.ReportingControllerTest do
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the duplicate report form without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+      image = image_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/images/#{image}/reporting")
+
+      assert html_response(conn, 200) =~ "General reporting"
+    end
   end
 end

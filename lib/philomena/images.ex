@@ -10,7 +10,7 @@ defmodule Philomena.Images do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   require Logger
 
@@ -378,7 +378,7 @@ defmodule Philomena.Images do
   defp image_interaction_allowed?(_actor, %Image{hidden_from_users: true}), do: false
 
   defp image_interaction_allowed?(actor, image) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :vote, image),
          :ok <- Filtering.verify_not_forced(actor, image) do
       true
@@ -390,7 +390,7 @@ defmodule Philomena.Images do
   defp comment_changeset_for(_actor, %Image{hidden_from_users: true}), do: nil
 
   defp comment_changeset_for(actor, image) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :create_comment, image),
          :ok <- Filtering.verify_not_forced(actor, image) do
       Comments.new_comment_changeset()
@@ -400,7 +400,7 @@ defmodule Philomena.Images do
   end
 
   defp image_changeset_for(actor, image, action) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, action, image),
          :ok <- Filtering.verify_not_forced(actor, image) do
       change_image(%{image | sources: sources_for_edit(image.sources)})
@@ -926,8 +926,9 @@ defmodule Philomena.Images do
   is the `page`/`page_size` keyword list. Viewers who read oldest-first and
   prefer jumping to the newest comments land on the last page unless they
   asked for a specific one. Interaction controls and comment changesets are
-  omitted when the actor is banned, lacks write access, the image is hidden or
-  forced-filtered, or the corresponding action is forbidden. Moderation
+  omitted when the actor is banned, the image is hidden or forced-filtered, or
+  the corresponding action is forbidden. A missing fingerprint does not omit
+  them; only the submitted write requires one. Moderation
   changesets follow their own action authorization so authorized staff can
   still render management controls for hidden images.
 
@@ -1252,12 +1253,6 @@ defmodule Philomena.Images do
       |> Image.sources_changeset(sources)
     end)
     |> Comments.put_migrate_image_comments(image, duplicate_of_image)
-    |> put_image_counter_delta(
-      :migrated_comment_count,
-      duplicate_of_image.id,
-      :comments_count,
-      fn %{migrated_comments: {count, nil}} -> count end
-    )
     |> Multi.insert_all(:subscriptions, Subscription, subscriptions, on_conflict: :nothing)
     |> Notifications.put_migrate_image_notifications(image, duplicate_of_image)
     |> Interactions.migrate_loaded_images(image, duplicate_of_image)
@@ -1489,7 +1484,7 @@ defmodule Philomena.Images do
   @spec new_image(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_image(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Image) do
       {:ok, change_image(%Image{sources: [%Source{}]})}
     end
@@ -1628,9 +1623,9 @@ defmodule Philomena.Images do
 
   An image that is already approved returns an error changeset and is left
   untouched. On success the image is made visible, statistics are updated, the
-  image is reindexed, and a moderation log is written attributing the approval
-  to `actor`. Approval at the uploader's fifth approved image also creates a
-  verification report in the same transaction.
+  image and its comments are reindexed, and a moderation log is written
+  attributing the approval to `actor`. Approval at the uploader's fifth
+  approved image also creates a verification report in the same transaction.
 
   Returns `{:ok, image}` with the approved image.
 
@@ -1658,6 +1653,7 @@ defmodule Philomena.Images do
       end)
       |> put_approval_steps()
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> Comments.reindex_comments_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
@@ -1704,7 +1700,8 @@ defmodule Philomena.Images do
   The image is loaded by id and authorized for `:feature`. On success the feature is
   recorded and a moderation log is written attributing it to `actor`.
 
-  Returns `{:ok, feature}` with the created feature.
+  Returns `{:ok, feature}` with the created feature, or
+  `{:error, %Ecto.Changeset{}}` when the image is deleted.
 
   ## Examples
 
@@ -1716,17 +1713,17 @@ defmodule Philomena.Images do
 
   """
   @spec create_image_feature(Actor.t(), IntegerId.integer_id()) ::
-          {:ok, ImageFeature.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, ImageFeature.t()}
+          | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def create_image_feature(%Actor{} = actor, image_id) do
     with :ok <- verify_write_access(actor),
          {:ok, image} <- load_image_member(actor, :feature, image_id) do
-      feature_changeset =
-        %ImageFeature{user_id: actor.user.id, image_id: image.id}
-        |> ImageFeature.changeset()
-
       Multi.new()
       |> Multi.lock_one(:locked_image, where(Image, id: ^image.id))
-      |> Multi.insert(:feature, feature_changeset)
+      |> Multi.insert(:feature, fn %{locked_image: image} ->
+        %ImageFeature{user_id: actor.user.id, image_id: image.id}
+        |> ImageFeature.feature_changeset(image)
+      end)
       |> ModerationLogs.put_log(:moderation_log, actor, fn %{locked_image: image} ->
         {"Image.Feature:create", Paths.image_path(image), "Featured image #{image.id}"}
       end)
@@ -1734,6 +1731,9 @@ defmodule Philomena.Images do
       |> case do
         {:ok, %{feature: %ImageFeature{} = feature}} ->
           {:ok, feature}
+
+        {:error, :feature, %Ecto.Changeset{} = changeset, _changes} ->
+          {:error, changeset}
       end
     end
   end
@@ -1940,8 +1940,9 @@ defmodule Philomena.Images do
   @doc """
   Loads the image named by `image_id` for moderation, on behalf of `actor`.
 
-  The image is loaded by id and authorized for `:hide`; the write-access gate
-  is applied because callers use this loader to prepare mutations.
+  The image is loaded by id and authorized for `:hide`. Callers use this loader
+  to render moderation forms, so a banned actor gets `{:error, :ban}`, while a
+  missing fingerprint is left to the submitted write.
 
   Returns `{:ok, image}` with the loaded image, carrying the associations
   named by `opts[:preload]` (none by default).
@@ -1958,7 +1959,7 @@ defmodule Philomena.Images do
   @spec load_hidable_image(Actor.t(), IntegerId.integer_id(), Keyword.t()) ::
           {:ok, Image.t()} | {:error, :ban | :unauthorized | :not_found}
   def load_hidable_image(%Actor{} = actor, image_id, opts \\ []) do
-    with :ok <- verify_write_access(actor) do
+    with :ok <- verify_not_banned(actor) do
       load_image_member(actor, :hide, image_id, Keyword.get(opts, :preload, []))
     end
   end
@@ -2692,7 +2693,7 @@ defmodule Philomena.Images do
   Authorization requires both `:show` on `:identity_metadata` and
   `:update_uploader` on the loaded image. The identity capability is checked
   first; malformed and missing image ids are otherwise `{:error, :not_found}`.
-  On success the uploader is reassigned, the image is
+  On success the uploader is reassigned, the image and its tag changes are
   reindexed, and a moderation log is written attributing the change to `actor`.
 
   Returns `{:ok, image}` with the updated image (its new uploader and their awards
@@ -2743,6 +2744,7 @@ defmodule Philomena.Images do
         }
       end)
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> TagChanges.reindex_tag_changes_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
@@ -2762,7 +2764,7 @@ defmodule Philomena.Images do
   Authorization requires both `:show` on `:identity_metadata` and
   `:update_anonymous` on the loaded image. The identity capability is checked
   first; malformed and missing image ids are otherwise `{:error, :not_found}`.
-  On success the anonymity is toggled, the image is
+  On success the anonymity is toggled, the image and its tag changes are
   reindexed, and a moderation log is written attributing the change to `actor`.
 
   Returns `{:ok, image}` with the updated image.
@@ -2793,6 +2795,7 @@ defmodule Philomena.Images do
         {log_type, Paths.image_path(image), "Updated anonymity of image #{image.id}"}
       end)
       |> put_reindex_image(:image)
+      |> Multi.on_commit(fn %{image: image} -> TagChanges.reindex_tag_changes_on_image(image) end)
       |> Multi.transact()
       |> case do
         {:ok, %{image: %Image{} = image}} ->
@@ -3041,7 +3044,7 @@ defmodule Philomena.Images do
 
   The image is loaded by id and authorized for `:subscribe`. Subscribing is
   idempotent and, as subscription management, is deliberately exempt from
-  `verify_write_access/1`.
+  `verify_write_access/1`. The image is reindexed so `my:subs` finds it.
 
   Returns `{:ok, image}`, or `{:error, %Ecto.Changeset{}}` if the subscription
   insert is rejected.
@@ -3060,7 +3063,7 @@ defmodule Philomena.Images do
   def create_image_subscription(%Actor{} = actor, image_id) do
     with {:ok, image} <- load_image_member(actor, :subscribe, image_id),
          {:ok, _subscription} <- create_subscription(image, actor.user) do
-      {:ok, image}
+      {:ok, reindex_image(image)}
     end
   end
 
@@ -3068,10 +3071,10 @@ defmodule Philomena.Images do
   @doc """
   Unsubscribes `actor` from the image named by `image_id`.
 
-  Loading and authorization mirror `subscribe_image/2`. Unsubscribing is
+  Loading and authorization mirror `create_image_subscription/2`. Unsubscribing is
   idempotent and cannot fail, so there is no changeset error shape. Like
   subscription creation, deletion is deliberately exempt from
-  `verify_write_access/1`.
+  `verify_write_access/1` and reindexes the image.
 
   Returns `{:ok, image}`, `{:error, :unauthorized}`, or `{:error, :not_found}`.
 
@@ -3087,7 +3090,7 @@ defmodule Philomena.Images do
     with {:ok, image} <- load_image_member(actor, :unsubscribe, image_id) do
       # Deletion is idempotent and cannot fail; the hard match crashes if it does.
       {:ok, _subscription} = delete_subscription(image, actor.user)
-      {:ok, image}
+      {:ok, reindex_image(image)}
     end
   end
 

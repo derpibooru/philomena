@@ -191,15 +191,18 @@ defmodule Philomena.UsersTest do
       assert loaded.id == user.id
     end
 
-    test "returns not found for missing and deactivated profiles for every actor" do
-      user =
-        confirmed_user_fixture()
-        |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
-        |> Repo.update!()
+    test "hides missing profiles from everyone and deactivated profiles from non-staff" do
+      user = deactivated_user_fixture()
 
-      for viewer <- [actor(), actor(confirmed_user_fixture()), actor(admin_user_fixture())] do
+      for viewer <- [actor(), actor(confirmed_user_fixture())] do
         assert Users.load_profile(viewer, "missing-profile") == {:error, :not_found}
         assert Users.load_profile(viewer, user.slug) == {:error, :not_found}
+      end
+
+      for viewer <- [actor(moderator_user_fixture()), actor(admin_user_fixture())] do
+        assert Users.load_profile(viewer, "missing-profile") == {:error, :not_found}
+        assert {:ok, %{id: id}} = Users.load_profile(viewer, user.slug)
+        assert id == user.id
       end
     end
   end
@@ -972,13 +975,10 @@ defmodule Philomena.UsersTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before authorization" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_profile_description(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_profile_description(actor(user, fingerprint: nil), user.slug)
     end
 
     test "an unknown slug is not-found before instance authorization" do
@@ -1085,13 +1085,14 @@ defmodule Philomena.UsersTest do
              ) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before the mod-note check" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_profile_scratchpad(
-               actor(moderator_user_fixture(), fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               Users.edit_profile_scratchpad(
+                 actor(moderator_user_fixture(), fingerprint: nil),
+                 user.slug
+               )
     end
 
     test "a permitted actor naming an unknown slug is not-found" do
@@ -1274,11 +1275,10 @@ defmodule Philomena.UsersTest do
       assert Users.edit_name(actor(user, ban: @ban)) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before authorization" do
-      user = confirmed_user_fixture()
+    test "an actor without a fingerprint still gets the form" do
+      user = renameable_user()
 
-      assert Users.edit_name(actor(user, fingerprint: nil)) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_name(actor(user, fingerprint: nil))
     end
 
     test "a user who renamed within the window is unauthorized" do
@@ -1382,11 +1382,10 @@ defmodule Philomena.UsersTest do
       assert Users.edit_avatar(actor(user, ban: @ban)) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected" do
+    test "an actor without a fingerprint still gets the form" do
       user = confirmed_user_fixture()
 
-      assert Users.edit_avatar(actor(user, fingerprint: nil)) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Users.edit_avatar(actor(user, fingerprint: nil))
     end
   end
 
@@ -1737,7 +1736,7 @@ defmodule Philomena.UsersTest do
         "name" => target.name,
         "email" => target.email,
         "role" => "user",
-        "roles" => [to_string(role.id)]
+        "roles" => ["", to_string(role.id), ""]
       }
 
       assert {:ok, updated} =
@@ -1869,6 +1868,19 @@ defmodule Philomena.UsersTest do
       assert log.type == "Admin.User.Activation:delete"
       assert log.body == "Deactivated #{target.name}"
       assert log.subject_path == Paths.profile_path(user)
+    end
+
+    test "revokes a reactivation token issued while the account was active" do
+      target = managed_target()
+
+      token =
+        extract_user_token(fn url ->
+          Users.deliver_user_reactivation_instructions(target, url)
+        end)
+
+      assert {:ok, _user} = Users.delete_user_activation(actor(admin_user_fixture()), target.slug)
+      assert Users.create_reactivation(token) == :error
+      assert Users.fetch_user_for_worker!(target.id).deleted_at
     end
 
     test "a plain moderator is rejected" do
@@ -2268,6 +2280,23 @@ defmodule Philomena.UsersTest do
       assert log.type == "Admin.User.Erase:create"
       assert log.body == "Erased #{original_name}"
       assert log.subject_path == Paths.profile_path(erased)
+    end
+
+    test "erasing a self-deactivated account revokes its reactivation token" do
+      target = managed_target()
+
+      {:ok, _user} =
+        Users.delete_deactivation(actor(target), fn token ->
+          send(self(), {:reactivation_token, token})
+          "url"
+        end)
+
+      assert_received {:reactivation_token, token}
+
+      assert {:ok, erased} = Users.create_user_erase(actor(admin_user_fixture()), target.slug)
+      assert erased.deleted_by_user_id == target.id
+      assert Users.create_reactivation(token) == :error
+      assert Users.fetch_user_for_worker!(target.id).deleted_at
     end
 
     test "an unauthorized actor is rejected" do

@@ -234,9 +234,10 @@ defmodule Philomena.DnpEntriesTest do
       assert DnpEntries.new_dnp_entry(actor(user, ban: @ban), %{}) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before the tag check" do
-      assert DnpEntries.new_dnp_entry(actor(nil, fingerprint: nil), %{}) ==
-               {:error, :unauthorized}
+    test "an actor without a fingerprint still gets the form" do
+      {user, _tag} = linked_user()
+
+      assert {:ok, %DnpEntryForm{}} = DnpEntries.new_dnp_entry(actor(user, fingerprint: nil), %{})
     end
 
     test "an actor with no selectable tag is unauthorized" do

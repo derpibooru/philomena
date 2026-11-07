@@ -22,7 +22,9 @@ Operational reference for writing the characterization tests.
   safe for Postgres-only actions (the SQL sandbox isolates them); actions
   that hit OpenSearch follow the search rules below instead.
 - `ConnCase` gives every test a default system filter row and a `conn` with
-  a `_ses` fingerprint cookie already set.
+  a `_ses` fingerprint cookie already set. Pipe it through
+  `without_fingerprint/1` to simulate a first request before the frontend
+  sets the cookie.
 
 ## Auth levels
 
@@ -35,6 +37,7 @@ One test per auth level that can reach the action:
 | moderator    | `setup :register_and_log_in_moderator`                           |
 | admin        | `setup :register_and_log_in_admin`                               |
 | banned       | `setup :register_and_log_in_banned_user`                         |
+| banned admin | `setup :register_and_log_in_banned_admin`                        |
 | TOTP-enabled | `setup :register_and_log_in_totp_user` (or `log_in_totp_user/2`) |
 | API key      | `setup :create_api_user`, then request with `?key=#{api_key}`    |
 

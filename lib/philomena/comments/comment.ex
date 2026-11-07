@@ -27,6 +27,7 @@ defmodule Philomena.Comments.Comment do
     field :destroyed_content, :boolean, default: false
     field :approved, :boolean, default: true
     field :became_unapproved?, :boolean, virtual: true, default: false
+    field :became_approved?, :boolean, virtual: true, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
@@ -42,13 +43,20 @@ defmodule Philomena.Comments.Comment do
   end
 
   def changeset(comment, attrs \\ %{}, edited_at \\ nil) do
-    comment
-    |> cast(attrs, [:body, :edit_reason])
-    |> put_change(:edited_at, edited_at)
-    |> validate_required([:body])
-    |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
-    |> validate_length(:edit_reason, max: 70, count: :bytes)
-    |> Approval.maybe_put_approval(comment.user, :external_links)
+    changeset =
+      comment
+      |> cast(attrs, [:body, :edit_reason])
+      |> put_change(:edited_at, edited_at)
+      |> validate_required([:body])
+      |> validate_length(:body, min: 1, max: 300_000, count: :bytes)
+      |> validate_length(:edit_reason, max: 70, count: :bytes)
+      |> Approval.maybe_put_approval(comment.user, :external_links)
+
+    put_change(
+      changeset,
+      :became_approved?,
+      not comment.approved and get_field(changeset, :approved)
+    )
   end
 
   def hide_changeset(comment, attrs, user) do

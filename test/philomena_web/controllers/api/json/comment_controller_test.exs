@@ -57,20 +57,53 @@ defmodule PhilomenaWeb.Api.Json.CommentControllerTest do
       assert author =~ ~r/\ABackground Pony #[0-9A-F]{4}\z/
     end
 
-    test "returns 403 for a hidden comment", %{conn: conn} do
+    test "shows a hidden comment without its body or edit details", %{conn: conn} do
       user = confirmed_user_fixture()
       moderator = moderator_user_fixture()
       image = image_fixture()
       comment = comment_fixture(image, user, %{"body" => "Rule-breaking comment"})
 
-      {:ok, _} =
+      {:ok, comment} =
         Comments.create_comment_hide(actor(moderator), image.id, comment.id, %{
           "deletion_reason" => "spam"
         })
 
       conn = get(conn, ~p"/api/v1/json/comments/#{comment.id}")
 
-      assert response(conn, 403) == ""
+      %{"comment" => body} = json_response(conn, 200)
+      {avatar, body} = Map.pop(body, "avatar")
+      assert is_binary(avatar)
+
+      assert body == %{
+               "id" => comment.id,
+               "image_id" => image.id,
+               "user_id" => user.id,
+               "author" => user.name,
+               "body" => nil,
+               "created_at" => DateTime.to_iso8601(comment.created_at),
+               "updated_at" => DateTime.to_iso8601(comment.updated_at),
+               "edited_at" => nil,
+               "edit_reason" => nil
+             }
+    end
+
+    test "shows a pending comment only to its author", %{conn: conn} do
+      author = confirmed_user_fixture()
+      image = image_fixture()
+
+      comment =
+        image
+        |> comment_fixture(author, %{"body" => "Pending comment"})
+        |> Ecto.Changeset.change(approved: false)
+        |> Philomena.Repo.update!()
+
+      assert json_response(get(conn, ~p"/api/v1/json/comments/#{comment.id}"), 404) ==
+               %{"error" => "Not found"}
+
+      conn = get(conn, ~p"/api/v1/json/comments/#{comment.id}?key=#{author.authentication_token}")
+
+      assert %{"comment" => %{"id" => id, "body" => "Pending comment"}} = json_response(conn, 200)
+      assert id == comment.id
     end
 
     test "a moderator API key reads a hidden comment with redacted content", %{conn: conn} do
@@ -93,7 +126,7 @@ defmodule PhilomenaWeb.Api.Json.CommentControllerTest do
       assert id == comment.id
     end
 
-    test "returns 403 for a destroyed comment", %{conn: conn} do
+    test "returns 404 for a destroyed comment", %{conn: conn} do
       image = image_fixture()
       comment = comment_fixture(image, nil)
 
@@ -106,7 +139,7 @@ defmodule PhilomenaWeb.Api.Json.CommentControllerTest do
 
       conn = get(conn, ~p"/api/v1/json/comments/#{comment.id}")
 
-      assert response(conn, 403) == ""
+      assert json_response(conn, 404) == %{"error" => "Not found"}
     end
 
     test "returns 403 for a comment on a hidden image", %{conn: conn} do

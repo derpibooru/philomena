@@ -84,9 +84,33 @@ defmodule PhilomenaWeb.Admin.ForumControllerTest do
       assert response =~ "New Forum - Derpibooru"
       assert response =~ "New Forum"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/admin/forums/new")
+
+      assert html_response(conn, 200) =~ "New Forum - Derpibooru"
+    end
   end
 
   describe "POST /admin/forums (create)" do
+    test "gives a banned admin the ban response", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+
+      conn =
+        post(conn, ~p"/admin/forums", %{
+          "forum" => %{
+            "name" => "Banned Forum",
+            "short_name" => "bannedforum",
+            "description" => "nope",
+            "access_level" => "normal"
+          }
+        })
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      refute Repo.get_by(Forum, short_name: "bannedforum")
+    end
+
     test "rejects a plain moderator", %{conn: conn} do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
 
@@ -138,6 +162,24 @@ defmodule PhilomenaWeb.Admin.ForumControllerTest do
       assert html_response(conn, 200) =~ "New Forum"
       refute Repo.get_by(Forum, short_name: "invalidforum")
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/forums", %{
+          "forum" => %{
+            "name" => "Fingerprintless Forum",
+            "short_name" => "fingerprintless",
+            "description" => "A newly created forum",
+            "access_level" => "normal"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Forum, short_name: "fingerprintless")
+    end
   end
 
   describe "GET /admin/forums/:id/edit" do
@@ -168,6 +210,14 @@ defmodule PhilomenaWeb.Admin.ForumControllerTest do
       conn = get(conn, ~p"/admin/forums/does-not-exist/edit")
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      forum = forum_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/admin/forums/#{forum}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Forum - Derpibooru"
     end
   end
 
@@ -209,6 +259,20 @@ defmodule PhilomenaWeb.Admin.ForumControllerTest do
       conn = patch(conn, ~p"/admin/forums/does-not-exist", %{"forum" => %{"name" => "x"}})
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      forum = forum_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/forums/#{forum}", %{
+          "forum" => %{"name" => "Renamed Forum"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(Forum, forum.id).name == forum.name
     end
   end
 

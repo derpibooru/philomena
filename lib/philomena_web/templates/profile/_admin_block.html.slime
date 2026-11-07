@@ -64,7 +64,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
         i.fa.fa-fw.fa-eye-slash
         span.admin__button Hidden Images
     li
-      = link to: ~p"/admin/reports?#{[rq: "user_id:#{@user.id}"]}" do
+      = link to: ~p"/admin/reports?#{[rq: [query: "user_id:#{@user.id}"]]}" do
         i.fa.fa-fw.fa-exclamation
         span.admin__button Reports
     li
@@ -80,7 +80,7 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
         i.fa.fa-fw.fa-users
         span.admin__button Potential Aliases
 
-    = if can?(@conn, :index, %Philomena.Donations.Donation{}) do
+    = if can?(@conn, :show, Philomena.Donations.Donation) do
       li
         = link to: ~p"/admin/donations/user/#{@user}" do
           i.fas.fa-fw.fa-dollar-sign
@@ -93,40 +93,44 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
           i.fas.fa-fw.fa-edit
           span.admin__button Edit User
 
+    = if can?(@conn, :force_filter, @user) do
       li
         = link to: ~p"/admin/users/#{@user}/force_filter/new" do
           i.fas.faw-fw.fa-filter
           span.admin__button Force Filter
 
-      = if @forced do
-        li
-          = link to: ~p"/admin/users/#{@user}/force_filter", data: [confirm: "Are you really, really sure?", method: "delete"] do
-            i.fas.fa-fw.fa-filter
-            span.admin__button Remove Force Filter
+    = if @forced && can?(@conn, :unforce_filter, @user) do
+      li
+        = link to: ~p"/admin/users/#{@user}/force_filter", data: [confirm: "Are you really, really sure?", method: "delete"] do
+          i.fas.fa-fw.fa-filter
+          span.admin__button Remove Force Filter
 
-      = if @user.deleted_at do
+    = if @user.deleted_at do
+      = if can?(@conn, :reactivate, @user) do
         li
           = link to: ~p"/admin/users/#{@user}/activation", data: [confirm: "Are you really, really sure?", method: "post"] do
             i.fa.fa-fw.fa-check
             span.admin__button Reactivate Account
-      - else
+    - else
+      = if can?(@conn, :deactivate, @user) do
         li
           = link to: ~p"/admin/users/#{@user}/activation", data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fa.fa-fw.fa-times
             span.admin__button Deactivate Account
 
-      = if @user.locked_at do
-        li
-          = link to: ~p"/admin/users/#{@user}/unlock", data: [method: "post"] do
-            i.fas.fa-fw.fa-unlock
-            span.admin__button Unlock Account
+    = if @user.locked_at && can?(@conn, :unlock, @user) do
+      li
+        = link to: ~p"/admin/users/#{@user}/unlock", data: [method: "post"] do
+          i.fas.fa-fw.fa-unlock
+          span.admin__button Unlock Account
 
+    = if can?(@conn, :wipe, @user) do
       li
         = link to: ~p"/admin/users/#{@user}/wipe", data: [confirm: "This is irreversible, destroying all identifying information including email. Are you sure?", method: "post"] do
           i.fas.fa-fw.fa-eraser
           span.admin__button Wipe PII
 
-    = if can?(@conn, :edit, %Philomena.ArtistLinks.ArtistLink{}) do
+    = if can?(@conn, :create_links, @user) do
       li
         = link to: ~p"/profiles/#{@user}/artist_links/new" do
           i.fa.fa-fw.fa-link
@@ -139,35 +143,39 @@ a.label.label--primary.label--block href="#" data-click-toggle=".js-admin__optio
           span.admin__button Ban this sucker
 
   ul.profile-admin__options__column
-    = if can?(@conn, :index, Philomena.Users.User) do
+    = if can?(@conn, :reset_api_key, @user) do
       li
         = link to: ~p"/admin/users/#{@user}/api_key", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fas.fa-fw.fa-key
           span.admin__button Reset API key
 
-      li
-        = if @user.verified do
+    = if @user.verified do
+      = if can?(@conn, :unverify, @user) do
+        li
           = link to: ~p"/admin/users/#{@user}/verification", data: [confirm: "Are you really, really sure?", method: "delete"] do
             i.fas.fa-fw.fa-user-times
             span.admin__button Revoke Verification
-        - else
-          = link to: ~p"/admin/users/#{@user}/verification", data: [confirm: "Are you really, really sure?", method: "create"] do
+    - else
+      = if can?(@conn, :verify, @user) do
+        li
+          = link to: ~p"/admin/users/#{@user}/verification", data: [confirm: "Are you really, really sure?", method: "post"] do
             i.fas.fa-fw.fa-user-check
             span.admin__button Grant Verification
 
   ul.profile-admin__options__column
-    = if can?(@conn, :index, Philomena.Users.User) do
-      = if @user.role == "user" and not @user.verified do
-        li
-          = link to: ~p"/admin/users/#{@user}/erase/new" do
-            i.fa.fa-fw.fa-warning
-            span.admin__button Erase for spam
+    = if @user.role == "user" and not @user.verified and can?(@conn, :erase, @user) do
+      li
+        = link to: ~p"/admin/users/#{@user}/erase/new" do
+          i.fa.fa-fw.fa-warning
+          span.admin__button Erase for spam
 
+    = if can?(@conn, :wipe_votes, @user) do
       li
         = link to: ~p"/admin/users/#{@user}/votes", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.far.fa-fw.fa-file-excel
           span.admin__button Remove All Votes/Faves
 
+    = if can?(@conn, :wipe_downvotes, @user) do
       li
         = link to: ~p"/admin/users/#{@user}/downvotes", data: [confirm: "Are you really, really sure?", method: "delete"] do
           i.fa.fa-fw.fa-arrow-down

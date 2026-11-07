@@ -4,7 +4,9 @@ defmodule Philomena.Filters do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Repo
@@ -125,7 +127,9 @@ defmodule Philomena.Filters do
   Compiles the effective image-filter policy for `actor`.
 
   The current filter supplies hidden and spoiler rules; a forced filter adds
-  hidden rules. Invalid stored expressions fail closed to an all-hidden filter.
+  hidden rules. An expression that does not compile for `actor` matches every
+  image: an invalid hidden expression hides all images, and an invalid spoiler
+  expression spoilers them.
   """
   @spec compile_image_filter(Actor.t(), Filter.t() | nil, Filter.t() | nil) :: ImageFilter.t()
   def compile_image_filter(%Actor{} = actor, current_filter, forced_filter) do
@@ -322,7 +326,7 @@ defmodule Philomena.Filters do
   @doc """
   Builds the changeset for a new filter on behalf of `actor`.
 
-  Verifies write access, then authorizes `:new` (permitted for any signed-in
+  Rejects a banned actor, then authorizes `:new` (permitted for any signed-in
   user). When `based_on_id` names a filter the actor may view, the new filter is
   prefilled from it.
 
@@ -341,7 +345,7 @@ defmodule Philomena.Filters do
   @spec new_filter(Actor.t(), Loader.integer_id() | nil) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_filter(%Actor{} = actor, based_on_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Filter) do
       base_filter =
         case load_and_authorize_filter(actor, based_on_id, :show) do
@@ -362,7 +366,7 @@ defmodule Philomena.Filters do
   @doc """
   Loads the filter named by `id` for editing on behalf of `actor`.
 
-  Verifies write access, authorizes `:edit`, and assigns the spoilered and
+  Rejects a banned actor, authorizes `:edit`, and assigns the spoilered and
   hidden tag lists onto the filter.
 
   ## Examples
@@ -381,7 +385,7 @@ defmodule Philomena.Filters do
           {:ok, {Filter.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_filter(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, filter} <- load_and_authorize_filter(actor, id, :edit, user: :settings) do
       filter =
         filter
@@ -655,7 +659,10 @@ defmodule Philomena.Filters do
   def recent_and_user_filters(%Actor{user: user} = actor) do
     with :ok <- authorize(actor, :index_own, Filter) do
       recent_filter_ids =
-        Enum.reject([user.current_filter_id | user.recent_filter_ids], &is_nil/1)
+        [user.current_filter_id | user.recent_filter_ids]
+        |> Enum.reject(&is_nil/1)
+        |> Enum.uniq()
+        |> Enum.take(10)
 
       positions =
         recent_filter_ids
@@ -673,7 +680,6 @@ defmodule Philomena.Filters do
         Filter
         |> select([f], %{struct(f, [:id, :name]) | recent: true})
         |> where([f], f.id in ^recent_filter_ids)
-        |> limit(10)
 
       {recent_filters, user_filters} =
         recent_filter_query

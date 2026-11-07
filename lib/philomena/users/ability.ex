@@ -193,7 +193,10 @@ defimpl Canada.Can, for: Philomena.Users.User do
       do: true
 
   def can?(%User{role: "moderator"}, :delete, %Post{}), do: true
-  def can?(%User{role: "moderator"}, :edit, %Comment{}), do: true
+
+  def can?(%User{role: "moderator"}, action, %Comment{}) when action in [:edit, :update],
+    do: true
+
   def can?(%User{role: "moderator"}, :hide, %Comment{}), do: true
   def can?(%User{role: "moderator"}, :delete, %Comment{}), do: true
   def can?(%User{role: "moderator"}, :approve, %Comment{}), do: true
@@ -513,9 +516,10 @@ defimpl Canada.Can, for: Philomena.Users.User do
 
   def can?(
         %User{role: "assistant", role_map: %{"Comment" => %{"moderator" => _}}},
-        :edit,
+        action,
         %Comment{}
-      ),
+      )
+      when action in [:edit, :update],
       do: true
 
   def can?(
@@ -596,7 +600,7 @@ defimpl Canada.Can, for: Philomena.Users.User do
   def can?(
         %User{role: "assistant", role_map: %{"ArtistLink" => %{"moderator" => _}}},
         :index,
-        %ArtistLink{}
+        ArtistLink
       ),
       do: true
 

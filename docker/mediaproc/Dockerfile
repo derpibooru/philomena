@@ -6,11 +6,11 @@ RUN apt update \
        libx264-dev libx265-dev libvpx-dev libdav1d-dev libaom-dev libopus-dev \
        libmp3lame-dev libvorbis-dev libwebp-dev libjxl-dev nasm wget
 
-ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/9.0 /tmp/ffmpeg_version.json
+ADD https://api.github.com/repos/philomena-dev/FFmpeg/git/refs/heads/release/9.1 /tmp/ffmpeg_version.json
 ADD https://api.github.com/repos/philomena-dev/cli_intensities/git/refs/heads/master /tmp/cli_intensities_version.json
 ADD https://api.github.com/repos/philomena-dev/mediatools/git/refs/heads/master /tmp/mediatools_version.json
 
-RUN wget -qO /tmp/FFmpeg.tar.gz https://github.com/philomena-dev/FFmpeg/archive/refs/heads/release/9.0.tar.gz \
+RUN wget -qO /tmp/FFmpeg.tar.gz https://github.com/philomena-dev/FFmpeg/archive/refs/heads/release/9.1.tar.gz \
     && wget -qO /tmp/cli_intensities.tar.gz https://github.com/philomena-dev/cli_intensities/archive/refs/heads/master.tar.gz \
     && wget -qO /tmp/mediatools.tar.gz https://github.com/philomena-dev/mediatools/archive/refs/heads/master.tar.gz
 
@@ -18,7 +18,7 @@ RUN cd /tmp \
     && tar -xf FFmpeg.tar.gz \
     && tar -xf cli_intensities.tar.gz \
     && tar -xf mediatools.tar.gz \
-    && cd /tmp/FFmpeg-release-9.0 \
+    && cd /tmp/FFmpeg-release-9.1 \
     && ./configure \
         --prefix=/usr \
         --disable-everything \
@@ -86,6 +86,7 @@ COPY --from=builder /usr/local/bin/mediastat /usr/bin/mediastat
 COPY --from=builder /usr/local/bin/svgstat /usr/bin/svgstat
 COPY --from=builder /usr/local/bin/mediathumb /usr/bin/mediathumb
 COPY docker/mediaproc/safe-rsvg-convert /usr/bin/safe-rsvg-convert
+COPY docker/mediaproc/policy.xml /etc/ImageMagick-7/policy.xml
 
 # Set up unprivileged user account.
 RUN useradd -ms /bin/bash mediaproc

@@ -44,8 +44,13 @@ defmodule PhilomenaWeb.Admin.User.EraseController do
         |> put_flash(:error, "Cannot erase a verified user")
         |> redirect(to: ~p"/profiles/#{user}")
 
-      {:error, :unauthorized} = err ->
-        err
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "Failed to erase user")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        error
     end
   end
 end

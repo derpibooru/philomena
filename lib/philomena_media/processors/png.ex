@@ -56,7 +56,10 @@ defmodule PhilomenaMedia.Processors.Png do
   end
 
   defp strip(file, true = _animated?), do: file
-  defp strip(file, _animated?), do: Strip.strip(file, ".png")
+
+  defp strip(file, _animated?) do
+    if Strip.requires_strip?(file), do: Strip.strip(file, ".png"), else: file
+  end
 
   # Sobelow misidentifies removing the .bak file
   # sobelow_skip ["Traversal.FileModule"]

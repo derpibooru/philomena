@@ -97,6 +97,7 @@ defmodule Philomena.Topics.Topic do
     change(topic)
     |> put_change(:forum_id, new_forum_id)
     |> foreign_key_constraint(:forum_id, name: :fk_rails_eac66eb971)
+    |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
   end
 
   @doc false

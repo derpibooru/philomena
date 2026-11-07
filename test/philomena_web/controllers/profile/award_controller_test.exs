@@ -39,6 +39,15 @@ defmodule PhilomenaWeb.Profile.AwardControllerTest do
       assert response =~ "New Award - Derpibooru"
       assert response =~ "New award"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{other}/awards/new")
+
+      assert html_response(conn, 200) =~ "New Award - Derpibooru"
+    end
   end
 
   describe "POST /profiles/:profile_id/awards" do
@@ -86,6 +95,20 @@ defmodule PhilomenaWeb.Profile.AwardControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/profiles/#{other}/awards", %{
+          "award" => %{"badge_id" => badge_fixture().id}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Award, user_id: other.id)
     end
   end
 
@@ -150,6 +173,16 @@ defmodule PhilomenaWeb.Profile.AwardControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: mod} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+      award = badge_award_fixture(mod, other)
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{other}/awards/#{award}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Award - Derpibooru"
     end
   end
 
@@ -229,6 +262,21 @@ defmodule PhilomenaWeb.Profile.AwardControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Repo.get!(Award, award.id).label == "Before"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: mod} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+      award = badge_award_fixture(mod, other)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/profiles/#{other}/awards/#{award}", %{
+          "award" => %{"label" => "Updated label"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get!(Award, award.id).label == award.label
     end
   end
 

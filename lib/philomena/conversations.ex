@@ -4,7 +4,9 @@ defmodule Philomena.Conversations do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -183,7 +185,8 @@ defmodule Philomena.Conversations do
   @doc """
   Builds a new-conversation form for `actor`.
 
-  New and create apply the same write-access and class-ability prerequisites.
+  New and create apply the same ban and class-ability prerequisites; only
+  create requires a fingerprint.
   Non-string recipient input is normalized to an empty recipient.
 
   ## Examples
@@ -195,7 +198,7 @@ defmodule Philomena.Conversations do
   @spec new_conversation(Actor.t(), term()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_conversation(%Actor{} = actor, params) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Conversation) do
       conversation = %Conversation{messages: [%Message{}]}
 

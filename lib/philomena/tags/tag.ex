@@ -160,6 +160,7 @@ defmodule Philomena.Tags.Tag do
   def alias_form_changeset(tag, attrs \\ %{}) do
     tag
     |> cast(attrs, [:target_tag])
+    |> update_change(:target_tag, &clean_tag_name/1)
     |> validate_required(:target_tag)
   end
 
@@ -168,7 +169,7 @@ defmodule Philomena.Tags.Tag do
     |> change()
     |> validate_not_aliased()
     |> put_assoc(:aliased_tag, target_tag)
-    |> validate_required(:aliased_tag)
+    |> validate_required(:aliased_tag, message: "does not exist")
     |> validate_not_aliased_to_self()
     |> validate_alias_not_transitive()
     |> validate_incoming_aliases(incoming_aliases?)

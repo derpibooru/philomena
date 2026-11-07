@@ -25,8 +25,10 @@ defmodule Philomena.PostsTest do
   alias Philomena.Posts.Post
   alias Philomena.Posts.PostVersion
   alias Philomena.Reports.Report
+  alias Philomena.Forums
   alias Philomena.Forums.Forum
   alias Philomena.Repo
+  alias Philomena.Topics.Topic
   alias Philomena.Users.User
 
   # A truthy ban value in the shape production passes (the result of
@@ -366,6 +368,35 @@ defmodule Philomena.PostsTest do
 
       assert log.subject_path ==
                "/forums/#{forum.short_name}/topics/#{topic.slug}?post_id=#{post.id}#post_#{post.id}"
+    end
+
+    test "hiding a topic's only post keeps the topic's place and the forum's last post",
+         %{forum: forum, topic: topic} do
+      moderator = moderator_user_fixture()
+      created_at = DateTime.add(DateTime.utc_now(:second), -1, :hour)
+
+      Repo.update_all(where(Topic, id: ^topic.id),
+        set: [created_at: created_at, last_replied_to_at: created_at]
+      )
+
+      %{posts: [only_post]} = rejected_topic = topic_fixture(forum)
+      last_replied_to_at = Repo.reload!(rejected_topic).last_replied_to_at
+
+      assert {:ok, _} =
+               hide_post(actor(moderator), "#{only_post.id}", %{"deletion_reason" => "Spam"})
+
+      rejected_topic = Repo.reload!(rejected_topic)
+      assert rejected_topic.last_post_id == nil
+      assert rejected_topic.last_replied_to_at == last_replied_to_at
+      assert Repo.reload!(forum).last_post_id == Repo.reload!(topic).last_post_id
+
+      assert {:ok, %{topics: topics}} =
+               Forums.show_forum_page(actor(moderator), forum.short_name, %{
+                 page_number: 1,
+                 page_size: 25
+               })
+
+      assert Enum.map(topics, & &1.id) == [rejected_topic.id, topic.id]
     end
 
     test "a blank deletion reason is a rejected changeset carrying the loaded post",
@@ -954,8 +985,8 @@ defmodule Philomena.PostsTest do
   end
 
   describe "edit_post/4" do
-    # This backs the edit write, so it runs the global write prerequisite and
-    # then the same load-and-authorize chain update_post/5 uses.
+    # This backs the edit form, so it refuses bans and then runs the same
+    # load-and-authorize chain update_post/5 uses.
 
     test "a banned actor is rejected before any loading, even with an unknown forum" do
       actor = actor(confirmed_user_fixture(), ban: @ban)
@@ -964,21 +995,18 @@ defmodule Philomena.PostsTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Posts.edit_post(
-               actor(nil, fingerprint: nil),
-               "nonexistent",
-               "whatever",
-               "1"
-             ) == {:error, :unauthorized}
-    end
-
-    test "the post's author loads the form", %{forum: forum, topic: topic} do
+    test "the post's author loads the form, even without a fingerprint",
+         %{forum: forum, topic: topic} do
       author = confirmed_user_fixture()
       post = post_fixture(topic, author)
 
       assert {:ok, %Ecto.Changeset{data: %Post{} = loaded} = changeset} =
-               Posts.edit_post(actor(author), forum.short_name, topic.slug, "#{post.id}")
+               Posts.edit_post(
+                 actor(author, fingerprint: nil),
+                 forum.short_name,
+                 topic.slug,
+                 "#{post.id}"
+               )
 
       assert loaded.id == post.id
 
@@ -1089,6 +1117,19 @@ defmodule Philomena.PostsTest do
                )
 
       assert Repo.get!(User, author.id).posts_count == before
+    end
+
+    test "editing the external link out of a withheld post approves it and restores its count",
+         %{forum: forum, topic: topic} do
+      {post, author} = unapproved_post(topic)
+      before = Repo.get!(User, author.id).posts_count
+
+      assert {:ok, %Post{approved: true}} =
+               Posts.update_post(actor(author), forum.short_name, topic.slug, post.id, %{
+                 "body" => "check this out"
+               })
+
+      assert Repo.get!(User, author.id).posts_count == before + 1
     end
 
     test "another regular user cannot edit, leaving the body unchanged",

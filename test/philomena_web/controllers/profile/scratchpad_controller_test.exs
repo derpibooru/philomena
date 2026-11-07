@@ -48,6 +48,15 @@ defmodule PhilomenaWeb.Profile.ScratchpadControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/profiles/#{other}/scratchpad/edit")
+
+      assert html_response(conn, 200) =~ "Editing Moderation Scratchpad - Derpibooru"
+    end
   end
 
   describe "PATCH /profiles/:profile_id/scratchpad" do
@@ -118,6 +127,20 @@ defmodule PhilomenaWeb.Profile.ScratchpadControllerTest do
 
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Couldn't find what you were looking for!"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      other = confirmed_user_fixture()
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/profiles/#{other}/scratchpad", %{
+          "user" => %{"scratchpad" => "Keep an eye on this one."}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get!(User, other.id).scratchpad
     end
   end
 end

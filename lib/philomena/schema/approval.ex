@@ -9,7 +9,8 @@ defmodule Philomena.Schema.Approval do
         [Application.get_env(:philomena, :cdn_host)]
 
     Regex.compile!(
-      "https?\\\\?:(?:\\\\*\\/?)*(?!(?:#{Enum.map_join(site_domains, "|", &Regex.escape/1)}))"
+      "https?\\\\?:(?:\\\\*\\/?)*+(?!(?:#{Enum.map_join(site_domains, "|", &Regex.escape/1)})(?::\\d+)?(?=[\\/?#\\s)\\]>\"'<]|$))",
+      "i"
     )
   end
 

@@ -54,6 +54,14 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
 
       assert html_response(conn, 200) =~ "Editing Tag Alias"
     end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, admin_user_fixture())
+      conn = get(without_fingerprint(conn), ~p"/tags/#{tag}/alias/edit")
+
+      assert html_response(conn, 200) =~ "Editing Tag Alias"
+    end
   end
 
   describe "PUT/PATCH /tags/:tag_id/alias (update)" do
@@ -93,18 +101,51 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
       assert Repo.get!(Tag, tag.id).aliased_tag_id == target.id
     end
 
-    test "aliasing into an unknown target redirects with an error", %{conn: conn} do
-      # NOTE: a nonexistent target tag makes alias_changeset fail
-      # validate_required(:aliased_tag), so the controller re-renders edit.html
-      # at 200 - a genuine error branch.
+    test "an admin aliases into a target typed with different case and spacing", %{conn: conn} do
+      tag = tag_fixture()
+      target = tag_fixture(name: "target tag alias")
+      conn = log_in_user(conn, admin_user_fixture())
+
+      conn =
+        patch(conn, ~p"/tags/#{tag}/alias", %{"tag" => %{"target_tag" => " Target  Tag Alias "}})
+
+      assert redirected_to(conn) == ~p"/tags/#{tag}/alias/edit"
+      assert Repo.get!(Tag, tag.id).aliased_tag_id == target.id
+    end
+
+    test "a blank target re-renders the form with an error", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, admin_user_fixture())
+
+      conn = patch(conn, ~p"/tags/#{tag}/alias", %{"tag" => %{"target_tag" => ""}})
+
+      assert html_response(conn, 200) =~ "can&#39;t be blank"
+      assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
+    end
+
+    test "an unknown target re-renders the form with an error", %{conn: conn} do
       tag = tag_fixture()
       conn = log_in_user(conn, admin_user_fixture())
 
       conn = patch(conn, ~p"/tags/#{tag}/alias", %{"tag" => %{"target_tag" => "no such tag"}})
 
-      assert redirected_to(conn) == "/"
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+      assert html_response(conn, 200) =~ "does not exist"
       assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      tag = tag_fixture()
+      target = tag_fixture(name: "target tag alias")
+      conn = log_in_user(conn, admin_user_fixture())
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/tags/#{tag}/alias", %{
+          "tag" => %{"target_tag" => target.name}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get!(Tag, tag.id).aliased_tag_id
     end
   end
 
@@ -132,6 +173,15 @@ defmodule PhilomenaWeb.Tag.AliasControllerTest do
       assert redirected_to(conn) == ~p"/tags/#{tag}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Tag dealias successful"
       assert Repo.get!(Tag, tag.id).aliased_tag_id == nil
+    end
+
+    test "dealiasing a tag that is not aliased redirects back with an error", %{conn: conn} do
+      tag = tag_fixture()
+      conn = log_in_user(conn, admin_user_fixture())
+      conn = delete(conn, ~p"/tags/#{tag}/alias")
+
+      assert redirected_to(conn) == ~p"/tags/#{tag}/alias/edit"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "not aliased"
     end
 
     test "an unknown slug is the not-found redirect for a role_map moderator", %{

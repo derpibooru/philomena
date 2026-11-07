@@ -20,17 +20,15 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
-    stripped = optimize(strip(file))
+    source = file |> strip() |> optimize()
 
-    {:ok, intensities} = Intensities.file(stripped)
+    {:ok, intensities} = Intensities.file(source)
 
-    scaled = Enum.flat_map(versions, &scale(stripped, &1))
+    scaled = Enum.flat_map(versions, &scale(source, &1))
 
-    [
-      replace_original: stripped,
-      intensities: intensities,
-      thumbnails: scaled
-    ]
+    replacement = if source != file, do: [replace_original: source], else: []
+
+    replacement ++ [intensities: intensities, thumbnails: scaled]
   end
 
   @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()

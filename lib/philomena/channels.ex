@@ -5,7 +5,9 @@ defmodule Philomena.Channels do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.Channels.AutomaticUpdater
@@ -200,7 +202,7 @@ defmodule Philomena.Channels do
   @spec new_channel(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def new_channel(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Channel) do
       {:ok, Channel.changeset(%Channel{})}
     end
@@ -270,7 +272,7 @@ defmodule Philomena.Channels do
           {:ok, {Channel.t(), Ecto.Changeset.t()}}
           | {:error, :ban | :not_found | :unauthorized}
   def edit_channel(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, channel} <- load_channel(actor, id, :edit) do
       {:ok, {channel, Channel.changeset(channel)}}
     end

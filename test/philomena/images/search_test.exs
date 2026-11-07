@@ -472,6 +472,13 @@ defmodule Philomena.Images.SearchTest do
       assert scope.sort == nil
     end
 
+    test "casts a valid sort cursor for tag_count" do
+      scope =
+        Scope.new(%{match_all: %{}}, @pagination, %{"sf" => "tag_count", "sort" => ["12", "34"]})
+
+      assert scope.sort == [12, 34]
+    end
+
     test "defaults params and pagination" do
       scope = Scope.new(%{match_all: %{}}, @pagination)
 

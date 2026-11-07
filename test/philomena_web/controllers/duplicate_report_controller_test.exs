@@ -61,6 +61,18 @@ defmodule PhilomenaWeb.DuplicateReportControllerTest do
       assert response =~ ~p"/duplicate_reports/#{report}/reject"
     end
 
+    test "offers no reject control on an accepted report", %{conn: conn} do
+      conn = log_in_user(conn, moderator_user_fixture())
+      report = duplicate_report_fixture(image_fixture(), image_fixture())
+      report |> Ecto.Changeset.change(state: "accepted") |> Repo.update!()
+
+      response =
+        html_response(get(conn, ~p"/duplicate_reports?#{[dq: [states: ["accepted"]]]}"), 200)
+
+      assert response =~ "Accepted"
+      refute response =~ ~p"/duplicate_reports/#{report}/reject"
+    end
+
     test "hides merge and state controls from regular users", %{conn: conn} do
       conn = log_in_user(conn, confirmed_user_fixture())
       source = image_fixture()
@@ -276,6 +288,22 @@ defmodule PhilomenaWeb.DuplicateReportControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      source = image_fixture()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/duplicate_reports", %{
+          "duplicate_report" => %{
+            "image_id" => source.id,
+            "duplicate_of_image_id" => image_fixture().id
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(DuplicateReport, image_id: source.id)
     end
   end
 end

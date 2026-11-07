@@ -34,6 +34,16 @@ defmodule PhilomenaWeb.Api.Json.ImageController do
         conn
         |> put_status(:bad_request)
         |> render("error.json", changeset: changeset)
+
+      {:error, :rate_limited} ->
+        conn
+        |> put_status(:too_many_requests)
+        |> json(%{error: "You may only upload images once every 5 seconds."})
+
+      {:error, reason} when reason in [:ban, :unauthorized] ->
+        conn
+        |> put_status(:forbidden)
+        |> text("")
     end
   end
 end

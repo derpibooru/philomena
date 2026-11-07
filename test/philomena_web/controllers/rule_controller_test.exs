@@ -203,6 +203,13 @@ defmodule PhilomenaWeb.RuleControllerTest do
 
       assert html_response(conn, 200) =~ "Creating a new rule"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/rules/new")
+
+      assert html_response(conn, 200) =~ "Creating a new rule"
+    end
   end
 
   describe "POST /rules (create)" do
@@ -255,6 +262,19 @@ defmodule PhilomenaWeb.RuleControllerTest do
 
       assert html_response(conn, 200) =~ "Creating a new rule"
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/rules", %{
+          "rule" => valid_rule_params(%{"name" => "Fingerprintless Rule"})
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Rule, name: "Fingerprintless Rule")
+    end
   end
 
   describe "GET /rules/:position/edit" do
@@ -299,6 +319,14 @@ defmodule PhilomenaWeb.RuleControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking"
     end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      rule = rule_fixture(%{name: "Editable Rule"})
+      conn = get(without_fingerprint(conn), ~p"/rules/#{rule}/edit")
+
+      assert html_response(conn, 200) =~ "Editable Rule"
+    end
   end
 
   describe "PATCH /rules/:position (update)" do
@@ -338,6 +366,20 @@ defmodule PhilomenaWeb.RuleControllerTest do
         })
 
       assert html_response(conn, 200) =~ "Editing"
+      assert Repo.get(Rule, rule.id).name == "Original Rule Name"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      rule = rule_fixture(%{name: "Original Rule Name"})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/rules/#{rule}", %{
+          "rule" => %{"name" => "Renamed Rule", "position" => Integer.to_string(rule.position)}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
       assert Repo.get(Rule, rule.id).name == "Original Rule Name"
     end
   end

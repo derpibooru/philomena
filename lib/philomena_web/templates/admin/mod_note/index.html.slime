@@ -1,5 +1,6 @@
 - route = fn p -> ~p"/admin/mod_notes?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @mod_notes, route: route, conn: @conn
+- target_params = @conn.params |> Map.take(["user_id", "report_id", "dnp_entry_id"]) |> Enum.to_list()
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @mod_notes, route: route, conn: @conn, params: target_params
 
 h1 Mod Notes
 

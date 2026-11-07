@@ -11,7 +11,7 @@ defmodule Philomena.Users do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Repo
@@ -289,10 +289,11 @@ defmodule Philomena.Users do
 
   @doc group: "Public reads"
   @doc """
-  Loads the visible, active profile named by `slug` for `actor`.
+  Loads the visible profile named by `slug` for `actor`.
 
-  Missing and deactivated profiles are always not found. A real active profile
-  that the actor may not show is unauthorized.
+  Missing profiles are not found. Deactivated profiles are not found unless the
+  actor may show user details. A real profile that the actor may not show is
+  unauthorized.
 
   ## Examples
 
@@ -306,8 +307,14 @@ defmodule Philomena.Users do
   @spec load_profile(Actor.t(), String.t(), list()) ::
           {:ok, User.t()} | {:error, :unauthorized | :not_found}
   def load_profile(%Actor{} = actor, slug, preloads \\ []) do
-    User
-    |> where([user], user.slug == ^slug and is_nil(user.deleted_at))
+    query = where(User, [user], user.slug == ^slug)
+
+    query =
+      if authorize(actor, :show_details, %User{}) == :ok,
+        do: query,
+        else: where(query, [user], is_nil(user.deleted_at))
+
+    query
     |> preload(^preloads)
     |> Loader.one_and_authorize(actor, :show)
   end
@@ -340,9 +347,8 @@ defmodule Philomena.Users do
 
   @doc group: "Public reads"
   @doc """
-  Loads a visible profile by slug as a report target on behalf of `actor`.
-
-  Deactivated and missing profiles are always not-found.
+  Loads a visible profile by slug as a report target on behalf of `actor`,
+  following `load_profile/3`.
 
   ## Examples
 
@@ -622,9 +628,9 @@ defmodule Philomena.Users do
 
   """
   @spec new_registration(Actor.t(), User.t(), map()) ::
-          {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
+          {:ok, Ecto.Changeset.t()} | {:error, :ban}
   def new_registration(%Actor{} = actor, %User{} = user, attrs \\ %{}) do
-    with :ok <- verify_write_access(actor) do
+    with :ok <- verify_not_banned(actor) do
       {:ok, User.registration_changeset(user, &password_compromised?/1, attrs)}
     end
   end
@@ -1458,8 +1464,8 @@ defmodule Philomena.Users do
   Loads the user named by the profile `slug` for editing the description, on
   behalf of `actor`.
 
-  Write access is checked before lookup. Missing targets are
-  `{:error, :not_found}`. Real targets are authorized for `:edit_description`.
+  A ban is checked before lookup; a missing fingerprint is not. Missing targets
+  are `{:error, :not_found}`. Real targets are authorized for `:edit_description`.
 
   Returns the description `%Ecto.Changeset{}`; the loaded user is in
   `changeset.data`.
@@ -1476,7 +1482,7 @@ defmodule Philomena.Users do
   @spec edit_profile_description(Actor.t(), String.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found}
   def edit_profile_description(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_user_by_slug(actor, :edit_description, slug) do
       {:ok, User.changeset(user)}
     end
@@ -1610,7 +1616,8 @@ defmodule Philomena.Users do
   Loads the avatar changeset for the acting user's own account, on behalf of
   `actor`.
 
-  Write access is checked first; otherwise returns an `%Ecto.Changeset{}`.
+  A ban is checked first, but a missing fingerprint is not; otherwise returns
+  an `%Ecto.Changeset{}`.
 
   ## Examples
 
@@ -1624,7 +1631,7 @@ defmodule Philomena.Users do
   @spec edit_avatar(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def edit_avatar(%Actor{user: user} = actor) do
-    with :ok <- verify_write_access(actor) do
+    with :ok <- verify_not_banned(actor) do
       {:ok, User.changeset(user)}
     end
   end
@@ -1700,8 +1707,9 @@ defmodule Philomena.Users do
   Loads the rename changeset for the acting user's own account, on behalf of
   `actor`.
 
-  Write access is checked before lookup. Renaming is authorized with `:change_username`
-  against the actor's own user, which the ability rules gate on the 90-day rename window.
+  A ban is checked before lookup; a missing fingerprint is not. Renaming is
+  authorized with `:change_username` against the actor's own user, which the
+  ability rules gate on the 90-day rename window.
 
   Returns the editable `%Ecto.Changeset{}`.
 
@@ -1717,7 +1725,7 @@ defmodule Philomena.Users do
   @spec edit_name(Actor.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized}
   def edit_name(%Actor{user: user} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(user, :change_username, user) do
       {:ok, User.changeset(user)}
     end
@@ -1821,8 +1829,8 @@ defmodule Philomena.Users do
   @doc """
   Loads the user named by `slug` for editing, on behalf of `actor`.
 
-  Write access is checked before lookup. Missing targets are
-  `{:error, :not_found}`; real targets are authorized for `:edit`.
+  A ban is checked before lookup; a missing fingerprint is not. Missing targets
+  are `{:error, :not_found}`; real targets are authorized for `:edit`.
 
   Returns an `%AdminUserForm{}` containing the changeset and assignable roles.
 
@@ -1838,7 +1846,7 @@ defmodule Philomena.Users do
   @spec edit_user(Actor.t(), String.t()) ::
           {:ok, AdminUserForm.t()} | {:error, :ban | :unauthorized | :not_found}
   def edit_user(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_user_by_slug(actor, :edit, slug, [:roles]) do
       {:ok, admin_user_form(User.changeset(user))}
     end
@@ -1905,7 +1913,7 @@ defmodule Philomena.Users do
   real targets are authorized with the action-specific ability. On success the
   account is reactivated, reindexed, and a moderation log is written.
 
-  Returns `{:ok, user}`.
+  Returns `{:ok, user}`, or `{:error, changeset}` when the account is already active.
 
   ## Examples
 
@@ -1917,7 +1925,7 @@ defmodule Philomena.Users do
 
   """
   @spec create_user_activation(Actor.t(), String.t()) ::
-          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def create_user_activation(%Actor{} = actor, slug) do
     with :ok <- verify_write_access(actor),
          {:ok, user} <- load_user_by_slug(actor, :reactivate, slug) do
@@ -1956,7 +1964,8 @@ defmodule Philomena.Users do
   real targets are authorized with the action-specific ability. On success the
   account is deactivated, reindexed, and a moderation log is written.
 
-  Returns `{:ok, user}`.
+  Returns `{:ok, user}`, or `{:error, changeset}` when the account is already
+  deactivated.
 
   ## Examples
 
@@ -1968,7 +1977,7 @@ defmodule Philomena.Users do
 
   """
   @spec delete_user_activation(Actor.t(), String.t()) ::
-          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found}
+          {:ok, User.t()} | {:error, :ban | :unauthorized | :not_found | Ecto.Changeset.t()}
   def delete_user_activation(%Actor{} = actor, slug) do
     with :ok <- verify_write_access(actor),
          {:ok, user} <- load_user_by_slug(actor, :deactivate, slug) do
@@ -1977,6 +1986,10 @@ defmodule Philomena.Users do
       |> Multi.update(:user, fn %{locked_user: user} ->
         User.deactivate_changeset(user, actor.user)
       end)
+      |> Multi.delete_all(
+        :reactivation_tokens,
+        UserToken.user_and_contexts_query(user, ["reactivate"])
+      )
       |> ModerationLogs.put_log(:moderation_log, actor, fn %{user: user} ->
         {"Admin.User.Activation:delete", Paths.profile_path(user), "Deactivated #{user.name}"}
       end)
@@ -2125,8 +2138,8 @@ defmodule Philomena.Users do
   Loads the user named by `slug` for erasure, on behalf of `actor`, applying the
   eligibility guards.
 
-  Write access is checked before lookup. Missing targets are
-  `{:error, :not_found}`; real targets are authorized with the `:erase` ability.
+  A ban is checked before lookup; a missing fingerprint is not. Missing targets
+  are `{:error, :not_found}`; real targets are authorized with the `:erase` ability.
   Only ordinary, unverified accounts may be erased:
 
     * a privileged (non-`"user"` role) target is `{:error, {:privileged, user}}`;
@@ -2148,7 +2161,7 @@ defmodule Philomena.Users do
           | {:error,
              :ban | :unauthorized | :not_found | {:privileged, User.t()} | {:verified, User.t()}}
   def new_user_erase(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_user_by_slug(actor, :erase, slug, [:roles]) do
       cond do
         user.role != "user" -> {:error, {:privileged, user}}
@@ -2162,10 +2175,11 @@ defmodule Philomena.Users do
   @doc """
   Erases the user named by `slug`, on behalf of `actor`.
 
-  The target is loaded and guarded following `load_user_for_erase/2`. On success
-  the account is deactivated, renamed to a random handle, enqueued for the
-  remaining data deletion, and a moderation log is written naming the original
-  account.
+  Write access is verified, then the target is loaded and guarded following
+  `new_user_erase/2`. On success
+  the account is deactivated (unless it already is), renamed to a random
+  handle, enqueued for the remaining data deletion, and a moderation log is
+  written naming the original account.
 
   Returns `{:ok, user}` with the renamed account.
 
@@ -2181,20 +2195,28 @@ defmodule Philomena.Users do
   @spec create_user_erase(Actor.t(), String.t()) ::
           {:ok, User.t()}
           | {:error,
-             :ban | :unauthorized | :not_found | {:privileged, User.t()} | {:verified, User.t()}}
+             :ban
+             | :unauthorized
+             | :not_found
+             | {:privileged, User.t()}
+             | {:verified, User.t()}
+             | Ecto.Changeset.t()}
   def create_user_erase(%Actor{} = actor, slug) do
-    with {:ok, user} <- new_user_erase(actor, slug) do
-      original_name = user.name
+    with :ok <- verify_write_access(actor),
+         {:ok, user} <- new_user_erase(actor, slug) do
       random_hex = Base.encode16(:crypto.strong_rand_bytes(16), case: :lower)
 
       Multi.new()
-      |> Multi.update(:user, fn _ ->
-        user
-        |> update_user_changeset(%{"name" => "deactivated_#{random_hex}"})
-        |> User.deactivate_changeset(actor.user)
+      |> Multi.lock_one(:locked_user, user_lock_query(user))
+      |> Multi.update(:user, fn %{locked_user: user} ->
+        User.erase_changeset(user, "deactivated_#{random_hex}", actor.user)
       end)
-      |> ModerationLogs.put_log(:moderation_log, actor, fn %{user: user} ->
-        {"Admin.User.Erase:create", Paths.profile_path(user), "Erased #{original_name}"}
+      |> Multi.delete_all(
+        :reactivation_tokens,
+        UserToken.user_and_contexts_query(user, ["reactivate"])
+      )
+      |> ModerationLogs.put_log(:moderation_log, actor, fn %{locked_user: original, user: user} ->
+        {"Admin.User.Erase:create", Paths.profile_path(user), "Erased #{original.name}"}
       end)
       |> put_reindex_user()
       |> put_erase_user_job(actor)
@@ -2213,8 +2235,8 @@ defmodule Philomena.Users do
   @doc """
   Loads the user named by `slug` for forcing a filter, on behalf of `actor`.
 
-  Write access is checked before lookup. Missing targets are `{:error, :not_found}`.
-  Real targets are authorized for `:force_filter`.
+  A ban is checked before lookup; a missing fingerprint is not. Missing targets
+  are `{:error, :not_found}`. Real targets are authorized for `:force_filter`.
 
   Returns the force-filter `%Ecto.Changeset{}`; the loaded user is in
   `changeset.data`.
@@ -2231,7 +2253,7 @@ defmodule Philomena.Users do
   @spec new_user_force_filter(Actor.t(), String.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found}
   def new_user_force_filter(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_user_by_slug(actor, :force_filter, slug) do
       {:ok, User.changeset(user)}
     end
@@ -2618,8 +2640,8 @@ defmodule Philomena.Users do
   Loads the user named by the profile `slug` for editing the moderation
   scratchpad, on behalf of `actor`.
 
-  Write access is checked before lookup. Missing targets are
-  `{:error, :not_found}`. Real targets are authorized for `:edit_scratchpad`.
+  A ban is checked before lookup; a missing fingerprint is not. Missing targets
+  are `{:error, :not_found}`. Real targets are authorized for `:edit_scratchpad`.
 
   Returns the scratchpad `%Ecto.Changeset{}`; the loaded user is in
   `changeset.data`.
@@ -2636,7 +2658,7 @@ defmodule Philomena.Users do
   @spec edit_profile_scratchpad(Actor.t(), String.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found}
   def edit_profile_scratchpad(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_user_by_slug(actor, :edit_scratchpad, slug) do
       {:ok, User.changeset(user)}
     end

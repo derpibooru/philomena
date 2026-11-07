@@ -22,4 +22,15 @@ defmodule Philomena.ImageFeatures.ImageFeature do
     |> cast(attrs, [])
     |> validate_required([])
   end
+
+  @doc false
+  def feature_changeset(image_feature, %Image{hidden_from_users: hidden_from_users}) do
+    changeset = change(image_feature)
+
+    if hidden_from_users do
+      add_error(changeset, :image, "cannot be a deleted image")
+    else
+      changeset
+    end
+  end
 end

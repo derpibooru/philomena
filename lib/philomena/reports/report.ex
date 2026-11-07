@@ -165,6 +165,8 @@ defmodule Philomena.Reports.Report do
   end
 
   @doc false
+  def fetch_rule_id(attrs) when not is_map(attrs), do: {:error, :not_found}
+
   def fetch_rule_id(attrs) do
     %__MODULE__{}
     |> cast(attrs, [:rule_id])

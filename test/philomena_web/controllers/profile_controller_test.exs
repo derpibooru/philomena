@@ -91,15 +91,22 @@ defmodule PhilomenaWeb.ProfileControllerTest do
       refute moderator_response =~ ~p"/admin/users/#{target}/edit"
       assert moderator_response =~ ~p"/profiles/#{target}/artist_links/new"
       assert moderator_response =~ ~p"/admin/user_bans/new?#{[user_id: target.id]}"
-      assert moderator_response =~ ~p"/admin/users/#{target}/api_key"
-      assert moderator_response =~ ~p"/admin/users/#{target}/verification"
-      assert moderator_response =~ ~p"/admin/users/#{target}/votes"
+      assert moderator_response =~ ~p"/admin/reports?#{[rq: [query: "user_id:#{target.id}"]]}"
+      refute moderator_response =~ ~p"/admin/users/#{target}/api_key"
+      refute moderator_response =~ ~p"/admin/users/#{target}/verification"
+      refute moderator_response =~ ~p"/admin/users/#{target}/votes"
+      refute moderator_response =~ ~p"/admin/users/#{target}/erase/new"
       assert moderator_response =~ ~p"/profiles/#{target}/tag_changes/revert"
 
       %{conn: role_conn} = register_and_log_in_user_role_moderator(%{conn: conn})
       role_moderator_response = html_response(get(role_conn, ~p"/profiles/#{target}"), 200)
 
       assert role_moderator_response =~ ~p"/admin/users/#{target}/edit"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/api_key"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/verification"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/votes"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/downvotes"
+      assert role_moderator_response =~ ~p"/admin/users/#{target}/erase/new"
 
       admin_response =
         html_response(
@@ -266,6 +273,9 @@ defmodule PhilomenaWeb.ProfileControllerTest do
       assert response =~ ~p"/images/#{image.id}"
       assert response =~ "Test profile comment body"
       assert response =~ topic.title
+      assert response =~ ~p"/comments?#{[cq: "author_id:#{user.id}"]}"
+      assert response =~ ~p"/posts?#{[pq: "author_id:#{user.id}"]}"
+      refute response =~ "q=user_id"
     end
 
     test "redirects to / for an unknown slug", %{conn: conn} do
@@ -277,19 +287,29 @@ defmodule PhilomenaWeb.ProfileControllerTest do
                "Couldn't find what you were looking for!"
     end
 
-    test "redirects to / for a deactivated profile", %{conn: conn} do
-      user = confirmed_user_fixture()
+    test "hides a deactivated profile from the public but not from moderators", %{conn: conn} do
+      user = deactivated_user_fixture()
 
-      user
-      |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
-      |> Repo.update!()
+      public_conn = get(conn, ~p"/profiles/#{user}")
 
-      conn = get(conn, ~p"/profiles/#{user}")
+      assert redirected_to(public_conn) == "/"
 
-      assert redirected_to(conn) == "/"
-
-      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+      assert Phoenix.Flash.get(public_conn.assigns.flash, :error) ==
                "Couldn't find what you were looking for!"
+
+      moderator_response =
+        html_response(
+          get(log_in_user(conn, moderator_user_fixture()), ~p"/profiles/#{user}"),
+          200
+        )
+
+      assert moderator_response =~ user.name
+      assert moderator_response =~ ~p"/profiles/#{user}/ip_history"
+
+      admin_response =
+        html_response(get(log_in_user(conn, admin_user_fixture()), ~p"/profiles/#{user}"), 200)
+
+      assert admin_response =~ "Reactivate Account"
     end
   end
 end

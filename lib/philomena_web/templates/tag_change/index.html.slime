@@ -99,7 +99,7 @@ h1 = @title
 
               = if reverts_tag_changes?(@conn) do
                 .flex.flex__grow
-                a.button.button--state-danger href=~p"/tag_changes/#{tag_change}?#{[redirect: "#{@conn.request_path}?#{@conn.query_string}"]}" data-method="delete" data-confirm="Are you really, really sure?"
+                a.button.button--state-danger href=~p"/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
                   i.fa.fa-trash>
                   span.hide-mobile Delete from history
                   span.hide-desktop Delete

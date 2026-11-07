@@ -23,9 +23,11 @@ defmodule Philomena.TopicsTest do
   import Philomena.TopicsFixtures
   import Philomena.UsersFixtures
 
+  alias Philomena.Forums.Forum
   alias Philomena.ModerationLogs.ModerationLog
   alias Philomena.Notifications
   alias Philomena.Notifications.ForumPostNotification
+  alias Philomena.Posts
   alias Philomena.Posts.Post
   alias Philomena.Reports.Report
   alias Philomena.Repo
@@ -1069,6 +1071,24 @@ defmodule Philomena.TopicsTest do
       assert log.body == "Topic '#{topic.title}' moved to #{target.name}"
     end
 
+    test "a slug already taken in the target forum rejects the move" do
+      moderator = moderator_user_fixture()
+      forum = forum_fixture()
+      target = forum_fixture()
+      topic = topic_fixture(forum, nil, %{"title" => "Shared title"})
+      _taken = topic_fixture(target, nil, %{"title" => "Shared title"})
+
+      assert {:error, %Forum{} = source_forum, %Topic{} = rejected_topic} =
+               Topics.create_topic_move(actor(moderator), forum.short_name, topic.slug, %{
+                 "target_forum" => target.short_name
+               })
+
+      assert source_forum.id == forum.id
+      assert rejected_topic.id == topic.id
+      assert Repo.reload!(topic).forum_id == forum.id
+      assert moderation_log_count() == 0
+    end
+
     test "a moderator with empty params gets not-found" do
       moderator = moderator_user_fixture()
       {forum, topic} = visible_topic()
@@ -1114,6 +1134,14 @@ defmodule Philomena.TopicsTest do
 
       assert %Ecto.Changeset{} = page.post_changeset
       assert %Ecto.Changeset{} = page.topic_changeset
+    end
+
+    test "renders an empty page for a topic without post rows" do
+      {forum, topic} = visible_topic()
+      Repo.delete_all(where(Post, topic_id: ^topic.id))
+
+      assert {:ok, %TopicPage{posts: %{entries: [], total_entries: 0, total_pages: 0}}} =
+               Topics.show_topic_page(actor(), forum.short_name, topic.slug, nil, @first_page)
     end
 
     test "applies pending and destroyed post visibility before presentation" do
@@ -1242,6 +1270,28 @@ defmodule Philomena.TopicsTest do
       assert Enum.map(page.posts.entries, & &1.id) == [last.id]
     end
 
+    test "pages cover every position when a destroyed post leaves post_count" do
+      {forum, topic} = visible_topic()
+      moderator = actor(moderator_user_fixture())
+      [destroyed | _] = for _ <- 1..25, do: post_fixture(topic)
+
+      {:ok, _} =
+        Posts.create_post_hide(moderator, forum.short_name, topic.slug, "#{destroyed.id}", %{
+          "deletion_reason" => "Spam"
+        })
+
+      {:ok, _} =
+        Posts.create_post_delete(moderator, forum.short_name, topic.slug, "#{destroyed.id}")
+
+      assert Repo.reload!(topic).post_count == 25
+
+      assert {:ok, page} =
+               Topics.show_topic_page(actor(), forum.short_name, topic.slug, nil, @first_page)
+
+      assert page.posts.total_entries == 26
+      assert page.posts.total_pages == 2
+    end
+
     test "a subscribed user has watching set true" do
       user = confirmed_user_fixture()
       {forum, topic} = visible_topic()
@@ -1277,16 +1327,12 @@ defmodule Philomena.TopicsTest do
       assert Topics.new_topic(actor, "nonexistent") == {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
-      assert Topics.new_topic(actor(nil, fingerprint: nil), "nonexistent") ==
-               {:error, :unauthorized}
-    end
-
     test "a regular actor gets the forum and a changeset seeded with a poll and one post" do
       forum = forum_fixture()
 
-      assert {:ok, {loaded_forum, changeset}} =
-               Topics.new_topic(actor(confirmed_user_fixture()), forum.short_name)
+      actor = actor(confirmed_user_fixture(), fingerprint: nil)
+
+      assert {:ok, {loaded_forum, changeset}} = Topics.new_topic(actor, forum.short_name)
 
       assert loaded_forum.id == forum.id
       assert %Ecto.Changeset{} = changeset

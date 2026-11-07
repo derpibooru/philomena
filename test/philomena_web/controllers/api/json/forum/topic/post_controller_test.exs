@@ -6,6 +6,8 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostControllerTest do
   import Philomena.TopicsFixtures
   import Philomena.UsersFixtures
 
+  alias Philomena.Notifications
+  alias Philomena.Notifications.ForumPostNotification
   alias Philomena.Posts
   alias Philomena.Repo
   alias Philomena.Topics
@@ -25,6 +27,25 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostControllerTest do
       assert author == user.name
       assert %{"body" => "Second post", "id" => reply_id} = second
       assert reply_id == reply.id
+    end
+
+    test "leaves the key holder's topic notification unread", %{conn: conn} do
+      user = confirmed_user_fixture()
+      forum = forum_fixture()
+      topic = topic_fixture(forum)
+      {:ok, _} = Topics.create_subscription(topic, user)
+
+      {:ok, 1} =
+        Notifications.broadcast_forum_post(confirmed_user_fixture(), topic, hd(topic.posts))
+
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/json/forums/#{forum}/topics/#{topic}/posts?key=#{user.authentication_token}"
+        )
+
+      assert %{"posts" => [_]} = json_response(conn, 200)
+      assert Repo.get_by(ForumPostNotification, topic_id: topic.id, user_id: user.id)
     end
 
     test "does not exclude hidden posts", %{conn: conn} do
@@ -120,6 +141,30 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostControllerTest do
       conn3 = get(conn, ~p"/api/v1/json/forums/#{forum}/topics/#{topic}/posts?per_page=0")
 
       assert %{"posts" => [%{"body" => "First post"}], "total" => 3} = json_response(conn3, 200)
+    end
+
+    test "jumps to the page holding post_id", %{conn: conn} do
+      user = confirmed_user_fixture()
+      forum = forum_fixture()
+      topic = topic_fixture(forum, user)
+
+      replies =
+        for n <- 1..26,
+            do: post_fixture(topic, confirmed_user_fixture(), %{"body" => "Reply #{n}"})
+
+      last = List.last(replies)
+
+      conn =
+        get(
+          conn,
+          ~p"/api/v1/json/forums/#{forum}/topics/#{topic}/posts?#{[post_id: last.id]}"
+        )
+
+      assert %{"posts" => [%{"id" => id, "body" => "Reply 25"}, %{"id" => last_id}]} =
+               json_response(conn, 200)
+
+      assert id == Enum.at(replies, 24).id
+      assert last_id == last.id
     end
 
     test "returns 404 for an unknown topic or forum", %{conn: conn} do

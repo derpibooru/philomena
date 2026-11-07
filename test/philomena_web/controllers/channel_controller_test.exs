@@ -176,6 +176,13 @@ defmodule PhilomenaWeb.ChannelControllerTest do
 
       assert html_response(conn, 200) =~ "Adding Channel"
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/channels/new")
+
+      assert html_response(conn, 200) =~ "New Channel - Derpibooru"
+    end
   end
 
   describe "POST /channels (create)" do
@@ -225,6 +232,19 @@ defmodule PhilomenaWeb.ChannelControllerTest do
 
       assert html_response(conn, 200) =~ "Adding Channel"
       refute Repo.get_by(Channel, short_name: "bad_channel")
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/channels", %{
+          "channel" => valid_channel_params(%{"short_name" => "fingerprintless"})
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(Channel, short_name: "fingerprintless")
     end
   end
 
@@ -277,6 +297,14 @@ defmodule PhilomenaWeb.ChannelControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
                "Couldn't find what you were looking"
     end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      channel = channel_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/channels/#{channel}/edit")
+
+      assert html_response(conn, 200) =~ "Editing Channel"
+    end
   end
 
   describe "PATCH /channels/:id (update)" do
@@ -328,6 +356,20 @@ defmodule PhilomenaWeb.ChannelControllerTest do
 
       assert html_response(conn, 200) =~ "Editing Channel"
       assert Repo.get(Channel, channel.id).type == "PicartoChannel"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      channel = channel_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/channels/#{channel}", %{
+          "channel" => %{"short_name" => "renamed_channel"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(Channel, channel.id).short_name == channel.short_name
     end
   end
 

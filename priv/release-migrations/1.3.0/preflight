@@ -1,9 +1,12 @@
 #!/bin/sh
-# Checks that usernames can be made unique regardless of letter case.
+# Checks that each user has at most one commission, and that usernames can be
+# made unique regardless of letter case.
 
 set -e
 
 . "$(dirname "$0")/common.sh"
+
+check_duplicate_commissions
 
 if name_index_exists || [ "$(colliding_name_groups)" = 0 ]; then
   exit 0

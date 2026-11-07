@@ -8,6 +8,7 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
   import Philomena.UsersFixtures
 
+  alias Philomena.Roles.Role
   alias Philomena.Users.User
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
@@ -32,10 +33,14 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
     end
 
-    test "allows a moderator", %{conn: conn} do
+    test "allows a moderator, who may add artist links", %{conn: conn} do
+      target = confirmed_user_fixture()
+      SearchHelpers.reindex_all!(User)
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
       conn = get(conn, ~p"/admin/users")
-      assert html_response(conn, 200) =~ "Users"
+
+      assert html_response(conn, 200) =~ ~p"/profiles/#{target}/artist_links/new"
     end
 
     test "allows an admin", %{conn: conn} do
@@ -103,6 +108,14 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form without a fingerprint", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/admin/users/#{target.slug}/edit")
+
+      assert html_response(conn, 200) =~ "Editing user"
+    end
   end
 
   describe "GET /admin/users/:id/edit (edit) authorization" do
@@ -122,20 +135,41 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
     test "updates the user and redirects to their profile", %{conn: conn} do
       target = confirmed_user_fixture()
+      role = Repo.insert!(%Role{name: "admin", resource_type: "Forum"})
 
+      # Each role checkbox group submits a blank sentinel, as the edit form does.
       conn =
         patch(conn, ~p"/admin/users/#{target.slug}", %{
           "user" => %{
             "name" => target.name,
             "email" => target.email,
-            "role" => "assistant"
+            "role" => "assistant",
+            "roles" => ["", to_string(role.id), "", ""]
           }
         })
 
       assert redirected_to(conn) == ~p"/profiles/#{target}"
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "successfully updated"
 
-      assert Repo.get(User, target.id).role == "assistant"
+      updated = User |> Repo.get(target.id) |> Repo.preload(:roles)
+      assert updated.role == "assistant"
+      assert Enum.map(updated.roles, & &1.id) == [role.id]
+    end
+
+    test "shows the error for an unknown role id", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn =
+        patch(conn, ~p"/admin/users/#{target.slug}", %{
+          "user" => %{
+            "name" => target.name,
+            "email" => target.email,
+            "role" => "user",
+            "roles" => ["", "not-an-id"]
+          }
+        })
+
+      assert html_response(conn, 200) =~ "contains an invalid role"
     end
 
     # NOTE: unlike the admin user-ban create branch, the update error branch
@@ -169,6 +203,19 @@ defmodule PhilomenaWeb.Admin.UserControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      target = confirmed_user_fixture()
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/users/#{target.slug}", %{
+          "user" => %{"name" => target.name, "email" => target.email, "role" => "assistant"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(User, target.id).role == target.role
     end
   end
 

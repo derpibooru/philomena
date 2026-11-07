@@ -20,25 +20,16 @@ defmodule PhilomenaWeb.ApiRequireAuthorizationPlug do
   def call(conn, _opts) do
     user = conn.assigns.current_user
 
-    conn
-    |> maybe_unauthorized(user)
-    |> maybe_forbidden(Bans.find(user, conn.remote_ip, "NOTAPI"))
+    cond do
+      is_nil(user) -> halt_with(conn, :unauthorized)
+      Bans.find(user, conn.remote_ip, "NOTAPI") -> halt_with(conn, :forbidden)
+      true -> conn
+    end
   end
 
-  defp maybe_unauthorized(conn, nil) do
+  defp halt_with(conn, status) do
     conn
-    |> Conn.put_status(:unauthorized)
-    |> Controller.text("")
-    |> Conn.halt()
-  end
-
-  defp maybe_unauthorized(conn, _user), do: conn
-
-  defp maybe_forbidden(conn, nil), do: conn
-
-  defp maybe_forbidden(conn, _current_ban) do
-    conn
-    |> Conn.put_status(:forbidden)
+    |> Conn.put_status(status)
     |> Controller.text("")
     |> Conn.halt()
   end

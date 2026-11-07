@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
     response = html_response(get(conn, ~p"/images/#{image}/reports/new"), 200)
 
     assert response =~ "Reporting Image - Derpibooru"
+    assert response =~ ~r/<textarea[^>]*name="report\[reason\]"[^>]*required/
   end
 
   test "GET new renders the report form for logged-in users", %{conn: conn} do
@@ -113,6 +114,19 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
     assert Repo.aggregate(Report, :count) == 0
   end
 
+  test "POST without a report map redirects with the not-found flash", %{conn: conn} do
+    image = image_fixture()
+
+    for params <- [%{}, %{"report" => "foo"}] do
+      conn = post(conn, ~p"/images/#{image}/reports", params)
+
+      assert redirected_to(conn) == "/"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
+               "Couldn't find what you were looking for!"
+    end
+  end
+
   test "POST with more than 5 open reports redirects to / with the limit flash",
        %{conn: conn} do
     %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
@@ -147,5 +161,30 @@ defmodule PhilomenaWeb.Image.ReportControllerTest do
 
     assert redirected_to(conn) == "/"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+  end
+
+  test "GET new renders the report form without a fingerprint", %{conn: conn} do
+    image = image_fixture()
+
+    conn = get(without_fingerprint(conn), ~p"/images/#{image}/reports/new")
+
+    assert html_response(conn, 200) =~ "Reporting Image - Derpibooru"
+  end
+
+  test "POST without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+    image = image_fixture()
+
+    conn =
+      post(without_fingerprint(conn), ~p"/images/#{image}/reports", %{
+        "report" => %{
+          "reason" => "Reported without a fingerprint",
+          "rule_id" => rule_fixture().id,
+          "user_agent" => "Test Browser/1.0"
+        }
+      })
+
+    assert redirected_to(conn) == "/"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    assert Repo.aggregate(Report, :count) == 0
   end
 end

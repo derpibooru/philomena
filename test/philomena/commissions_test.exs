@@ -79,7 +79,7 @@ defmodule Philomena.CommissionsTest do
       assert Enum.map(loaded_commission.items, & &1.id) == [cheap.id, expensive.id]
     end
 
-    test "missing and deactivated profiles are not found for every viewer" do
+    test "a missing profile is not found and a deactivated one loads only for staff" do
       deactivated = confirmed_user_fixture()
       commission_fixture(deactivated)
 
@@ -87,13 +87,18 @@ defmodule Philomena.CommissionsTest do
       |> Ecto.Changeset.change(deleted_at: DateTime.utc_now(:second))
       |> Repo.update!()
 
-      for viewer <- [actor(), actor(admin_user_fixture())] do
+      for viewer <- [actor(), actor(confirmed_user_fixture())] do
         assert Commissions.show_commission(viewer, "no-such-user") ==
                  {:error, :not_found}
 
         assert Commissions.show_commission(viewer, deactivated.slug) ==
                  {:error, :not_found}
       end
+
+      assert {:ok, %Commission{user: %{id: user_id}}} =
+               Commissions.show_commission(actor(moderator_user_fixture()), deactivated.slug)
+
+      assert user_id == deactivated.id
     end
 
     test "a user without a commission is not-found" do
@@ -128,13 +133,10 @@ defmodule Philomena.CommissionsTest do
                {:error, :ban}
     end
 
-    test "an actor without a fingerprint is rejected before gating" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
 
-      assert Commissions.new_commission(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Commissions.new_commission(actor(user, fingerprint: nil), user.slug)
     end
 
     test "an owner whose profile already has a commission is unauthorized" do
@@ -232,14 +234,11 @@ defmodule Philomena.CommissionsTest do
                {:error, :unauthorized}
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
       commission_fixture(user)
 
-      assert Commissions.edit_commission(
-               actor(user, fingerprint: nil),
-               user.slug
-             ) == {:error, :unauthorized}
+      assert {:ok, _} = Commissions.edit_commission(actor(user, fingerprint: nil), user.slug)
     end
   end
 
@@ -257,6 +256,20 @@ defmodule Philomena.CommissionsTest do
 
       assert updated.id == commission.id
       assert Repo.get(Commission, commission.id).information == "Updated information"
+    end
+
+    test "a sheet image id naming no image is a changeset error" do
+      user = verified_user_with_link()
+      commission_fixture(user)
+
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Commissions.update_commission(
+                 actor(user),
+                 user.slug,
+                 commission_params(%{"sheet_image_id" => "999999999"})
+               )
+
+      assert {"does not exist", _} = changeset.errors[:sheet_image_id]
     end
   end
 
@@ -314,12 +327,11 @@ defmodule Philomena.CommissionsTest do
       end
     end
 
-    test "an actor without a fingerprint is rejected before loading" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
       commission_fixture(user)
 
-      assert Commissions.new_item(actor(user, fingerprint: nil), user.slug) ==
-               {:error, :unauthorized}
+      assert {:ok, _} = Commissions.new_item(actor(user, fingerprint: nil), user.slug)
     end
   end
 
@@ -375,15 +387,12 @@ defmodule Philomena.CommissionsTest do
       end
     end
 
-    test "an actor without a fingerprint is rejected before the item lookup" do
+    test "an actor without a fingerprint still gets the form" do
       user = verified_user_with_link()
-      commission_fixture(user)
+      item = user |> commission_fixture() |> commission_item_fixture()
 
-      assert Commissions.edit_item(
-               actor(user, fingerprint: nil),
-               user.slug,
-               "2147483647"
-             ) == {:error, :unauthorized}
+      assert {:ok, _} =
+               Commissions.edit_item(actor(user, fingerprint: nil), user.slug, "#{item.id}")
     end
   end
 

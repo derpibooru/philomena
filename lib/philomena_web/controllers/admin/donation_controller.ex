@@ -19,7 +19,7 @@ defmodule PhilomenaWeb.Admin.DonationController do
         |> put_flash(:info, "Donation successfully created.")
         |> redirect(to: ~p"/admin/donations")
 
-      {:error, :unauthorized} = error ->
+      {:error, reason} = error when reason in [:ban, :unauthorized] ->
         error
 
       _error ->

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Debian's stock policy with the disk, width and height limits raised so the
+  pixel cache fits every image Philomena.Images.Image accepts (about 268 MP,
+  sides up to about 2.1M px). Memory, map and area are spill thresholds:
+  larger caches move to disk instead of failing.
+-->
+<policymap>
+  <policy domain="Undefined" rights="none"/>
+  <policy domain="resource" name="memory" value="1GiB"/>
+  <policy domain="resource" name="map" value="2GiB"/>
+  <policy domain="resource" name="area" value="256MP"/>
+  <policy domain="resource" name="disk" value="16GiB"/>
+  <policy domain="resource" name="width" value="4MP"/>
+  <policy domain="resource" name="height" value="4MP"/>
+  <policy domain="path" rights="none" pattern="@*"/>
+  <policy domain="coder" rights="none" pattern="URL"/>
+  <policy domain="coder" rights="none" pattern="HTTPS"/>
+  <policy domain="coder" rights="none" pattern="HTTP"/>
+</policymap>

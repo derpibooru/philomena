@@ -7,6 +7,22 @@ sql() {
   psql -X -q -v ON_ERROR_STOP=1 -tA "$@"
 }
 
+# The unique index on commissions.user_id cannot be created while a user has
+# more than one commission.
+check_duplicate_commissions() {
+  duplicate_commissions=$(sql -F '|' -c "SELECT user_id, string_agg(id::text, ',' ORDER BY id)
+    FROM commissions GROUP BY user_id HAVING count(*) > 1 ORDER BY user_id")
+
+  if [ -n "$duplicate_commissions" ]; then
+    echo "Each user may have only one commission from this release on."
+    echo "These users have more than one:"
+    echo "user id|commission ids"
+    echo "$duplicate_commissions"
+    echo "Delete all but one commission of each user, then try again."
+    exit 1
+  fi
+}
+
 # The unique index on lower(users.name) is what cannot be created while
 # usernames that differ only by letter case exist.
 name_index_exists() {

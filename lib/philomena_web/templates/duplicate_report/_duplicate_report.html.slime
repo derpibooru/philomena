@@ -144,7 +144,7 @@ tr class="duplicate-report-#{@report.id}"
                 i.fa.fa-clipboard>
                 ' Release
 
-          = if @report.state != "rejected" do
+          = if @report.state in ~w(open claimed) do
             = form_for @conn, ~p"/duplicate_reports/#{@report}/reject", [method: "post", class: "button_to js-duplicate-report", data: [remote: "true"]], fn _f ->
               button.button.button--separate-right type="submit" data-disable-with="Loading…"
                 i.fa.fa-times>

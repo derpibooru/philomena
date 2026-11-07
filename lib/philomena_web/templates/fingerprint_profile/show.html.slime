@@ -13,7 +13,7 @@ h2 Administration Options
 ul
   li = link "View tag changes", to: ~p"/fingerprint_profiles/#{@fingerprint}/tag_changes"
   li = link "View source URL history", to: ~p"/fingerprint_profiles/#{@fingerprint}/source_changes"
-  li = link "View reports this fingerprint has made", to: ~p"/admin/reports?#{[rq: "fingerprint:#{@fingerprint}"]}"
+  li = link "View reports this fingerprint has made", to: ~p"/admin/reports?#{[rq: [query: "fingerprint:#{@fingerprint}"]]}"
   li = link "View fingerprint ban history", to: ~p"/admin/fingerprint_bans?#{[fingerprint: @fingerprint]}"
   li = link "Ban this sucker", to: ~p"/admin/fingerprint_bans/new?#{[fingerprint: @fingerprint]}"
 

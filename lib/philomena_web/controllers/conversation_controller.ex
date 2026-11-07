@@ -59,7 +59,7 @@ defmodule PhilomenaWeb.ConversationController do
   end
 
   def create(conn, params) do
-    case Conversations.create_conversation(conn.assigns.actor, params["conversation"]) do
+    case Conversations.create_conversation(conn.assigns.actor, params["conversation"] || %{}) do
       {:ok, conversation} ->
         conn
         |> put_flash(:info, "Conversation successfully created.")

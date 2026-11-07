@@ -10,7 +10,7 @@ defmodule Philomena.Comments do
   import Ecto.Query, warn: false
 
   import Philomena.Authorization,
-    only: [authorize: 3, verify_write_access: 1]
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -43,6 +43,12 @@ defmodule Philomena.Comments do
     Comment
     |> where(image_id: ^image.id)
     |> Loader.fetch_and_authorize(actor, action, comment_id, preloads)
+  end
+
+  defp load_visible_comment(queryable, %Actor{} = actor, comment_id, preloads) do
+    queryable
+    |> Visibility.visible_comments(actor)
+    |> Loader.fetch(comment_id, preloads)
   end
 
   defp notify_comment(_repo, %{locked_image: image, comment: comment}) do
@@ -88,17 +94,22 @@ defmodule Philomena.Comments do
 
   defp put_approval_report(%Multi{} = multi) do
     Multi.merge(multi, fn %{comment: comment} ->
-      if comment.became_unapproved? do
-        Multi.new()
-        |> UserStatistics.put_increment(comment.user_id, :comments_count, -1)
-        |> Reports.put_create_system_report(
-          "Approval",
-          "Comment contains external links",
-          :comment_id,
-          comment.id
-        )
-      else
-        Multi.new()
+      cond do
+        comment.became_unapproved? ->
+          Multi.new()
+          |> UserStatistics.put_increment(comment.user_id, :comments_count, -1)
+          |> Reports.put_create_system_report(
+            "Approval",
+            "Comment contains external links",
+            :comment_id,
+            comment.id
+          )
+
+        comment.became_approved? ->
+          UserStatistics.put_increment(Multi.new(), comment.user_id, :comments_count)
+
+        true ->
+          Multi.new()
       end
     end)
   end
@@ -141,10 +152,11 @@ defmodule Philomena.Comments do
   def new_comment_changeset, do: Comment.changeset(%Comment{})
 
   @doc """
-  Loads a globally addressed comment visible to `actor`.
+  Loads a globally addressed comment visible to `actor` in its image thread.
 
-  Destroyed comments and missing IDs are not-found. The parent image is authorized
-  alongside the comment, so either forbidden resource returns unauthorized.
+  Hidden comments load so callers can show a placeholder. Destroyed comments,
+  comments outside the actor's thread visibility, and missing IDs are
+  not-found. A forbidden parent image is unauthorized.
 
   ## Examples
 
@@ -158,7 +170,10 @@ defmodule Philomena.Comments do
   @spec show_comment(Actor.t(), IntegerId.integer_id()) ::
           {:ok, Comment.t()} | {:error, :unauthorized | :not_found}
   def show_comment(%Actor{} = actor, id) do
-    with {:ok, comment} <- Loader.fetch_and_authorize(Comment, actor, :show, id, @preloads),
+    with {:ok, comment} <-
+           Comment
+           |> where(destroyed_content: false)
+           |> load_visible_comment(actor, id, @preloads),
          :ok <- authorize(actor, :show, comment.image) do
       {:ok, comment}
     end
@@ -265,8 +280,7 @@ defmodule Philomena.Comments do
   on behalf of `actor`.
 
   Missing, malformed, mismatched, or collection-invisible comments are
-  not-found. A loaded comment forbidden to the actor is unauthorized.
-  Returns the loaded image for the caller to reuse.
+  not-found. Returns the loaded image for the caller to reuse.
 
   ## Examples
 
@@ -283,7 +297,10 @@ defmodule Philomena.Comments do
           {:ok, {Image.t(), pos_integer()}} | {:error, :unauthorized | :not_found}
   def list_comment_page(%Actor{} = actor, image_id, comment_id, pagination) do
     with {:ok, image} <- load_image(actor, image_id, :index),
-         {:ok, comment} <- load_image_comment(actor, image, comment_id, :show, []) do
+         {:ok, comment} <-
+           Comment
+           |> where(image_id: ^image.id)
+           |> load_visible_comment(actor, comment_id, []) do
       offset =
         Comment
         |> where(image_id: ^image.id)
@@ -415,10 +432,11 @@ defmodule Philomena.Comments do
   end
 
   @doc """
-  Loads a visible comment through its parent image.
+  Loads a comment shown in its parent image's thread for `actor`.
 
-  The parent image and scoped comment are independently authorized for `:show`.
-  The loaded image is returned for the caller to reuse.
+  Hidden comments load so callers can show a placeholder. Comments outside the
+  actor's thread visibility are not-found. The loaded image is returned for the
+  caller to reuse.
 
   ## Examples
 
@@ -437,7 +455,10 @@ defmodule Philomena.Comments do
           {:ok, {Image.t(), Comment.t()}} | {:error, :unauthorized | :not_found}
   def show_comment(%Actor{} = actor, image_id, comment_id) do
     with {:ok, image} <- load_image(actor, image_id, :show),
-         {:ok, comment} <- load_image_comment(actor, image, comment_id, :show, @preloads) do
+         {:ok, comment} <-
+           Comment
+           |> where(image_id: ^image.id)
+           |> load_visible_comment(actor, comment_id, @preloads) do
       {:ok, {image, comment}}
     end
   end
@@ -445,8 +466,8 @@ defmodule Philomena.Comments do
   @doc """
   Loads an editable comment and changeset through its parent image.
 
-  Write access is checked before image authorization, forced-filter enforcement,
-  and comment authorization.
+  A ban is checked before image authorization, forced-filter enforcement, and
+  comment authorization; a missing fingerprint is left to `update_comment/4`.
 
   ## Examples
 
@@ -464,7 +485,7 @@ defmodule Philomena.Comments do
         ) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :unauthorized | :not_found | :forced_filter}
   def edit_comment(%Actor{} = actor, image_id, comment_id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, image} <- load_image(actor, image_id, :create_comment),
          :ok <- Images.verify_forced_filter_access(actor, image),
          {:ok, comment} <- load_image_comment(actor, image, comment_id, :edit, @preloads) do
@@ -788,16 +809,25 @@ defmodule Philomena.Comments do
   end
 
   @doc """
-  Moves comments from one image to another inside `multi`.
-
-  Image merge workflows compose this operation and then adjust the target
-  image's denormalized count through `Images.put_image_counter_delta`. The
-  returned `:migrated_comments` step contains the number of moved rows.
+  Moves comments from one image to another inside `multi` and adds the moved
+  comments that are not destroyed to the target image's comment count.
   """
   @spec put_migrate_image_comments(Multi.t(), Image.t(), Image.t()) :: Multi.t()
   def put_migrate_image_comments(%Multi{} = multi, %Image{} = source, %Image{} = target) do
-    query = where(Comment, image_id: ^source.id) |> update(set: [image_id: ^target.id])
-    Multi.update_all(multi, :migrated_comments, query, [])
+    query =
+      Comment
+      |> where(image_id: ^source.id)
+      |> select([c], c.destroyed_content)
+      |> update(set: [image_id: ^target.id])
+
+    multi
+    |> Multi.update_all(:migrated_comments, query, [])
+    |> Images.put_image_counter_delta(
+      :migrated_comment_count,
+      target.id,
+      :comments_count,
+      fn %{migrated_comments: {_count, destroyed}} -> Enum.count(destroyed, &(not &1)) end
+    )
   end
 
   @doc """

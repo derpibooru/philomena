@@ -10,7 +10,9 @@ defmodule Philomena.Bans do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Repo
   alias Philomena.Loader
@@ -100,7 +102,7 @@ defmodule Philomena.Bans do
   @spec new_fingerprint_ban(Actor.t(), String.t() | nil) ::
           {:ok, Ecto.Changeset.t()} | Authorization.write_error()
   def new_fingerprint_ban(%Actor{} = actor, fingerprint) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Fingerprint) do
       {:ok, Fingerprint.changeset(%Fingerprint{fingerprint: fingerprint})}
     end
@@ -178,7 +180,7 @@ defmodule Philomena.Bans do
           {:ok, {Fingerprint.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_fingerprint_ban(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, fingerprint_ban} <- load_ban(actor, Fingerprint, id, :edit) do
       {:ok, {fingerprint_ban, Fingerprint.changeset(fingerprint_ban)}}
     end
@@ -349,7 +351,7 @@ defmodule Philomena.Bans do
           {:ok, Ecto.Changeset.t()}
           | {:error, Authorization.write_error_reason()}
   def new_subnet_ban(%Actor{} = actor, specification) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Subnet) do
       {:ok, Subnet.changeset(%Subnet{}, %{specification: specification})}
     end
@@ -427,7 +429,7 @@ defmodule Philomena.Bans do
           {:ok, {Subnet.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_subnet_ban(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, subnet_ban} <- load_ban(actor, Subnet, id, :edit) do
       {:ok, {subnet_ban, Subnet.changeset(subnet_ban)}}
     end
@@ -611,7 +613,7 @@ defmodule Philomena.Bans do
           {:ok, {Users.User.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def new_user_ban(%Actor{} = actor, user_id, attrs \\ %{}) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, target} <- Loader.fetch(Users.User, user_id),
          :ok <- authorize(actor, :new, User) do
       {:ok, {target, %User{user_id: target.id} |> User.changeset(attrs)}}
@@ -686,7 +688,7 @@ defmodule Philomena.Bans do
           {:ok, {User.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_user_ban(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user_ban} <- load_ban(actor, User, id, :edit, [:user]) do
       {:ok, {user_ban, User.changeset(user_ban)}}
     end

@@ -7,7 +7,6 @@ defmodule Philomena.Adverts.Server do
   use GenServer
   alias Philomena.Adverts
 
-  @timeout 0
   @flush_interval to_timeout(second: 10)
 
   @doc """
@@ -50,28 +49,27 @@ defmodule Philomena.Adverts.Server do
   @impl true
   @doc false
   def init(_) do
-    {:ok, initial_state(), @timeout}
+    schedule_flush()
+    {:ok, initial_state()}
   end
 
   @impl true
   @doc false
   def handle_cast({type, advert_id}, state) do
     # Update the counter described by the message
-    state = update_in(state[type], &increment_counter(&1, advert_id))
-
-    # Return to GenServer event loop
-    {:noreply, state, @timeout}
+    {:noreply, update_in(state[type], &increment_counter(&1, advert_id))}
   end
 
   @impl true
   @doc false
-  def handle_info(:timeout, state) do
-    # Process all updates from state now
+  def handle_info(:flush, state) do
     Adverts.record_counters(state)
 
-    # Return to GenServer event loop and wait for the next flush interval.
-    {:noreply, initial_state(), @flush_interval}
+    schedule_flush()
+    {:noreply, initial_state()}
   end
+
+  defp schedule_flush, do: Process.send_after(self(), :flush, @flush_interval)
 
   defp increment_counter(map, advert_id) do
     Map.update(map, advert_id, 1, &(&1 + 1))

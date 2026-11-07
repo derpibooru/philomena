@@ -6,7 +6,7 @@
 import './autocomplete/index';
 
 import { normalizedKeyboardKey, keys } from './utils/keyboard';
-import { assertNotNull, assertString, assertType } from './utils/assert';
+import { assertNotNull, assertType } from './utils/assert';
 import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
 
 declare global {
@@ -85,9 +85,11 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
 
   function handleTagClear(event: Event) {
     const target = assertType(event.target, HTMLElement);
+    const { tagName } = target.dataset;
+    if (!tagName) return;
 
     event.preventDefault();
-    removeTag(assertString(target.dataset.tagName), assertNotNull(target.parentElement));
+    removeTag(tagName, assertNotNull(target.parentElement));
   }
 
   function handleKeyEvent(event: KeyboardEvent) {

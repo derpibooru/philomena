@@ -26,10 +26,10 @@ defmodule Philomena.FiltersTest do
   alias Philomena.Filters.FilterPage
   alias Philomena.Filters.ImageFilter
   alias Philomena.Images
-  alias Philomena.Images.Query
+  alias Philomena.Images.Filtering
   alias Philomena.Repo
   alias Philomena.Users.User
-  alias PhilomenaQuery.Parse.String, as: QueryString
+  alias PhilomenaQuery.Parse.Evaluator
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
 
@@ -77,26 +77,29 @@ defmodule Philomena.FiltersTest do
       assert safe_id == safe.id
     end
 
-    test "fails closed for invalid stored expressions" do
-      invalid_filters = [
-        {%Filter{id: 42, hidden_complex_str: "("}, nil, :hidden_complex_str},
-        {%Filter{id: 43, spoilered_complex_str: "("}, nil, :spoilered_complex_str},
-        {nil, %Filter{id: 44, hidden_complex_str: "("}, :hidden_complex_str}
-      ]
+    test "an invalid hidden expression hides every image" do
+      document = Filtering.document(Repo.preload(image_fixture(), tags: :aliases))
 
-      for {current_filter, forced_filter, field} <- invalid_filters do
-        assert %ImageFilter{} =
-                 image_filter =
-                 Filters.compile_image_filter(actor(), current_filter, forced_filter)
+      for {current_filter, forced_filter} <- [
+            {%Filter{hidden_complex_str: "("}, nil},
+            {nil, %Filter{hidden_complex_str: "("}}
+          ] do
+        image_filter = Filters.compile_image_filter(actor(), current_filter, forced_filter)
 
-        assert {:error, message} =
-                 Query.compile(QueryString.normalize("("), user: actor().user, filter: true)
-
-        assert image_filter.query == %{match_all: %{}}
-        assert image_filter.display_query == %{match_all: %{}}
-        assert image_filter.display_tag_ids == []
-        assert image_filter.errors == [{field, message}]
+        assert Evaluator.hits?(document, image_filter.query)
+        assert [{:hidden_complex_str, _message}] = image_filter.errors
       end
+    end
+
+    test "a spoiler expression the viewer cannot use spoilers images without hiding them" do
+      image = Repo.preload(image_fixture(), tags: :aliases)
+      current = %Filter{spoilered_complex_str: "my:faves"}
+
+      image_filter = Filters.compile_image_filter(actor(), current, nil)
+
+      refute Evaluator.hits?(Filtering.document(image), image_filter.query)
+      assert Images.filter_or_spoiler_hits?(image, image_filter)
+      assert [{:spoilered_complex_str, _message}] = image_filter.errors
     end
 
     test "an empty selection excludes and spoilers nothing" do
@@ -105,6 +108,7 @@ defmodule Philomena.FiltersTest do
                Filters.compile_image_filter(actor(), nil, nil)
 
       assert image_filter.display_tag_ids == []
+      assert image_filter.errors == []
 
       assert image_filter.query == %{
                bool: %{
@@ -573,6 +577,30 @@ defmodule Philomena.FiltersTest do
     end
   end
 
+  describe "recent_and_user_filters/1" do
+    test "a user with a full recent list still sees their own filters" do
+      user = confirmed_user_fixture()
+      own_filters = [filter_fixture(user), filter_fixture(user)]
+      recent_filters = for _ <- 1..10, do: system_filter_fixture()
+
+      user =
+        Enum.reduce(recent_filters, user, fn filter, user ->
+          user |> User.filter_changeset(filter) |> Repo.update!()
+        end)
+
+      assert {:ok, selection} = Filters.recent_and_user_filters(actor(user))
+
+      assert Enum.map(selection.recent_filters, & &1.id) ==
+               Enum.reverse(Enum.map(recent_filters, & &1.id))
+
+      assert Enum.map(selection.user_filters, & &1.id) == Enum.map(own_filters, & &1.id)
+    end
+
+    test "an anonymous visitor is unauthorized" do
+      assert Filters.recent_and_user_filters(actor()) == {:error, :unauthorized}
+    end
+  end
+
   describe "load_selected_filters/2" do
     test "an anonymous malformed cookie selection falls back to the default" do
       default = system_filter_fixture(%{name: "Default"})
@@ -737,31 +765,43 @@ defmodule Philomena.FiltersTest do
       user = confirmed_user_fixture()
       filter = filter_fixture(user)
 
-      operations = [
+      forms = [
         new: fn actor -> Filters.new_filter(actor, nil) end,
-        edit: fn actor -> Filters.edit_filter(actor, filter.id) end,
+        edit: fn actor -> Filters.edit_filter(actor, filter.id) end
+      ]
+
+      mutations = [
         create: fn actor -> Filters.create_filter(actor, %{"name" => "Created"}) end,
         update: fn actor -> Filters.update_filter(actor, filter.id, %{"name" => "Updated"}) end,
         publish: fn actor -> Filters.create_filter_public(actor, filter.id) end,
         delete: fn actor -> Filters.delete_filter(actor, filter.id) end
       ]
 
-      %{user: user, operations: operations}
+      %{user: user, forms: forms, mutations: mutations}
     end
 
     test "all form and mutation entry points reject a banned actor first", context do
       banned_actor = actor(context.user, ban: @ban)
 
-      for {operation, invoke} <- context.operations do
+      for {operation, invoke} <- context.forms ++ context.mutations do
         assert invoke.(banned_actor) == {:error, :ban},
                "expected #{operation} to reject a banned actor"
       end
     end
 
-    test "all form and mutation entry points reject a missing fingerprint", context do
+    test "forms load without a fingerprint", context do
       unidentified_actor = actor(context.user, fingerprint: nil)
 
-      for {operation, invoke} <- context.operations do
+      for {operation, invoke} <- context.forms do
+        assert {:ok, _} = invoke.(unidentified_actor),
+               "expected #{operation} to load without a fingerprint"
+      end
+    end
+
+    test "mutations reject a missing fingerprint", context do
+      unidentified_actor = actor(context.user, fingerprint: nil)
+
+      for {operation, invoke} <- context.mutations do
         assert invoke.(unidentified_actor) == {:error, :unauthorized},
                "expected #{operation} to reject an actor without a fingerprint"
       end

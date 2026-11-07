@@ -1,10 +1,13 @@
 #!/bin/sh
-# Renames accounts whose names differ from another account's only by letter
-# case, so that the schema migrations can create the unique index.
+# Checks that each user has at most one commission, and renames accounts whose
+# names differ from another account's only by letter case, so that the schema
+# migrations can create the unique indexes.
 
 set -e
 
 . "$(dirname "$0")/common.sh"
+
+check_duplicate_commissions
 
 if name_index_exists || [ "$(colliding_name_groups)" = 0 ]; then
   exit 0

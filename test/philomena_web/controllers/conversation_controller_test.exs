@@ -197,6 +197,15 @@ defmodule PhilomenaWeb.ConversationControllerTest do
     assert Repo.aggregate(from(c in Conversation, where: c.from_id == ^user.id), :count) == 0
   end
 
+  test "POST /conversations without a conversation re-renders the form", %{conn: conn} do
+    %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+    conn = post(conn, ~p"/conversations", %{})
+
+    assert html_response(conn, 200) =~ "New Conversation"
+    assert Repo.aggregate(from(c in Conversation, where: c.from_id == ^user.id), :count) == 0
+  end
+
   test "POST /conversations with non-map params raises", %{conn: conn} do
     %{conn: conn} = register_and_log_in_user(%{conn: conn})
 
@@ -219,5 +228,31 @@ defmodule PhilomenaWeb.ConversationControllerTest do
 
     assert redirected_to(conn) == "/"
     assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+  end
+
+  test "GET /conversations/new renders the form without a fingerprint", %{conn: conn} do
+    %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+    conn = get(without_fingerprint(conn), ~p"/conversations/new")
+
+    assert html_response(conn, 200) =~ "New Conversation - Derpibooru"
+  end
+
+  test "POST /conversations without a fingerprint redirects to / with the authorization flash",
+       %{conn: conn} do
+    %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+    conn =
+      post(without_fingerprint(conn), ~p"/conversations", %{
+        "conversation" => %{
+          "recipient" => confirmed_user_fixture().name,
+          "title" => "Hello there",
+          "messages" => %{"0" => %{"body" => "A fine day to you"}}
+        }
+      })
+
+    assert redirected_to(conn) == "/"
+    assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+    refute Repo.exists?(from c in Conversation, where: c.from_id == ^user.id)
   end
 end

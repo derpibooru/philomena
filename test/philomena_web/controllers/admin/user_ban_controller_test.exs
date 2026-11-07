@@ -97,6 +97,15 @@ defmodule PhilomenaWeb.Admin.UserBanControllerTest do
       assert redirected_to(conn) == ~p"/admin/user_bans"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Must create ban on user."
     end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      target = confirmed_user_fixture()
+
+      conn = get(without_fingerprint(conn), ~p"/admin/user_bans/new?#{[user_id: target.id]}")
+
+      assert html_response(conn, 200) =~ "New User Ban - Derpibooru"
+    end
   end
 
   describe "POST /admin/user_bans (create)" do
@@ -186,6 +195,24 @@ defmodule PhilomenaWeb.Admin.UserBanControllerTest do
       assert redirected_to(conn) == ~p"/admin/user_bans"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Must create ban on user."
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      target = confirmed_user_fixture()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/user_bans", %{
+          "user" => %{
+            "user_id" => target.id,
+            "reason" => "Fingerprintless ban",
+            "valid_until" => "5 years from now"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(UserBan, reason: "Fingerprintless ban")
+    end
   end
 
   describe "GET /admin/user_bans/:id/edit" do
@@ -224,6 +251,15 @@ defmodule PhilomenaWeb.Admin.UserBanControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
     end
+
+    test "renders the edit form for a moderator without a fingerprint", %{conn: conn} do
+      ban = user_ban_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/admin/user_bans/#{ban}/edit")
+
+      assert html_response(conn, 200) =~ "Editing User Ban - Derpibooru"
+    end
   end
 
   describe "PATCH /admin/user_bans/:id (update)" do
@@ -260,6 +296,20 @@ defmodule PhilomenaWeb.Admin.UserBanControllerTest do
       response = html_response(conn, 200)
       assert response =~ "Editing user ban for user"
       assert Repo.get(UserBan, ban.id).reason == "Test ban reason"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      ban = user_ban_fixture()
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/user_bans/#{ban}", %{
+          "user" => %{"reason" => "Updated reason"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(UserBan, ban.id).reason == ban.reason
     end
   end
 

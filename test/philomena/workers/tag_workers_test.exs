@@ -25,6 +25,10 @@ defmodule Philomena.TagWorkersTest do
     |> Enum.map(& &1.id)
   end
 
+  defp enqueued_args(worker) do
+    for {:enqueue, [Exq, "indexing", ^worker, args]} <- history(Exq), do: args
+  end
+
   test "the alias worker moves image taggings to the target tag" do
     source = tag_fixture(name: "worker alias source")
     target = tag_fixture(name: "worker alias target")
@@ -58,6 +62,22 @@ defmodule Philomena.TagWorkersTest do
 
     assert Repo.reload!(source).images_count == 0
     assert Repo.reload!(target).images_count == 1
+  end
+
+  test "the alias worker reindexes the target and both tags when the source has no images" do
+    source = tag_fixture(name: "worker empty alias source")
+    target = tag_fixture(name: "worker empty alias target")
+
+    source
+    |> Ecto.Changeset.change(aliased_tag_id: target.id)
+    |> Repo.update!()
+
+    spy(Exq)
+
+    assert :ok = TagAliasWorker.perform(source.id, target.id)
+
+    assert enqueued_args(Philomena.TagReindexWorker) == [[target.id]]
+    assert enqueued_args(Philomena.IndexWorker) == [["Tags", "id", [source.id, target.id]]]
   end
 
   test "the alias worker does not count hidden images when moving taggings" do
@@ -113,31 +133,45 @@ defmodule Philomena.TagWorkersTest do
     refute tag.id in tag_ids(image)
   end
 
-  test "the delete worker removes tag change tags before deleting the tag" do
+  test "the delete worker removes the tag from history and drops emptied tag changes" do
     patch(Search, :delete_document, :ok)
 
     tag = tag_fixture(name: "worker delete history tag")
+    other_tag = tag_fixture(name: "worker kept history tag")
     image = image_fixture()
     attribution = actor()
 
-    tag_change =
-      Repo.insert!(%TagChange{
-        image_id: image.id,
-        ip: attribution.ip,
-        fingerprint: attribution.fingerprint
-      })
+    insert_tag_change! = fn tags ->
+      tag_change =
+        Repo.insert!(%TagChange{
+          image_id: image.id,
+          ip: attribution.ip,
+          fingerprint: attribution.fingerprint
+        })
 
-    Repo.insert!(%TagChangeTag{
-      tag_change_id: tag_change.id,
-      tag_id: tag.id,
-      added: true
-    })
+      for tag <- tags do
+        Repo.insert!(%TagChangeTag{tag_change_id: tag_change.id, tag_id: tag.id, added: true})
+      end
 
-    assert Repo.get_by(TagChangeTag, tag_change_id: tag_change.id, tag_id: tag.id)
+      tag_change
+    end
+
+    emptied = insert_tag_change!.([tag])
+    retained = insert_tag_change!.([tag, other_tag])
+    unrelated = insert_tag_change!.([])
 
     assert :ok = TagDeleteWorker.perform(tag.id)
 
-    refute Repo.get_by(TagChangeTag, tag_change_id: tag_change.id, tag_id: tag.id)
-    refute Repo.get(TagChange, tag_change.id)
+    refute Repo.get(TagChange, emptied.id)
+    emptied_id = emptied.id
+    retained_id = retained.id
+    unrelated_id = unrelated.id
+    assert_called(Search.delete_document(^emptied_id, TagChange))
+    refute_called(Search.delete_document(^retained_id, TagChange))
+    refute_called(Search.delete_document(^unrelated_id, TagChange))
+    assert Repo.get(TagChange, retained.id)
+    assert Repo.get(TagChange, unrelated.id)
+    refute Repo.get_by(TagChangeTag, tag_id: tag.id)
+    assert Repo.get_by(TagChangeTag, tag_change_id: retained.id, tag_id: other_tag.id)
   end
 end

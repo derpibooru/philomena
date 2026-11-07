@@ -98,7 +98,7 @@ defmodule Philomena.ReportsTest do
       end
     end
 
-    test "the form and create paths share write-access precedence" do
+    test "both paths refuse bans first, only create requires a fingerprint" do
       locator = {:image, "not-an-id"}
       banned = actor(confirmed_user_fixture(), ban: @ban)
       no_fingerprint = actor(nil, fingerprint: nil)
@@ -106,7 +106,7 @@ defmodule Philomena.ReportsTest do
       assert Reports.new_report(banned, locator) == {:error, :ban}
       assert Reports.create_report(banned, locator, report_params()) == {:error, :ban}
 
-      assert Reports.new_report(no_fingerprint, locator) == {:error, :unauthorized}
+      assert Reports.new_report(no_fingerprint, locator) == {:error, :not_found}
 
       assert Reports.create_report(no_fingerprint, locator, report_params()) ==
                {:error, :unauthorized}
@@ -293,6 +293,27 @@ defmodule Philomena.ReportsTest do
 
       assert {:error, %Ecto.Changeset{}} =
                Reports.list_reports(admin, %{"query" => ["open:true"]}, @pagination)
+    end
+
+    test "user_name_reindex/2 renames the report's related user" do
+      target = confirmed_user_fixture()
+      report = report_fixture(reported_user_id: target.id)
+      SearchHelpers.reindex_all!(Report)
+      admin = actor(admin_user_fixture())
+      new_name = "Renamed#{target.id}"
+
+      Reports.user_name_reindex(target.name, new_name)
+
+      # The update runs asynchronously in the search engine; poll for up to 5 s.
+      assert Enum.any?(1..250, fn _ ->
+               Process.sleep(20)
+               :ok = Search.refresh_index!(Report)
+
+               {:ok, %ReportPage{reports: reports}, _changeset} =
+                 Reports.list_reports(admin, %{"query" => "related:#{new_name}"}, @pagination)
+
+               Enum.map(reports.entries, & &1.id) == [report.id]
+             end)
     end
 
     test "the index is unauthorized for regular users" do

@@ -7,7 +7,8 @@ defmodule Philomena.Badges do
 
   import Ecto.Query, warn: false
 
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Multi
   alias Philomena.Attribution.Actor
@@ -61,7 +62,7 @@ defmodule Philomena.Badges do
   """
   @spec new_badge(Actor.t()) :: {:ok, Ecto.Changeset.t()} | Authorization.write_error()
   def new_badge(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Badge) do
       {:ok, Badge.changeset(%Badge{})}
     end
@@ -136,7 +137,7 @@ defmodule Philomena.Badges do
           {:ok, {Badge.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_badge(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, badge} <- load_badge(actor, :edit, id) do
       {:ok, {badge, Badge.changeset(badge)}}
     end
@@ -318,7 +319,7 @@ defmodule Philomena.Badges do
           {:ok, {User.t(), Ecto.Changeset.t(), [Badge.t()]}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def new_award(%Actor{} = actor, slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, user} <- load_authorized_profile(actor, :show, slug),
          :ok <- authorize(actor, :new, Award) do
       {:ok, {user, Award.changeset(%Award{}), awardable_badges()}}
@@ -404,7 +405,7 @@ defmodule Philomena.Badges do
           {:ok, {User.t(), Award.t(), Ecto.Changeset.t(), [Badge.t()]}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_award(%Actor{} = actor, slug, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, award} <- load_scoped_award(actor, :edit, slug, id) do
       {:ok, {award.user, award, Award.changeset(award), awardable_badges()}}
     end
@@ -449,6 +450,8 @@ defmodule Philomena.Badges do
         :moderation_log,
         actor,
         fn %{award: award} ->
+          award = Repo.preload(award, :badge, force: true)
+
           {
             "Profile.Award:update",
             Paths.profile_path(award.user),

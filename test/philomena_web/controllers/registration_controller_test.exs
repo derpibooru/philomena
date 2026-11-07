@@ -14,6 +14,11 @@ defmodule PhilomenaWeb.RegistrationControllerTest do
       html_response(conn, 200)
     end
 
+    test "renders on a first visit, before the fingerprint cookie is set", %{conn: conn} do
+      conn = get(without_fingerprint(conn), ~p"/registrations/new")
+      html_response(conn, 200)
+    end
+
     test "redirects if already logged in", %{conn: conn} do
       conn =
         conn |> log_in_user(confirmed_user_fixture()) |> get(~p"/registrations/new")
@@ -60,6 +65,19 @@ defmodule PhilomenaWeb.RegistrationControllerTest do
       response = html_response(conn, 200)
       assert response =~ "must be valid (e.g., user@example.com)"
       assert response =~ "should be at least 12 character"
+    end
+
+    test "refuses a submission without a fingerprint", %{conn: conn} do
+      email = unique_user_email()
+
+      conn =
+        post(without_fingerprint(conn), ~p"/registrations", %{
+          "user" => %{"email" => email, "password" => valid_user_password()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Philomena.Users.get_user_by_email(email)
     end
 
     test "rejects a banned actor", %{conn: conn} do

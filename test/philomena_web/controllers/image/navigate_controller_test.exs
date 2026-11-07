@@ -53,6 +53,19 @@ defmodule PhilomenaWeb.Image.NavigateControllerTest do
     end
   end
 
+  describe "GET /images/:image_id/navigate from a tag_count-sorted listing" do
+    test "follows the sort cursor to the image with fewer tags", %{conn: conn} do
+      fewer = image_fixture(tags: "safe")
+      more = image_fixture(tags: "safe, cute")
+      SearchHelpers.reindex_all!(Image)
+
+      params = [rel: "next", sf: "tag_count", sd: "desc", sort: ["2", to_string(more.id)]]
+      conn = get(conn, ~p"/images/#{more}/navigate?#{params}")
+
+      assert redirected_to(conn) =~ ~p"/images/#{fewer.id}"
+    end
+  end
+
   describe "GET /images/:image_id/navigate?rel=prev" do
     test "redirects to the previous image in the sequence", %{conn: conn} do
       {older, newer} = two_images()
@@ -81,6 +94,16 @@ defmodule PhilomenaWeb.Image.NavigateControllerTest do
       assert_raise Phoenix.ActionClauseError, fn ->
         get(conn, ~p"/images/#{image}/navigate")
       end
+    end
+
+    test "redirects back to the image with the parser error for a malformed query",
+         %{conn: conn} do
+      image = image_fixture()
+
+      conn = get(conn, ~p"/images/#{image}/navigate?#{[rel: "next", q: "(safe"]}")
+
+      assert redirected_to(conn) == ~p"/images/#{image}?#{[q: "(safe"]}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Imbalanced parentheses."
     end
 
     test "redirects to / for an unknown image", %{conn: conn} do

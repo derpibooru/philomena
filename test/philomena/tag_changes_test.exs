@@ -11,6 +11,7 @@ defmodule Philomena.TagChangesTest do
   """
 
   use Philomena.DataCase, async: false
+  use Patch
 
   # delete_tag_change/2 removes the record's search document, so this module
   # follows the OpenSearch test rules (async: false, index cycled in setup).
@@ -18,7 +19,6 @@ defmodule Philomena.TagChangesTest do
 
   import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
-  import Philomena.TagsFixtures
   import Philomena.UsersFixtures
 
   import Ecto.Query
@@ -54,7 +54,7 @@ defmodule Philomena.TagChangesTest do
     arrangement_actor =
       case user do
         nil ->
-          actor()
+          actor(nil, ip: random_ip())
 
         user ->
           actor(%{user | bypass_rate_limits: true})
@@ -145,26 +145,34 @@ defmodule Philomena.TagChangesTest do
       assert Enum.map(page.entries, & &1.id) == [tag_change.id]
     end
 
-    test "the tag resource resolves aliases to their canonical target" do
+    test "the tag resource resolves aliases and includes their pre-alias history" do
       {_image, tag_change} = tag_change!(confirmed_user_fixture())
       canonical = Repo.get_by!(Tag, name: "added test tag")
+      image = image_fixture()
+
+      {:ok, _result} =
+        Images.update_image_tags(actor(nil, ip: random_ip()), image.id, %{
+          "old_tag_input" => "safe",
+          "tag_input" => "safe, former added test tag, other former tag"
+        })
+
+      alias_change = Repo.get_by!(TagChange, image_id: image.id)
 
       alias_tag =
-        tag_fixture(name: "former added test tag")
+        Tag
+        |> Repo.get_by!(name: "former added test tag")
         |> Ecto.Changeset.change(aliased_tag_id: canonical.id)
         |> Repo.update!()
 
       reindex_tag_changes!()
 
-      assert {:ok,
-              %TagChangePage{
-                target: loaded_tag,
-                tag_changes: page
-              }, _changeset} =
-               TagChanges.list_tag_tag_changes(actor(), alias_tag.slug, %{}, @pagination)
+      for slug <- [alias_tag.slug, canonical.slug] do
+        assert {:ok, %TagChangePage{target: loaded_tag, tag_changes: page}, _changeset} =
+                 TagChanges.list_tag_tag_changes(actor(), slug, %{}, @pagination)
 
-      assert loaded_tag.id == canonical.id
-      assert Enum.map(page.entries, & &1.id) == [tag_change.id]
+        assert loaded_tag.id == canonical.id
+        assert Enum.sort(Enum.map(page.entries, & &1.id)) == [tag_change.id, alias_change.id]
+      end
     end
 
     test "resource filters compose with tcq rather than replacing it" do
@@ -578,22 +586,21 @@ defmodule Philomena.TagChangesTest do
     end
   end
 
-  describe "cleanup_empty_for_tag_deletion/0" do
-    test "deletes only empty changes and returns their ids" do
-      {_image, retained} = tag_change!(confirmed_user_fixture())
-      image = image_fixture()
-      attribution = actor()
+  describe "wipe_user_attribution!/3" do
+    test "replaces the user's IP and fingerprint and queues the rows for reindexing" do
+      user = confirmed_user_fixture()
+      {_image, tag_change} = tag_change!(user)
+      {_image, other_change} = tag_change!(confirmed_user_fixture())
+      wipe_ip = %Postgrex.INET{address: {127, 0, 1, 1}, netmask: 32}
+      spy(Exq)
 
-      empty =
-        Repo.insert!(%TagChange{
-          image_id: image.id,
-          ip: attribution.ip,
-          fingerprint: attribution.fingerprint
-        })
+      assert TagChanges.wipe_user_attribution!(user.id, wipe_ip, "ffff") == :ok
 
-      assert TagChanges.cleanup_empty_for_tag_deletion() == {1, [empty.id]}
-      refute Repo.get(TagChange, empty.id)
-      assert Repo.get(TagChange, retained.id)
+      assert %TagChange{ip: ^wipe_ip, fingerprint: "ffff"} = Repo.reload!(tag_change)
+      refute Repo.reload!(other_change).fingerprint == "ffff"
+
+      reindex = [Exq, "indexing", Philomena.IndexWorker, ["TagChanges", "id", [tag_change.id]]]
+      assert {:enqueue, reindex} in history(Exq)
     end
   end
 end

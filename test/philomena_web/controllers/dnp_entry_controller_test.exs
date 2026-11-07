@@ -211,6 +211,15 @@ defmodule PhilomenaWeb.DnpEntryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      verify_artist_link!(user, tag_fixture(name: "artist:test-no-fingerprint-artist"))
+
+      conn = get(without_fingerprint(conn), ~p"/dnp/new")
+
+      assert html_response(conn, 200) =~ "New DNP Listing - Derpibooru"
+    end
   end
 
   describe "POST /dnp" do
@@ -287,6 +296,25 @@ defmodule PhilomenaWeb.DnpEntryControllerTest do
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+      tag = tag_fixture(name: "artist:test-no-fingerprint-create-artist")
+      verify_artist_link!(user, tag)
+
+      conn =
+        post(without_fingerprint(conn), ~p"/dnp", %{
+          "dnp_entry" => %{
+            "tag_id" => to_string(tag.id),
+            "dnp_type" => "No Edits",
+            "reason" => "Test created DNP reason"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.exists?(from d in DnpEntry, where: d.requesting_user_id == ^user.id)
+    end
   end
 
   describe "GET /dnp/:id/edit" do
@@ -332,6 +360,16 @@ defmodule PhilomenaWeb.DnpEntryControllerTest do
 
       assert response =~ "Editing DNP Listing - Derpibooru"
       assert response =~ "Edit DNP Request"
+    end
+
+    test "renders the form for a moderator without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      tag = tag_fixture(name: "artist:test-no-fingerprint-edit-artist")
+      entry = dnp_entry_fixture(confirmed_user_fixture(), tag)
+
+      conn = get(without_fingerprint(conn), ~p"/dnp/#{entry}/edit")
+
+      assert html_response(conn, 200) =~ "Editing DNP Listing - Derpibooru"
     end
   end
 
@@ -408,6 +446,21 @@ defmodule PhilomenaWeb.DnpEntryControllerTest do
             "dnp_type" => "No Edits",
             "reason" => "Hijacked"
           }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.reload!(entry).reason == entry.reason
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
+      tag = tag_fixture(name: "artist:test-no-fingerprint-update-artist")
+      entry = dnp_entry_fixture(confirmed_user_fixture(), tag)
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/dnp/#{entry}?#{[tag_id: tag.id]}", %{
+          "dnp_entry" => %{"tag_id" => to_string(tag.id), "reason" => "Updated DNP reason"}
         })
 
       assert redirected_to(conn) == "/"

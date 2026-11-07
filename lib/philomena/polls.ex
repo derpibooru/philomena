@@ -4,7 +4,7 @@ defmodule Philomena.Polls do
   """
 
   import Ecto.Query, warn: false
-  import Philomena.Authorization, only: [verify_write_access: 1]
+  import Philomena.Authorization, only: [verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Attribution.Actor
   alias Philomena.Loader
@@ -41,6 +41,7 @@ defmodule Philomena.Polls do
   @doc """
   Loads an authorized poll edit form.
 
+  A banned actor is refused; a missing fingerprint is left to `update_poll/4`.
   Existing options are included in the form.
 
   ## Examples
@@ -52,7 +53,7 @@ defmodule Philomena.Polls do
   @spec edit_poll(Actor.t(), String.t(), String.t()) ::
           {:ok, Ecto.Changeset.t()} | {:error, :ban | :not_found | :unauthorized}
   def edit_poll(%Actor{} = actor, forum_slug, topic_slug) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, forum} <- Forums.show_forum(actor, forum_slug),
          {:ok, topic} <- Topics.show_forum_topic(actor, forum, topic_slug, :edit_poll),
          {:ok, poll} <- load_topic_poll(topic) do

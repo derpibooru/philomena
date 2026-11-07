@@ -5,7 +5,8 @@ defmodule Philomena.Adverts do
 
   import Ecto.Query, warn: false
 
-  import Philomena.Authorization, only: [authorize: 3, verify_write_access: 1]
+  import Philomena.Authorization,
+    only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
 
   alias Philomena.Adverts.{Advert, Restrictions, Server, Uploader}
   alias Philomena.Attribution.Actor
@@ -166,7 +167,7 @@ defmodule Philomena.Adverts do
   """
   @spec new_advert(Actor.t()) :: {:ok, Ecto.Changeset.t()} | Authorization.write_error()
   def new_advert(%Actor{} = actor) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          :ok <- authorize(actor, :new, Advert) do
       {:ok, Advert.changeset(%Advert{})}
     end
@@ -233,7 +234,7 @@ defmodule Philomena.Adverts do
           {:ok, {Advert.t(), Ecto.Changeset.t()}}
           | {:error, Authorization.write_error_reason() | :not_found}
   def edit_advert(%Actor{} = actor, id) do
-    with :ok <- verify_write_access(actor),
+    with :ok <- verify_not_banned(actor),
          {:ok, advert} <- load_advert(actor, :edit, id) do
       {:ok, {advert, Advert.changeset(advert)}}
     end

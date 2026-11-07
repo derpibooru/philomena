@@ -53,14 +53,15 @@ defmodule PhilomenaWeb.Image.FeatureControllerTest do
       assert featured?(image)
     end
 
-    test "operates on a deleted image", %{conn: conn} do
+    test "refuses to feature a deleted image", %{conn: conn} do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
       image = image_fixture(hidden_from_users: true, deletion_reason: "Spam")
 
       conn = post(conn, ~p"/images/#{image}/feature")
 
-      assert Phoenix.Flash.get(conn.assigns.flash, :info) == "Image marked as featured image."
-      assert featured?(image)
+      assert redirected_to(conn) == ~p"/images/#{image}"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "Cannot feature a deleted image."
+      refute featured?(image)
     end
 
     test "for an unknown image_id redirects with the not-found flash", %{conn: conn} do

@@ -3,6 +3,7 @@ defmodule Philomena.ImagesTest do
   # (Images.async_upload/2) that hits the Repo; it is only allowed on the
   # sandbox connection in shared mode, which is enabled for sync tests.
   use Philomena.DataCase, async: false
+  use Patch
 
   import Ecto.Query
 
@@ -13,6 +14,7 @@ defmodule Philomena.ImagesTest do
   alias Philomena.ImageFeatures.ImageFeature
   alias Philomena.ImageHides
   alias Philomena.ImageHides.ImageHide
+  alias Philomena.Comments
   alias Philomena.Galleries.Interaction
   alias Philomena.Images
   alias Philomena.ImageVotes
@@ -198,6 +200,9 @@ defmodule Philomena.ImagesTest do
     |> Enum.sort()
   end
 
+  defp image_reindex(image),
+    do: [Exq, "indexing", Philomena.IndexWorker, ["Images", "id", [image.id]]]
+
   defp tag_attrs(old_tag_input, tag_input) do
     %{"old_tag_input" => old_tag_input, "tag_input" => tag_input}
   end
@@ -364,6 +369,29 @@ defmodule Philomena.ImagesTest do
                |> Multi.transact()
 
       assert Repo.reload!(target).first_seen_at == source_first_seen_at
+    end
+
+    test "adds the source image's comments that are not destroyed to the target's count" do
+      moderator = moderator_user_fixture()
+      source = image_fixture()
+      target = image_fixture()
+      comment_fixture(target)
+      comment_fixture(source)
+      destroyed = comment_fixture(source)
+
+      {:ok, _} =
+        Comments.create_comment_hide(actor(moderator), source.id, destroyed.id, %{
+          "deletion_reason" => "Spam"
+        })
+
+      {:ok, _} = Comments.create_comment_delete(actor(moderator), source.id, destroyed.id)
+
+      assert {:ok, _result} =
+               Multi.new()
+               |> Images.put_merge_image(source, target, moderator)
+               |> Multi.transact()
+
+      assert Repo.reload!(target).comments_count == 2
     end
   end
 
@@ -980,6 +1008,20 @@ defmodule Philomena.ImagesTest do
       assert loaded.id == image.id
     end
 
+    test "a moderator whose first request has no fingerprint loads the image" do
+      image = image_fixture()
+      actor = actor(moderator_user_fixture(), fingerprint: nil)
+
+      assert {:ok, loaded} = Images.load_hidable_image(actor, image.id)
+      assert loaded.id == image.id
+    end
+
+    test "a banned moderator is rejected" do
+      actor = actor(moderator_user_fixture(), ban: @ban)
+
+      assert Images.load_hidable_image(actor, image_fixture().id) == {:error, :ban}
+    end
+
     test "an admin loads a known image" do
       admin = admin_user_fixture()
       image = image_fixture()
@@ -1189,12 +1231,14 @@ defmodule Philomena.ImagesTest do
       # subscribing is not staff-gated.
       user = confirmed_user_fixture()
       image = image_fixture()
+      spy(Exq)
 
       assert {:ok, subscribed} =
                Images.create_image_subscription(actor(user), to_string(image.id))
 
       assert subscribed.id == image.id
       assert Images.subscribed?(image, user)
+      assert {:enqueue, image_reindex(image)} in history(Exq)
     end
 
     test "a moderator subscribes to a visible image" do
@@ -1277,12 +1321,14 @@ defmodule Philomena.ImagesTest do
       image = image_fixture()
       {:ok, _} = Images.create_subscription(image, user)
       assert Images.subscribed?(image, user)
+      spy(Exq)
 
       assert {:ok, unsubscribed} =
                Images.delete_image_subscription(actor(user), to_string(image.id))
 
       assert unsubscribed.id == image.id
       refute Images.subscribed?(image, user)
+      assert {:enqueue, image_reindex(image)} in history(Exq)
     end
 
     test "unsubscribing with no existing subscription still succeeds" do
@@ -1354,6 +1400,16 @@ defmodule Philomena.ImagesTest do
   end
 
   describe "create_image_approve/2" do
+    test "queues the image's comments for reindexing with the approved image" do
+      image = image_fixture(approved: false)
+      spy(Exq)
+
+      assert {:ok, _} = Images.create_image_approve(actor(moderator_user_fixture()), image.id)
+
+      reindex = [Exq, "indexing", Philomena.IndexWorker, ["Comments", "image_id", [image.id]]]
+      assert {:enqueue, reindex} in history(Exq)
+    end
+
     test "a moderator approves an unapproved image and gets the image" do
       moderator = moderator_user_fixture()
       image = image_fixture(approved: false)
@@ -2126,13 +2182,16 @@ defmodule Philomena.ImagesTest do
       assert feature_row_count(image) == 1
     end
 
-    test "a hidden image is accepted" do
+    test "a deleted image is rejected without a feature or log" do
       moderator = moderator_user_fixture()
       image = image_fixture(hidden_from_users: true)
 
-      assert {:ok, %ImageFeature{}} = Images.create_image_feature(actor(moderator), image.id)
-      assert feature_row_count(image) == 1
-      assert moderation_log_count() == 1
+      assert {:error, %Ecto.Changeset{} = changeset} =
+               Images.create_image_feature(actor(moderator), image.id)
+
+      assert %{image: ["cannot be a deleted image"]} = errors_on(changeset)
+      assert feature_row_count(image) == 0
+      assert moderation_log_count() == 0
     end
 
     test "a regular user on a hidden image is unauthorized, not deleted" do
@@ -3895,7 +3954,7 @@ defmodule Philomena.ImagesTest do
 
       assert {:ok, _result} =
                Images.update_image_sources(
-                 actor(),
+                 actor(nil, ip: random_ip()),
                  to_string(image.id),
                  add_source_attrs("https://example.com/anon")
                )
@@ -4131,7 +4190,7 @@ defmodule Philomena.ImagesTest do
 
       assert {:ok, _result} =
                Images.update_image_tags(
-                 actor(),
+                 actor(nil, ip: random_ip()),
                  to_string(image.id),
                  tag_attrs("safe", "safe, added test tag, other added tag")
                )
@@ -4474,6 +4533,21 @@ defmodule Philomena.ImagesTest do
       refute page.can_interact
     end
 
+    test "a viewer whose first request has no fingerprint still gets write controls" do
+      image = image_fixture()
+
+      page =
+        Images.show_image_page(actor(moderator_user_fixture(), fingerprint: nil), image,
+          page: 1,
+          page_size: 25
+        )
+
+      assert page.can_interact
+      assert %Ecto.Changeset{} = page.comment_changeset
+      assert %Ecto.Changeset{} = page.tag_changeset
+      assert %Ecto.Changeset{} = page.hide_changeset
+    end
+
     test "a banned viewer gets no write controls or mutation changesets" do
       user = confirmed_user_fixture()
       image = image_fixture()
@@ -4650,8 +4724,8 @@ defmodule Philomena.ImagesTest do
       assert Images.new_image(actor) == {:error, :ban}
     end
 
-    test "an actor without a fingerprint may not reach the form" do
-      assert Images.new_image(actor(nil, fingerprint: nil)) == {:error, :unauthorized}
+    test "an actor whose first request has no fingerprint gets the form changeset" do
+      assert {:ok, %Ecto.Changeset{}} = Images.new_image(actor(nil, fingerprint: nil))
     end
   end
 

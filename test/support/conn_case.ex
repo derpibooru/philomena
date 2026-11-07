@@ -91,6 +91,17 @@ defmodule PhilomenaWeb.ConnCase do
   end
 
   @doc """
+  Setup helper that registers and logs in an admin with an active ban.
+
+      setup :register_and_log_in_banned_admin
+  """
+  def register_and_log_in_banned_admin(%{conn: conn}) do
+    user = Philomena.UsersFixtures.admin_user_fixture()
+    Philomena.BansFixtures.user_ban_fixture(user)
+    %{conn: log_in_user(conn, user), user: user}
+  end
+
+  @doc """
   Setup helper that registers and logs in a TOTP-enabled user, including
   the TOTP session token.
 
@@ -206,6 +217,14 @@ defmodule PhilomenaWeb.ConnCase do
     |> log_in_user(user)
     |> Plug.Conn.put_session(:totp_token, totp_token)
   end
+
+  @doc """
+  Drops the `_ses` fingerprint cookie from `conn`, as on a visitor's first
+  request before the frontend has set it.
+
+  It returns an updated `conn`.
+  """
+  def without_fingerprint(conn), do: Phoenix.ConnTest.delete_req_cookie(conn, "_ses")
 
   @doc """
   Gives the `conn` a fresh, unique `remote_ip`.

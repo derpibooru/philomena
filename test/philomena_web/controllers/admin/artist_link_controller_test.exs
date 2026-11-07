@@ -30,6 +30,12 @@ defmodule PhilomenaWeb.Admin.ArtistLinkControllerTest do
       conn = get(conn, ~p"/admin/artist_links")
       assert html_response(conn, 200) =~ "Artist Links"
     end
+
+    test "allows an artist link assistant, showing the header counter", %{conn: conn} do
+      conn = log_in_user(conn, role_assistant_fixture("ArtistLink"))
+      conn = get(conn, ~p"/admin/artist_links")
+      assert html_response(conn, 200) =~ ~s(title="Artist Links")
+    end
   end
 
   describe "GET /admin/artist_links (index) content" do

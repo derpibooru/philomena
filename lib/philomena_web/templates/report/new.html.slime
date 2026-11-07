@@ -45,7 +45,7 @@ p
     .field
       = select f, :rule_id, report_categories(@rules), class: "input", prompt: [key: "Select a rule", disabled: true, selected: true], required: true
     .block
-      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Provide anything else we should know here.", name: :reason, required: false
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Describe the problem and how it breaks the rule.", name: :reason
 
     = hidden_input f, :user_agent, value: get_user_agent(@conn)
     = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "report", conn: @conn

@@ -3,7 +3,7 @@ defmodule Philomena.Galleries.SearchIndex do
 
   @impl true
   def version do
-    1
+    2
   end
 
   @impl true
@@ -34,7 +34,9 @@ defmodule Philomena.Galleries.SearchIndex do
           creator_id: %{type: "keyword"},
           creator: %{type: "keyword"},
           image_ids: %{type: "keyword"},
+          thumbnail_id: %{type: "keyword"},
           description: %{type: "text", analyzer: "snowball"},
+          spoiler_warning: %{type: "text", analyzer: "snowball"},
           anonymous: %{type: "boolean"}
         }
       }
@@ -55,7 +57,9 @@ defmodule Philomena.Galleries.SearchIndex do
       creator_id: if(!gallery.anonymous, do: gallery.user_id),
       creator: if(!!gallery.user and !gallery.anonymous, do: String.downcase(gallery.user.name)),
       image_ids: Enum.map(gallery.interactions, & &1.image_id),
+      thumbnail_id: gallery.thumbnail_id,
       description: gallery.description,
+      spoiler_warning: gallery.spoiler_warning,
       anonymous: gallery.anonymous
     }
   end

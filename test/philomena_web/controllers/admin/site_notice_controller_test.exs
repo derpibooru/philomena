@@ -72,9 +72,33 @@ defmodule PhilomenaWeb.Admin.SiteNoticeControllerTest do
       conn = get(conn, ~p"/admin/site_notices/new")
       assert html_response(conn, 200) =~ "New site notice"
     end
+
+    test "renders the form for an admin without a fingerprint", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/admin/site_notices/new")
+
+      assert html_response(conn, 200) =~ "New site notice"
+    end
   end
 
   describe "POST /admin/site_notices (create)" do
+    test "gives a banned admin the ban response", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_banned_admin(%{conn: conn})
+
+      conn =
+        post(conn, ~p"/admin/site_notices", %{
+          "site_notice" => %{
+            "title" => "nope",
+            "text" => "nope",
+            "start_date" => "now",
+            "finish_date" => "5 years from now"
+          }
+        })
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You are currently banned."
+      refute Repo.exists?(SiteNotice)
+    end
+
     test "rejects a plain moderator", %{conn: conn} do
       %{conn: conn} = register_and_log_in_moderator(%{conn: conn})
 
@@ -125,6 +149,24 @@ defmodule PhilomenaWeb.Admin.SiteNoticeControllerTest do
       assert html_response(conn, 200) =~ "New site notice"
       refute Repo.exists?(SiteNotice)
     end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/admin/site_notices", %{
+          "site_notice" => %{
+            "title" => "Fingerprintless announcement",
+            "text" => "Read all about it.",
+            "start_date" => "now",
+            "finish_date" => "5 years from now"
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.get_by(SiteNotice, title: "Fingerprintless announcement")
+    end
   end
 
   describe "GET /admin/site_notices/:id/edit" do
@@ -157,6 +199,14 @@ defmodule PhilomenaWeb.Admin.SiteNoticeControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+
+    test "renders the edit form for an admin without a fingerprint", %{conn: conn} do
+      notice = site_notice_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+      conn = get(without_fingerprint(conn), ~p"/admin/site_notices/#{notice}/edit")
+
+      assert html_response(conn, 200) =~ "Editing site notice"
     end
   end
 
@@ -196,6 +246,20 @@ defmodule PhilomenaWeb.Admin.SiteNoticeControllerTest do
 
       assert html_response(conn, 200) =~ "Editing site notice"
       assert Repo.get(SiteNotice, notice.id).title == "Scheduled maintenance"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash", %{conn: conn} do
+      notice = site_notice_fixture()
+      %{conn: conn} = register_and_log_in_admin(%{conn: conn})
+
+      conn =
+        patch(without_fingerprint(conn), ~p"/admin/site_notices/#{notice}", %{
+          "site_notice" => %{"title" => "Updated title"}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      assert Repo.get(SiteNotice, notice.id).title == notice.title
     end
   end
 

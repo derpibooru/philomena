@@ -453,6 +453,14 @@ defmodule PhilomenaWeb.TopicControllerTest do
       assert Phoenix.Flash.get(conn.assigns.flash, :error) ==
                "Couldn't find what you were looking for!"
     end
+
+    test "renders the form without a fingerprint", %{conn: conn, forum: forum} do
+      %{conn: conn} = register_and_log_in_user(%{conn: conn})
+
+      conn = get(without_fingerprint(conn), ~p"/forums/#{forum}/topics/new")
+
+      assert html_response(conn, 200) =~ "New Topic - Derpibooru"
+    end
   end
 
   describe "POST /forums/:forum_id/topics" do
@@ -511,6 +519,23 @@ defmodule PhilomenaWeb.TopicControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "You are currently banned"
+    end
+
+    test "without a fingerprint redirects to / with the authorization flash",
+         %{conn: conn, forum: forum} do
+      %{conn: conn, user: user} = register_and_log_in_user(%{conn: conn})
+
+      conn =
+        post(without_fingerprint(conn), ~p"/forums/#{forum}/topics", %{
+          "topic" => %{
+            "title" => "A brand new topic",
+            "posts" => %{"0" => %{"body" => "First post body"}}
+          }
+        })
+
+      assert redirected_to(conn) == "/"
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) == "You can't access that page."
+      refute Repo.exists?(from t in Topic, where: t.user_id == ^user.id)
     end
   end
 
