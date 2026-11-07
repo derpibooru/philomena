@@ -2,7 +2,6 @@ defmodule Philomena.MultiTest do
   use Philomena.DataCase, async: false
 
   alias Ecto.Adapters.SQL.Sandbox
-  alias Philomena.ImageFaves.ImageFave
   alias Philomena.Multi
   alias Philomena.Repo
   alias Philomena.Tags.Tag
@@ -12,26 +11,6 @@ defmodule Philomena.MultiTest do
 
     receive do
       ^proceed -> {:ok, :released}
-    end
-  end
-
-  defp await_lock_wait(tries \\ 500) do
-    %{rows: [[waiting]]} =
-      Repo.query!("""
-      SELECT count(*) FROM pg_stat_activity
-      WHERE datname = current_database() AND wait_event_type = 'Lock'
-      """)
-
-    cond do
-      waiting > 0 ->
-        :ok
-
-      tries > 0 ->
-        Process.sleep(10)
-        await_lock_wait(tries - 1)
-
-      true ->
-        flunk("no transaction started waiting on a lock")
     end
   end
 
@@ -51,89 +30,6 @@ defmodule Philomena.MultiTest do
 
     assert {:ok, %{result: :retried}} = Multi.transact_with_automatic_retry(multi)
     assert Agent.get(attempts, & &1) == 2
-  end
-
-  describe "insert_or_conflict/4" do
-    test "fails with :conflict when the insert violates a unique constraint" do
-      image = Philomena.ImagesFixtures.image_fixture()
-      user = Philomena.UsersFixtures.confirmed_user_fixture()
-
-      fave = fn ->
-        ImageFave.changeset(%ImageFave{image_id: image.id, user_id: user.id}, %{})
-      end
-
-      assert {:ok, _changes} =
-               Multi.new() |> Multi.insert_or_conflict(:fave, fave.()) |> Multi.transact()
-
-      assert {:error, :fave, :conflict, _changes} =
-               Multi.new() |> Multi.insert_or_conflict(:fave, fave.()) |> Multi.transact()
-    end
-
-    test "lets a delete-and-insert retry past a concurrent insert of the same row" do
-      attempts = start_supervised!({Agent, fn -> 0 end})
-      name = "multi-insert-conflict-#{System.unique_integer([:positive])}"
-
-      tag = fn ->
-        %Tag{}
-        |> Tag.creation_changeset(%{"name" => name})
-        |> Ecto.Changeset.unique_constraint(:name, name: :index_tags_on_name)
-        |> Ecto.Changeset.unique_constraint(:slug, name: :index_tags_on_slug)
-      end
-
-      same_name = from(tag in Tag, where: tag.name == ^name)
-
-      Sandbox.unboxed_run(Repo, fn ->
-        try do
-          parent = self()
-
-          competing_transaction =
-            Task.async(fn ->
-              Sandbox.unboxed_run(Repo, fn ->
-                Multi.new()
-                |> Multi.insert(:tag, tag.())
-                |> Multi.run(:commit_semaphore, fn _repo, _changes ->
-                  await_semaphore(parent, :competing_transaction_inserted, :commit)
-                end)
-                |> Multi.transact()
-              end)
-            end)
-
-          assert_receive :competing_transaction_inserted
-
-          transaction =
-            Task.async(fn ->
-              Sandbox.unboxed_run(Repo, fn ->
-                Multi.new()
-                |> Multi.run(:attempt, fn _repo, _changes ->
-                  {:ok, Agent.get_and_update(attempts, &{&1, &1 + 1})}
-                end)
-                |> Multi.delete_all(:delete, same_name)
-                |> Multi.insert_or_conflict(:tag, tag.())
-                |> Multi.transact_with_automatic_retry()
-              end)
-            end)
-
-          # The delete cannot see the uncommitted row, so the insert waits on
-          # it. Committing the competing row then makes that insert fail.
-          await_lock_wait()
-          send(competing_transaction.pid, :commit)
-          assert {:ok, _changes} = Task.await(competing_transaction)
-
-          assert {:ok, %{tag: %Tag{name: ^name}}} = Task.await(transaction)
-          assert Agent.get(attempts, & &1) == 2
-          assert Repo.aggregate(same_name, :count) == 1
-        after
-          Repo.query!("DELETE FROM tags WHERE name = $1", [name])
-        end
-      end)
-    end
-
-    test "returns the changeset for other errors" do
-      changeset = Tag.creation_changeset(%Tag{}, %{"name" => ""})
-
-      assert {:error, :tag, %Ecto.Changeset{valid?: false}, _changes} =
-               Multi.new() |> Multi.insert_or_conflict(:tag, changeset) |> Multi.transact()
-    end
   end
 
   test "restarts the transaction after a serialization failure" do

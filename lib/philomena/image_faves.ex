@@ -44,14 +44,11 @@ defmodule Philomena.ImageFaves do
   named `:unfave`, `:dec_faves_count`, `:fave`, `:inc_faves_count`, and
   `:inc_fave_stat`.
 
-  A concurrent request for the same fave can make the insert fail with
-  `:conflict`, so run the Multi with `Multi.transact_with_automatic_retry/2`.
-
   ## Examples
 
       iex> (Multi.new()
       ...> |> put_fave_for_loaded_image(image, user)
-      ...> |> Multi.transact_with_automatic_retry())
+      ...> |> Multi.transact())
       {:ok, %{fave: %ImageFave{}}}
 
   """
@@ -63,7 +60,7 @@ defmodule Philomena.ImageFaves do
 
     multi
     |> delete_fave_steps(image, user)
-    |> Multi.insert_or_conflict(:fave, fave)
+    |> Multi.insert(:fave, fave)
     |> Images.put_image_counter_delta(:inc_faves_count, image.id, :faves_count, 1)
     |> UserStatistics.put_increment(user, :image_faves_count, 1)
   end
@@ -74,6 +71,9 @@ defmodule Philomena.ImageFaves do
   The caller must have authorized the loaded image.`:dec_faves_count` adjusts
   the image and user counters by that exact number, so deleting an absent
   favorite changes nothing.
+
+  A concurrent request for the same fave can make the insert fail.
+  The caller is expected to manage locking in this case.
 
   ## Examples
 

@@ -14,6 +14,46 @@ defmodule Philomena.ImagesConcurrencyTest do
   import Philomena.TagsFixtures
   import Philomena.UsersFixtures
 
+  for interaction <- [:hide, :fave, :upvote, :downvote] do
+    @interaction interaction
+    test "concurrent #{@interaction}s remain idempotent and keep counters consistent" do
+      user = confirmed_user_fixture()
+      actor = actor(user)
+      image = image_fixture(tags: "safe")
+
+      create = fn ->
+        case @interaction do
+          :hide -> Images.create_image_user_hide(actor, image.id)
+          :fave -> Images.create_image_fave(actor, image.id)
+          :upvote -> Images.create_image_vote(actor, image.id, %{up: true})
+          :downvote -> Images.create_image_vote(actor, image.id, %{up: false})
+        end
+      end
+
+      results = concurrently(for _ <- 1..4, do: create)
+
+      assert Enum.all?(results, &match?({:ok, %Image{}}, &1))
+
+      image = Repo.get!(Image, image.id) |> Repo.preload([:hides, :faves, :upvotes, :downvotes])
+      hides = if @interaction == :hide, do: 1, else: 0
+      faves = if @interaction == :fave, do: 1, else: 0
+      upvotes = if @interaction in [:fave, :upvote], do: 1, else: 0
+      downvotes = if @interaction == :downvote, do: 1, else: 0
+
+      assert length(image.hides) == hides
+      assert length(image.faves) == faves
+      assert length(image.upvotes) == upvotes
+      assert length(image.downvotes) == downvotes
+      assert image.hides_count == hides
+      assert image.faves_count == faves
+      assert image.upvotes_count == upvotes
+      assert image.downvotes_count == downvotes
+      assert image.score == upvotes - downvotes
+      assert Repo.reload!(user).image_faves_count == faves
+      assert Repo.reload!(user).image_votes_count == upvotes + downvotes
+    end
+  end
+
   test "concurrent approvals transition once and increment uploader statistics once" do
     uploader = confirmed_user_fixture()
     moderator = moderator_user_fixture()
