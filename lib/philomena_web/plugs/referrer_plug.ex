@@ -25,7 +25,7 @@ defmodule PhilomenaWeb.ReferrerPlug do
   defp referer(conn) do
     case Conn.get_req_header(conn, "referer") do
       [] -> "/"
-      [referrer] -> referrer
+      [referrer | _rest] -> referrer
     end
   end
 
