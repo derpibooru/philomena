@@ -10,9 +10,9 @@ defmodule PhilomenaWeb.ReferrerPlugTest do
 
   alias PhilomenaWeb.ReferrerPlug
 
-  defp with_referers(referers) do
-    Enum.reduce(referers, build_conn(), fn referer, conn ->
-      %{conn | req_headers: conn.req_headers ++ [{"referer", referer}]}
+  defp with_referrers(referrers) do
+    Enum.reduce(referrers, build_conn(), fn referrer, conn ->
+      %{conn | req_headers: conn.req_headers ++ [{"referer", referrer}]}
     end)
   end
 
@@ -23,7 +23,7 @@ defmodule PhilomenaWeb.ReferrerPlugTest do
   end
 
   test "assigns the referrer from the header" do
-    conn = ReferrerPlug.call(with_referers(["https://example.com/a"]), [])
+    conn = ReferrerPlug.call(with_referrers(["https://example.com/a"]), [])
 
     assert conn.assigns.referrer == "https://example.com/a"
   end
@@ -31,7 +31,7 @@ defmodule PhilomenaWeb.ReferrerPlugTest do
   test "uses the first referrer when the header is repeated" do
     conn =
       ["https://example.com/a", "https://example.com/b"]
-      |> with_referers()
+      |> with_referrers()
       |> ReferrerPlug.call([])
 
     assert conn.assigns.referrer == "https://example.com/a"
