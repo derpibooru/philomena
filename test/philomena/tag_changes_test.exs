@@ -20,6 +20,8 @@ defmodule Philomena.TagChangesTest do
   import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
+  import Philomena.TagsFixtures
+  import Philomena.TagChangesFixtures
 
   import Ecto.Query
 
@@ -492,6 +494,26 @@ defmodule Philomena.TagChangesTest do
       assert changeset.errors[:ids]
 
       assert Repo.aggregate(ModerationLog, :count) == 0
+    end
+
+    test "reversion does not duplicate a source tagging" do
+      user = admin_user_fixture()
+      source = tag_fixture(name: unique_tag_name())
+      target = tag_fixture(name: unique_tag_name())
+      image = image_fixture(tags: "safe, base one, base two, #{source.name}")
+      removed_change = create_tag_change!(image, source, user, false)
+      _later_add = create_tag_change!(image, source, user, true)
+
+      source
+      |> Ecto.Changeset.change(aliased_tag_id: target.id, images_count: 1)
+      |> Repo.update!()
+
+      initial_change_count = Repo.aggregate(TagChange, :count)
+
+      assert {:ok, [_]} =
+               TagChanges.create_tag_change_revert(actor(user), %{ids: [removed_change.id]})
+
+      assert Repo.aggregate(TagChange, :count) == initial_change_count
     end
   end
 
