@@ -1,13 +1,11 @@
 defmodule Philomena.TagChangesConcurrencyTest do
   use Philomena.ConcurrentDataCase
 
-  import Ecto.Query
-  import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
   import Philomena.TagsFixtures
+  import Philomena.TagChangesFixtures
   import Philomena.UsersFixtures
 
-  alias Philomena.Images
   alias Philomena.Repo
   alias Philomena.TagChanges
   alias Philomena.TagChanges.TagChange
@@ -20,53 +18,6 @@ defmodule Philomena.TagChangesConcurrencyTest do
     |> Repo.preload(:tags, force: true)
     |> Map.fetch!(:tags)
     |> Enum.map(& &1.id)
-  end
-
-  defp tag_change_attributes(user) do
-    attribution = actor(user)
-
-    %{
-      user_id: user.id,
-      ip: attribution.ip,
-      fingerprint: attribution.fingerprint
-    }
-  end
-
-  defp create_tag_change!(image, tag, user, added) do
-    image_tag_names =
-      image
-      |> Repo.preload(:tags, force: true)
-      |> Map.fetch!(:tags)
-      |> Enum.map(& &1.name)
-
-    old_tag_input = Enum.join(image_tag_names, ", ")
-
-    new_tag_input =
-      if added do
-        Enum.join([tag.name | image_tag_names], ", ")
-      else
-        image_tag_names
-        |> List.delete(tag.name)
-        |> Enum.join(", ")
-      end
-
-    arrangement_actor = actor(%{user | bypass_rate_limits: true})
-
-    assert {:ok, result} =
-             Images.update_image_tags(
-               arrangement_actor,
-               image.id,
-               %{"old_tag_input" => old_tag_input, "tag_input" => new_tag_input}
-             )
-
-    assert result.image.id == image.id
-
-    Repo.one!(
-      from tag_change in TagChange,
-        where: tag_change.image_id == ^image.id,
-        order_by: [desc: :id],
-        limit: 1
-    )
   end
 
   test "reversion removes an alias whether migration wins or loses the image lock" do
