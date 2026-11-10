@@ -97,4 +97,35 @@ autocompleteTest('records search history', async ({ ctx, expect }) => {
       ],
     }
   `);
+
+  await ctx.setInput('');
+  await ctx.deleteHistoryItem('a complex OR (query AND bar)');
+
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "",
+      "suggestions": [
+        "(history) foo2",
+        "(history) foo1",
+      ],
+    }
+  `);
+
+  await ctx.deleteHistoryItem('foo2');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "",
+      "suggestions": [
+        "(history) foo1",
+      ],
+    }
+  `);
+
+  await ctx.deleteHistoryItem('foo1');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "",
+      "suggestions": [],
+    }
+  `);
 });

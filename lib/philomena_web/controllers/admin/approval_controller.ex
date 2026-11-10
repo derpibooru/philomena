@@ -1,28 +1,14 @@
 defmodule PhilomenaWeb.Admin.ApprovalController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images.Image
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Images
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, _params) do
-    images =
-      Image
-      |> where(approved: false)
-      |> order_by(asc: :id)
-      |> preload([:user, :sources, tags: [:aliases, :aliased_tag]])
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html", title: "Admin - Approval Queue", images: images)
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :approve, %Image{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    with {:ok, images} <-
+           Images.list_approval_queue(conn.assigns.actor, conn.assigns.scrivener) do
+      render(conn, "index.html", title: "Admin - Approval Queue", images: images)
     end
   end
 end

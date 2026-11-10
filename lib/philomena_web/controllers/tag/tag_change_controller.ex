@@ -1,26 +1,38 @@
 defmodule PhilomenaWeb.Tag.TagChangeController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Tags.Tag
   alias Philomena.TagChanges
+  alias Philomena.TagChanges.TagChangePage
 
-  plug PhilomenaWeb.CanaryMapPlug, index: :show
-  plug :load_resource, model: Tag, id_name: "tag_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, params) do
-    tag = conn.assigns.tag
+  def index(conn, %{"tag_id" => tag_id} = params) do
+    case TagChanges.list_tag_tag_changes(
+           conn.assigns.actor,
+           tag_id,
+           params,
+           conn.assigns.pagination
+         ) do
+      {:ok, %TagChangePage{target: tag, tag_changes: tag_changes}, changeset} ->
+        path = ~p"/tags/#{tag}/tag_changes"
 
-    render(conn, "index.html",
-      title: "Tag Changes for Tag `#{tag.name}'",
-      tag: tag,
-      tag_changes:
-        TagChanges.load(
-          %{
-            tag_id: tag.id,
-            added: params["added"]
-          },
-          conn.assigns.scrivener
+        conn
+        |> put_view(PhilomenaWeb.TagChangeView)
+        |> render("index.html",
+          title: "Tag Changes for Tag `#{tag.name}'",
+          path: path,
+          pagination_route: fn query -> "#{path}?#{Plug.Conn.Query.encode(query)}" end,
+          tag_changes: tag_changes,
+          changeset: changeset
         )
-    )
+
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Invalid tag change query.")
+        |> redirect(to: "/tag_changes")
+
+      error ->
+        error
+    end
   end
 end

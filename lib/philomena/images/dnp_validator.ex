@@ -1,25 +1,13 @@
 defmodule Philomena.Images.DnpValidator do
   import Ecto.Changeset
-  import Ecto.Query
-  alias Philomena.Repo
-  alias Philomena.Tags.Tag
-  alias Philomena.DnpEntries.DnpEntry
 
-  def validate_dnp(changeset, uploader) do
+  def validate_dnp(changeset, uploader, tags_with_dnp) do
     tags =
       changeset
       |> get_field(:tags)
       |> Enum.map(& &1.name)
 
     edit_present? = "edit" in tags
-
-    tags_with_dnp =
-      Tag
-      |> from(as: :tag)
-      |> where([t], t.name in ^tags)
-      |> where(exists(where(DnpEntry, [d], d.tag_id == parent_as(:tag).id)))
-      |> preload(dnp_entries: [tag: :verified_links])
-      |> Repo.all()
 
     changeset
     |> validate_artist_only(tags_with_dnp, uploader)

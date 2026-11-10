@@ -7,8 +7,12 @@ import Config
 #
 # See `mix help release` for more information.
 
+# Test env should use 4 rounds (the minimum allowed) for speed, but all other envs should use 12 rounds for security.
 config :bcrypt_elixir,
-  log_rounds: String.to_integer(System.get_env("BCRYPT_ROUNDS", "12"))
+  log_rounds:
+    String.to_integer(
+      System.get_env("BCRYPT_ROUNDS", if(config_env() == :test, do: "4", else: "12"))
+    )
 
 config :philomena,
   anonymous_name_salt: System.fetch_env!("ANONYMOUS_NAME_SALT"),
@@ -27,6 +31,7 @@ config :philomena,
   image_url_root: System.fetch_env!("IMAGE_URL_ROOT"),
   badge_url_root: System.fetch_env!("BADGE_URL_ROOT"),
   mailer_address: System.fetch_env!("MAILER_ADDRESS"),
+  mediaproc_addr: System.fetch_env!("MEDIAPROC_ADDR"),
   tag_file_root: System.fetch_env!("TAG_FILE_ROOT"),
   hide_version: System.get_env("HIDE_VERSION", "false"),
   site_domains: System.fetch_env!("SITE_DOMAINS"),
@@ -41,7 +46,6 @@ app_dir = System.get_env("APP_DIR", File.cwd!())
 
 json_config =
   %{
-    aggregation: "aggregation.json",
     avatar: "avatar.json",
     footer: "footer.json",
     quick_tag_table: "quick_tag_table.json",
@@ -88,7 +92,10 @@ config :philomena, :s3_secondary_options,
 
 config :philomena, :s3_secondary_bucket, System.get_env("ALT_S3_BUCKET")
 
-config :ex_aws, http_client: ExAws.Request.Req
+# Test stubs the ex_aws HTTP client in config/test.exs
+if config_env() != :test do
+  config :ex_aws, http_client: ExAws.Request.Req
+end
 
 config :ex_aws, :retries,
   max_attempts: 20,
@@ -121,14 +128,19 @@ if config_env() == :prod do
   # Production endpoint config
   {:ok, ip} = :inet.parse_address(System.get_env("APP_IP", "127.0.0.1") |> String.to_charlist())
 
+  %URI{scheme: scheme, host: host, port: port} = URI.parse(System.fetch_env!("APP_ORIGIN"))
+
   config :philomena, PhilomenaWeb.Endpoint,
     http: [ip: ip, port: System.fetch_env!("PORT")],
-    url: [host: System.fetch_env!("APP_HOSTNAME"), scheme: "https", port: 443],
+    url: [host: host, scheme: scheme, port: port],
     secret_key_base: System.fetch_env!("SECRET_KEY_BASE"),
     server: not is_nil(System.get_env("START_ENDPOINT"))
 else
-  # Don't send email in development
-  config :philomena, Philomena.Mailer, adapter: Swoosh.Adapters.Local
+  # Don't send email in development; test uses Swoosh.Adapters.Test
+  # (config/test.exs)
+  if config_env() == :dev do
+    config :philomena, Philomena.Mailer, adapter: Swoosh.Adapters.Local
+  end
 
   # Use this to debug slime templates
   # config :slime, :keep_lines, true

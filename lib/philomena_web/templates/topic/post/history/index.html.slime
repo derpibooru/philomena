@@ -19,16 +19,7 @@ h1
           br
           = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @post, conn: @conn
         .communication__body__text
-          = for edit <- version.difference do
-            = case edit do
-              - {:eq, value} ->
-                = escape_nl2br(value)
-
-              - {:ins, value} ->
-                ins.differ = escape_nl2br(value)
-
-              - {:del, value} ->
-                del.differ = escape_nl2br(value)
+          = version.difference
 
     .block__content.communication__options
       .flex.flex--wrap.flex--spaced-out

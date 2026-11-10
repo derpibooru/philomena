@@ -7,8 +7,8 @@ defmodule Philomena.Images.Uploader do
   alias Philomena.Images.Image
   alias PhilomenaMedia.Uploader
 
-  def analyze_upload(image, params) do
-    Uploader.analyze_upload(image, "image", params["image"], &Image.image_changeset/2)
+  def analyze_upload(image, upload) do
+    Uploader.analyze_upload(image, "image", upload, &Image.image_changeset/2)
   end
 
   def persist_upload(image) do

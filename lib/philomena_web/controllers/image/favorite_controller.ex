@@ -1,30 +1,14 @@
 defmodule PhilomenaWeb.Image.FavoriteController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images.Image
-  alias Philomena.Repo
+  alias Philomena.Images
 
-  plug :load_and_authorize_resource,
-    model: Image,
-    id_name: "image_id",
-    persisted: true,
-    preload: [faves: :user]
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_votes_if_authorized
-
-  def index(conn, _params) do
-    render(conn, "index.html", layout: false)
-  end
-
-  defp load_votes_if_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :tamper, conn.assigns.image) do
-      image = Repo.preload(conn.assigns.image, upvotes: :user, downvotes: :user, hides: :user)
-
-      conn
-      |> assign(:image, image)
-      |> assign(:has_votes, true)
-    else
-      assign(conn, :has_votes, false)
+  def index(conn, params) do
+    with {:ok, {image, has_votes}} <-
+           Images.list_image_faves(conn.assigns.actor, params["image_id"]) do
+      render(conn, "index.html", layout: false, image: image, has_votes: has_votes)
     end
   end
 end

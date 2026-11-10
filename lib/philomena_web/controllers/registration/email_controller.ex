@@ -6,7 +6,7 @@ defmodule PhilomenaWeb.Registration.EmailController do
   def create(conn, %{"current_password" => password, "user" => user_params}) do
     user = conn.assigns.current_user
 
-    case Users.apply_user_email(user, password, user_params) do
+    case Users.create_email(user, password, user_params) do
       {:ok, applied_user} ->
         Users.deliver_update_email_instructions(
           applied_user,
@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Registration.EmailController do
   end
 
   def show(conn, %{"id" => token}) do
-    case Users.update_user_email(conn.assigns.current_user, token) do
+    case Users.show_email(conn.assigns.current_user, token) do
       :ok ->
         conn
         |> put_flash(:info, "Email changed successfully.")

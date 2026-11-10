@@ -1,8 +1,10 @@
-last 2 Android versions
-last 2 Chrome versions
-last 2 ChromeAndroid versions
-last 2 Edge versions
-last 2 Firefox versions
-last 2 FirefoxAndroid versions
-last 2 iOS versions
-last 2 Opera versions
+since 2019-09-01
+Safari > 13
+iOS > 13
+Chrome > 80
+ChromeAndroid > 80
+Android > 80
+Edge > 80
+Firefox > 69
+FirefoxAndroid > 69
+Opera > 63

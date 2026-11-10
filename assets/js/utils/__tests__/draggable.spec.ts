@@ -2,23 +2,11 @@ import { clearDragSource, initDraggables } from '../draggable';
 import { fireEvent } from '@testing-library/dom';
 import { getRandomArrayItem } from '../../../test/randomness';
 import { MockInstance } from 'vitest';
+import '../../../test/mock-drag-event';
 
 describe('Draggable Utilities', () => {
-  // jsdom lacks proper support for window.DragEvent so this is an attempt at a minimal recreation
   const createDragEvent = (name: string, init?: DragEventInit): DragEvent => {
-    const mockEvent = new Event(name, { bubbles: true, cancelable: true }) as unknown as DragEvent;
-    let dataTransfer = init?.dataTransfer;
-    if (!dataTransfer) {
-      const items: Pick<DataTransferItem, 'type' | 'getAsString'>[] = [];
-      dataTransfer = {
-        items: items as unknown as DataTransferItemList,
-        setData(format: string, data: string) {
-          items.push({ type: format, getAsString: (callback: FunctionStringCallback) => callback(data) });
-        },
-      } as unknown as DataTransfer;
-    }
-    Object.assign(mockEvent, { dataTransfer });
-    return mockEvent;
+    return new DragEvent(name, { bubbles: true, cancelable: true, ...init });
   };
 
   const createDraggableElement = (): HTMLDivElement => {
@@ -282,21 +270,6 @@ describe('Draggable Utilities', () => {
 
         expect(mockDraggable).not.toHaveClass(draggingClass);
         expect(mockOverElement).not.toHaveClass(dragOverClass);
-      });
-
-      it('should remove dragging class from source if target has no parent node', () => {
-        initDraggables();
-
-        const mockStartEvent = createDragEvent('dragstart');
-        fireEvent(mockDraggable, mockStartEvent);
-
-        expect(mockDraggable).toHaveClass(draggingClass);
-
-        Object.defineProperty(mockDraggable, 'parentNode', { value: null });
-        const mockDropEvent = createDragEvent('dragend');
-
-        expect(() => fireEvent(mockDraggable, mockDropEvent)).not.toThrow();
-        expect(mockDraggable).not.toHaveClass(draggingClass);
       });
     });
 

@@ -1,185 +1,106 @@
 defmodule PhilomenaWeb.TagController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageLoader
-  alias PhilomenaQuery.Search
-  alias Philomena.{Tags, Tags.Tag}
-  alias Philomena.{Images, Images.Image}
+  alias PhilomenaWeb.ImageScope
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Interactions
-  import Ecto.Query
+  alias Philomena.Tags
 
-  plug PhilomenaWeb.CanaryMapPlug, update: :edit
-
-  plug :load_and_authorize_resource,
-    model: Tag,
-    id_field: "slug",
-    only: [:show, :edit, :update, :delete],
-    preload: [
-      :aliases,
-      :aliased_tag,
-      :implied_tags,
-      :implied_by_tags,
-      :dnp_entries,
-      :channels,
-      public_links: :user,
-      hidden_links: :user
-    ]
-
-  plug :redirect_alias when action in [:show]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, params) do
-    query_string = params["tq"] || "*"
+    pagination = Map.put(conn.assigns.pagination, :page_size, 250)
 
-    with {:ok, query} <- Tags.Query.compile(query_string) do
-      tags =
-        Tag
-        |> Search.search_definition(
-          %{
-            query: query,
-            size: 250,
-            sort: [%{images: :desc}, %{name: :asc}]
-          },
-          %{conn.assigns.pagination | page_size: 250}
+    case Tags.query_tags(conn.assigns.actor, %{query: params["tq"] || "*"}, pagination) do
+      {:ok, tags, _changeset} ->
+        render(conn, "index.html", title: "Tags", tags: tags)
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        {message, _options} = Keyword.fetch!(changeset.errors, :query)
+        render(conn, "index.html", title: "Tags", tags: [], error: message)
+
+      error ->
+        error
+    end
+  end
+
+  def show(conn, params) do
+    case Tags.show_tag_page(conn.assigns.actor, ImageScope.search_scope(conn), params["id"]) do
+      {:ok, page} ->
+        tag = page.tag
+        body = MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
+
+        dnp_bodies =
+          MarkdownRenderer.render_collection(
+            Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}),
+            conn
+          )
+
+        dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
+
+        conn_params = Map.put(conn.params, "q", page.search_query)
+        conn = Map.put(conn, :params, conn_params)
+
+        render(
+          conn,
+          "show.html",
+          tag: tag,
+          tags: [{tag, body, dnp_entries}],
+          search_query: page.search_query,
+          interactions: page.interactions,
+          images: page.images,
+          layout_class: "layout--wide",
+          title: "#{tag.name} - Tags"
         )
-        |> Search.search_records(Tag)
 
-      render(conn, "index.html", title: "Tags", tags: tags)
-    else
-      {:error, msg} ->
-        render(conn, "index.html", title: "Tags", tags: [], error: msg)
-    end
-  end
-
-  def show(conn, _params) do
-    user = conn.assigns.current_user
-    tag = conn.assigns.tag
-
-    {images, _tags} = ImageLoader.query(conn, %{term: %{"namespaced_tags.name" => tag.name}})
-
-    images = Search.search_records(images, preload(Image, [:sources, tags: :aliases]))
-
-    interactions = Interactions.user_interactions(images, user)
-
-    body = MarkdownRenderer.render_one(%{body: tag.description || ""}, conn)
-
-    dnp_bodies =
-      MarkdownRenderer.render_collection(
-        Enum.map(tag.dnp_entries, &%{body: &1.conditions || ""}),
-        conn
-      )
-
-    dnp_entries = Enum.zip(dnp_bodies, tag.dnp_entries)
-
-    search_query = maybe_escape_name(tag)
-    params = Map.put(conn.params, "q", search_query)
-    conn = Map.put(conn, :params, params)
-
-    render(
-      conn,
-      "show.html",
-      tags: [{tag, body, dnp_entries}],
-      search_query: search_query,
-      interactions: interactions,
-      images: images,
-      layout_class: "layout--wide",
-      title: "#{tag.name} - Tags"
-    )
-  end
-
-  def edit(conn, _params) do
-    changeset = Tags.change_tag(conn.assigns.tag)
-    render(conn, "edit.html", title: "Editing Tag", changeset: changeset)
-  end
-
-  def update(conn, %{"tag" => tag_params}) do
-    case Tags.update_tag(conn.assigns.tag, tag_params) do
-      {:ok, tag} ->
-        conn
-        |> put_flash(:info, "Tag successfully updated.")
-        |> moderation_log(details: &log_details/2, data: tag)
-        |> redirect(to: ~p"/tags/#{tag}")
-
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
-    end
-  end
-
-  def delete(conn, _params) do
-    {:ok, tag} = Tags.delete_tag(conn.assigns.tag)
-
-    conn
-    |> put_flash(:info, "Tag queued for deletion.")
-    |> moderation_log(details: &log_details/2, data: tag)
-    |> redirect(to: "/")
-  end
-
-  def maybe_escape_name(%{name: name}) do
-    name =
-      name
-      |> String.replace(~r/\s+/, " ")
-      |> String.trim()
-      |> String.downcase()
-
-    case Images.Query.compile(name) do
-      {:ok, %{term: %{"namespaced_tags.name" => ^name}}} ->
-        name
-
-      _error ->
-        escape_name(name)
-    end
-  end
-
-  defp escape_name(name) do
-    if String.contains?(name, "(") or String.contains?(name, ")") do
-      # \ * ? " should be escaped, wrap in quotes so parser doesn't
-      # choke on parens.
-      name =
-        name
-        |> String.replace("\\", "\\\\")
-        |> String.replace("*", "\\*")
-        |> String.replace("?", "\\?")
-        |> String.replace("\"", "\\\"")
-
-      "\"#{name}\""
-    else
-      # \ * ? - ! " all must be escaped.
-      name
-      |> String.replace(~r/\A-/, "\\-")
-      |> String.replace(~r/\A!/, "\\!")
-      |> String.replace("\\", "\\\\")
-      |> String.replace("*", "\\*")
-      |> String.replace("?", "\\?")
-      |> String.replace("\"", "\\\"")
-    end
-  end
-
-  defp redirect_alias(conn, _opts) do
-    case conn.assigns.tag do
-      %{aliased_tag: nil} ->
-        conn
-
-      %{aliased_tag: tag} ->
+      {:aliased_to, tag} ->
         conn
         |> put_flash(
           :info,
-          "This tag (\"#{conn.assigns.tag.name}\") has been aliased into the tag \"#{tag.name}\"."
+          "This tag (\"#{tag.name}\") has been aliased into the tag \"#{tag.aliased_tag.name}\"."
         )
-        |> redirect(to: ~p"/tags/#{tag}")
-        |> halt()
+        |> redirect(to: ~p"/tags/#{tag.aliased_tag}")
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  defp log_details(action, tag) do
-    body =
-      case action do
-        :update -> "Updated details on tag '#{tag.name}'"
-        :delete -> "Deleted tag '#{tag.name}'"
-      end
+  def edit(conn, params) do
+    with {:ok, {tag, changeset}} <-
+           Tags.edit_tag(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html", title: "Editing Tag", tag: tag, changeset: changeset)
+    end
+  end
 
-    %{
-      body: body,
-      subject_path: ~p"/tags/#{tag}"
-    }
+  def update(conn, %{"id" => slug, "tag" => tag_params}) do
+    case Tags.update_tag(conn.assigns.actor, slug, tag_params) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag successfully updated.")
+        |> redirect(to: ~p"/tags/#{tag}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", tag: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  def delete(conn, params) do
+    case Tags.delete_tag(conn.assigns.actor, params["id"]) do
+      {:ok, _tag} ->
+        conn
+        |> put_flash(:info, "Tag queued for deletion.")
+        |> redirect(to: "/")
+
+      {:error, %Ecto.Changeset{data: tag}} ->
+        conn
+        |> put_flash(:error, "Rating tags cannot be deleted.")
+        |> redirect(to: ~p"/tags/#{tag}")
+
+      error ->
+        error
+    end
   end
 end

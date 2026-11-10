@@ -1,7 +1,6 @@
 import { assertNotNull } from './utils/assert';
 import { $ } from './utils/dom';
 import { inputDuplicatorCreator } from './input-duplicator';
-import '../types/ujs';
 
 function setupInputs() {
   inputDuplicatorCreator({

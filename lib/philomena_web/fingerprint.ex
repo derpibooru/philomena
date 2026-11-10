@@ -1,6 +1,8 @@
 defmodule PhilomenaWeb.Fingerprint do
   import Plug.Conn
 
+  alias Philomena.UserFingerprints
+
   @type t :: String.t()
   @name "_ses"
 
@@ -18,17 +20,17 @@ defmodule PhilomenaWeb.Fingerprint do
     fingerprint = upgrade(get_session(conn, @name), conn.cookies[@name])
 
     # If the fingerprint is valid, persist to session.
-    if valid_format?(fingerprint) do
+    if UserFingerprints.valid_format?(fingerprint) do
       conn
       |> put_session(@name, fingerprint)
       |> assign(:fingerprint, fingerprint)
     else
-      assign(conn, :fingerprint, nil)
+      maybe_assign_api_fingerprint(conn, conn.path_info)
     end
   end
 
   defp upgrade(<<"c", _::binary>> = session_value, <<"d", _::binary>> = cookie_value) do
-    if valid_format?(cookie_value) do
+    if UserFingerprints.valid_format?(cookie_value) do
       # When both fingerprint values are valid and the session value
       # is an old version, use the cookie value.
       cookie_value
@@ -43,41 +45,20 @@ defmodule PhilomenaWeb.Fingerprint do
     session_value || cookie_value
   end
 
-  @doc """
-  Determine whether the fingerprint corresponds to a valid format.
-
-  Valid formats start with `c` or `d` (for the version). The `c` format is a legacy format
-  corresponding to an integer-valued hash from the frontend. The `d` format is the current
-  format corresponding to a hex-valued hash from the frontend. By design, it is not
-  possible to infer anything else about these values from the server.
-
-  See assets/js/fp.ts for additional information on the generation of the `d` format.
-
-  ## Examples
-
-      iex> valid_format?("b2502085657")
-      false
-
-      iex> valid_format?("c637334158")
-      true
-
-      iex> valid_format?("d63c4581f8cf58d")
-      true
-
-      iex> valid_format?("5162549b16e8448")
-      false
-
-  """
-  @spec valid_format?(any()) :: boolean()
-  def valid_format?(fingerprint)
-
-  def valid_format?(<<"c", rest::binary>>) when byte_size(rest) <= 12 do
-    match?({_result, ""}, Integer.parse(rest))
+  defp user_agent(conn) do
+    case get_req_header(conn, "user-agent") do
+      [user_agent | _] -> user_agent
+      _ -> ""
+    end
   end
 
-  def valid_format?(<<"d", rest::binary>>) when byte_size(rest) == 14 do
-    match?({:ok, _result}, Base.decode16(rest, case: :lower))
+  defp maybe_assign_api_fingerprint(conn, ["api" | _]) do
+    # Cookieless API requests receive a fingerprint based solely on the
+    # provided user-agent string.
+    assign(conn, :fingerprint, "a#{:erlang.crc32(user_agent(conn))}")
   end
 
-  def valid_format?(_fingerprint), do: false
+  defp maybe_assign_api_fingerprint(conn, _path_info) do
+    assign(conn, :fingerprint, nil)
+  end
 end

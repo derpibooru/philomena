@@ -2,6 +2,8 @@ defmodule Philomena.Badges.Badge do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "badges" do
     field :title, :string
     field :description, :string, default: ""
@@ -17,7 +19,7 @@ defmodule Philomena.Badges.Badge do
   end
 
   @doc false
-  def changeset(badge, attrs) do
+  def changeset(badge, attrs \\ %{}) do
     badge
     |> cast(attrs, [:title, :description, :disable_award, :priority])
     |> validate_required([:title])

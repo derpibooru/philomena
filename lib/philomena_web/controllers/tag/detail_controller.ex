@@ -1,50 +1,21 @@
 defmodule PhilomenaWeb.Tag.DetailController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Tags.Tag
-  alias Philomena.Filters.Filter
-  alias Philomena.Users.User
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Tags
 
-  plug :verify_authorized
-  plug :load_resource, model: Tag, id_name: "tag_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, _params) do
-    tag = conn.assigns.tag
-
-    filters_spoilering =
-      Filter
-      |> where([f], fragment("? @> ARRAY[?]::integer[]", f.spoilered_tag_ids, ^tag.id))
-      |> preload(:user)
-      |> Repo.all()
-
-    filters_hiding =
-      Filter
-      |> where([f], fragment("? @> ARRAY[?]::integer[]", f.hidden_tag_ids, ^tag.id))
-      |> preload(:user)
-      |> Repo.all()
-
-    users_watching =
-      User
-      |> where([u], fragment("? @> ARRAY[?]::integer[]", u.watched_tag_ids, ^tag.id))
-      |> Repo.all()
-
-    render(
-      conn,
-      "index.html",
-      title: "Tag Usage for Tag `#{tag.name}'",
-      filters_spoilering: filters_spoilering,
-      filters_hiding: filters_hiding,
-      users_watching: users_watching
-    )
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, %Tag{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+  def index(conn, params) do
+    with {:ok, detail} <- Tags.list_tag_details(conn.assigns.actor, params["tag_id"]) do
+      render(
+        conn,
+        "index.html",
+        title: "Tag Usage for Tag `#{detail.tag.name}'",
+        tag: detail.tag,
+        filters_spoilering: detail.filters_spoilering,
+        filters_hiding: detail.filters_hiding,
+        users_watching: detail.users_watching
+      )
     end
   end
 end

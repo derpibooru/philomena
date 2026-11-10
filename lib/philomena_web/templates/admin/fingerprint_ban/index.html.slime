@@ -1,11 +1,12 @@
 h1 Fingerprint Bans
 
 - route = fn p -> ~p"/admin/fingerprint_bans?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @fingerprint_bans, route: route, params: page_params(@conn.params)
+- pagination = if @fingerprint_bans, do: render(PhilomenaWeb.PaginationView, "_pagination.html", page: @fingerprint_bans, route: route, params: page_params(@conn.params))
 
-= form_for :fingerprint_ban, ~p"/admin/fingerprint_bans", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/fingerprint_bans", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :bq, name: :bq, value: @conn.params["bq"], class: "hform__text input", placeholder: "Search", spellcheck: "false"
+    = text_input f, :bq, name: :bq, class: "hform__text input", placeholder: "Search", spellcheck: "false"
+    = error_tag f, :bq
     = submit "Search", class: "button hform__button"
 
 .block
@@ -28,7 +29,7 @@ h1 Fingerprint Bans
           th Options
 
       tbody
-        = for ban <- @fingerprint_bans do
+        = for ban <- @fingerprint_bans || [] do
           tr
             td
               = link ban.fingerprint, to: ~p"/fingerprint_profiles/#{ban.fingerprint}"

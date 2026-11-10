@@ -2,167 +2,88 @@ defmodule PhilomenaWeb.TopicController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.NotificationCountPlug
-  alias Philomena.{Forums.Forum, Topics.Topic, Posts.Post, Polls.Poll, PollOptions.PollOption}
-  alias Philomena.{Topics, Polls, Posts}
-  alias Philomena.PollVotes
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Repo
-  import Ecto.Query
+  alias PhilomenaWeb.RateLimitedResponse
+  alias Philomena.Forums.Forum
+  alias Philomena.Topics
 
-  plug PhilomenaWeb.LimitPlug,
-       [time: 300, error: "You may only make a new topic once every 5 minutes."]
-       when action in [:create]
-
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
-  plug PhilomenaWeb.UserAttributionPlug when action in [:new, :create]
   plug PhilomenaWeb.AdvertPlug when action in [:show]
 
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show, update: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
+  def show(conn, %{"forum_id" => forum_id, "id" => id} = params) do
+    with {:ok, page} <-
+           Topics.show_topic_page(
+             conn.assigns.actor,
+             forum_id,
+             id,
+             params["post_id"],
+             conn.assigns.pagination
+           ) do
+      # The page load cleared the topic's notifications; refresh the header
+      # notification ticker afterwards so it reflects the cleared state.
+      conn = NotificationCountPlug.call(conn)
 
-  plug PhilomenaWeb.LoadTopicPlug, [param: "id"] when action in [:show, :update]
-  plug :verify_authorized when action in [:update]
+      rendered = MarkdownRenderer.render_collection(page.posts.entries, conn)
+      posts = %{page.posts | entries: Enum.zip(page.posts.entries, rendered)}
 
-  def show(conn, params) do
-    forum = conn.assigns.forum
-    topic = conn.assigns.topic
-
-    user = conn.assigns.current_user
-
-    Topics.clear_topic_notification(topic, user)
-
-    # Update the notification ticker in the header
-    conn = NotificationCountPlug.call(conn)
-
-    conn = conn |> assign(:topic, topic)
-    %{page_number: page} = conn.assigns.pagination
-
-    page =
-      with {post_id, _extra} <- Integer.parse(params["post_id"] || ""),
-           [post] <- Post |> where(id: ^post_id) |> Repo.all() do
-        div(post.topic_position, 25) + 1
-      else
-        _ ->
-          page
-      end
-
-    posts =
-      Post
-      |> where(topic_id: ^conn.assigns.topic.id)
-      |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
-      |> order_by(asc: :created_at)
-      |> preload([
-        :deleted_by,
-        :topic,
-        topic: :forum,
-        user: [awards: :badge, game_profiles: :team]
-      ])
-      |> Repo.all()
-
-    rendered = MarkdownRenderer.render_collection(posts, conn)
-
-    posts = Enum.zip(posts, rendered)
-
-    posts = %Scrivener.Page{
-      entries: posts,
-      page_number: page,
-      page_size: 25,
-      total_entries: topic.post_count,
-      total_pages: div(topic.post_count + 25 - 1, 25)
-    }
-
-    watching = Topics.subscribed?(topic, conn.assigns.current_user)
-
-    voted = PollVotes.voted?(topic.poll, conn.assigns.current_user)
-
-    poll_active = Polls.active?(topic.poll)
-
-    changeset =
-      %Post{}
-      |> Posts.change_post()
-
-    topic_changeset = Topics.change_topic(conn.assigns.topic)
-
-    title = "#{topic.title} - #{forum.name} - Forums"
-
-    render(conn, "show.html",
-      title: title,
-      posts: posts,
-      changeset: changeset,
-      topic_changeset: topic_changeset,
-      watching: watching,
-      voted: voted,
-      poll_active: poll_active
-    )
+      conn
+      |> assign(:forum, page.forum)
+      |> assign(:topic, page.topic)
+      |> render("show.html",
+        title: "#{page.topic.title} - #{page.forum.name} - Forums",
+        posts: posts,
+        changeset: page.post_changeset,
+        topic_changeset: page.topic_changeset,
+        watching: page.watching,
+        voted: page.voted,
+        poll_active: page.poll_active
+      )
+    end
   end
 
-  def new(conn, _params) do
-    changeset =
-      %Topic{poll: %Poll{options: [%PollOption{}, %PollOption{}]}, posts: [%Post{}]}
-      |> Topics.change_topic()
-
-    render(conn, "new.html", title: "New Topic", changeset: changeset)
+  def new(conn, %{"forum_id" => forum_id}) do
+    with {:ok, {forum, changeset}} <- Topics.new_topic(conn.assigns.actor, forum_id) do
+      conn
+      |> assign(:forum, forum)
+      |> render("new.html", title: "New Topic", changeset: changeset)
+    end
   end
 
-  def create(conn, %{"topic" => topic_params}) do
-    attributes = conn.assigns.attributes
-    forum = conn.assigns.forum
-
-    case Topics.create_topic(forum, attributes, topic_params) do
-      {:ok, %{topic: topic}} ->
-        post = hd(topic.posts)
-
-        if forum.access_level == "normal" do
-          PhilomenaWeb.Endpoint.broadcast!(
-            "firehose",
-            "post:create",
-            PhilomenaWeb.Api.Json.Forum.Topic.PostView.render("firehose.json", %{
-              post: post,
-              topic: topic,
-              forum: forum
-            })
-          )
-        end
-
+  def create(conn, %{"forum_id" => forum_id} = params) do
+    case Topics.create_topic(conn.assigns.actor, forum_id, params["topic"]) do
+      {:ok, %{topic: topic, forum: forum}} ->
         conn
         |> put_flash(:info, "Successfully posted topic.")
         |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
-      {:error, :topic, changeset, _} ->
+      {:error, %Forum{} = forum, changeset} ->
         conn
+        |> assign(:forum, forum)
         |> render("new.html", changeset: changeset)
 
-      _error ->
-        conn
-        |> put_flash(:error, "There was an error with your submission. Please try again.")
-        |> redirect(to: ~p"/forums/#{forum}/topics/new")
+      {:error, :rate_limited} ->
+        RateLimitedResponse.call(conn, "You may only make a new topic once every 5 minutes.")
+
+      error ->
+        error
     end
   end
 
-  def update(conn, %{"topic" => topic_params}) do
-    case Topics.update_topic_title(conn.assigns.topic, topic_params) do
-      {:ok, topic} ->
+  def update(conn, %{"forum_id" => forum_id, "id" => id, "topic" => topic_params}) do
+    case Topics.update_topic(conn.assigns.actor, forum_id, id, topic_params) do
+      {:ok, {forum, topic}} ->
         conn
         |> put_flash(:info, "Successfully updated topic.")
-        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{topic}")
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
-      {:error, _changeset} ->
+      {:error, forum, topic} ->
         conn
         |> put_flash(:error, "There was an error with your submission. Please try again.")
-        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{conn.assigns.topic}")
-    end
-  end
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, conn.assigns.topic) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      error ->
+        error
     end
   end
 end

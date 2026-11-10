@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.4
--- Dumped by pg_dump version 17.4
+\restrict CRSH5T57rmsz3T55boQIMJv9CDQarP7KWmGNYYFgh18yiJK3gDpjBcPAOYpwh6X
+
+-- Dumped from database version 18.6
+-- Dumped by pg_dump version 18.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -41,18 +43,18 @@ SET default_table_access_method = heap;
 
 CREATE TABLE public.adverts (
     id integer NOT NULL,
-    image character varying,
-    link character varying,
-    title character varying,
-    clicks integer DEFAULT 0,
-    impressions integer DEFAULT 0,
-    live boolean DEFAULT false,
-    start_date timestamp without time zone,
-    finish_date timestamp without time zone,
+    image character varying NOT NULL,
+    link character varying NOT NULL,
+    title character varying NOT NULL,
+    clicks integer DEFAULT 0 NOT NULL,
+    impressions integer DEFAULT 0 NOT NULL,
+    live boolean DEFAULT false NOT NULL,
+    start_date timestamp without time zone NOT NULL,
+    finish_date timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    restrictions character varying,
-    notes character varying
+    restrictions character varying NOT NULL,
+    notes character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -83,8 +85,6 @@ CREATE TABLE public.artist_links (
     id integer NOT NULL,
     aasm_state character varying NOT NULL,
     uri character varying NOT NULL,
-    hostname character varying,
-    path character varying,
     verification_code character varying NOT NULL,
     public boolean DEFAULT true NOT NULL,
     next_check_at timestamp without time zone,
@@ -123,7 +123,7 @@ ALTER SEQUENCE public.artist_links_id_seq OWNED BY public.artist_links.id;
 
 CREATE TABLE public.autocomplete (
     content bytea NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -133,15 +133,15 @@ CREATE TABLE public.autocomplete (
 
 CREATE TABLE public.badge_awards (
     id integer NOT NULL,
-    label character varying,
+    label character varying DEFAULT ''::character varying NOT NULL,
     awarded_on timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     user_id integer NOT NULL,
     badge_id integer NOT NULL,
     awarded_by_id integer NOT NULL,
-    reason character varying,
-    badge_name character varying
+    reason character varying DEFAULT ''::character varying NOT NULL,
+    badge_name character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -172,11 +172,11 @@ CREATE TABLE public.badges (
     id integer NOT NULL,
     title character varying NOT NULL,
     description character varying NOT NULL,
-    image character varying,
+    image character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     disable_award boolean DEFAULT false NOT NULL,
-    priority boolean DEFAULT false
+    priority boolean DEFAULT false NOT NULL
 );
 
 
@@ -206,8 +206,8 @@ ALTER SEQUENCE public.badges_id_seq OWNED BY public.badges.id;
 CREATE TABLE public.channel_live_notifications (
     channel_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -230,27 +230,15 @@ CREATE TABLE public.channels (
     id integer NOT NULL,
     short_name character varying NOT NULL,
     title character varying NOT NULL,
-    channel_image character varying,
-    tags character varying,
     viewers integer DEFAULT 0 NOT NULL,
     nsfw boolean DEFAULT false NOT NULL,
     is_live boolean DEFAULT false NOT NULL,
     last_fetched_at timestamp without time zone,
-    next_check_at timestamp without time zone,
-    last_live_at timestamp without time zone,
-    watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    watcher_count integer DEFAULT 0 NOT NULL,
     type character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     associated_artist_tag_id integer,
-    viewer_minutes_today integer DEFAULT 0 NOT NULL,
-    viewer_minutes_thisweek integer DEFAULT 0 NOT NULL,
-    viewer_minutes_thismonth integer DEFAULT 0 NOT NULL,
-    total_viewer_minutes integer DEFAULT 0 NOT NULL,
-    banner_image character varying,
-    remote_stream_id integer,
-    thumbnail_url character varying DEFAULT ''::character varying
+    thumbnail_url character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -274,30 +262,59 @@ ALTER SEQUENCE public.channels_id_seq OWNED BY public.channels.id;
 
 
 --
+-- Name: comment_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.comment_versions (
+    id bigint NOT NULL,
+    comment_id bigint NOT NULL,
+    user_id bigint,
+    body text DEFAULT ''::text NOT NULL,
+    edit_reason character varying(255),
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: comment_versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.comment_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: comment_versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.comment_versions_id_seq OWNED BY public.comment_versions.id;
+
+
+--
 -- Name: comments; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.comments (
     id integer NOT NULL,
-    body_textile character varying DEFAULT ''::character varying NOT NULL,
-    ip inet,
-    fingerprint character varying,
-    user_agent character varying DEFAULT ''::character varying,
-    referrer character varying DEFAULT ''::character varying,
-    anonymous boolean DEFAULT false,
+    ip inet NOT NULL,
+    fingerprint character varying NOT NULL,
+    anonymous boolean DEFAULT false NOT NULL,
     hidden_from_users boolean DEFAULT false NOT NULL,
     user_id integer,
     deleted_by_id integer,
-    image_id integer,
+    image_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     edit_reason character varying,
     edited_at timestamp without time zone,
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
-    destroyed_content boolean DEFAULT false,
-    name_at_post_time character varying,
+    destroyed_content boolean DEFAULT false NOT NULL,
     body character varying NOT NULL,
-    approved boolean DEFAULT false
+    approved boolean DEFAULT false NOT NULL
 );
 
 
@@ -326,16 +343,14 @@ ALTER SEQUENCE public.comments_id_seq OWNED BY public.comments.id;
 
 CREATE TABLE public.commission_items (
     id integer NOT NULL,
-    commission_id integer,
-    item_type character varying,
-    description_textile character varying,
-    base_price numeric,
-    add_ons_textile character varying,
+    commission_id integer NOT NULL,
+    item_type character varying NOT NULL,
+    base_price numeric NOT NULL,
     example_image_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    description character varying,
-    add_ons character varying
+    description character varying NOT NULL,
+    add_ons character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -367,18 +382,14 @@ CREATE TABLE public.commissions (
     user_id integer NOT NULL,
     open boolean NOT NULL,
     categories character varying[] DEFAULT '{}'::character varying[] NOT NULL,
-    information_textile character varying,
-    contact_textile character varying,
     sheet_image_id integer,
-    will_create_textile character varying,
-    will_not_create_textile character varying,
     commission_items_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    information character varying,
-    contact character varying,
-    will_create character varying,
-    will_not_create character varying
+    information character varying NOT NULL,
+    contact character varying NOT NULL,
+    will_create character varying DEFAULT ''::character varying NOT NULL,
+    will_not_create character varying DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -451,10 +462,7 @@ CREATE TABLE public.dnp_entries (
     tag_id integer NOT NULL,
     aasm_state character varying DEFAULT 'requested'::character varying NOT NULL,
     dnp_type character varying NOT NULL,
-    conditions_textile character varying DEFAULT ''::character varying NOT NULL,
-    reason_textile character varying DEFAULT ''::character varying NOT NULL,
     hide_reason boolean DEFAULT false NOT NULL,
-    instructions_textile character varying DEFAULT ''::character varying NOT NULL,
     feedback character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -526,7 +534,7 @@ ALTER SEQUENCE public.donations_id_seq OWNED BY public.donations.id;
 
 CREATE TABLE public.duplicate_reports (
     id integer NOT NULL,
-    reason character varying,
+    reason character varying DEFAULT ''::character varying NOT NULL,
     state character varying DEFAULT 'open'::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -566,8 +574,8 @@ CREATE TABLE public.filters (
     description character varying NOT NULL,
     system boolean DEFAULT false NOT NULL,
     public boolean DEFAULT false NOT NULL,
-    hidden_complex_str character varying,
-    spoilered_complex_str character varying,
+    hidden_complex_str character varying DEFAULT ''::character varying NOT NULL,
+    spoilered_complex_str character varying DEFAULT ''::character varying NOT NULL,
     hidden_tag_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     spoilered_tag_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     user_count integer DEFAULT 0 NOT NULL,
@@ -603,10 +611,10 @@ ALTER SEQUENCE public.filters_id_seq OWNED BY public.filters.id;
 CREATE TABLE public.fingerprint_bans (
     id integer NOT NULL,
     reason character varying NOT NULL,
-    note character varying,
+    note character varying DEFAULT ''::character varying NOT NULL,
     enabled boolean DEFAULT true NOT NULL,
     valid_until timestamp without time zone NOT NULL,
-    fingerprint character varying,
+    fingerprint character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     banning_user_id integer NOT NULL,
@@ -642,8 +650,8 @@ CREATE TABLE public.forum_post_notifications (
     topic_id bigint NOT NULL,
     post_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -665,8 +673,8 @@ CREATE TABLE public.forum_subscriptions (
 CREATE TABLE public.forum_topic_notifications (
     topic_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -683,8 +691,6 @@ CREATE TABLE public.forums (
     access_level character varying DEFAULT 'normal'::character varying NOT NULL,
     topic_count integer DEFAULT 0 NOT NULL,
     post_count integer DEFAULT 0 NOT NULL,
-    watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    watcher_count integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     last_post_id integer,
@@ -721,13 +727,12 @@ CREATE TABLE public.galleries (
     spoiler_warning character varying DEFAULT ''::character varying NOT NULL,
     description character varying DEFAULT ''::character varying NOT NULL,
     thumbnail_id integer NOT NULL,
-    creator_id integer NOT NULL,
+    user_id integer CONSTRAINT galleries_creator_id_not_null NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    watcher_count integer DEFAULT 0 NOT NULL,
     image_count integer DEFAULT 0 NOT NULL,
-    order_position_asc boolean DEFAULT false NOT NULL
+    order_position_asc boolean DEFAULT false NOT NULL,
+    anonymous boolean DEFAULT false NOT NULL
 );
 
 
@@ -757,8 +762,8 @@ ALTER SEQUENCE public.galleries_id_seq OWNED BY public.galleries.id;
 CREATE TABLE public.gallery_image_notifications (
     gallery_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -909,8 +914,8 @@ CREATE TABLE public.image_comment_notifications (
     image_id bigint NOT NULL,
     comment_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -934,8 +939,8 @@ CREATE TABLE public.image_features (
     id bigint NOT NULL,
     image_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -1010,8 +1015,8 @@ CREATE TABLE public.image_merge_notifications (
     target_id bigint NOT NULL,
     source_id bigint NOT NULL,
     user_id bigint NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     read boolean DEFAULT false NOT NULL
 );
 
@@ -1083,28 +1088,18 @@ CREATE TABLE public.images (
     image_format character varying,
     image_mime_type character varying,
     image_aspect_ratio double precision,
-    ip inet,
-    fingerprint character varying,
-    user_agent character varying DEFAULT ''::character varying,
-    referrer character varying DEFAULT ''::character varying,
-    anonymous boolean DEFAULT false,
+    ip inet NOT NULL,
+    fingerprint character varying NOT NULL,
+    anonymous boolean DEFAULT false NOT NULL,
     score integer DEFAULT 0 NOT NULL,
     faves_count integer DEFAULT 0 NOT NULL,
     upvotes_count integer DEFAULT 0 NOT NULL,
     downvotes_count integer DEFAULT 0 NOT NULL,
-    votes_count integer DEFAULT 0 NOT NULL,
-    watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    watcher_count integer DEFAULT 0 NOT NULL,
     source_url character varying,
-    description_textile character varying DEFAULT ''::character varying NOT NULL,
     image_sha512_hash character varying,
     image_orig_sha512_hash character varying,
     deletion_reason character varying,
-    tag_list_cache character varying,
-    tag_list_plus_alias_cache character varying,
-    file_name_cache character varying,
     duplicate_id integer,
-    tag_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     comments_count integer DEFAULT 0 NOT NULL,
     processed boolean DEFAULT false NOT NULL,
     thumbnails_generated boolean DEFAULT false NOT NULL,
@@ -1116,24 +1111,18 @@ CREATE TABLE public.images (
     is_animated boolean NOT NULL,
     first_seen_at timestamp without time zone NOT NULL,
     featured_on timestamp without time zone,
-    se_intensity double precision,
-    sw_intensity double precision,
-    ne_intensity double precision,
-    nw_intensity double precision,
-    average_intensity double precision,
     user_id integer,
     deleted_by_id integer,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     destroyed_content boolean DEFAULT false NOT NULL,
     hidden_image_key character varying,
-    scratchpad_textile character varying,
     hides_count integer DEFAULT 0 NOT NULL,
     image_duration double precision,
     description character varying DEFAULT ''::character varying NOT NULL,
     scratchpad character varying,
-    approved boolean DEFAULT false,
-    image_orig_size integer
+    approved boolean DEFAULT false NOT NULL,
+    image_orig_size integer NOT NULL
 );
 
 
@@ -1162,13 +1151,12 @@ ALTER SEQUENCE public.images_id_seq OWNED BY public.images.id;
 
 CREATE TABLE public.messages (
     id integer NOT NULL,
-    body_textile character varying DEFAULT ''::character varying NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     from_id integer NOT NULL,
     conversation_id integer NOT NULL,
     body character varying NOT NULL,
-    approved boolean DEFAULT false
+    approved boolean DEFAULT false NOT NULL
 );
 
 
@@ -1198,13 +1186,14 @@ ALTER SEQUENCE public.messages_id_seq OWNED BY public.messages.id;
 CREATE TABLE public.mod_notes (
     id integer NOT NULL,
     moderator_id integer NOT NULL,
-    notable_id integer NOT NULL,
-    notable_type character varying NOT NULL,
-    body_textile text DEFAULT ''::text NOT NULL,
     deleted boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    body character varying NOT NULL
+    body character varying NOT NULL,
+    user_id bigint,
+    report_id bigint,
+    dnp_entry_id bigint,
+    CONSTRAINT mod_notes_notable_association_null CHECK ((num_nonnulls(user_id, report_id, dnp_entry_id) <= 1))
 );
 
 
@@ -1237,7 +1226,7 @@ CREATE TABLE public.moderation_logs (
     body character varying NOT NULL,
     subject_path character varying NOT NULL,
     type character varying NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -1371,7 +1360,6 @@ ALTER SEQUENCE public.poll_options_id_seq OWNED BY public.poll_options.id;
 
 CREATE TABLE public.poll_votes (
     id integer NOT NULL,
-    rank integer,
     poll_option_id integer NOT NULL,
     user_id integer NOT NULL,
     created_at timestamp without time zone NOT NULL
@@ -1409,9 +1397,6 @@ CREATE TABLE public.polls (
     total_votes integer DEFAULT 0 NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    hidden_from_users boolean DEFAULT false NOT NULL,
-    deleted_by_id integer,
-    deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     topic_id integer NOT NULL
 );
 
@@ -1436,17 +1421,47 @@ ALTER SEQUENCE public.polls_id_seq OWNED BY public.polls.id;
 
 
 --
+-- Name: post_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.post_versions (
+    id bigint NOT NULL,
+    post_id bigint NOT NULL,
+    user_id bigint,
+    body text DEFAULT ''::text NOT NULL,
+    edit_reason character varying(255),
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: post_versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.post_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: post_versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.post_versions_id_seq OWNED BY public.post_versions.id;
+
+
+--
 -- Name: posts; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.posts (
     id integer NOT NULL,
-    body_textile character varying DEFAULT ''::character varying NOT NULL,
     edit_reason character varying,
-    ip inet,
-    fingerprint character varying,
-    user_agent character varying DEFAULT ''::character varying,
-    referrer character varying DEFAULT ''::character varying,
+    ip inet NOT NULL,
+    fingerprint character varying NOT NULL,
     topic_position integer NOT NULL,
     hidden_from_users boolean DEFAULT false NOT NULL,
     anonymous boolean DEFAULT false,
@@ -1458,9 +1473,8 @@ CREATE TABLE public.posts (
     edited_at timestamp without time zone,
     deletion_reason character varying DEFAULT ''::character varying NOT NULL,
     destroyed_content boolean DEFAULT false NOT NULL,
-    name_at_post_time character varying,
     body character varying NOT NULL,
-    approved boolean DEFAULT false
+    approved boolean DEFAULT false NOT NULL
 );
 
 
@@ -1492,18 +1506,23 @@ CREATE TABLE public.reports (
     ip inet NOT NULL,
     fingerprint character varying,
     user_agent character varying DEFAULT ''::character varying,
-    referrer character varying DEFAULT ''::character varying,
-    reason_textile character varying DEFAULT ''::character varying NOT NULL,
     state character varying DEFAULT 'open'::character varying NOT NULL,
     open boolean DEFAULT true NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     user_id integer,
     admin_id integer,
-    reportable_id integer NOT NULL,
-    reportable_type character varying NOT NULL,
     reason character varying NOT NULL,
-    system boolean DEFAULT false
+    system boolean DEFAULT false NOT NULL,
+    rule_id bigint,
+    image_id bigint,
+    comment_id bigint,
+    post_id bigint,
+    reported_user_id bigint,
+    commission_id bigint,
+    conversation_id bigint,
+    gallery_id bigint,
+    CONSTRAINT reports_reportable_association_null CHECK ((num_nonnulls(image_id, comment_id, post_id, reported_user_id, commission_id, conversation_id, gallery_id) <= 1))
 );
 
 
@@ -1532,11 +1551,8 @@ ALTER SEQUENCE public.reports_id_seq OWNED BY public.reports.id;
 
 CREATE TABLE public.roles (
     id integer NOT NULL,
-    name character varying,
-    resource_id integer,
-    resource_type character varying,
-    created_at timestamp without time zone,
-    updated_at timestamp without time zone
+    name character varying NOT NULL,
+    resource_type character varying NOT NULL
 );
 
 
@@ -1557,6 +1573,81 @@ CREATE SEQUENCE public.roles_id_seq
 --
 
 ALTER SEQUENCE public.roles_id_seq OWNED BY public.roles.id;
+
+
+--
+-- Name: rule_versions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.rule_versions (
+    id bigint NOT NULL,
+    rule_id bigint NOT NULL,
+    user_id bigint,
+    name character varying(255) DEFAULT ''::character varying NOT NULL,
+    title character varying(255) DEFAULT ''::character varying NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    short_description character varying(255) DEFAULT ''::character varying NOT NULL,
+    example text DEFAULT ''::text NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: rule_versions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.rule_versions_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: rule_versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.rule_versions_id_seq OWNED BY public.rule_versions.id;
+
+
+--
+-- Name: rules; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.rules (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    title character varying(255) DEFAULT ''::character varying NOT NULL,
+    description text DEFAULT ''::text NOT NULL,
+    short_description character varying(255) DEFAULT ''::character varying NOT NULL,
+    example text DEFAULT ''::text NOT NULL,
+    "position" integer NOT NULL,
+    highlight boolean DEFAULT false NOT NULL,
+    hidden boolean DEFAULT false NOT NULL,
+    internal boolean DEFAULT false NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL
+);
+
+
+--
+-- Name: rules_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.rules_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: rules_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.rules_id_seq OWNED BY public.rules.id;
 
 
 --
@@ -1616,12 +1707,10 @@ CREATE TABLE public.source_changes (
     image_id bigint NOT NULL,
     user_id bigint,
     ip inet NOT NULL,
-    created_at timestamp(0) without time zone NOT NULL,
-    updated_at timestamp(0) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     added boolean NOT NULL,
-    fingerprint character varying(255),
-    user_agent character varying(255) DEFAULT ''::character varying,
-    referrer character varying(255) DEFAULT ''::character varying,
+    fingerprint character varying(255) NOT NULL,
     value character varying(255) NOT NULL
 );
 
@@ -1653,8 +1742,8 @@ CREATE TABLE public.static_page_versions (
     id bigint NOT NULL,
     user_id bigint NOT NULL,
     static_page_id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     title text NOT NULL,
     slug text NOT NULL,
     body text NOT NULL
@@ -1686,8 +1775,8 @@ ALTER SEQUENCE public.static_page_versions_id_seq OWNED BY public.static_page_ve
 
 CREATE TABLE public.static_pages (
     id bigint NOT NULL,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
     title text NOT NULL,
     slug text NOT NULL,
     body text NOT NULL
@@ -1720,13 +1809,13 @@ ALTER SEQUENCE public.static_pages_id_seq OWNED BY public.static_pages.id;
 CREATE TABLE public.subnet_bans (
     id integer NOT NULL,
     reason character varying NOT NULL,
-    note character varying,
+    note character varying DEFAULT ''::character varying NOT NULL,
     enabled boolean DEFAULT true NOT NULL,
     valid_until timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     banning_user_id integer NOT NULL,
-    specification inet,
+    specification inet NOT NULL,
     generated_ban_id character varying NOT NULL,
     CONSTRAINT subnet_ban_duration_must_be_valid CHECK ((valid_until < '4000-01-01 00:00:00'::timestamp without time zone))
 );
@@ -1842,7 +1931,6 @@ CREATE TABLE public.tags (
     id integer NOT NULL,
     name character varying NOT NULL,
     slug character varying NOT NULL,
-    description_textile character varying DEFAULT ''::character varying,
     short_description character varying DEFAULT ''::character varying,
     namespace character varying,
     name_in_namespace character varying,
@@ -1855,7 +1943,8 @@ CREATE TABLE public.tags (
     updated_at timestamp without time zone NOT NULL,
     category character varying,
     mod_notes character varying,
-    description character varying DEFAULT ''::character varying NOT NULL
+    description character varying DEFAULT ''::character varying NOT NULL,
+    CONSTRAINT tags_name_length_check CHECK ((octet_length((name)::text) <= 255))
 );
 
 
@@ -1913,9 +2002,7 @@ CREATE TABLE public.topics (
     deletion_reason character varying,
     lock_reason character varying,
     slug character varying NOT NULL,
-    anonymous boolean DEFAULT false,
-    watcher_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    watcher_count integer DEFAULT 0 NOT NULL,
+    anonymous boolean DEFAULT false NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     forum_id integer NOT NULL,
@@ -1983,7 +2070,7 @@ ALTER SEQUENCE public.unread_notifications_id_seq OWNED BY public.unread_notific
 CREATE TABLE public.user_bans (
     id integer NOT NULL,
     reason character varying NOT NULL,
-    note character varying,
+    note character varying DEFAULT ''::character varying NOT NULL,
     enabled boolean DEFAULT true NOT NULL,
     valid_until timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -2114,39 +2201,55 @@ ALTER SEQUENCE public.user_name_changes_id_seq OWNED BY public.user_name_changes
 
 
 --
--- Name: user_statistics; Type: TABLE; Schema: public; Owner: -
+-- Name: user_settings; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.user_statistics (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    day integer DEFAULT 0 NOT NULL,
-    uploads integer DEFAULT 0 NOT NULL,
-    votes_cast integer DEFAULT 0 NOT NULL,
-    comments_posted integer DEFAULT 0 NOT NULL,
-    metadata_updates integer DEFAULT 0 NOT NULL,
-    images_favourited integer DEFAULT 0 NOT NULL,
-    forum_posts integer DEFAULT 0 NOT NULL
+CREATE TABLE public.user_settings (
+    user_id bigint NOT NULL,
+    spoiler_type character varying(255) DEFAULT 'static'::character varying NOT NULL,
+    theme character varying(255) DEFAULT 'dark-blue'::character varying NOT NULL,
+    images_per_page integer DEFAULT 15 NOT NULL,
+    comments_per_page integer DEFAULT 20 NOT NULL,
+    show_sidebar_and_watched_images boolean DEFAULT true NOT NULL,
+    fancy_tag_field_on_upload boolean DEFAULT true NOT NULL,
+    fancy_tag_field_on_edit boolean DEFAULT true NOT NULL,
+    anonymous_by_default boolean DEFAULT false NOT NULL,
+    scale_large_images character varying(255) DEFAULT 'true'::character varying NOT NULL,
+    comments_newest_first boolean DEFAULT true NOT NULL,
+    comments_always_jump_to_last boolean DEFAULT true NOT NULL,
+    watch_on_reply boolean DEFAULT true NOT NULL,
+    watch_on_new_topic boolean DEFAULT true NOT NULL,
+    watch_on_upload boolean DEFAULT true NOT NULL,
+    messages_newest_first boolean DEFAULT false NOT NULL,
+    no_spoilered_in_watched boolean DEFAULT false NOT NULL,
+    watched_images_query_str text DEFAULT ''::text NOT NULL,
+    watched_images_exclude_str text DEFAULT ''::text NOT NULL,
+    use_centered_layout boolean DEFAULT true NOT NULL,
+    hide_vote_counts boolean DEFAULT false NOT NULL,
+    delay_home_images boolean DEFAULT true NOT NULL,
+    staff_delay_home_images boolean DEFAULT false NOT NULL,
+    borderless_tags boolean DEFAULT false NOT NULL,
+    rounded_tags boolean DEFAULT false NOT NULL,
+    created_at timestamp(0) without time zone NOT NULL,
+    updated_at timestamp(0) without time zone NOT NULL
 );
 
 
 --
--- Name: user_statistics_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: user_statistics; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.user_statistics_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: user_statistics_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.user_statistics_id_seq OWNED BY public.user_statistics.id;
+CREATE TABLE public.user_statistics (
+    user_id integer NOT NULL,
+    day date NOT NULL,
+    images_count integer DEFAULT 0 CONSTRAINT user_statistics_uploads_not_null NOT NULL,
+    image_votes_count integer DEFAULT 0 CONSTRAINT user_statistics_votes_cast_not_null NOT NULL,
+    comments_count integer DEFAULT 0 CONSTRAINT user_statistics_comments_posted_not_null NOT NULL,
+    metadata_updates_count integer DEFAULT 0 CONSTRAINT user_statistics_metadata_updates_not_null NOT NULL,
+    image_faves_count integer DEFAULT 0 CONSTRAINT user_statistics_images_favourited_not_null NOT NULL,
+    posts_count integer DEFAULT 0 CONSTRAINT user_statistics_forum_posts_not_null NOT NULL,
+    topics_count integer DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -2159,7 +2262,7 @@ CREATE TABLE public.user_tokens (
     token bytea NOT NULL,
     context character varying(255) NOT NULL,
     sent_to character varying(255),
-    created_at timestamp(0) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL
 );
 
 
@@ -2225,11 +2328,6 @@ CREATE TABLE public.users (
     reset_password_token character varying,
     reset_password_sent_at timestamp without time zone,
     remember_created_at timestamp without time zone,
-    sign_in_count integer DEFAULT 0 NOT NULL,
-    current_sign_in_at timestamp without time zone,
-    last_sign_in_at timestamp without time zone,
-    current_sign_in_ip inet,
-    last_sign_in_ip inet,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -2237,7 +2335,6 @@ CREATE TABLE public.users (
     name character varying NOT NULL,
     slug character varying NOT NULL,
     role character varying DEFAULT 'user'::character varying NOT NULL,
-    description_textile character varying,
     avatar character varying,
     spoiler_type character varying DEFAULT 'static'::character varying NOT NULL,
     theme character varying DEFAULT 'dark-blue'::character varying NOT NULL,
@@ -2260,23 +2357,20 @@ CREATE TABLE public.users (
     no_spoilered_in_watched boolean DEFAULT false NOT NULL,
     watched_images_query_str character varying DEFAULT ''::character varying NOT NULL,
     watched_images_exclude_str character varying DEFAULT ''::character varying NOT NULL,
-    forum_posts_count integer DEFAULT 0 NOT NULL,
-    topic_count integer DEFAULT 0 NOT NULL,
+    posts_count integer DEFAULT 0 CONSTRAINT users_forum_posts_count_not_null NOT NULL,
+    topics_count integer DEFAULT 0 CONSTRAINT users_topic_count_not_null NOT NULL,
     recent_filter_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
-    unread_notification_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     watched_tag_ids integer[] DEFAULT '{}'::integer[] NOT NULL,
     deleted_by_user_id integer,
     current_filter_id integer,
     failed_attempts integer,
     unlock_token character varying,
     locked_at timestamp without time zone,
-    uploads_count integer DEFAULT 0 NOT NULL,
-    votes_cast_count integer DEFAULT 0 NOT NULL,
-    comments_posted_count integer DEFAULT 0 NOT NULL,
+    images_count integer DEFAULT 0 CONSTRAINT users_uploads_count_not_null NOT NULL,
+    image_votes_count integer DEFAULT 0 CONSTRAINT users_votes_cast_count_not_null NOT NULL,
+    comments_count integer DEFAULT 0 CONSTRAINT users_comments_posted_count_not_null NOT NULL,
     metadata_updates_count integer DEFAULT 0 NOT NULL,
-    images_favourited_count integer DEFAULT 0 NOT NULL,
-    last_donation_at timestamp without time zone,
-    scratchpad_textile text,
+    image_faves_count integer DEFAULT 0 CONSTRAINT users_images_favourited_count_not_null NOT NULL,
     use_centered_layout boolean DEFAULT true NOT NULL,
     secondary_role character varying,
     hide_default_role boolean DEFAULT false NOT NULL,
@@ -2292,7 +2386,7 @@ CREATE TABLE public.users (
     otp_backup_codes character varying[],
     last_renamed_at timestamp without time zone DEFAULT '1970-01-01 00:00:00'::timestamp without time zone NOT NULL,
     forced_filter_id bigint,
-    confirmed_at timestamp(0) without time zone,
+    confirmed_at timestamp without time zone,
     senior_staff boolean DEFAULT false,
     description character varying,
     scratchpad character varying,
@@ -2336,17 +2430,17 @@ CREATE TABLE public.users_roles (
 
 
 --
--- Name: versions; Type: TABLE; Schema: public; Owner: -
+-- Name: versions_legacy; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.versions (
-    id integer NOT NULL,
-    item_type character varying NOT NULL,
-    item_id integer NOT NULL,
-    event character varying NOT NULL,
+CREATE TABLE public.versions_legacy (
+    id integer CONSTRAINT versions_id_not_null NOT NULL,
+    item_type character varying CONSTRAINT versions_item_type_not_null NOT NULL,
+    item_id integer CONSTRAINT versions_item_id_not_null NOT NULL,
+    event character varying CONSTRAINT versions_event_not_null NOT NULL,
     whodunnit character varying,
     object text,
-    created_at timestamp without time zone
+    created_at timestamp without time zone CONSTRAINT versions_created_at_not_null NOT NULL
 );
 
 
@@ -2366,7 +2460,7 @@ CREATE SEQUENCE public.versions_id_seq
 -- Name: versions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions.id;
+ALTER SEQUENCE public.versions_id_seq OWNED BY public.versions_legacy.id;
 
 
 --
@@ -2411,6 +2505,13 @@ ALTER TABLE ONLY public.badges ALTER COLUMN id SET DEFAULT nextval('public.badge
 --
 
 ALTER TABLE ONLY public.channels ALTER COLUMN id SET DEFAULT nextval('public.channels_id_seq'::regclass);
+
+
+--
+-- Name: comment_versions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comment_versions ALTER COLUMN id SET DEFAULT nextval('public.comment_versions_id_seq'::regclass);
 
 
 --
@@ -2596,6 +2697,13 @@ ALTER TABLE ONLY public.polls ALTER COLUMN id SET DEFAULT nextval('public.polls_
 
 
 --
+-- Name: post_versions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_versions ALTER COLUMN id SET DEFAULT nextval('public.post_versions_id_seq'::regclass);
+
+
+--
 -- Name: posts id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2614,6 +2722,20 @@ ALTER TABLE ONLY public.reports ALTER COLUMN id SET DEFAULT nextval('public.repo
 --
 
 ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_id_seq'::regclass);
+
+
+--
+-- Name: rule_versions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rule_versions ALTER COLUMN id SET DEFAULT nextval('public.rule_versions_id_seq'::regclass);
+
+
+--
+-- Name: rules id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rules ALTER COLUMN id SET DEFAULT nextval('public.rules_id_seq'::regclass);
 
 
 --
@@ -2715,13 +2837,6 @@ ALTER TABLE ONLY public.user_name_changes ALTER COLUMN id SET DEFAULT nextval('p
 
 
 --
--- Name: user_statistics id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.user_statistics ALTER COLUMN id SET DEFAULT nextval('public.user_statistics_id_seq'::regclass);
-
-
---
 -- Name: user_tokens id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -2743,10 +2858,10 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- Name: versions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: versions_legacy id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.versions ALTER COLUMN id SET DEFAULT nextval('public.versions_id_seq'::regclass);
+ALTER TABLE ONLY public.versions_legacy ALTER COLUMN id SET DEFAULT nextval('public.versions_id_seq'::regclass);
 
 
 --
@@ -2787,6 +2902,14 @@ ALTER TABLE ONLY public.badges
 
 ALTER TABLE ONLY public.channels
     ADD CONSTRAINT channels_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: comment_versions comment_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comment_versions
+    ADD CONSTRAINT comment_versions_pkey PRIMARY KEY (id);
 
 
 --
@@ -2998,6 +3121,14 @@ ALTER TABLE ONLY public.polls
 
 
 --
+-- Name: post_versions post_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_versions
+    ADD CONSTRAINT post_versions_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: posts posts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3019,6 +3150,22 @@ ALTER TABLE ONLY public.reports
 
 ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rule_versions rule_versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rule_versions
+    ADD CONSTRAINT rule_versions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: rules rules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rules
+    ADD CONSTRAINT rules_pkey PRIMARY KEY (id);
 
 
 --
@@ -3142,11 +3289,19 @@ ALTER TABLE ONLY public.user_name_changes
 
 
 --
+-- Name: user_settings user_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_settings
+    ADD CONSTRAINT user_settings_pkey PRIMARY KEY (user_id);
+
+
+--
 -- Name: user_statistics user_statistics_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.user_statistics
-    ADD CONSTRAINT user_statistics_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT user_statistics_pkey PRIMARY KEY (user_id, day);
 
 
 --
@@ -3174,10 +3329,10 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: versions versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: versions_legacy versions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.versions
+ALTER TABLE ONLY public.versions_legacy
     ADD CONSTRAINT versions_pkey PRIMARY KEY (id);
 
 
@@ -3207,6 +3362,20 @@ CREATE INDEX channel_live_notifications_user_id_read_index ON public.channel_liv
 --
 
 CREATE INDEX channel_live_notifications_user_id_updated_at_desc_index ON public.channel_live_notifications USING btree (user_id, updated_at DESC);
+
+
+--
+-- Name: comment_versions_comment_id_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX comment_versions_comment_id_created_at_index ON public.comment_versions USING btree (comment_id, created_at);
+
+
+--
+-- Name: comment_versions_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX comment_versions_user_id_index ON public.comment_versions USING btree (user_id);
 
 
 --
@@ -3525,13 +3694,6 @@ CREATE INDEX index_channels_on_last_fetched_at ON public.channels USING btree (l
 
 
 --
--- Name: index_channels_on_next_check_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_channels_on_next_check_at ON public.channels USING btree (next_check_at);
-
-
---
 -- Name: index_comments_on_created_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -3605,7 +3767,7 @@ CREATE INDEX index_commissions_on_sheet_image_id ON public.commissions USING btr
 -- Name: index_commissions_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_commissions_on_user_id ON public.commissions USING btree (user_id);
+CREATE UNIQUE INDEX index_commissions_on_user_id ON public.commissions USING btree (user_id);
 
 
 --
@@ -3787,7 +3949,7 @@ CREATE UNIQUE INDEX index_forums_on_short_name ON public.forums USING btree (sho
 -- Name: index_galleries_on_creator_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_galleries_on_creator_id ON public.galleries USING btree (creator_id);
+CREATE INDEX index_galleries_on_creator_id ON public.galleries USING btree (user_id);
 
 
 --
@@ -3987,13 +4149,6 @@ CREATE INDEX index_images_on_image_orig_sha512_hash ON public.images USING btree
 
 
 --
--- Name: index_images_on_tag_ids; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_images_on_tag_ids ON public.images USING gin (tag_ids);
-
-
---
 -- Name: index_images_on_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4026,13 +4181,6 @@ CREATE INDEX index_messages_on_from_id ON public.messages USING btree (from_id);
 --
 
 CREATE INDEX index_mod_notes_on_moderator_id ON public.mod_notes USING btree (moderator_id);
-
-
---
--- Name: index_mod_notes_on_notable_type_and_notable_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_mod_notes_on_notable_type_and_notable_id ON public.mod_notes USING btree (notable_type, notable_id);
 
 
 --
@@ -4082,13 +4230,6 @@ CREATE UNIQUE INDEX index_poll_votes_on_poll_option_id_and_user_id ON public.pol
 --
 
 CREATE INDEX index_poll_votes_on_user_id ON public.poll_votes USING btree (user_id);
-
-
---
--- Name: index_polls_on_deleted_by_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_polls_on_deleted_by_id ON public.polls USING btree (deleted_by_id) WHERE (deleted_by_id IS NOT NULL);
 
 
 --
@@ -4152,13 +4293,6 @@ CREATE INDEX index_reports_on_open ON public.reports USING btree (open);
 --
 
 CREATE INDEX index_reports_on_user_id ON public.reports USING btree (user_id);
-
-
---
--- Name: index_roles_on_name_and_resource_type_and_resource_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_roles_on_name_and_resource_type_and_resource_id ON public.roles USING btree (name, resource_type, resource_id);
 
 
 --
@@ -4456,13 +4590,6 @@ CREATE INDEX index_user_ips_on_updated_at ON public.user_ips USING btree (update
 
 
 --
--- Name: index_user_ips_on_user_id_and_updated_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_user_ips_on_user_id_and_updated_at ON public.user_ips USING btree (user_id, updated_at DESC);
-
-
---
 -- Name: index_user_name_changes_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4526,6 +4653,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 
 
 --
+-- Name: index_users_on_lower_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_lower_name ON public.users USING btree (lower((name)::text));
+
+
+--
 -- Name: index_users_on_name; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4578,7 +4712,7 @@ CREATE UNIQUE INDEX index_users_roles_on_user_id_and_role_id ON public.users_rol
 -- Name: index_versions_on_item_type_and_item_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions USING btree (item_type, item_id);
+CREATE INDEX index_versions_on_item_type_and_item_id ON public.versions_legacy USING btree (item_type, item_id);
 
 
 --
@@ -4589,10 +4723,24 @@ CREATE INDEX index_vpns_on_ip ON public.vpns USING gist (ip inet_ops);
 
 
 --
--- Name: intensities_index; Type: INDEX; Schema: public; Owner: -
+-- Name: mod_notes_dnp_entry_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX intensities_index ON public.images USING btree (se_intensity, sw_intensity, ne_intensity, nw_intensity, average_intensity);
+CREATE INDEX mod_notes_dnp_entry_id_index ON public.mod_notes USING btree (dnp_entry_id) WHERE (dnp_entry_id IS NOT NULL);
+
+
+--
+-- Name: mod_notes_report_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX mod_notes_report_id_index ON public.mod_notes USING btree (report_id) WHERE (report_id IS NOT NULL);
+
+
+--
+-- Name: mod_notes_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX mod_notes_user_id_index ON public.mod_notes USING btree (user_id) WHERE (user_id IS NOT NULL);
 
 
 --
@@ -4631,10 +4779,94 @@ CREATE INDEX moderation_logs_user_id_index ON public.moderation_logs USING btree
 
 
 --
+-- Name: post_versions_post_id_created_at_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX post_versions_post_id_created_at_index ON public.post_versions USING btree (post_id, created_at);
+
+
+--
+-- Name: post_versions_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX post_versions_user_id_index ON public.post_versions USING btree (user_id);
+
+
+--
+-- Name: reports_comment_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_comment_id_index ON public.reports USING btree (comment_id) WHERE (comment_id IS NOT NULL);
+
+
+--
+-- Name: reports_commission_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_commission_id_index ON public.reports USING btree (commission_id) WHERE (commission_id IS NOT NULL);
+
+
+--
+-- Name: reports_conversation_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_conversation_id_index ON public.reports USING btree (conversation_id) WHERE (conversation_id IS NOT NULL);
+
+
+--
+-- Name: reports_gallery_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_gallery_id_index ON public.reports USING btree (gallery_id) WHERE (gallery_id IS NOT NULL);
+
+
+--
+-- Name: reports_image_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_image_id_index ON public.reports USING btree (image_id) WHERE (image_id IS NOT NULL);
+
+
+--
+-- Name: reports_post_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_post_id_index ON public.reports USING btree (post_id) WHERE (post_id IS NOT NULL);
+
+
+--
+-- Name: reports_reported_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX reports_reported_user_id_index ON public.reports USING btree (reported_user_id) WHERE (reported_user_id IS NOT NULL);
+
+
+--
 -- Name: reports_system_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX reports_system_index ON public.reports USING btree (system) WHERE (system = true);
+
+
+--
+-- Name: rules_name_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX rules_name_index ON public.rules USING btree (name);
+
+
+--
+-- Name: rules_position_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX rules_position_index ON public.rules USING btree ("position");
+
+
+--
+-- Name: source_changes_fingerprint_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX source_changes_fingerprint_index ON public.source_changes USING btree (fingerprint);
 
 
 --
@@ -4680,6 +4912,48 @@ CREATE INDEX tag_changes_user_id_index ON public.tag_changes USING btree (user_i
 
 
 --
+-- Name: topics_forum_id_last_replied_to_at_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX topics_forum_id_last_replied_to_at_id_index ON public.topics USING btree (forum_id, last_replied_to_at DESC, id DESC);
+
+
+--
+-- Name: topics_forum_id_sticky_last_replied_to_at_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX topics_forum_id_sticky_last_replied_to_at_id_index ON public.topics USING btree (forum_id, sticky DESC, last_replied_to_at DESC, id DESC);
+
+
+--
+-- Name: unique_users_name_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_users_name_index ON public.users USING btree (name);
+
+
+--
+-- Name: unique_users_slug_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_users_slug_index ON public.users USING btree (slug);
+
+
+--
+-- Name: user_fingerprints_user_id_updated_at_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_fingerprints_user_id_updated_at_id_index ON public.user_fingerprints USING btree (user_id, updated_at DESC, id DESC);
+
+
+--
+-- Name: user_ips_user_id_updated_at_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX user_ips_user_id_updated_at_id_index ON public.user_ips USING btree (user_id, updated_at DESC, id DESC);
+
+
+--
 -- Name: user_tokens_context_token_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -4707,6 +4981,22 @@ ALTER TABLE ONLY public.channel_live_notifications
 
 ALTER TABLE ONLY public.channel_live_notifications
     ADD CONSTRAINT channel_live_notifications_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: comment_versions comment_versions_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comment_versions
+    ADD CONSTRAINT comment_versions_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: comment_versions comment_versions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.comment_versions
+    ADD CONSTRAINT comment_versions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -4811,14 +5101,6 @@ ALTER TABLE ONLY public.badge_awards
 
 ALTER TABLE ONLY public.messages
     ADD CONSTRAINT fk_rails_2bcf7eed31 FOREIGN KEY (from_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE RESTRICT;
-
-
---
--- Name: polls fk_rails_2bf9149369; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.polls
-    ADD CONSTRAINT fk_rails_2bf9149369 FOREIGN KEY (deleted_by_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5026,7 +5308,7 @@ ALTER TABLE ONLY public.gallery_interactions
 --
 
 ALTER TABLE ONLY public.galleries
-    ADD CONSTRAINT fk_rails_6c0cba6a45 FOREIGN KEY (creator_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT fk_rails_6c0cba6a45 FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
@@ -5322,7 +5604,7 @@ ALTER TABLE ONLY public.tags_implied_tags
 --
 
 ALTER TABLE ONLY public.image_intensities
-    ADD CONSTRAINT fk_rails_b861f027a7 FOREIGN KEY (image_id) REFERENCES public.images(id);
+    ADD CONSTRAINT fk_rails_b861f027a7 FOREIGN KEY (image_id) REFERENCES public.images(id) ON DELETE CASCADE;
 
 
 --
@@ -5661,11 +5943,131 @@ ALTER TABLE ONLY public.image_tag_locks
 
 
 --
+-- Name: mod_notes mod_notes_dnp_entry_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mod_notes
+    ADD CONSTRAINT mod_notes_dnp_entry_id_fkey FOREIGN KEY (dnp_entry_id) REFERENCES public.dnp_entries(id) ON DELETE SET NULL;
+
+
+--
+-- Name: mod_notes mod_notes_report_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mod_notes
+    ADD CONSTRAINT mod_notes_report_id_fkey FOREIGN KEY (report_id) REFERENCES public.reports(id) ON DELETE SET NULL;
+
+
+--
+-- Name: mod_notes mod_notes_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mod_notes
+    ADD CONSTRAINT mod_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
 -- Name: moderation_logs moderation_logs_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.moderation_logs
     ADD CONSTRAINT moderation_logs_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: post_versions post_versions_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_versions
+    ADD CONSTRAINT post_versions_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: post_versions post_versions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.post_versions
+    ADD CONSTRAINT post_versions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_comment_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_comment_id_fkey FOREIGN KEY (comment_id) REFERENCES public.comments(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_commission_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_commission_id_fkey FOREIGN KEY (commission_id) REFERENCES public.commissions(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_conversation_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_conversation_id_fkey FOREIGN KEY (conversation_id) REFERENCES public.conversations(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_gallery_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_gallery_id_fkey FOREIGN KEY (gallery_id) REFERENCES public.galleries(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_image_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_image_id_fkey FOREIGN KEY (image_id) REFERENCES public.images(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_post_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_post_id_fkey FOREIGN KEY (post_id) REFERENCES public.posts(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_reported_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_reported_user_id_fkey FOREIGN KEY (reported_user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: reports reports_rule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.reports
+    ADD CONSTRAINT reports_rule_id_fkey FOREIGN KEY (rule_id) REFERENCES public.rules(id) ON DELETE RESTRICT;
+
+
+--
+-- Name: rule_versions rule_versions_rule_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rule_versions
+    ADD CONSTRAINT rule_versions_rule_id_fkey FOREIGN KEY (rule_id) REFERENCES public.rules(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
+-- Name: rule_versions rule_versions_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.rule_versions
+    ADD CONSTRAINT rule_versions_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE SET NULL;
 
 
 --
@@ -5717,6 +6119,14 @@ ALTER TABLE ONLY public.tag_changes
 
 
 --
+-- Name: user_settings user_settings_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.user_settings
+    ADD CONSTRAINT user_settings_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: user_tokens user_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5735,6 +6145,8 @@ ALTER TABLE ONLY public.users
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict CRSH5T57rmsz3T55boQIMJv9CDQarP7KWmGNYYFgh18yiJK3gDpjBcPAOYpwh6X
 
 INSERT INTO public."schema_migrations" (version) VALUES (20200503002523);
 INSERT INTO public."schema_migrations" (version) VALUES (20200607000511);
@@ -5760,8 +6172,27 @@ INSERT INTO public."schema_migrations" (version) VALUES (20230330155026);
 INSERT INTO public."schema_migrations" (version) VALUES (20230402170921);
 INSERT INTO public."schema_migrations" (version) VALUES (20240723122759);
 INSERT INTO public."schema_migrations" (version) VALUES (20240728191353);
+INSERT INTO public."schema_migrations" (version) VALUES (20240818182358);
 INSERT INTO public."schema_migrations" (version) VALUES (20241216165826);
 INSERT INTO public."schema_migrations" (version) VALUES (20250407021536);
+INSERT INTO public."schema_migrations" (version) VALUES (20250430092058);
+INSERT INTO public."schema_migrations" (version) VALUES (20250501023533);
 INSERT INTO public."schema_migrations" (version) VALUES (20250501174007);
 INSERT INTO public."schema_migrations" (version) VALUES (20250502110018);
 INSERT INTO public."schema_migrations" (version) VALUES (20250507183410);
+INSERT INTO public."schema_migrations" (version) VALUES (20250617121030);
+INSERT INTO public."schema_migrations" (version) VALUES (20250617122513);
+INSERT INTO public."schema_migrations" (version) VALUES (20251103173014);
+INSERT INTO public."schema_migrations" (version) VALUES (20260716190444);
+INSERT INTO public."schema_migrations" (version) VALUES (20260717000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20260718000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20260718110812);
+INSERT INTO public."schema_migrations" (version) VALUES (20260719123608);
+INSERT INTO public."schema_migrations" (version) VALUES (20260719123609);
+INSERT INTO public."schema_migrations" (version) VALUES (20260719123610);
+INSERT INTO public."schema_migrations" (version) VALUES (20260719123611);
+INSERT INTO public."schema_migrations" (version) VALUES (20260806180557);
+INSERT INTO public."schema_migrations" (version) VALUES (20260810212302);
+INSERT INTO public."schema_migrations" (version) VALUES (20260831235832);
+INSERT INTO public."schema_migrations" (version) VALUES (20261001000000);
+INSERT INTO public."schema_migrations" (version) VALUES (20261106213604);

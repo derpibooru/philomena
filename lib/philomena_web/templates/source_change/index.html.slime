@@ -34,7 +34,7 @@
             td class=user_column_class(source_change)
               => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: source_change, conn: @conn
 
-              = if can?(@conn, :show, :ip_address) do
+              = if can?(@conn, :show, :identity_metadata) do
                 => link_to_ip @conn, source_change.ip
                 => link_to_fingerprint @conn,source_change.fingerprint
 

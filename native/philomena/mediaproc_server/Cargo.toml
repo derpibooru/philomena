@@ -1,0 +1,14 @@
+[package]
+name = "mediaproc_server"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+env_logger = "0.11"
+clap = { version = "4.6", features = ["derive"] }
+futures = "0.3"
+mediaproc = { path = "../mediaproc" }
+tarpc = { version = "0.38", features = ["full"] }
+tempfile = "3.27"
+tokio = { version = "1.54", features = ["full"] }
+tracing = "0.1"

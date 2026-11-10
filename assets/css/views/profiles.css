@@ -108,7 +108,7 @@ td.table--stats__sparkline {
 }
 
 .break-word {
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .avatar--28px {

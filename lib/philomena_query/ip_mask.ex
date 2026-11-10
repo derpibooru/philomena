@@ -104,6 +104,6 @@ defmodule PhilomenaQuery.IpMask do
   end
 
   defp bits_to_list(bits, unit_length) do
-    for <<u::integer-size(unit_length) <- bits>>, do: u
+    for <<u::integer-size(^unit_length) <- bits>>, do: u
   end
 end

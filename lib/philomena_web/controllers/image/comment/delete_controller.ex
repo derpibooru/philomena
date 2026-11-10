@@ -1,35 +1,25 @@
 defmodule PhilomenaWeb.Image.Comment.DeleteController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Comments.Comment
   alias Philomena.Comments
+  alias Philomena.Comments.Comment
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide
-  plug :load_and_authorize_resource, model: Comment, id_name: "comment_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, _params) do
-    comment = conn.assigns.comment
-
-    case Comments.destroy_comment(comment) do
+  def create(conn, %{"image_id" => image_id, "comment_id" => comment_id}) do
+    case Comments.create_comment_delete(conn.assigns.actor, image_id, comment_id) do
       {:ok, comment} ->
-        Comments.reindex_comment(comment)
-
         conn
         |> put_flash(:info, "Comment successfully destroyed!")
-        |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{data: %Comment{} = comment}} ->
         conn
         |> put_flash(:error, "Unable to destroy comment!")
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
-    end
-  end
 
-  defp log_details(_action, comment) do
-    %{
-      body: "Destroyed comment on image #{comment.image_id}",
-      subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"
-    }
+      {:error, _} = error ->
+        error
+    end
   end
 end

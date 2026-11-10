@@ -2,8 +2,9 @@ defmodule Mix.Tasks.ReindexAll do
   use Mix.Task
 
   alias Philomena.SearchIndexer
+  alias Philomena.SearchMigrator
 
-  @shortdoc "Destroys and recreates all OpenSearch indices."
+  @shortdoc "Applies search index migrations and reindexes all documents."
   @requirements ["app.start"]
   @impl Mix.Task
   def run(args) do
@@ -11,6 +12,7 @@ defmodule Mix.Tasks.ReindexAll do
       raise "do not run this task unless you know what you're doing"
     end
 
-    SearchIndexer.recreate_reindex_all_destructive!(maintenance: false)
+    SearchMigrator.migrate_all(maintenance: false)
+    SearchIndexer.reindex_all(maintenance: false)
   end
 end

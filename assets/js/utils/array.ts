@@ -8,3 +8,17 @@ export function arraysEqual(array1: unknown[], array2: unknown[]): boolean {
 
   return array1.every((item, index) => item === array2[index]);
 }
+
+export function findOrElse<T>(array: T[], selectFn: (arg: T) => boolean, defaultFn: () => T): T {
+  for (const e of array) {
+    if (selectFn(e)) {
+      return e;
+    }
+  }
+
+  return defaultFn();
+}
+
+export function findOr<T>(array: T[], selectFn: (arg: T) => boolean, defaultValue: T): T {
+  return findOrElse(array, selectFn, () => defaultValue);
+}

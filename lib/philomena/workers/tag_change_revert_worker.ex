@@ -1,8 +1,11 @@
 defmodule Philomena.TagChangeRevertWorker do
-  alias Philomena.TagChanges.TagChange
+  @moduledoc """
+  Reverts every tag change made by a user, IP, or fingerprint, batching by
+  image so each image's tag history is reverted in a single operation.
+  """
+
   alias Philomena.TagChanges
-  alias PhilomenaQuery.Batch
-  alias Philomena.Repo
+  alias Philomena.TagChanges.TagChange
   import Ecto.Query
 
   def perform(%{"user_id" => user_id, "attributes" => attributes}) do
@@ -24,15 +27,12 @@ defmodule Philomena.TagChangeRevertWorker do
   end
 
   defp revert_all(queryable, attributes) do
-    batch_size = attributes["batch_size"] || 100
-    attributes = Map.delete(attributes, "batch_size")
+    attributes = cast_ip(atomify_keys(attributes))
 
-    queryable
-    |> Batch.query_batches(batch_size: batch_size)
-    |> Enum.each(fn queryable ->
-      ids = Repo.all(select(queryable, [tc], tc.id))
-      TagChanges.mass_revert(ids, cast_ip(atomify_keys(attributes)))
-    end)
+    case TagChanges.revert_all_for_worker(queryable, attributes) do
+      :ok -> :ok
+      {:error, reason} -> raise "tag change batch revert failed: #{inspect(reason)}"
+    end
   end
 
   defp atomify_keys(map) do

@@ -1,39 +1,33 @@
 defmodule PhilomenaWeb.Profile.DescriptionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
   alias Philomena.Users
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.CanaryMapPlug, edit: :edit_description, update: :edit_description
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: User,
-    id_name: "profile_id",
-    id_field: "slug",
-    persisted: true
-
-  def edit(conn, _params) do
-    changeset = Users.change_user(conn.assigns.user)
-
-    render(conn, "edit.html",
-      title: "Editing Profile Description",
-      changeset: changeset,
-      user: conn.assigns.user
-    )
+  def edit(conn, %{"profile_id" => slug}) do
+    with {:ok, %Ecto.Changeset{} = changeset} <-
+           Users.edit_profile_description(conn.assigns.actor, slug) do
+      render(conn, "edit.html",
+        title: "Editing Profile Description",
+        changeset: changeset,
+        user: changeset.data
+      )
+    end
   end
 
-  def update(conn, %{"user" => user_params}) do
-    user = conn.assigns.user
-
-    case Users.update_description(user, user_params) do
-      {:ok, _user} ->
+  def update(conn, %{"profile_id" => slug, "user" => user_params}) do
+    case Users.update_profile_description(conn.assigns.actor, slug, user_params) do
+      {:ok, user} ->
         conn
         |> put_flash(:info, "Description successfully updated.")
         |> redirect(to: ~p"/profiles/#{user}")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", changeset: changeset, user: changeset.data)
+
+      {:error, _} = error ->
+        error
     end
   end
 end

@@ -1,91 +1,61 @@
 defmodule PhilomenaWeb.Admin.UserController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Roles.Role
-  alias Philomena.Users.User
   alias Philomena.Users
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Users.AdminUserForm
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: User,
-    only: [:edit, :update],
-    id_field: "slug",
-    preload: [:roles]
+  def index(conn, params) do
+    case Users.query_users(conn.assigns.actor, query_param(params, "uq"), conn.assigns.pagination) do
+      {:ok, users, changeset} ->
+        render(conn, "index.html",
+          title: "Admin - Users",
+          layout_class: "layout--medium",
+          users: users,
+          changeset: changeset
+        )
 
-  plug :load_roles when action in [:edit, :update]
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "index.html",
+          title: "Admin - Users",
+          layout_class: "layout--medium",
+          users: nil,
+          changeset: changeset
+        )
 
-  def index(conn, %{"uq" => q}) do
-    User
-    |> where([u], u.email == ^q or ilike(u.name, ^"%#{q}%"))
-    |> load_users(conn)
-  end
-
-  def index(conn, %{"twofactor" => _twofactor}) do
-    User
-    |> where([u], u.otp_required_for_login == true)
-    |> load_users(conn)
-  end
-
-  def index(conn, %{"staff" => _staff}) do
-    User
-    |> where([u], u.role != "user")
-    |> load_users(conn)
-  end
-
-  def index(conn, _params) do
-    load_users(User, conn)
-  end
-
-  defp load_users(queryable, conn) do
-    users =
-      queryable
-      |> order_by(desc: :id)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html",
-      title: "Admin - Users",
-      layout_class: "layout--medium",
-      users: users
-    )
-  end
-
-  def edit(conn, _params) do
-    changeset = Users.change_user(conn.assigns.user)
-    render(conn, "edit.html", title: "Editing User", changeset: changeset)
-  end
-
-  def update(conn, %{"user" => user_params}) do
-    case Users.update_user(conn.assigns.user, user_params) do
-      {:ok, user} ->
-        conn
-        |> put_flash(:info, "User successfully updated.")
-        |> moderation_log(details: &log_details/2, data: user)
-        |> redirect(to: ~p"/profiles/#{user}")
-
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      error ->
+        error
     end
   end
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, User) do
+  def edit(conn, %{"id" => slug}) do
+    with {:ok, %AdminUserForm{} = form} <-
+           Users.edit_user(conn.assigns.actor, slug) do
+      render(conn, "edit.html",
+        title: "Editing User",
+        user: form.changeset.data,
+        changeset: form.changeset,
+        roles: form.roles
+      )
+    end
+  end
+
+  def update(conn, %{"id" => slug, "user" => user_params}) do
+    with {:ok, user} <- Users.update_user(conn.assigns.actor, slug, user_params) do
       conn
+      |> put_flash(:info, "User successfully updated.")
+      |> redirect(to: ~p"/profiles/#{user}")
     else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      {:error, %AdminUserForm{} = form} ->
+        render(conn, "edit.html",
+          user: form.changeset.data,
+          changeset: form.changeset,
+          roles: form.roles
+        )
+
+      error ->
+        error
     end
-  end
-
-  defp load_roles(conn, _opts) do
-    assign(conn, :roles, Repo.all(Role))
-  end
-
-  defp log_details(_action, user) do
-    %{
-      body: "Updated user details for #{user.name}",
-      subject_path: ~p"/profiles/#{user}"
-    }
   end
 end

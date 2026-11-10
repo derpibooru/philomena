@@ -17,6 +17,8 @@ defmodule PhilomenaMedia.Intensities do
   of image dimensions, with poor precision and a poor-to-fair accuracy.
   """
 
+  alias PhilomenaMedia.Remote
+
   @type t :: %__MODULE__{
           nw: float(),
           ne: float(),
@@ -50,7 +52,7 @@ defmodule PhilomenaMedia.Intensities do
   """
   @spec file(Path.t()) :: {:ok, t()} | :error
   def file(input) do
-    System.cmd("image-intensities", [input])
+    Remote.cmd("image-intensities", [input])
     |> case do
       {output, 0} ->
         [nw, ne, sw, se] =

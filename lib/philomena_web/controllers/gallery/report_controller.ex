@@ -3,44 +3,36 @@ defmodule PhilomenaWeb.Gallery.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Galleries.Gallery
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
-  plug :load_and_authorize_resource,
-    model: Gallery,
-    id_name: "gallery_id",
-    persisted: true,
-    preload: [:creator]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    gallery = conn.assigns.gallery
-    action = ~p"/galleries/#{gallery}/reports"
+  def new(conn, %{"gallery_id" => gallery_id}) do
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, {:gallery, gallery_id}) do
+      gallery = form.target
+      action = ~p"/galleries/#{gallery}/reports"
 
-    changeset =
-      %Report{reportable_type: "Gallery", reportable_id: gallery.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting Gallery",
-      reportable: gallery,
-      changeset: changeset,
-      action: action
-    )
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting Gallery",
+        subject: gallery,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    gallery = conn.assigns.gallery
-    action = ~p"/galleries/#{gallery}/reports"
-
-    ReportController.create(conn, action, "Gallery", gallery, params)
+  def create(conn, %{"gallery_id" => gallery_id} = params) do
+    ReportController.create(
+      conn,
+      {:gallery, gallery_id},
+      fn gallery -> ~p"/galleries/#{gallery}/reports" end,
+      params
+    )
   end
 end

@@ -25,5 +25,9 @@
     = checkbox f, :order_position_asc, class: "checkbox"
     = error_tag f, :order_position_asc
   .field
+    = label f, :anonymous, "Anonymous", title: "Anonymous galleries are accessible to others, but they won't reveal you as the creator and won't appear on your profile."
+    = checkbox f, :anonymous, class: "checkbox"
+    = error_tag f, :anonymous
+  .field
 
   = submit "Save Gallery", class: "button"

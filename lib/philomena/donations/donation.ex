@@ -4,6 +4,8 @@ defmodule Philomena.Donations.Donation do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "donations" do
     belongs_to :user, User
 
@@ -18,7 +20,7 @@ defmodule Philomena.Donations.Donation do
   end
 
   @doc false
-  def changeset(donation, attrs) do
+  def changeset(donation, attrs \\ %{}) do
     donation
     |> cast(attrs, [:email, :amount, :note, :user_id])
     |> validate_required([])

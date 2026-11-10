@@ -9,7 +9,15 @@ export const lastUpdatedSuffix = '__lastUpdated';
 // isn't triggered when the same page updates the storage.
 const localUpdates = document.createElement('div');
 
-type StorageUpdateEvent = CustomEvent<string>;
+declare global {
+  interface StorageUpdateEvent extends CustomEvent<string> {
+    target: HTMLElement;
+  }
+
+  interface GlobalEventHandlersEventMap {
+    storageupdate: StorageUpdateEvent;
+  }
+}
 
 export default {
   set(key: string, value: unknown) {
@@ -43,7 +51,7 @@ export default {
   },
 
   dispatchStorageUpdateEvent(key: string) {
-    const event: StorageUpdateEvent = new CustomEvent('storage-update', { detail: key });
+    const event = new CustomEvent<string>('storageupdate', { detail: key });
     localUpdates.dispatchEvent(event);
   },
 
@@ -59,7 +67,7 @@ export default {
   // `null` key means the store was purged with `localStorage.clear()`
   watchAll(callback: (key: null | string) => void) {
     window.addEventListener('storage', event => callback(event.key));
-    localUpdates.addEventListener('storage-update', event => callback((event as StorageUpdateEvent).detail));
+    localUpdates.addEventListener('storageupdate', event => callback(event.detail));
   },
 
   // set() with an additional key containing the current time + expiration time

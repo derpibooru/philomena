@@ -3,8 +3,8 @@ defmodule PhilomenaWeb.UserAuth do
   import Phoenix.Controller
 
   alias Philomena.Users
-  alias PhilomenaWeb.UserIpUpdater
-  alias PhilomenaWeb.UserFingerprintUpdater
+  alias Philomena.UserFingerprints
+  alias Philomena.UserIps
 
   use PhilomenaWeb, :verified_routes
 
@@ -269,7 +269,7 @@ defmodule PhilomenaWeb.UserAuth do
   def update_usages(conn, user) do
     now = DateTime.utc_now(:second)
 
-    UserIpUpdater.cast(user.id, conn.remote_ip, now)
-    UserFingerprintUpdater.cast(user.id, conn.assigns.fingerprint, now)
+    UserIps.record_usage(user, conn.remote_ip, now)
+    UserFingerprints.record_usage(user, conn.assigns.fingerprint, now)
   end
 end

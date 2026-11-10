@@ -1,55 +1,56 @@
 defmodule PhilomenaWeb.Admin.ForumController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Forums.Forum
   alias Philomena.Forums
 
-  plug :verify_authorized
-  plug :load_resource, model: Forum, id_field: "short_name"
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, _params) do
-    render(conn, "index.html", title: "Admin - Forums")
+    with {:ok, forums} <- Forums.list_admin_forums(conn.assigns.actor) do
+      render(conn, "index.html", title: "Admin - Forums", forums: forums)
+    end
   end
 
   def new(conn, _params) do
-    changeset = Forums.change_forum(%Forum{})
-    render(conn, "new.html", title: "New Forum", changeset: changeset)
+    with {:ok, changeset} <- Forums.new_forum(conn.assigns.actor) do
+      render(conn, "new.html", title: "New Forum", changeset: changeset)
+    end
   end
 
   def create(conn, %{"forum" => forum_params}) do
-    case Forums.create_forum(forum_params) do
+    case Forums.create_forum(conn.assigns.actor, forum_params) do
       {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum created successfully.")
         |> redirect(to: ~p"/admin/forums")
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      {:error, reason} = error when reason in [:ban, :unauthorized] ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = Forums.change_forum(conn.assigns.forum)
-    render(conn, "edit.html", title: "Editing Forum", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {forum, changeset}} <-
+           Forums.edit_forum(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html", title: "Editing Forum", forum: forum, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"forum" => forum_params}) do
-    case Forums.update_forum(conn.assigns.forum, forum_params) do
+  def update(conn, %{"id" => id, "forum" => forum_params}) do
+    case Forums.update_forum(conn.assigns.actor, id, forum_params) do
       {:ok, _forum} ->
         conn
         |> put_flash(:info, "Forum updated successfully.")
         |> redirect(to: ~p"/admin/forums")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
-    end
-  end
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", forum: changeset.data, changeset: changeset)
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, Forum) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      {:error, _} = error ->
+        error
     end
   end
 end

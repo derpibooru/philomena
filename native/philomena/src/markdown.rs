@@ -12,6 +12,7 @@ pub fn common_options() -> Options<'static> {
     options.extension.description_lists = true;
     options.extension.superscript = true;
     options.extension.strikethrough = true;
+    options.parse.ignore_setext = true;
     options.parse.smart = true;
     options.render.hardbreaks = true;
     options.render.github_pre_lang = true;
@@ -24,14 +25,12 @@ pub fn common_options() -> Options<'static> {
     options.extension.subscript = true;
     options.extension.philomena = true;
     options.render.ignore_empty_links = true;
-    options.parse.ignore_setext = true;
 
-    options.extension.image_url_rewriter = Some(Arc::new(|url: &str| camo::image_url_careful(url)));
+    options.extension.image_url_rewriter = Some(Arc::new(|url: &str| camo::image_url(url)));
 
     if let Some(domains) = domains::get() {
-        options.extension.link_url_rewriter = Some(Arc::new(|url: &str| {
-            domains::relativize_careful(domains, url)
-        }));
+        options.extension.link_url_rewriter =
+            Some(Arc::new(|url: &str| domains::relativize(domains, url)));
     }
 
     options

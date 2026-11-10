@@ -1,8 +1,8 @@
 defmodule PhilomenaWeb.Search.ReverseController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.DuplicateReports.SearchQuery
   alias Philomena.DuplicateReports
+  alias Philomena.DuplicateReports.SearchResult
   alias Philomena.Interactions
 
   plug PhilomenaWeb.ScraperCachePlug
@@ -14,16 +14,17 @@ defmodule PhilomenaWeb.Search.ReverseController do
 
   def create(conn, %{"image" => image_params})
       when is_map(image_params) and image_params != %{} do
-    case DuplicateReports.execute_search_query(image_params) do
-      {:ok, images} ->
-        changeset = DuplicateReports.change_search_query(%SearchQuery{})
-        interactions = Interactions.user_interactions(images, conn.assigns.current_user)
+    upload = PhilomenaMedia.Upload.cast(image_params, "image")
+
+    case DuplicateReports.create_reverse_search(conn.assigns.actor, image_params, upload) do
+      {:ok, %SearchResult{} = result} ->
+        interactions = Interactions.user_interactions(conn.assigns.actor, result.images)
 
         render(conn, "index.html",
           title: "Reverse Search",
           layout_class: "layout--wide",
-          images: images,
-          changeset: changeset,
+          images: result.images,
+          changeset: result.changeset,
           interactions: interactions
         )
 
@@ -38,13 +39,14 @@ defmodule PhilomenaWeb.Search.ReverseController do
   end
 
   def create(conn, _params) do
-    changeset = DuplicateReports.change_search_query(%SearchQuery{})
-
-    render(conn, "index.html",
-      title: "Reverse Search",
-      layout_class: "layout--wide",
-      images: nil,
-      changeset: changeset
-    )
+    with {:ok, %SearchResult{} = result} <-
+           DuplicateReports.create_reverse_search(conn.assigns.actor) do
+      render(conn, "index.html",
+        title: "Reverse Search",
+        layout_class: "layout--wide",
+        images: result.images,
+        changeset: result.changeset
+      )
+    end
   end
 end

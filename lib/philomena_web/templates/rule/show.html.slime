@@ -1,0 +1,36 @@
+h1
+  ' Viewing details of
+  = @rule.name
+
+.block
+  a href=~p"/rules"
+    i.fa.fa-chevron-left>
+    ' Back to Rules List
+
+br
+
+= render PhilomenaWeb.RuleView, "_rule.html", conn: @conn, rule: @rule, show_timestamp: true
+
+h2 Revision History
+
+= if Enum.count(@versions) == 0 do
+  p Revision history for this rule is unavailable, as this is the initial version of this rule. Once this rule is updated, differences between revisions will be shown here.
+- else
+  table.table
+    thead
+      tr
+        th User
+        th When
+        th Difference
+
+    tbody
+      = for version <- @versions do
+        tr
+          td
+            = if version.user do
+              = link version.user.name, to: ~p"/profiles/#{version.user}"
+            - else
+              ' System
+          td = pretty_time(version.created_at)
+          td
+            = render PhilomenaWeb.RuleView, "_rulediff.html", version: version

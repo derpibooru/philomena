@@ -1,4 +1,5 @@
-defimpl Philomena.Attribution, for: Philomena.Versions.Version do
+defimpl Philomena.Attribution,
+  for: [Philomena.Comments.CommentVersion, Philomena.Posts.PostVersion] do
   def object_identifier(version) do
     Philomena.Attribution.object_identifier(version.parent)
   end

@@ -39,7 +39,7 @@ h1 Register
     p
       strong
         ' Don't forget to read the
-        a<> href="/pages/rules" site rules
+        a<> href="/rules" site rules
         ' before you dive in - they contain a quick introduction on how to
         ' use the site.
 

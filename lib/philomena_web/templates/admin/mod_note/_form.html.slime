@@ -8,8 +8,9 @@
     = text_input f, :body, class: "input input--wide", required: true
     = error_tag f, :body
 
-  = hidden_input f, :notable_id
-  = hidden_input f, :notable_type
+  = hidden_input f, :user_id
+  = hidden_input f, :report_id
+  = hidden_input f, :dnp_entry_id
 
   .field
     = submit "Save", class: "button"

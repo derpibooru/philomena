@@ -1,51 +1,45 @@
 defmodule PhilomenaWeb.Admin.User.ForceFilterController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
   alias Philomena.Users
 
-  plug :verify_authorized
-  plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    changeset = Users.change_user(conn.assigns.user)
-
-    render(conn, "new.html", changeset: changeset, title: "Forcing filter for user")
-  end
-
-  def create(conn, %{"user" => user_params}) do
-    {:ok, user} = Users.force_filter(conn.assigns.user, user_params)
-
-    conn
-    |> put_flash(:info, "Filter was forced.")
-    |> moderation_log(details: &log_details/2, data: user)
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  def delete(conn, _params) do
-    {:ok, user} = Users.unforce_filter(conn.assigns.user)
-
-    conn
-    |> put_flash(:info, "Forced filter was removed.")
-    |> moderation_log(details: &log_details/2, data: user)
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, %User{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+  def new(conn, %{"user_id" => slug}) do
+    with {:ok, %Ecto.Changeset{} = changeset} <-
+           Users.new_user_force_filter(conn.assigns.actor, slug) do
+      render(conn, "new.html",
+        title: "Forcing filter for user",
+        user: changeset.data,
+        changeset: changeset
+      )
     end
   end
 
-  defp log_details(action, user) do
-    body =
-      case action do
-        :create -> "Forced filter #{user.forced_filter_id} for #{user.name}"
-        :delete -> "Removed forced filter for #{user.name}"
-      end
+  def create(conn, %{"user_id" => slug, "user" => user_params}) do
+    case Users.create_user_force_filter(conn.assigns.actor, slug, user_params) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "Filter was forced.")
+        |> redirect(to: ~p"/profiles/#{user}")
 
-    %{body: body, subject_path: ~p"/profiles/#{user}"}
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "new.html",
+          title: "Forcing filter for user",
+          user: changeset.data,
+          changeset: changeset
+        )
+
+      {:error, _reason} = error ->
+        error
+    end
+  end
+
+  def delete(conn, %{"user_id" => slug}) do
+    with {:ok, user} <- Users.delete_user_force_filter(conn.assigns.actor, slug) do
+      conn
+      |> put_flash(:info, "Forced filter was removed.")
+      |> redirect(to: ~p"/profiles/#{user}")
+    end
   end
 end

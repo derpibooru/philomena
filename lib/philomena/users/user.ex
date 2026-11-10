@@ -4,23 +4,27 @@ defmodule Philomena.Users.User do
 
   use Ecto.Schema
   import Ecto.Changeset
-  import PhilomenaQuery.Ecto.QueryValidator
 
-  alias Philomena.Schema.TagList
+  alias Philomena.Schema.Approval
 
-  alias Philomena.Images.Query
   alias Philomena.Filters.Filter
   alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.Badges
   alias Philomena.Galleries.Gallery
   alias Philomena.Users.User
+  alias Philomena.Users.Settings
   alias Philomena.Commissions.Commission
   alias Philomena.Roles.Role
+  alias Philomena.Reports.Report
   alias Philomena.UserFingerprints.UserFingerprint
   alias Philomena.UserIps.UserIp
-  alias Philomena.Bans.User, as: UserBan
+  alias Philomena.Bans
   alias Philomena.Donations.Donation
+  alias Philomena.UserNameChanges.UserNameChange
+  alias Philomena.Tags.Tag
   alias Philomena.Games
+
+  @type t :: %__MODULE__{}
 
   @derive {Phoenix.Param, key: :slug}
   @derive {Inspect, except: [:password]}
@@ -28,16 +32,20 @@ defmodule Philomena.Users.User do
     has_many :links, ArtistLink
     has_many :verified_links, ArtistLink, where: [aasm_state: "verified"]
     has_many :public_links, ArtistLink, where: [public: true, aasm_state: "verified"]
-    has_many :galleries, Gallery, foreign_key: :creator_id
+    has_many :galleries, Gallery, foreign_key: :user_id
     has_many :awards, Badges.Award
     has_many :linked_tags, through: [:verified_links, :tag]
     has_many :user_ips, UserIp
     has_many :user_fingerprints, UserFingerprint
-    has_many :bans, UserBan
+    has_many :bans, Bans.User
     has_many :donations, Donation
     has_many :game_profiles, Games.Player
     has_one :commission, Commission
     many_to_many :roles, Role, join_through: "users_roles", on_replace: :delete
+    has_many :name_changes, UserNameChange
+    has_one :settings, Settings, on_replace: :update
+    has_many :reports, Report, foreign_key: :reported_user_id
+    has_many :created_reports, Report, foreign_key: :user_id
 
     belongs_to :current_filter, Filter
     belongs_to :forced_filter, Filter
@@ -68,46 +76,17 @@ defmodule Philomena.Users.User do
     field :avatar, :string
 
     # Settings
-    field :spoiler_type, :string, default: "static"
-    field :theme, :string, default: "dark-blue"
-    field :images_per_page, :integer, default: 15
-    field :show_large_thumbnails, :boolean, default: true
-    field :show_sidebar_and_watched_images, :boolean, default: true
-    field :fancy_tag_field_on_upload, :boolean, default: true
-    field :fancy_tag_field_on_edit, :boolean, default: true
-    field :fancy_tag_field_in_settings, :boolean, default: true
-    field :autorefresh_by_default, :boolean, default: false
-    field :anonymous_by_default, :boolean, default: false
-    field :scale_large_images, :string, default: "true"
-    field :comments_newest_first, :boolean, default: true
-    field :comments_always_jump_to_last, :boolean, default: true
-    field :comments_per_page, :integer, default: 20
-    field :watch_on_reply, :boolean, default: true
-    field :watch_on_new_topic, :boolean, default: true
-    field :watch_on_upload, :boolean, default: true
-    field :messages_newest_first, :boolean, default: false
-    field :serve_webm, :boolean, default: false
-    field :no_spoilered_in_watched, :boolean, default: false
-    field :watched_images_query_str, :string, default: ""
-    field :watched_images_exclude_str, :string, default: ""
-    field :use_centered_layout, :boolean, default: true
     field :personal_title, :string
-    field :show_hidden_items, :boolean, default: false
-    field :hide_vote_counts, :boolean, default: false
     field :hide_advertisements, :boolean, default: false
-    field :delay_home_images, :boolean, default: true
-    field :staff_delay_home_images, :boolean, default: false
-    field :borderless_tags, :boolean, default: false
-    field :rounded_tags, :boolean, default: false
 
     # Counters
-    field :forum_posts_count, :integer, default: 0
-    field :topic_count, :integer, default: 0
-    field :uploads_count, :integer, default: 0
-    field :votes_cast_count, :integer, default: 0
-    field :comments_posted_count, :integer, default: 0
+    field :posts_count, :integer, default: 0
+    field :topics_count, :integer, default: 0
+    field :images_count, :integer, default: 0
+    field :image_votes_count, :integer, default: 0
+    field :comments_count, :integer, default: 0
     field :metadata_updates_count, :integer, default: 0
-    field :images_favourited_count, :integer, default: 0
+    field :image_faves_count, :integer, default: 0
 
     # Poorly denormalized associations
     field :recent_filter_ids, {:array, :integer}, default: []
@@ -131,8 +110,9 @@ defmodule Philomena.Users.User do
     field :avatar_mime_type, :string, virtual: true
     field :uploaded_avatar, :string, virtual: true
     field :removed_avatar, :string, virtual: true
+    field :became_unapproved?, :boolean, virtual: true, default: false
 
-    # For mod stuff
+    # For authorization
     field :role_map, :any, virtual: true
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
@@ -146,25 +126,37 @@ defmodule Philomena.Users.User do
   could lead to unpredictable or insecure behaviour. Long passwords may
   also be very expensive to hash for certain algorithms.
   """
-  def registration_changeset(user, attrs) do
+  def registration_changeset(user, password_compromised_fn, attrs)
+      when is_function(password_compromised_fn, 1) do
     user
     |> cast(attrs, [:name, :email, :password])
     |> validate_name()
     |> validate_email()
-    |> validate_password()
+    |> validate_password(password_compromised_fn)
     |> put_api_key()
     |> put_slug()
     |> unique_constraints()
+    |> put_assoc(:settings, %Settings{})
   end
 
   defp validate_name(changeset) do
     changeset
-    |> update_change(:name, &String.trim/1)
+    |> update_change(:name, &trim_name/1)
     |> validate_required([:name])
     |> validate_length(:name, max: 50)
   end
 
+  # `cast/3` turns a submitted `""` into a change to nil, which
+  # `validate_required/2` below reports.
+  defp trim_name(nil), do: nil
+  defp trim_name(name), do: String.trim(name)
+
   defp validate_email(changeset) do
+    # The unsafe_validate_unique is used to generate form errors
+    # when users generate an update token with an email that has
+    # already been taken. It is not used to prevent duplicate
+    # registrations - that is done with a real unique constraint.
+
     changeset
     |> validate_required([:email])
     |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+\.[^@,;\s]+$/,
@@ -174,12 +166,28 @@ defmodule Philomena.Users.User do
     |> unsafe_validate_unique(:email, Philomena.Repo)
   end
 
-  defp validate_password(changeset) do
+  defp validate_password(changeset, password_compromised_fn) do
     changeset
     |> validate_required([:password])
     |> validate_length(:password, min: 12, max: 80)
+    |> validate_compromised_password(password_compromised_fn)
     |> prepare_changes(&hash_password/1)
   end
+
+  defp validate_compromised_password(
+         %Ecto.Changeset{valid?: true} = changeset,
+         password_compromised_fn
+       ) do
+    validate_change(changeset, :password, fn :password, password ->
+      if password_compromised_fn.(password) do
+        [password: "has been compromised in a data breach"]
+      else
+        []
+      end
+    end)
+  end
+
+  defp validate_compromised_password(changeset, _password_compromised_fn), do: changeset
 
   defp hash_password(changeset) do
     password = get_change(changeset, :password)
@@ -207,11 +215,12 @@ defmodule Philomena.Users.User do
   @doc """
   A user changeset for changing the password.
   """
-  def password_changeset(user, attrs) do
+  def password_changeset(user, password_compromised_fn, attrs)
+      when is_function(password_compromised_fn, 1) do
     user
     |> cast(attrs, [:password])
     |> validate_confirmation(:password, message: "does not match password")
-    |> validate_password()
+    |> validate_password(password_compromised_fn)
   end
 
   @doc """
@@ -257,10 +266,13 @@ defmodule Philomena.Users.User do
   end
 
   def failed_attempt_changeset(user) do
-    if not is_integer(user.failed_attempts) or user.failed_attempts < 0 do
-      change(user, failed_attempts: 1)
+    failed_attempts = max(0, user.failed_attempts || 0) + 1
+    changeset = change(user, failed_attempts: failed_attempts)
+
+    if failed_attempts >= 10 do
+      lock_changeset(changeset)
     else
-      change(user, failed_attempts: user.failed_attempts + 1)
+      changeset
     end
   end
 
@@ -272,7 +284,7 @@ defmodule Philomena.Users.User do
     change(user, locked_at: nil, failed_attempts: 0)
   end
 
-  def changeset(user, attrs) do
+  def changeset(user, attrs \\ %{}) do
     cast(user, attrs, [])
   end
 
@@ -295,6 +307,12 @@ defmodule Philomena.Users.User do
     |> unique_constraints()
   end
 
+  def role_error_changeset(user) do
+    user
+    |> change()
+    |> add_error(:roles, "contains an invalid role")
+  end
+
   def filter_changeset(user, filter) do
     changeset = change(user)
     user = changeset.data
@@ -307,68 +325,23 @@ defmodule Philomena.Users.User do
     )
   end
 
-  def spoiler_type_changeset(user, attrs) do
-    user
-    |> cast(attrs, [:spoiler_type])
-    |> validate_required([:spoiler_type])
-    |> validate_inclusion(:spoiler_type, ~W(static click hover off))
-  end
-
   def settings_changeset(user, attrs) do
     user
-    |> cast(attrs, [
-      :watched_tag_list,
-      :images_per_page,
-      :fancy_tag_field_on_upload,
-      :fancy_tag_field_on_edit,
-      :anonymous_by_default,
-      :scale_large_images,
-      :comments_per_page,
-      :theme,
-      :watched_images_query_str,
-      :no_spoilered_in_watched,
-      :watched_images_exclude_str,
-      :use_centered_layout,
-      :hide_vote_counts,
-      :comments_newest_first,
-      :watch_on_reply,
-      :watch_on_upload,
-      :watch_on_new_topic,
-      :comments_always_jump_to_last,
-      :messages_newest_first,
-      :show_sidebar_and_watched_images,
-      :delay_home_images,
-      :staff_delay_home_images,
-      :borderless_tags,
-      :rounded_tags
-    ])
-    |> validate_required([
-      :images_per_page,
-      :fancy_tag_field_on_upload,
-      :fancy_tag_field_on_edit,
-      :anonymous_by_default,
-      :scale_large_images,
-      :comments_per_page,
-      :theme,
-      :no_spoilered_in_watched,
-      :use_centered_layout,
-      :hide_vote_counts,
-      :watch_on_reply,
-      :watch_on_upload,
-      :watch_on_new_topic,
-      :comments_always_jump_to_last,
-      :messages_newest_first,
-      :show_sidebar_and_watched_images,
-      :borderless_tags,
-      :rounded_tags
-    ])
-    |> TagList.propagate_tag_list(:watched_tag_list, :watched_tag_ids)
-    |> validate_inclusion(:theme, themes())
-    |> validate_inclusion(:images_per_page, 1..50)
-    |> validate_inclusion(:comments_per_page, 1..100)
-    |> validate_inclusion(:scale_large_images, ["false", "partscaled", "true"])
-    |> validate_query(:watched_images_query_str, &Query.compile(&1, user: user, watch: true))
-    |> validate_query(:watched_images_exclude_str, &Query.compile(&1, user: user, watch: true))
+    |> cast(attrs, [:watched_tag_list])
+    |> cast_assoc(:settings, with: &Settings.changeset(&1, &2, user))
+  end
+
+  @doc false
+  def watched_tag_names(attrs) do
+    %__MODULE__{}
+    |> cast(attrs, [:watched_tag_list])
+    |> get_field(:watched_tag_list)
+    |> Tag.parse_tag_list()
+  end
+
+  @doc false
+  def put_watched_tag_ids(changeset, watched_tag_ids) do
+    put_change(changeset, :watched_tag_ids, watched_tag_ids)
   end
 
   def description_changeset(user, attrs) do
@@ -380,7 +353,22 @@ defmodule Philomena.Users.User do
       :personal_title,
       ~r/\A((?!site|admin|moderator|assistant|developer|\p{C}).)*\z/iu
     )
+    |> maybe_put_description_approval(user)
   end
+
+  defp maybe_put_description_approval(%{valid?: true} = changeset, user) do
+    was_approved? =
+      Approval.approved?(user, user.description, :external_links) and
+        Approval.approved?(user, user.personal_title, :external_links)
+
+    approved? =
+      Approval.approved?(user, get_field(changeset, :description), :external_links) and
+        Approval.approved?(user, get_field(changeset, :personal_title), :external_links)
+
+    change(changeset, became_unapproved?: was_approved? and not approved?)
+  end
+
+  defp maybe_put_description_approval(changeset, _user), do: changeset
 
   def scratchpad_changeset(user, attrs) do
     user
@@ -432,13 +420,35 @@ defmodule Philomena.Users.User do
   end
 
   def reactivate_changeset(user) do
-    change(user, deleted_at: nil, deleted_by_user_id: nil)
+    changeset = change(user)
+
+    if get_field(changeset, :deleted_at) do
+      change(user, deleted_at: nil, deleted_by_user_id: nil)
+    else
+      add_error(changeset, :deleted_at, "is already active")
+    end
   end
 
-  def deactivate_changeset(user, moderator) do
-    now = DateTime.utc_now(:second)
+  def erase_changeset(user, name, deactivator) do
+    changeset = name_changeset(user, %{"name" => name})
 
-    change(user, deleted_at: now, deleted_by_user_id: moderator.id)
+    if get_field(changeset, :deleted_at) do
+      changeset
+    else
+      now = DateTime.utc_now(:second)
+      change(changeset, deleted_at: now, deleted_by_user_id: deactivator.id)
+    end
+  end
+
+  def deactivate_changeset(user, deactivator) do
+    changeset = change(user)
+
+    if get_field(changeset, :deleted_at) do
+      add_error(changeset, :deleted_at, "is already deactivated")
+    else
+      now = DateTime.utc_now(:second)
+      change(user, deleted_at: now, deleted_by_user_id: deactivator.id)
+    end
   end
 
   def api_key_changeset(user) do
@@ -580,6 +590,7 @@ defmodule Philomena.Users.User do
   defp unique_constraints(changeset) do
     changeset
     |> unique_constraint(:name, name: :index_users_on_name)
+    |> unique_constraint(:name, name: :index_users_on_lower_name)
     |> unique_constraint(:slug, name: :index_users_on_slug)
     |> unique_constraint(:email, name: :index_users_on_email)
     |> unique_constraint(:authentication_token, name: :index_users_on_authentication_token)
@@ -603,6 +614,8 @@ defmodule Philomena.Users.User do
     put_change(changeset, :slug, Slug.slug(name))
   end
 
+  defp totp_valid?(%{encrypted_otp_secret: nil}, _token), do: false
+
   defp totp_valid?(user, token) do
     case Integer.parse(token) do
       {int_token, _rest} ->
@@ -614,23 +627,11 @@ defmodule Philomena.Users.User do
     end
   end
 
+  defp backup_code_valid?(%{otp_backup_codes: nil}, _token), do: false
+
   defp backup_code_valid?(user, token),
     do: Enum.any?(user.otp_backup_codes, &Password.verify_pass(token, &1))
 
   defp remove_backup_code(user, token),
     do: user.otp_backup_codes |> Enum.reject(&Password.verify_pass(token, &1))
-
-  def theme_colors do
-    ~W(red orange yellow green blue purple teal pink gray)
-  end
-
-  def theme_names do
-    ~W(dark light)
-  end
-
-  def themes do
-    for name <- theme_names(), color <- theme_colors() do
-      "#{name}-#{color}"
-    end
-  end
 end

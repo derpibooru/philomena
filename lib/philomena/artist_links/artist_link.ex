@@ -5,6 +5,8 @@ defmodule Philomena.ArtistLinks.ArtistLink do
   alias Philomena.Users.User
   alias Philomena.Tags.Tag
 
+  @type t :: %__MODULE__{}
+
   schema "artist_links" do
     belongs_to :user, User
     belongs_to :verified_by_user, User
@@ -18,14 +20,23 @@ defmodule Philomena.ArtistLinks.ArtistLink do
     field :next_check_at, :utc_datetime
     field :contacted_at, :utc_datetime
 
+    field :tag_name, :string, virtual: true
+
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
-  def changeset(artist_link, attrs) do
+  def changeset(artist_link, attrs \\ %{}) do
     artist_link
     |> cast(attrs, [])
     |> validate_required([])
+  end
+
+  @doc false
+  def tag_name_changeset(artist_link, attrs) do
+    artist_link
+    |> cast(attrs, [:tag_name])
+    |> update_change(:tag_name, &Tag.clean_tag_name/1)
   end
 
   def edit_changeset(artist_link, attrs, nil) do
@@ -102,5 +113,13 @@ defmodule Philomena.ArtistLinks.ArtistLink do
       |> DateTime.add(60 * 2, :second)
 
     change(changeset, next_check_at: time)
+  end
+
+  def states do
+    ~w(unverified link_verified contacted verified rejected)
+  end
+
+  def pending_states do
+    ~w(unverified link_verified contacted)
   end
 end

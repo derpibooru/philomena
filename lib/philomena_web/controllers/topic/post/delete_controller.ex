@@ -4,45 +4,27 @@ defmodule PhilomenaWeb.Topic.Post.DeleteController do
   alias Philomena.Posts.Post
   alias Philomena.Posts
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Post,
-    id_name: "post_id",
-    persisted: true,
-    preload: [:topic, topic: :forum]
-
-  def create(conn, _params) do
-    post = conn.assigns.post
-
-    case Posts.destroy_post(post) do
+  def create(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "post_id" => post_id}) do
+    case Posts.create_post_delete(conn.assigns.actor, forum_id, topic_id, post_id) do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully destroyed!")
-        |> moderation_log(details: &log_details/2, data: post)
-        |> redirect(
-          to:
-            ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-              "#post_#{post.id}"
-        )
+        |> redirect(to: post_anchor(post))
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{data: %Post{} = post}} ->
         conn
         |> put_flash(:error, "Unable to destroy post!")
-        |> redirect(
-          to:
-            ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-              "#post_#{post.id}"
-        )
+        |> redirect(to: post_anchor(post))
+
+      error ->
+        error
     end
   end
 
-  defp log_details(_action, post) do
-    %{
-      body: "Destroyed forum post ##{post.id} in topic '#{post.topic.title}'",
-      subject_path:
-        ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-          "#post_#{post.id}"
-    }
+  defp post_anchor(post) do
+    ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
+      "#post_#{post.id}"
   end
 end

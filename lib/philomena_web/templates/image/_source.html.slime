@@ -1,8 +1,9 @@
+- changeset = @changeset || Ecto.Changeset.change(@image)
 .js-sourcesauce
   - has_sources = Enum.any?(@image.sources)
-  = form_for @changeset, ~p"/images/#{@image}/sources", [method: "put", class: "hidden", id: "source-form", data: [remote: "true"]], fn f ->
-    = if can?(@conn, :edit_metadata, @image) and !@conn.assigns.current_ban do
-      = if @changeset.action do
+  = form_for changeset, ~p"/images/#{@image}/sources", [method: "put", class: "hidden", id: "source-form", data: [remote: "true"]], fn f ->
+    = if @changeset && can?(@conn, :edit_metadata, @image) && !@conn.assigns.current_ban do
+      = if changeset.action do
         .alert.alert-danger
           p Oops, something went wrong! Please check the errors below.
 
@@ -47,12 +48,13 @@
           ' Sources
 
       .block__header__buttons
-        a.button.button--inline#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
-          i.fas.fa-edit
-          = if has_sources do
-            ' Add/Edit
-          - else
-            ' Add
+        = if @changeset do
+          a.button.button--inline#edit-source data-click-focus=".js-image-source" data-click-hide="#image-source" data-click-show="#source-form" title="Edit source" accessKey="s"
+            i.fas.fa-edit
+            = if has_sources do
+              ' Add/Edit
+            - else
+              ' Add
         = if @source_change_count > 0 do
           a.button.button--link.button--inline href=~p"/images/#{@image}/source_changes" title="Source history"
             i.fa.fa-history>

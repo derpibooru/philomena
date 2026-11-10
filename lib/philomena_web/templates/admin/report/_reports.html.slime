@@ -1,7 +1,8 @@
 table.table
   thead
     tr
-      th Thing
+      th Resource
+      th Rule
       th Reason
       th User
       th.hide-mobile Opened
@@ -11,8 +12,13 @@ table.table
     = for report <- @reports do
       tr
         td
-          => reported_image @conn, report.reportable
-          = link_to_reported_thing report.reportable
+          => reported_image @conn, report_target(report)
+          = link_to_target report_target(report)
+        td
+          => report.rule.name
+          | (
+          = report.rule.title
+          | )
         td
           span title=report.reason
             = truncate(report.reason)

@@ -1,52 +1,46 @@
 defmodule PhilomenaWeb.Tag.AliasController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Tags.Tag
   alias Philomena.Tags
 
-  plug PhilomenaWeb.CanaryMapPlug, edit: :alias, update: :alias, delete: :alias
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Tag,
-    id_name: "tag_id",
-    id_field: "slug",
-    preload: [:implied_tags, :aliased_tag],
-    persisted: true
-
-  def edit(conn, _params) do
-    changeset = Tags.change_tag(conn.assigns.tag)
-    render(conn, "edit.html", title: "Editing Tag Alias", changeset: changeset)
-  end
-
-  def update(conn, %{"tag" => tag_params}) do
-    case Tags.alias_tag(conn.assigns.tag, tag_params) do
-      {:ok, tag} ->
-        conn
-        |> put_flash(:info, "Tag alias queued.")
-        |> moderation_log(details: &log_details/2, data: tag)
-        |> redirect(to: ~p"/tags/#{tag}/alias/edit")
-
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {tag, changeset}} <-
+           Tags.edit_tag_alias(conn.assigns.actor, params["tag_id"]) do
+      render(conn, "edit.html", title: "Editing Tag Alias", tag: tag, changeset: changeset)
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, tag} = Tags.unalias_tag(conn.assigns.tag)
+  def update(conn, %{"tag_id" => slug, "tag" => tag_params}) do
+    case Tags.update_tag_alias(conn.assigns.actor, slug, tag_params) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag alias queued.")
+        |> redirect(to: ~p"/tags/#{tag}/alias/edit")
 
-    conn
-    |> put_flash(:info, "Tag dealias queued.")
-    |> moderation_log(details: &log_details/2, data: tag)
-    |> redirect(to: ~p"/tags/#{tag}")
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", tag: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
+    end
   end
 
-  defp log_details(action, tag) do
-    body =
-      case action do
-        :update -> "Aliased tag '#{tag.name}' into '#{tag.aliased_tag.name}'"
-        :delete -> "Dealiased tag '#{tag.name}'"
-      end
+  def delete(conn, params) do
+    case Tags.delete_tag_alias(conn.assigns.actor, params["tag_id"]) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag dealias successful.")
+        |> redirect(to: ~p"/tags/#{tag}")
 
-    %{body: body, subject_path: ~p"/tags/#{tag}"}
+      {:error, %Ecto.Changeset{data: tag}} ->
+        conn
+        |> put_flash(:error, "Tag is not aliased.")
+        |> redirect(to: ~p"/tags/#{tag}/alias/edit")
+
+      error ->
+        error
+    end
   end
 end

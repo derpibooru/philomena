@@ -11,17 +11,6 @@ set -euo pipefail
 # we need to resolve it before we can make path relative to this script's file.
 . "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/../scripts/lib.sh"
 
-function command_exists() {
-  bin_name=$(basename "$1")
-
-  if command -v "$1" &> /dev/null; then
-    return 0
-  fi
-
-  warn "$bin_name CLI was not found. Ignoring it..."
-  return 1
-}
-
 files=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
 
 if [[ -z "$files" ]]; then
@@ -29,25 +18,38 @@ if [[ -z "$files" ]]; then
   exit 0
 fi
 
-if command_exists typos; then
+if command -v typos &> /dev/null; then
   echo "$files" | step xargs typos
+else
+  info "Skipping typos check, executable not found"
 fi
 
-if command_exists npx; then
+if command -v shellcheck &> /dev/null; then
+  ./scripts/shellcheck.sh
+else
+  info "Skipping shellcheck, executable not found"
+fi
+
+if command -v npx &> /dev/null; then
   echo "$files" | step xargs npx prettier --ignore-unknown --write
+else
+  info "Skipping prettier, npx not found"
 fi
 
-if command_exists cargo; then
-  # `rustfmt` doesn't ignore non-rust files automatically
-  rust_files=$(echo "$files" | { grep -E '\.rs$' || true; })
-
-  if [[ -n "$rust_files" ]]; then
-    echo "$rust_files" | step xargs cargo fmt --manifest-path native/Cargo.toml --
+# `rustfmt` doesn't ignore non-rust files automatically
+rust_files=$(echo "$files" | { grep -E '\.rs$' || true; })
+if [[ -n "$rust_files" ]]; then
+  if command -v cargo &> /dev/null; then
+    echo "$rust_files" | step xargs cargo fmt --manifest-path native/philomena/Cargo.toml --
+  else
+    info "Skipping rustfmt, cargo not found"
   fi
 fi
 
-if command_exists mix; then
+if command -v mix &> /dev/null; then
   echo "$files" | step xargs mix format
+else
+  info "Skipping mix format, mix not found"
 fi
 
 # Add the modified/prettified files to staging

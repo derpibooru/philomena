@@ -1,104 +1,71 @@
 defmodule Philomena.UserNameChanges do
   @moduledoc """
-  The UserNameChanges context.
+  Name change history persistence and staff history auditing.
+
+  `Philomena.Users` manages rename authorization and account mutation, and uses
+  this context's transaction step to record the prior name atomically. History
+  is retained indefinitely.
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Authorization, only: [authorize: 3]
+
+  alias Philomena.Multi
+  alias Philomena.Attribution.Actor
   alias Philomena.Repo
-
   alias Philomena.UserNameChanges.UserNameChange
+  alias Philomena.Users.User
 
-  @doc """
-  Returns the list of user_name_changes.
-
-  ## Examples
-
-      iex> list_user_name_changes()
-      [%UserNameChange{}, ...]
-
-  """
-  def list_user_name_changes do
-    Repo.all(UserNameChange)
+  defp history_query(user_id) do
+    UserNameChange
+    |> where(user_id: ^user_id)
+    |> order_by(desc: :id)
   end
 
   @doc """
-  Gets a single user_name_change.
+  Records a name change entry for `user` to `multi` under `step`.
 
-  Raises `Ecto.NoResultsError` if the User name change does not exist.
-
-  ## Examples
-
-      iex> get_user_name_change!(123)
-      %UserNameChange{}
-
-      iex> get_user_name_change!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_user_name_change!(id), do: Repo.get!(UserNameChange, id)
-
-  @doc """
-  Creates a user_name_change.
+  This is a transaction composition function for `Philomena.Users`, not a
+  request-facing rename operation. Every successful rename records the exact
+  prior spelling, including case-only changes. If any later step in the
+  owning transaction fails, the history insert rolls back with it.
 
   ## Examples
 
-      iex> create_user_name_change(%{field: value})
-      {:ok, %UserNameChange{}}
-
-      iex> create_user_name_change(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+      iex> record_rename(Multi.new(), :name_change, user)
+      %Multi{}
 
   """
-  def create_user_name_change(attrs \\ %{}) do
-    %UserNameChange{}
-    |> UserNameChange.changeset(attrs)
-    |> Repo.insert()
+  @spec record_rename(Multi.t(), Multi.name(), User.t()) :: Multi.t()
+  def record_rename(%Multi{} = multi, step, %User{} = user) do
+    changeset = UserNameChange.changeset(%UserNameChange{user_id: user.id}, user.name)
+
+    Multi.insert(multi, step, changeset)
   end
 
   @doc """
-  Updates a user_name_change.
+  Returns `user`'s rename history for `actor`, newest first and paginated.
+
+  The collection authorizes `:index` on `UserNameChange`. Forbidden viewers
+  receive `{:error, :unauthorized}`.
 
   ## Examples
 
-      iex> update_user_name_change(user_name_change, %{field: new_value})
-      {:ok, %UserNameChange{}}
+      iex> load_history(moderator, user, pagination)
+      {:ok, %Scrivener.Page{}}
 
-      iex> update_user_name_change(user_name_change, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_user_name_change(%UserNameChange{} = user_name_change, attrs) do
-    user_name_change
-    |> UserNameChange.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a UserNameChange.
-
-  ## Examples
-
-      iex> delete_user_name_change(user_name_change)
-      {:ok, %UserNameChange{}}
-
-      iex> delete_user_name_change(user_name_change)
-      {:error, %Ecto.Changeset{}}
+      iex> load_history(ordinary_user, user, pagination)
+      {:error, :unauthorized}
 
   """
-  def delete_user_name_change(%UserNameChange{} = user_name_change) do
-    Repo.delete(user_name_change)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking user_name_change changes.
-
-  ## Examples
-
-      iex> change_user_name_change(user_name_change)
-      %Ecto.Changeset{source: %UserNameChange{}}
-
-  """
-  def change_user_name_change(%UserNameChange{} = user_name_change) do
-    UserNameChange.changeset(user_name_change, %{})
+  @spec load_history(Actor.t(), User.t(), Repo.pagination_params()) ::
+          {:ok, Scrivener.Page.t(UserNameChange.t())} | {:error, :unauthorized}
+  def load_history(%Actor{} = actor, %User{} = user, pagination) do
+    with :ok <- authorize(actor, :index, UserNameChange) do
+      {:ok,
+       user.id
+       |> history_query()
+       |> Repo.paginate(pagination)}
+    end
   end
 end

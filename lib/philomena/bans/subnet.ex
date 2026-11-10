@@ -5,11 +5,13 @@ defmodule Philomena.Bans.Subnet do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "subnet_bans" do
     belongs_to :banning_user, User
 
     field :reason, :string
-    field :note, :string
+    field :note, :string, default: ""
     field :enabled, :boolean, default: true
     field :valid_until, PhilomenaQuery.Ecto.RelativeDate
     field :specification, EctoNetwork.INET
@@ -19,7 +21,7 @@ defmodule Philomena.Bans.Subnet do
   end
 
   @doc false
-  def changeset(subnet_ban, attrs) do
+  def changeset(subnet_ban, attrs \\ %{}) do
     subnet_ban
     |> cast(attrs, [:reason, :note, :enabled, :specification, :valid_until])
     |> put_ban_id("S")
@@ -28,7 +30,14 @@ defmodule Philomena.Bans.Subnet do
     |> mask_specification()
   end
 
+  @doc false
+  def paired_ban_changeset(subnet_ban, attrs \\ %{}) do
+    cast(subnet_ban, attrs, [:specification])
+  end
+
   defp mask_specification(changeset) do
+    # IPv6 privacy addresses rotate their lower 64 bits. A subnet ban
+    # therefore covers the stable /64 prefix. IPv4 addresses remain unchanged.
     specification =
       changeset
       |> get_field(:specification)

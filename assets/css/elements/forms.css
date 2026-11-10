@@ -145,6 +145,10 @@ span.help-block {
   width: 100%;
 }
 
+.hform__wide .field {
+  max-width: 100%;
+}
+
 /* text input - grow to container size */
 .hform__text {
   flex: 1 0 auto;

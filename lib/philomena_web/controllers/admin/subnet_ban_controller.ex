@@ -1,127 +1,89 @@
 defmodule PhilomenaWeb.Admin.SubnetBanController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Bans.Subnet, as: SubnetBan
   alias Philomena.Bans
-  alias Philomena.Repo
-  import Ecto.Query
 
-  plug :verify_authorized
-  plug :load_resource, model: SubnetBan, only: [:edit, :update, :delete]
-  plug :check_can_delete when action in [:delete]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, %{"bq" => q}) when is_binary(q) do
-    SubnetBan
-    |> where(
-      [sb],
-      sb.generated_ban_id == ^q or
-        fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.reason, ^q) or
-        fragment("to_tsvector(?) @@ plainto_tsquery(?)", sb.note, ^q)
-    )
-    |> load_bans(conn)
+  def index(conn, params) do
+    case Bans.list_subnet_bans(conn.assigns.actor, params, conn.assigns.scrivener) do
+      {:ok, subnet_bans, changeset} ->
+        render(conn, "index.html",
+          title: "Admin - Subnet Bans",
+          layout_class: "layout--wide",
+          subnet_bans: subnet_bans,
+          changeset: changeset
+        )
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "index.html",
+          title: "Admin - Subnet Bans",
+          layout_class: "layout--wide",
+          subnet_bans: nil,
+          changeset: changeset
+        )
+
+      error ->
+        error
+    end
   end
 
-  def index(conn, %{"ip" => ip}) when is_binary(ip) do
-    {:ok, ip} = EctoNetwork.INET.cast(ip)
+  def new(conn, params) do
+    case Bans.new_subnet_ban(conn.assigns.actor, params["specification"]) do
+      {:ok, changeset} ->
+        render_new(conn, changeset)
 
-    SubnetBan
-    |> where([sb], fragment("? >>= ?", sb.specification, ^ip))
-    |> load_bans(conn)
+      error ->
+        error
+    end
   end
 
-  def index(conn, _params) do
-    load_bans(SubnetBan, conn)
-  end
-
-  def new(conn, %{"specification" => ip}) do
-    {:ok, ip} = EctoNetwork.INET.cast(ip)
-    changeset = Bans.change_subnet(%SubnetBan{specification: ip})
-    render(conn, "new.html", title: "New Subnet Ban", changeset: changeset)
-  end
-
-  def new(conn, _params) do
-    changeset = Bans.change_subnet(%SubnetBan{})
+  defp render_new(conn, changeset) do
     render(conn, "new.html", title: "New Subnet Ban", changeset: changeset)
   end
 
   def create(conn, %{"subnet" => subnet_ban_params}) do
-    case Bans.create_subnet(conn.assigns.current_user, subnet_ban_params) do
-      {:ok, subnet_ban} ->
+    case Bans.create_subnet_ban(conn.assigns.actor, subnet_ban_params) do
+      {:ok, _subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet was successfully banned.")
-        |> moderation_log(details: &log_details/2, data: subnet_ban)
         |> redirect(to: ~p"/admin/subnet_bans")
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = Bans.change_subnet(conn.assigns.subnet)
-    render(conn, "edit.html", title: "Editing Subnet Ban", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {subnet, changeset}} <-
+           Bans.edit_subnet_ban(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html", title: "Editing Subnet Ban", subnet: subnet, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"subnet" => subnet_ban_params}) do
-    case Bans.update_subnet(conn.assigns.subnet, subnet_ban_params) do
-      {:ok, subnet_ban} ->
+  def update(conn, %{"id" => id, "subnet" => subnet_ban_params}) do
+    case Bans.update_subnet_ban(conn.assigns.actor, id, subnet_ban_params) do
+      {:ok, _subnet_ban} ->
         conn
         |> put_flash(:info, "Subnet ban successfully updated.")
-        |> moderation_log(details: &log_details/2, data: subnet_ban)
         |> redirect(to: ~p"/admin/subnet_bans")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", subnet: changeset.data, changeset: changeset)
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, subnet_ban} = Bans.delete_subnet(conn.assigns.subnet)
-
-    conn
-    |> put_flash(:info, "Subnet ban successfully deleted.")
-    |> moderation_log(details: &log_details/2, data: subnet_ban)
-    |> redirect(to: ~p"/admin/subnet_bans")
-  end
-
-  defp load_bans(queryable, conn) do
-    subnet_bans =
-      queryable
-      |> order_by(desc: :created_at)
-      |> preload(:banning_user)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html",
-      title: "Admin - Subnet Bans",
-      layout_class: "layout--wide",
-      subnet_bans: subnet_bans
-    )
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, SubnetBan) do
+  def delete(conn, params) do
+    with {:ok, _subnet_ban} <- Bans.delete_subnet_ban(conn.assigns.actor, params["id"]) do
       conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      |> put_flash(:info, "Subnet ban successfully deleted.")
+      |> redirect(to: ~p"/admin/subnet_bans")
     end
-  end
-
-  defp check_can_delete(conn, _opts) do
-    if conn.assigns.current_user.role == "admin" do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
-    end
-  end
-
-  defp log_details(action, ban) do
-    body =
-      case action do
-        :create -> "Created a subnet ban #{ban.generated_ban_id}"
-        :update -> "Updated a subnet ban #{ban.generated_ban_id}"
-        :delete -> "Deleted a subnet ban #{ban.generated_ban_id}"
-      end
-
-    %{body: body, subject_path: ~p"/admin/subnet_bans"}
   end
 end

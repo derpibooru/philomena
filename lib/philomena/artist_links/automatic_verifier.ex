@@ -22,8 +22,7 @@ defmodule Philomena.ArtistLinks.AutomaticVerifier do
   Returns a list of changesets with updated links.
   """
   def generate_updates do
-    # Automatically retry in an hour if we don't manage to
-    # successfully verify any given link
+    # Automatically retry in an hour if unsuccessful
     now = DateTime.utc_now(:second)
     recheck_time = DateTime.add(now, 3600, :second)
 

@@ -1,15 +1,15 @@
 defmodule PhilomenaWeb.Admin.UserView do
   use PhilomenaWeb, :view
 
-  def page_params(params) do
+  def scope(conn) do
     []
-    |> page_param(params, "uq", :uq)
-    |> page_param(params, "staff", :staff)
-    |> page_param(params, "twofactor", :twofactor)
+    |> scope(conn, "uq", :uq)
+    |> scope(conn, "sf", :sf)
+    |> scope(conn, "sd", :sd)
   end
 
-  defp page_param(list, params, key, key_atom) do
-    case params[key] do
+  defp scope(list, conn, key, key_atom) do
+    case conn.params[key] do
       nil -> list
       "" -> list
       val -> [{key_atom, val} | list]

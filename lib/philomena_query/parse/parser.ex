@@ -188,15 +188,15 @@ defmodule PhilomenaQuery.Parse.Parser do
   ## Example
 
       iex> Parser.parse(parser, "safe")
-      {:ok, %{term: %{"namespaced_tags.name" => "safe"}}}
+      {:ok, %{term: %{"tags" => "safe"}}}
 
       iex> Parser.parse(nil, "safe OR solo")
       {:ok,
        %{
          bool: %{
            should: [
-             %{term: %{"namespaced_tags.name" => "safe"}},
-             %{term: %{"namespaced_tags.name" => "solo"}}
+             %{term: %{"tags" => "safe"}},
+             %{term: %{"tags" => "solo"}}
            ]
          }
        }}
@@ -234,6 +234,51 @@ defmodule PhilomenaQuery.Parse.Parser do
         # {:error, "unknown parsing error"}
     end
   end
+
+  @doc """
+  Returns the values referenced by exact `term` clauses for `field`.
+
+  This metadata helper understands every query container emitted by the
+  parser, so consumers do not need partial, domain-specific query-shape
+  matchers.
+
+  ## Examples
+
+      iex> referenced_term_values(%{term: %{"tags" => "safe"}}, "tags")
+      ["safe"]
+
+  """
+  @spec referenced_term_values(query(), String.t()) :: [term()]
+  def referenced_term_values(query, field) when is_map(query) and is_binary(field) do
+    query
+    |> collect_term_values(field)
+    |> Enum.uniq()
+  end
+
+  defp collect_term_values(%{term: terms} = query, field) when is_map(terms) do
+    own =
+      case Map.fetch(terms, field) do
+        {:ok, value} -> [value]
+        :error -> []
+      end
+
+    own ++
+      (query
+       |> Map.delete(:term)
+       |> Map.values()
+       |> Enum.flat_map(&collect_term_values(&1, field)))
+  end
+
+  defp collect_term_values(map, field) when is_map(map) do
+    map
+    |> Map.values()
+    |> Enum.flat_map(&collect_term_values(&1, field))
+  end
+
+  defp collect_term_values(list, field) when is_list(list),
+    do: Enum.flat_map(list, &collect_term_values(&1, field))
+
+  defp collect_term_values(_value, _field), do: []
 
   defp coerce_string(term) when is_binary(term), do: {:ok, term}
   defp coerce_string(nil), do: {:ok, ""}

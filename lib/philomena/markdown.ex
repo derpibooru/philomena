@@ -18,6 +18,17 @@ defmodule Philomena.Markdown do
     do: Philomena.Native.markdown_to_html_unsafe(text, replacements)
 
   @doc """
+  Renders a line-by-line diff between two Markdown sources as an HTML table.
+  Each line becomes a row with old/new line-number gutters, changed lines get
+  word-level `<del class="diff__hl">` / `<ins class="diff__hl">` highlights,
+  and long unchanged runs collapse into "N unchanged lines" separator rows.
+  The source text is HTML-escaped during rendering, so the output is safe.
+  """
+  @spec to_html_diff(String.t(), String.t()) :: String.t()
+  def to_html_diff(old, new),
+    do: Philomena.Native.markdown_diff_to_html(old, new)
+
+  @doc """
   Escapes special characters in text which is to be rendered as Markdown.
   """
   @spec escape(String.t()) :: String.t()

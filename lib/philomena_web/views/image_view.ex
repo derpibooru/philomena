@@ -2,9 +2,10 @@ defmodule PhilomenaWeb.ImageView do
   use PhilomenaWeb, :view
 
   alias Philomena.Tags.Tag
+  alias Philomena.Images
   alias Philomena.Images.Thumbnailer
 
-  def show_vote_counts?(%{hide_vote_counts: true}), do: false
+  def show_vote_counts?(%{settings: %{hide_vote_counts: true}}), do: false
   def show_vote_counts?(_user), do: true
 
   def title_text(image) do
@@ -233,7 +234,7 @@ defmodule PhilomenaWeb.ImageView do
   def deleter(%{deleter: %{name: name}}), do: name
   def deleter(_image), do: "System"
 
-  def scaled_value(%{scale_large_images: scale}), do: scale
+  def scaled_value(%{settings: %{scale_large_images: scale}}), do: scale
   def scaled_value(_user), do: "true"
 
   def hides_images?(conn), do: can?(conn, :hide, %Philomena.Images.Image{})
@@ -266,53 +267,8 @@ defmodule PhilomenaWeb.ImageView do
   defp thumb_format(_, :rendered, _download), do: "png"
   defp thumb_format(format, _name, _download), do: format
 
-  def image_filter_data(image) do
-    %{
-      id: image.id,
-      "namespaced_tags.name":
-        image.tags |> Enum.flat_map(&([&1] ++ &1.aliases)) |> Enum.map_join(", ", & &1.name),
-      tag_count: length(image.tags),
-      score: image.score,
-      faves: image.faves_count,
-      upvotes: image.upvotes_count,
-      downvotes: image.downvotes_count,
-      comment_count: image.comments_count,
-      created_at: image.created_at,
-      first_seen_at: image.first_seen_at,
-      source_url: image.source_url,
-      width: image.image_width,
-      height: image.image_height,
-      aspect_ratio: image.image_aspect_ratio,
-      sha512_hash: image.image_sha512_hash,
-      orig_sha512_hash: image.image_orig_sha512_hash,
-      description: image.description
-    }
-  end
-
   def filter_or_spoiler_hits?(conn, image) do
-    tag_filter_or_spoiler_hits?(conn, image) or complex_filter_or_spoiler_hits?(conn, image)
-  end
-
-  defp tag_filter_or_spoiler_hits?(conn, image) do
-    filter = conn.assigns.current_filter
-    filtered_tag_ids = MapSet.new(filter.spoilered_tag_ids ++ filter.hidden_tag_ids)
-    image_tag_ids = MapSet.new(image.tags, & &1.id)
-
-    MapSet.size(MapSet.intersection(filtered_tag_ids, image_tag_ids)) > 0
-  end
-
-  defp complex_filter_or_spoiler_hits?(conn, image) do
-    doc = image_filter_data(image)
-    complex_filter = conn.assigns.compiled_complex_filter
-    complex_spoiler = conn.assigns.compiled_complex_spoiler
-
-    query = %{
-      bool: %{
-        should: [complex_filter, complex_spoiler]
-      }
-    }
-
-    PhilomenaQuery.Parse.Evaluator.hits?(doc, query)
+    Images.filter_or_spoiler_hits?(image, conn.assigns.image_filter)
   end
 
   def image_source_icon(nil), do: "fa fa-link"
@@ -326,6 +282,15 @@ defmodule PhilomenaWeb.ImageView do
     uri = URI.parse(source)
 
     case uri.host do
+      "bsky.app" ->
+        "fab fa-bluesky"
+
+      "itaku.ee" ->
+        "fa fa-dove"
+
+      u when u in ["boosty.to", "www.boosty.to"] ->
+        "fa fa-bolt-lightning"
+
       u
       when u in [
              "twitter.com",
@@ -365,7 +330,7 @@ defmodule PhilomenaWeb.ImageView do
       u when u in ["pillowfort.social", "www.pillowfort.social"] ->
         "fa fa-bed"
 
-      u when u in ["vk.com", "vk.ru"] ->
+      u when u in ["vk.com", "vk.ru", "m.vk.com", "m.vk.ru"] ->
         "fab fa-vk"
 
       u
@@ -452,7 +417,9 @@ defmodule PhilomenaWeb.ImageView do
              "octodon.social",
              "filly.social",
              "pone.social",
-             "hooves.social"
+             "hooves.social",
+             "baraag.net",
+             "furries.club"
            ] ->
         "fab fa-mastodon"
 

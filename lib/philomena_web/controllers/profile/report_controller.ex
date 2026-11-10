@@ -3,44 +3,36 @@ defmodule PhilomenaWeb.Profile.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Users.User
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
-  plug :load_and_authorize_resource,
-    model: User,
-    id_name: "profile_id",
-    id_field: "slug",
-    persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    user = conn.assigns.user
-    action = ~p"/profiles/#{user}/reports"
+  def new(conn, %{"profile_id" => slug}) do
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, {:user, slug}) do
+      user = form.target
+      action = ~p"/profiles/#{user}/reports"
 
-    changeset =
-      %Report{reportable_type: "User", reportable_id: user.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting User",
-      reportable: user,
-      changeset: changeset,
-      action: action
-    )
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting User",
+        subject: user,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    user = conn.assigns.user
-    action = ~p"/profiles/#{user}/reports"
-
-    ReportController.create(conn, action, "User", user, params)
+  def create(conn, %{"profile_id" => slug} = params) do
+    ReportController.create(
+      conn,
+      {:user, slug},
+      fn user -> ~p"/profiles/#{user}/reports" end,
+      params
+    )
   end
 end

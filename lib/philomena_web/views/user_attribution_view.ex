@@ -1,24 +1,15 @@
 defmodule PhilomenaWeb.UserAttributionView do
   use PhilomenaWeb, :view
 
-  alias Philomena.Attribution
+  alias Philomena.Attribution.AnonymousName
   alias PhilomenaWeb.AvatarGeneratorView
   alias Philomena.Repo
 
-  def anonymous?(object) do
-    # This function may accept objects that don't have `Attribution` implemented.
-    not is_nil(Attribution.impl_for(object)) and Attribution.anonymous?(object)
-  end
+  defdelegate anonymous?(object), to: AnonymousName
 
-  def anonymous_user?(object), do: is_nil(object.user) or anonymous?(object)
+  defdelegate anonymous_user?(object), to: AnonymousName
 
-  def name(object) do
-    if anonymous_user?(object) do
-      anonymous_name(object)
-    else
-      object.user.name
-    end
-  end
+  defdelegate name(object), to: AnonymousName
 
   def avatar_url(object) do
     if anonymous_user?(object) do
@@ -28,24 +19,8 @@ defmodule PhilomenaWeb.UserAttributionView do
     end
   end
 
-  def anonymous_name(object, reveal_anon? \\ false) do
-    salt = anonymous_name_salt()
-    id = Attribution.object_identifier(object)
-    user_id = Attribution.best_user_identifier(object)
-
-    {:ok, <<key::size(16)>>} = :pbkdf2.pbkdf2(:sha256, id <> user_id, salt, 100, 2)
-
-    hash =
-      key
-      |> Integer.to_string(16)
-      |> String.pad_leading(4, "0")
-
-    if not is_nil(object.user) and reveal_anon? do
-      "#{object.user.name} (##{hash}, hidden)"
-    else
-      "Background Pony ##{hash}"
-    end
-  end
+  def anonymous_name(object, reveal_anon? \\ false),
+    do: AnonymousName.generate(object, reveal_anon?)
 
   def user_avatar(object, opts \\ []) do
     class = Keyword.get(opts, :class) || "avatar--100px"
@@ -178,10 +153,5 @@ defmodule PhilomenaWeb.UserAttributionView do
 
   defp avatar_url_root do
     Application.get_env(:philomena, :avatar_url_root)
-  end
-
-  defp anonymous_name_salt do
-    Application.get_env(:philomena, :anonymous_name_salt)
-    |> to_string()
   end
 end

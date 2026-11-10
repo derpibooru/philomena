@@ -1,8 +1,24 @@
 import { filterNode, initImagesClientside } from '../imagesclientside';
-import { parseSearch } from '../match_query';
+import { parseSearch } from '../match-query';
 import { matchNone } from '../query/boolean';
 import { assertNotNull } from '../utils/assert';
 import { $ } from '../utils/dom';
+import * as booru from '../booru';
+import { vi } from 'vitest';
+
+vi.mock('../booru', async () => {
+  const actual = await vi.importActual<typeof booru>('../booru');
+  return {
+    ...actual,
+    getTag: vi.fn((tagId: number) => ({
+      id: tagId,
+      name: '(unknown tag)',
+      images: 0,
+      spoiler_image_uri: null,
+      fetchedAt: null,
+    })),
+  };
+});
 
 describe('filterNode', () => {
   beforeEach(() => {
@@ -10,6 +26,7 @@ describe('filterNode', () => {
     window.booru.spoileredTagList = [];
     window.booru.ignoredTagList = [];
     window.booru.imagesWithDownvotingDisabled = [];
+    window.booru.spoilerType = 'static'; // Enable spoilering
 
     window.booru.hiddenFilter = matchNone();
     window.booru.spoileredFilter = matchNone();

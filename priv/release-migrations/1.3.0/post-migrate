@@ -1,0 +1,49 @@
+#!/bin/sh
+# Converts the data that the schema migrations of this release leave in its
+# old form: edit history, user settings and report reasons.
+
+set -e
+
+. "$(dirname "$0")/common.sh"
+
+# Edit history of posts and comments. The conversion refuses to run when its
+# target tables already have rows, so it has to happen before the application
+# records new edits.
+if [ "$(sql -c "SELECT to_regclass('public.versions_legacy') IS NOT NULL")" = t ]; then
+  legacy=$(sql -c "SELECT count(*) FROM versions_legacy WHERE item_type IN ('Post', 'Comment')")
+else
+  legacy=0
+fi
+
+converted=$(sql -c "SELECT (SELECT count(*) FROM post_versions) + (SELECT count(*) FROM comment_versions)")
+
+if [ "$legacy" = 0 ]; then
+  echo "No edit history to convert."
+elif [ "${VERSIONS_ALREADY_BACKFILLED:-}" = 1 ]; then
+  echo "Edit history is marked as already converted, skipping."
+elif [ "$converted" = 0 ]; then
+  echo "Converting $legacy edit history records..."
+  philomena eval 'Philomena.Release.backfill_versions()'
+else
+  echo "post_versions and comment_versions already contain $converted rows, but"
+  echo "$legacy legacy edit history records exist as well."
+  echo
+  echo "If the edit history was already converted (Release.backfill_versions was"
+  echo "run before), run the upgrade again with VERSIONS_ALREADY_BACKFILLED=1."
+  echo "If a previous attempt failed halfway, empty both tables first:"
+  echo "  TRUNCATE post_versions, comment_versions;"
+  exit 1
+fi
+
+echo "Copying user settings..."
+philomena eval 'Philomena.Release.backfill_user_settings()'
+
+echo "Reports are matched to rules by name: 1.2 report categories such as"
+echo "\"Rule #0\" and \"Takedown request\" need rules with those names, and"
+echo "\"Other\" needs a rule named \"Other (please explain)\"."
+echo "Reports without a matching rule stay on the hidden Legacy rule and keep"
+echo "their full reason. Once the rules exist, rerun this step with:"
+echo "  philomena eval 'Philomena.Release.convert_reports()'"
+echo
+echo "Linking reports to rules..."
+philomena eval 'Philomena.Release.convert_reports()'

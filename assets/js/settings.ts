@@ -7,10 +7,10 @@ import { $, $$, hideIf } from './utils/dom';
 import store from './utils/store';
 
 function setupThemeSettings() {
-  const themeSelect = $<HTMLSelectElement>('#user_theme_name');
+  const themeSelect = $<HTMLSelectElement>('#user_settings_theme_name');
   if (!themeSelect) return;
 
-  const themeColorSelect = assertNotNull($<HTMLSelectElement>('#user_theme_color'));
+  const themeColorSelect = assertNotNull($<HTMLSelectElement>('#user_settings_theme_color'));
   const themePaths: Record<string, string> = JSON.parse(
     assertNotUndefined(assertNotNull($<HTMLDivElement>('#js-theme-paths')).dataset.themePaths),
   );

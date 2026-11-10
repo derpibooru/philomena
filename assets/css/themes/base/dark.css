@@ -59,6 +59,11 @@
     --success-muted-color: hsl(from $success-light-color h calc(s - 45) calc(l + 10));
     --danger-muted-color: hsl(from $danger-light-color h calc(s - 35) calc(l - 10));
 
+    --success-strong-color: hsl(from $success-light-color h calc(s + 8) calc(l + 14));
+    --danger-strong-color: hsl(from $danger-light-color h calc(s + 6) calc(l + 14));
+
+    --rule-important-color: hsl(from $danger-light-color h calc(s + 15) calc(l + 22));
+
     --header-hover-color: hsl(from $header-color h s calc(l - 8));
     --header-field-hover-color: hsl(from $header-color h s calc(l - 12));
     --header-secondary-hover-color: hsl(from $header-secondary-color h s calc(l - 4));
@@ -177,6 +182,7 @@
 
     --autocomplete-history-color: $autocomplete-history-color;
     --autocomplete-history-match-color: hsl(from $autocomplete-history-color h s calc(l + 20));
+    --autocomplete-history-delete-hover-background: hsl(from $autocomplete-history-color h s l / 0.25);
 
     --autocomplete-tag-color: hsl(from $foreground-color h s calc(l - 5));
     --autocomplete-tag-match-color: hsl(from $foreground-color h s calc(l + 20));

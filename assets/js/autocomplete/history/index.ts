@@ -72,3 +72,11 @@ export function listSuggestions(input: AutocompletableInput, limit?: number): Hi
     .listSuggestions(value, limit ?? input.maxSuggestions)
     .map(content => new HistorySuggestionComponent(content, value.length));
 }
+
+export function deleteHistoryRecord(input: AutocompletableInput, content: string) {
+  if (!input.hasHistory()) {
+    return;
+  }
+
+  histories.load(input.historyId).deleteRecord(content);
+}

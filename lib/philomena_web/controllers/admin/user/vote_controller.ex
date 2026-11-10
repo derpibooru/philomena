@@ -1,32 +1,15 @@
 defmodule PhilomenaWeb.Admin.User.VoteController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.UserUnvoteWorker
-  alias Philomena.Users.User
+  alias Philomena.Users
 
-  plug :verify_authorized
-  plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def delete(conn, _params) do
-    user = conn.assigns.user
-
-    Exq.enqueue(Exq, "indexing", UserUnvoteWorker, [user.id, true])
-
-    conn
-    |> put_flash(:info, "Vote and fave wipe started.")
-    |> moderation_log(details: &log_details/2, data: user)
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, %User{}) do
+  def delete(conn, %{"user_id" => slug}) do
+    with {:ok, user} <- Users.delete_user_votes(conn.assigns.actor, slug) do
       conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      |> put_flash(:info, "Vote and fave wipe started.")
+      |> redirect(to: ~p"/profiles/#{user}")
     end
-  end
-
-  defp log_details(_action, user) do
-    %{body: "Wiped votes and faves for #{user.name}", subject_path: ~p"/profiles/#{user}"}
   end
 end

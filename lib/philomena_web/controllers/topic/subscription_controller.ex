@@ -1,53 +1,45 @@
 defmodule PhilomenaWeb.Topic.SubscriptionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Forums.Forum
   alias Philomena.Topics
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
-
-  plug PhilomenaWeb.LoadTopicPlug, [show_hidden: true] when action in [:delete]
-  plug PhilomenaWeb.LoadTopicPlug when action in [:create]
-
-  def create(conn, _params) do
-    topic = conn.assigns.topic
-    user = conn.assigns.current_user
-
-    case Topics.create_subscription(topic, user) do
-      {:ok, _subscription} ->
+  def create(conn, params) do
+    case Topics.create_topic_subscription(
+           conn.assigns.actor,
+           params["forum_id"],
+           params["topic_id"]
+         ) do
+      {:ok, {forum, topic}} ->
         render(conn, "_subscription.html",
-          forum: conn.assigns.forum,
+          forum: forum,
           topic: topic,
           watching: true,
           layout: false
         )
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{}} ->
         render(conn, "_error.html", layout: false)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    topic = conn.assigns.topic
-    user = conn.assigns.current_user
-
-    case Topics.delete_subscription(topic, user) do
-      {:ok, _subscription} ->
-        render(conn, "_subscription.html",
-          forum: conn.assigns.forum,
-          topic: topic,
-          watching: false,
-          layout: false
-        )
-
-      {:error, _changeset} ->
-        render(conn, "_error.html", layout: false)
+  def delete(conn, params) do
+    with {:ok, {forum, topic}} <-
+           Topics.delete_topic_subscription(
+             conn.assigns.actor,
+             params["forum_id"],
+             params["topic_id"]
+           ) do
+      render(conn, "_subscription.html",
+        forum: forum,
+        topic: topic,
+        watching: false,
+        layout: false
+      )
     end
   end
 end

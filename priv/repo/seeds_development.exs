@@ -12,10 +12,11 @@
 
 alias Philomena.{Repo, Forums.Forum, Users, Users.User}
 alias Philomena.Comments
+alias Philomena.Comments.Comment
 alias Philomena.Images
 alias Philomena.Topics
 alias Philomena.Posts
-alias Philomena.Tags
+alias Philomena.RateLimiter
 
 {:ok, ip} = EctoNetwork.INET.cast({203, 0, 113, 0})
 {:ok, _} = Application.ensure_all_started(:plug)
@@ -25,9 +26,15 @@ resources =
   |> File.read!()
   |> JSON.decode!()
 
-IO.puts "---- Generating users"
+initial_actor = %Philomena.Attribution.Actor{
+  ip: {127, 0, 0, 1},
+  fingerprint: "d123456789abcde"
+}
+
+IO.puts("---- Generating users")
+
 for user_def <- resources["users"] do
-  {:ok, user} = Users.register_user(user_def)
+  {:ok, user} = Users.create_registration(initial_actor, user_def)
 
   user
   |> Repo.preload([:roles])
@@ -37,81 +44,93 @@ for user_def <- resources["users"] do
 end
 
 pleb = Repo.get_by!(User, name: "Pleb")
-request_attributes = [
-  fingerprint: "c1836832948",
-  ip: ip,
-  user_id: pleb.id,
-  user: pleb
-]
+admin = Repo.get_by!(User, name: "Administrator")
 
-IO.puts "---- Generating images"
+pleb_actor = %Philomena.Attribution.Actor{
+  user: pleb,
+  ip: ip,
+  fingerprint: "c1836832948",
+  ban: nil
+}
+
+admin_actor = %Philomena.Attribution.Actor{
+  user: admin,
+  ip: ip,
+  fingerprint: "c1836832948",
+  ban: nil
+}
+
+IO.puts("---- Generating images")
+
 for image_def <- resources["remote_images"] do
-  file = Briefly.create!()
+  file = Briefly.create!(extname: ".png")
   now = DateTime.utc_now() |> DateTime.to_unix(:microsecond)
 
-  IO.puts "Fetching #{image_def["url"]} ..."
-  {:ok, %{body: body}} = PhilomenaProxy.Http.get(image_def["url"])
+  IO.puts("Fetching #{image_def["url"]} ...")
+  {:ok, %{body: body, status: 200}} = PhilomenaProxy.Http.get(image_def["url"])
 
   File.write!(file, body)
 
-  upload = %Plug.Upload{
+  upload = %PhilomenaMedia.Upload{
     path: file,
-    content_type: "application/octet-stream",
     filename: "fixtures-#{now}"
   }
 
-  IO.puts "Inserting ..."
+  IO.puts("Inserting ...")
 
   Images.create_image(
-    request_attributes,
-    Map.merge(image_def, %{"image" => upload})
+    pleb_actor,
+    image_def,
+    upload
   )
   |> case do
-    {:ok, %{image: image}} ->
-      Images.approve_image(image)
-      Images.reindex_image(image)
-      Tags.reindex_tags(image.added_tags)
+    {:ok, image} ->
+      Images.create_image_approve(admin_actor, image.id)
 
-      IO.puts "Created image ##{image.id}"
+      IO.puts("Created image ##{image.id}")
 
     {:error, :image, changeset, _so_far} ->
-      IO.inspect changeset.errors
+      IO.inspect(changeset.errors)
   end
+
+  RateLimiter.reset_limits_globally!()
 end
 
-IO.puts "---- Generating comments for image #1"
+IO.puts("---- Generating comments for image #1")
+
 for comment_body <- resources["comments"] do
-  image = Images.get_image!(1)
+  image_id = 1
 
   Comments.create_comment(
-    image,
-    request_attributes,
+    pleb_actor,
+    image_id,
     %{"body" => comment_body}
   )
   |> case do
-    {:ok, %{comment: comment}} ->
-      Comments.approve_comment(comment, pleb)
-      Comments.reindex_comment(comment)
-      Images.reindex_image(image)
+    {:ok, %Comment{} = comment} ->
+      Comments.create_comment_approve(admin_actor, image_id, comment.id)
 
     {:error, :comment, changeset, _so_far} ->
-      IO.inspect changeset.errors
+      IO.inspect(changeset.errors)
   end
+
+  RateLimiter.reset_limits_globally!()
 end
 
-IO.puts "---- Generating forum posts"
+IO.puts("---- Generating forum posts")
+
 for %{"forum" => forum_name, "topics" => topics} <- resources["forum_posts"] do
   forum = Repo.get_by!(Forum, short_name: forum_name)
 
   for %{"title" => topic_name, "posts" => [first_post | posts]} <- topics do
     Topics.create_topic(
-      forum,
-      request_attributes,
+      pleb_actor,
+      forum.short_name,
       %{
         "title" => topic_name,
         "posts" => %{
           "0" => %{
-            "body" => first_post,
+            "body" => first_post
           }
         }
       }
@@ -120,24 +139,33 @@ for %{"forum" => forum_name, "topics" => topics} <- resources["forum_posts"] do
       {:ok, %{topic: topic}} ->
         for post <- posts do
           Posts.create_post(
-            topic,
-            request_attributes,
+            pleb_actor,
+            forum.short_name,
+            topic.slug,
             %{"body" => post}
           )
           |> case do
-            {:ok, %{post: post}} ->
-              Posts.approve_post(post, pleb)
-              Posts.reindex_post(post)
+            {:ok, post} ->
+              Posts.create_post_approve(
+                admin_actor,
+                forum.short_name,
+                topic.slug,
+                post.id
+              )
 
-            {:error, :post, changeset, _so_far} ->
-              IO.inspect changeset.errors
+            {:error, forum, topic} ->
+              IO.inspect({forum.short_name, topic.slug})
           end
+
+          RateLimiter.reset_limits_globally!()
         end
 
       {:error, :topic, changeset, _so_far} ->
-        IO.inspect changeset.errors
+        IO.inspect(changeset.errors)
     end
+
+    RateLimiter.reset_limits_globally!()
   end
 end
 
-IO.puts "---- Done."
+IO.puts("---- Done.")

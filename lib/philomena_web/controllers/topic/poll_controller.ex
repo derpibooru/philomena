@@ -1,50 +1,40 @@
 defmodule PhilomenaWeb.Topic.PollController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Forums.Forum
   alias Philomena.Polls
-  alias Philomena.Repo
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug PhilomenaWeb.LoadTopicPlug
-  plug PhilomenaWeb.LoadPollPlug
-
-  plug :verify_authorized
-  plug :preload_options
-
-  def edit(conn, _params) do
-    changeset = Polls.change_poll(conn.assigns.poll)
-    render(conn, "edit.html", title: "Editing Poll", changeset: changeset)
-  end
-
-  def update(conn, %{"poll" => poll_params}) do
-    case Polls.update_poll(conn.assigns.poll, poll_params) do
-      {:ok, _poll} ->
-        conn
-        |> put_flash(:info, "Poll successfully updated.")
-        |> redirect(to: ~p"/forums/#{conn.assigns.forum}/topics/#{conn.assigns.topic}")
-
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+  def edit(conn, %{"forum_id" => forum_slug, "topic_id" => topic_slug}) do
+    with {:ok, %Ecto.Changeset{data: poll} = changeset} <-
+           Polls.edit_poll(conn.assigns.actor, forum_slug, topic_slug) do
+      render(conn, "edit.html",
+        title: "Editing Poll",
+        forum: poll.topic.forum,
+        topic: poll.topic,
+        poll: poll,
+        changeset: changeset
+      )
     end
   end
 
-  defp preload_options(conn, _opts) do
-    poll = Repo.preload(conn.assigns.poll, :options)
+  def update(conn, %{"forum_id" => forum_slug, "topic_id" => topic_slug, "poll" => poll_params}) do
+    case Polls.update_poll(conn.assigns.actor, forum_slug, topic_slug, poll_params) do
+      {:ok, poll} ->
+        conn
+        |> put_flash(:info, "Poll successfully updated.")
+        |> redirect(to: ~p"/forums/#{poll.topic.forum}/topics/#{poll.topic}")
 
-    assign(conn, :poll, poll)
-  end
+      {:error, %Ecto.Changeset{data: poll} = changeset} ->
+        render(conn, "edit.html",
+          forum: poll.topic.forum,
+          topic: poll.topic,
+          poll: poll,
+          changeset: changeset
+        )
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :hide, conn.assigns.topic) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      error ->
+        error
     end
   end
 end

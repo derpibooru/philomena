@@ -13,7 +13,7 @@ defmodule PhilomenaQuery.Ecto.QueryValidator do
           filter
           |> cast(attrs, [:complex])
           |> validate_required([:complex])
-          |> validate_query([:complex], with: &Query.compile(&1, user: user))
+          |> validate_query(:complex, with: &Query.compile(&1, user: user))
         end
       end
 
@@ -23,44 +23,41 @@ defmodule PhilomenaQuery.Ecto.QueryValidator do
   alias PhilomenaQuery.Parse.String
 
   @doc """
-  Validates a query string using the provided attribute(s) and compiler.
+  Validates a query string using the provided attribute and compiler.
 
-  Returns the changeset as-is, or with an `"is invalid"` error added to validated field.
+  Returns the changeset as-is, or with an `"is invalid"` error added to the validated field.
 
   ## Examples
 
-      # With single attribute
+      # Simple validation
       filter
       |> cast(attrs, [:complex])
-      |> validate_query(:complex, &Query.compile(&1, user: user))
+      |> validate_query(:complex, with: &Query.compile(&1, user: user))
 
-      # With list of attributes
-      filter
-      |> cast(attrs, [:spoilered_complex, :hidden_complex])
-      |> validate_query([:spoilered_complex, :hidden_complex], &Query.compile(&1, user: user))
+      # Persisting the compiled query
+      query_form
+      |> cast(attrs, [:query])
+      |> validate_query(:query, with: &Query.compile/1, into: :compiled_query)
 
   """
-  def validate_query(changeset, attr_or_attr_list, callback)
+  @spec validate_query(Ecto.Changeset.t(), atom(), Keyword.t()) :: Ecto.Changeset.t()
+  def validate_query(changeset, attr, opts) do
+    callback = Keyword.fetch!(opts, :with)
+    default = Keyword.get(opts, :default, "")
+    into = Keyword.get(opts, :into)
 
-  def validate_query(changeset, attr_list, callback) when is_list(attr_list) do
-    Enum.reduce(attr_list, changeset, fn attr, changeset ->
-      validate_query(changeset, attr, callback)
-    end)
-  end
-
-  def validate_query(changeset, attr, callback) do
-    if changed?(changeset, attr) do
-      validate_assuming_changed(changeset, attr, callback)
+    if changed?(changeset, attr) or not is_nil(into) do
+      validate_assuming_changed(changeset, attr, callback, default, into)
     else
       changeset
     end
   end
 
-  defp validate_assuming_changed(changeset, attr, callback) do
-    with value when is_binary(value) <- fetch_change!(changeset, attr) || "",
+  defp validate_assuming_changed(changeset, attr, callback, default, into) do
+    with value when is_binary(value) <- fetch_field!(changeset, attr) || default,
          value <- String.normalize(value),
-         {:ok, _} <- callback.(value) do
-      changeset
+         {:ok, compiled} <- callback.(value) do
+      maybe_persist_compilation(changeset, compiled, into)
     else
       {:error, msg} ->
         add_error(changeset, attr, "is invalid: #{msg}")
@@ -69,4 +66,9 @@ defmodule PhilomenaQuery.Ecto.QueryValidator do
         add_error(changeset, attr, "is invalid")
     end
   end
+
+  defp maybe_persist_compilation(changeset, _result, nil), do: changeset
+
+  defp maybe_persist_compilation(changeset, result, field),
+    do: put_change(changeset, field, result)
 end

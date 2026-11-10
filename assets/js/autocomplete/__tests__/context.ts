@@ -6,6 +6,7 @@ import { fireEvent } from '@testing-library/dom';
 import { assertNotNull } from '../../utils/assert';
 import { TextInputElement } from '../input';
 import store from '../../utils/store';
+import { $ } from '../../utils/dom';
 import { GetTagSuggestionsResponse, TagSuggestion } from 'autocomplete/client';
 
 /**
@@ -88,8 +89,8 @@ export class TestContext {
 
     listenAutocomplete();
 
-    this.input = assertNotNull(document.querySelector('.test-input'));
-    this.popup = assertNotNull(document.querySelector('.autocomplete'));
+    this.input = assertNotNull($<HTMLInputElement>('.test-input'));
+    this.popup = assertNotNull($<HTMLElement>('.autocomplete'));
 
     expect(fetch).not.toBeCalled();
   }
@@ -106,6 +107,24 @@ export class TestContext {
 
   async focusInput() {
     this.input.focus();
+    await vi.runAllTimersAsync();
+  }
+
+  async deleteHistoryItem(content: string) {
+    const items = [...this.popup.querySelectorAll('.autocomplete__item__history')];
+    const item = items.find(elem => elem.textContent.trimStart() === content);
+
+    if (!item) {
+      throw new Error(`History item with content "${content}" was not found`);
+    }
+
+    const deleteButton = item.querySelector('.autocomplete__item__history__delete');
+
+    if (!deleteButton) {
+      throw new Error(`Delete button for history item with content "${content}" was not found`);
+    }
+
+    expect(fireEvent.click(deleteButton)).toEqual(true);
     await vi.runAllTimersAsync();
   }
 
@@ -143,6 +162,15 @@ export class TestContext {
 
     fireEvent.input(this.input, { target: { value: this.input.value } });
 
+    await vi.runAllTimersAsync();
+  }
+
+  /**
+   * Sets the `name` attribute for the input. Used to test different sets of properties which are matched by it.
+   * @param fieldName Name to set.
+   */
+  async setName(fieldName: string) {
+    this.input.name = fieldName;
     await vi.runAllTimersAsync();
   }
 
@@ -209,6 +237,10 @@ export class TestContext {
 
       if (el.classList.contains('autocomplete__item__history')) {
         content = `(history) ${content}`;
+      }
+
+      if (el.classList.contains('autocomplete__item__property')) {
+        content = `(property) ${content}`;
       }
 
       if (el.classList.contains('autocomplete__item--selected')) {

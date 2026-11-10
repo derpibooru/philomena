@@ -1,39 +1,35 @@
 defmodule PhilomenaWeb.Page.HistoryController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.StaticPages.StaticPage
-  alias Philomena.StaticPages.Version
-  alias Philomena.Repo
-  import Ecto.Query
+  alias PhilomenaWeb.MarkdownRenderer
+  alias Philomena.StaticPages
 
-  plug :load_resource, model: StaticPage, id_name: "page_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, _params) do
-    page = conn.assigns.static_page
-
-    {versions, _last_body} =
-      Version
-      |> where(static_page_id: ^page.id)
-      |> preload(:user)
-      |> order_by(desc: :created_at)
-      |> Repo.all()
-      |> generate_differences(page.body)
-
-    render(conn, "index.html",
-      title: "Revision History for Page `#{page.title}'",
-      layout_class: "layout--wide",
-      versions: versions
-    )
+  def index(conn, %{"page_id" => slug}) do
+    with {:ok, {page, versions}} <-
+           StaticPages.list_page_history(conn.assigns.actor, slug) do
+      render(conn, "index.html",
+        title: "Revision History for Page `#{page.title}'",
+        layout_class: "layout--wide",
+        static_page: page,
+        versions: generate_differences(versions)
+      )
+    end
   end
 
-  defp generate_differences(pages, current_body) do
-    Enum.map_reduce(pages, current_body, fn page, previous_body ->
-      difference = List.myers_difference(split(page.body), split(previous_body))
+  # Versions store the body as it was after each edit, so a version's diff is
+  # taken from the next-older version's body to its own. The oldest version is
+  # the page's creation and diffs against the empty document.
+  defp generate_differences(versions) do
+    versions
+    |> Enum.reverse()
+    |> Enum.map_reduce(nil, fn version, previous_body ->
+      difference = MarkdownRenderer.render_diff(previous_body, version.body)
 
-      {%{page | difference: difference}, page.body}
+      {%{version | difference: difference}, version.body}
     end)
+    |> elem(0)
+    |> Enum.reverse()
   end
-
-  defp split(nil), do: ""
-  defp split(body), do: String.split(body, "\n")
 end

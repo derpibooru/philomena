@@ -70,6 +70,17 @@ export class InputHistory {
     this.store.write(this.records);
   }
 
+  deleteRecord(content: string) {
+    const index = this.records.findIndex(historyRecord => historyRecord === content);
+    if (index < 0) {
+      console.warn(`Attempted to delete a non-existent input history record "${content}"`);
+      return;
+    }
+
+    this.records.splice(index, 1);
+    this.store.write(this.records);
+  }
+
   listSuggestions(query: string, limit: number): string[] {
     return this.records.filter(record => record.startsWith(query)).slice(0, limit);
   }

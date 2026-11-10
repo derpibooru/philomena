@@ -1,66 +1,24 @@
 defmodule PhilomenaWeb.CurrentFilterPlug do
+  @moduledoc """
+  Resolves the actor's effective current and forced filters through the Filters
+  context, and assigns them to `conn`.
+  """
+
   import Plug.Conn
 
-  alias Philomena.{Filters, Filters.Filter, Users.User}
-  alias Philomena.Repo
+  alias Philomena.Filters
 
-  # No options
   def init([]), do: false
 
-  # Assign current filter
   def call(conn, _opts) do
     conn = fetch_cookies(conn)
-    user = conn.assigns.current_user
+    cookie_filter_id = conn.cookies["filter_id"]
 
-    {filter, forced_filter} =
-      if user do
-        user =
-          user
-          |> Repo.preload([:current_filter, :forced_filter])
-          |> maybe_set_default_filter()
-
-        {user.current_filter, user.forced_filter}
-      else
-        filter = load_and_authorize_filter(conn.cookies, user)
-
-        {filter || Filters.default_filter(), nil}
-      end
+    {:ok, selection} =
+      Filters.load_selected_filters(conn.assigns.actor, cookie_filter_id)
 
     conn
-    |> assign(:current_filter, filter)
-    |> assign(:forced_filter, forced_filter)
-  end
-
-  defp maybe_set_default_filter(%{current_filter: nil} = user) do
-    filter = Filters.default_filter()
-
-    {:ok, user} =
-      user
-      |> User.filter_changeset(filter)
-      |> Repo.update()
-
-    Map.put(user, :current_filter, filter)
-  end
-
-  defp maybe_set_default_filter(user), do: user
-
-  defp load_and_authorize_filter(%{"filter_id" => filter_id}, user) do
-    Filter
-    |> Repo.get(filter_id)
-    |> case do
-      nil ->
-        nil
-
-      filter ->
-        if Canada.Can.can?(user, :show, filter) do
-          filter
-        else
-          nil
-        end
-    end
-  end
-
-  defp load_and_authorize_filter(_cookies, _user) do
-    nil
+    |> assign(:current_filter, selection.current_filter)
+    |> assign(:forced_filter, selection.forced_filter)
   end
 end

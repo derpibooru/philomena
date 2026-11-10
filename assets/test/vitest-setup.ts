@@ -9,9 +9,8 @@ window.booru = {
   csrfToken: 'mockCsrfToken',
   fancyTagEdit: true,
   fancyTagUpload: true,
-  hiddenTag: '/mock-tagblocked.svg',
   hiddenTagList: [],
-  hideStaffTools: 'true',
+  hideStaffTools: true,
   ignoredTagList: [],
   imagesWithDownvotingDisabled: [],
   spoilerType: 'off',
@@ -22,7 +21,6 @@ window.booru = {
   hiddenFilter: matchNone(),
   spoileredFilter: matchNone(),
   interactions: [],
-  tagsVersion: 5,
 };
 
 // https://github.com/jsdom/jsdom/issues/1721#issuecomment-1484202038

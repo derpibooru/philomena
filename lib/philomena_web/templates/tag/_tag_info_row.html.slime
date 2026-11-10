@@ -29,14 +29,14 @@
     = if Enum.any?(@tag.aliases) do
       strong> Aliases:
       = if aliases_tags?(@conn) do
-        = map_join(@tag.aliases, ", ", &link(&1.name, to: ~p"/tags/#{&1}/alias/edit"))
+        = map_join(Tag.display_order(@tag.aliases), ", ", &link(&1.name, to: ~p"/tags/#{&1}/alias/edit"))
       - else
-        = map_join(@tag.aliases, ", ", & &1.name)
+        = map_join(Tag.display_order(@tag.aliases), ", ", & &1.name)
       br
 
     = if Enum.any?(@tag.implied_tags) do
       strong> Implies:
-      = map_join(@tag.implied_tags, ", ", &link(&1.name, to: ~p"/tags/#{&1}"))
+      = map_join(Tag.display_order(@tag.implied_tags), ", ", &link(&1.name, to: ~p"/tags/#{&1}"))
       br
 
     = if Enum.any?(@tag.hidden_links) and manages_links?(@conn) do
@@ -59,14 +59,14 @@
         = if Enum.any?(@tag.public_links) do
           strong> Associated links:
 
-          = for link <- @tag.public_links do
+          = for link <- Enum.sort_by(@tag.public_links, & &1.uri) do
             a> href=link.uri = link.uri
 
           br
 
         = if Enum.any?(@tag.public_links) do
           strong> Associated users:
-          - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq_by(& &1.id)
+          - users = Enum.map(@tag.public_links, & &1.user) |> Enum.uniq_by(& &1.id) |> Enum.sort_by(& &1.name)
 
           = for user <- users do
             => link user.name, to: ~p"/profiles/#{user}"
@@ -75,7 +75,7 @@
 
         = if Enum.any?(@tag.channels) do
           strong> Associated streams:
-          = for channel <- @tag.channels do
+          = for channel <- Enum.sort_by(@tag.channels, & &1.short_name) do
             => link channel.title, to: ~p"/channels/#{channel}"
 
             = if can?(@conn, :edit, channel) do

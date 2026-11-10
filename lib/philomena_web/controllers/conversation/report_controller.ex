@@ -3,45 +3,37 @@ defmodule PhilomenaWeb.Conversation.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Conversations.Conversation
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
-  plug :load_and_authorize_resource,
-    model: Conversation,
-    id_name: "conversation_id",
-    id_field: "slug",
-    persisted: true,
-    preload: [:from, :to]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    conversation = conn.assigns.conversation
-    action = ~p"/conversations/#{conversation}/reports"
+  def new(conn, %{"conversation_id" => conversation_id}) do
+    with {:ok, form} <-
+           Reports.new_report(conn.assigns.actor, {:conversation, conversation_id}) do
+      conversation = form.target
+      action = ~p"/conversations/#{conversation}/reports"
 
-    changeset =
-      %Report{reportable_type: "Conversation", reportable_id: conversation.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting Conversation",
-      reportable: conversation,
-      changeset: changeset,
-      action: action
-    )
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting Conversation",
+        subject: conversation,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    conversation = conn.assigns.conversation
-    action = ~p"/conversations/#{conversation}/reports"
-
-    ReportController.create(conn, action, "Conversation", conversation, params)
+  def create(conn, %{"conversation_id" => conversation_id} = params) do
+    ReportController.create(
+      conn,
+      {:conversation, conversation_id},
+      fn conversation -> ~p"/conversations/#{conversation}/reports" end,
+      params
+    )
   end
 end

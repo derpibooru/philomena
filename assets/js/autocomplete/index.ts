@@ -2,8 +2,10 @@ import { LocalAutocompleter } from '../utils/local-autocompleter';
 import * as history from './history';
 import { AutocompletableInput, TextInputElement } from './input';
 import {
+  HistoryItemDeleteDetail,
   HistorySuggestionComponent,
-  ItemSelectedEvent,
+  ItemSelection,
+  PropertySuggestionComponent,
   Suggestion,
   Suggestions,
   SuggestionsPopupComponent,
@@ -14,11 +16,18 @@ import { $$ } from '../utils/dom';
 import { AutocompleteClient, GetTagSuggestionsRequest } from './client';
 import { DebouncedCache } from '../utils/debounced-cache';
 import store from '../utils/store';
-import { normalizedKeyboardKey, keys } from '../utils/keyboard';
+import { keys, normalizedKeyboardKey } from '../utils/keyboard';
+import { matchProperties } from './properties';
 
-// This lint is dumb, especially in this case because this type alias depends on
-// the `Autocomplete` symbol, and methods on the `Autocomplete` class depend on
-// this type alias, so either way there is a circular dependency in type annotations
+declare global {
+  interface AutocompleteEvent extends CustomEvent<string> {
+    target: HTMLElement;
+  }
+
+  interface GlobalEventHandlersEventMap {
+    autocomplete: AutocompleteEvent;
+  }
+}
 
 type ActiveAutocomplete = Autocomplete & { input: AutocompletableInput };
 
@@ -32,6 +41,10 @@ function readHistoryConfig() {
   };
 }
 
+function shouldSuggestProperties() {
+  return !store.get<boolean>('autocomplete_properties_hidden');
+}
+
 class Autocomplete {
   index: null | 'fetching' | 'unavailable' | LocalAutocompleter = null;
   input: AutocompletableInput | null = null;
@@ -41,6 +54,7 @@ class Autocomplete {
 
   constructor() {
     this.popup.onItemSelected(this.confirmSuggestion.bind(this));
+    this.popup.onHistoryItemDeleteClicked(this.onHistoryItemDeleteClicked.bind(this));
   }
 
   /**
@@ -87,6 +101,7 @@ class Autocomplete {
       this.showSuggestions({
         history: history.listSuggestions(input),
         tags: [],
+        properties: [],
       });
       return;
     }
@@ -96,6 +111,7 @@ class Autocomplete {
     const suggestions: Suggestions = {
       history: historyConfig ? history.listSuggestions(input, historyConfig.maxSuggestionsWhenTyping) : [],
       tags: [],
+      properties: [],
     };
 
     // There are several scenarios where we don't try to fetch server-side suggestions,
@@ -120,9 +136,17 @@ class Autocomplete {
 
     const activeTerm = input.snapshot.activeTerm.term;
 
-    suggestions.tags = this.index
-      .matchPrefix(activeTerm, input.maxSuggestions - suggestions.history.length)
-      .map(suggestion => new TagSuggestionComponent(suggestion));
+    if (input?.hasTagSuggestions()) {
+      suggestions.tags = this.index
+        .matchPrefix(activeTerm, input.maxSuggestions - suggestions.history.length)
+        .map(suggestion => new TagSuggestionComponent(suggestion));
+    }
+
+    if (shouldSuggestProperties()) {
+      suggestions.properties = matchProperties(input, activeTerm, this.index).map(
+        suggestion => new PropertySuggestionComponent(suggestion),
+      );
+    }
 
     // Used for debugging server-side completions, to ensure local autocomplete
     // doesn't prevent sever-side completions from being shown. Use these console
@@ -139,20 +163,30 @@ class Autocomplete {
     // server-side suggestions request.
     this.showSuggestions(suggestions);
 
-    // Only if the index had its chance to provide suggestions
-    // and produced nothing, do we try to fetch server-side suggestions.
-    if (suggestions.tags.length > 0 || activeTerm.length < 3) {
+    if (this.shouldSkipServerSideSuggestion(activeTerm, suggestions)) {
       return;
     }
 
-    this.scheduleServerSideSuggestions(activeTerm, suggestions.history);
+    this.scheduleServerSideSuggestions(activeTerm, suggestions);
   }
 
-  scheduleServerSideSuggestions(
-    this: ActiveAutocomplete,
-    term: string,
-    historySuggestions: HistorySuggestionComponent[],
-  ) {
+  shouldSkipServerSideSuggestion(activeTerm: string, suggestions: Suggestions): boolean {
+    // Only if the index had its chance to provide suggestions
+    // and produced nothing, do we try to fetch server-side suggestions.
+    if (!this.input?.hasTagSuggestions() || suggestions.tags.length > 0 || activeTerm.length < 3) {
+      return true;
+    }
+
+    // Make sure to NOT request server-side suggestions when user have typed valid property and started typing the
+    // value. For example, once user typed `tag_count:10`, then there is no point to request anything from the server.
+    if (suggestions.properties.length > 0) {
+      return suggestions.properties.some(component => component.suggestion.containsColon());
+    }
+
+    return false;
+  }
+
+  scheduleServerSideSuggestions(this: ActiveAutocomplete, term: string, localSuggestions: Suggestions) {
     const request: GetTagSuggestionsRequest = {
       term,
 
@@ -169,7 +203,7 @@ class Autocomplete {
       }
 
       // Truncate the suggestions to the leftover space shared with history suggestions.
-      const maxTags = this.input.maxSuggestions - historySuggestions.length;
+      const maxTags = this.input.maxSuggestions - localSuggestions.history.length;
 
       const tags = response.suggestions.slice(0, maxTags).map(suggestion => {
         // Convert the server-side suggestions into the UI components.
@@ -192,8 +226,9 @@ class Autocomplete {
       });
 
       this.showSuggestions({
-        history: historySuggestions,
+        history: localSuggestions.history,
         tags,
+        properties: localSuggestions.properties,
       });
     });
   }
@@ -323,7 +358,7 @@ class Autocomplete {
     element.setSelectionRange(selection.start, selection.end, selection.direction ?? undefined);
   }
 
-  confirmSuggestion({ suggestion, shiftKey, ctrlKey }: ItemSelectedEvent) {
+  confirmSuggestion({ suggestion, shiftKey, ctrlKey }: ItemSelection) {
     this.assertActive();
 
     this.updateInputWithSelectedValue(suggestion);
@@ -357,6 +392,21 @@ class Autocomplete {
     // Although, we don't make this a hard assertion just in case, to make sure this
     // code is tolerant to any bugs in the described assumption.
     this.hidePopup('The user accepted the existing suggestion');
+  }
+
+  onHistoryItemDeleteClicked(detail: HistoryItemDeleteDetail) {
+    this.assertActive();
+
+    // Stop propagation to avoid invoking the `onClick` handler, which would
+    // register the loss of focus on the input and hide the popup otherwise.
+    detail.clickEvent.stopPropagation();
+
+    history.deleteHistoryRecord(this.input, detail.suggestion.content);
+
+    // Click on the delete button removes focus from the input, so we restore it
+    this.input.element.focus();
+
+    this.refresh();
   }
 
   updateInputWithSelectedValue(this: ActiveAutocomplete, suggestion: Suggestion) {

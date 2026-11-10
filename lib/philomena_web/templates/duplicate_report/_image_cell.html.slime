@@ -16,7 +16,7 @@
   p
     = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, conn: @conn
 
-  = if can?(@conn, :edit, @report) and mergeable?(@report) do
+  = if can?(@conn, :accept, @report) and mergeable?(@report) do
     = if @source do
       = form_for @conn, ~p"/duplicate_reports/#{@report}/accept_reverse", [method: "post", class: "button_to js-duplicate-report", data: [remote: "true"]], fn _f ->
         button.button.button--separate-right type="submit" data-disable-with="Loading…"

@@ -1,0 +1,37 @@
+#!/bin/sh
+# Checks that each user has at most one commission, and renames accounts whose
+# names differ from another account's only by letter case, so that the schema
+# migrations can create the unique indexes.
+
+set -e
+
+. "$(dirname "$0")/common.sh"
+
+check_duplicate_commissions
+
+if name_index_exists || [ "$(colliding_name_groups)" = 0 ]; then
+  exit 0
+fi
+
+if [ "${ACCEPT_USER_RENAMES:-}" != 1 ]; then
+  rename_dry_run
+  echo
+  echo "To let the upgrade rename these accounts, run it with ACCEPT_USER_RENAMES=1."
+  explain_full_report
+  exit 1
+fi
+
+psql -X -q -v ON_ERROR_STOP=1 -v apply=1 -f "$rename_script" > /dev/null
+
+remaining=$(colliding_name_groups)
+
+if [ "$remaining" != 0 ]; then
+  echo "$remaining groups of accounts still have names that differ only by letter case:"
+  sql -F '|' -c "SELECT id, name FROM users WHERE lower(name) IN (
+    SELECT lower(name) FROM users GROUP BY 1 HAVING count(*) > 1
+  ) ORDER BY lower(name), id"
+  echo "Rename all but one account in each group, then try again."
+  exit 1
+fi
+
+echo "Renamed the accounts with colliding names."

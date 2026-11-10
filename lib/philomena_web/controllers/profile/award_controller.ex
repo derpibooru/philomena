@@ -1,96 +1,79 @@
 defmodule PhilomenaWeb.Profile.AwardController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Badges.Award
-  alias Philomena.Badges.Badge
-  alias Philomena.Users.User
   alias Philomena.Badges
-  alias Philomena.Repo
-  import Ecto.Query
 
-  plug :verify_authorized
-  plug :load_resource, model: User, id_name: "profile_id", id_field: "slug", persisted: true
-  plug :load_resource, model: Award, only: [:edit, :update, :delete]
-  plug :load_badges when action in [:new, :create, :edit, :update]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    changeset = Badges.change_badge_award(%Award{})
-    render(conn, "new.html", title: "New Award", changeset: changeset)
+  def new(conn, %{"profile_id" => slug}) do
+    with {:ok, {user, changeset, badges}} <-
+           Badges.new_award(conn.assigns.actor, slug) do
+      render(conn, "new.html",
+        title: "New Award",
+        user: user,
+        changeset: changeset,
+        badges: badges
+      )
+    end
   end
 
-  def create(conn, %{"award" => award_params}) do
-    user = conn.assigns.user
-
-    case Badges.create_badge_award(conn.assigns.current_user, user, award_params) do
-      {:ok, award} ->
+  def create(conn, %{"profile_id" => slug, "award" => award_params}) do
+    case Badges.create_award(conn.assigns.actor, slug, award_params) do
+      {:ok, {user, _award}} ->
         conn
         |> put_flash(:info, "Award successfully created.")
-        |> moderation_log(details: &log_details/2, data: {user, award})
         |> redirect(to: ~p"/profiles/#{user}")
 
-      {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+      {:error, {user, changeset, badges}} ->
+        render(conn, "new.html",
+          user: user,
+          changeset: changeset,
+          badges: badges
+        )
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = Badges.change_badge_award(conn.assigns.award)
-    render(conn, "edit.html", title: "Editing Award", changeset: changeset)
+  def edit(conn, %{"profile_id" => slug, "id" => id}) do
+    with {:ok, {user, award, changeset, badges}} <-
+           Badges.edit_award(conn.assigns.actor, slug, id) do
+      render(conn, "edit.html",
+        title: "Editing Award",
+        user: user,
+        award: award,
+        changeset: changeset,
+        badges: badges
+      )
+    end
   end
 
-  def update(conn, %{"award" => award_params}) do
-    case Badges.update_badge_award(conn.assigns.award, award_params) do
-      {:ok, award} ->
-        user = conn.assigns.user
-
+  def update(conn, %{"profile_id" => slug, "id" => id, "award" => award_params}) do
+    case Badges.update_award(conn.assigns.actor, slug, id, award_params) do
+      {:ok, {user, _award}} ->
         conn
         |> put_flash(:info, "Award successfully updated.")
-        |> moderation_log(details: &log_details/2, data: {user, award})
         |> redirect(to: ~p"/profiles/#{user}")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, {user, award, changeset, badges}} ->
+        render(conn, "edit.html",
+          user: user,
+          award: award,
+          changeset: changeset,
+          badges: badges
+        )
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    user = conn.assigns.user
-    {:ok, award} = Badges.delete_badge_award(conn.assigns.award)
-
-    conn
-    |> put_flash(:info, "Award successfully destroyed. By cruel and unusual means.")
-    |> moderation_log(details: &log_details/2, data: {user, award})
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :create, Award) do
+  def delete(conn, %{"profile_id" => slug, "id" => id}) do
+    with {:ok, {user, _award}} <- Badges.delete_award(conn.assigns.actor, slug, id) do
       conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      |> put_flash(:info, "Award successfully destroyed. By cruel and unusual means.")
+      |> redirect(to: ~p"/profiles/#{user}")
     end
-  end
-
-  defp load_badges(conn, _opts) do
-    badges =
-      Badge
-      |> where(disable_award: false)
-      |> order_by(asc: :title)
-      |> Repo.all()
-
-    assign(conn, :badges, badges)
-  end
-
-  defp log_details(action, {user, award}) do
-    award = Repo.preload(award, [:badge])
-
-    body =
-      case action do
-        :create -> "Awarded badge '#{award.badge.title}' to #{user.name}"
-        :update -> "Updated award of badge '#{award.badge.title}' on #{user.name}"
-        :delete -> "Removed badge '#{award.badge.title}' from #{user.name}"
-      end
-
-    %{body: body, subject_path: ~p"/profiles/#{user}"}
   end
 end

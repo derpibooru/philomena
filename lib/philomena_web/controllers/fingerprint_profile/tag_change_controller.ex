@@ -2,30 +2,37 @@ defmodule PhilomenaWeb.FingerprintProfile.TagChangeController do
   use PhilomenaWeb, :controller
 
   alias Philomena.TagChanges
+  alias Philomena.TagChanges.TagChangePage
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, %{"fingerprint_profile_id" => fingerprint} = params) do
-    render(conn, "index.html",
-      title: "Tag Changes for Fingerprint `#{fingerprint}'",
-      fingerprint: fingerprint,
-      tag_changes:
-        TagChanges.load(
-          %{
-            field: :fingerprint,
-            value: fingerprint,
-            added: params["added"]
-          },
-          conn.assigns.scrivener
-        )
-    )
-  end
+    case TagChanges.list_fingerprint_tag_changes(
+           conn.assigns.actor,
+           fingerprint,
+           params,
+           conn.assigns.pagination
+         ) do
+      {:ok, %TagChangePage{target: fingerprint, tag_changes: tag_changes}, changeset} ->
+        path = ~p"/fingerprint_profiles/#{fingerprint}/tag_changes"
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+        conn
+        |> put_view(PhilomenaWeb.TagChangeView)
+        |> render("index.html",
+          title: "Tag Changes for Fingerprint `#{fingerprint}'",
+          path: path,
+          pagination_route: fn query -> "#{path}?#{Plug.Conn.Query.encode(query)}" end,
+          tag_changes: tag_changes,
+          changeset: changeset
+        )
+
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Invalid tag change query.")
+        |> redirect(to: "/tag_changes")
+
+      error ->
+        error
     end
   end
 end

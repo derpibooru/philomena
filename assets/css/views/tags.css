@@ -79,6 +79,18 @@
 
 .autocomplete__item__history {
   color: var(--autocomplete-history-color);
+  display: flex;
+  justify-content: space-between;
+  white-space: pre;
+  padding: 0;
+}
+
+.autocomplete__item__history .autocomplete__item__content {
+  padding: 5px;
+}
+
+.autocomplete__item__property {
+  color: var(--autocomplete-tag-color);
 }
 
 .autocomplete__item__history__icon {
@@ -94,7 +106,26 @@
   color: var(--autocomplete-history-match-color);
 }
 
-.autocomplete__item__tag__match {
+.autocomplete__item__history__delete {
+  font-size: 8px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.autocomplete__item__history__delete:hover {
+  /*
+    We could make delete button appear only on hover, which would declutter the
+    UI a bit, but this would make it almost impossible to click this button on
+    mobile, thus it's always visible.
+  */
+  color: var(--autocomplete-history-match-color);
+  background-color: var(--autocomplete-history-delete-hover-background);
+}
+
+.autocomplete__item__tag__match,
+.autocomplete__item__property__match {
   color: var(--autocomplete-tag-match-color);
 }
 

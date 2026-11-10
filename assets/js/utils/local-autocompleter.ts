@@ -207,7 +207,7 @@ export class LocalAutocompleter {
       return strcmp(mapName(this.referenceToName(index, false)).slice(0, prefix.length), prefix);
     };
 
-    while (min < max - 1) {
+    while (min < max) {
       const med = min + (((max - min) / 2) | 0);
       const referenceIndex = mapIndex(med);
 
@@ -216,13 +216,13 @@ export class LocalAutocompleter {
         max = med;
       } else {
         // too small, go right
-        min = med;
+        min = med + 1;
       }
     }
 
     // Scan forward until no more matches occur
-    while (min < this.numTags - 1) {
-      const referenceIndex = mapIndex(++min);
+    while (min < this.numTags) {
+      const referenceIndex = mapIndex(min++);
 
       if (compare(referenceIndex) !== 0) {
         break;

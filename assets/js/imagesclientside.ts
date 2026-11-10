@@ -8,6 +8,7 @@ import { setupInteractions } from './interactions';
 import { showThumb, showBlock, spoilerThumb, spoilerBlock, hideThumb } from './utils/image';
 import { TagData, getHiddenTags, getSpoileredTags, imageHitsTags, imageHitsComplex, displayTags } from './utils/tag';
 import { AstMatcher } from './query/types';
+import { hiddenTagPath } from './booru';
 
 type CallbackType = 'tags' | 'complex';
 type RunCallback = (img: HTMLDivElement, tags: TagData[], type: CallbackType) => void;
@@ -42,10 +43,10 @@ function run(img: HTMLDivElement, tags: TagData[], complex: AstMatcher, runCallb
 
 function bannerImage(tagsHit: TagData[]) {
   if (tagsHit.length > 0) {
-    return tagsHit[0].spoiler_image_uri || window.booru.hiddenTag;
+    return tagsHit[0].spoiler_image_uri || hiddenTagPath;
   }
 
-  return window.booru.hiddenTag;
+  return hiddenTagPath;
 }
 
 // TODO: this approach is not suitable for translations because it depends on

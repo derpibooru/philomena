@@ -3,6 +3,7 @@ defmodule PhilomenaMedia.Analyzers.Jpeg do
 
   alias PhilomenaMedia.Analyzers.Analyzer
   alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Remote
 
   @behaviour Analyzer
 
@@ -20,7 +21,7 @@ defmodule PhilomenaMedia.Analyzers.Jpeg do
   end
 
   defp stats(file) do
-    case System.cmd("mediastat", [file]) do
+    case Remote.cmd("mediastat", [file]) do
       {output, 0} ->
         [_size, _frames, width, height, num, den] =
           output

@@ -41,19 +41,22 @@ elixir:
             i.fa.fa-trash>
             span.hide-mobile Delete
 
-        = if show_subscription_link?(@gallery.creator, @conn.assigns.current_user) do
+        = if show_subscription_link?(@gallery.user, @conn.assigns.current_user) do
           = render PhilomenaWeb.Gallery.SubscriptionView, "_subscription.html", watching: @watching, gallery: @gallery, conn: @conn
 
     .block__header.block__header--light.block__header--sub
       span.block__header__title A gallery by
 
-      => link @gallery.creator.name, to: ~p"/profiles/#{@gallery.creator}"
+      = render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @gallery, conn: @conn
       ' with
       => @gallery.image_count
       = pluralize("image", "images", @gallery.image_count)
       span.hide-mobile-t
         ' , last updated
-        = pretty_time(@gallery.updated_at)
+        => pretty_time(@gallery.updated_at)
+        ' (created
+        = pretty_time(@gallery.created_at)
+        ' )
 
     .block__content.flex.js-imagelist-info
       .flex__fixed.thumb-tiny-container.spacing-right

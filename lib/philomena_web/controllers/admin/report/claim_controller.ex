@@ -1,31 +1,41 @@
 defmodule PhilomenaWeb.Admin.Report.ClaimController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :edit, delete: :edit
-  plug :load_and_authorize_resource, model: Report, id_name: "report_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, _params) do
-    case Reports.claim_report(conn.assigns.report, conn.assigns.current_user) do
+  def create(conn, %{"report_id" => report_id}) do
+    case Reports.create_report_claim(conn.assigns.actor, report_id) do
       {:ok, _report} ->
         conn
         |> put_flash(:info, "Successfully marked report as in progress")
         |> redirect(to: ~p"/admin/reports")
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{data: report}} ->
         conn
         |> put_flash(:error, "Couldn't claim that report!")
-        |> redirect(to: ~p"/admin/reports/#{conn.assigns.report}")
+        |> redirect(to: ~p"/admin/reports/#{report}")
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, report} = Reports.unclaim_report(conn.assigns.report)
+  def delete(conn, %{"report_id" => report_id}) do
+    case Reports.delete_report_claim(conn.assigns.actor, report_id) do
+      {:ok, report} ->
+        conn
+        |> put_flash(:info, "Successfully released report.")
+        |> redirect(to: ~p"/admin/reports/#{report}")
 
-    conn
-    |> put_flash(:info, "Successfully released report.")
-    |> redirect(to: ~p"/admin/reports/#{report}")
+      {:error, %Ecto.Changeset{data: report}} ->
+        conn
+        |> put_flash(:error, "Report was not claimed!")
+        |> redirect(to: ~p"/admin/reports/#{report}")
+
+      error ->
+        error
+    end
   end
 end

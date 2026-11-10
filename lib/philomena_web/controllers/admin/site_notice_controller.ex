@@ -1,70 +1,70 @@
 defmodule PhilomenaWeb.Admin.SiteNoticeController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.SiteNotices.SiteNotice
   alias Philomena.SiteNotices
-  alias Philomena.Repo
-  import Ecto.Query
 
-  plug :verify_authorized
-  plug :load_and_authorize_resource, model: SiteNotice, except: [:index]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, _params) do
-    site_notices =
-      SiteNotice
-      |> order_by(desc: :start_date)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html", title: "Admin - Site Notices", admin_site_notices: site_notices)
+    with {:ok, site_notices} <-
+           SiteNotices.list_site_notices(conn.assigns.actor, conn.assigns.scrivener) do
+      render(conn, "index.html", title: "Admin - Site Notices", admin_site_notices: site_notices)
+    end
   end
 
   def new(conn, _params) do
-    changeset = SiteNotices.change_site_notice(%SiteNotice{})
-    render(conn, "new.html", title: "New Site Notice", changeset: changeset)
+    with {:ok, changeset} <- SiteNotices.new_site_notice(conn.assigns.actor) do
+      render(conn, "new.html", title: "New Site Notice", changeset: changeset)
+    end
   end
 
   def create(conn, %{"site_notice" => site_notice_params}) do
-    case SiteNotices.create_site_notice(conn.assigns.current_user, site_notice_params) do
+    case SiteNotices.create_site_notice(conn.assigns.actor, site_notice_params) do
       {:ok, _site_notice} ->
         conn
         |> put_flash(:info, "Successfully created site notice.")
         |> redirect(to: ~p"/admin/site_notices")
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      {:error, reason} = error when reason in [:ban, :unauthorized] ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = SiteNotices.change_site_notice(conn.assigns.site_notice)
-    render(conn, "edit.html", title: "Editing Site Notices", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {site_notice, changeset}} <-
+           SiteNotices.edit_site_notice(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html",
+        title: "Editing Site Notices",
+        site_notice: site_notice,
+        changeset: changeset
+      )
+    end
   end
 
-  def update(conn, %{"site_notice" => site_notice_params}) do
-    case SiteNotices.update_site_notice(conn.assigns.site_notice, site_notice_params) do
+  def update(conn, %{"id" => id, "site_notice" => site_notice_params}) do
+    case SiteNotices.update_site_notice(conn.assigns.actor, id, site_notice_params) do
       {:ok, _site_notice} ->
         conn
         |> put_flash(:info, "Successfully updated site notice.")
         |> redirect(to: ~p"/admin/site_notices")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", site_notice: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, _site_notice} = SiteNotices.delete_site_notice(conn.assigns.site_notice)
-
-    conn
-    |> put_flash(:info, "Successfully deleted site notice.")
-    |> redirect(to: ~p"/admin/site_notices")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, SiteNotice) do
+  def delete(conn, params) do
+    with {:ok, _site_notice} <-
+           SiteNotices.delete_site_notice(conn.assigns.actor, params["id"]) do
       conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      |> put_flash(:info, "Successfully deleted site notice.")
+      |> redirect(to: ~p"/admin/site_notices")
     end
   end
 end

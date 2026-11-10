@@ -3,64 +3,37 @@ defmodule PhilomenaWeb.Profile.Commission.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Users.User
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
-  plug :load_resource,
-    model: User,
-    id_name: "profile_id",
-    id_field: "slug",
-    preload: [
-      :verified_links,
-      commission: [
-        sheet_image: [:sources, tags: :aliases],
-        user: [awards: :badge],
-        items: [example_image: [:sources, tags: :aliases]]
-      ]
-    ],
-    persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :ensure_commission
+  def new(conn, %{"profile_id" => slug}) do
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, {:commission, slug}) do
+      commission = form.target
+      user = commission.user
+      action = ~p"/profiles/#{user}/commission/reports"
 
-  def new(conn, _params) do
-    user = conn.assigns.user
-    commission = conn.assigns.user.commission
-    action = ~p"/profiles/#{user}/commission/reports"
-
-    changeset =
-      %Report{reportable_type: "Commission", reportable_id: commission.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting Commission",
-      reportable: commission,
-      changeset: changeset,
-      action: action
-    )
-  end
-
-  def create(conn, params) do
-    user = conn.assigns.user
-    commission = conn.assigns.user.commission
-    action = ~p"/profiles/#{user}/commission/reports"
-
-    ReportController.create(conn, action, "Commission", commission, params)
-  end
-
-  defp ensure_commission(conn, _opts) do
-    if is_nil(conn.assigns.user.commission) do
-      PhilomenaWeb.NotFoundPlug.call(conn)
-    else
       conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting Commission",
+        subject: commission,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
     end
+  end
+
+  def create(conn, %{"profile_id" => slug} = params) do
+    ReportController.create(
+      conn,
+      {:commission, slug},
+      fn commission -> ~p"/profiles/#{commission.user}/commission/reports" end,
+      params
+    )
   end
 end

@@ -1,104 +1,56 @@
 defmodule Philomena.PollOptions do
   @moduledoc """
-  The PollOptions context.
+  Poll option loading for the PollVotes aggregate.
+
+  Poll options are not independent resources. Persistence is owned by the
+  poll changeset and vote transactions.
   """
 
   import Ecto.Query, warn: false
+
+  alias Philomena.Multi
+  alias Philomena.PollOptions.PollOption
+  alias Philomena.Polls.Poll
   alias Philomena.Repo
 
-  alias Philomena.PollOptions.PollOption
-
   @doc """
-  Returns the list of poll_options.
+  Loads every option belonging to `poll`.
 
   ## Examples
 
-      iex> list_poll_options()
-      [%PollOption{}, ...]
+      iex> load_options(poll)
+      [%PollOption{}, %PollOption{}]
 
   """
-  def list_poll_options do
-    Repo.all(PollOption)
+  @spec load_options(Poll.t()) :: [PollOption.t()]
+  def load_options(%Poll{} = poll) do
+    poll
+    |> Repo.preload(:options)
+    |> Map.fetch!(:options)
   end
 
   @doc """
-  Gets a single poll_option.
+  Adds a vote count adjustment for options belonging to `poll_id` to `multi`.
 
-  Raises `Ecto.NoResultsError` if the Poll option does not exist.
-
-  ## Examples
-
-      iex> get_poll_option!(123)
-      %PollOption{}
-
-      iex> get_poll_option!(456)
-      ** (Ecto.NoResultsError)
-
+  The caller is responsible for locking the parent poll.
   """
-  def get_poll_option!(id), do: Repo.get!(PollOption, id)
+  @spec put_vote_count_delta(
+          Multi.t(),
+          Multi.name(),
+          integer(),
+          (Multi.changes() -> [integer()]),
+          integer()
+        ) :: Multi.t()
+  def put_vote_count_delta(%Multi{} = multi, step, poll_id, option_ids_callback, amount)
+      when is_integer(poll_id) and is_integer(amount) do
+    Multi.run(multi, step, fn repo, changes ->
+      option_ids = option_ids_callback.(changes)
 
-  @doc """
-  Creates a poll_option.
+      query =
+        PollOption
+        |> where([option], option.id in ^option_ids and option.poll_id == ^poll_id)
 
-  ## Examples
-
-      iex> create_poll_option(%{field: value})
-      {:ok, %PollOption{}}
-
-      iex> create_poll_option(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_poll_option(attrs \\ %{}) do
-    %PollOption{}
-    |> PollOption.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a poll_option.
-
-  ## Examples
-
-      iex> update_poll_option(poll_option, %{field: new_value})
-      {:ok, %PollOption{}}
-
-      iex> update_poll_option(poll_option, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_poll_option(%PollOption{} = poll_option, attrs) do
-    poll_option
-    |> PollOption.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a PollOption.
-
-  ## Examples
-
-      iex> delete_poll_option(poll_option)
-      {:ok, %PollOption{}}
-
-      iex> delete_poll_option(poll_option)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_poll_option(%PollOption{} = poll_option) do
-    Repo.delete(poll_option)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking poll_option changes.
-
-  ## Examples
-
-      iex> change_poll_option(poll_option)
-      %Ecto.Changeset{source: %PollOption{}}
-
-  """
-  def change_poll_option(%PollOption{} = poll_option) do
-    PollOption.changeset(poll_option, %{})
+      {:ok, repo.update_all(query, inc: [vote_count: amount])}
+    end)
   end
 end

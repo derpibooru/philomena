@@ -7,8 +7,11 @@ defmodule PhilomenaWeb.Admin.ReportView do
   alias PhilomenaWeb.ReportView
   alias PhilomenaWeb.ProfileView
 
-  defp link_to_reported_thing(reportable),
-    do: ReportView.link_to_reported_thing(reportable)
+  defp report_target(report),
+    do: ReportView.report_target(report)
+
+  defp link_to_target(target),
+    do: ReportView.link_to_target(target)
 
   defp report_row_class(report),
     do: ReportView.report_row_class(report)
@@ -55,5 +58,5 @@ defmodule PhilomenaWeb.Admin.ReportView do
     )
   end
 
-  def reported_image(_conn, _reportable), do: nil
+  def reported_image(_conn, _target), do: nil
 end

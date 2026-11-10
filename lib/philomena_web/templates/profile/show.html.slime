@@ -28,13 +28,10 @@
         li = link("Report this user", to: ~p"/profiles/#{@user}/reports/new")
 
       ul.profile-top__options__column
-        = case @conn.assigns.current_user do
-          - %{role: role} when role in ~W(moderator admin) ->
-            li = link("Uploads", to: ~p"/search?#{[q: "true_uploader_id:#{@user.id}"]}")
-          - _ ->
-            li = link("Uploads", to: ~p"/search?#{[q: "uploader_id:#{@user.id}"]}")
-        li = link("Comments", to: ~p"/comments?#{[cq: "user_id:#{@user.id}"]}")
-        li = link("Posts", to: ~p"/posts?#{[pq: "user_id:#{@user.id}"]}")
+        - true_prefix = if can_reveal_anon?(@conn), do: "true_", else: ""
+        li = link("Uploads", to: ~p"/search?#{[q: "#{true_prefix}uploader_id:#{@user.id}"]}")
+        li = link("Comments", to: ~p"/comments?#{[cq: "#{true_prefix}author_id:#{@user.id}"]}")
+        li = link("Posts", to: ~p"/posts?#{[pq: "#{true_prefix}author_id:#{@user.id}"]}")
         = if current?(@user, @conn.assigns.current_user) do
           li = link "My reports", to: ~p"/reports"
 
@@ -139,24 +136,42 @@
 
       = render PhilomenaWeb.ProfileView, "_about_me.html", user: @user, about_me: @about_me, conn: @conn
 
-    = if can_read_mod_notes?(@conn) and not hide_staff_tools?(@conn) do
+    = if can_read_mod_notes?(@conn, @user) and not hide_staff_tools?(@conn) do
       .block
-        a.block__header--single-item href=~p"/profiles/#{@user}/details" Mod Notes
-        table.table
-          thead
-            tr
-              th Note
-              th Created
-          tbody
-            = for {mod_note, body} <- @mod_notes do
+        .block__header.flex.flex--no-wrap
+          a.flex__grow href=~p"/admin/mod_notes?#{[user_id: @user.id]}" Mod Notes
+          a.flex__right.flex__shrink href=~p"/admin/mod_notes/new?#{[user_id: @user.id]}"
+            i.fa.fa-plus>
+            ' New
+        = if Enum.any?(@mod_notes) do
+          table.table
+            thead
               tr
-                td = body
-                td = pretty_time(mod_note.created_at)
-    = if can_index_user?(@conn) do
+                th Note
+                th Created
+            tbody
+              = for {mod_note, body} <- @mod_notes do
+                tr
+                  td = body
+                  td = pretty_time(mod_note.created_at)
       .block
         a.block__header--single-item href=~p"/profiles/#{@user}/scratchpad/edit" Moderation Scratchpad
         .block__content.profile-about
           = @scratchpad
+    = if can_see_user_name_changes?(@conn, @user) and not hide_staff_tools?(@conn) and Enum.any?(@name_changes) do
+      .block
+        .block__header
+          span.block__header__title Name History
+        table.table
+          thead
+            tr
+              th Name
+              th Changed
+          tbody
+            = for nc <- @name_changes do
+              tr
+                td = nc.name
+                td = pretty_time nc.created_at
 
   .column-layout__main
     = render PhilomenaWeb.ProfileView, "_statistics.html", user: @user, statistics: @statistics, conn: @conn

@@ -1,10 +1,11 @@
 defmodule PhilomenaWeb.MarkdownRenderer do
   alias Philomena.Markdown
-  alias Philomena.Images.Image
-  alias Philomena.Repo
+  alias Philomena.Images
   alias PhilomenaWeb.ImageView
   import Phoenix.HTML.Link
-  import Ecto.Query
+
+  # TODO: collection_renderer pattern is a weird inversion of control
+  # that is no longer needed. It should flow one way from context to web
 
   def render_one(item, conn) do
     hd(render_collection([item], conn))
@@ -24,6 +25,29 @@ defmodule PhilomenaWeb.MarkdownRenderer do
       (text || "")
       |> Markdown.to_html(representations)
       |> Phoenix.HTML.raw()
+    end)
+  end
+
+  @doc """
+  Renders a line-by-line diff table between two Markdown sources to safe HTML.
+  """
+  # The NIF escapes the source text; only its own diff markup is live
+  # sobelow_skip ["XSS.Raw"]
+  def render_diff(old, new) do
+    (old || "")
+    |> Markdown.to_html_diff(new || "")
+    |> Phoenix.HTML.raw()
+  end
+
+  @doc """
+  Renders line diffs for a list of version structs (as prepared by
+  `Philomena.Versions.for_post/1` and `for_comment/1`).
+  Each version's `:difference` field is set to the rendered safe HTML diff
+  from the next-older revision's body to this version's body.
+  """
+  def render_version_diffs(versions) do
+    Enum.map(versions, fn v ->
+      %{v | difference: render_diff(v.previous_body, v.body)}
     end)
   end
 
@@ -49,10 +73,8 @@ defmodule PhilomenaWeb.MarkdownRenderer do
   defp load_images(images) do
     ids = Enum.map(images, fn m -> Enum.at(m, 0) end)
 
-    Image
-    |> where([i], i.id in ^ids)
-    |> preload([:sources, tags: :aliases])
-    |> Repo.all()
+    ids
+    |> Images.list_images_by_ids()
     |> Map.new(&{&1.id, &1})
   end
 

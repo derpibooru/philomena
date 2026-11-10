@@ -2,7 +2,8 @@
   .block
     .block__header
       span.block__header__title Recent Forum Posts
-      = link "View all", to: ~p"/posts?#{[pq: "user_id:#{@user.id}"]}"
+      - true_prefix = if can_reveal_anon?(@conn), do: "true_", else: ""
+      = link "View all", to: ~p"/posts?#{[pq: "#{true_prefix}author_id:#{@user.id}"]}"
 
     .block__content
       .block

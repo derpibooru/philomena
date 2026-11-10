@@ -1,7 +1,22 @@
 defmodule PhilomenaWeb.TagChangeView do
+  alias Philomena.Tags.Tag
+
   use PhilomenaWeb, :view
 
-  alias Philomena.Tags.Tag
+  def scope(conn) do
+    []
+    |> scope(conn, "tcq", :tcq)
+    |> scope(conn, "sf", :sf)
+    |> scope(conn, "sd", :sd)
+  end
+
+  defp scope(list, conn, key, key_atom) do
+    case conn.params[key] do
+      nil -> list
+      "" -> list
+      val -> [{key_atom, val} | list]
+    end
+  end
 
   def staff?(tag_change),
     do:
@@ -19,8 +34,8 @@ defmodule PhilomenaWeb.TagChangeView do
   def reverts_tag_changes?(conn),
     do: can?(conn, :revert, Philomena.TagChanges.TagChange)
 
-  def non_retained_tags(%{image: image, tags: tags}) do
-    tags
+  def non_retained_tags(%{image: image, tag_change_tags: tag_change_tags}) do
+    tag_change_tags
     |> Enum.filter(fn tct ->
       tct.added != Enum.any?(image.tags, &(&1.id == tct.tag.id))
     end)
@@ -39,7 +54,7 @@ defmodule PhilomenaWeb.TagChangeView do
   end
 
   def split_tags(tag_change) do
-    {added_tags, removed_tags} = Enum.split_with(tag_change.tags, & &1.added)
+    {added_tags, removed_tags} = Enum.split_with(tag_change.tag_change_tags, & &1.added)
 
     {
       added_tags |> Enum.map(& &1.tag) |> Tag.display_order(),

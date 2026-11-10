@@ -1,51 +1,22 @@
 defmodule PhilomenaWeb.Admin.ArtistLinkController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.ArtistLinks.ArtistLink
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.ArtistLinks
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, %{"all" => _value}) do
-    load_links(ArtistLink, conn)
-  end
-
-  def index(conn, %{"lq" => query}) do
-    query = "%#{query}%"
-
-    ArtistLink
-    |> join(:inner, [ul], _ in assoc(ul, :user))
-    |> where([ul, u], ilike(u.name, ^query) or ilike(ul.uri, ^query))
-    |> load_links(conn)
-  end
-
-  def index(conn, _params) do
-    ArtistLink
-    |> where([u], u.aasm_state in ^["unverified", "link_verified", "contacted"])
-    |> load_links(conn)
-  end
-
-  defp load_links(queryable, conn) do
-    links =
-      queryable
-      |> order_by(desc: :created_at)
-      |> preload([
-        :tag,
-        :verified_by_user,
-        :contacted_by_user,
-        user: [:linked_tags, awards: :badge]
-      ])
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html", title: "Admin - Artist Links", artist_links: links)
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, %ArtistLink{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+  def index(conn, params) do
+    with {:ok, artist_links, changeset} <-
+           ArtistLinks.list_admin_artist_links(
+             conn.assigns.actor,
+             query_param(params, "lq"),
+             conn.assigns.scrivener
+           ) do
+      render(conn, "index.html",
+        title: "Admin - Artist Links",
+        artist_links: artist_links,
+        changeset: changeset
+      )
     end
   end
 end

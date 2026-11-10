@@ -155,6 +155,7 @@ h1 Search
         "Sort by downvotes": :downvotes,
         "Sort by score": :score,
         "Sort by Wilson score": :wilson_score,
+        "Sort by hides": :hides,
         "Sort by relevance": :_score,
         "Sort by width": :width,
         "Sort by height": :height,

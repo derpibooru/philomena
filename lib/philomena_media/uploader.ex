@@ -39,8 +39,8 @@ defmodule PhilomenaMedia.Uploader do
 
         @field_name "foo"
 
-        def analyze_upload(schema, params) do
-          Uploader.analyze_upload(schema, @field_name, params[@field_name], &Schema.foo_changeset/2)
+        def analyze_upload(schema, upload) do
+          Uploader.analyze_upload(schema, @field_name, upload, &Schema.foo_changeset/2)
         end
 
         def persist_upload(schema) do
@@ -61,10 +61,11 @@ defmodule PhilomenaMedia.Uploader do
       alias Philomena.Schemas.Schema
       alias Philomena.Schemas.Uploader
 
-      @spec create_schema(map()) :: {:ok, Schema.t()} | {:error, Ecto.Changeset.t()}
-      def create_schema(attrs) do
+      @spec create_schema(map(), Upload.t() | nil) ::
+              {:ok, Schema.t()} | {:error, Ecto.Changeset.t()}
+      def create_schema(attrs, upload) do
         %Schema{}
-        |> Uploader.analyze_upload(attrs)
+        |> Uploader.analyze_upload(upload)
         |> Repo.insert()
         |> case do
           {:ok, schema} ->
@@ -77,10 +78,11 @@ defmodule PhilomenaMedia.Uploader do
         end
       end
 
-      @spec update_schema(Schema.t(), map()) :: {:ok, Schema.t()} | {:error, Ecto.Changeset.t()}
-      def update_schema(%Schema{} = schema, attrs) do
+      @spec update_schema(Schema.t(), map(), Upload.t() | nil) ::
+              {:ok, Schema.t()} | {:error, Ecto.Changeset.t()}
+      def update_schema(%Schema{} = schema, attrs, upload) do
         schema
-        |> Uploader.analyze_upload(attrs)
+        |> Uploader.analyze_upload(upload)
         |> Repo.update()
         |> case do
           {:ok, schema} ->
@@ -109,6 +111,7 @@ defmodule PhilomenaMedia.Uploader do
   alias PhilomenaMedia.Filename
   alias PhilomenaMedia.Objects
   alias PhilomenaMedia.Sha512
+  alias PhilomenaMedia.Upload
   import Ecto.Changeset
 
   @type schema :: struct()
@@ -118,8 +121,8 @@ defmodule PhilomenaMedia.Uploader do
   @type file_root :: String.t()
 
   @doc """
-  Performs analysis of the specified `m:Plug.Upload`, and invokes a changeset callback on the schema
-  or changeset passed in.
+  Performs analysis of the specified `m:PhilomenaMedia.Upload`, and invokes a changeset callback
+  on the schema or changeset passed in.
 
   The file name which will be written to is set by the assignment to the schema's `field_name`, and
   the below attributes are prefixed by the `field_name`.
@@ -197,21 +200,21 @@ defmodule PhilomenaMedia.Uploader do
 
   ## Example
 
-      @spec analyze_upload(Uploader.schema_or_changeset(), map()) :: Ecto.Changeset.t()
-      def analyze_upload(schema, params) do
-        Uploader.analyze_upload(schema, "foo", params["foo"], &Schema.foo_changeset/2)
+      @spec analyze_upload(Uploader.schema_or_changeset(), Upload.t() | nil) :: Ecto.Changeset.t()
+      def analyze_upload(schema, upload) do
+        Uploader.analyze_upload(schema, "foo", upload, &Schema.foo_changeset/2)
       end
 
   """
   @spec analyze_upload(
           schema_or_changeset(),
           field_name(),
-          Plug.Upload.t(),
+          Upload.t() | nil,
           (schema_or_changeset(), map() -> Ecto.Changeset.t())
         ) :: Ecto.Changeset.t()
-  def analyze_upload(schema_or_changeset, field_name, upload_parameter, changeset_fn) do
-    with {:ok, analysis} <- Analyzers.analyze_upload(upload_parameter),
-         analysis <- extra_attributes(analysis, upload_parameter) do
+  def analyze_upload(schema_or_changeset, field_name, upload, changeset_fn) do
+    with {:ok, analysis} <- Analyzers.analyze_upload(upload),
+         analysis <- extra_attributes(analysis, upload) do
       removed =
         schema_or_changeset
         |> change()
@@ -234,7 +237,7 @@ defmodule PhilomenaMedia.Uploader do
         }
         |> prefix_attributes(field_name)
         |> Map.put(field_name, analysis.new_name)
-        |> Map.put(upload_key(field_name), upload_parameter.path)
+        |> Map.put(upload_key(field_name), upload.path)
         |> Map.put(remove_key(field_name), removed)
 
       changeset_fn.(schema_or_changeset, attributes)
@@ -324,7 +327,7 @@ defmodule PhilomenaMedia.Uploader do
     |> try_remove(file_root)
   end
 
-  defp extra_attributes(analysis, %Plug.Upload{path: path, filename: filename}) do
+  defp extra_attributes(analysis, %Upload{path: path, filename: filename}) do
     {width, height} = analysis.dimensions
     aspect_ratio = aspect_ratio(width, height)
 

@@ -4,4 +4,4 @@ set -e
 export RELEASE_NODE=philomena_daily
 
 philomena eval 'Philomena.Release.generate_autocomplete()'
-philomena eval 'Philomena.Release.clean_moderation_logs()'
+philomena eval 'Philomena.Release.clean_tags()'

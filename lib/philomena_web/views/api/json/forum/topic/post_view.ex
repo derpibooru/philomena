@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
   use PhilomenaWeb, :view
+  alias Philomena.Attribution.AnonymousName
   alias PhilomenaWeb.UserAttributionView
 
   def render("index.json", %{posts: posts, total: total} = assigns) do
@@ -38,7 +39,7 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),
-      author: UserAttributionView.name(post),
+      author: AnonymousName.name(post),
       avatar: UserAttributionView.avatar_url(post),
       body: nil,
       created_at: post.created_at,
@@ -52,7 +53,7 @@ defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostView do
     %{
       id: post.id,
       user_id: if(not post.anonymous, do: post.user_id),
-      author: UserAttributionView.name(post),
+      author: AnonymousName.name(post),
       avatar: UserAttributionView.avatar_url(post),
       body: post.body,
       created_at: post.created_at,

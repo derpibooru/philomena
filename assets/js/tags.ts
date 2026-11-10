@@ -4,7 +4,6 @@
 
 import { $$, showEl, makeEl, hideIf, $, setClassIf } from './utils/dom';
 import { assertNotNull, assertNotUndefined } from './utils/assert';
-import '../types/ujs';
 
 type TagDropdownActionFunction = () => void;
 type TagDropdownActionList = Record<string, TagDropdownActionFunction>;

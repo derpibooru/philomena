@@ -27,7 +27,7 @@ fn untrusted_host(url: Url, camo_host: &str, camo_key: &str) -> Option<String> {
     Some(camo_uri.to_string())
 }
 
-pub fn image_url(uri: &str) -> Option<String> {
+pub fn try_image_url(uri: &str) -> Option<String> {
     let cdn_host = env::var("CDN_HOST").ok()?;
     let camo_host = env::var("CAMO_HOST").unwrap_or_else(|_| "".into());
     let camo_key = env::var("CAMO_KEY").unwrap_or_else(|_| "".into());
@@ -45,6 +45,6 @@ pub fn image_url(uri: &str) -> Option<String> {
     }
 }
 
-pub fn image_url_careful(uri: &str) -> String {
-    image_url(uri).unwrap_or_else(|| "".into())
+pub fn image_url(uri: &str) -> String {
+    try_image_url(uri).unwrap_or_else(|| "".into())
 }

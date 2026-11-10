@@ -2,20 +2,25 @@ h1 Artist Links
 p Link creation is done via the Users menu.
 p Verifying a link will automatically award an artist badge if the link is public, no artist badge exists, and an "artist:" tag is specified.
 
-= form_for :artist_link, ~p"/admin/artist_links", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/artist_links", [as: :lq, method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :lq, name: :lq, value: @conn.params["lq"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none", spellcheck: "false"
+    = text_input f, :text, class: "input hform__text", placeholder: "Search query", autocapitalize: "none", spellcheck: "false"
+    = for state <- input_value(f, :states) || [] do
+      = hidden_input f, :states, name: "#{f.name}[states][]", value: state
+    = error_tag f, :states
+    = error_tag f, :text
     = submit "Search", class: "hform__button button"
 
 - route = fn p -> ~p"/admin/artist_links?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @artist_links, route: route, params: scope(@conn), conn: @conn
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @artist_links, route: route, params: [lq: @conn.params["lq"]], conn: @conn
 
 .block
   .block__header
-    = if @conn.params["all"] do
-      = link "Show unverified only", to: ~p"/admin/artist_links"
-    - else
-      = link "Show all", to: ~p"/admin/artist_links?#{[all: "true"]}"
+    span.block__header__title Display only:
+    => link "Pending", to: ~p"/admin/artist_links"
+    => link "Verified", to: ~p"/admin/artist_links?#{[lq: [states: ~w(verified)]]}"
+    => link "Rejected", to: ~p"/admin/artist_links?#{[lq: [states: ~w(rejected)]]}"
+    => link "All", to: ~p"/admin/artist_links?#{[lq: [states: Philomena.ArtistLinks.ArtistLink.states()]]}"
 
     .page__pagination = pagination
 

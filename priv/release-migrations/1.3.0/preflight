@@ -1,0 +1,29 @@
+#!/bin/sh
+# Checks that each user has at most one commission, and that usernames can be
+# made unique regardless of letter case.
+
+set -e
+
+. "$(dirname "$0")/common.sh"
+
+check_duplicate_commissions
+
+if name_index_exists || [ "$(colliding_name_groups)" = 0 ]; then
+  exit 0
+fi
+
+rename_dry_run
+
+if [ "$unresolved" != 0 ]; then
+  echo
+  echo "Rename all but one account in each of these groups, then try again."
+  explain_full_report
+  exit 1
+fi
+
+if [ "${ACCEPT_USER_RENAMES:-}" != 1 ]; then
+  echo
+  echo "To let the upgrade rename these accounts, run it with ACCEPT_USER_RENAMES=1."
+  explain_full_report
+  exit 1
+fi

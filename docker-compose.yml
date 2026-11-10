@@ -41,6 +41,7 @@ services:
       - IMAGE_URL_ROOT=/img
       - BADGE_URL_ROOT=/badge-img
       - TAG_URL_ROOT=/tag-img
+      - MEDIAPROC_ADDR=mediaproc:1500
       - OPENSEARCH_URL=http://opensearch:9200
       - REDIS_HOST=valkey
       - DATABASE_URL=ecto://postgres:postgres@postgres/philomena_dev
@@ -62,19 +63,19 @@ services:
       - shell_history:/shell-history
       - cargo_registry:/root/.cargo/registry
       - cargo_git:/root/.cargo/git
+
     ports:
       - '5173:5173'
 
   postgres:
-    image: postgres:17.11-alpine
+    image: postgres:18.6-alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    attach: false
+      - postgres_data:/var/lib/postgresql
 
   opensearch:
-    image: opensearchproject/opensearch:3.8.0
+    image: opensearchproject/opensearch:3.9.0
     volumes:
       - opensearch_data:/usr/share/opensearch/data
       - ${HOST_WORKSPACE:-.}/docker/opensearch/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
@@ -85,7 +86,7 @@ services:
         hard: 65536
 
   valkey:
-    image: valkey/valkey:8.1.10-alpine
+    image: valkey/valkey:9.1.3-alpine
     attach: false
 
   files:
@@ -96,6 +97,18 @@ services:
     volumes:
       - s3_data:/data
     attach: false
+
+  mediaproc:
+    build:
+      context: .
+      dockerfile: ./docker/mediaproc/Dockerfile
+    attach: false
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 8gb
+          pids: 8192
 
   web:
     build:

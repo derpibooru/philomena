@@ -1,40 +1,26 @@
 defmodule PhilomenaWeb.Forum.SubscriptionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Forums.Forum
   alias Philomena.Forums
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
-
-  def create(conn, _params) do
-    forum = conn.assigns.forum
-    user = conn.assigns.current_user
-
-    case Forums.create_subscription(forum, user) do
-      {:ok, _subscription} ->
+  def create(conn, params) do
+    case Forums.create_forum_subscription(conn.assigns.actor, params["forum_id"]) do
+      {:ok, forum} ->
         render(conn, "_subscription.html", forum: forum, watching: true, layout: false)
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{}} ->
         render(conn, "_error.html", layout: false)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    forum = conn.assigns.forum
-    user = conn.assigns.current_user
-
-    case Forums.delete_subscription(forum, user) do
-      {:ok, _subscription} ->
-        render(conn, "_subscription.html", forum: forum, watching: false, layout: false)
-
-      {:error, _changeset} ->
-        render(conn, "_error.html", layout: false)
+  def delete(conn, params) do
+    with {:ok, forum} <- Forums.delete_forum_subscription(conn.assigns.actor, params["forum_id"]) do
+      render(conn, "_subscription.html", forum: forum, watching: false, layout: false)
     end
   end
 end

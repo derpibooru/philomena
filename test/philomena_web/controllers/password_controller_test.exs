@@ -88,7 +88,9 @@ defmodule PhilomenaWeb.PasswordControllerTest do
       assert redirected_to(conn) == ~p"/sessions/new"
       refute get_session(conn, :user_token)
       assert Flash.get(conn.assigns.flash, :info) =~ "Password reset successfully"
-      assert Users.get_user_by_email_and_password(user.email, "new valid password", & &1)
+
+      assert {:ok, _} =
+               Users.fetch_user_by_email_and_password(user.email, "new valid password", & &1)
     end
 
     test "does not reset password on invalid data", %{conn: conn, token: token} do
@@ -111,6 +113,33 @@ defmodule PhilomenaWeb.PasswordControllerTest do
 
       assert Flash.get(conn.assigns.flash, :error) =~
                "Reset password link is invalid or it has expired"
+    end
+  end
+
+  describe "when already logged in" do
+    setup :register_and_log_in_user
+
+    test "GET /passwords/new redirects to the homepage", %{conn: conn} do
+      conn = get(conn, ~p"/passwords/new")
+      assert redirected_to(conn) == "/"
+    end
+
+    test "POST /passwords redirects without creating a token", %{conn: conn, user: user} do
+      conn = post(conn, ~p"/passwords", %{"user" => %{"email" => user.email}})
+      assert redirected_to(conn) == "/"
+      refute Repo.get_by(Users.UserToken, user_id: user.id, context: "reset_password")
+    end
+
+    test "GET /passwords/:id/edit redirects to the homepage", %{conn: conn} do
+      conn = get(conn, ~p"/passwords/oops/edit")
+      assert redirected_to(conn) == "/"
+      refute Flash.get(conn.assigns.flash, :error)
+    end
+
+    test "PUT /passwords/:id redirects to the homepage", %{conn: conn} do
+      conn = put(conn, ~p"/passwords/oops")
+      assert redirected_to(conn) == "/"
+      refute Flash.get(conn.assigns.flash, :error)
     end
   end
 end

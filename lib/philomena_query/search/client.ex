@@ -16,9 +16,9 @@ defmodule PhilomenaQuery.Search.Client do
   @doc """
   HTTP GET
   """
-  @spec get(String.t(), list_or_map()) :: result()
-  def get(url, body) do
-    Req.get(url, encode_options(body))
+  @spec get(String.t()) :: result()
+  def get(url) do
+    Req.get(url, encode_options())
   end
 
   @doc """

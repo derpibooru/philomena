@@ -5,18 +5,19 @@ defmodule PhilomenaWeb.RegistrationController do
   alias Philomena.Users
   alias Philomena.Users.User
 
+  action_fallback PhilomenaWeb.FallbackController
+
   plug PhilomenaWeb.CaptchaPlug when action in [:new, :create]
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CompromisedPasswordCheckPlug when action in [:create]
-  plug :assign_email_and_password_changesets when action in [:edit]
 
   def new(conn, _params) do
-    changeset = Users.change_user_registration(%User{})
-    render(conn, "new.html", changeset: changeset)
+    with {:ok, changeset} <- Users.new_registration(conn.assigns.actor, %User{}) do
+      render(conn, "new.html", changeset: changeset)
+    end
   end
 
   def create(conn, %{"user" => user_params}) do
-    case Users.register_user(user_params) do
+    case Users.create_registration(conn.assigns.actor, user_params) do
       {:ok, user} ->
         UserAuth.update_usages(conn, user)
 
@@ -35,18 +36,21 @@ defmodule PhilomenaWeb.RegistrationController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      error ->
+        error
     end
   end
 
   def edit(conn, _params) do
-    render(conn, "edit.html", title: "Account Settings")
-  end
-
-  defp assign_email_and_password_changesets(conn, _opts) do
     user = conn.assigns.current_user
 
-    conn
-    |> assign(:email_changeset, Users.change_user_email(user))
-    |> assign(:password_changeset, Users.change_user_password(user))
+    render(
+      conn,
+      "edit.html",
+      title: "Account Settings",
+      email_changeset: Users.change_user_email(user),
+      password_changeset: Users.edit_password(user)
+    )
   end
 end

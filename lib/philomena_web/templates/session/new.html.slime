@@ -29,5 +29,5 @@ h1 Sign in
 p
   strong
     ' Haven't read the
-    a<> href="/pages/rules" site rules
+    a<> href="/rules" site rules
     ' lately? Make sure you read them before posting or editing metadata!

@@ -6,7 +6,7 @@ h1 Staff
       ' Do
       em not
     ' PM staff members with your reports. Instead, if you think something breaks
-    = link to: "/pages/rules" do
+    = link to: "/rules" do
       | the rules
     ' , use the "Report" button, which is included next to all user-created content on the site. This will ensure swift handling of your issue, since most staff members don't check their PMs nearly as vigilantly as the reports queue.
   p Staff PMs are only for general questions or for getting help with using the site.
@@ -19,14 +19,15 @@ h1 Staff
   p Keep in mind that all staff are unpaid volunteers who donate their time and effort into making sure this site remains organized and operational. Please do not harass them, and try to keep your PMs constructive. We will happily answer your questions, however receiving plenty of PMs for no reason gets tiring and impacts our ability to tend to more important matters, so please make sure you actually have a need to contact a staff member before doing so.
 
 .staff-block
-  = for {header, users} <- @categories do
-    - header = to_string(header)
+  = for category <- [:administrators, :developers, :public_relations, :moderators, :assistants, :others, :unavailable] do
+    - users = @categories[category]
+    - header = category_title(category)
 
     = if Enum.any?(users) do
-      div class="block block--fixed staff-block__category #{category_class(header)}" = header
+      div class="block block--fixed staff-block__category #{category_class(category)}" = header
       p.staff-block__description
         i.fa.fa-fw.fa-info-circle>
-        = category_description(header)
+        = category_description(category)
 
       .staff-block__grid
         = for user <- users do

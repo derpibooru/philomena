@@ -4,6 +4,7 @@ defmodule Philomena.Images.Image do
   import Bitwise
   import Ecto.Changeset
 
+  alias Philomena.Attribution.Actor
   alias Philomena.ImageIntensities.ImageIntensity
   alias Philomena.ImageVotes.ImageVote
   alias Philomena.ImageFaves.ImageFave
@@ -16,13 +17,15 @@ defmodule Philomena.Images.Image do
   alias Philomena.Comments.Comment
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges.TagChange
+  alias Philomena.Reports.Report
 
   alias Philomena.Images.Image
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.SourceDiffer
   alias Philomena.Images.TagValidator
   alias Philomena.Images.DnpValidator
-  alias Philomena.Repo
+
+  @type t :: %__MODULE__{}
 
   schema "images" do
     belongs_to :user, User
@@ -40,11 +43,13 @@ defmodule Philomena.Images.Image do
     has_many :downvoters, through: [:downvotes, :user]
     has_many :favers, through: [:faves, :user]
     has_many :hiders, through: [:hides, :user]
+    has_many :subscribers, through: [:subscriptions, :user]
     many_to_many :tags, Tag, join_through: "image_taggings", on_replace: :delete
     many_to_many :locked_tags, Tag, join_through: "image_tag_locks", on_replace: :delete
     has_one :intensity, ImageIntensity
     has_many :galleries, through: [:gallery_interactions, :image]
     has_many :sources, Source, on_replace: :delete
+    has_many :reports, Report
 
     field :image, :string
     field :image_name, :string
@@ -94,6 +99,12 @@ defmodule Philomena.Images.Image do
     field :uploaded_image, :string, virtual: true
     field :removed_image, :string, virtual: true
 
+    field :tag_change_count, :integer, virtual: true
+    field :tag_change_tag_count, :integer, virtual: true
+    field :source_change_count, :integer, virtual: true
+
+    field :username, :string, virtual: true
+
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
@@ -113,11 +124,11 @@ defmodule Philomena.Images.Image do
     |> validate_required([])
   end
 
-  def creation_changeset(image, attrs, attribution) do
+  def creation_changeset(image, attrs, %Actor{} = actor) do
     image
     |> cast(attrs, [:anonymous, :source_url, :description])
     |> change(first_seen_at: DateTime.utc_now(:second))
-    |> change(attribution)
+    |> change(Actor.to_changes(actor))
     |> validate_length(:description, max: 50_000, count: :bytes)
     |> validate_format(:source_url, ~r/\Ahttps?:\/\//)
   end
@@ -165,8 +176,10 @@ defmodule Philomena.Images.Image do
     )
     |> check_dimensions()
     |> prepare_changes(fn changeset ->
+      # This is just to give a nicer validation failure error message within Ecto.
+      # The image sha512 field has a real unique constraint.
       sha512 = fetch_field!(changeset, :image_orig_sha512_hash)
-      other_image = Repo.get_by(Image, image_orig_sha512_hash: sha512)
+      other_image = changeset.repo.get_by(Image, image_orig_sha512_hash: sha512)
 
       if is_nil(other_image) or other_image.id == changeset.data.id do
         changeset
@@ -198,15 +211,24 @@ defmodule Philomena.Images.Image do
 
   def remove_image_changeset(image) do
     image
-    |> change(removed_image: image.image)
-    |> change(image: nil)
+    |> change()
+    |> validate_hidden()
+    |> validate_not_destroyed()
+    |> change(destroyed_content: true, removed_image: image.image, image: nil)
   end
 
-  def source_changeset(image, attrs, old_sources, new_sources) do
+  def source_changeset(image, added_sources, removed_sources) do
     image
-    |> cast(attrs, [])
-    |> SourceDiffer.diff_input(old_sources, new_sources)
+    |> change()
+    |> SourceDiffer.apply(added_sources, removed_sources)
     |> validate_length(:sources, max: 15)
+  end
+
+  def meaningful_source_update?(changeset) do
+    added = get_field(changeset, :added_sources)
+    removed = get_field(changeset, :removed_sources)
+
+    not (Enum.empty?(added) and Enum.empty?(removed))
   end
 
   def sources_changeset(image, new_sources) do
@@ -215,11 +237,18 @@ defmodule Philomena.Images.Image do
     |> validate_length(:sources, max: 15)
   end
 
-  def tag_changeset(image, attrs, old_tags, new_tags, excluded_tags \\ []) do
+  def tag_changeset(image, added_tags, removed_tags, excluded_tags \\ []) do
     image
-    |> cast(attrs, [])
-    |> TagDiffer.diff_input(old_tags, new_tags, excluded_tags)
+    |> change()
+    |> TagDiffer.apply(added_tags, removed_tags, excluded_tags)
     |> TagValidator.validate_tags()
+  end
+
+  def meaningful_tag_update?(changeset) do
+    added = get_field(changeset, :added_tags)
+    removed = get_field(changeset, :removed_tags)
+
+    not (Enum.empty?(added) and Enum.empty?(removed))
   end
 
   def locked_tags_changeset(image, attrs, locked_tags) do
@@ -228,10 +257,10 @@ defmodule Philomena.Images.Image do
     |> put_assoc(:locked_tags, locked_tags)
   end
 
-  def dnp_changeset(image, user) do
+  def dnp_changeset(image, user, tags_with_dnp) do
     image
     |> change()
-    |> DnpValidator.validate_dnp(user)
+    |> DnpValidator.validate_dnp(user, tags_with_dnp)
   end
 
   def thumbnail_changeset(image, attrs) do
@@ -279,14 +308,24 @@ defmodule Philomena.Images.Image do
     image
     |> cast(attrs, [:deletion_reason])
     |> validate_required([:deletion_reason])
+    |> validate_hidden()
   end
 
-  def merge_changeset(image, duplicate_of_image) do
-    change(image)
+  def merge_source_changeset(image, duplicate_of_image) do
+    image
+    |> change()
     |> validate_not_hidden()
+    |> validate_merge_target(duplicate_of_image)
     |> put_change(:duplicate_id, duplicate_of_image.id)
     |> put_change(:hidden_image_key, create_key())
     |> put_change(:hidden_from_users, true)
+  end
+
+  def first_seen_at_changeset(image, candidate_images) do
+    candidate_images
+    |> Enum.map(& &1.first_seen_at)
+    |> Enum.min(DateTime)
+    |> then(&change(image, first_seen_at: &1))
   end
 
   def unhide_changeset(image) do
@@ -325,18 +364,29 @@ defmodule Philomena.Images.Image do
     |> put_assoc(:source_changes, [])
   end
 
-  def uploader_changeset(image, attrs) do
-    user_id =
-      if attrs["username"] not in [nil, ""] do
-        Repo.get_by!(User, name: attrs["username"]).id
-      else
-        nil
-      end
+  def username_changeset(image, attrs) do
+    cast(image, attrs, [:username])
+  end
 
-    change(image)
-    |> put_change(:user_id, user_id)
+  def uploader_changeset(image, username, uploader) do
+    image
+    |> change()
     |> put_change(:ip, %Postgrex.INET{address: {127, 0, 0, 1}, netmask: 32})
     |> put_change(:fingerprint, "ffff")
+    |> put_uploader(username, uploader)
+  end
+
+  # A blank username anonymizes the image.
+  defp put_uploader(changeset, username, nil) do
+    if username do
+      add_error(changeset, :username, "does not name a known user")
+    else
+      put_change(changeset, :user_id, nil)
+    end
+  end
+
+  defp put_uploader(changeset, _username, uploader) do
+    put_change(changeset, :user_id, uploader.id)
   end
 
   def anonymous_changeset(image, attrs) do
@@ -370,9 +420,23 @@ defmodule Philomena.Images.Image do
     end
   end
 
+  defp validate_merge_target(changeset, %__MODULE__{hidden_from_users: true}) do
+    add_error(changeset, :duplicate_id, "must refer to a visible image")
+  end
+
+  defp validate_merge_target(changeset, %__MODULE__{}), do: changeset
+
   defp validate_not_approved(changeset) do
     if get_field(changeset, :approved) do
       add_error(changeset, :approved, "must be false")
+    else
+      changeset
+    end
+  end
+
+  defp validate_not_destroyed(changeset) do
+    if get_field(changeset, :destroyed_content) do
+      add_error(changeset, :destroyed_content, "must be false")
     else
       changeset
     end

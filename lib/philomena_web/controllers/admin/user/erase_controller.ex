@@ -1,77 +1,56 @@
 defmodule PhilomenaWeb.Admin.User.EraseController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
   alias Philomena.Users
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_resource,
-    model: User,
-    id_name: "user_id",
-    id_field: "slug",
-    persisted: true,
-    preload: [:roles]
+  def new(conn, %{"user_id" => slug}) do
+    case Users.new_user_erase(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        render(conn, "new.html", title: "Erase user", user: user)
 
-  plug :prevent_deleting_nonexistent_users
-  plug :prevent_deleting_privileged_users
-  plug :prevent_deleting_verified_users
-
-  def new(conn, _params) do
-    render(conn, "new.html", title: "Erase user")
-  end
-
-  def create(conn, _params) do
-    {:ok, user} = Users.erase_user(conn.assigns.user, conn.assigns.current_user)
-
-    conn
-    |> put_flash(:info, "User erase started")
-    |> moderation_log(details: &log_details/2, data: {conn.assigns.user, user})
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, %User{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      error ->
+        render_erase_error(conn, error)
     end
   end
 
-  defp prevent_deleting_nonexistent_users(conn, _opts) do
-    if is_nil(conn.assigns.user) do
-      conn
-      |> put_flash(:error, "Couldn't find that username. Was it already erased?")
-      |> redirect(to: ~p"/admin/users")
-      |> Plug.Conn.halt()
-    else
-      conn
+  def create(conn, %{"user_id" => slug}) do
+    case Users.create_user_erase(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User erase started")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        render_erase_error(conn, error)
     end
   end
 
-  defp prevent_deleting_privileged_users(conn, _opts) do
-    if conn.assigns.user.role != "user" do
-      conn
-      |> put_flash(:error, "Cannot erase a privileged user")
-      |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
-      |> Plug.Conn.halt()
-    else
-      conn
-    end
-  end
+  defp render_erase_error(conn, error) do
+    case error do
+      {:error, :not_found} ->
+        conn
+        |> put_flash(:error, "Couldn't find that username. Was it already erased?")
+        |> redirect(to: ~p"/admin/users")
 
-  defp prevent_deleting_verified_users(conn, _opts) do
-    if conn.assigns.user.verified do
-      conn
-      |> put_flash(:error, "Cannot erase a verified user")
-      |> redirect(to: ~p"/profiles/#{conn.assigns.user}")
-      |> Plug.Conn.halt()
-    else
-      conn
-    end
-  end
+      {:error, {:privileged, user}} ->
+        conn
+        |> put_flash(:error, "Cannot erase a privileged user")
+        |> redirect(to: ~p"/profiles/#{user}")
 
-  defp log_details(_action, {old_user, new_user}) do
-    %{body: "Erased #{old_user.name}", subject_path: ~p"/profiles/#{new_user}"}
+      {:error, {:verified, user}} ->
+        conn
+        |> put_flash(:error, "Cannot erase a verified user")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "Failed to erase user")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        error
+    end
   end
 end

@@ -6,7 +6,7 @@
       .field = label f, :categories, "Art Categories:"
 
       = for {name, _value} <- categories() do
-        - checked = @conn.params["commission"]["category"] && Atom.to_string(name) in @conn.params["commission"]["category"]
+        - checked = Atom.to_string(name) in (Ecto.Changeset.get_field(@changeset, :category) || [])
         .field
           => checkbox f, name, checked_value: name, checked: checked, name: "commission[category][]", class: "checkbox spacing-right", hidden_input: false
           => label f, name, name

@@ -18,4 +18,17 @@ defmodule Philomena.Images.Source do
     |> validate_format(:source, ~r/\Ahttps?:\/\//)
     |> validate_length(:source, max: 255)
   end
+
+  @doc false
+  def input_changeset(source, attrs) do
+    source
+    |> changeset(attrs)
+    |> ignore_if_blank()
+  end
+
+  defp ignore_if_blank(%{valid?: false, changes: changes} = changeset) when changes == %{},
+    do: %{changeset | action: :ignore}
+
+  defp ignore_if_blank(changeset),
+    do: changeset
 end

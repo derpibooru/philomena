@@ -1,5 +1,12 @@
 defmodule Philomena.Tags.SearchIndex do
+  @moduledoc false
+
   @behaviour PhilomenaQuery.Search.Index
+
+  @impl true
+  def version do
+    1
+  end
 
   @impl true
   def index_name do
@@ -35,7 +42,6 @@ defmodule Philomena.Tags.SearchIndex do
           aliased_tag: %{type: "keyword"},
           aliases: %{type: "keyword"},
           implied_tags: %{type: "keyword"},
-          implied_tag_ids: %{type: "keyword"},
           implied_by_tags: %{type: "keyword"},
           category: %{type: "keyword"},
           aliased: %{type: "boolean"},
@@ -64,7 +70,6 @@ defmodule Philomena.Tags.SearchIndex do
       namespace: tag.namespace,
       analyzed_name: tag.name,
       implied_tags: tag.implied_tags |> Enum.map(& &1.name),
-      implied_tag_ids: tag.implied_tags |> Enum.map(& &1.id),
       implied_by_tags: tag.implied_by_tags |> Enum.map(& &1.name),
       aliased_tag: if(!!tag.aliased_tag, do: tag.aliased_tag.name),
       aliases: tag.aliases |> Enum.map(& &1.name),

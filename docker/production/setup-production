@@ -1,25 +1,178 @@
 #!/bin/sh
+# Sets up the database and the search indexes of a production deployment, or
+# brings them up to date with this release. Run it on every deploy, while the
+# application is stopped.
+#
+# Usage: setup-production [--preflight]
+#
+#   --preflight  Only check whether the upgrade to this release can go ahead.
+#                Changes nothing, and can be run against the database of a
+#                running site. Exits with a non-zero status when something
+#                has to be dealt with first.
+#
+# Besides the schema migrations, a release may need steps of its own. These
+# release migrations live in priv/release-migrations/<version>/, as up to
+# three shell scripts:
+#
+#   preflight     Read-only check, run by --preflight.
+#   pre-migrate   Runs before the schema migrations.
+#   post-migrate  Runs after the schema migrations, and before the search
+#                 indexes are migrated.
+#
+# The release migrations of a version run once: the `release_migrations`
+# table records the versions that were applied. A freshly created database
+# starts out with every known version recorded. Scripts must tolerate being
+# run again after a failure, as a version is only recorded once all of its
+# steps have succeeded.
+#
+# Environment:
+#
+#   RELEASE_MIGRATIONS_DIR   Where the release migrations are read from.
+#   RELEASE_MIGRATIONS_SKIP  Versions (separated by spaces) to record as
+#                            applied without running their steps.
+
 set -e
 
+migrations_dir=${RELEASE_MIGRATIONS_DIR:-/srv/philomena/priv/release-migrations}
+mode=setup
+
+case "${1:-}" in
+  --preflight) mode=preflight ;;
+  '') ;;
+  *)
+    echo "Usage: setup-production [--preflight]" >&2
+    exit 2
+    ;;
+esac
+
+sql() {
+  PGOPTIONS='--client-min-messages=warning' psql -X -q -v ON_ERROR_STOP=1 -tA "$@"
+}
+
+table_exists() {
+  [ "$(sql -c "SELECT to_regclass('public.$1') IS NOT NULL")" = t ]
+}
+
+# Version names end up in SQL and in paths, so only plain ones are accepted.
+valid_version() {
+  case "$1" in
+    '' | *[!0-9A-Za-z._-]*) return 1 ;;
+    *) return 0 ;;
+  esac
+}
+
+known_versions() {
+  for dir in "$migrations_dir"/*/; do
+    [ -d "$dir" ] || continue
+    version=$(basename "$dir")
+
+    if valid_version "$version"; then
+      echo "$version"
+    fi
+  done | sort -V
+}
+
+# Versions whose release migrations have not been applied to this database.
+pending_versions() {
+  for version in $(known_versions); do
+    if ! table_exists release_migrations ||
+      [ -z "$(sql -c "SELECT 1 FROM release_migrations WHERE version = '$version'")" ]; then
+      echo "$version"
+    fi
+  done
+}
+
+record_version() {
+  sql -c "INSERT INTO release_migrations (version) VALUES ('$1') ON CONFLICT DO NOTHING"
+}
+
+run_step() {
+  script="$migrations_dir/$1/$2"
+
+  if [ -f "$script" ]; then
+    echo "==> Release $1: $2"
+    sh "$script"
+  fi
+}
+
 echo "Waiting for database to start..."
-until pg_isready; do
+until pg_isready -q; do
   sleep 2
 done
 
 echo "Waiting for OpenSearch..."
-until wget --no-check-certificate -qO - $OPENSEARCH_URL; do
+until wget --no-check-certificate -qO /dev/null "$OPENSEARCH_URL"; do
   sleep 2
 done
 
-# Check if the schema_migrations table exists
-TABLE_EXISTS=$(psql -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'schema_migrations');")
+if table_exists schema_migrations; then
+  initialized=true
+else
+  initialized=false
+fi
 
-if [ "$TABLE_EXISTS" = "f" ]; then
+if [ "$mode" = preflight ]; then
+  if [ "$initialized" = false ]; then
+    echo "database is not initialized, nothing to check"
+    exit 0
+  fi
+
+  failed=false
+
+  for version in $(pending_versions); do
+    run_step "$version" preflight || failed=true
+  done
+
+  if [ "$failed" = true ]; then
+    echo "The upgrade cannot go ahead yet, see above." >&2
+    exit 1
+  fi
+
+  echo "Ready to upgrade."
+  exit 0
+fi
+
+if [ "$initialized" = false ]; then
   echo "database appears to be uninitialized (table public.schema_migrations is missing), setting up..."
-  psql < priv/repo/structure.sql
+  psql -X -q -v ON_ERROR_STOP=1 < priv/repo/structure.sql
   philomena eval 'Philomena.Release.seed()'
 else
   echo "database appears to be initialized, skipping setup"
 fi
 
+sql -c "CREATE TABLE IF NOT EXISTS release_migrations (
+  version text PRIMARY KEY,
+  applied_at timestamp NOT NULL DEFAULT timezone('utc', now())
+)"
+
+# A new database is created in its final shape, and has nothing to convert.
+if [ "$initialized" = false ]; then
+  for version in $(known_versions); do
+    record_version "$version"
+  done
+fi
+
+for version in ${RELEASE_MIGRATIONS_SKIP:-}; do
+  if ! valid_version "$version"; then
+    echo "Invalid version in RELEASE_MIGRATIONS_SKIP: $version" >&2
+    exit 2
+  fi
+
+  echo "Recording release $version as applied without running its steps"
+  record_version "$version"
+done
+
+pending=$(pending_versions)
+
+for version in $pending; do
+  run_step "$version" pre-migrate
+done
+
 philomena eval 'Philomena.Release.migrate()'
+
+for version in $pending; do
+  run_step "$version" post-migrate
+  record_version "$version"
+done
+
+philomena eval 'Philomena.Release.migrate_search()'

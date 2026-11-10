@@ -4,46 +4,27 @@ defmodule PhilomenaWeb.Topic.Post.ApproveController do
   alias Philomena.Posts.Post
   alias Philomena.Posts
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :approve
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Post,
-    id_name: "post_id",
-    persisted: true,
-    preload: [:topic, topic: :forum]
-
-  def create(conn, _params) do
-    post = conn.assigns.post
-    user = conn.assigns.current_user
-
-    case Posts.approve_post(post, user) do
+  def create(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "post_id" => post_id}) do
+    case Posts.create_post_approve(conn.assigns.actor, forum_id, topic_id, post_id) do
       {:ok, post} ->
         conn
         |> put_flash(:info, "Post successfully approved.")
-        |> moderation_log(details: &log_details/2, data: post)
-        |> redirect(
-          to:
-            ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-              "#post_#{post.id}"
-        )
+        |> redirect(to: post_anchor(post))
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{data: %Post{} = post}} ->
         conn
-        |> put_flash(:error, "Unable to approve post!")
-        |> redirect(
-          to:
-            ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-              "#post_#{post.id}"
-        )
+        |> put_flash(:info, "Post has already been approved.")
+        |> redirect(to: post_anchor(post))
+
+      error ->
+        error
     end
   end
 
-  defp log_details(_action, post) do
-    %{
-      body: "Approved forum post ##{post.id} in topic '#{post.topic.title}'",
-      subject_path:
-        ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
-          "#post_#{post.id}"
-    }
+  defp post_anchor(post) do
+    ~p"/forums/#{post.topic.forum}/topics/#{post.topic}?#{[post_id: post.id]}" <>
+      "#post_#{post.id}"
   end
 end

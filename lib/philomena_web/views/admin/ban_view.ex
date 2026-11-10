@@ -15,10 +15,8 @@ defmodule PhilomenaWeb.Admin.BanView do
   end
 
   def page_params(params) do
-    case params["bq"] do
-      nil -> []
-      "" -> []
-      q -> [bq: q]
-    end
+    params
+    |> Map.take(["bq", "fingerprint", "ip", "user_id"])
+    |> Enum.reject(fn {_key, value} -> value in [nil, ""] end)
   end
 end

@@ -1,57 +1,46 @@
 defmodule PhilomenaWeb.Image.Comment.HideController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Comments.Comment
   alias Philomena.Comments
+  alias Philomena.Comments.Comment
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
-  plug :load_and_authorize_resource, model: Comment, id_name: "comment_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, %{"comment" => comment_params}) do
-    comment = conn.assigns.comment
-    user = conn.assigns.current_user
-
-    case Comments.hide_comment(comment, comment_params, user) do
+  def create(conn, %{
+        "image_id" => image_id,
+        "comment_id" => comment_id,
+        "comment" => comment_params
+      }) do
+    case Comments.create_comment_hide(conn.assigns.actor, image_id, comment_id, comment_params) do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully deleted!")
-        |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
-      _error ->
+      {:error, %Ecto.Changeset{data: %Comment{} = comment}} ->
         conn
         |> put_flash(:error, "Unable to delete comment!")
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    comment = conn.assigns.comment
-
-    case Comments.unhide_comment(comment) do
+  def delete(conn, %{"image_id" => image_id, "comment_id" => comment_id}) do
+    case Comments.delete_comment_hide(conn.assigns.actor, image_id, comment_id) do
       {:ok, comment} ->
         conn
         |> put_flash(:info, "Comment successfully restored!")
-        |> moderation_log(details: &log_details/2, data: comment)
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{data: %Comment{} = comment}} ->
         conn
         |> put_flash(:error, "Unable to restore comment!")
         |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
+
+      {:error, _} = error ->
+        error
     end
-  end
-
-  defp log_details(action, comment) do
-    body =
-      case action do
-        :create -> "Deleted comment on image #{comment.image_id} (#{comment.deletion_reason})"
-        :delete -> "Restored comment on image #{comment.image_id}"
-      end
-
-    %{
-      body: body,
-      subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"
-    }
   end
 end

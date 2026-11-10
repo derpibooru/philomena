@@ -1,122 +1,79 @@
 defmodule PhilomenaWeb.Profile.Commission.ItemController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Commissions.Item
   alias Philomena.Commissions
-  alias Philomena.Users.User
-  alias Philomena.Repo
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_resource,
-    model: User,
-    id_name: "profile_id",
-    id_field: "slug",
-    preload: [
-      :verified_links,
-      commission: [
-        sheet_image: [:sources, tags: :aliases],
-        user: [awards: :badge],
-        items: [example_image: [:sources, tags: :aliases]]
-      ]
-    ],
-    persisted: true
-
-  plug :ensure_commission
-  plug :ensure_correct_user
-
-  def new(conn, _params) do
-    user = conn.assigns.user
-    commission = user.commission
-
-    changeset = Commissions.change_item(%Item{})
-
-    render(conn, "new.html",
-      title: "New Commission Item",
-      user: user,
-      commission: commission,
-      changeset: changeset
-    )
-  end
-
-  def create(conn, %{"item" => item_params}) do
-    user = conn.assigns.user
-    commission = user.commission
-
-    case Commissions.create_item(commission, item_params) do
-      {:ok, _multi} ->
-        conn
-        |> put_flash(:info, "Item successfully created.")
-        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
-
-      {:error, changeset} ->
-        render(conn, "new.html", user: user, commission: commission, changeset: changeset)
+  def new(conn, %{"profile_id" => slug}) do
+    with {:ok, %Ecto.Changeset{data: item} = changeset} <-
+           Commissions.new_item(conn.assigns.actor, slug) do
+      render(conn, "new.html",
+        title: "New Commission Item",
+        user: item.commission.user,
+        commission: item.commission,
+        changeset: changeset
+      )
     end
   end
 
-  def edit(conn, %{"id" => id}) do
-    user = conn.assigns.user
-    commission = user.commission
-    item = Repo.get_by!(Item, commission_id: commission.id, id: id)
+  def create(conn, %{"profile_id" => slug, "item" => item_params}) do
+    case Commissions.create_item(conn.assigns.actor, slug, item_params) do
+      {:ok, item} ->
+        conn
+        |> put_flash(:info, "Item successfully created.")
+        |> redirect(to: ~p"/profiles/#{item.commission.user}/commission")
 
-    changeset = Commissions.change_item(item)
+      {:error, %Ecto.Changeset{data: item} = changeset} ->
+        render(conn, "new.html",
+          user: item.commission.user,
+          commission: item.commission,
+          changeset: changeset
+        )
 
-    render(conn, "edit.html",
-      title: "Editing Commission Item",
-      user: user,
-      commission: commission,
-      item: item,
-      changeset: changeset
-    )
+      error ->
+        error
+    end
   end
 
-  def update(conn, %{"id" => id, "item" => item_params}) do
-    user = conn.assigns.user
-    commission = user.commission
-    item = Repo.get_by!(Item, commission_id: commission.id, id: id)
+  def edit(conn, %{"profile_id" => slug, "id" => id}) do
+    with {:ok, %Ecto.Changeset{data: item} = changeset} <-
+           Commissions.edit_item(conn.assigns.actor, slug, id) do
+      render(conn, "edit.html",
+        title: "Editing Commission Item",
+        user: item.commission.user,
+        commission: item.commission,
+        item: item,
+        changeset: changeset
+      )
+    end
+  end
 
-    case Commissions.update_item(item, item_params) do
-      {:ok, _commission} ->
+  def update(conn, %{"profile_id" => slug, "id" => id, "item" => item_params}) do
+    case Commissions.update_item(conn.assigns.actor, slug, id, item_params) do
+      {:ok, item} ->
         conn
         |> put_flash(:info, "Item successfully updated.")
-        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
+        |> redirect(to: ~p"/profiles/#{item.commission.user}/commission")
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{data: item} = changeset} ->
         render(conn, "edit.html",
-          user: user,
-          commission: commission,
+          user: item.commission.user,
+          commission: item.commission,
           item: item,
           changeset: changeset
         )
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    user = conn.assigns.user
-    commission = user.commission
-    item = Repo.get_by!(Item, commission_id: commission.id, id: id)
-
-    {:ok, _multi} = Commissions.delete_item(item)
-
-    conn
-    |> put_flash(:info, "Item deleted successfully.")
-    |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
-  end
-
-  defp ensure_commission(conn, _opts) do
-    if is_nil(conn.assigns.user.commission) do
-      PhilomenaWeb.NotFoundPlug.call(conn)
-    else
+  def delete(conn, %{"profile_id" => slug, "id" => id}) do
+    with {:ok, item} <- Commissions.delete_item(conn.assigns.actor, slug, id) do
       conn
-    end
-  end
-
-  defp ensure_correct_user(conn, _opts) do
-    user_id = conn.assigns.user.id
-
-    case conn.assigns.current_user do
-      %{id: ^user_id} -> conn
-      _other -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      |> put_flash(:info, "Item deleted successfully.")
+      |> redirect(to: ~p"/profiles/#{item.commission.user}/commission")
     end
   end
 end

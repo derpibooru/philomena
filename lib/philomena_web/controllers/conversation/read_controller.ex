@@ -1,36 +1,25 @@
 defmodule PhilomenaWeb.Conversation.ReadController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Conversations.Conversation
   alias Philomena.Conversations
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Conversation,
-    id_field: "slug",
-    id_name: "conversation_id",
-    persisted: true
-
-  def create(conn, _params) do
-    conversation = conn.assigns.conversation
-    user = conn.assigns.current_user
-
-    {:ok, _conversation} = Conversations.mark_conversation_read(conversation, user)
-
-    conn
-    |> put_flash(:info, "Conversation marked as read.")
-    |> redirect(to: ~p"/conversations/#{conversation}")
+  def create(conn, %{"conversation_id" => conversation_id}) do
+    with {:ok, conversation} <-
+           Conversations.update_conversation_read(conn.assigns.actor, conversation_id) do
+      conn
+      |> put_flash(:info, "Conversation marked as read.")
+      |> redirect(to: ~p"/conversations/#{conversation}")
+    end
   end
 
-  def delete(conn, _params) do
-    conversation = conn.assigns.conversation
-    user = conn.assigns.current_user
-
-    {:ok, _conversation} = Conversations.mark_conversation_read(conversation, user, false)
-
-    conn
-    |> put_flash(:info, "Conversation marked as unread.")
-    |> redirect(to: ~p"/conversations")
+  def delete(conn, %{"conversation_id" => conversation_id}) do
+    with {:ok, _conversation} <-
+           Conversations.update_conversation_read(conn.assigns.actor, conversation_id, false) do
+      conn
+      |> put_flash(:info, "Conversation marked as unread.")
+      |> redirect(to: ~p"/conversations")
+    end
   end
 end

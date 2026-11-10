@@ -2,6 +2,7 @@ defmodule Philomena.Users.Eraser do
   import Ecto.Query
   alias Philomena.Repo
 
+  alias Philomena.Attribution.Actor
   alias Philomena.Bans
   alias Philomena.Comments.Comment
   alias Philomena.Comments
@@ -11,8 +12,9 @@ defmodule Philomena.Users.Eraser do
   alias Philomena.Posts
   alias Philomena.Topics.Topic
   alias Philomena.Topics
-  alias Philomena.Images
+  alias Philomena.Reports.Report
   alias Philomena.SourceChanges.SourceChange
+  alias Philomena.SourceChanges
   alias Philomena.Reports
   alias Philomena.Users
 
@@ -21,19 +23,42 @@ defmodule Philomena.Users.Eraser do
   @wipe_fp "ffff"
 
   def erase_permanently!(user, moderator) do
+    system_actor = system_actor(moderator)
+
     # Erase avatar
-    {:ok, user} = Users.remove_avatar(user)
+    {:ok, user} = Users.delete_user_avatar(system_actor, user.slug)
 
     # Erase "about me" and personal title
-    {:ok, user} = Users.update_description(user, %{description: "", personal_title: ""})
+    {:ok, user} =
+      Users.update_profile_description(system_actor, user.slug, %{
+        description: "",
+        personal_title: ""
+      })
 
     # Delete all forum posts
     Post
     |> where(user_id: ^user.id)
+    |> preload(topic: :forum)
     |> Repo.all()
     |> Enum.each(fn post ->
-      {:ok, post} = Posts.hide_post(post, %{deletion_reason: @reason}, moderator)
-      {:ok, _post} = Posts.destroy_post(post)
+      if not post.destroyed_content do
+        {:ok, _post} =
+          Posts.create_post_hide(
+            system_actor,
+            post.topic.forum.short_name,
+            post.topic.slug,
+            post.id,
+            %{deletion_reason: @reason}
+          )
+
+        {:ok, _post} =
+          Posts.create_post_delete(
+            system_actor,
+            post.topic.forum.short_name,
+            post.topic.slug,
+            post.id
+          )
+      end
     end)
 
     # Delete all comments
@@ -41,86 +66,81 @@ defmodule Philomena.Users.Eraser do
     |> where(user_id: ^user.id)
     |> Repo.all()
     |> Enum.each(fn comment ->
-      {:ok, comment} = Comments.hide_comment(comment, %{deletion_reason: @reason}, moderator)
-      {:ok, _comment} = Comments.destroy_comment(comment)
+      if not comment.destroyed_content do
+        {:ok, _comment} =
+          Comments.create_comment_hide(
+            system_actor,
+            comment.image_id,
+            comment.id,
+            %{deletion_reason: @reason}
+          )
+
+        {:ok, _comment} =
+          Comments.create_comment_delete(system_actor, comment.image_id, comment.id)
+      end
     end)
 
     # Delete all galleries
     Gallery
-    |> where(creator_id: ^user.id)
+    |> where(user_id: ^user.id)
+    |> select([gallery], gallery.id)
     |> Repo.all()
-    |> Enum.each(fn gallery ->
-      {:ok, _gallery} = Galleries.delete_gallery(gallery)
+    |> Enum.each(fn gallery_id ->
+      {:ok, _gallery} = Galleries.delete_gallery(system_actor, gallery_id)
     end)
 
     # Delete all posted topics
     Topic
     |> where(user_id: ^user.id)
+    |> preload(:forum)
     |> Repo.all()
     |> Enum.each(fn topic ->
-      {:ok, _topic} = Topics.hide_topic(topic, @reason, moderator)
+      if not topic.hidden_from_users do
+        {:ok, _topic} =
+          Topics.create_topic_hide(
+            system_actor,
+            topic.forum.short_name,
+            topic.slug,
+            %{deletion_reason: @reason}
+          )
+      end
     end)
 
     # Revert all source changes
     SourceChange
     |> where(user_id: ^user.id)
     |> order_by(desc: :created_at)
-    |> preload(:image)
     |> Repo.all()
     |> Enum.each(fn source_change ->
-      if source_change.added do
-        revert_added_source_change(source_change, user)
-      else
-        revert_removed_source_change(source_change, user)
-      end
+      {:ok, _change} =
+        SourceChanges.erase_source_change(system_actor, source_change.id)
     end)
-
-    # Delete all source changes
-    SourceChange
-    |> where(user_id: ^user.id)
-    |> Repo.delete_all()
 
     # Ban the user
     {:ok, _ban} =
-      Bans.create_user(
-        moderator,
+      Bans.create_user_ban(
+        system_actor,
+        user.id,
         %{
-          "user_id" => user.id,
-          "reason" => @reason,
-          "valid_until" => "permanent"
+          reason: @reason,
+          valid_until: "permanent"
         }
       )
 
     # Close all reports against the user
-    {:ok, _} = Reports.close_reports({"User", user.id}, moderator)
+    Report
+    |> where(reported_user_id: ^user.id, open: true)
+    |> select([report], report.id)
+    |> Repo.all()
+    |> Enum.each(fn report_id ->
+      {:ok, _report} = Reports.create_report_close(system_actor, report_id)
+    end)
 
     # We succeeded
     :ok
   end
 
-  defp revert_removed_source_change(source_change, user) do
-    old_sources = %{}
-    new_sources = %{"0" => %{"source" => source_change.source_url}}
-
-    revert_source_change(source_change, user, old_sources, new_sources)
-  end
-
-  defp revert_added_source_change(source_change, user) do
-    old_sources = %{"0" => %{"source" => source_change.source_url}}
-    new_sources = %{}
-
-    revert_source_change(source_change, user, old_sources, new_sources)
-  end
-
-  defp revert_source_change(source_change, user, old_sources, new_sources) do
-    attrs = %{"old_sources" => old_sources, "sources" => new_sources}
-
-    attribution = [
-      user: user,
-      ip: @wipe_ip,
-      fingerprint: @wipe_fp
-    ]
-
-    {:ok, _} = Images.update_sources(source_change.image, attribution, attrs)
+  defp system_actor(moderator) do
+    %Actor{user: moderator, ip: @wipe_ip, fingerprint: @wipe_fp}
   end
 end

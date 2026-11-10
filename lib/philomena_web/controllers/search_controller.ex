@@ -1,30 +1,20 @@
 defmodule PhilomenaWeb.SearchController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageLoader
-  alias Philomena.Images.Image
-  alias PhilomenaQuery.Search
+  alias PhilomenaWeb.ImageScope
+  alias PhilomenaWeb.TagInfoRenderer
+  alias Philomena.Images
   alias Philomena.Interactions
-  import Ecto.Query
 
   def index(conn, params) do
-    user = conn.assigns.current_user
+    case Images.query_images(conn.assigns.actor, ImageScope.search_scope(conn)) do
+      {:ok, %{images: images, tags: tags}} ->
+        interactions = Interactions.user_interactions(conn.assigns.actor, images)
 
-    case ImageLoader.search_string(conn, params["q"]) do
-      {:ok, {images, tags}} ->
-        images =
-          search_function(custom_ordering?(conn)).(
-            images,
-            preload(Image, [:sources, tags: :aliases])
-          )
-
-        interactions = Interactions.user_interactions(images, user)
-
-        conn
-        |> render("index.html",
+        render(conn, "index.html",
           title: "Searching for #{params["q"]}",
           images: images,
-          tags: tags,
+          tags: TagInfoRenderer.render_tag_info(tags, conn),
           search_query: params["q"],
           interactions: interactions,
           layout_class: "layout--wide"
@@ -40,10 +30,4 @@ defmodule PhilomenaWeb.SearchController do
         )
     end
   end
-
-  defp search_function(true), do: &Search.search_records_with_hits/2
-  defp search_function(_custom), do: &Search.search_records/2
-
-  defp custom_ordering?(%{params: %{"sf" => sf}}) when sf not in ~W(id first_seen_at), do: true
-  defp custom_ordering?(_conn), do: false
 end

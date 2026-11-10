@@ -15,21 +15,4 @@ table.table
         td = link version.user.name, to: ~p"/profiles/#{version.user}"
         td = pretty_time(version.created_at)
         td.static-page__diff
-          = for diff <- version.difference do
-            = case diff do
-              - {:eq, lines} ->
-                = for line <- lines do
-                  = line
-                  = "\n"
-
-              - {:ins, lines} ->
-                ins.differ
-                  = for line <- lines do
-                    = line
-                    = "\n"
-
-              - {:del, lines} ->
-                del.differ
-                  = for line <- lines do
-                    = line
-                    = "\n"
+          = version.difference

@@ -3,15 +3,17 @@ defmodule PhilomenaWeb.SettingController do
 
   alias Philomena.Users
   alias Philomena.Users.User
+  alias Philomena.Users.Settings
   alias Philomena.Schema.TagList
   alias Plug.Conn
 
   def edit(conn, _params) do
+    user = conn.assigns.current_user || %User{settings: %Settings{}}
+
     changeset =
-      (conn.assigns.current_user || %User{})
-      |> assign_theme()
+      %{user | settings: assign_theme(user.settings)}
       |> TagList.assign_tag_list(:watched_tag_ids, :watched_tag_list)
-      |> Users.change_user()
+      |> Users.settings_changeset()
 
     render(conn, "edit.html", title: "Editing Settings", changeset: changeset)
   end
@@ -52,6 +54,11 @@ defmodule PhilomenaWeb.SettingController do
       "autocomplete_search_history_hidden",
       "autocomplete_search_history_hidden"
     )
+    |> set_bool_cookie(
+      user_params,
+      "autocomplete_properties_hidden",
+      "autocomplete_properties_hidden"
+    )
     |> set_cookie(
       "autocomplete_search_history_max_suggestions_when_typing",
       user_params["autocomplete_search_history_max_suggestions_when_typing"]
@@ -73,26 +80,31 @@ defmodule PhilomenaWeb.SettingController do
     )
   end
 
-  defp assign_theme(%{theme: theme} = user) do
+  defp assign_theme(%{theme: theme} = settings) do
     [theme_name, theme_color] = String.split(theme, "-")
 
-    user
+    settings
     |> Map.put(:theme_name, theme_name)
     |> Map.put(:theme_color, theme_color)
   end
 
-  defp assign_theme(_), do: assign_theme(%{theme: "dark-blue"})
+  defp assign_theme(_), do: assign_theme(%Settings{theme: "dark-blue"})
 
-  defp determine_theme(%{"theme_name" => name, "theme_color" => color} = attrs)
+  defp determine_theme(%{"settings" => settings} = user_params),
+    do: %{user_params | "settings" => put_theme(settings)}
+
+  defp determine_theme(user_params), do: user_params
+
+  defp put_theme(%{"theme_name" => name, "theme_color" => color} = settings)
        when name != nil and color != nil,
-       do: Map.put(attrs, "theme", "#{name}-#{color}")
+       do: Map.put(settings, "theme", "#{name}-#{color}")
 
-  defp determine_theme(attrs), do: Map.put(attrs, "theme", "dark-blue")
+  defp put_theme(settings), do: Map.put(settings, "theme", "dark-blue")
 
   defp maybe_update_user(conn, nil, _user_params), do: {:ok, conn}
 
-  defp maybe_update_user(conn, user, user_params) do
-    case Users.update_settings(user, determine_theme(user_params)) do
+  defp maybe_update_user(conn, _user, user_params) do
+    case Users.update_settings(conn.assigns.actor, determine_theme(user_params)) do
       {:ok, _user} ->
         {:ok, conn}
 

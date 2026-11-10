@@ -1,20 +1,18 @@
 defmodule PhilomenaWeb.Api.Json.Search.ImageController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageLoader
-  alias PhilomenaQuery.Search
+  alias Philomena.Images
   alias Philomena.Interactions
-  alias Philomena.Images.Image
-  import Ecto.Query
 
-  def index(conn, params) do
-    queryable = Image |> preload([:user, :intensity, :sources, tags: :aliases])
-    user = conn.assigns.current_user
+  def index(conn, _params) do
+    scope = PhilomenaWeb.ImageScope.search_scope(conn)
 
-    case ImageLoader.search_string(conn, params["q"]) do
-      {:ok, {images, _tags}} ->
-        images = Search.search_records(images, queryable)
-        interactions = Interactions.user_interactions(images, user)
+    case Images.query_images(conn.assigns.actor, scope,
+           preload: [:user, :intensity, :sources, tags: :aliases],
+           hits: false
+         ) do
+      {:ok, %{images: images}} ->
+        interactions = Interactions.user_interactions(conn.assigns.actor, images)
 
         conn
         |> put_view(PhilomenaWeb.Api.Json.ImageView)
@@ -26,7 +24,7 @@ defmodule PhilomenaWeb.Api.Json.Search.ImageController do
 
       {:error, msg} ->
         conn
-        |> Plug.Conn.put_status(:bad_request)
+        |> put_status(:bad_request)
         |> json(%{error: msg})
     end
   end

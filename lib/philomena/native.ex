@@ -9,8 +9,18 @@ defmodule Philomena.Native do
   @spec markdown_to_html_unsafe(String.t(), %{String.t() => String.t()}) :: String.t()
   def markdown_to_html_unsafe(_text, _replacements), do: :erlang.nif_error(:nif_not_loaded)
 
+  @spec markdown_diff_to_html(String.t(), String.t()) :: String.t()
+  def markdown_diff_to_html(_old, _new), do: :erlang.nif_error(:nif_not_loaded)
+
   @spec camo_image_url(String.t()) :: String.t()
   def camo_image_url(_uri), do: :erlang.nif_error(:nif_not_loaded)
+
+  @spec async_process_command(String.t(), String.t(), [String.t()]) :: :ok
+  def async_process_command(_server_addr, _program, _arguments),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  @spec async_get_mime(String.t(), Path.t()) :: :ok
+  def async_get_mime(_server_addr, _path), do: :erlang.nif_error(:nif_not_loaded)
 
   @spec zip_open_writer(Path.t()) :: {:ok, reference()} | {:error, atom()}
   def zip_open_writer(_path), do: :erlang.nif_error(:nif_not_loaded)

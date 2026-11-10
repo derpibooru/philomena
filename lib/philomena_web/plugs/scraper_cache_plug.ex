@@ -5,7 +5,7 @@ defmodule PhilomenaWeb.ScraperCachePlug do
   end
 
   @spec call(Plug.Conn.t(), any()) :: Plug.Conn.t()
-  def call(conn, _opts) do
+  def call(%Plug.Conn{} = conn, _opts) do
     params =
       conn.params
       |> Map.put_new("image", %{})

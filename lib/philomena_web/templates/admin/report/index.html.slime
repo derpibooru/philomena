@@ -1,5 +1,5 @@
 - route = fn p -> ~p"/admin/reports?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", route: route, page: @reports, conn: @conn, params: [rq: @conn.params["rq"] || "*"]
+- pagination = if @reports, do: render(PhilomenaWeb.PaginationView, "_pagination.html", route: route, page: @reports, conn: @conn, params: [rq: @conn.params["rq"]])
 
 h1 Reports
 
@@ -22,7 +22,7 @@ h1 Reports
     span.block__header__title All Reports
     .page__pagination = pagination
   .block__content
-    = if Enum.any?(@reports) do
+    = if not is_nil(@reports) and Enum.any?(@reports) do
       = render PhilomenaWeb.Admin.ReportView, "_reports.html", reports: @reports, conn: @conn
     - else
       p We couldn't find any reports for you, sorry!
@@ -30,13 +30,25 @@ h1 Reports
   .block__header.block__header--light
     .page__pagination = pagination
 
-= form_for :report, ~p"/admin/reports", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/reports", [as: "rq", method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :rq, name: :rq, value: @conn.params["rq"], class: "input hform__text", placeholder: "Search reports", autocapitalize: "none", spellcheck: "false"
+    = text_input f, :query,
+      class: "input hform__text",
+      placeholder: "Search reports",
+      autocapitalize: "none",
+      spellcheck: "false",
+      autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+      inputmode: "search",
+      data: [ \
+        autocomplete: "properties",
+      ]
     = submit "Search", class: "hform__button button"
 
+  .error
+    = error_tag f, :query
+
 .field
-  label for="rq"
+  label for="rq[query]"
     ' Searchable fields: id, created_at, reason, state, open, user, user_id, admin, admin_id, ip, fingerprint, reportable_type, reportable_id, image_id
     br
     ' Report reason is used if you don't specify a field.

@@ -1,7 +1,5 @@
 // DOM events
 
-import '../../types/ujs';
-
 export interface PhilomenaAvailableEventsMap {
   dragstart: DragEvent;
   dragover: DragEvent;

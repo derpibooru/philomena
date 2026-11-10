@@ -1,31 +1,24 @@
 defmodule PhilomenaWeb.Image.Comment.ApproveController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Comments.Comment
   alias Philomena.Comments
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :approve
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Comment,
-    id_name: "comment_id",
-    persisted: true
+  def create(conn, %{"image_id" => image_id, "comment_id" => comment_id}) do
+    case Comments.create_comment_approve(conn.assigns.actor, image_id, comment_id) do
+      {:ok, comment} ->
+        conn
+        |> put_flash(:info, "Comment has been approved.")
+        |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
-  def create(conn, _params) do
-    comment = conn.assigns.comment
+      {:error, %{data: comment} = _changeset} ->
+        conn
+        |> put_flash(:info, "Comment has already been approved.")
+        |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
 
-    {:ok, _comment} = Comments.approve_comment(comment, conn.assigns.current_user)
-
-    conn
-    |> put_flash(:info, "Comment has been approved.")
-    |> moderation_log(details: &log_details/2, data: comment)
-    |> redirect(to: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}")
-  end
-
-  defp log_details(_action, comment) do
-    %{
-      body: "Approved comment on image #{comment.image_id}",
-      subject_path: ~p"/images/#{comment.image_id}" <> "#comment_#{comment.id}"
-    }
+      error ->
+        error
+    end
   end
 end

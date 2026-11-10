@@ -1,54 +1,49 @@
 defmodule PhilomenaWeb.DuplicateReport.ClaimController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.DuplicateReports.DuplicateReport
   alias Philomena.DuplicateReports
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :edit, delete: :edit
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: DuplicateReport,
-    id_name: "duplicate_report_id",
-    persisted: true
+  def create(conn, %{"duplicate_report_id" => id}) do
+    case DuplicateReports.create_duplicate_report_claim(conn.assigns.actor, id) do
+      {:ok, report} ->
+        conn
+        |> put_view(PhilomenaWeb.DuplicateReportView)
+        |> render("_duplicate_reports.html",
+          layout: false,
+          duplicate_reports: [report]
+        )
 
-  def create(conn, _params) do
-    {:ok, report} =
-      DuplicateReports.claim_duplicate_report(
-        conn.assigns.duplicate_report,
-        conn.assigns.current_user
-      )
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Failed to claim report.")
+        |> send_resp(:multiple_choices, "")
+        |> halt()
 
-    conn
-    |> moderation_log(details: &log_details/2, data: report)
-    |> put_view(PhilomenaWeb.DuplicateReportView)
-    |> render("_duplicate_reports.html",
-      layout: false,
-      duplicate_reports: DuplicateReports.display_preloads([report])
-    )
+      error ->
+        error
+    end
   end
 
-  def delete(conn, _params) do
-    {:ok, report} = DuplicateReports.unclaim_duplicate_report(conn.assigns.duplicate_report)
+  def delete(conn, %{"duplicate_report_id" => id}) do
+    case DuplicateReports.delete_duplicate_report_claim(conn.assigns.actor, id) do
+      {:ok, report} ->
+        conn
+        |> put_view(PhilomenaWeb.DuplicateReportView)
+        |> render("_duplicate_reports.html",
+          layout: false,
+          duplicate_reports: [report]
+        )
 
-    conn
-    |> moderation_log(details: &log_details/2)
-    |> put_view(PhilomenaWeb.DuplicateReportView)
-    |> render("_duplicate_reports.html",
-      layout: false,
-      duplicate_reports: DuplicateReports.display_preloads([report])
-    )
-  end
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Failed to release report.")
+        |> send_resp(:multiple_choices, "")
+        |> halt()
 
-  defp log_details(action, _) do
-    body =
-      case action do
-        :create -> "Claimed a duplicate report"
-        :delete -> "Released a duplicate report"
-      end
-
-    %{
-      body: body,
-      subject_path: ~p"/duplicate_reports"
-    }
+      error ->
+        error
+    end
   end
 end

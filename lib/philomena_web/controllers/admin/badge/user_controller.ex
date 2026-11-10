@@ -1,32 +1,18 @@
 defmodule PhilomenaWeb.Admin.Badge.UserController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
-  alias Philomena.Badges.Badge
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Badges
 
-  plug :verify_authorized
-  plug :load_resource, model: Badge, id_name: "badge_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, _params) do
-    badge = conn.assigns.badge
-
-    users =
-      User
-      |> join(:inner, [u], _ in assoc(u, :awards))
-      |> where([_u, a], a.badge_id == ^badge.id)
-      |> order_by([u, _a], asc: u.name)
-      |> Repo.paginate(conn.assigns.scrivener)
-
-    render(conn, "index.html", title: "Users with badge #{badge.title}", users: users)
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, Badge) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+  def index(conn, %{"badge_id" => id}) do
+    with {:ok, {badge, users}} <-
+           Badges.list_badge_users(conn.assigns.actor, id, conn.assigns.scrivener) do
+      render(conn, "index.html",
+        title: "Users with badge #{badge.title}",
+        badge: badge,
+        users: users
+      )
     end
   end
 end

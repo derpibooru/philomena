@@ -1,4 +1,6 @@
 defmodule Philomena.Tags.Query do
+  @moduledoc false
+
   alias PhilomenaQuery.Parse.Parser
 
   defp fields do

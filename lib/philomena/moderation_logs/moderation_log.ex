@@ -4,6 +4,8 @@ defmodule Philomena.ModerationLogs.ModerationLog do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "moderation_logs" do
     belongs_to :user, User
 
@@ -19,5 +21,6 @@ defmodule Philomena.ModerationLogs.ModerationLog do
     moderation_log
     |> cast(attrs, [:body, :type, :subject_path])
     |> validate_required([:body, :type, :subject_path])
+    |> foreign_key_constraint(:user_id)
   end
 end

@@ -1,14 +1,19 @@
 h2
-  ' FP History for
+  ' Fingerprint History for
   = @user.name
 
+- route = fn p -> ~p"/profiles/#{@user}/fp_history?#{p}" end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_fingerprints, route: route, conn: @conn
+
+.page__pagination = pagination
+
 ul
-  = for ufp <- @user_fps do
+  = for user_fingerprint <- @user_fingerprints do
     li
-      = link_to_fingerprint @conn, ufp.fingerprint
+      = link_to_fingerprint @conn, user_fingerprint.fingerprint
 
       ul
-        = for u <- @other_users[ufp.fingerprint] do
+        = for u <- Map.get(@other_users, user_fingerprint.fingerprint, []) do
           li
             => link u.user.name, to: ~p"/profiles/#{u.user}"
             | (
@@ -16,3 +21,5 @@ ul
             ' uses, last used
             = pretty_time(u.updated_at)
             ' )
+
+.page__pagination = pagination

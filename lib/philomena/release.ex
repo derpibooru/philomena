@@ -19,6 +19,31 @@ defmodule Philomena.Release do
     Code.require_file("priv/repo/seeds.exs")
   end
 
+  def migrate_search do
+    start_app()
+    Philomena.SearchMigrator.migrate_all()
+  end
+
+  def search_status do
+    start_app()
+    status = Philomena.SearchMigrator.status()
+
+    for row <- status do
+      IO.puts(
+        "#{row.alias}: live=#{row.live_physical || "(none)"} " <>
+          "v#{row.live_version || "?"} desired=v#{row.desired_version} " <>
+          "action=#{inspect(row.action)} orphans=#{inspect(row.orphans)}"
+      )
+    end
+
+    status
+  end
+
+  def create_buckets do
+    start_app()
+    PhilomenaMedia.Objects.create_buckets()
+  end
+
   def update_channels do
     start_app()
     Philomena.Channels.update_tracked_channels!()
@@ -26,7 +51,7 @@ defmodule Philomena.Release do
 
   def verify_artist_links do
     start_app()
-    Philomena.ArtistLinks.automatic_verify!()
+    Philomena.ArtistLinks.run_automatic_verification!()
   end
 
   def update_stats do
@@ -42,6 +67,31 @@ defmodule Philomena.Release do
   def generate_autocomplete do
     start_app()
     Philomena.Autocomplete.generate_autocomplete!()
+  end
+
+  def clean_tags do
+    start_app()
+    Philomena.Tags.cleanup!()
+  end
+
+  def replace_aliases_in_implied_tags do
+    start_app()
+    Philomena.Tags.replace_aliases_in_implied_tags!()
+  end
+
+  def convert_reports do
+    start_app()
+    Philomena.Reports.LegacyConverter.convert_reports!()
+  end
+
+  def backfill_versions do
+    start_app()
+    Philomena.Versions.LegacyBackfill.run!()
+  end
+
+  def backfill_user_settings do
+    start_app()
+    Philomena.Users.SettingsBackfill.run!()
   end
 
   defp repos do

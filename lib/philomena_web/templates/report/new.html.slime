@@ -1,7 +1,7 @@
 h2 Submit a report
 p
   strong
-    = link_to_reported_thing(@reportable)
+    = link_to_target(@subject)
 
 .image-other
   .dnp-warning
@@ -9,7 +9,7 @@ p
     ul
       li
         ' Make sure to report for the correct
-        = link "rule", to: "/pages/rules"
+        = link "rule", to: "/rules"
         ' .
       li One report per problem. If it involves multiple things (images, comments, etc), list all of their IDs in the description of a single report.
       li
@@ -43,9 +43,9 @@ p
 
   = form_for @changeset, @action, fn f ->
     .field
-      = select f, :category, report_categories(), class: "input"
+      = select f, :rule_id, report_categories(@rules), class: "input", prompt: [key: "Select a rule", disabled: true, selected: true], required: true
     .block
-      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Provide anything else we should know here.", name: :reason, required: false
+      = render PhilomenaWeb.MarkdownView, "_input.html", conn: @conn, f: f, placeholder: "Describe the problem and how it breaks the rule.", name: :reason
 
     = hidden_input f, :user_agent, value: get_user_agent(@conn)
     = render PhilomenaWeb.CaptchaView, "_captcha.html", name: "report", conn: @conn

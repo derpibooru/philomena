@@ -2,13 +2,18 @@ h2
   ' IP History for
   = @user.name
 
+- route = fn p -> ~p"/profiles/#{@user}/ip_history?#{p}" end
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_ips, route: route, conn: @conn
+
+.page__pagination = pagination
+
 ul
   = for uip <- @user_ips do
     li
       = link_to_ip @conn, uip.ip
 
       ul
-        = for u <- @other_users[uip.ip] do
+        = for u <- Map.get(@other_users, uip.ip, []) do
           li
             => link u.user.name, to: ~p"/profiles/#{u.user}"
             | (
@@ -16,3 +21,5 @@ ul
             ' uses, last used
             = pretty_time(u.updated_at)
             ' )
+
+.page__pagination = pagination

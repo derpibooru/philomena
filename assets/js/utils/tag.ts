@@ -1,14 +1,8 @@
 import { escapeHtml } from './dom';
-import { getTag } from '../booru';
+import { getTag, type TagData } from '../booru';
 import { AstMatcher } from '../query/types';
 
-export interface TagData {
-  id: number;
-  name: string;
-  images: number;
-  spoiler_image_uri: string | null;
-  fetchedAt: null | number;
-}
+export type { TagData };
 
 function unique<Item>(array: Item[]): Item[] {
   return array.filter((a, b, c) => c.indexOf(a) === b);

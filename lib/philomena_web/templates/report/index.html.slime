@@ -10,7 +10,8 @@ h1 Your Reports
       thead
         tr
           th State
-          th Reported Thing
+          th Reported Resource
+          th Rule
           th Reason
           th Opened
       tbody
@@ -18,6 +19,11 @@ h1 Your Reports
           tr
             td class=report_row_class(r)
               = pretty_state(r)
-            td = link_to_reported_thing(r.reportable)
+            td = link_to_target(report_target(r))
+            td
+              => r.rule.name
+              | (
+              = r.rule.title
+              | )
             td = r.reason
             td = pretty_time(r.created_at)

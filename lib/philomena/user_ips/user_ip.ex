@@ -4,19 +4,26 @@ defmodule Philomena.UserIps.UserIp do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "user_ips" do
     belongs_to :user, User
 
     field :ip, EctoNetwork.INET
-    field :uses, :integer, default: 0
+    field :uses, :integer, default: 1
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
-  def changeset(user_ip, attrs) do
+  def insert_fields do
+    [:user_id, :ip, :uses]
+  end
+
+  @doc false
+  def changeset(user_ip, attrs \\ %{}) do
     user_ip
-    |> cast(attrs, [])
-    |> validate_required([])
+    |> cast(attrs, [:ip])
+    |> validate_required([:ip])
   end
 end

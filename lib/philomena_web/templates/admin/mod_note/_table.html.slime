@@ -10,7 +10,7 @@ table.table
     = for {note, body} <- @mod_notes do
       tr
         td
-          = link_to_noted_thing(note.notable)
+          = link_to_target(note)
 
         td
           = body
@@ -22,6 +22,7 @@ table.table
           = link note.moderator.name, to: ~p"/profiles/#{note.moderator}"
 
         td
-          => link "Edit", to: ~p"/admin/mod_notes/#{note}/edit"
-          ' &bull;
-          => link "Delete", to: ~p"/admin/mod_notes/#{note}", data: [confirm: "Are you really, really sure?", method: "delete"]
+          = if can?(@conn, :update, note) do
+            => link "Edit", to: ~p"/admin/mod_notes/#{note}/edit"
+            ' &bull;
+            => link "Delete", to: ~p"/admin/mod_notes/#{note}", data: [confirm: "Are you really, really sure?", method: "delete"]

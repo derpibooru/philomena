@@ -7,6 +7,32 @@ set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 
+# All `docker compose` commands go to the host daemon through the mounted
+# socket, so bind mount sources in docker-compose.yml must resolve to host
+# paths. When this script runs inside the app container, HOST_WORKSPACE must
+# therefore point at the repo's path on the host; shells that enter the
+# container without the devcontainer environment (e.g. `docker exec`) lack it,
+# so derive it from this container's own mounts rather than trusting the
+# environment. Without it, `${HOST_WORKSPACE:-.}` in docker-compose.yml would
+# resolve to a path that does not exist on the host, and the daemon would
+# recreate `opensearch`/`web` with broken auto-created mount sources.
+if [[ -f /.dockerenv ]]; then
+  if [[ -z "${HOST_WORKSPACE:-}" ]]; then
+    HOST_WORKSPACE=$(
+      docker inspect "$(hostname)" \
+        --format '{{range .Mounts}}{{if eq .Destination "/srv/philomena"}}{{.Source}}{{end}}{{end}}'
+    ) || die "Running inside a container, but 'docker inspect' failed - cannot derive HOST_WORKSPACE"
+
+    if [[ -z "$HOST_WORKSPACE" ]]; then
+      die "Running inside a container without a /srv/philomena bind mount - cannot derive HOST_WORKSPACE"
+    fi
+
+    export HOST_WORKSPACE
+  fi
+
+  export DEVCONTAINER=1
+fi
+
 # Devcontainer runs in the `app` service. We must make sure this service stays
 # intact during development, so all docker compose operations that might recreate
 # or remove the containers/volumes should exclude it and its volumes.
@@ -38,7 +64,19 @@ function up {
   if [[ "${DEVCONTAINER:-0}" == "1" ]]; then
     step docker compose build "${services[@]}"
     step docker compose up --wait "${services[@]}"
-    step run-development
+
+    # A container created without DEVCONTAINER=1 in its environment (e.g. by
+    # a host-side `docker compose up`) already runs the dev server as PID 1
+    # (see docker/app/run); starting a second one would fail to bind its
+    # ports. The stack is fully served by PID 1 in that case, so just skip.
+    if [[ -f /.dockerenv ]] && [[ "$(tr '\0' ' ' < /proc/1/cmdline)" == *run-development* ]]; then
+      warn "PID 1 of this container is already running the dev server, skipping run-development."
+      warn "For the intended devcontainer flow (server logs in this terminal), rebuild the"
+      warn "container so it gets the devcontainer environment: VS Code -> 'Dev Containers:"
+      warn "Rebuild Container'."
+    else
+      step run-development
+    fi
   else
     step docker compose up --build --no-log-prefix
   fi

@@ -1,11 +1,12 @@
 h1 User Bans
 
 - route = fn p -> ~p"/admin/user_bans?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route, params: page_params(@conn.params)
+- pagination = if @user_bans, do: render(PhilomenaWeb.PaginationView, "_pagination.html", page: @user_bans, route: route, params: page_params(@conn.params))
 
-= form_for :user_ban, ~p"/admin/user_bans", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/user_bans", [method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :bq, name: :bq, value: @conn.params["bq"], class: "hform__text input", placeholder: "Search", spellcheck: "false"
+    = text_input f, :bq, name: :bq, class: "hform__text input", placeholder: "Search", spellcheck: "false"
+    = error_tag f, :bq
     = submit "Search", class: "button hform__button"
 
 .block
@@ -24,7 +25,7 @@ h1 User Bans
           th Options
 
       tbody
-        = for ban <- @user_bans do
+        = for ban <- @user_bans || [] do
           tr
             td
               = link ban.user.name, to: ~p"/profiles/#{ban.user}"

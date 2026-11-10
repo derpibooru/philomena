@@ -14,6 +14,18 @@ defmodule PhilomenaQuery.Search.Index do
   @callback index_name() :: String.t()
 
   @doc """
+  Returns the mapping version for the index.
+
+  Bump this whenever `mapping/0` changes; `Philomena.SearchMigrator` compares it
+  against the live index version (stored in `mappings._meta.version`) on the next
+  migration run. Purely additive property additions are applied in place; any
+  other change (settings, analysis, changed or removed fields) triggers a full
+  rebuild into a new physical index with a dual-write window and an atomic alias
+  swap.
+  """
+  @callback version() :: pos_integer()
+
+  @doc """
   Returns the mapping and settings for the index.
 
   See https://opensearch.org/docs/latest/api-reference/index-apis/put-mapping/ for

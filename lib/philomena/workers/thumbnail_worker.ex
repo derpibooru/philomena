@@ -12,7 +12,7 @@ defmodule Philomena.ThumbnailWorker do
     )
 
     image_id
-    |> Images.get_image!()
+    |> Images.load_image_for_reindex!()
     |> Images.reindex_image()
   end
 end

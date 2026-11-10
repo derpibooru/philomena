@@ -4,10 +4,12 @@ defmodule Philomena.Channels.Channel do
 
   alias Philomena.Tags.Tag
 
+  @type t :: %__MODULE__{}
+
   schema "channels" do
     belongs_to :associated_artist_tag, Tag
 
-    # fixme: rails STI
+    # Provider modules are selected from this legacy Rails STI discriminator.
     field :type, :string
 
     field :short_name, :string
@@ -16,15 +18,15 @@ defmodule Philomena.Channels.Channel do
     field :nsfw, :boolean, default: false
     field :is_live, :boolean, default: false
     field :last_fetched_at, :utc_datetime
-    field :next_check_at, :utc_datetime
-    field :last_live_at, :utc_datetime
     field :thumbnail_url, :string, default: ""
+
+    field :artist_tag, :string, virtual: true
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
-  def changeset(channel, attrs) do
+  def changeset(channel, attrs \\ %{}) do
     channel
     |> cast(attrs, [:type, :short_name])
     |> validate_required([:type, :short_name])
@@ -39,15 +41,23 @@ defmodule Philomena.Channels.Channel do
       :nsfw,
       :viewers,
       :thumbnail_url,
-      :last_fetched_at,
-      :last_live_at
+      :last_fetched_at
     ])
   end
 
   @doc false
-  def artist_tag_changeset(channel, tag) do
-    tag_id = Map.get(tag || %{}, :id)
+  def artist_tag_name_changeset(channel, attrs) do
+    channel
+    |> cast(attrs, [:artist_tag])
+    |> update_change(:artist_tag, &Tag.clean_tag_name/1)
+  end
 
-    change(channel, associated_artist_tag_id: tag_id)
+  @doc false
+  def artist_tag_changeset(changeset, name, tag) do
+    if not is_nil(name) and is_nil(tag) do
+      add_error(changeset, :artist_tag, "is invalid")
+    else
+      put_change(changeset, :associated_artist_tag, tag)
+    end
   end
 end

@@ -1,193 +1,179 @@
 defmodule Philomena.PollVotes do
   @moduledoc """
-  The PollVotes context.
+  Poll voting, staff result inspection, and vote removal.
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
-  alias Philomena.Repo
+  import Philomena.Authorization, only: [verify_write_access: 1]
 
+  alias Philomena.Attribution.Actor
+  alias Philomena.Loader
+  alias Philomena.PollOptions
+  alias Philomena.PollOptions.PollOption
   alias Philomena.Polls
   alias Philomena.Polls.Poll
-  alias Philomena.PollVotes.PollVote
-  alias Philomena.PollOptions.PollOption
+  alias Philomena.PollVotes.{Ballot, PollVote}
+  alias Philomena.Forums
+  alias Philomena.Topics
+  alias Philomena.Multi
+  alias Philomena.Repo
+  alias Philomena.Users.User
 
-  @doc """
-  Gets a single poll_vote.
-
-  Raises `Ecto.NoResultsError` if the Poll vote does not exist.
-
-  ## Examples
-
-      iex> get_poll_vote!(123)
-      %PollVote{}
-
-      iex> get_poll_vote!(456)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_poll_vote!(id), do: Repo.get!(PollVote, id)
-
-  @doc """
-  Creates a poll_vote.
-
-  ## Examples
-
-      iex> create_poll_vote(%{field: value})
-      {:ok, %PollVote{}}
-
-      iex> create_poll_vote(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_poll_votes(user, poll, attrs) do
-    now = DateTime.utc_now(:second)
-    poll_votes = filter_options(user, poll, now, attrs)
-
-    Multi.new()
-    |> Multi.run(:lock, fn repo, _ ->
-      poll =
-        Poll
-        |> where(id: ^poll.id)
-        |> lock("FOR UPDATE")
-        |> repo.one()
-
-      {:ok, poll}
-    end)
-    |> Multi.run(:ended, fn _repo, _changes ->
-      # Bail if poll is no longer active
-      if Polls.active?(poll) do
-        {:ok, []}
-      else
-        {:error, []}
-      end
-    end)
-    |> Multi.run(:existing_votes, fn _repo, _changes ->
-      # Don't proceed if any votes exist
-      if voted?(poll, user) do
-        {:error, []}
-      else
-        {:ok, []}
-      end
-    end)
-    |> Multi.run(:new_votes, fn repo, _changes ->
-      {_count, votes} = repo.insert_all(PollVote, poll_votes, returning: true)
-
-      {:ok, votes}
-    end)
-    |> Multi.run(:update_option_counts, fn repo, %{new_votes: new_votes} ->
-      option_ids = Enum.map(new_votes, & &1.poll_option_id)
-
-      {count, nil} =
-        PollOption
-        |> where([po], po.id in ^option_ids)
-        |> repo.update_all(inc: [vote_count: 1])
-
-      {:ok, count}
-    end)
-    |> Multi.run(:update_poll_votes_count, fn repo, %{new_votes: new_votes} ->
-      length = length(new_votes)
-
-      {count, nil} =
-        Poll
-        |> where(id: ^poll.id)
-        |> repo.update_all(inc: [total_votes: length])
-
-      {:ok, count}
-    end)
-    |> Repo.transaction()
-  end
-
-  defp filter_options(user, poll, now, %{"option_ids" => options}) when is_list(options) do
-    valid_option_ids = poll_option_ids(poll)
-
-    votes =
-      options
-      |> Enum.map(&parse_option_id/1)
-      |> Enum.filter(&MapSet.member?(valid_option_ids, &1))
-      |> Enum.uniq()
-      |> Enum.map(&%{poll_option_id: &1, user_id: user.id, created_at: now})
-
-    case poll.vote_method do
-      "single" -> Enum.take(votes, 1)
-      _other -> votes
-    end
-  end
-
-  defp filter_options(_user, _poll, _now, _attrs), do: []
-
-  defp poll_option_ids(poll) do
-    PollOption
-    |> where(poll_id: ^poll.id)
-    |> select([po], po.id)
-    |> Repo.all()
-    |> MapSet.new()
-  end
-
-  defp parse_option_id(option_id) when is_binary(option_id) do
-    case Integer.parse(option_id) do
-      {id, ""} -> id
-      _ -> nil
-    end
-  end
-
-  defp parse_option_id(option_id) when is_integer(option_id), do: option_id
-  defp parse_option_id(_option_id), do: nil
-
-  def voted?(nil, _user), do: false
-  def voted?(_poll, nil), do: false
-
-  def voted?(%{id: poll_id}, %{id: user_id}) do
+  defp user_voted?(%Poll{id: poll_id}, %User{id: user_id}) do
     PollVote
-    |> join(:inner, [pv], _ in assoc(pv, :poll_option))
-    |> where([pv, po], po.poll_id == ^poll_id and pv.user_id == ^user_id)
+    |> join(:inner, [vote], option in assoc(vote, :poll_option))
+    |> where([vote, option], option.poll_id == ^poll_id and vote.user_id == ^user_id)
     |> Repo.exists?()
   end
 
+  defp load_poll_vote(poll, vote_id) do
+    PollVote
+    |> join(:inner, [vote], option in assoc(vote, :poll_option))
+    |> where([_vote, option], option.poll_id == ^poll.id)
+    |> Loader.fetch(vote_id)
+  end
+
   @doc """
-  Updates a poll_vote.
+  Lists voter identities for the parent-scoped poll.
+
+  This is a separate staff-only ability from viewing aggregate poll results.
 
   ## Examples
 
-      iex> update_poll_vote(poll_vote, %{field: new_value})
-      {:ok, %PollVote{}}
+      iex> list_votes(moderator_actor, "dis", "favorite-pony")
+      {:ok, [%PollOption{}]}
 
-      iex> update_poll_vote(poll_vote, %{field: bad_value})
+  """
+  @spec list_votes(Actor.t(), String.t(), String.t()) ::
+          {:ok, [PollOption.t()]} | {:error, :not_found | :unauthorized}
+  def list_votes(%Actor{} = actor, forum_slug, topic_slug) do
+    with {:ok, forum} <- Forums.show_forum(actor, forum_slug),
+         {:ok, topic} <- Topics.show_forum_topic(actor, forum, topic_slug, :list_poll_votes),
+         {:ok, poll} <- Polls.load_topic_poll(topic) do
+      {:ok,
+       PollOption
+       |> where(poll_id: ^poll.id)
+       |> where([option], option.vote_count > 0)
+       |> preload(poll_votes: :user)
+       |> Repo.all()}
+    end
+  end
+
+  @doc """
+  Records a complete, validated vote selection for the parent-scoped poll.
+
+  Every option must exist under that poll, IDs must be unique, single-choice
+  polls accept exactly one option, and multiple-choice polls accept at least
+  one. The poll is locked before its active and prior-vote invariants are
+  checked. Any failure rejects the entire selection with a changeset.
+
+  ## Examples
+
+      iex> create_votes(actor, "dis", "favorite-pony", %{"option_ids" => ["1"]})
+      {:ok, %Ballot{}}
+
+      iex> create_votes(actor, "dis", "favorite-pony", %{"option_ids" => ["bad"]})
       {:error, %Ecto.Changeset{}}
 
   """
-  def update_poll_vote(%PollVote{} = poll_vote, attrs) do
-    poll_vote
-    |> PollVote.changeset(attrs)
-    |> Repo.update()
+  @spec create_votes(Actor.t(), String.t(), String.t(), map()) ::
+          {:ok, Ballot.t()}
+          | {:error, Ecto.Changeset.t()}
+          | {:error, :ban | :not_found | :unauthorized}
+  def create_votes(%Actor{user: user} = actor, forum_slug, topic_slug, params) do
+    with :ok <- verify_write_access(actor),
+         {:ok, forum} <- Forums.show_forum(actor, forum_slug),
+         {:ok, topic} <- Topics.show_forum_topic(actor, forum, topic_slug, :vote),
+         {:ok, poll} <- Polls.load_topic_poll(topic) do
+      options = PollOptions.load_options(poll)
+      poll_query = where(Poll, id: ^poll.id)
+
+      Multi.new()
+      |> Multi.lock_one(:poll, preload(poll_query, topic: :forum))
+      |> Multi.run(:ballot, fn _repo, %{poll: poll} ->
+        %Ballot{poll: poll}
+        |> Ballot.changeset(params, poll, Enum.map(options, & &1.id))
+        |> Ballot.validate_active(Polls.active?(poll))
+        |> Ballot.validate_not_voted(user_voted?(poll, user))
+        |> Ecto.Changeset.apply_action(:create)
+      end)
+      |> Multi.insert_all(:poll_votes, PollVote, fn %{ballot: ballot} ->
+        now = DateTime.utc_now(:second)
+
+        Enum.map(ballot.option_ids, &%{poll_option_id: &1, user_id: user.id, created_at: now})
+      end)
+      |> PollOptions.put_vote_count_delta(
+        :update_options,
+        poll.id,
+        fn %{ballot: ballot} -> ballot.option_ids end,
+        1
+      )
+      |> Polls.put_total_votes_delta(:update_poll, poll.id, fn %{poll_votes: {count, _}} ->
+        count
+      end)
+      |> Multi.transact()
+      |> case do
+        {:ok, %{ballot: %Ballot{} = ballot}} ->
+          {:ok, ballot}
+
+        {:error, :ballot, %Ecto.Changeset{} = changeset, _changes} ->
+          {:error, changeset}
+      end
+    end
   end
 
   @doc """
-  Deletes a PollVote.
+  Removes one vote belonging to the parent-scoped poll.
+
+  Cached option and poll totals are decremented in the same transaction.
 
   ## Examples
 
-      iex> delete_poll_vote(poll_vote)
-      {:ok, %PollVote{}}
-
-      iex> delete_poll_vote(poll_vote)
-      {:error, %Ecto.Changeset{}}
+      iex> delete_vote(moderator_actor, "dis", "favorite-pony", "1")
+      {:ok, %Poll{}}
 
   """
-  def delete_poll_vote(%PollVote{} = poll_vote) do
-    Repo.delete(poll_vote)
+  @spec delete_vote(Actor.t(), String.t(), String.t(), Loader.integer_id()) ::
+          {:ok, Poll.t()} | {:error, :ban | :not_found | :unauthorized}
+  def delete_vote(%Actor{} = actor, forum_slug, topic_slug, vote_id) do
+    with :ok <- verify_write_access(actor),
+         {:ok, forum} <- Forums.show_forum(actor, forum_slug),
+         {:ok, topic} <- Topics.show_forum_topic(actor, forum, topic_slug, :delete_poll_vote),
+         {:ok, poll} <- Polls.load_topic_poll(topic),
+         {:ok, poll_vote} <- load_poll_vote(poll, vote_id) do
+      poll_query = where(Poll, id: ^poll.id)
+
+      try do
+        {:ok, _changes} =
+          Multi.new()
+          |> Multi.lock_one(:poll, poll_query)
+          |> Multi.delete(:poll_vote, poll_vote)
+          |> PollOptions.put_vote_count_delta(
+            :update_options,
+            poll.id,
+            fn _changes -> [poll_vote.poll_option_id] end,
+            -1
+          )
+          |> Polls.put_total_votes_delta(:update_poll, poll.id, fn _changes -> -1 end)
+          |> Multi.transact()
+
+        {:ok, poll}
+      rescue
+        Ecto.StaleEntryError -> {:error, :not_found}
+      end
+    end
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tracking poll_vote changes.
+  Returns whether `actor`'s signed-in user has voted in a loaded poll.
 
   ## Examples
 
-      iex> change_poll_vote(poll_vote)
-      %Ecto.Changeset{source: %PollVote{}}
+      iex> voted?(actor, poll)
+      false
 
   """
-  def change_poll_vote(%PollVote{} = poll_vote) do
-    PollVote.changeset(poll_vote, %{})
-  end
+  @spec voted?(Actor.t(), Poll.t() | nil) :: boolean()
+  def voted?(%Actor{user: %User{} = user}, %Poll{} = poll), do: user_voted?(poll, user)
+  def voted?(%Actor{}, _poll), do: false
 end

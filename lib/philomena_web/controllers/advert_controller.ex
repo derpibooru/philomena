@@ -1,16 +1,13 @@
 defmodule PhilomenaWeb.AdvertController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Adverts.Advert
   alias Philomena.Adverts
 
-  plug :load_resource, model: Advert
+  action_fallback PhilomenaWeb.FallbackController
 
-  def show(conn, _params) do
-    advert = conn.assigns.advert
-
-    Adverts.record_click(advert)
-
-    redirect(conn, external: advert.link)
+  def show(conn, %{"id" => id}) do
+    with {:ok, advert} <- Adverts.record_click(id) do
+      redirect(conn, external: advert.link)
+    end
   end
 end

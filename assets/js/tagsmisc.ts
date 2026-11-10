@@ -7,7 +7,6 @@ import { $, $$ } from './utils/dom';
 import store from './utils/store';
 import { initTagDropdown } from './tags';
 import { setupTagsInput, reloadTagsInput } from './tagsinput';
-import '../types/ujs';
 
 type TagInputActionFunction = (tagInput: HTMLTextAreaElement) => void;
 type TagInputActionList = Record<string, TagInputActionFunction>;

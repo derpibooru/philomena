@@ -139,7 +139,7 @@ defmodule Philomena.Autocomplete.Generator do
     # Sort is done in the application to avoid collation.
     tags =
       LocalAutocomplete.get_tags(@top_tags)
-      |> Enum.filter(&(byte_size(&1.name) < 255))
+      |> Enum.filter(&(byte_size(&1.name) < 256))
       |> Enum.sort_by(& &1.name)
 
     associations =

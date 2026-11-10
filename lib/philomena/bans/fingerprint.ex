@@ -5,11 +5,13 @@ defmodule Philomena.Bans.Fingerprint do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "fingerprint_bans" do
     belongs_to :banning_user, User
 
     field :reason, :string
-    field :note, :string
+    field :note, :string, default: ""
     field :enabled, :boolean, default: true
     field :valid_until, PhilomenaQuery.Ecto.RelativeDate
     field :fingerprint, :string
@@ -19,7 +21,7 @@ defmodule Philomena.Bans.Fingerprint do
   end
 
   @doc false
-  def changeset(fingerprint_ban, attrs) do
+  def changeset(fingerprint_ban, attrs \\ %{}) do
     fingerprint_ban
     |> cast(attrs, [:reason, :note, :enabled, :fingerprint, :valid_until])
     |> put_ban_id("F")

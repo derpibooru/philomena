@@ -81,7 +81,7 @@ function colorize_command {
   echo -e "\033[1;32m${program}\033[0m ${args[*]}"
 }
 
-# `curl` wrapper with reliable defaults for non-interactive installers.
+# `curl` wrapper with better defaults for non-interactive scripts
 function fetch {
   step curl \
     --fail \

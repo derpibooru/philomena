@@ -2,6 +2,8 @@ defmodule Philomena.Adverts.Advert do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{}
+
   schema "adverts" do
     field :image, :string
     field :link, :string
@@ -12,7 +14,7 @@ defmodule Philomena.Adverts.Advert do
     field :start_date, PhilomenaQuery.Ecto.RelativeDate
     field :finish_date, PhilomenaQuery.Ecto.RelativeDate
     field :restrictions, :string
-    field :notes, :string
+    field :notes, :string, default: ""
 
     field :image_mime_type, :string, virtual: true
     field :image_size, :integer, virtual: true
@@ -26,7 +28,7 @@ defmodule Philomena.Adverts.Advert do
   end
 
   @doc false
-  def changeset(advert, attrs) do
+  def changeset(advert, attrs \\ %{}) do
     advert
     |> cast(attrs, [:title, :link, :start_date, :finish_date, :live, :restrictions, :notes])
     |> validate_required([:title, :link, :start_date, :finish_date])
@@ -50,5 +52,12 @@ defmodule Philomena.Adverts.Advert do
     |> validate_inclusion(:image_width, 699..729)
     |> validate_inclusion(:image_height, 79..91)
     |> validate_inclusion(:image_size, 0..1_048_576)
+  end
+
+  @doc false
+  def remove_image_changeset(advert) do
+    advert
+    |> change(removed_image: advert.image)
+    |> change(image: nil)
   end
 end

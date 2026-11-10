@@ -1,0 +1,17 @@
+h1 Site Rules
+
+= if @last_updated_at do
+  p
+    i.fa.fa-clock>
+    ' The rules were last updated
+    strong = pretty_time @last_updated_at
+
+= if can?(@conn, :create, Philomena.Rules.Rule) do
+  .block
+    = link to: ~p"/rules/new", class: "button button--state-primary" do
+      span.small-text
+        i.fa.fa-plus>
+        ' Create New Rule
+
+= for rule <- @rules do
+  = render PhilomenaWeb.RuleView, "_rule.html", conn: @conn, rule: rule, show_timestamp: false

@@ -1,21 +1,21 @@
 defmodule PhilomenaWeb.FilterIdPlug do
-  alias Philomena.Filters.Filter
-  alias Philomena.Repo
+  @moduledoc """
+  Loads and authorizes a route's `filter_id` through the Filters context and,
+  when visible, assigns it as the current filter.
+  """
+
+  alias Philomena.Filters
 
   # No options
   def init([]), do: false
 
   def call(conn, _opts) do
-    filter = load_filter(conn.params)
-    user = conn.assigns.current_user
-
-    if not is_nil(filter) and Canada.Can.can?(user, :show, filter) do
-      Plug.Conn.assign(conn, :current_filter, filter)
-    else
-      conn
+    case load_filter(conn.assigns.actor, conn.params) do
+      {:ok, filter} -> Plug.Conn.assign(conn, :current_filter, filter)
+      {:error, _reason} -> conn
     end
   end
 
-  defp load_filter(%{"filter_id" => filter_id}), do: Repo.get(Filter, filter_id)
-  defp load_filter(_params), do: nil
+  defp load_filter(actor, %{"filter_id" => filter_id}), do: Filters.show_filter(actor, filter_id)
+  defp load_filter(_actor, _params), do: {:error, :not_found}
 end

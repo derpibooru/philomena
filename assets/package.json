@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "deploy": "cross-env NODE_ENV=production tsc --project tsconfig.build.json && cross-env NODE_ENV=production vite build",
-    "lint": "oxlint && stylelint ./css/**/*.css",
+    "lint": "oxlint . && stylelint ./css/**/*.css",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch --coverage",
     "dev": "vite",
@@ -10,28 +10,28 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@csstools/postcss-relative-color-syntax": "^4.0.13",
-    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@csstools/postcss-relative-color-syntax": "^4.0.16",
+    "@fortawesome/fontawesome-free": "^7.3.1",
     "@types/postcss-mixins": "^9.0.6",
-    "@types/web": "^0.0.357",
-    "autoprefixer": "^10.6.1",
+    "@types/web": "^0.0.360",
+    "autoprefixer": "^10.6.2",
     "cross-env": "^10.1.0",
     "normalize.css": "^8.0.1",
     "postcss-mixins": "^12.1.2",
     "postcss-simple-vars": "^7.0.1",
     "typescript": "^7.0.2",
-    "vite": "^7.3.6"
+    "vite": "^8.3.6"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
-    "@types/node": "^22.20.4",
-    "@vitest/coverage-v8": "^5.0.2",
-    "jsdom": "^29.1.1",
-    "oxlint": "^1.86.0",
-    "stylelint": "^16.26.1",
-    "stylelint-config-standard": "^38.0.0",
-    "vitest": "^5.0.2",
+    "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^5.1.0",
+    "jsdom": "^31.0.0",
+    "oxlint": "^1.91.0",
+    "stylelint": "^18.0.0",
+    "stylelint-config-standard": "^41.0.0",
+    "vitest": "^5.1.0",
     "vitest-fetch-mock": "^0.4.5"
   }
 }

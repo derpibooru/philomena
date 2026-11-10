@@ -1,54 +1,75 @@
 defmodule Philomena.Autocomplete do
   @moduledoc """
-  Pregenerated autocomplete files.
+  Public access to the pregenerated autocomplete binary stored in PostgreSQL.
 
-  These are used to eliminate the latency of looking up search results on the server.
-  A script can parse the binary and generate results directly as the user types, without
-  incurring any roundtrip penalty.
+  Browsers download the opaque binary and search it locally, avoiding a server
+  round trip for each suggestion. Reading is deliberately unauthenticated.
+  Generation is an operational service used by the release task.
   """
 
   import Ecto.Query, warn: false
+
+  alias Philomena.Autocomplete.{Autocomplete, Generator}
+  alias Philomena.Loader
   alias Philomena.Repo
 
-  alias Philomena.Autocomplete.Autocomplete
-  alias Philomena.Autocomplete.Generator
-
-  @doc """
-  Gets the current local autocompletion binary.
-
-  Returns nil if the binary is not currently generated.
-
-  ## Examples
-
-      iex> get_autocomplete()
-      nil
-
-      iex> get_autocomplete()
-      %Autocomplete{}
-
-  """
-  def get_autocomplete do
+  defp latest_query do
     Autocomplete
     |> order_by(desc: :created_at)
     |> limit(1)
-    |> Repo.one()
+  end
+
+  defp replace_autocomplete!(content) do
+    Repo.transact(fn ->
+      Repo.delete_all(Autocomplete)
+
+      autocomplete =
+        %Autocomplete{}
+        |> Autocomplete.changeset(%{content: content})
+        |> Repo.insert!()
+
+      {:ok, autocomplete}
+    end)
   end
 
   @doc """
-  Creates a new local autocompletion binary, replacing any which currently exist.
+  Loads the current compiled autocomplete artifact.
+
+  Before the first successful generation, it returns `{:error, :not_found}`.
+
+  ## Examples
+
+      iex> show_compiled_autocomplete()
+      {:error, :not_found}
+
+      iex> show_compiled_autocomplete()
+      {:ok, %Autocomplete{}}
+
   """
-  def generate_autocomplete! do
-    ac_file = Generator.generate()
+  @spec show_compiled_autocomplete() :: {:ok, Autocomplete.t()} | {:error, :not_found}
+  def show_compiled_autocomplete do
+    latest_query()
+    |> Loader.one()
+  end
 
-    # Insert the autocomplete binary
-    new_ac =
+  @doc """
+  Generates and atomically replaces the compiled autocomplete artifact.
+
+  Binary generation runs before the replacement transaction. The transaction
+  deletes every previous row and inserts exactly one new row, so readers see
+  either the old artifact or the complete replacement. Raises when generation
+  or persistence violates an invariant.
+
+  ## Examples
+
+      iex> generate_autocomplete!()
       %Autocomplete{}
-      |> Autocomplete.changeset(%{content: ac_file})
-      |> Repo.insert!()
 
-    # Remove anything older
-    Autocomplete
-    |> where([ac], ac.created_at < ^new_ac.created_at)
-    |> Repo.delete_all()
+  """
+  @spec generate_autocomplete!() :: Autocomplete.t()
+  def generate_autocomplete! do
+    content = Generator.generate()
+    {:ok, autocomplete} = replace_autocomplete!(content)
+    autocomplete
   end
 end

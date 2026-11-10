@@ -1,14 +1,10 @@
-elixir:
-  route = fn p -> ~p"/galleries?#{p}" end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route, params: [gallery: @conn.params["gallery"]]
-
 .column-layout
   .column-layout__left
     .block
       .block__content
         h3 Search Galleries
 
-        = form_for @conn, ~p"/galleries", [as: :gallery, method: "get", class: "hform"], fn f ->
+        = form_for @changeset, ~p"/galleries", [as: :gallery, method: "get", class: "hform"], fn f ->
           .field = label f, :title, "Title"
           .field = text_input f, :title, class: "input hform__text", placeholder: "Gallery title (* as wildcard)"
 
@@ -23,8 +19,12 @@ elixir:
 
           .field = label f, :sf, "Sort by"
           .field
-            => select f, :sf, ["Creation Date": "created_at", "Update Date": "updated_at", "Image Count": "image_count", "Relevance": "_score"], class: "input"
+            => select f, :sf, ["Creation date": "created_at", "Modification date": "updated_at", "Image count": "image_count", "Subscriber count": "subscriber_count", "Relevance": "_score"], class: "input"
             => select f, :sd, ["Descending": "desc", "Ascending": "asc"], class: "input"
+
+          .error = error_tag f, :include_image
+          .error = error_tag f, :sf
+          .error = error_tag f, :sd
 
           .field
           = submit "Search", class: "button button--state-primary"
@@ -35,17 +35,20 @@ elixir:
 
   .column-layout__main
     .block
-      .block__header.page__header
-        .page__pagination = pagination
+      = if not is_nil(@galleries) and Enum.any?(@galleries) do
+        - route = fn p -> ~p"/galleries?#{p}" end
+        - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @galleries, route: route, params: [gallery: @conn.params["gallery"]]
 
-      = if Enum.any?(@galleries) do
-        .block__content.media-list
-          = for gallery <- @galleries do
-            = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
+          .block__header.page__header
+            .page__pagination = pagination
+
+          .block__content.media-list
+            = for gallery <- @galleries do
+              = render PhilomenaWeb.GalleryView, "_gallery.html", gallery: gallery, conn: @conn
+
+          .block__header.block__header--light.page__header
+            .page__pagination = pagination
       - else
         .block__content
           .block.block--fixed.block--no-margin.block--warning
             ' No galleries found!
-
-      .block__header.block__header--light.page__header
-        .page__pagination = pagination

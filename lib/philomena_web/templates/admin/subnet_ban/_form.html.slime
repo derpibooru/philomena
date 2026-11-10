@@ -6,6 +6,7 @@
   .field
     => label f, :specification, "Specification:"
     = text_input f, :specification, class: "input", placeholder: "Specification", required: true
+    = error_tag f, :specification
 
   .field
     => label f, :reason, "Reason (shown to the banned user, and to staff on the user's profile page):"

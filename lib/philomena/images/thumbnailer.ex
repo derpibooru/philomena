@@ -11,6 +11,7 @@ defmodule Philomena.Images.Thumbnailer do
 
   alias Philomena.DuplicateReports
   alias Philomena.ImageIntensities
+  alias Philomena.Images
   alias Philomena.ImagePurgeWorker
   alias Philomena.Images.Image
   alias Philomena.Repo
@@ -87,10 +88,10 @@ defmodule Philomena.Images.Thumbnailer do
       apply_edit_script(image, file, Processors.process(analysis, file, generated_sizes(image)))
 
     generate_dupe_reports(image)
-    recompute_meta(image, file, &Image.thumbnail_changeset/2)
+    recompute_meta(image, file, :thumbnail)
 
     file = apply_edit_script(image, file, Processors.post_process(analysis, file))
-    recompute_meta(image, file, &Image.process_changeset/2)
+    recompute_meta(image, file, :process)
   end
 
   defp apply_edit_script(image, file, changes) do
@@ -108,7 +109,7 @@ defmodule Philomena.Images.Thumbnailer do
   end
 
   defp apply_change(image, {:intensities, intensities}),
-    do: ImageIntensities.create_image_intensity(image, intensities)
+    do: ImageIntensities.put_for_loaded_image(image, intensities)
 
   defp apply_change(image, {:replace_original, new_file}) do
     full = "full.#{image.image_format}"
@@ -131,18 +132,18 @@ defmodule Philomena.Images.Thumbnailer do
     end
   end
 
-  defp recompute_meta(image, file, changeset_fn) do
+  defp recompute_meta(image, file, stage) do
     {:ok, %{dimensions: {width, height}}} = Analyzers.analyze_path(file)
 
-    image
-    |> changeset_fn.(%{
+    attrs = %{
       "image_sha512_hash" => Sha512.file(file),
       "image_size" => File.stat!(file).size,
       "image_width" => width,
       "image_height" => height,
       "image_aspect_ratio" => width / height
-    })
-    |> Repo.update!()
+    }
+
+    Images.update_thumbnail_metadata!(image, attrs, stage)
   end
 
   defp download_image_file(image) do

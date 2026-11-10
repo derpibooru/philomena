@@ -43,5 +43,5 @@
     // before this can be enabled
     // "noUncheckedIndexedAccess": true
   },
-  "include": ["./js/**/*", "./types/**/*", "./test/**/*"]
+  "include": ["./js/**/*", "./test/**/*"]
 }

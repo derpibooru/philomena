@@ -30,6 +30,39 @@ defmodule PhilomenaWeb.Registration.EmailControllerTest do
 
       assert Flash.get(conn.assigns.flash, :error) =~ "Failed to update email"
     end
+
+    test "records a change-email token for the old address on success", %{
+      conn: conn,
+      user: user
+    } do
+      post(conn, ~p"/registrations/email", %{
+        "current_password" => valid_user_password(),
+        "user" => %{"email" => unique_user_email()}
+      })
+
+      assert Philomena.Repo.get_by!(Users.UserToken,
+               user_id: user.id,
+               context: "change:#{user.email}"
+             )
+    end
+
+    test "raises without a current_password param", %{conn: conn} do
+      assert_raise Phoenix.ActionClauseError, fn ->
+        post(conn, ~p"/registrations/email", %{"user" => %{"email" => unique_user_email()}})
+      end
+    end
+
+    test "redirects anonymous users to the login page" do
+      conn = build_conn()
+
+      conn =
+        post(conn, ~p"/registrations/email", %{
+          "current_password" => "irrelevant",
+          "user" => %{"email" => "nobody@example.com"}
+        })
+
+      assert redirected_to(conn) == ~p"/sessions/new"
+    end
   end
 
   describe "GET /registrations/email/:token" do

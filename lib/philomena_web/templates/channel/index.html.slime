@@ -1,11 +1,12 @@
 h1 Livestreams
 
 - route = fn p -> ~p"/channels?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn, params: [cq: @conn.params["cq"]]
+- pagination = if @channels, do: render(PhilomenaWeb.PaginationView, "_pagination.html", page: @channels, route: route, conn: @conn, params: [cq: @conn.params["cq"]])
 
-= form_for :channels, ~p"/channels", [method: "get", class: "hform", enforce_utf8: false], fn f ->
+= form_for @changeset, ~p"/channels", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :cq, name: :cq, value: @conn.params["cq"], class: "input hform__text", placeholder: "Search channels", autocapitalize: "none", spellcheck: "false"
+    = text_input f, :cq, name: :cq, class: "input hform__text", placeholder: "Search channels", autocapitalize: "none", spellcheck: "false"
+    = error_tag f, :cq
     = submit "Search", class: "hform__button button"
 
 .block
@@ -23,7 +24,7 @@ h1 Livestreams
 
   .block__content
     .media-list
-      = for channel <- @channels do
+      = for channel <- @channels || [] do
         = render PhilomenaWeb.ChannelView, "_channel_box.html", channel: channel, conn: @conn, subscriptions: @subscriptions
 
   .block__header.page__header

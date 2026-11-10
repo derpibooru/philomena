@@ -3,45 +3,43 @@ defmodule PhilomenaWeb.Topic.Post.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Forums.Forum
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
 
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
+  def new(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "post_id" => post_id}) do
+    locator = {:post, forum_id, topic_id, post_id}
 
-  plug PhilomenaWeb.LoadTopicPlug
-  plug PhilomenaWeb.LoadPostPlug
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, locator) do
+      post = form.target
+      topic = post.topic
+      action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
 
-  def new(conn, _params) do
-    topic = conn.assigns.topic
-    post = conn.assigns.post
-    action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
-
-    changeset =
-      %Report{reportable_type: "Post", reportable_id: post.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html", reportable: post, changeset: changeset, action: action)
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        subject: post,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    topic = conn.assigns.topic
-    post = conn.assigns.post
-    action = ~p"/forums/#{topic.forum}/topics/#{topic}/posts/#{post}/reports"
-
-    ReportController.create(conn, action, "Post", post, params)
+  def create(
+        conn,
+        %{"forum_id" => forum_id, "topic_id" => topic_id, "post_id" => post_id} = params
+      ) do
+    ReportController.create(
+      conn,
+      {:post, forum_id, topic_id, post_id},
+      fn post ->
+        ~p"/forums/#{post.topic.forum}/topics/#{post.topic}/posts/#{post}/reports"
+      end,
+      params
+    )
   end
 end

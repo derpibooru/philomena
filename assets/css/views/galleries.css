@@ -17,6 +17,11 @@
   display: none;
 }
 
+.js-sortable-has-prev:not(.editing) .media-box:nth-child(2) {
+  grid-row: 1 / 1;
+  grid-column: 1 / 1;
+}
+
 .input--search-gallery-list {
   border: var(--border);
   width: 250px;

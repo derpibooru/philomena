@@ -6,3 +6,4 @@ export RELEASE_NODE=philomena_runner_0
 philomena eval 'Philomena.Release.update_channels()'
 philomena eval 'Philomena.Release.verify_artist_links()'
 philomena eval 'Philomena.Release.update_stats()'
+philomena eval 'Philomena.Release.clean_moderation_logs()'

@@ -1,17 +1,13 @@
 defmodule Philomena.Adverts.Server do
   @moduledoc """
-  Advert impression and click aggregator.
-
-  Updating the impression count for adverts and clicks on every pageload is unnecessary
-  and slows down requests. This module collects the adverts and clicks and submits a batch
-  of updates to the database after every 10 seconds asynchronously, reducing the amount of
-  work to be done.
+  Batches advert click and impression updates and submits them to the database
+  every 10 seconds.
   """
 
   use GenServer
-  alias Philomena.Adverts.Recorder
+  alias Philomena.Adverts
 
-  @type advert_id :: integer()
+  @flush_interval to_timeout(second: 10)
 
   @doc """
   Starts the GenServer.
@@ -31,7 +27,7 @@ defmodule Philomena.Adverts.Server do
       :ok
 
   """
-  @spec record_impression(advert_id()) :: :ok
+  @spec record_impression(integer()) :: :ok
   def record_impression(advert_id) do
     GenServer.cast(__MODULE__, {:impressions, advert_id})
   end
@@ -45,44 +41,35 @@ defmodule Philomena.Adverts.Server do
       :ok
 
   """
-  @spec record_click(advert_id()) :: :ok
+  @spec record_click(integer()) :: :ok
   def record_click(advert_id) do
     GenServer.cast(__MODULE__, {:clicks, advert_id})
   end
 
-  # Used to force the GenServer to immediately sleep when no
-  # messages are available.
-  @timeout 0
-  @sleep :timer.seconds(10)
-
   @impl true
   @doc false
   def init(_) do
-    {:ok, initial_state(), @timeout}
+    schedule_flush()
+    {:ok, initial_state()}
   end
 
   @impl true
   @doc false
   def handle_cast({type, advert_id}, state) do
     # Update the counter described by the message
-    state = update_in(state[type], &increment_counter(&1, advert_id))
-
-    # Return to GenServer event loop
-    {:noreply, state, @timeout}
+    {:noreply, update_in(state[type], &increment_counter(&1, advert_id))}
   end
 
   @impl true
   @doc false
-  def handle_info(:timeout, state) do
-    # Process all updates from state now
-    Recorder.run(state)
+  def handle_info(:flush, state) do
+    Adverts.record_counters(state)
 
-    # Sleep for the specified delay
-    :timer.sleep(@sleep)
-
-    # Return to GenServer event loop
-    {:noreply, initial_state(), @timeout}
+    schedule_flush()
+    {:noreply, initial_state()}
   end
+
+  defp schedule_flush, do: Process.send_after(self(), :flush, @flush_interval)
 
   defp increment_counter(map, advert_id) do
     Map.update(map, advert_id, 1, &(&1 + 1))

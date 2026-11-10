@@ -25,19 +25,38 @@
     ' By default all the filters you create are private and only visible by you. You can have as many as you like and switch between them instantly with no limits. You can also create a public filter, which can be seen and used by any user on the site, allowing you to share useful filters with others.
 
   = if !@conn.params["fq"] do
-    h2 My Filters
-    = if @current_user do
-      p
-        = link("Click here to make a new filter from scratch", to: ~p"/filters/new")
-      = for filter <- @my_filters do
-        = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
-    - else
-      p
-        ' If you're logged in, you can create and maintain custom filters here.
+    = if @my_filters do
+      - route = fn p -> ~p"/filters?#{p}" end
+      - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @my_filters, route: route
 
-    h2 Global Filters
-    = for filter <- @system_filters do
-      = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+      .block
+        .block__header.flex
+          span.block__header__title
+            ' My Filters
+          .flex__right.page__info
+            a href=~p"/filters/new"
+              i.fa.fa-plus>
+              span.hide-mobile
+                | New filter
+
+        .block__header
+          .page__pagination = pagination
+
+        .block__content
+          = for filter <- @my_filters do
+            = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+
+        .block__header.block__header--light
+          .page__pagination = pagination
+
+    .block
+      .block__header
+        span.block__header__title
+          ' Global Filters
+
+      .block__content
+        = for filter <- @system_filters do
+          = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
 
     = if @current_user do
       h2 Recent Filters
@@ -45,30 +64,44 @@
         ' Clicking this button will clear the recent filters list in the header dropdown.
         = button_to "Clear recent filter list", ~p"/filters/clear_recent", method: "delete", class: "button"
 
-  h2 Search Filters
+  h2 Search
   p
-    ' Some users maintain custom filters which are publicly shared; you can search these filters with the box below.
+    ' Some filters are publicly shared; you can search these filters with the box below.
   = form_for :filters, ~p"/filters", [method: "get", class: "hform", enforce_utf8: false], fn f ->
     .field
-      = text_input f, :fq, name: :fq, value: @conn.params["fq"], class: "input hform__text", placeholder: "Search filters", autocapitalize: "none", spellcheck: "false"
+      = text_input f, :fq, name: :fq, value: @conn.params["fq"],
+        class: "input hform__text",
+        placeholder: "Search filters",
+        autocapitalize: "none",
+        spellcheck: "false",
+        autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+        inputmode: "search",
+        data: [ \
+          autocomplete: "properties",
+        ]
       = submit "Search", class: "hform__button button"
 
-  .fieldlabel
+  p.fieldlabel
     ' For more information, see the
     a href="/pages/search_syntax" search syntax documentation
     ' . Search results are sorted alphabetically.
 
   = if @conn.params["fq"] do
-    h2 Search Results
     = cond do
       - Enum.any?(@filters) ->
         - route = fn p -> ~p"/filters?#{p}" end
         - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @filters, route: route, params: [fq: @conn.params["fq"]], conn: @conn
 
-        = for filter <- @filters do
-          = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
-
         .block
+          .block__header.page__header
+            span.block__header__title
+              ' Search Results
+            .page__pagination = pagination
+
+          .block__content
+            = for filter <- @filters do
+              = render PhilomenaWeb.FilterView, "_filter.html", conn: @conn, filter: filter
+
           .block__header.block__header--light.page__header
             .page__pagination = pagination
             .page__info

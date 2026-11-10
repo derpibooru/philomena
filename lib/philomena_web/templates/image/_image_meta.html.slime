@@ -9,30 +9,50 @@
         i.fa.fa-chevron-right
       a.js-rand href=~p"/images/random?#{scope(@conn)}" title="Random (r)"
         i.fa.fa-random
+    / Logged-out visitors get the interaction links too; the JS points them at the login page.
+    - show_interactions? = @can_interact or is_nil(@conn.assigns.current_user)
+    - vote_counts? = show_vote_counts?(@conn.assigns.current_user)
     .stretched-mobile-links
-      a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
-        span.favorites> title="Favorites" data-image-id=@image.id = @image.faves_count
-        span.fave-span title="Fave!"
+      = if show_interactions? do
+        a.interaction--fave href="#" rel="nofollow" data-image-id=@image.id
+          span.favorites> title="Favorites" data-image-id=@image.id = @image.faves_count
+          span.fave-span title="Fave!"
+            i.fa.fa-star
+        a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
+          = if vote_counts? do
+            span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
+          span.upvote-span title="Yay!"
+            i.fa.fa-arrow-up
+      - else
+        span
+          span.favorites> title="Favorites" data-image-id=@image.id = @image.faves_count
           i.fa.fa-star
-      a.interaction--upvote href="#" rel="nofollow" data-image-id=@image.id
-        = if show_vote_counts?(@conn.assigns.current_user) do
-          span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
-        span.upvote-span title="Yay!"
-          i.fa.fa-arrow-up
+        = if vote_counts? do
+          span
+            span.upvotes> title="Upvotes" data-image-id=@image.id = @image.upvotes_count
+            i.fa.fa-arrow-up
       span.score.block__header__title data-image-id=@image.id = @image.score
-      a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
-        span.downvote-span title="Neigh!"
-          i.fa.fa-arrow-down
-        = if show_vote_counts?(@conn.assigns.current_user) do
-          span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
+      = if show_interactions? do
+        a.interaction--downvote href="#" rel="nofollow" data-image-id=@image.id
+          span.downvote-span title="Neigh!"
+            i.fa.fa-arrow-down
+          = if vote_counts? do
+            span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
+      - else
+        = if vote_counts? do
+          span
+            i.fa.fa-arrow-down
+            span.downvotes< title="Downvotes" data-image-id=@image.id = @image.downvotes_count
       a.interaction--comments href="#comments" title="Comments"
         i.fa.fa-comments
         span.comments_count< data-image-id=@image.id = @image.comments_count
-      a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
-        span.hide-span title="Hide"
-          i.fa.fa-eye-slash
+      = if show_interactions? do
+        a.interaction--hide href="#" rel="nofollow" data-image-id=@image.id
+          span.hide-span title="Hide"
+            i.fa.fa-eye-slash
     .stretched-mobile-links
-      = render PhilomenaWeb.Image.SubscriptionView, "_subscription.html", watching: @watching, image: @image, conn: @conn
+      = if is_nil(@conn.assigns.current_user) or can?(@conn, :subscribe, @image) do
+        = render PhilomenaWeb.Image.SubscriptionView, "_subscription.html", watching: @watching, image: @image, conn: @conn
       = render PhilomenaWeb.ImageView, "_add_to_gallery_dropdown.html", image: @image, user_galleries: @user_galleries, conn: @conn
       a href=~p"/images/#{@image}/related" title="Related Images"
         i.fa.fa-sitemap>

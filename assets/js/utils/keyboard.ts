@@ -49,6 +49,8 @@ const keysMapping = {
 const literalKeysMapping = {
   ',': 'Comma',
   '.': 'Period',
+  // Because its keyCode is 188, it was interpreted as `Comma` in real browsers (not in Vite tests, though)
+  '<': 'LessThan',
 } as const;
 
 type keysAsEnum<Obj extends Record<string, string>> = Record<Obj[keyof Obj], string>;
@@ -80,4 +82,19 @@ export function normalizedKeyboardKey(event: KeyboardEvent): string {
   // on mobile phones the `Enter` key has empty `code` for some reason, but it
   // has `Enter` as `key`.
   return literalKey || asRecord(keysMapping)[event.keyCode] || event.code || event.key;
+}
+
+/**
+ * Whether a keydown should trigger a page shortcut: no modifier is held and
+ * the user is not typing into a text field.
+ */
+export function isShortcutEvent(event: KeyboardEvent): boolean {
+  return (
+    !event.altKey &&
+    !event.ctrlKey &&
+    !event.metaKey &&
+    document.activeElement !== null &&
+    document.activeElement.tagName !== 'INPUT' &&
+    document.activeElement.tagName !== 'TEXTAREA'
+  );
 }

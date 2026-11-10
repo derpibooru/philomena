@@ -1,39 +1,38 @@
 defmodule PhilomenaWeb.Profile.TagChangeController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
   alias Philomena.TagChanges
+  alias Philomena.TagChanges.TagChangePage
 
-  plug PhilomenaWeb.CanaryMapPlug, index: :show
-  plug :load_resource, model: User, id_name: "profile_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, params) do
-    user = conn.assigns.user
+  def index(conn, %{"profile_id" => profile_id} = params) do
+    case TagChanges.list_user_tag_changes(
+           conn.assigns.actor,
+           profile_id,
+           params,
+           conn.assigns.pagination
+         ) do
+      {:ok, %TagChangePage{target: user, tag_changes: tag_changes}, changeset} ->
+        path = ~p"/profiles/#{user}/tag_changes"
 
-    {tag_changes, image_count} =
-      TagChanges.load(
-        %{
-          field: :user_id,
-          value: user.id,
-          added: params["added"],
-          tag: params["only_tag"],
-          filter_anon: true
-        },
-        :image_id,
-        conn.assigns.scrivener
-      )
+        conn
+        |> put_view(PhilomenaWeb.TagChangeView)
+        |> render("index.html",
+          title: "Tag Changes for User `#{user.name}'",
+          path: path,
+          pagination_route: fn query -> "#{path}?#{Plug.Conn.Query.encode(query)}" end,
+          tag_changes: tag_changes,
+          changeset: changeset
+        )
 
-    # params.permit(:added, :only_tag) ...
-    pagination_params =
-      [added: conn.params["added"], only_tag: conn.params["only_tag"]]
-      |> Keyword.filter(fn {_k, v} -> not is_nil(v) and v != "" end)
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Invalid tag change query.")
+        |> redirect(to: "/tag_changes")
 
-    render(conn, "index.html",
-      title: "Tag Changes for User `#{user.name}'",
-      user: user,
-      tag_changes: tag_changes,
-      pagination_params: pagination_params,
-      image_count: image_count
-    )
+      error ->
+        error
+    end
   end
 end

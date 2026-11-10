@@ -13,6 +13,12 @@ defmodule PhilomenaProxy.Http do
       config :philomena,
         proxy_host: System.get_env("PROXY_HOST"),
 
+  Additional `Req` options may be provided under the `:req_options` key; the
+  test environment uses this to route requests to `Req.Test`.
+
+      config :philomena,
+        req_options: [plug: {Req.Test, PhilomenaProxy.Http}]
+
   """
 
   @type url :: String.t()
@@ -78,7 +84,7 @@ defmodule PhilomenaProxy.Http do
 
   @spec request(atom(), String.t(), iodata() | nil, header_list()) :: result()
   defp request(method, url, body, headers) do
-    Req.new(
+    [
       method: method,
       url: url,
       body: body,
@@ -88,7 +94,9 @@ defmodule PhilomenaProxy.Http do
       inet6: true,
       into: &stream_response_callback/2,
       decode_body: false
-    )
+    ]
+    |> Keyword.merge(Application.get_env(:philomena, :req_options, []))
+    |> Req.new()
     |> Req.Request.put_private(@max_body_key, 0)
     |> Req.request()
   end

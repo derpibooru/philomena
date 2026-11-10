@@ -67,13 +67,13 @@ function submit(event: Event) {
   setTagButton(`Wait... (${currentTags()})`);
 
   fetchJson('PUT', '/admin/batch/tags', {
-    tags: currentTags(),
+    tag_list: currentTags(),
     image_ids: currentQueue(),
   })
     .then(handleError)
     .then(r => r.json())
-    .then(data => {
-      if (data.failed.length) window.alert(`Failed to add tags to the images with these IDs: ${data.failed}`);
+    .then((data: { failed: number }) => {
+      if (data.failed > 0) window.alert(`Failed to add tags to ${data.failed} images.`);
 
       reset();
     });
@@ -118,6 +118,7 @@ delegate(document, 'click', {
 
 export function setupQuickTag() {
   const tagButton = $<HTMLAnchorElement>('.js-quick-tag');
+
   if (tagButton && currentTags()) {
     toggleActiveState();
   }

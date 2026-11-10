@@ -1,30 +1,18 @@
 defmodule PhilomenaWeb.Api.Json.PostController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Posts.Post
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Posts
+  import PhilomenaWeb.Api.Json.NotFound
 
   def show(conn, %{"id" => post_id}) do
-    post =
-      Post
-      |> join(:inner, [p], _ in assoc(p, :topic))
-      |> join(:inner, [_p, t], _ in assoc(t, :forum))
-      |> where(id: ^post_id)
-      |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false)
-      |> where([_p, _t, f], f.access_level == "normal")
-      |> preload([:user, :topic])
-      |> Repo.one()
+    case Posts.show_post(conn.assigns.actor, post_id) do
+      {:ok, post} ->
+        conn
+        |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)
+        |> render("show.json", post: post)
 
-    if is_nil(post) do
-      conn
-      |> put_status(:not_found)
-      |> text("")
-    else
-      conn
-      |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)
-      |> render("show.json", post: post)
+      {:error, reason} when reason in [:not_found, :unauthorized] ->
+        not_found(conn)
     end
   end
 end

@@ -6,6 +6,8 @@ defmodule Philomena.ImageIntensities.ImageIntensity do
 
   @primary_key false
 
+  @type t :: %__MODULE__{}
+
   schema "image_intensities" do
     belongs_to :image, Image, primary_key: true
 

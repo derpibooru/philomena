@@ -1,94 +1,289 @@
 h1 Users
 
-= form_for :user, ~p"/admin/users", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/users", [as: :uq, method: "get", class: "hform"], fn f ->
   .field
-    => text_input f, :uq, name: :uq, value: @conn.params["uq"], class: "hform__text input", placeholder: "Search query", spellcheck: "false"
+    => text_input f, :query, class: "hform__text input", placeholder: "Search query", spellcheck: "false"
     = submit "Search", class: "button hform__button"
+  .field
+    elixir:
+      sort_fields = [
+        "Sort by user ID": :id,
+        "Sort by name": :name,
+        "Sort by confirmation date": :confirmed_at,
+        "Sort by last update date": :updated_at,
+        "Sort by deactivation date": :deleted_at,
+        "Sort by uploads": :images_count,
+        "Sort by favorites": :image_faves_count,
+        "Sort by comments": :comments_count,
+        "Sort by votes": :image_votes_count,
+        "Sort by metadata updates": :metadata_updates_count,
+        "Sort by forum posts": :posts_count,
+        "Sort by topics": :topics_count,
+        "Sort by relevance": :_score
+      ]
 
-=> link "Site staff", to: ~p"/admin/users?#{[staff: 1]}"
+      sort_directions = [
+        "Descending": :desc,
+        "Ascending": :asc
+      ]
+
+    = select f, :sf, sort_fields, class: "input", autocomplete: "off"
+    = select f, :sd, sort_directions, class: "input input--separate-left", autocomplete: "off"
+
+  .error = error_tag f, :query
+  .error = error_tag f, :sf
+  .error = error_tag f, :sd
+
+=> link "Site staff", to: ~p"/admin/users?#{[uq: [query: "NOT role:user"]]}"
 ' &bull;
-=> link "2FA users", to: ~p"/admin/users?#{[twofactor: 1]}"
+=> link "2FA users", to: ~p"/admin/users?#{[uq: [query: "otp_required_for_login:true"]]}"
 
-- route = fn p -> ~p"/admin/users?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: page_params(@conn.params)
+h2 Search Results
 
-.block
-  .block__header
-    .page__pagination = pagination
+= if not is_nil(@users) and Enum.any?(@users) do
+  - route = fn p -> ~p"/admin/users?#{p}" end
+  - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @users, route: route, conn: @conn, params: scope(@conn)
+  = render PhilomenaWeb.Admin.UserView, "_list.html", users: @users, conn: @conn, pagination: pagination
+- else
+  p
+    ' No users found!
 
-  .block__content
-    table.table
-      thead
-        tr
-          th Name
-          th Email
-          th Activated
-          th Role
-          th Created
-          th Options
-      tbody
-        = for user <- @users do
-          tr
-            td
-              = link user.name, to: ~p"/profiles/#{user}"
-
-              = cond do
-                - user.otp_required_for_login ->
-                  span.banner__2fa.success
-                    i.fas.fa-check>
-                    ' 2FA
-
-                - user.role != "user" and !user.otp_required_for_login ->
-                  span.banner__2fa.danger
-                    i.fas.fa-times>
-                    ' 2FA
-
-                - true ->
-
-            td
-              = if can?(@conn, :edit, Philomena.Users.User) do
-                = user.email
-              - else
-                i N/A
-
-            td
-              = cond do
-                - user.deleted_at ->
-                  strong> Deactivated
-                  = pretty_time user.deleted_at
-
-                - user.confirmed_at ->
-                  ' Active
-
-                - true ->
-                  strong> Unconfirmed
-
-            td
-              = String.capitalize(user.role)
-
-            td
-              = pretty_time user.created_at
-
-            td
-              = if can?(@conn, :edit, user) do
-                => link to: ~p"/admin/users/#{user}/edit" do
-                  i.fa.fa-fw.fa-user-edit
-                  ' Edit
-
-              /= if user.deleted_at do
-              /  => link_to 'Reactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :create
-              /- else
-              /  => link_to 'Deactivate', admin_user_activation_path(user), data: { confirm: t('are_you_sure') }, method: :delete
-              /' &bull;
-
-              = if can?(@conn, :index, Philomena.Bans.User) do
-                => link to: ~p"/admin/user_bans/new?#{[user_id: user.id]}" do
-                  i.fa.fa-fw.fa-ban
-                  ' Ban
-              = if can?(@conn, :edit, Philomena.ArtistLinks.ArtistLink) do
-                => link to: ~p"/profiles/#{user}/artist_links/new" do
-                  i.fa.fa-fw.fa-link
-                  ' Add link
-
-  .block__header.block__header--light
-    .page__pagination = pagination
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td Default
+      td Literal
+      td Matches either the name or email of the user.
+      td
+        code = link "administrator", to: ~p"/admin/users?#{[uq: [query: "administrator"]]}"
+    tr
+      td
+        code id
+      td Integer
+      td Matches the user ID.
+      td
+        code = link "id:123", to: ~p"/admin/users?#{[uq: [query: "id:123"]]}"
+    tr
+      td
+        code name
+      td Literal
+      td Matches the name of the user.
+      td
+        code = link "name:luna", to: ~p"/admin/users?#{[uq: [query: "name:luna"]]}"
+    tr
+      td
+        code slug
+      td Literal
+      td Matches the slug of the user.
+      td
+        code = link "slug:princess+celestia", to: ~p"/admin/users?#{[uq: [query: "slug:princess+celestia"]]}"
+    tr
+      td
+        code email
+      td Literal
+      td Matches the email of the user.
+      td
+        code = link "email:admin@example.com", to: ~p"/admin/users?#{[uq: [query: "email:admin@example.com"]]}"
+    tr
+      td
+        code role
+      td Literal
+      td Matches the role of the user.
+      td
+        code = link "role:admin", to: ~p"/admin/users?#{[uq: [query: "role:admin"]]}"
+    tr
+      td
+        code personal_title
+      td Full Text
+      td Matches the personal title of the user's profile.
+      td
+        code = link "personal_title:pony", to: ~p"/admin/users?#{[uq: [query: "personal_title:pony"]]}"
+    tr
+      td
+        code description
+      td Full Text
+      td Matches the About Me section of the user's profile.
+      td
+        code = link "description:pony", to: ~p"/admin/users?#{[uq: [query: "description:pony"]]}"
+    tr
+      td
+        code custom_avatar
+      td Boolean
+      td Matches whether the user has a custom avatar.
+      td
+        code = link "custom_avatar:true", to: ~p"/admin/users?#{[uq: [query: "custom_avatar:true"]]}"
+    tr
+      td
+        code created_at
+      td Date/Time
+      td Matches the date and time the user account was created.
+      td
+        code = link "created_at.lt:2 weeks ago", to: ~p"/admin/users?#{[uq: [query: "created_at.lt:2 weeks ago"]]}"
+    tr
+      td
+        code confirmed
+      td Boolean
+      td Matches whether the user account has been confirmed.
+      td
+        code = link "confirmed:true", to: ~p"/admin/users?#{[uq: [query: "confirmed:true"]]}"
+    tr
+      td
+        code confirmed_at
+      td Date/Time
+      td Matches the date and time the user account was confirmed.
+      td
+        code = link "confirmed_at.lt:2 weeks ago", to: ~p"/admin/users?#{[uq: [query: "confirmed_at.lt:2 weeks ago"]]}"
+    tr
+      td
+        code verified
+      td Boolean
+      td Matches whether the user has been granted verification.
+      td
+        code = link "verified:true", to: ~p"/admin/users?#{[uq: [query: "verified:true"]]}"
+    tr
+      td
+        code locked
+      td Boolean
+      td Matches whether the user account has been locked.
+      td
+        code = link "locked:true", to: ~p"/admin/users?#{[uq: [query: "locked:true"]]}"
+    tr
+      td
+        code locked_at
+      td Date/Time
+      td Matches the date and time the user account was locked.
+      td
+        code = link "locked_at:2025", to: ~p"/admin/users?#{[uq: [query: "locked_at:2025"]]}"
+    tr
+      td
+        code deleted
+      td Boolean
+      td Matches whether the user account has been deactivated.
+      td
+        code = link "deleted:true", to: ~p"/admin/users?#{[uq: [query: "deleted:true"]]}"
+    tr
+      td
+        code deleted_at
+      td Date/Time
+      td Matches the date and time the user account was deactivated.
+      td
+        code = link "deleted_at.gt:1 week ago", to: ~p"/admin/users?#{[uq: [query: "deleted_at.gt:1 week ago"]]}"
+    tr
+      td
+        code deleted_by_user_id
+      td Numeric
+      td Matches the user ID of the admin who deleted the user account.
+      td
+        code = link "deleted_by_user_id:123", to: ~p"/admin/users?#{[uq: [query: "deleted_by_user_id:123"]]}"
+    tr
+      td
+        code deleted_by_user
+      td Literal
+      td Matches the name of the admin who deleted the user account.
+      td
+        code = link "deleted_by_user:moderator", to: ~p"/admin/users?#{[uq: [query: "deleted_by_user:moderator"]]}"
+    tr
+      td
+        code banned_until
+      td Date/Time
+      td Matches the date and time of any enabled bans on the user.
+      td
+        code = link "banned_until.gt:0 seconds ago", to: ~p"/admin/users?#{[uq: [query: "banned_until.gt:0 seconds ago"]]}"
+    tr
+      td
+        code otp_required_for_login
+      td Boolean
+      td Matches whether the user has two-factor authentication enabled.
+      td
+        code = link "otp_required_for_login:true", to: ~p"/admin/users?#{[uq: [query: "otp_required_for_login:true"]]}"
+    tr
+      td
+        code images_count
+      td Integer
+      td Matches the number of uploads the user has made.
+      td
+        code = link "images_count.gte:200", to: ~p"/admin/users?#{[uq: [query: "images_count.gte:200"]]}"
+    tr
+      td
+        code image_faves_count
+      td Integer
+      td Matches the number of images the user has favourited.
+      td
+        code = link "image_faves_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_faves_count.gte:1000"]]}"
+    tr
+      td
+        code image_votes_count
+      td Integer
+      td Matches the number of votes the user has cast.
+      td
+        code = link "image_votes_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_votes_count.gte:1000"]]}"
+    tr
+      td
+        code metadata_updates_count
+      td Integer
+      td Matches the number of metadata updates the user has made.
+      td
+        code = link "metadata_updates_count.gte:500", to: ~p"/admin/users?#{[uq: [query: "metadata_updates_count.gte:500"]]}"
+    tr
+      td
+        code comments_count
+      td Integer
+      td Matches the number of comments the user has posted.
+      td
+        code = link "comments_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "comments_count.gte:100"]]}"
+    tr
+      td
+        code posts_count
+      td Integer
+      td Matches the number of forum posts the user has made.
+      td
+        code = link "posts_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "posts_count.gte:100"]]}"
+    tr
+      td
+        code topics_count
+      td Integer
+      td Matches the number of topics the user has made.
+      td
+        code = link "topics_count.gte:10", to: ~p"/admin/users?#{[uq: [query: "topics_count.gte:10"]]}"
+    tr
+      td
+        code current_filter_id
+      td Numeric
+      td Matches the ID of the filter the user is currently using.
+      td
+        code = link "current_filter_id:123", to: ~p"/admin/users?#{[uq: [query: "current_filter_id:123"]]}"
+    tr
+      td
+        code forced_filter_id
+      td Numeric
+      td Matches the ID of the filter that was forced on the user.
+      td
+        code = link "forced_filter_id:123", to: ~p"/admin/users?#{[uq: [query: "forced_filter_id:123"]]}"
+    tr
+      td
+        code scratchpad
+      td Full Text
+      td Matches the moderation scratchpad content on the user's profile.
+      td
+        code = link "scratchpad:pony", to: ~p"/admin/users?#{[uq: [query: "scratchpad:pony"]]}"
+    tr
+      td
+        code last_renamed_at
+      td Date/Time
+      td Matches the date and time the user was last renamed.
+      td
+        code = link "last_renamed_at.gt:1 month ago", to: ~p"/admin/users?#{[uq: [query: "last_renamed_at.gt:1 month ago"]]}"
+    tr
+      td
+        code names
+      td Literal
+      td Matches previous names the user has had.
+      td
+        code = link "names:old_username", to: ~p"/admin/users?#{[uq: [query: "names:old_username"]]}"

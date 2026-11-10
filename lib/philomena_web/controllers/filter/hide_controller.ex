@@ -2,49 +2,41 @@ defmodule PhilomenaWeb.Filter.HideController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Filters
-  alias Philomena.Tags.Tag
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug :authorize_filter
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_resource, model: Tag, id_field: "slug", id_name: "tag", persisted: true
-
-  def create(conn, _params) do
-    case Filters.hide_tag(conn.assigns.current_filter, conn.assigns.tag) do
-      {:ok, _filter} ->
-        conn
-        |> put_status(:ok)
-        |> text("")
-
-      {:error, _changeset} ->
-        conn
-        |> put_status(:internal_server_error)
-        |> text("")
-    end
+  def create(conn, params) do
+    render_result(
+      conn,
+      Filters.create_filter_hide(actor(conn), current_filter(conn), params["tag"])
+    )
   end
 
-  def delete(conn, _params) do
-    case Filters.unhide_tag(conn.assigns.current_filter, conn.assigns.tag) do
-      {:ok, _filter} ->
-        conn
-        |> put_status(:ok)
-        |> text("")
-
-      {:error, _changeset} ->
-        conn
-        |> put_status(:internal_server_error)
-        |> text("")
-    end
+  def delete(conn, params) do
+    render_result(
+      conn,
+      Filters.delete_filter_hide(actor(conn), current_filter(conn), params["tag"])
+    )
   end
 
-  defp authorize_filter(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, conn.assigns.current_filter) do
-      conn
-    else
-      conn
-      |> put_status(:forbidden)
-      |> text("")
-      |> halt()
+  defp actor(conn), do: conn.assigns.actor
+  defp current_filter(conn), do: conn.assigns.current_filter
+
+  # A denied filter edit is answered with an empty 403 and an update failure with
+  # an empty 500; the ban and not-found shapes redirect through the fallback.
+  defp render_result(conn, result) do
+    case result do
+      {:ok, _filter} ->
+        conn |> put_status(:ok) |> text("")
+
+      {:error, :unauthorized} ->
+        conn |> put_status(:forbidden) |> text("")
+
+      {:error, %Ecto.Changeset{}} ->
+        conn |> put_status(:internal_server_error) |> text("")
+
+      {:error, _} = error ->
+        error
     end
   end
 end

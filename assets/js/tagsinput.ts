@@ -2,9 +2,31 @@
  * Fancy tag editor.
  */
 
+// for AutocompleteEvent
+import './autocomplete/index';
+
 import { normalizedKeyboardKey, keys } from './utils/keyboard';
 import { assertNotNull, assertType } from './utils/assert';
 import { $, $$, clearEl, removeEl, showEl, hideEl, escapeCss, escapeHtml } from './utils/dom';
+
+declare global {
+  interface Addtag {
+    name: string;
+  }
+
+  interface AddtagEvent extends CustomEvent<Addtag> {
+    target: HTMLInputElement | HTMLTextAreaElement;
+  }
+
+  interface ReloadEvent extends CustomEvent {
+    target: HTMLInputElement | HTMLTextAreaElement;
+  }
+
+  interface GlobalEventHandlersEventMap {
+    addtag: AddtagEvent;
+    reload: ReloadEvent;
+  }
+}
 
 export function setupTagsInput(tagBlock: HTMLDivElement) {
   const form = assertNotNull(tagBlock.closest('form'));
@@ -33,7 +55,7 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
   inputField.addEventListener('keydown', handleKeyEvent);
 
   // Respond to autocomplete form clicks
-  inputField.addEventListener('autocomplete', handleAutocomplete as EventListener);
+  inputField.addEventListener('autocomplete', handleAutocomplete);
 
   // Respond to Ctrl+Enter shortcut
   tagBlock.addEventListener('keydown', handleCtrlEnter);
@@ -48,7 +70,7 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
     importTags();
   }
 
-  function handleAutocomplete(event: CustomEvent<string>) {
+  function handleAutocomplete(event: AutocompleteEvent) {
     insertTag(event.detail);
     inputField.focus();
   }
@@ -63,11 +85,11 @@ export function setupTagsInput(tagBlock: HTMLDivElement) {
 
   function handleTagClear(event: Event) {
     const target = assertType(event.target, HTMLElement);
+    const { tagName } = target.dataset;
+    if (!tagName) return;
 
-    if (target.dataset.tagName) {
-      event.preventDefault();
-      removeTag(target.dataset.tagName, assertNotNull(target.parentElement));
-    }
+    event.preventDefault();
+    removeTag(tagName, assertNotNull(target.parentElement));
   }
 
   function handleKeyEvent(event: KeyboardEvent) {

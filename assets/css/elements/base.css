@@ -75,7 +75,7 @@ p,
 
 .communication__body__text .paragraph {
   margin-bottom: var(--padding-normal);
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: $min-desktop-width) {
@@ -134,7 +134,7 @@ table,
   width: 100%;
   border-collapse: collapse;
   border: var(--border);
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .communication__body__text table,
@@ -171,9 +171,11 @@ table > tbody,
 
 /* I know this looks odd, but first one expands to
  .table > ...
- while the other one does the table verbatim */
-@mixin even-odd table > tbody tr;
-@mixin even-odd-element table > tbody tr;
+ while the other one does the table verbatim.
+ The child combinator before tr keeps striping out of nested tables
+ (e.g. diff tables rendered inside a .table cell). */
+@mixin even-odd table > tbody > tr;
+@mixin even-odd-element table > tbody > tr;
 
 td {
   padding: 5px;
@@ -204,32 +206,6 @@ hr {
   height: 1px;
   background: var(--border-color);
   margin: var(--padding-small);
-}
-
-/* rules page. API page also borrows stuff from here */
-.rule {
-  padding: 5px;
-}
-
-.rule h2 {
-  background: var(--background-odd-color);
-  border: var(--border);
-  padding: 5px;
-  padding-bottom: 7px;
-}
-
-.rule h2.important {
-  background: var(--danger-light-color);
-  border-color: var(--danger-color);
-}
-/* Make HTML lists with multi-line text readable */
-.rule ul {
-  margin: 0;
-  padding: 5px 20px;
-}
-
-.rule li {
-  padding: 5px 0;
 }
 
 #error_explanation {
@@ -443,6 +419,10 @@ pre code {
 .label--primary {
   background: var(--primary-light-color);
   border: 1px solid var(--primary-color);
+}
+
+a.label {
+  color: var(--foreground-color);
 }
 
 .large-text {

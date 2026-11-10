@@ -67,6 +67,46 @@ defmodule PhilomenaWeb.SessionControllerTest do
       assert response =~ "Invalid email or password"
     end
 
+    test "rejects an unconfirmed user with valid credentials", %{conn: conn} do
+      user = user_fixture()
+
+      conn =
+        post(conn, ~p"/sessions", %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      assert html_response(conn, 200) =~ "You must confirm your account before logging in."
+      refute get_session(conn, :user_token)
+    end
+
+    test "rejects a locked user with valid credentials using the generic error", %{conn: conn} do
+      user = locked_user_fixture()
+
+      conn =
+        post(conn, ~p"/sessions", %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      assert html_response(conn, 200) =~ "Invalid email or password"
+      refute get_session(conn, :user_token)
+    end
+
+    test "logs a TOTP user in but gates them on the second factor", %{conn: conn} do
+      user = totp_user_fixture()
+
+      conn =
+        post(conn, ~p"/sessions", %{
+          "user" => %{"email" => user.email, "password" => valid_user_password()}
+        })
+
+      assert redirected_to(conn) == "/"
+      assert get_session(conn, :user_token)
+
+      # Any :ensure_totp route redirects until the TOTP phase is passed.
+      conn = get(conn, ~p"/registrations/edit")
+      assert redirected_to(conn) == ~p"/sessions/totp/new"
+    end
+
     test "invalidates all sessions and requires a reset for a compromised password", %{
       conn: conn,
       user: user
@@ -103,6 +143,14 @@ defmodule PhilomenaWeb.SessionControllerTest do
       assert redirected_to(conn) == "/"
       refute get_session(conn, :user_token)
       assert Phoenix.Flash.get(conn.assigns.flash, :info) =~ "Logged out successfully"
+    end
+
+    test "redirects anonymous users to the login page", %{conn: conn} do
+      conn = delete(conn, ~p"/sessions")
+      assert redirected_to(conn) == ~p"/sessions/new"
+
+      assert Phoenix.Flash.get(conn.assigns.flash, :error) =~
+               "You must log in to access this page."
     end
   end
 end

@@ -21,20 +21,6 @@ defmodule PhilomenaWeb.Admin.ArtistLinkView do
     |> String.capitalize()
   end
 
-  def scope(conn) do
-    []
-    |> scope(conn, "lq", :lq)
-    |> scope(conn, "all", :all)
-  end
-
-  defp scope(list, conn, key, key_atom) do
-    case conn.params[key] do
-      nil -> list
-      "" -> list
-      val -> [{key_atom, val} | list]
-    end
-  end
-
   def contacted?(%{aasm_state: state}), do: state == "contacted"
   def verified?(%{aasm_state: state}), do: state == "verified"
   def link_verified?(%{aasm_state: state}), do: state == "link_verified"

@@ -3,19 +3,25 @@ defmodule Philomena.Users.Uploader do
   Upload and processing callback logic for User avatars.
   """
 
+  alias Philomena.Multi
   alias Philomena.Users.User
   alias PhilomenaMedia.Uploader
 
-  def analyze_upload(user, params) do
-    Uploader.analyze_upload(user, "avatar", params["avatar"], &User.avatar_changeset/2)
+  def analyze_upload(user, upload) do
+    Uploader.analyze_upload(user, "avatar", upload, &User.avatar_changeset/2)
   end
 
-  def persist_upload(user) do
-    Uploader.persist_upload(user, avatar_file_root(), "avatar")
+  def put_persist_upload_and_unpersist_old(multi, step) do
+    Multi.on_commit(multi, fn %{^step => user} ->
+      Uploader.persist_upload(user, avatar_file_root(), "avatar")
+      Uploader.unpersist_old_upload(user, avatar_file_root(), "avatar")
+    end)
   end
 
-  def unpersist_old_upload(user) do
-    Uploader.unpersist_old_upload(user, avatar_file_root(), "avatar")
+  def put_unpersist_old_upload(multi, step) do
+    Multi.on_commit(multi, fn %{^step => user} ->
+      Uploader.unpersist_old_upload(user, avatar_file_root(), "avatar")
+    end)
   end
 
   defp avatar_file_root do

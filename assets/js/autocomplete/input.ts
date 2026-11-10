@@ -1,5 +1,5 @@
 import store from '../utils/store';
-import { getTermContexts } from '../match_query';
+import { getTermContexts } from '../match-query';
 import { Range } from '../query/lex';
 
 export type TextInputElement = HTMLInputElement | HTMLTextAreaElement;
@@ -64,8 +64,12 @@ interface AutocompleteInputSnapshot {
  * that manages separate input elements for every tag. In this mode the user
  * can input `-tag` prefix to remove the tag from the list. See more details
  * about how it works here: https://github.com/philomena-dev/philomena/pull/383
+ *
+ * The `properties` autocompletion type is used on other non-tag-related search
+ * queries, such as forum and comments search. Property maps are guessed from the
+ * input itself.
  */
-type AutocompleteInputType = 'multi-tags' | 'single-tag';
+type AutocompleteInputType = 'multi-tags' | 'single-tag' | 'properties';
 
 /**
  * Parsed version of `TextInputElement`. Its behavior is controlled with various
@@ -128,7 +132,7 @@ export class AutocompletableInput {
 
     const type = element.dataset.autocomplete;
 
-    if (type !== 'multi-tags' && type !== 'single-tag') {
+    if (type !== 'multi-tags' && type !== 'single-tag' && type !== 'properties') {
       throw new Error(`BUG: invalid autocomplete type: ${type}`);
     }
 
@@ -149,8 +153,12 @@ export class AutocompletableInput {
     this.maxSuggestions = maxSuggestions ? parseInt(maxSuggestions, 10) : 10;
   }
 
+  hasTagSuggestions(): boolean {
+    return this.type !== 'properties';
+  }
+
   hasHistory(): this is this & { historyId: string } {
-    return Boolean(this.historyId);
+    return this.type !== 'properties' && Boolean(this.historyId);
   }
 
   isEnabled(): boolean {

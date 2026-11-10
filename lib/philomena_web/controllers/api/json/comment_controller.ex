@@ -1,30 +1,21 @@
 defmodule PhilomenaWeb.Api.Json.CommentController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Comments.Comment
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Comments
+  import PhilomenaWeb.Api.Json.NotFound
 
   def show(conn, %{"id" => id}) do
-    comment =
-      Comment
-      |> where(id: ^id)
-      |> preload([:image, :user])
-      |> Repo.one()
+    case Comments.show_comment(conn.assigns.actor, id) do
+      {:ok, comment} ->
+        render(conn, "show.json", comment: comment)
 
-    cond do
-      is_nil(comment) or comment.destroyed_content ->
-        conn
-        |> put_status(:not_found)
-        |> text("")
+      {:error, :not_found} ->
+        not_found(conn)
 
-      comment.image.hidden_from_users ->
+      {:error, :unauthorized} ->
         conn
         |> put_status(:forbidden)
         |> text("")
-
-      true ->
-        render(conn, "show.json", comment: comment)
     end
   end
 end

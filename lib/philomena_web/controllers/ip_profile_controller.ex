@@ -1,42 +1,18 @@
 defmodule PhilomenaWeb.IpProfileController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.UserIps.UserIp
-  alias Philomena.Bans.Subnet
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.UserIps
 
-  plug :authorize_ip
+  action_fallback PhilomenaWeb.FallbackController
 
   def show(conn, %{"id" => ip}) do
-    {:ok, ip} = EctoNetwork.INET.cast(ip)
-
-    user_ips =
-      UserIp
-      |> where(fragment("? >>= ip", ^ip))
-      |> order_by(desc: :updated_at)
-      |> preload(:user)
-      |> Repo.all()
-
-    subnet_bans =
-      Subnet
-      |> where([s], fragment("? >>= ?", s.specification, ^ip))
-      |> order_by(desc: :created_at)
-      |> Repo.all()
-
-    render(conn, "show.html",
-      title: "#{ip}'s IP profile",
-      ip: ip,
-      user_ips: user_ips,
-      subnet_bans: subnet_bans
-    )
-  end
-
-  defp authorize_ip(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :show, :ip_address) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+    with {:ok, profile} <- UserIps.show_ip_profile(conn.assigns.actor, ip) do
+      render(conn, "show.html",
+        title: "#{profile.ip}'s IP profile",
+        ip: profile.ip,
+        user_ips: profile.user_ips,
+        subnet_bans: profile.subnet_bans
+      )
     end
   end
 end

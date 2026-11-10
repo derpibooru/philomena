@@ -1,68 +1,50 @@
 defmodule PhilomenaWeb.Topic.LockController do
-  import Plug.Conn
   use PhilomenaWeb, :controller
 
-  alias Philomena.Forums.Forum
-  alias Philomena.Topics.Topic
   alias Philomena.Topics
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
-
-  plug PhilomenaWeb.LoadTopicPlug
-  plug PhilomenaWeb.CanaryMapPlug, create: :hide, delete: :hide
-  plug :authorize_resource, model: Topic, persisted: true
-
-  def create(conn, %{"topic" => topic_params}) do
-    topic = conn.assigns.topic
-    user = conn.assigns.current_user
-
-    case Topics.lock_topic(topic, topic_params, user) do
-      {:ok, topic} ->
+  def create(conn, params) do
+    case Topics.create_topic_lock(
+           conn.assigns.actor,
+           params["forum_id"],
+           params["topic_id"],
+           params["topic"] || %{}
+         ) do
+      {:ok, {forum, topic}} ->
         conn
         |> put_flash(:info, "Topic successfully locked!")
-        |> moderation_log(details: &log_details/2, data: topic)
-        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
-      {:error, _changeset} ->
+      {:error, forum, topic} ->
         conn
         |> put_flash(:error, "Unable to lock the topic!")
-        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, _opts) do
-    topic = conn.assigns.topic
-
-    case Topics.unlock_topic(topic) do
-      {:ok, topic} ->
+  def delete(conn, params) do
+    case Topics.delete_topic_lock(
+           conn.assigns.actor,
+           params["forum_id"],
+           params["topic_id"]
+         ) do
+      {:ok, {forum, topic}} ->
         conn
         |> put_flash(:info, "Topic successfully unlocked!")
-        |> moderation_log(details: &log_details/2, data: topic)
-        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
 
-      {:error, _changeset} ->
+      {:error, forum, topic} ->
         conn
         |> put_flash(:error, "Unable to unlock the topic!")
-        |> redirect(to: ~p"/forums/#{topic.forum}/topics/#{topic}")
+        |> redirect(to: ~p"/forums/#{forum}/topics/#{topic}")
+
+      error ->
+        error
     end
-  end
-
-  defp log_details(action, topic) do
-    body =
-      case action do
-        :create -> "Locked topic '#{topic.title}' (#{topic.lock_reason}) in #{topic.forum.name}"
-        :delete -> "Unlocked topic '#{topic.title}' in #{topic.forum.name}"
-      end
-
-    %{
-      body: body,
-      subject_path: ~p"/forums/#{topic.forum}/topics/#{topic}"
-    }
   end
 end

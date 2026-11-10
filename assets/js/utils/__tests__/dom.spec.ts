@@ -396,7 +396,24 @@ describe('DOM Utilities', () => {
       }
     });
 
-    it('should add event listener with callback if document ready state is loading', () => {
+    it('should call multiple callbacks immediately if document ready state is not loading', () => {
+      const mockReadyStateValue = getRandomArrayItem<DocumentReadyState>(['complete', 'interactive']);
+      const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue(mockReadyStateValue);
+      const mockCallback1 = vi.fn();
+      const mockCallback2 = vi.fn();
+      const mockCallback3 = vi.fn();
+
+      try {
+        whenReady(mockCallback1, mockCallback2, mockCallback3);
+        expect(mockCallback1).toHaveBeenCalledTimes(1);
+        expect(mockCallback2).toHaveBeenCalledTimes(1);
+        expect(mockCallback3).toHaveBeenCalledTimes(1);
+      } finally {
+        readyStateSpy.mockRestore();
+      }
+    });
+
+    it('should add event listener if document ready state is loading', () => {
       const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue('loading');
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
       const mockCallback = vi.fn();
@@ -404,11 +421,104 @@ describe('DOM Utilities', () => {
       try {
         whenReady(mockCallback);
         expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
-        expect(addEventListenerSpy).toHaveBeenNthCalledWith(1, 'DOMContentLoaded', mockCallback);
+        expect(addEventListenerSpy.mock.calls[0][0]).toBe('DOMContentLoaded');
+        expect(typeof addEventListenerSpy.mock.calls[0][1]).toBe('function');
         expect(mockCallback).not.toHaveBeenCalled();
       } finally {
         readyStateSpy.mockRestore();
         addEventListenerSpy.mockRestore();
+      }
+    });
+
+    it('should add event listener that calls all callbacks when document ready state is loading', () => {
+      const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue('loading');
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+      const mockCallback1 = vi.fn();
+      const mockCallback2 = vi.fn();
+
+      try {
+        whenReady(mockCallback1, mockCallback2);
+        expect(addEventListenerSpy).toHaveBeenCalledTimes(1);
+        expect(mockCallback1).not.toHaveBeenCalled();
+        expect(mockCallback2).not.toHaveBeenCalled();
+
+        // Call the handler that was registered
+        const handler = addEventListenerSpy.mock.calls[0][1] as EventListener;
+        handler(new Event('DOMContentLoaded'));
+
+        expect(mockCallback1).toHaveBeenCalledTimes(1);
+        expect(mockCallback2).toHaveBeenCalledTimes(1);
+      } finally {
+        readyStateSpy.mockRestore();
+        addEventListenerSpy.mockRestore();
+      }
+    });
+
+    it('should catch errors from callbacks and continue executing remaining callbacks', () => {
+      const mockReadyStateValue = getRandomArrayItem<DocumentReadyState>(['complete', 'interactive']);
+      const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue(mockReadyStateValue);
+      const consoleLogSpy = vi.spyOn(console, 'log');
+
+      const errorMessage = 'Test error message';
+      const throwingCallback = vi.fn(() => {
+        throw new Error(errorMessage);
+      });
+      const successCallback = vi.fn();
+
+      try {
+        whenReady(throwingCallback, successCallback);
+
+        expect(throwingCallback).toHaveBeenCalledTimes(1);
+        expect(successCallback).toHaveBeenCalledTimes(1);
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('ran with errors'));
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining(errorMessage));
+      } finally {
+        readyStateSpy.mockRestore();
+        consoleLogSpy.mockRestore();
+      }
+    });
+
+    it('should log callback name when error is thrown', () => {
+      const mockReadyStateValue = getRandomArrayItem<DocumentReadyState>(['complete', 'interactive']);
+      const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue(mockReadyStateValue);
+      const consoleLogSpy = vi.spyOn(console, 'log');
+
+      function namedCallback() {
+        throw new Error('Error in named callback');
+      }
+
+      const throwingCallback = vi.fn(namedCallback);
+
+      try {
+        whenReady(throwingCallback);
+
+        expect(throwingCallback).toHaveBeenCalledTimes(1);
+        expect(consoleLogSpy).toHaveBeenCalledWith('Mock ran with errors.');
+      } finally {
+        readyStateSpy.mockRestore();
+        consoleLogSpy.mockRestore();
+      }
+    });
+
+    it('should handle thrown values of non-error types', () => {
+      const mockReadyStateValue = getRandomArrayItem<DocumentReadyState>(['complete', 'interactive']);
+      const readyStateSpy = vi.spyOn(document, 'readyState', 'get').mockReturnValue(mockReadyStateValue);
+      const consoleLogSpy = vi.spyOn(console, 'log');
+
+      const throwingCallback = vi.fn(() => {
+        // eslint-disable-next-line no-throw-literal
+        throw 'string error';
+      });
+
+      try {
+        whenReady(throwingCallback);
+
+        expect(throwingCallback).toHaveBeenCalledTimes(1);
+        expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('ran with errors'));
+        expect(consoleLogSpy).toHaveBeenCalledTimes(1); // Should only log once (no error message)
+      } finally {
+        readyStateSpy.mockRestore();
+        consoleLogSpy.mockRestore();
       }
     });
   });

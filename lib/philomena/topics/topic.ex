@@ -2,12 +2,15 @@ defmodule Philomena.Topics.Topic do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Philomena.Attribution.Actor
   alias Philomena.Forums.Forum
   alias Philomena.Users.User
   alias Philomena.Polls.Poll
   alias Philomena.Posts.Post
   alias Philomena.Topics.Subscription
   alias Philomena.Slug
+
+  @type t :: %__MODULE__{}
 
   @derive {Phoenix.Param, key: :slug}
   schema "topics" do
@@ -36,14 +39,14 @@ defmodule Philomena.Topics.Topic do
   end
 
   @doc false
-  def changeset(topic, attrs) do
+  def changeset(topic, attrs \\ %{}) do
     topic
     |> cast(attrs, [])
     |> validate_required([])
   end
 
   @doc false
-  def creation_changeset(topic, attrs, forum, attribution) do
+  def creation_changeset(topic, attrs, %Forum{} = forum, %Actor{} = actor) do
     changes =
       topic
       |> cast(attrs, [:title, :anonymous])
@@ -56,10 +59,10 @@ defmodule Philomena.Topics.Topic do
     changes
     |> validate_length(:title, min: 4, max: 96, count: :bytes)
     |> put_slug()
-    |> change(forum: forum, user: attribution[:user])
+    |> change(forum: forum, user: actor.user)
     |> validate_required(:forum)
     |> cast_assoc(:poll, with: &Poll.changeset/2)
-    |> cast_assoc(:posts, with: &Post.topic_creation_changeset(&1, &2, attribution, anonymous?))
+    |> cast_assoc(:posts, with: &Post.topic_creation_changeset(&1, &2, actor, anonymous?))
     |> validate_length(:posts, is: 1)
     |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
   end
@@ -93,18 +96,25 @@ defmodule Philomena.Topics.Topic do
   def move_changeset(topic, new_forum_id) do
     change(topic)
     |> put_change(:forum_id, new_forum_id)
+    |> foreign_key_constraint(:forum_id, name: :fk_rails_eac66eb971)
+    |> unique_constraint(:slug, name: :index_topics_on_forum_id_and_slug)
   end
 
-  def hide_changeset(topic, deletion_reason, user) do
-    change(topic)
+  @doc false
+  def hide_changeset(topic, user, attrs) do
+    topic
+    |> cast(attrs, [:deletion_reason])
+    |> validate_required([:deletion_reason])
+    |> validate_hidden(false, "is already hidden")
     |> put_change(:hidden_from_users, true)
     |> put_change(:deleted_by_id, user.id)
-    |> put_change(:deletion_reason, deletion_reason)
-    |> validate_required([:deletion_reason])
   end
 
+  @doc false
   def unhide_changeset(topic) do
-    change(topic)
+    topic
+    |> change()
+    |> validate_hidden(true, "is not hidden")
     |> put_change(:hidden_from_users, false)
     |> put_change(:deleted_by_id, nil)
     |> put_change(:deletion_reason, "")
@@ -126,5 +136,13 @@ defmodule Philomena.Topics.Topic do
     changeset
     |> put_change(:slug, slug)
     |> validate_required(:slug, message: "must be printable")
+  end
+
+  defp validate_hidden(changeset, required_state, message) do
+    if get_field(changeset, :hidden_from_users) != required_state do
+      add_error(changeset, :hidden_from_users, message)
+    else
+      changeset
+    end
   end
 end

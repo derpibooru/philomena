@@ -3,13 +3,12 @@ defmodule PhilomenaWeb.NotificationController do
 
   alias Philomena.Notifications
 
-  def index(conn, _params) do
-    notifications =
-      Notifications.unread_notifications_for_user(
-        conn.assigns.current_user,
-        page_size: 10
-      )
+  action_fallback PhilomenaWeb.FallbackController
 
-    render(conn, "index.html", title: "Notification Area", notifications: notifications)
+  def index(conn, _params) do
+    with {:ok, notifications} <-
+           Notifications.list_unread_notifications(conn.assigns.actor, page_size: 10) do
+      render(conn, "index.html", title: "Notification Area", notifications: notifications)
+    end
   end
 end

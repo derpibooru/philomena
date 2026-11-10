@@ -4,7 +4,10 @@
   // See the docs at https://containers.dev/implementors/json_reference/
   "dockerComposeFile": "../docker-compose.yml",
   "service": "app",
+
+  // Make sure our custom `init-container.sh` script is run at startup
   "overrideCommand": false,
+
   "workspaceFolder": "/srv/philomena",
 
   "containerEnv": {
@@ -15,27 +18,60 @@
   "customizations": {
     "vscode": {
       "settings": {
+        // Listen on `0.0.0.0` on the host machine to allow accessing the site
+        // via the local network, e.g. with a phone connected to the same WiFi.
         "remote.localPortHost": "allInterfaces",
-        "elixirLS.dialyzerWarnOpts": ["no_opaque"],
+
+        // Rust Analyzer struggles to discover the cargo workspace unless there
+        // is a `Cargo.toml` in the repo root. So, we give it a small hint.
         "rust-analyzer.linkedProjects": ["./native/philomena/Cargo.toml"],
+
         "[dockercompose]": {
+          // Use `prettier` for docker-compose.yml instead of docker extension's own formatter.
           "editor.defaultFormatter": "esbenp.prettier-vscode"
         }
       },
       "extensions": [
-        "jakebecker.elixir-ls",
+        // Elixir LSP
+        "expertlsp.expert",
+
+        // Rust LSP
         "rust-lang.rust-analyzer",
+
+        // TOML LSP
         "tamasfe.even-better-toml",
+
+        // Container management extension by Microsoft
         "ms-azuretools.vscode-docker",
+
+        // Dockerfile LSP by Docker Inc.
         "docker.docker",
+
+        // Github Actions LSP
         "github.vscode-github-actions",
+
+        // Bash LSP
         "mads-hartmann.bash-ide-vscode",
+
+        // Caddyfile LSP
         "matthewpi.caddyfile-support",
+
+        // `.slime` syntax highlighting
         "xolan.slime",
+
+        // `.js`, `.ts` linter
         "oxc.oxc-vscode",
+
+        // `.css` linter
         "stylelint.vscode-stylelint",
+
+        // `.js`, `.ts`. `.css`, `.json`, `.yaml`, `.md` formatter
         "esbenp.prettier-vscode",
+
+        // Spell checker enforced on CI
         "tekumara.typos-vscode",
+
+        // `.toMatchInlineSnapshot()` syntax highlighting
         "tlent.jest-snapshot-language-support"
       ]
     }

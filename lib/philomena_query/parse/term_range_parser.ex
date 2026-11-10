@@ -23,22 +23,22 @@ defmodule PhilomenaQuery.Parse.TermRangeParser do
     field_sz = byte_size(field_name)
 
     case input do
-      <<^field_name::binary-size(field_sz), ":", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ":", value::binary>> ->
         [{field_parser, field_name}, range: :eq, value: String.trim(value)]
 
-      <<^field_name::binary-size(field_sz), ".eq:", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ".eq:", value::binary>> ->
         [{field_parser, field_name}, range: :eq, value: String.trim(value)]
 
-      <<^field_name::binary-size(field_sz), ".gt:", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ".gt:", value::binary>> ->
         [{field_parser, field_name}, range: :gt, value: String.trim(value)]
 
-      <<^field_name::binary-size(field_sz), ".gte:", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ".gte:", value::binary>> ->
         [{field_parser, field_name}, range: :gte, value: String.trim(value)]
 
-      <<^field_name::binary-size(field_sz), ".lt:", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ".lt:", value::binary>> ->
         [{field_parser, field_name}, range: :lt, value: String.trim(value)]
 
-      <<^field_name::binary-size(field_sz), ".lte:", value::binary>> ->
+      <<^field_name::binary-size(^field_sz), ".lte:", value::binary>> ->
         [{field_parser, field_name}, range: :lte, value: String.trim(value)]
 
       _ ->

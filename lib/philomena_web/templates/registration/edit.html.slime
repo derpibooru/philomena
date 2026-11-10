@@ -69,3 +69,8 @@ h3 Change password
     = error_tag f, :current_password
 
   = submit "Change password", class: "button"
+
+h3 Deactivate Account 
+p
+  ' Navigate to the account deactivation page.
+= button_to "Deactivate account", ~p"/deactivations", class: "button"

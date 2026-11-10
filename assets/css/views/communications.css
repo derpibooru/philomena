@@ -25,7 +25,7 @@ span.communication__body__sender-name {
 }
 
 .communication__body__text {
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   margin-top: 3px;
   margin-bottom: 6px;
   line-height: 1.35em;

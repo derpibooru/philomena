@@ -53,6 +53,27 @@ defmodule Philomena.Users.UserNotifier do
   end
 
   @doc """
+  Deliver instructions to reactivate a deactivated account.
+  """
+  def deliver_reactivation_instructions(user, url) do
+    deliver(user.email, "Reactivation instructions for your account", """
+
+    ==============================
+
+    Hi,
+
+    Your account has been deactivated. If you wish to re-activate it, please click the following link:
+
+    #{url}
+
+    Sincerely,
+    The Derpibooru team.
+
+    ==============================
+    """)
+  end
+
+  @doc """
   Deliver instructions to update an account email.
   """
   def deliver_update_email_instructions(user, url) do

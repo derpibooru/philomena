@@ -1,55 +1,43 @@
 defmodule PhilomenaWeb.Tag.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Tags.Tag
   alias Philomena.Tags
 
-  plug PhilomenaWeb.CanaryMapPlug, update: :edit, delete: :edit
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Tag,
-    id_name: "tag_id",
-    id_field: "slug",
-    preload: [:implied_tags],
-    persisted: true
-
-  def edit(conn, _params) do
-    changeset = Tags.change_tag(conn.assigns.tag)
-    render(conn, "edit.html", title: "Editing Tag Spoiler Image", changeset: changeset)
-  end
-
-  def update(conn, %{"tag" => tag_params}) do
-    case Tags.update_tag_image(conn.assigns.tag, tag_params) do
-      {:ok, tag} ->
-        conn
-        |> put_flash(:info, "Tag image successfully updated.")
-        |> moderation_log(details: &log_details/2, data: tag)
-        |> redirect(to: ~p"/tags/#{tag}")
-
-      {:error, :tag, changeset, _changes} ->
-        render(conn, "edit.html", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {tag, changeset}} <-
+           Tags.edit_tag_image(conn.assigns.actor, params["tag_id"]) do
+      render(conn, "edit.html",
+        title: "Editing Tag Spoiler Image",
+        tag: tag,
+        changeset: changeset
+      )
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, tag} = Tags.remove_tag_image(conn.assigns.tag)
+  def update(conn, %{"tag_id" => slug, "tag" => tag_params}) do
+    upload = PhilomenaMedia.Upload.cast(tag_params, "image")
 
-    conn
-    |> put_flash(:info, "Tag image successfully removed.")
-    |> moderation_log(details: &log_details/2, data: tag)
-    |> redirect(to: ~p"/tags/#{conn.assigns.tag}")
+    case Tags.update_tag_image(conn.assigns.actor, slug, upload) do
+      {:ok, tag} ->
+        conn
+        |> put_flash(:info, "Tag image successfully updated.")
+        |> redirect(to: ~p"/tags/#{tag}")
+
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", tag: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
+    end
   end
 
-  defp log_details(action, tag) do
-    body =
-      case action do
-        :update -> "Updated image on tag '#{tag.name}'"
-        :delete -> "Removed image on tag '#{tag.name}'"
-      end
-
-    %{
-      body: body,
-      subject_path: ~p"/tags/#{tag}"
-    }
+  def delete(conn, params) do
+    with {:ok, tag} <- Tags.delete_tag_image(conn.assigns.actor, params["tag_id"]) do
+      conn
+      |> put_flash(:info, "Tag image successfully removed.")
+      |> redirect(to: ~p"/tags/#{tag}")
+    end
   end
 end

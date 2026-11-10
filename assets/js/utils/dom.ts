@@ -24,38 +24,43 @@ export function $$<E extends Element = Element>(
   return [...elements];
 }
 
+function concat<E>(elements: (E | ConcatArray<E>)[]): E[] {
+  const empty: E[] = [];
+  return empty.concat(...elements);
+}
+
 export function showEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => el.classList.remove('hidden'));
+  concat(elements).forEach(el => el.classList.remove('hidden'));
 }
 
 export function hideEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => el.classList.add('hidden'));
+  concat(elements).forEach(el => el.classList.add('hidden'));
 }
 
 export function toggleEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => el.classList.toggle('hidden'));
+  concat(elements).forEach(el => el.classList.toggle('hidden'));
 }
 
 export function clearEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => {
+  concat(elements).forEach(el => {
     while (el.firstChild) el.removeChild(el.firstChild);
   });
 }
 
 export function disableEl<E extends PhilomenaInputElements>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => {
+  concat(elements).forEach(el => {
     el.disabled = true;
   });
 }
 
 export function enableEl<E extends PhilomenaInputElements>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => {
+  concat(elements).forEach(el => {
     el.disabled = false;
   });
 }
 
 export function removeEl<E extends HTMLElement>(...elements: E[] | ConcatArray<E>[]) {
-  ([] as E[]).concat(...elements).forEach(el => el.parentNode?.removeChild(el));
+  concat(elements).forEach(el => el.parentNode?.removeChild(el));
 }
 
 export function makeEl<Tag extends keyof HTMLElementTagNameMap>(
@@ -89,13 +94,27 @@ export function onLeftClick(
 }
 
 /**
- * Execute a function when the DOM is ready
+ * Execute one or more functions when the DOM is ready
  */
-export function whenReady(callback: VoidFunction): void {
+export function whenReady(...callbacks: VoidFunction[]): void {
+  const handler = () => {
+    for (const callback of callbacks) {
+      try {
+        callback();
+      } catch (err: unknown) {
+        console.log(`${callback.name} ran with errors.`);
+
+        if (err instanceof Error) {
+          console.log(`The error was:\n\n${err.message}`);
+        }
+      }
+    }
+  };
+
   if (document.readyState !== 'loading') {
-    callback();
+    handler();
   } else {
-    document.addEventListener('DOMContentLoaded', callback);
+    document.addEventListener('DOMContentLoaded', handler);
   }
 }
 

@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.PostView do
   alias Philomena.Attribution
+  alias Philomena.Attribution.AnonymousName
 
   use PhilomenaWeb, :view
 
@@ -9,7 +10,7 @@ defmodule PhilomenaWeb.PostView do
 
   defp author_name(object) do
     if Attribution.anonymous?(object) || !object.user do
-      PhilomenaWeb.UserAttributionView.anonymous_name(object)
+      AnonymousName.generate(object)
     else
       object.user.name
     end

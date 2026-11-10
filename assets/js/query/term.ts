@@ -12,28 +12,33 @@ function normalizeTerm(term: string, wildcardable: boolean) {
   return term.replace(/\\([^*?])/g, '$1');
 }
 
+function getFieldAndRangeQualifier(field: string): [string, RangeEqualQualifier] {
+  const qualifiersAndMatches: [RangeEqualQualifier, string][] = [
+    ['gt', '.gt'],
+    ['gte', '.gte'],
+    ['lt', '.lt'],
+    ['lte', '.lte'],
+    ['eq', '.eq'],
+  ];
+
+  for (const [qualifier, match] of qualifiersAndMatches) {
+    if (field.endsWith(match)) {
+      return [field.slice(0, field.length - match.length), qualifier];
+    }
+  }
+
+  return [field, 'eq'];
+}
+
 function parseRangeField(field: string): RangeInfo | null {
-  if (numberFields.indexOf(field) !== -1) {
-    return [field, 'eq', 'number'];
+  const [fieldName, rangeQual] = getFieldAndRangeQualifier(field);
+
+  if (numberFields.indexOf(fieldName) !== -1) {
+    return [fieldName, rangeQual, 'number'];
   }
 
-  if (dateFields.indexOf(field) !== -1) {
-    return [field, 'eq', 'date'];
-  }
-
-  const qual = /^(\w+)\.([lg]te?|eq)$/.exec(field);
-
-  if (qual) {
-    const fieldName: FieldName = qual[1];
-    const rangeQual = qual[2] as RangeEqualQualifier;
-
-    if (numberFields.indexOf(fieldName) !== -1) {
-      return [fieldName, rangeQual, 'number'];
-    }
-
-    if (dateFields.indexOf(fieldName) !== -1) {
-      return [fieldName, rangeQual, 'date'];
-    }
+  if (dateFields.indexOf(fieldName) !== -1) {
+    return [fieldName, rangeQual, 'date'];
   }
 
   return null;

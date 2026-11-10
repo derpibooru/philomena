@@ -1,36 +1,41 @@
 defmodule PhilomenaWeb.Tag.WatchController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Tags.Tag
-  alias Philomena.Users
+  alias Philomena.Tags
 
-  plug :load_resource, model: Tag, id_field: "slug", id_name: "tag_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, _params) do
-    case Users.watch_tag(conn.assigns.current_user, conn.assigns.tag) do
+  def create(conn, params) do
+    case Tags.create_tag_watch(conn.assigns.actor, params["tag_id"]) do
       {:ok, _user} ->
         conn
         |> put_status(:ok)
         |> text("")
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{}} ->
         conn
         |> put_status(:internal_server_error)
         |> text("")
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    case Users.unwatch_tag(conn.assigns.current_user, conn.assigns.tag) do
+  def delete(conn, params) do
+    case Tags.delete_tag_watch(conn.assigns.actor, params["tag_id"]) do
       {:ok, _user} ->
         conn
         |> put_status(:ok)
         |> text("")
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{}} ->
         conn
         |> put_status(:internal_server_error)
         |> text("")
+
+      {:error, _} = error ->
+        error
     end
   end
 end

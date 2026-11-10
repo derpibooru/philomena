@@ -4,14 +4,18 @@ defmodule Philomena.Reports.Query do
   defp fields do
     [
       int_fields: ~W(id),
-      numeric_fields: ~W(user_id admin_id reportable_id image_id),
+      numeric_fields: ~W(user_id admin_id reportable_id image_id related_id),
       date_fields: ~W(created_at),
-      literal_fields: ~W(state user admin reportable_type fingerprint),
+      literal_fields: ~W(state user admin reportable_type fingerprint related),
       ip_fields: ~W(ip),
-      bool_fields: ~W(open),
+      bool_fields: ~W(open system),
       ngram_fields: ~W(reason),
       default_field: {"reason", :ngram},
-      no_downcase_fields: ~W(reportable_type)
+      no_downcase_fields: ~W(reportable_type),
+      aliases: %{
+        "related_id" => "related_user_ids",
+        "related" => "related_users"
+      }
     ]
   end
 

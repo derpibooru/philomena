@@ -19,8 +19,7 @@
   border-color: var(--button-hover-border-color);
 }
 
-.button:disabled,
-.toggle-box + label:disabled {
+.button:disabled {
   opacity: 0.7;
   pointer-events: none;
 }
@@ -28,7 +27,6 @@
 .button:active,
 .button:hover,
 .button:visited,
-.toggle-box + label:visited,
 .toggle-box + label:active .toggle-box + label:hover {
   color: var(--button-text-color);
 }

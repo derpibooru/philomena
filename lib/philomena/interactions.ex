@@ -1,35 +1,44 @@
 defmodule Philomena.Interactions do
+  @moduledoc """
+  Image interaction loads and transaction steps used by authorized image merges.
+  """
+
   import Ecto.Query
 
-  alias Philomena.ImageHides.ImageHide
+  alias Philomena.Multi
+  alias Philomena.Attribution.Actor
   alias Philomena.ImageFaves.ImageFave
-  alias Philomena.ImageVotes.ImageVote
+  alias Philomena.ImageFaves
+  alias Philomena.ImageHides.ImageHide
+  alias Philomena.ImageHides
+  alias Philomena.Images
   alias Philomena.Images.Image
+  alias Philomena.ImageVotes.ImageVote
+  alias Philomena.ImageVotes
   alias Philomena.Repo
-  alias Ecto.Multi
 
-  @doc """
-  Gets all interactions for a list of images for a given user.
+  @type interaction :: %{
+          image_id: pos_integer(),
+          user_id: pos_integer(),
+          interaction_type: String.t(),
+          value: String.t()
+        }
 
-  Returns an empty list if no user is provided. Otherwise returns a list of maps containing:
-  - image_id: The ID of the image
-  - user_id: The ID of the user
-  - interaction_type: One of "hidden", "faved", or "voted"
-  - value: For votes, either "up" or "down". Empty string for other interaction types.
+  defp flatten_images(nil), do: []
+  defp flatten_images(id) when is_integer(id), do: [id]
+  defp flatten_images(%{id: id}), do: [id]
+  defp flatten_images({%{id: id}, _hit}), do: [id]
+  defp flatten_images(enum), do: Enum.flat_map(enum, &flatten_images/1)
 
-  ## Parameters
-    * images - List of images or image IDs to get interactions for
-    * user - The user to get interactions for, or nil
-  """
-  def user_interactions(_images, nil),
-    do: []
+  defp interaction_ids(images) do
+    images
+    |> flatten_images()
+    |> Enum.uniq()
+  end
 
-  def user_interactions(images, user) do
-    ids =
-      images
-      |> flatten_images()
-      |> Enum.uniq()
+  defp interactions_for_user([], _user), do: []
 
+  defp interactions_for_user(ids, user) do
     hide_interactions =
       ImageHide
       |> select([h], %{
@@ -74,100 +83,92 @@ defmodule Philomena.Interactions do
       |> where([v], v.image_id in ^ids)
       |> where(user_id: ^user.id, up: false)
 
-    [
-      hide_interactions,
-      fave_interactions,
-      upvote_interactions,
-      downvote_interactions
-    ]
-    |> union_all_queries()
+    [hide_interactions, fave_interactions, upvote_interactions, downvote_interactions]
+    |> Enum.reduce(&union_all(&2, ^&1))
     |> Repo.all()
   end
 
+  defp source_interactions(repo, source) do
+    source = repo.preload(source, [:hiders, :favers, :upvoters, :downvoters], force: true)
+    {:ok, %{source: source, created_at: DateTime.utc_now(:second)}}
+  end
+
   @doc """
-  Migrates all interactions from one image to another.
+  Lists `actor`'s interactions with all supplied images.
 
-  Copies all hides, faves, and votes from the source image to the target image.
-  Updates the target image's counters to reflect the new interactions.
-  All operations are performed in a single transaction.
+  `images` may be a page or another enumerable containing loaded images,
+  integer IDs, `{image, hit}` search results, nested lists, duplicates,
+  and `nil`. Duplicates and `nil` are ignored. Anonymous actors return `[]`
+  without querying. The result omits images with no interaction and uses
+  specific strings: `"hidden"`, `"faved"`, or `"voted"`, with
+  values `"up"`/`"down"` only given for votes.
 
-  ## Parameters
-    * source - The source Image struct to copy interactions from
-    * target - The target Image struct to copy interactions to
+  ## Examples
+
+      iex> user_interactions(actor, [image, {other_image, hit}])
+      [%{image_id: 42, user_id: 7, interaction_type: "voted", value: "up"}]
+
+      iex> user_interactions(anonymous_actor, [image])
+      []
 
   """
-  def migrate_interactions(source, target) do
-    now = DateTime.utc_now(:second)
-    source = Repo.preload(source, [:hiders, :favers, :upvoters, :downvoters])
+  @spec user_interactions(Actor.t(), Enumerable.t()) :: [interaction()]
+  def user_interactions(%Actor{user: nil}, _images), do: []
 
-    new_hides = Enum.map(source.hiders, &%{image_id: target.id, user_id: &1.id, created_at: now})
-    new_faves = Enum.map(source.favers, &%{image_id: target.id, user_id: &1.id, created_at: now})
+  def user_interactions(%Actor{user: user}, images) do
+    images
+    |> interaction_ids()
+    |> interactions_for_user(user)
+  end
 
-    new_upvotes =
-      Enum.map(
-        source.upvoters,
-        &%{image_id: target.id, user_id: &1.id, created_at: now, up: true}
-      )
+  @doc """
+  Adds interaction migration steps for loaded source and target images.
 
-    new_downvotes =
-      Enum.map(
-        source.downvoters,
-        &%{image_id: target.id, user_id: &1.id, created_at: now, up: false}
-      )
+  The caller must authorize the merge in `Philomena.Images` and execute the
+  returned `Ecto.Multi`. Hides, faves, and votes absent from the target are
+  copied. When both images have the same user's interaction, the target row
+  wins. Target counters, score, and user fave/vote statistics increase only for
+  rows actually inserted. Source rows are unchanged.
 
-    Multi.new()
-    |> Multi.run(:hides, fn repo, %{} ->
-      {count, nil} = repo.insert_all(ImageHide, new_hides, on_conflict: :nothing)
+  The added changes are named `:interaction_source`, `:interaction_hides`,
+  `:interaction_faves`, `:interaction_upvotes`, `:interaction_downvotes`, and
+  `:interaction_image`, keeping all copies and counter changes in the owner's
+  transaction. The fave and vote changes retain the inserted rows so their
+  user statistics can be incremented in bulk.
 
-      {:ok, count}
-    end)
-    |> Multi.run(:faves, fn repo, %{} ->
-      {count, nil} = repo.insert_all(ImageFave, new_faves, on_conflict: :nothing)
+  ## Examples
 
-      {:ok, count}
-    end)
-    |> Multi.run(:upvotes, fn repo, %{} ->
-      {count, nil} = repo.insert_all(ImageVote, new_upvotes, on_conflict: :nothing)
+      iex> (Multi.new()
+      ...> |> migrate_loaded_images(source, target)
+      ...> |> Multi.transact())
+      {:ok, %{interaction_image: 1}}
 
-      {:ok, count}
-    end)
-    |> Multi.run(:downvotes, fn repo, %{} ->
-      {count, nil} = repo.insert_all(ImageVote, new_downvotes, on_conflict: :nothing)
-
-      {:ok, count}
-    end)
-    |> Multi.run(:image, fn repo,
-                            %{hides: hides, faves: faves, upvotes: upvotes, downvotes: downvotes} ->
-      image_query = where(Image, id: ^target.id)
-
-      repo.update_all(
-        image_query,
-        inc: [
+  """
+  @spec migrate_loaded_images(Multi.t(), Image.t(), Image.t()) :: Multi.t()
+  def migrate_loaded_images(%Multi{} = multi, %Image{} = source, %Image{} = target) do
+    multi
+    |> Multi.run(:interaction_source, fn repo, _changes -> source_interactions(repo, source) end)
+    |> ImageHides.put_migrate_image_interactions(target)
+    |> ImageFaves.put_migrate_image_interactions(target)
+    |> ImageVotes.put_migrate_image_interactions(target, :interaction_upvotes, true)
+    |> ImageVotes.put_migrate_image_interactions(target, :interaction_downvotes, false)
+    |> Images.put_image_counter_deltas(
+      :interaction_image,
+      target.id,
+      fn %{
+           interaction_hides: hides,
+           interaction_faves: {faves, _},
+           interaction_upvotes: {upvotes, _},
+           interaction_downvotes: {downvotes, _}
+         } ->
+        %{
           hides_count: hides,
           faves_count: faves,
           upvotes_count: upvotes,
           downvotes_count: downvotes,
           score: upvotes - downvotes
-        ]
-      )
-
-      {:ok, nil}
-    end)
-    |> Repo.transaction()
-  end
-
-  defp union_all_queries([query]),
-    do: query
-
-  defp union_all_queries([query | rest]),
-    do: query |> union_all(^union_all_queries(rest))
-
-  defp flatten_images(images) do
-    Enum.flat_map(images, fn
-      nil -> []
-      %{id: id} -> [id]
-      {%{id: id}, _hit} -> [id]
-      enum -> flatten_images(enum)
-    end)
+        }
+      end
+    )
   end
 end

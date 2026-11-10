@@ -5,20 +5,9 @@ defmodule PhilomenaWeb.ApiTokenPlug do
   def init([]), do: []
 
   def call(conn, _opts) do
-    conn
-    |> maybe_find_user(conn.params["key"])
-    |> assign_user()
+    Conn.assign(conn, :current_user, find_user(conn.params["key"]))
   end
 
-  defp maybe_find_user(conn, nil), do: {conn, nil}
-
-  defp maybe_find_user(conn, token) do
-    user = Users.get_user_by_authentication_token(token)
-
-    {conn, user}
-  end
-
-  defp assign_user({conn, user}) do
-    Conn.assign(conn, :current_user, user)
-  end
+  defp find_user(key) when is_binary(key), do: Users.get_user_by_authentication_token(key)
+  defp find_user(_key), do: nil
 end

@@ -1,5 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.CommentView do
   use PhilomenaWeb, :view
+  alias Philomena.Attribution.AnonymousName
   alias PhilomenaWeb.UserAttributionView
 
   def render("index.json", %{comments: comments, total: total} = assigns) do
@@ -36,7 +37,7 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       id: comment.id,
       image_id: comment.image_id,
       user_id: if(not comment.anonymous, do: comment.user_id),
-      author: UserAttributionView.name(comment),
+      author: AnonymousName.name(comment),
       avatar: UserAttributionView.avatar_url(comment),
       body: nil,
       created_at: comment.created_at,
@@ -51,7 +52,7 @@ defmodule PhilomenaWeb.Api.Json.CommentView do
       id: comment.id,
       image_id: comment.image_id,
       user_id: if(not comment.anonymous, do: comment.user_id),
-      author: UserAttributionView.name(comment),
+      author: AnonymousName.name(comment),
       avatar: UserAttributionView.avatar_url(comment),
       body: comment.body,
       created_at: comment.created_at,

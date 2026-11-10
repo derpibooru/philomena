@@ -13,7 +13,7 @@
 }
 
 .commission__block_body {
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .commission__category a {
@@ -30,7 +30,7 @@
 }
 
 .commission__listing__body_text {
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   margin-top: 3px;
   margin-bottom: 6px;
 }

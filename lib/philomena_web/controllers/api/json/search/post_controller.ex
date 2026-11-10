@@ -1,35 +1,15 @@
 defmodule PhilomenaWeb.Api.Json.Search.PostController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaQuery.Search
-  alias Philomena.Posts.Post
-  alias Philomena.Posts.Query
-  import Ecto.Query
+  alias Philomena.Posts
 
   def index(conn, params) do
-    user = conn.assigns.current_user
-
-    case Query.compile(params["q"], user: user) do
-      {:ok, query} ->
-        posts =
-          Post
-          |> Search.search_definition(
-            %{
-              query: %{
-                bool: %{
-                  must: [
-                    query,
-                    %{term: %{deleted: false}},
-                    %{term: %{access_level: "normal"}}
-                  ]
-                }
-              },
-              sort: %{created_at: :desc}
-            },
-            conn.assigns.pagination
-          )
-          |> Search.search_records(preload(Post, [:user, :topic]))
-
+    case Posts.query_posts(
+           conn.assigns.actor,
+           params["q"],
+           conn.assigns.pagination
+         ) do
+      {:ok, posts} ->
         conn
         |> put_view(PhilomenaWeb.Api.Json.Forum.Topic.PostView)
         |> render("index.json", posts: posts, total: posts.total_entries)

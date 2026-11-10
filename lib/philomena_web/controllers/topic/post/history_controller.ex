@@ -1,38 +1,19 @@
 defmodule PhilomenaWeb.Topic.Post.HistoryController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Versions.Version
-  alias Philomena.Versions
-  alias Philomena.Forums.Forum
-  alias Philomena.Repo
-  import Ecto.Query
+  alias PhilomenaWeb.MarkdownRenderer
+  alias Philomena.Posts
 
-  plug PhilomenaWeb.CanaryMapPlug, index: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Forum,
-    id_name: "forum_id",
-    id_field: "short_name",
-    persisted: true
-
-  plug PhilomenaWeb.LoadTopicPlug
-  plug PhilomenaWeb.LoadPostPlug
-
-  def index(conn, _params) do
-    topic = conn.assigns.topic
-    post = conn.assigns.post
-
-    versions =
-      Version
-      |> where(item_type: "Post", item_id: ^post.id)
-      |> order_by(desc: :created_at)
-      |> limit(25)
-      |> Repo.all()
-      |> Versions.load_data_and_associations(post)
-
-    render(conn, "index.html",
-      title: "Post History for Post #{post.id} - #{topic.title} - Forums",
-      versions: versions
-    )
+  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "post_id" => post_id}) do
+    with {:ok, {topic, post, versions}} <-
+           Posts.list_post_history(conn.assigns.actor, forum_id, topic_id, post_id) do
+      render(conn, "index.html",
+        title: "Post History for Post #{post.id} - #{topic.title} - Forums",
+        post: post,
+        versions: MarkdownRenderer.render_version_diffs(versions)
+      )
+    end
   end
 end

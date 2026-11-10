@@ -1,16 +1,15 @@
 defmodule Philomena.DuplicateReports.Uploader do
-  @moduledoc """
-  Upload and processing callback logic for SearchQuery images.
-  """
+  @moduledoc false
 
   alias Philomena.DuplicateReports.SearchQuery
   alias PhilomenaMedia.Uploader
 
-  def analyze_upload(search_query, params) do
+  @doc false
+  def analyze_upload(search_query, upload) do
     Uploader.analyze_upload(
       search_query,
       "image",
-      params["image"],
+      upload,
       &SearchQuery.image_changeset/2
     )
   end

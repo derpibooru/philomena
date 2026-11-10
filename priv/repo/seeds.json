@@ -57,14 +57,6 @@
       "access_level": "staff"
     }
   ],
-  "users": [
-    {
-      "name": "Administrator",
-      "email": "admin@example.com",
-      "password": "philomena123",
-      "role": "admin"
-    }
-  ],
   "rating_tags": ["safe", "suggestive", "questionable", "explicit", "semi-grimdark", "grimdark", "grotesque"],
   "roles": [
     { "name": "moderator", "resource_type": "Image" },
@@ -83,5 +75,131 @@
     { "name": "admin", "resource_type": "StaticPage" },
     { "name": "admin", "resource_type": "Image" }
   ],
-  "pages": []
+  "pages": [],
+  "rules": [
+    {
+      "name": "Rule #0",
+      "title": "Respect other people",
+      "short_description": "Malicious behavior or discrimination",
+      "description": "- Don't, negligently or deliberately, cause others to have a bad site experience\n- Don't support efforts to cause harm to others, especially discriminatory hate or violent acts\n- This rule applies to all content posted on the site, including images, comments, forum posts, and private messages",
+      "example": "- Posting inflammatory comments in forums or on images\n- Insulting someone\n- Calling for violence against someone",
+      "position": 0,
+      "highlight": true
+    },
+    {
+      "name": "Rule #1",
+      "title": "Respect content ownership",
+      "short_description": "DNP, content theft, paid content",
+      "description": "- Don't post others' non-commercial content without a reasonable belief they would be okay with it\n- Don't post commercial content without permission or a copyright exemption\n- Don't post content with authorship marks removed, unless you have permission\n- Don't post content identified in the Do-Not-Post list",
+      "example": "- Uploading private content without permission\n- Uploading full movies\n- Uploading AI upscaled versions of art without permission",
+      "position": 1
+    },
+    {
+      "name": "Rule #2",
+      "title": "Tag images appropriately",
+      "short_description": "Bad tagging/sourcing",
+      "description": "- Don't apply tags to an image unless their definition, or common sense meaning if there isn't one, matches what's in the image\n- Don't remove such tags\n- Don't change tags set by site staff, or important tags such as authorship or rating, without extra diligence",
+      "example": "- Tagging your upload `tagme`\n- Tagging an explicit image as `safe`\n- Not tagging anthro on an image containing an anthropomorphic character\n- Removing a tag set by site staff\n- Removing the `artist:xyz` tag from an image you didn't create",
+      "position": 2
+    },
+    {
+      "name": "Rule #3",
+      "title": "Only post artwork appropriate for the site's subject",
+      "short_description": "Unrelated content",
+      "description": "- Don't post images where no part is related to the site's subject\n- Don't post images with minimal artistic effort and meaning\n- Don't post images where minimal alterations have been made to make something related to the site's subject",
+      "example": "- Posting abstract art when the site is focused on a specific fandom\n- Posting photographs of real-life objects unrelated to the site's theme\n- Posting unrelated memes with a small amount of alterations and no artistic effort",
+      "position": 3
+    },
+    {
+      "name": "Rule #4",
+      "title": "Use filters to hide content you don't wish to see",
+      "short_description": "Complaining about filterable content",
+      "description": "- Don't post comments complaining about an image's subject matter (filters can help)\n- Don't vote on images based on filterable characteristics\n- Don't accuse others of rule-breaking (report instead)\n- Filter content which you cannot legally view",
+      "example": "- Commenting \"I hate anthro\"\n- Commenting \"This is disgusting\" on images you could have filtered out\n- Commenting about content breaking the rules instead of reporting it\n- Downvoting every image from a certain artist because you dislike the artist",
+      "position": 4
+    },
+    {
+      "name": "Rule #5",
+      "title": "Keep content legal",
+      "short_description": "Illegal or forbidden content",
+      "description": "- Don't post real-life pornography of underage people or sexual acts with animals, or anything not readily distinguishable from it\n- Don't post defamation or libel\n- Don't incite violence against people, or dehumanize them\n- Don't call for oppression of people by their characteristics (such as race, sex, sexuality, or cultural/national/religious background)\n- Don't post extremist content or symbols in any way that promotes them",
+      "example": "- Uploading an illegal photograph\n- Uploading art depicting a realistic human-like underage character in a sexual scenario\n- Uploading content that defames a real person\n- Uploading content that promotes hate groups or extremist ideologies, such as Nazi symbolism",
+      "position": 5
+    },
+    {
+      "name": "Rule #6",
+      "title": "Do not abuse site functionality",
+      "short_description": "Spam, off-topic, or general site abuse",
+      "description": "- Don't use multiple accounts to evade punishments or to pretend to be two different people in the same discussion\n- Don't impersonate others\n- Don't upload many images in a short time unless they are meaningfully distinct parts of an image set\n- Don't create multiple comments/posts in a row when you can edit instead\n- Don't post comments or thread replies unrelated to the subject\n- Don't post unsolicited advertisement",
+      "example": "- Using an alt account while your main account is banned\n- Uploading an image just to say \"Remember to stay hydrated\"\n- Commenting \"nice\" on an image without any other content\n- Posting links to other websites without context or permission\n- Posting a comment about politics on an image unrelated to politics",
+      "position": 6
+    },
+    {
+      "name": "Rule #7",
+      "title": "Spoiler content which cannot be filtered",
+      "short_description": "Above topic rating (NOT swear words)",
+      "description": "- Respect the sexual rating of where you post. Forum threads' are assumed to be within SFW ratings unless specified otherwise\n- Within text posts, use the `||spoiler syntax||` to spoiler above-rating or potentially-seizure-inducing content that built-in site functionality cannot automatically filter\n- Parts of your profile that cannot use spoiler syntax, such as username and avatar, must be within SFW ratings and not contain flickering animations which may induce seizures",
+      "example": "- Posting explicit content in a general discussion topic\n- Writing an above-rating description on an image without spoiler tags\n- Using porn as your avatar",
+      "position": 7
+    },
+    {
+      "name": "Rule #8",
+      "title": "Respect privacy",
+      "short_description": "Privacy violation",
+      "description": "- Do not reveal any personal information about artists or other users without consent\n- If you are aware of an artist or a user using multiple aliases to separate their work, do not reveal this information publicly without their consent",
+      "example": "- Commenting \"Oh I know this artist, it's X!\" on an image tagged \"anonymous artist\"\n- Disclosing someone's real name, address, or other personal information without their consent",
+      "position": 8
+    },
+    {
+      "name": "Rule #9",
+      "title": "Advertise commissions in good faith",
+      "short_description": "Bad commission advertisement",
+      "description": "- All commissions must contain only the artwork created by the person advertising the commission\n- You may not advertise a commission on behalf of another person\n- Site staff are not responsible for any commission arrangements or outcomes based on commission advertisements",
+      "example": "- Posing other people's art as your own in a commission advertisement\n- Advertising a commission for another artist without their permission\n- Misrepresenting your commission terms",
+      "position": 9
+    },
+    {
+      "name": "Rule #n",
+      "title": "Rules are not exhaustive",
+      "short_description": "Spirit of the rules",
+      "description": "- The rules are not exhaustive; just because something is not explicitly forbidden does not mean it is allowed\n- If you are unsure whether something is allowed, contact site staff for clarification",
+      "position": 10
+    },
+    {
+      "name": "Takedown request",
+      "short_description": "Please remove my content",
+      "position": 11,
+      "hidden": true
+    },
+    {
+      "name": "Other (please explain)",
+      "short_description": "Tell us more in the description",
+      "position": 12,
+      "hidden": true
+    },
+    {
+      "name": "Verification",
+      "hidden": true,
+      "internal": true,
+      "position": 1001
+    },
+    {
+      "name": "Approval",
+      "hidden": true,
+      "internal": true,
+      "position": 1002
+    },
+    {
+      "name": "Review",
+      "hidden": true,
+      "internal": true,
+      "position": 1003
+    },
+    {
+      "name": "System",
+      "hidden": true,
+      "internal": true,
+      "position": 1004
+    }
+  ]
 }

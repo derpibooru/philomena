@@ -1,29 +1,22 @@
 defmodule PhilomenaWeb.Api.Json.Filter.UserFilterController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Filters.Filter
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Filters
 
   def index(conn, _params) do
-    user = conn.assigns.current_user
-
-    case user do
+    case conn.assigns.current_user do
       nil ->
         conn
         |> put_status(:forbidden)
         |> text("")
 
-      _ ->
-        user_filters =
-          Filter
-          |> where(user_id: ^user.id)
-          |> order_by(asc: :id)
-          |> Repo.paginate(conn.assigns.scrivener)
-
-        conn
-        |> put_view(PhilomenaWeb.Api.Json.FilterView)
-        |> render("index.json", filters: user_filters, total: user_filters.total_entries)
+      _user ->
+        with {:ok, user_filters} <-
+               Filters.user_filters(conn.assigns.actor, conn.assigns.scrivener) do
+          conn
+          |> put_view(PhilomenaWeb.Api.Json.FilterView)
+          |> render("index.json", filters: user_filters, total: user_filters.total_entries)
+        end
     end
   end
 end

@@ -3,12 +3,6 @@ defmodule PhilomenaWeb.Api.Json.OembedView do
 
   alias PhilomenaWeb.ImageView
 
-  def render("error.json", _assigns) do
-    %{
-      error: "Couldn't find an image"
-    }
-  end
-
   def render("show.json", %{image: image}) do
     {thumbnail_url, {thumbnail_width, thumbnail_height}} =
       ImageView.thumb_url_size(image, false, :large)

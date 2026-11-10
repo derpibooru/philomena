@@ -3,47 +3,38 @@ defmodule PhilomenaWeb.Image.Comment.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Images.Image
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
 
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Image,
-    id_name: "image_id",
-    persisted: true,
-    preload: [:sources, tags: :aliases]
+  def new(conn, %{"image_id" => image_id, "comment_id" => comment_id}) do
+    locator = {:comment, image_id, comment_id}
 
-  plug PhilomenaWeb.LoadCommentPlug
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, locator) do
+      comment = form.target
+      action = ~p"/images/#{comment.image}/comments/#{comment}/reports"
 
-  def new(conn, _params) do
-    comment = conn.assigns.comment
-    action = ~p"/images/#{comment.image}/comments/#{comment}/reports"
-
-    changeset =
-      %Report{reportable_type: "Comment", reportable_id: comment.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting Comment",
-      reportable: comment,
-      changeset: changeset,
-      action: action
-    )
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting Comment",
+        subject: comment,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    comment = conn.assigns.comment
-    action = ~p"/images/#{comment.image}/comments/#{comment}/reports"
-
-    ReportController.create(conn, action, "Comment", comment, params)
+  def create(conn, %{"image_id" => image_id, "comment_id" => comment_id} = params) do
+    ReportController.create(
+      conn,
+      {:comment, image_id, comment_id},
+      fn comment -> ~p"/images/#{comment.image}/comments/#{comment}/reports" end,
+      params
+    )
   end
 end

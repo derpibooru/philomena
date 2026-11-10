@@ -22,26 +22,23 @@ defmodule PhilomenaWeb.NotificationCountPlug do
   @doc false
   @spec call(Plug.Conn.t(), any()) :: Plug.Conn.t()
   def call(conn, _opts) do
-    user = conn.assigns.current_user
-
     conn
-    |> maybe_assign_notifications(user)
-    |> maybe_assign_conversations(user)
+    |> maybe_assign_notifications(conn.assigns.actor)
+    |> maybe_assign_conversations(conn.assigns.actor)
   end
 
-  defp maybe_assign_notifications(conn, nil), do: conn
-
-  defp maybe_assign_notifications(conn, user) do
-    notifications = Notifications.total_unread_notification_count(user)
+  defp maybe_assign_notifications(conn, actor) do
+    notifications = Notifications.total_unread_count(actor)
 
     Conn.assign(conn, :notification_count, notifications)
   end
 
-  defp maybe_assign_conversations(conn, nil), do: conn
+  defp maybe_assign_conversations(conn, %{user: nil}), do: conn
 
-  defp maybe_assign_conversations(conn, user) do
-    conversations = Conversations.count_unread_conversations(user)
-
-    Conn.assign(conn, :conversation_count, conversations)
+  defp maybe_assign_conversations(conn, actor) do
+    case Conversations.unread_conversation_count(actor) do
+      {:ok, conversations} -> Conn.assign(conn, :conversation_count, conversations)
+      {:error, _reason} -> conn
+    end
   end
 end

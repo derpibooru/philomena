@@ -1,14 +1,12 @@
 defmodule Philomena.Tags.Tag do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
 
   alias Philomena.Channels.Channel
   alias Philomena.DnpEntries.DnpEntry
   alias Philomena.ArtistLinks.ArtistLink
   alias Philomena.Tags.Tag
   alias Philomena.Slug
-  alias Philomena.Repo
 
   @namespaces [
     "artist",
@@ -59,7 +57,16 @@ defmodule Philomena.Tags.Tag do
     "prompter:"
   ]
 
+  # Must match the tags_name_length_check constraint in the database,
+  # which counts bytes (octet_length). 255 is the largest length the
+  # autocomplete binary format can encode (uint8 name_length).
+  @name_length_limit 255
+
+  def name_length_limit, do: @name_length_limit
+
   @derive {Phoenix.Param, key: :slug}
+
+  @type t :: %__MODULE__{}
 
   schema "tags" do
     belongs_to :aliased_tag, Tag, source: :aliased_tag_id, on_replace: :nilify
@@ -98,23 +105,45 @@ defmodule Philomena.Tags.Tag do
     field :removed_image, :string, virtual: true
 
     field :implied_tag_list, :string, virtual: true
+    field :target_tag, :string, virtual: true
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
-  def changeset(tag, attrs) do
+  def insert_fields do
+    [
+      :slug,
+      :name,
+      :category,
+      :images_count,
+      :description,
+      :short_description,
+      :namespace,
+      :name_in_namespace,
+      :image,
+      :image_format,
+      :image_mime_type,
+      :mod_notes
+    ]
+  end
+
+  @doc false
+  def changeset(tag, attrs \\ %{}) do
     tag
-    |> cast(attrs, [:category, :description, :short_description, :mod_notes])
-    |> put_change(:implied_tag_list, Enum.map_join(tag.implied_tags, ",", & &1.name))
+    |> cast(attrs, [:category, :description, :short_description, :mod_notes, :implied_tag_list])
+    |> maybe_put_implied_tag_list(tag)
     |> validate_required([])
+    |> validate_inclusion(:category, categories())
   end
 
   def changeset(tag, attrs, implied_tags) do
     tag
-    |> cast(attrs, [:category, :description, :short_description, :mod_notes])
+    |> cast(attrs, [:category, :description, :short_description, :mod_notes, :implied_tag_list])
     |> put_assoc(:implied_tags, implied_tags)
+    |> validate_no_aliased_implied_tags(implied_tags)
     |> validate_required([])
+    |> validate_inclusion(:category, categories())
   end
 
   def image_changeset(tag, attrs) do
@@ -130,26 +159,82 @@ defmodule Philomena.Tags.Tag do
     |> put_change(:image, nil)
   end
 
-  def alias_changeset(tag, target_tag) do
-    change(tag)
+  def implication_form_changeset(tag, attrs \\ %{}) do
+    cast(tag, attrs, [:implied_tag_list])
+  end
+
+  def alias_form_changeset(tag, attrs \\ %{}) do
+    tag
+    |> cast(attrs, [:target_tag])
+    |> update_change(:target_tag, &clean_tag_name/1)
+    |> validate_required(:target_tag)
+  end
+
+  def alias_changeset(tag, target_tag, incoming_aliases?, implied_by_tags?) do
+    tag
+    |> change()
+    |> validate_not_aliased()
     |> put_assoc(:aliased_tag, target_tag)
-    |> validate_required([:aliased_tag])
+    |> validate_required(:aliased_tag, message: "does not exist")
     |> validate_not_aliased_to_self()
     |> validate_alias_not_transitive()
-    |> validate_incoming_aliases()
+    |> validate_incoming_aliases(incoming_aliases?)
+    |> validate_implied_by_tags(implied_by_tags?)
   end
 
   def unalias_changeset(tag) do
-    change(tag, aliased_tag_id: nil)
+    tag
+    |> change()
+    |> validate_aliased()
+    |> put_change(:aliased_tag_id, nil)
+  end
+
+  defp validate_not_aliased(changeset) do
+    if get_field(changeset, :aliased_tag_id) do
+      add_error(changeset, :aliased_tag, "is already aliased")
+    else
+      changeset
+    end
+  end
+
+  defp validate_aliased(changeset) do
+    if get_field(changeset, :aliased_tag_id) do
+      changeset
+    else
+      add_error(changeset, :aliased_tag, "is not aliased")
+    end
   end
 
   def creation_changeset(tag, attrs) do
     tag
     |> cast(attrs, [:name])
     |> validate_required([:name])
+    |> validate_length(:name, max: @name_length_limit, count: :bytes)
+    |> check_constraint(:name,
+      name: :tags_name_length_check,
+      message: "should be at most #{@name_length_limit} byte(s)"
+    )
     |> put_slug()
     |> put_name_and_namespace()
     |> put_namespace_category()
+  end
+
+  def deletion_changeset(tag) do
+    changeset = change(tag)
+
+    if get_field(changeset, :category) == "rating" do
+      add_error(changeset, :category, "cannot delete a rating tag")
+    else
+      changeset
+    end
+  end
+
+  defp maybe_put_implied_tag_list(changeset, tag) do
+    if get_field(changeset, :implied_tag_list) do
+      changeset
+    else
+      put_change(changeset, :implied_tag_list, Enum.map_join(tag.implied_tags, ",", & &1.name))
+    end
   end
 
   def parse_tag_list(list) do
@@ -157,9 +242,21 @@ defmodule Philomena.Tags.Tag do
     |> to_string()
     |> String.split(",")
     |> Enum.map(&clean_tag_name/1)
-    |> Enum.reject(&("" == &1))
+    |> Enum.reject(&(&1 == "" or oversized_name?(&1)))
     |> Enum.uniq()
   end
+
+  def original_character_tag?(%__MODULE__{} = tag) do
+    tag.namespace == "oc"
+  end
+
+  def original_character_tag_name do
+    "oc"
+  end
+
+  # Oversized names are filtered before bulk tag insertion so they cannot
+  # bypass changeset validation and trip tags_name_length_check.
+  defp oversized_name?(name), do: byte_size(name) > @name_length_limit
 
   def display_order(tags) do
     tags
@@ -307,16 +404,25 @@ defmodule Philomena.Tags.Tag do
     end
   end
 
-  defp validate_incoming_aliases(changeset) do
-    id = get_field(changeset, :id)
-
-    count =
-      Tag
-      |> where(aliased_tag_id: ^id)
-      |> Repo.aggregate(:count, :id)
-
-    if count > 0 do
+  defp validate_incoming_aliases(changeset, incoming_aliases?) do
+    if incoming_aliases? do
       add_error(changeset, :tag, "has incoming aliases and cannot be aliased")
+    else
+      changeset
+    end
+  end
+
+  defp validate_no_aliased_implied_tags(changeset, implied_tags) do
+    if Enum.any?(implied_tags, &(not is_nil(&1.aliased_tag_id))) do
+      add_error(changeset, :implied_tag_list, "contains aliased tags")
+    else
+      changeset
+    end
+  end
+
+  defp validate_implied_by_tags(changeset, implied_by_tags?) do
+    if implied_by_tags? do
+      add_error(changeset, :tag, "is implied by other tags and cannot be aliased")
     else
       changeset
     end

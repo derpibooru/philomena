@@ -1,9 +1,15 @@
 defmodule Philomena.Images.Query do
+  @moduledoc """
+  Compiles the image search language into OpenSearch query bodies and exposes
+  parser-owned metadata needed by image listings.
+  """
+
   alias PhilomenaQuery.Parse.Parser
   alias Philomena.Repo
   alias Philomena.Filters.Filter
   alias Philomena.Tags.Tag
   import Ecto.Query
+  import Philomena.Authorization, only: [authorize: 3]
 
   defp gallery_id_transform(_ctx, value) do
     case Integer.parse(value) do
@@ -21,7 +27,7 @@ defmodule Philomena.Images.Query do
   defp filter_id_transform(%{user: user} = ctx, value) do
     with {value, ""} <- Integer.parse(value),
          {:ok, filter} <- Map.fetch(ctx.filters, value),
-         true <- Canada.Can.can?(user, :show, filter) do
+         :ok <- authorize(user, :show, filter) do
       ctx = Map.merge(ctx, %{filter: true})
 
       {:ok,
@@ -53,6 +59,9 @@ defmodule Philomena.Images.Query do
   defp user_my_transform(%{user: %{id: id}}, "hidden"),
     do: {:ok, %{term: %{hidden_by_user_ids: id}}}
 
+  defp user_my_transform(%{user: %{id: id}}, "subs"),
+    do: {:ok, %{term: %{subscriber_ids: id}}}
+
   defp user_my_transform(%{watch: true}, "watched"),
     do: {:error, "Recursive watchlists are not allowed."}
 
@@ -61,14 +70,14 @@ defmodule Philomena.Images.Query do
 
     tag_include = %{terms: %{tag_ids: user.watched_tag_ids}}
 
-    include_query = invalid_filter_guard(ctx, user.watched_images_query_str)
-    exclude_query = invalid_filter_guard(ctx, user.watched_images_exclude_str)
+    include_query = invalid_filter_guard(ctx, user.settings.watched_images_query_str)
+    exclude_query = invalid_filter_guard(ctx, user.settings.watched_images_exclude_str)
 
     should = [tag_include, include_query]
     must_not = [exclude_query]
 
     must_not =
-      if user.no_spoilered_in_watched do
+      if user.settings.no_spoilered_in_watched do
         user = user |> Repo.preload(:current_filter)
 
         tag_exclude = %{terms: %{tag_ids: user.current_filter.spoilered_tag_ids}}
@@ -84,6 +93,9 @@ defmodule Philomena.Images.Query do
 
   defp user_my_transform(_ctx, _value),
     do: {:error, "Unknown `my' value."}
+
+  defp anon_my_transform(_ctx, _value),
+    do: {:error, "You must be logged in to use `my' queries."}
 
   defp invalid_filter_guard(%{user: user} = ctx, search_string) do
     case parse(fields_for(user), ctx, PhilomenaQuery.Parse.String.normalize(search_string)) do
@@ -110,7 +122,7 @@ defmodule Philomena.Images.Query do
   defp anonymous_fields do
     [
       int_fields:
-        ~W(id width height score upvotes downvotes faves pixels size orig_size comment_count source_count tag_count) ++
+        ~W(id width height score upvotes downvotes hides faves pixels size orig_size comment_count source_count tag_count) ++
           tag_count_fields(),
       numeric_fields: ~W(uploader_id faved_by_id duplicate_id),
       float_fields: ~W(aspect_ratio wilson_score duration),
@@ -119,18 +131,19 @@ defmodule Philomena.Images.Query do
         ~W(faved_by orig_sha512_hash sha512_hash uploader source_url original_format mime_type file_name),
       bool_fields: ~W(animated processed thumbnails_generated),
       ngram_fields: ~W(description),
-      custom_fields: ~W(gallery_id filter_id),
-      default_field: {"namespaced_tags.name", :term},
+      custom_fields: ~W(gallery_id filter_id my),
+      default_field: {"tags", :term},
       transforms: %{
         "gallery_id" => &gallery_id_transform/2,
-        "filter_id" => &filter_id_transform/2
+        "filter_id" => &filter_id_transform/2,
+        "my" => &anon_my_transform/2
       },
       aliases: %{
         "faved_by" => "favourited_by_users",
         "faved_by_id" => "favourited_by_user_ids"
       },
       no_downcase_fields: ~W(file_name),
-      normalizations: %{"namespaced_tags.name" => &Tag.clean_tag_name/1}
+      normalizations: %{"tags" => &Tag.clean_tag_name/1}
     ]
   end
 
@@ -153,7 +166,7 @@ defmodule Philomena.Images.Query do
       literal_fields:
         fields[:literal_fields] ++
           ~W(fingerprint upvoted_by downvoted_by true_uploader hidden_by deleted_by_user),
-      ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason),
+      ngram_fields: fields[:ngram_fields] ++ ~W(deletion_reason scratchpad),
       ip_fields: ~W(ip),
       bool_fields: fields[:bool_fields] ++ ~W(anonymous deleted),
       aliases:
@@ -216,11 +229,55 @@ defmodule Philomena.Images.Query do
   defp fields_for(%{role: role}) when role in ~W(moderator admin), do: moderator_fields()
   defp fields_for(_), do: raise(ArgumentError, "Unknown user role.")
 
+  @doc """
+  Compiles the image search language for the optional user context.
+
+  Returns the OpenSearch query body or a human-readable parser error.
+  """
+  @spec compile(String.t() | nil, Keyword.t()) :: {:ok, map()} | {:error, String.t()}
   def compile(query_string, opts \\ []) do
     user = Keyword.get(opts, :user)
     watch = Keyword.get(opts, :watch, false)
     filter = Keyword.get(opts, :filter, false)
 
     parse(fields_for(user), %{user: user, watch: watch, filter: filter}, query_string)
+  end
+
+  @doc """
+  Compiles an image query and returns the normalized tag names referenced by
+  its exact tag clauses alongside the query body.
+
+  Only tags written in `query_string` itself are returned; tags that come from
+  expanding custom fields (such as the watchlist behind `my:watched` or the
+  filter behind `filter_id:`) are not.
+  """
+  @spec compile_with_tag_names(String.t() | nil, Keyword.t()) ::
+          {:ok, %{query: map(), tag_names: [String.t()]}} | {:error, String.t()}
+  def compile_with_tag_names(query_string, opts \\ []) do
+    with {:ok, query} <- compile(query_string, opts) do
+      {:ok,
+       %{
+         query: query,
+         tag_names: written_tag_names(Keyword.get(opts, :user), query_string)
+       }}
+    end
+  end
+
+  # Re-parses the query with every custom field replaced by an empty clause,
+  # so the tags inside their expansions are not collected.
+  defp written_tag_names(user, query_string) do
+    fields =
+      user
+      |> fields_for()
+      |> Keyword.update!(:transforms, fn transforms ->
+        Map.new(transforms, fn {name, _transform} ->
+          {name, fn _ctx, _value -> {:ok, %{match_all: %{}}} end}
+        end)
+      end)
+
+    case fields |> Parser.new() |> Parser.parse(query_string) do
+      {:ok, query} -> Parser.referenced_term_values(query, "tags")
+      _error -> []
+    end
   end
 end

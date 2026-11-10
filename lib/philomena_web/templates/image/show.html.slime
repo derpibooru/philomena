@@ -1,5 +1,5 @@
 = render PhilomenaWeb.ImageView, "_image_approval_banner.html", image: @image, conn: @conn
-= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, watching: @watching, user_galleries: @user_galleries, changeset: @image_changeset, conn: @conn
+= render PhilomenaWeb.ImageView, "_image_meta.html", image: @image, watching: @watching, user_galleries: @user_galleries, changeset: @uploader_changeset, can_interact: @can_interact, conn: @conn
 = render PhilomenaWeb.ImageView, "_image_page.html", image: @image, conn: @conn
 
 .layout--narrow
@@ -7,19 +7,19 @@
     = render PhilomenaWeb.AdvertView, "_box.html", advert: @conn.assigns.advert, conn: @conn
 
   .image-description
-    = render PhilomenaWeb.ImageView, "_description.html", image: @image, body: @description, conn: @conn
-  = render PhilomenaWeb.Image.DescriptionView, "_form.html", image: @image, changeset: @image_changeset, conn: @conn
+    = render PhilomenaWeb.ImageView, "_description.html", image: @image, body: @description, changeset: @description_changeset, conn: @conn
+  = render PhilomenaWeb.Image.DescriptionView, "_form.html", image: @image, changeset: @description_changeset, conn: @conn
 
-  = render PhilomenaWeb.ImageView, "_tags.html", image: @image, tag_change_count: @tag_change_count, tag_change_tag_count: @tag_change_tag_count, changeset: @image_changeset, conn: @conn
-  = render PhilomenaWeb.ImageView, "_source.html", image: @image, source_change_count: @source_change_count, changeset: @image_changeset, conn: @conn
-  = render PhilomenaWeb.ImageView, "_options.html", image: @image, changeset: @image_changeset, conn: @conn
+  = render PhilomenaWeb.ImageView, "_tags.html", image: @image, tag_change_count: @tag_change_count, tag_change_tag_count: @tag_change_tag_count, changeset: @tag_changeset, conn: @conn
+  = render PhilomenaWeb.ImageView, "_source.html", image: @image, source_change_count: @source_change_count, changeset: @source_changeset, conn: @conn
+  = render PhilomenaWeb.ImageView, "_options.html", image: @image, file_changeset: @file_changeset, hide_changeset: @hide_changeset, feature_changeset: @feature_changeset, repair_changeset: @repair_changeset, hash_changeset: @hash_changeset, conn: @conn
 
   h4 Comments
   = cond do
     - @conn.assigns.current_ban ->
       = render PhilomenaWeb.BanView, "_ban_reason.html", conn: @conn
 
-    - @image.commenting_allowed ->
+    - @image.commenting_allowed && @comment_changeset ->
       = render PhilomenaWeb.Image.CommentView, "_form.html", image: @image, changeset: @comment_changeset, remote: true, conn: @conn
 
     - true ->

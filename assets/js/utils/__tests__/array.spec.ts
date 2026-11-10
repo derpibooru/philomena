@@ -1,4 +1,4 @@
-import { arraysEqual, moveElement } from '../array';
+import { arraysEqual, moveElement, findOr } from '../array';
 
 describe('Array Utilities', () => {
   describe('moveElement', () => {
@@ -166,6 +166,20 @@ describe('Array Utilities', () => {
           false,
         );
       });
+    });
+  });
+
+  describe('findOr, findOrElse', () => {
+    it('should select elements from an array', () => {
+      expect(findOr([1, 2], x => x > 1, 0)).toEqual(2);
+    });
+
+    it('should handle default case if no elements match', () => {
+      expect(findOr([1], x => x > 2, 0)).toEqual(0);
+    });
+
+    it('should handle default case if there are no elements', () => {
+      expect(findOr([], x => x > 2, 0)).toEqual(0);
     });
   });
 });

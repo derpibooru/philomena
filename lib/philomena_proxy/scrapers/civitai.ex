@@ -6,8 +6,8 @@ defmodule PhilomenaProxy.Scrapers.Civitai do
 
   @behaviour Scraper
 
-  @post_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/posts/([\d]+)/?|
-  @image_regex ~r|\Ahttps?://(?:www\.)?civitai\.com/images/([\d]+)/?|
+  @post_regex ~r|\Ahttps?://(?:www\.)?civitai\.[a-z0-9.-]+/posts/([\d]+)/?|
+  @image_regex ~r|\Ahttps?://(?:www\.)?civitai\.[a-z0-9.-]+/images/([\d]+)/?|
   @url_regex ~r|(https://image\.civitai\.com/\w+/[0-9a-f\-]+)/.*|
 
   @spec can_handle?(URI.t(), String.t()) :: boolean()

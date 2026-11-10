@@ -4,19 +4,20 @@ import autoprefixer from 'autoprefixer';
 import postcssMixins from 'postcss-mixins';
 import postcssSimpleVars from 'postcss-simple-vars';
 import postcssRelativeColor from '@csstools/postcss-relative-color-syntax';
-import { defineConfig, ViteUserConfig, ConfigEnv } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
+import type { ConfigEnv, ViteUserConfig } from 'vitest/config';
 
 export default defineConfig(({ command, mode }: ConfigEnv): ViteUserConfig => {
   const isDev = command !== 'build' && mode !== 'test';
   const targets = new Map();
 
-  fs.readdirSync(path.resolve(__dirname, 'css/themes/')).forEach(name => {
+  fs.readdirSync(path.resolve(import.meta.dirname, 'css/themes/')).forEach(name => {
     const m = name.match(/([-a-z]+).css/);
 
     if (m) targets.set(`css/${m[1]}`, `./css/themes/${m[1]}.css`);
   });
 
-  fs.readdirSync(path.resolve(__dirname, 'css/options/')).forEach(name => {
+  fs.readdirSync(path.resolve(import.meta.dirname, 'css/options/')).forEach(name => {
     const m = name.match(/([-a-z]+).css/);
 
     if (m) targets.set(`css/options/${m[1]}`, `./css/options/${m[1]}.css`);
@@ -32,15 +33,15 @@ export default defineConfig(({ command, mode }: ConfigEnv): ViteUserConfig => {
     },
     resolve: {
       alias: {
-        common: path.resolve(__dirname, 'css/common/'),
-        views: path.resolve(__dirname, 'css/views/'),
-        elements: path.resolve(__dirname, 'css/elements/'),
-        themes: path.resolve(__dirname, 'css/themes/'),
+        common: path.resolve(import.meta.dirname, 'css/common/'),
+        views: path.resolve(import.meta.dirname, 'css/views/'),
+        elements: path.resolve(import.meta.dirname, 'css/elements/'),
+        themes: path.resolve(import.meta.dirname, 'css/themes/'),
       },
     },
     build: {
-      target: ['es2019', 'chrome67', 'firefox62', 'edge18', 'safari12'],
-      outDir: path.resolve(__dirname, '../priv/static'),
+      target: ['es2019', 'chrome80', 'firefox69', 'edge80', 'safari15', 'ios15', 'opera63'],
+      outDir: path.resolve(import.meta.dirname, '../priv/static'),
       emptyOutDir: false,
       sourcemap: isDev,
       manifest: false,
@@ -73,11 +74,18 @@ export default defineConfig(({ command, mode }: ConfigEnv): ViteUserConfig => {
       coverage: {
         reporter: ['text', 'html'],
         include: ['js/**/*.{js,ts}'],
+        exclude: ['js/app.ts', '**/__tests__/**'],
         thresholds: {
           statements: 0,
           branches: 0,
           functions: 0,
           lines: 0,
+          '**/query/**/*.ts': {
+            statements: 100,
+            branches: 100,
+            functions: 100,
+            lines: 100,
+          },
           '**/utils/**/*.ts': {
             statements: 100,
             branches: 100,

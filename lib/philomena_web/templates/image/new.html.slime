@@ -2,7 +2,7 @@
   .dnp-warning
     h4
       ' Read the
-      a> href="/pages/rules" site rules
+      a> href="/rules" site rules
       ' and check our
       a> href="/dnp" do-not-post list
     p

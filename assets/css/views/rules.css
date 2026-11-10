@@ -1,0 +1,189 @@
+.rule {
+  border: var(--border);
+  background: var(--background-color);
+  margin-bottom: calc(var(--block-spacing) * 2);
+}
+
+.rule h2 {
+  background: var(--background-odd-color);
+  border: var(--border);
+  padding: 5px 10px;
+}
+
+.rule h2.important {
+  background: var(--danger-light-color);
+  border-color: var(--danger-color);
+}
+
+/* Make HTML lists with multi-line text readable */
+.rule ul {
+  margin: 0;
+  padding: 5px 20px;
+}
+
+.rule li {
+  padding: 5px 0;
+}
+
+.rule__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--padding-small);
+  padding: var(--padding-small) var(--header-spacing);
+  background: var(--background-odd-color);
+  border-bottom: var(--border);
+}
+
+.rule .rule__title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+.rule__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--padding-small);
+}
+
+.rule__badge {
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.rule__badge--important {
+  background: var(--rule-important-color);
+  color: var(--text-light-color);
+}
+
+.rule__badge--admin {
+  background: var(--warning-light-color);
+  border: 1px solid var(--warning-color);
+}
+
+.rule__body {
+  padding: var(--padding-small) var(--header-spacing);
+}
+
+.rule__example {
+  border-top: 1px solid var(--background-color);
+  background: var(--background-odd-color);
+  padding: var(--padding-small) var(--header-spacing);
+}
+
+.rule__example h4 {
+  margin: 0 0 var(--padding-small);
+}
+
+.rule__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--padding-small);
+  padding: var(--padding-small) var(--header-spacing);
+  border-top: var(--border);
+}
+
+.rule__timestamp {
+  margin-left: auto;
+  color: var(--foreground-half-color);
+}
+
+.rule--important {
+  background: var(--danger-light-color);
+  border-color: var(--danger-color);
+}
+
+.rule--important .rule__header {
+  background: var(--danger-color);
+  border-bottom-color: var(--danger-color);
+}
+
+.rule--important .rule__footer {
+  border-top-color: var(--danger-color);
+}
+
+.rule--important .rule__footer .button {
+  background-color: var(--danger-color);
+  border-color: var(--button-danger-border-color);
+}
+
+.rule--admin {
+  background: var(--warning-light-color);
+  border-color: var(--warning-color);
+}
+
+.rule--admin .rule__footer .button {
+  background-color: var(--warning-color);
+  border-color: var(--button-warning-border-color);
+}
+
+.rule--important .rule__footer .button:hover {
+  background-color: var(--button-danger-hover-background);
+  border-color: var(--button-danger-hover-border);
+}
+
+.rule--important .rule__example {
+  background: var(--danger-odd-color);
+  border-top-color: var(--danger-color);
+}
+
+.rule--important hr {
+  background: var(--danger-color);
+}
+
+.rule--admin .rule__footer .button:hover {
+  background-color: var(--button-warning-hover-background);
+  border-color: var(--button-warning-hover-border);
+}
+
+.rule--admin hr {
+  background: var(--warning-color);
+}
+
+.rule--admin .rule__footer {
+  border-top-color: var(--warning-color);
+}
+
+.rule--admin .rule__header {
+  background: var(--warning-color);
+  border-bottom-color: var(--warning-color);
+}
+
+/* Emphasize the rule a #anchor link points at in blue, overriding
+ * the red important-rule scheme */
+
+.rule:target {
+  background: var(--primary-light-color);
+  border-color: var(--primary-color);
+}
+
+.rule:target .rule__header {
+  background: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.rule:target .rule__footer {
+  border-top-color: var(--primary-color);
+}
+
+.rule:target .rule__footer .button {
+  background-color: var(--primary-color);
+  border-color: var(--button-primary-border-color);
+}
+
+.rule:target .rule__footer .button:hover {
+  background-color: var(--button-primary-hover-background);
+  border-color: var(--button-primary-hover-border);
+}
+
+.rule:target hr {
+  background: var(--primary-color);
+}

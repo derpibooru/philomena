@@ -28,8 +28,14 @@
       a.header__link href="/posts"
         i.fa.fa-fw.fa-search>
         | Post Search
-  a.header__link href="/tags"
-    | Tags
+  .dropdown.header__dropdown
+    a.header__link href="/tags"
+      | Tags
+      span data-click-preventdefault="true"
+        i.fa.fa-caret-down<
+      .dropdown__content
+        a.header__link href="/tag_changes"
+          | Tag Changes
   a.header__link href="/channels"
     ' Live
     span.header__counter

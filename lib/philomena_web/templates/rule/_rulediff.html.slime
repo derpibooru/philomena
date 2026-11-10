@@ -1,0 +1,49 @@
+= if not is_nil(@version.previous) do
+  .flex.flex--column.flex--gap-normal
+    .grid.grid--two-columns
+      = if @version.previous.name != @version.name or @version.previous.title != @version.title do
+        .block
+          strong = @version.previous.name
+          ' :
+          = @version.previous.title
+        .block
+          strong = @version.name
+          ' :
+          = @version.title
+
+      = if @version.previous.short_description != @version.short_description do
+        .block
+          strong> Short Description:
+          = @version.previous.short_description
+        .block
+          strong> Short Description:
+          = @version.short_description
+
+    = if @version.differences[:description] do
+      .block
+        strong Description:
+        = @version.differences[:description]
+
+    = if @version.differences[:example] do
+      .block
+        strong Example:
+        = @version.differences[:example]
+- else
+  .flex.flex--column.flex--gap-normal
+    strong
+      em This is the initial version.
+    span
+      strong = @version.name
+      ' :
+      = @version.title
+    span
+      strong> Short Description:
+      = @version.short_description
+    strong Description:
+    pre
+      code
+        = @version.description
+    strong Example:
+    pre
+      code
+        = @version.example

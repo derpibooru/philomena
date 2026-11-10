@@ -6,7 +6,7 @@ h2
   .block__header
     span.block__header__title DNP Information
     = if can?(@conn, :edit, @dnp_entry) do
-      = link "Edit listing", to: ~p"/dnp/#{@dnp_entry}/edit?#{[tag_id: @dnp_entry.tag_id]}"
+      = link "Edit listing", to: ~p"/dnp/#{@dnp_entry}/edit"
 
     = link "Back to DNP List", to: ~p"/dnp"
 
@@ -50,7 +50,7 @@ h2
             td
               = String.capitalize(@dnp_entry.aasm_state)
 
-= if can?(@conn, :index, Philomena.DnpEntries.DnpEntry) do
+= if can?(@conn, :transition, @dnp_entry) do
   = case @dnp_entry.aasm_state do
       - s when s in ["requested", "claimed"] ->
       => link "Claim", to: ~p"/admin/dnp_entries/#{@dnp_entry}/transition?#{[state: "claimed"]}", data: [method: "post", confirm: "Are you really, really sure?"]
@@ -75,4 +75,4 @@ h2
 = if assigns[:mod_notes] do
   h4 Mod Notes
   = render PhilomenaWeb.Admin.ModNoteView, "_table.html", mod_notes: @mod_notes, conn: @conn
-  = link "Add New Note", to: ~p"/admin/mod_notes/new?#{[notable_id: @dnp_entry.id, notable_type: "DnpEntry"]}"
+  = link "Add New Note", to: ~p"/admin/mod_notes/new?#{[dnp_entry_id: @dnp_entry.id]}"

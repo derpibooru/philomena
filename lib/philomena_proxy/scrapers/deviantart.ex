@@ -6,7 +6,7 @@ defmodule PhilomenaProxy.Scrapers.Deviantart do
 
   @behaviour Scraper
 
-  @image_regex ~r|data-rh="true" rel="preload" href="([^"]*)" as="image"|
+  @image_regex ~r/"contentUrl":"([^"]+)"/
   @source_regex ~r|rel="canonical" href="([^"]*)"|
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
   @cdnint_regex ~r|(https://images-wixmp-[0-9a-f]+.wixmp.com)(?:/intermediary)?/f/([^/]*)/([^/?]*)|

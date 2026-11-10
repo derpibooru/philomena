@@ -2,7 +2,7 @@ span.image_uploader
   ' by
   => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: @image, awards: true, conn: @conn
 
-  = if can?(@conn, :show, :ip_address) and not hide_staff_tools?(@conn) do
+  = if can?(@conn, :show, :identity_metadata) and not hide_staff_tools?(@conn) do
     => link_to_ip(@conn, @image.ip)
     => link_to_fingerprint(@conn, @image.fingerprint)
     a#edit-uploader href="#" data-click-hide=".image_uploader" data-click-show="#uploader-form"
@@ -10,14 +10,15 @@ span.image_uploader
     a#edit-anonymous href="#" data-click-toggle=".image-anonymous"
       i.fas.fa-eye
 
-= if can?(@conn, :show, :ip_address) do
-  = form_for @changeset, ~p"/images/#{@image}/uploader", [class: "block__content hidden", id: "uploader-form", data: [remote: "true", method: "put"]], fn f ->
-    => label f, :username, "Uploader"
-    => text_input f, :username, value: username(@image.user), class: "input input--short input--small"
+= if can?(@conn, :show, :identity_metadata) do
+  = if @changeset do
+    = form_for @changeset, ~p"/images/#{@image}/uploader", [class: "block__content hidden", id: "uploader-form", data: [remote: "true", method: "put"]], fn f ->
+      => label f, :username, "Uploader"
+      => text_input f, :username, value: username(@image.user), class: "input input--short input--small"
 
-    = submit "Save Changes", class: "button button--small", data: [disable_with: raw("Saving&hellip;")]
+      = submit "Save Changes", class: "button button--small", data: [disable_with: raw("Saving&hellip;")]
 
-    div Changes IP to '127.0.0.1' and FP to 'ffff'. Empty for anonymous.
+      div Changes IP to '127.0.0.1' and FP to 'ffff'. Empty for anonymous.
 
   .image-anonymous.hidden
     = if @image.anonymous do

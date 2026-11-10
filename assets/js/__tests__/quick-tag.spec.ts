@@ -41,7 +41,7 @@ describe('Batch tagging', () => {
     vi.restoreAllMocks();
   });
 
-  it('should prompt the user on click', () => {
+  it('should activate if the user enters tags at the prompt', () => {
     const spy = vi.spyOn(window, 'prompt').mockImplementation(() => 'a');
     tagButton.click();
 
@@ -52,21 +52,42 @@ describe('Batch tagging', () => {
     expect(toggleAllButton.classList).not.toContain('hidden');
   });
 
+  it('should not activate if the user enters an empty prompt', () => {
+    const spy = vi.spyOn(window, 'prompt').mockImplementation(() => '');
+    tagButton.click();
+
+    expect(spy).toHaveBeenCalledOnce();
+    expect(tagButton.classList).not.toContain('hidden');
+    expect(abortButton.classList).toContain('hidden');
+    expect(submitButton.classList).toContain('hidden');
+    expect(toggleAllButton.classList).toContain('hidden');
+  });
+
   it('should not modify media boxes before entry', () => {
     mediaBoxes[0].click();
     expect(mediaBoxes[0].firstElementChild).not.toHaveClass('media-box__header--selected');
   });
 
-  it('should restore the list of tagged images on reload', () => {
-    // TODO: this is less than ideal, because it depends on the internal
-    // implementation of the quick-tag file. But we can't reload the page
-    // with jsdom.
-    localStorage.setItem('quickTagQueue', JSON.stringify(['0', '1']));
-    localStorage.setItem('quickTagName', JSON.stringify('a'));
+  describe('Quick tag storage', () => {
+    it('should not activate tagged images if no batch is running', () => {
+      localStorage.clear();
 
-    setupQuickTag();
-    expect(mediaBoxes[0].firstElementChild).toHaveClass('media-box__header--selected');
-    expect(mediaBoxes[1].firstElementChild).toHaveClass('media-box__header--selected');
+      setupQuickTag();
+      expect(mediaBoxes[0].firstElementChild).not.toHaveClass('media-box__header--selected');
+      expect(mediaBoxes[1].firstElementChild).not.toHaveClass('media-box__header--selected');
+    });
+
+    it('should restore the list of tagged images on reload', () => {
+      // TODO: this is less than ideal, because it depends on the internal
+      // implementation of the quick-tag file. But we can't reload the page
+      // with jsdom.
+      localStorage.setItem('quickTagQueue', JSON.stringify(['0', '1']));
+      localStorage.setItem('quickTagName', JSON.stringify('a'));
+
+      setupQuickTag();
+      expect(mediaBoxes[0].firstElementChild).toHaveClass('media-box__header--selected');
+      expect(mediaBoxes[1].firstElementChild).toHaveClass('media-box__header--selected');
+    });
   });
 
   describe('after entry', () => {
@@ -130,7 +151,7 @@ describe('Batch tagging', () => {
     });
 
     it('should return to normal state on successful submission', () => {
-      fetchMock.mockResponse('{"failed":[]}');
+      fetchMock.mockResponse('{"failed":0}');
       submitButton.click();
 
       expect(fetch).toHaveBeenCalledOnce();
@@ -142,7 +163,7 @@ describe('Batch tagging', () => {
     });
 
     it('should show error on failed submission', () => {
-      fetchMock.mockResponse('{"failed":[0,1]}');
+      fetchMock.mockResponse('{"failed":2}');
       submitButton.click();
 
       const spy = vi.spyOn(window, 'alert').mockImplementation(() => {});

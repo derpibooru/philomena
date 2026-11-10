@@ -5,6 +5,8 @@ defmodule Philomena.StaticPages.Version do
   alias Philomena.StaticPages.StaticPage
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "static_page_versions" do
     belongs_to :static_page, StaticPage
     belongs_to :user, User

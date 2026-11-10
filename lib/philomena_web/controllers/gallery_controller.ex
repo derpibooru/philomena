@@ -1,228 +1,135 @@
 defmodule PhilomenaWeb.GalleryController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaWeb.ImageLoader
+  alias PhilomenaWeb.ImageScope
   alias PhilomenaWeb.NotificationCountPlug
-  alias PhilomenaQuery.Search
-  alias Philomena.Interactions
-  alias Philomena.Galleries.Gallery
   alias Philomena.Galleries
-  alias Philomena.Images.Image
-  import Ecto.Query
 
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
-  plug PhilomenaWeb.MapParameterPlug, [param: "gallery"] when action in [:index]
-
-  plug :load_and_authorize_resource,
-    model: Gallery,
-    except: [:index],
-    preload: [:creator, thumbnail: [:sources, tags: :aliases]]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, params) do
-    galleries =
-      Gallery
-      |> Search.search_definition(
-        %{
-          query: %{
-            bool: %{
-              must: parse_search(params)
-            }
-          },
-          sort: parse_sort(params)
-        },
-        conn.assigns.pagination
-      )
-      |> Search.search_records(
-        preload(Gallery, [:creator, thumbnail: [:sources, tags: :aliases]])
-      )
+    case Galleries.list_galleries(
+           conn.assigns.actor,
+           query_param(params, "gallery"),
+           conn.assigns.pagination
+         ) do
+      {:ok, galleries, changeset} ->
+        render(
+          conn,
+          "index.html",
+          title: "Galleries",
+          galleries: galleries,
+          changeset: changeset,
+          layout_class: "layout--wide"
+        )
 
-    render(conn, "index.html",
-      title: "Galleries",
-      galleries: galleries,
-      layout_class: "layout--wide"
-    )
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(
+          conn,
+          "index.html",
+          title: "Galleries",
+          galleries: nil,
+          changeset: changeset,
+          layout_class: "layout--wide"
+        )
+
+      error ->
+        error
+    end
   end
 
-  def show(conn, _params) do
-    gallery = conn.assigns.gallery
-    user = conn.assigns.current_user
-    query = "gallery_id:#{gallery.id}"
+  def show(conn, params) do
+    case Galleries.show_gallery(
+           conn.assigns.actor,
+           ImageScope.search_scope(conn),
+           params["id"]
+         ) do
+      {:ok, page} ->
+        gallery_json = JSON.encode!(Enum.map(page.gallery_images, &elem(&1, 0).id))
 
-    conn =
-      update_in(
-        conn.params,
-        &Map.merge(&1, %{
-          "q" => query,
-          "sf" => "gallery_id:#{gallery.id}",
-          "sd" => position_order(gallery)
-        })
-      )
+        # The page load clears the gallery notification, so the header ticker
+        # must be re-read afterwards.
+        conn
+        |> put_gallery_scope(page.gallery)
+        |> NotificationCountPlug.call([])
+        |> assign(:clientside_data, gallery_images: gallery_json)
+        |> render("show.html",
+          title: "Showing Gallery",
+          layout_class: "layout--wide",
+          watching: page.watching,
+          gallery: page.gallery,
+          gallery_prev: page.gallery_prev,
+          gallery_next: page.gallery_next,
+          gallery_images: page.gallery_images,
+          images: page.images,
+          interactions: page.interactions
+        )
 
-    {:ok, {images, _tags}} = ImageLoader.search_string(conn, query)
-    {gallery_prev, gallery_next} = prev_next_page_images(conn, query)
-
-    [images, gallery_prev, gallery_next] =
-      Search.msearch_records_with_hits(
-        [images, gallery_prev, gallery_next],
-        [
-          preload(Image, [:sources, tags: :aliases]),
-          preload(Image, [:sources, tags: :aliases]),
-          preload(Image, [:sources, tags: :aliases])
-        ]
-      )
-
-    interactions = Interactions.user_interactions([images, gallery_prev, gallery_next], user)
-
-    watching = Galleries.subscribed?(gallery, user)
-
-    gallery_images =
-      Enum.to_list(gallery_prev) ++ Enum.to_list(images) ++ Enum.to_list(gallery_next)
-
-    gallery_json = JSON.encode!(Enum.map(gallery_images, &elem(&1, 0).id))
-
-    Galleries.clear_gallery_notification(gallery, user)
-
-    conn
-    |> NotificationCountPlug.call([])
-    |> assign(:clientside_data, gallery_images: gallery_json)
-    |> render("show.html",
-      title: "Showing Gallery",
-      layout_class: "layout--wide",
-      watching: watching,
-      gallery: gallery,
-      gallery_prev: Enum.any?(gallery_prev),
-      gallery_next: Enum.any?(gallery_next),
-      gallery_images: gallery_images,
-      images: images,
-      interactions: interactions
-    )
+      {:error, _} = error ->
+        error
+    end
   end
 
   def new(conn, _params) do
-    changeset = Galleries.change_gallery(%Gallery{})
-    render(conn, "new.html", title: "New Gallery", changeset: changeset)
+    with {:ok, changeset} <- Galleries.new_gallery(conn.assigns.actor) do
+      render(conn, "new.html", title: "New Gallery", changeset: changeset)
+    end
   end
 
-  def create(conn, %{"gallery" => gallery_params}) do
-    user = conn.assigns.current_user
-
-    case Galleries.create_gallery(user, gallery_params) do
+  def create(conn, params) do
+    case Galleries.create_gallery(conn.assigns.actor, params["gallery"]) do
       {:ok, gallery} ->
         conn
         |> put_flash(:info, "Gallery successfully created.")
         |> redirect(to: ~p"/galleries/#{gallery}")
 
-      {:error, changeset} ->
-        conn
-        |> render("new.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "new.html", changeset: changeset)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    gallery = conn.assigns.gallery
-    changeset = Galleries.change_gallery(gallery)
-
-    render(conn, "edit.html", title: "Editing Gallery", gallery: gallery, changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {gallery, changeset}} <-
+           Galleries.edit_gallery(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html", title: "Editing Gallery", gallery: gallery, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"gallery" => gallery_params}) do
-    gallery = conn.assigns.gallery
-
-    case Galleries.update_gallery(gallery, gallery_params) do
+  def update(conn, params) do
+    case Galleries.update_gallery(conn.assigns.actor, params["id"], params["gallery"]) do
       {:ok, gallery} ->
         conn
         |> put_flash(:info, "Gallery successfully updated.")
         |> redirect(to: ~p"/galleries/#{gallery}")
 
-      {:error, changeset} ->
-        conn
-        |> render("edit.html", gallery: gallery, changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", gallery: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    gallery = conn.assigns.gallery
-
-    {:ok, _gallery} = Galleries.delete_gallery(gallery)
-
-    conn
-    |> put_flash(:info, "Gallery successfully destroyed.")
-    |> redirect(to: ~p"/galleries")
-  end
-
-  defp prev_next_page_images(conn, query) do
-    limit = conn.assigns.image_pagination.page_size
-    offset = (conn.assigns.image_pagination.page_number - 1) * limit
-
-    # Inconsistency: OpenSearch doesn't allow requesting offsets which are less than 0,
-    # but it does allow requesting offsets which are beyond the total number of results.
-
-    prev_image = gallery_image(offset - 1, conn, query)
-    next_image = gallery_image(offset + limit, conn, query)
-
-    {prev_image, next_image}
-  end
-
-  defp gallery_image(offset, _conn, _query) when offset < 0 do
-    Search.search_definition(Image, %{query: %{match_none: %{}}})
-  end
-
-  defp gallery_image(offset, conn, query) do
-    pagination_params = %{page_number: offset + 1, page_size: 1}
-
-    {:ok, {image, _tags}} = ImageLoader.search_string(conn, query, pagination: pagination_params)
-
-    image
-  end
-
-  defp parse_search(%{"gallery" => gallery_params}) do
-    parse_title(gallery_params) ++
-      parse_creator(gallery_params) ++
-      parse_included_image(gallery_params) ++
-      parse_description(gallery_params)
-  end
-
-  defp parse_search(_params), do: [%{match_all: %{}}]
-
-  defp parse_title(%{"title" => title}) when is_binary(title) and title not in [nil, ""],
-    do: [%{wildcard: %{title: "*" <> String.downcase(title) <> "*"}}]
-
-  defp parse_title(_params), do: []
-
-  defp parse_creator(%{"creator" => creator})
-       when is_binary(creator) and creator not in [nil, ""],
-       do: [%{term: %{creator: String.downcase(creator)}}]
-
-  defp parse_creator(_params), do: []
-
-  defp parse_included_image(%{"include_image" => image_id})
-       when is_binary(image_id) and image_id not in [nil, ""] do
-    with {image_id, _rest} <- Integer.parse(image_id) do
-      [%{term: %{image_ids: image_id}}]
-    else
-      _ ->
-        []
+  def delete(conn, params) do
+    with {:ok, _gallery} <- Galleries.delete_gallery(conn.assigns.actor, params["id"]) do
+      conn
+      |> put_flash(:info, "Gallery successfully destroyed.")
+      |> redirect(to: ~p"/galleries")
     end
   end
 
-  defp parse_included_image(_params), do: []
+  # Image links carry the gallery query and order, so navigation from an
+  # image page stays within the gallery.
+  defp put_gallery_scope(conn, gallery) do
+    query = "gallery_id:#{gallery.id}"
+    sort_direction = if gallery.order_position_asc, do: "asc", else: "desc"
 
-  defp parse_description(%{"description" => description})
-       when is_binary(description) and description not in [nil, ""],
-       do: [%{match_phrase: %{description: description}}]
-
-  defp parse_description(_params), do: []
-
-  defp parse_sort(%{"gallery" => %{"sf" => sf, "sd" => sd}})
-       when sf in ["created_at", "updated_at", "image_count", "_score"] and
-              sd in ["desc", "asc"] do
-    %{sf => sd}
+    update_in(
+      conn.params,
+      &Map.merge(&1, %{"q" => query, "sf" => query, "sd" => sort_direction})
+    )
   end
-
-  defp parse_sort(_params) do
-    %{created_at: :desc}
-  end
-
-  defp position_order(%{order_position_asc: true}), do: "asc"
-  defp position_order(_gallery), do: "desc"
 end

@@ -86,7 +86,7 @@ defmodule PhilomenaQuery.Batch do
   > #### Info {: .info}
   >
   > If you are looking to receive schema structures (e.g., you are querying for `Image`s,
-  > and you want to receive `Image` objects, then use `record_batches/3` instead.
+  > and you want to receive `Image` structs), then use `record_batches/2` instead.
 
   `m:Ecto.Query` structs which select the IDs in each batch are streamed out.
 
@@ -118,6 +118,47 @@ defmodule PhilomenaQuery.Batch do
           {output, next_ids}
       end
     )
+  end
+
+  @doc """
+  Stream bulk queries on a queryable in batches until the query no longer
+  matches any rows.
+
+  `m:Ecto.Query` structs which select the IDs in each batch are streamed out.
+
+  This is intended for maintenance operations which change the rows matching
+  the query while they run. The operation consuming the stream must cause
+  processed rows to stop matching the query. Otherwise, the stream will cycle
+  infinitely.
+
+  Valid options:
+    * `batch_size` (integer) - the number of records to load per batch
+    * `id_field` (atom) - the name of the field containing the ID
+
+  ## Example
+
+      queryable = from ui in ImageVote, where: ui.user_id == 1234
+
+      queryable
+      |> PhilomenaQuery.Batch.query_batches_until_empty(id_field: :image_id)
+      |> Enum.each(fn batch_query -> Repo.delete_all(batch_query) end)
+
+  """
+  @spec query_batches_until_empty(queryable(), batch_options()) :: Enumerable.t(Ecto.Query.t())
+  def query_batches_until_empty(queryable, opts \\ []) do
+    id_field = Keyword.get(opts, :id_field, :id)
+
+    Stream.unfold(nil, fn nil ->
+      case load_ids(queryable, -1, opts) do
+        [] ->
+          # Stop when no more results are produced
+          nil
+
+        ids ->
+          # Process results
+          {where(queryable, [m], field(m, ^id_field) in ^ids), nil}
+      end
+    end)
   end
 
   defp load_ids(queryable, max_id, opts) do

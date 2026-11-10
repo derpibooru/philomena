@@ -6,8 +6,8 @@ defmodule Philomena.Tags.Uploader do
   alias Philomena.Tags.Tag
   alias PhilomenaMedia.Uploader
 
-  def analyze_upload(tag, params) do
-    Uploader.analyze_upload(tag, "image", params["image"], &Tag.image_changeset/2)
+  def analyze_upload(tag, upload) do
+    Uploader.analyze_upload(tag, "image", upload, &Tag.image_changeset/2)
   end
 
   def persist_upload(tag) do

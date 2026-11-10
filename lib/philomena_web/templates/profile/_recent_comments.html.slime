@@ -2,7 +2,8 @@
   .block
     .block__header
       span.block__header__title Recent Comments
-      = link "View all", to: ~p"/comments?#{[cq: "user_id:#{@user.id}"]}"
+      - true_prefix = if can_reveal_anon?(@conn), do: "true_", else: ""
+      = link "View all", to: ~p"/comments?#{[cq: "#{true_prefix}author_id:#{@user.id}"]}"
 
     .block__content
       = for {body, comment} <- @comments, can?(@conn, :show, comment.image) do

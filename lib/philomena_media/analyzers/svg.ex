@@ -3,6 +3,7 @@ defmodule PhilomenaMedia.Analyzers.Svg do
 
   alias PhilomenaMedia.Analyzers.Analyzer
   alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Remote
 
   @behaviour Analyzer
 
@@ -20,7 +21,7 @@ defmodule PhilomenaMedia.Analyzers.Svg do
   end
 
   defp stats(file) do
-    case System.cmd("svgstat", [file]) do
+    case Remote.cmd("svgstat", [file]) do
       {output, 0} ->
         [_size, _frames, width, height, _num, _den] =
           output

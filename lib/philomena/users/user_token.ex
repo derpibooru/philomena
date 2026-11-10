@@ -12,6 +12,7 @@ defmodule Philomena.Users.UserToken do
   @change_email_validity_in_days 7
   @unlock_email_validity_in_days 7
   @session_validity_in_days 365
+  @reactivate_validity_in_days 365 * 100
 
   schema "user_tokens" do
     field :token, :binary
@@ -135,6 +136,7 @@ defmodule Philomena.Users.UserToken do
   defp days_for_context("confirm"), do: @confirm_validity_in_days
   defp days_for_context("reset_password"), do: @reset_password_validity_in_days
   defp days_for_context("unlock"), do: @unlock_email_validity_in_days
+  defp days_for_context("reactivate"), do: @reactivate_validity_in_days
 
   @doc """
   Checks if the token is valid and returns its underlying lookup query.

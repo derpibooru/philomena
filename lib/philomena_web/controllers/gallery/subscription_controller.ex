@@ -1,35 +1,27 @@
 defmodule PhilomenaWeb.Gallery.SubscriptionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Galleries.Gallery
   alias Philomena.Galleries
 
-  plug PhilomenaWeb.CanaryMapPlug, create: :show, delete: :show
-  plug :load_and_authorize_resource, model: Gallery, id_name: "gallery_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, _params) do
-    gallery = conn.assigns.gallery
-    user = conn.assigns.current_user
-
-    case Galleries.create_subscription(gallery, user) do
-      {:ok, _subscription} ->
+  def create(conn, params) do
+    case Galleries.create_gallery_subscription(conn.assigns.actor, params["gallery_id"]) do
+      {:ok, gallery} ->
         render(conn, "_subscription.html", gallery: gallery, watching: true, layout: false)
 
-      {:error, _changeset} ->
+      {:error, %Ecto.Changeset{}} ->
         render(conn, "_error.html", layout: false)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    gallery = conn.assigns.gallery
-    user = conn.assigns.current_user
-
-    case Galleries.delete_subscription(gallery, user) do
-      {:ok, _subscription} ->
-        render(conn, "_subscription.html", gallery: gallery, watching: false, layout: false)
-
-      {:error, _changeset} ->
-        render(conn, "_error.html", layout: false)
+  def delete(conn, params) do
+    with {:ok, gallery} <-
+           Galleries.delete_gallery_subscription(conn.assigns.actor, params["gallery_id"]) do
+      render(conn, "_subscription.html", gallery: gallery, watching: false, layout: false)
     end
   end
 end

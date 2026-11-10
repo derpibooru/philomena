@@ -1,45 +1,41 @@
 defmodule PhilomenaWeb.Admin.User.ActivationController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
   alias Philomena.Users
 
-  plug :verify_authorized
-  plug :load_resource, model: User, id_name: "user_id", id_field: "slug", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def create(conn, _params) do
-    {:ok, user} = Users.reactivate_user(conn.assigns.user)
+  def create(conn, %{"user_id" => slug}) do
+    case Users.create_user_activation(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User was reactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
 
-    conn
-    |> put_flash(:info, "User was reactivated.")
-    |> moderation_log(details: &log_details/2, data: user)
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "User is already active.")
+        |> redirect(to: ~p"/profiles/#{user}")
 
-  def delete(conn, _params) do
-    {:ok, user} = Users.deactivate_user(conn.assigns.current_user, conn.assigns.user)
-
-    conn
-    |> put_flash(:info, "User was deactivated.")
-    |> moderation_log(details: &log_details/2, data: user)
-    |> redirect(to: ~p"/profiles/#{user}")
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :edit, %User{}) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      error ->
+        error
     end
   end
 
-  defp log_details(action, user) do
-    body =
-      case action do
-        :create -> "Reactivated #{user.name}"
-        :delete -> "Deactivated #{user.name}"
-      end
+  def delete(conn, %{"user_id" => slug}) do
+    case Users.delete_user_activation(conn.assigns.actor, slug) do
+      {:ok, user} ->
+        conn
+        |> put_flash(:info, "User was deactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
 
-    %{body: body, subject_path: ~p"/profiles/#{user}"}
+      {:error, %Ecto.Changeset{data: user}} ->
+        conn
+        |> put_flash(:error, "User is already deactivated.")
+        |> redirect(to: ~p"/profiles/#{user}")
+
+      error ->
+        error
+    end
   end
 end

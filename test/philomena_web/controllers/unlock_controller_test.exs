@@ -66,7 +66,7 @@ defmodule PhilomenaWeb.UnlockControllerTest do
       conn = get(conn, ~p"/unlocks/#{token}")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :info) =~ "Account unlocked successfully"
-      refute Users.get_user!(user.id).locked_at
+      refute Users.fetch_user_for_worker!(user.id).locked_at
       refute get_session(conn, :user_token)
       assert Repo.all(Users.UserToken) == []
 
@@ -79,7 +79,29 @@ defmodule PhilomenaWeb.UnlockControllerTest do
       conn = get(conn, ~p"/unlocks/oops")
       assert redirected_to(conn) == "/"
       assert Flash.get(conn.assigns.flash, :error) =~ "Unlock link is invalid or it has expired"
-      assert Users.get_user!(user.id).locked_at
+      assert Users.fetch_user_for_worker!(user.id).locked_at
+    end
+  end
+
+  describe "when already logged in" do
+    setup %{conn: conn} do
+      register_and_log_in_user(%{conn: conn})
+    end
+
+    test "GET /unlocks/new redirects to the homepage", %{conn: conn} do
+      conn = get(conn, ~p"/unlocks/new")
+      assert redirected_to(conn) == "/"
+    end
+
+    test "POST /unlocks redirects to the homepage", %{conn: conn, user: user} do
+      conn = post(conn, ~p"/unlocks", %{"user" => %{"email" => user.email}})
+      assert redirected_to(conn) == "/"
+    end
+
+    test "GET /unlocks/:id redirects to the homepage", %{conn: conn} do
+      conn = get(conn, ~p"/unlocks/oops")
+      assert redirected_to(conn) == "/"
+      refute Flash.get(conn.assigns.flash, :error)
     end
   end
 end

@@ -1,25 +1,15 @@
 defmodule PhilomenaWeb.Image.HashController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images.Image
   alias Philomena.Images
 
-  plug PhilomenaWeb.CanaryMapPlug, delete: :hide
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def delete(conn, _params) do
-    {:ok, image} = Images.remove_hash(conn.assigns.image)
-
-    conn
-    |> put_flash(:info, "Successfully cleared hash.")
-    |> moderation_log(details: &log_details/2, data: image)
-    |> redirect(to: ~p"/images/#{image}")
-  end
-
-  defp log_details(_action, image) do
-    %{
-      body: "Cleared hash of image #{image.id}",
-      subject_path: ~p"/images/#{image}"
-    }
+  def delete(conn, params) do
+    with {:ok, image} <- Images.delete_image_hash(conn.assigns.actor, params["image_id"]) do
+      conn
+      |> put_flash(:info, "Successfully cleared hash.")
+      |> redirect(to: ~p"/images/#{image}")
+    end
   end
 end

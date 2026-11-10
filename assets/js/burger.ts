@@ -3,7 +3,7 @@
  */
 
 import { $, $$ } from './utils/dom';
-import { assertNotNull } from './utils/assert';
+import { assertType, assertNotNull } from './utils/assert';
 
 function switchClasses(element: HTMLElement, oldClass: string, newClass: string) {
   element.classList.remove(oldClass);
@@ -34,7 +34,7 @@ function copyUserLinksTo(burger: HTMLElement) {
     burger.appendChild(document.createElement('hr'));
 
     for (const link of links) {
-      const burgerLink = link.cloneNode(true) as HTMLElement;
+      const burgerLink = assertType(link.cloneNode(true), HTMLElement);
       burgerLink.className = '';
       burger.appendChild(burgerLink);
     }

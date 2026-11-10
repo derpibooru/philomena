@@ -9,6 +9,10 @@
 	}
 
 	servers {
+		# This server is meant to sit behind another reverse proxy. Without
+		# trusting it, the headers below are ignored and every visitor appears
+		# to come from the address of that proxy.
+		trusted_proxies static {$TRUSTED_PROXIES:private_ranges}
 		client_ip_headers CF-Connecting-IP X-Forwarded-For
 	}
 }
@@ -32,6 +36,9 @@
 
 (s3path) {
 	handle {args[0]} {
+		# Images are drawn into cross-origin SVG/canvas contexts (e.g. the
+		# duplicate report diff view), which requires CORS headers.
+		import cors
 		rewrite {args[0]} {args[1]}
 		file_server {
 			fs philomena
@@ -74,6 +81,13 @@
 	handle_errors 500 502 504 429 {
 		log_skip
 		rewrite * /error_50x.html
+		root /var/www
+		file_server
+	}
+
+	handle_errors 503 {
+		log_skip
+		rewrite * /downtime.html
 		root /var/www
 		file_server
 	}

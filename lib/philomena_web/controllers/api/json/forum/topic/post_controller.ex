@@ -1,47 +1,30 @@
 defmodule PhilomenaWeb.Api.Json.Forum.Topic.PostController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Posts.Post
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Topics
+  alias Philomena.Posts
+  import PhilomenaWeb.Api.Json.NotFound
 
-  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id}) do
-    page = conn.assigns.pagination.page_number
+  def index(conn, %{"forum_id" => forum_id, "topic_id" => topic_id} = params) do
+    case Topics.list_topic_posts(
+           conn.assigns.actor,
+           forum_id,
+           topic_id,
+           params["post_id"],
+           conn.assigns.pagination
+         ) do
+      {:ok, posts} ->
+        render(conn, "index.json", posts: posts.entries, total: posts.total_entries)
 
-    posts =
-      Post
-      |> join(:inner, [p], _ in assoc(p, :topic))
-      |> join(:inner, [_p, t], _ in assoc(t, :forum))
-      |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false and t.slug == ^topic_id)
-      |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)
-      |> where([p], p.topic_position >= ^(25 * (page - 1)) and p.topic_position < ^(25 * page))
-      |> order_by(asc: :topic_position)
-      |> preload([:user, :topic])
-      |> preload([_p, t, _f], topic: t)
-      |> Repo.all()
-
-    render(conn, "index.json", posts: posts, total: hd(posts).topic.post_count)
+      {:error, reason} when reason in [:not_found, :unauthorized] ->
+        not_found(conn)
+    end
   end
 
-  def show(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "id" => post_id}) do
-    post =
-      Post
-      |> join(:inner, [p], _ in assoc(p, :topic))
-      |> join(:inner, [_p, t], _ in assoc(t, :forum))
-      |> where(id: ^post_id)
-      |> where(destroyed_content: false)
-      |> where([_p, t], t.hidden_from_users == false and t.slug == ^topic_id)
-      |> where([_p, _t, f], f.access_level == "normal" and f.short_name == ^forum_id)
-      |> preload([:user, :topic])
-      |> Repo.one()
-
-    if is_nil(post) do
-      conn
-      |> put_status(:not_found)
-      |> text("")
-    else
-      render(conn, "show.json", post: post)
+  def show(conn, %{"forum_id" => forum_id, "topic_id" => topic_id, "id" => id}) do
+    case Posts.show_topic_post(conn.assigns.actor, forum_id, topic_id, id) do
+      {:ok, post} -> render(conn, "show.json", post: post)
+      {:error, reason} when reason in [:not_found, :unauthorized] -> not_found(conn)
     end
   end
 end

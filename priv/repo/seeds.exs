@@ -12,18 +12,14 @@
 
 alias Philomena.{
   Repo,
-  Comments.Comment,
   Filters.Filter,
   Forums.Forum,
-  Galleries.Gallery,
-  Posts.Post,
-  Images.Image,
-  Reports.Report,
-  Filters.Filter,
   Roles.Role,
   Tags.Tag,
   Users.User,
-  StaticPages.StaticPage
+  StaticPages.StaticPage,
+  Rules.Rule,
+  Rules.RuleVersion
 }
 
 alias PhilomenaQuery.Search
@@ -34,10 +30,7 @@ import Ecto.Query
 
 IO.puts("---- Creating search indices")
 
-for model <- [Image, Comment, Gallery, Tag, Post, Report, Filter] do
-  Search.delete_index!(model)
-  Search.create_index!(model)
-end
+Philomena.SearchMigrator.migrate_all(maintenance: false)
 
 resources =
   "priv/repo/seeds.json"
@@ -59,12 +52,15 @@ for filter_def <- resources["system_filters"] do
   hidden_tag_list = Enum.join(filter_def["hidden"], ",")
 
   %Filter{system: true}
-  |> Filter.changeset(%{
-    name: filter_def["name"],
-    description: filter_def["description"],
-    spoilered_tag_list: spoilered_tag_list,
-    hidden_tag_list: hidden_tag_list
-  })
+  |> Filter.changeset(
+    nil,
+    %{
+      name: filter_def["name"],
+      description: filter_def["description"],
+      spoilered_tag_list: spoilered_tag_list,
+      hidden_tag_list: hidden_tag_list
+    }
+  )
   |> Repo.insert(on_conflict: :nothing)
   |> case do
     {:ok, filter} ->
@@ -83,17 +79,27 @@ for forum_def <- resources["forums"] do
   |> Repo.insert(on_conflict: :nothing)
 end
 
-IO.puts("---- Generating users")
+IO.puts("---- Generating the admin user")
 
-for user_def <- resources["users"] do
-  {:ok, user} = Users.register_user(user_def)
+user_def = %{
+  "name" => System.get_env("ADMIN_USERNAME", "Administrator"),
+  "email" => System.get_env("ADMIN_EMAIL", "admin@example.com"),
+  "password" => System.get_env("ADMIN_PASSWORD", "philomena123"),
+  "role" => "admin"
+}
 
-  user
-  |> Repo.preload([:roles])
-  |> User.confirm_changeset()
-  |> User.update_changeset(%{role: user_def["role"]}, [])
-  |> Repo.update!()
-end
+initial_actor = %Philomena.Attribution.Actor{
+  ip: {127, 0, 0, 1},
+  fingerprint: "d123456789abcde"
+}
+
+{:ok, user} = Users.create_registration(initial_actor, user_def)
+
+user
+|> Repo.preload([:roles])
+|> User.confirm_changeset()
+|> User.update_changeset(%{role: user_def["role"]}, [])
+|> Repo.update!()
 
 IO.puts("---- Generating roles")
 
@@ -109,6 +115,37 @@ for page_def <- resources["pages"] do
   %StaticPage{title: page_def["title"], slug: page_def["slug"], body: page_def["body"]}
   |> StaticPage.changeset(%{})
   |> Repo.insert(on_conflict: :nothing)
+end
+
+IO.puts("---- Generating rules and initial versions")
+
+for rule_def <- resources["rules"] do
+  {:ok, rule} =
+    %Rule{}
+    |> Rule.changeset(%{
+      name: rule_def["name"],
+      title: Map.get(rule_def, "title", ""),
+      description: Map.get(rule_def, "description", ""),
+      short_description: Map.get(rule_def, "short_description", ""),
+      example: Map.get(rule_def, "example", ""),
+      position: Map.get(rule_def, "position", 1),
+      highlight: Map.get(rule_def, "highlight", false),
+      hidden: Map.get(rule_def, "hidden", false),
+      internal: Map.get(rule_def, "internal", false)
+    })
+    |> Repo.insert(on_conflict: :nothing)
+
+  %RuleVersion{}
+  |> RuleVersion.changeset(%{
+    name: rule_def["name"],
+    title: Map.get(rule_def, "title", ""),
+    description: Map.get(rule_def, "description", ""),
+    short_description: Map.get(rule_def, "short_description", ""),
+    example: Map.get(rule_def, "example", ""),
+    rule_id: rule.id,
+    user_id: nil
+  })
+  |> Repo.insert()
 end
 
 IO.puts("---- Indexing content")

@@ -1,4 +1,4 @@
-import { assertNotNull } from './utils/assert';
+import { assertNotNull, assertType } from './utils/assert';
 import { $, $$, disableEl, enableEl, removeEl } from './utils/dom';
 import { delegate, leftClick } from './utils/events';
 
@@ -50,7 +50,7 @@ export function inputDuplicatorCreator({
     if (existingFieldsLength < maxOptionCount) {
       // The last element matched by the `fieldSelector` will be the last field, make a copy
       const prevField = existingFields[existingFieldsLength - 1];
-      const prevFieldCopy = prevField.cloneNode(true) as HTMLElement;
+      const prevFieldCopy = assertType(prevField.cloneNode(true), HTMLElement);
 
       $$<HTMLInputElement>('input', prevFieldCopy).forEach(prevFieldCopyInput => {
         // Reset new input's value

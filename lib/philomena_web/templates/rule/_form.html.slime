@@ -1,0 +1,73 @@
+= form_for @changeset, @path, fn f ->
+  .flex.flex--column
+    = if @changeset.action do
+      .alert.alert--danger
+        ' Please correct the errors below.
+
+    .block.flex.flex--column
+      .flex.flex--gap-normal.flex--centered
+        strong = label f, :name
+        p Must be unique. The name of this rule, usually "Rule #X".
+      = text_input f, :name, class: "input"
+      = error_tag f, :name
+
+    .block.flex.flex--column
+      .flex.flex--gap-normal.flex--centered
+        strong = label f, :title
+        p The short title shown before the description on the rules page.
+      = text_input f, :title, class: "input"
+      = error_tag f, :title
+
+    .block.flex.flex--column
+      .flex.flex--gap-normal.flex--centered
+        strong = label f, :description
+        p The description of this rule shown on the rules page. Markdown and HTML are supported.
+      = textarea f, :description, class: "input input--text"
+      = error_tag f, :description
+
+    .block.flex.flex--column
+      .flex.flex--gap-normal.flex--centered
+        strong = label f, :short_description
+        p The TL;DR of the above, shown alongside the rule in the report reason selector.
+      = text_input f, :short_description, class: "input"
+      = error_tag f, :short_description
+
+    .block.flex.flex--column
+      .flex.flex--gap-normal.flex--centered
+        strong = label f, :example
+        p Optional. Examples of what would break this rule. Markdown and HTML are supported.
+      = textarea f, :example, class: "input input--text"
+      = error_tag f, :example
+
+    .block.flex.flex--gap-normal
+      strong = label f, :highlight
+      = checkbox f, :highlight
+      span
+        | (if checked, displays the rule as "important" on the rules page)
+      = error_tag f, :highlight
+
+    .block.flex.flex--gap-normal
+      strong = label f, :hidden
+      = checkbox f, :hidden
+      span
+        | (if checked, hides the rule from the rules page, but not the report reason selector)
+      = error_tag f, :hidden
+
+    .block.flex.flex--gap-normal
+      strong = label f, :internal
+      = checkbox f, :internal
+      span
+        | (if checked, hides the rule from any public views)
+      = error_tag f, :internal
+
+    .block.flex.flex--column
+      .block.flex.flex--gap-small.flex--column
+        strong = label f, :position
+        span Must be unique. Lower number will display higher in the list. If you intend to swap two rules, edit the other one to a unique position number first.
+        span Please note that the position is also used as the de-facto rule number, so "position 0" is meant to correspond to "Rule #0".
+      = number_input f, :position, class: "input"
+      = error_tag f, :position
+
+    .block.flex.flex--gap-normal
+      = submit "Save Rule", class: "button button--state-primary"
+      = link "Cancel", to: @path, class: "button button--state-danger"

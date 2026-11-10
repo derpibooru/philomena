@@ -8,6 +8,9 @@ set -euo pipefail
 export CARGO_FEATURE_DISABLE_INITIAL_EXEC_TLS=1
 export CARGO_HOME=/srv/philomena/.cargo
 
+# Cleanup jobs on exit
+trap 'kill $(jobs -p)' EXIT
+
 background() {
   # Log the execution with (bg-jobs) prefix to differentiate it from the main process
   export TASK="bg-jobs"
@@ -18,9 +21,17 @@ background() {
     step mix run -e 'Philomena.Release.update_stats()' > /dev/null
     step mix run -e 'Philomena.Release.clean_moderation_logs()' > /dev/null
     step mix run -e 'Philomena.Release.generate_autocomplete()' > /dev/null
+    step mix run -e 'Philomena.Release.clean_tags()' > /dev/null
 
     sleep 300
   done
+}
+
+server() {
+  info "Starting the server"
+
+  # Run the application
+  START_WORKER=true mix phx.server
 }
 
 # Always install assets
@@ -55,13 +66,12 @@ elif [[ "$(mix ecto.migrations)" == *" down "* ]]; then
   step mix reindex_all
 fi
 
+# Apply any pending search index migrations
+step mix search.migrate
+
 # Explicitly compile deps to avoid racing
 step mix compile
 
-# Run background jobs
+# Run background jobs concurrently with server
 background &
-
-info "Starting the server"
-
-# Run the application
-START_WORKER=true exec mix phx.server
+server

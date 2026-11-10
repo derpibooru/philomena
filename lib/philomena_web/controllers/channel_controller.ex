@@ -2,104 +2,89 @@ defmodule PhilomenaWeb.ChannelController do
   use PhilomenaWeb, :controller
 
   alias Philomena.Channels
-  alias Philomena.Channels.Channel
-  alias Philomena.Repo
-  import Ecto.Query
 
-  plug :load_and_authorize_resource,
-    model: Channel,
-    only: [:show, :new, :create, :edit, :update, :delete]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, params) do
     show_nsfw? = conn.cookies["chan_nsfw"] == "true"
 
-    channels =
-      Channel
-      |> maybe_show_nsfw(show_nsfw?)
-      |> where([c], not is_nil(c.last_fetched_at))
-      |> order_by(desc: :is_live, asc: :title)
-      |> join(:left, [c], _ in assoc(c, :associated_artist_tag))
-      |> preload([_c, t], associated_artist_tag: t)
-      |> maybe_search(params)
-      |> Repo.paginate(conn.assigns.scrivener)
+    case Channels.list_channels(conn.assigns.actor, show_nsfw?, params, conn.assigns.scrivener) do
+      {:ok, channels, subscriptions, changeset} ->
+        render(conn, "index.html",
+          title: "Livestreams",
+          layout_class: "layout--wide",
+          channels: channels,
+          subscriptions: subscriptions,
+          changeset: changeset
+        )
 
-    subscriptions = Channels.subscriptions(channels, conn.assigns.current_user)
-
-    render(conn, "index.html",
-      title: "Livestreams",
-      layout_class: "layout--wide",
-      channels: channels,
-      subscriptions: subscriptions
-    )
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "index.html",
+          title: "Livestreams",
+          layout_class: "layout--wide",
+          channels: nil,
+          subscriptions: %{},
+          changeset: changeset
+        )
+    end
   end
 
-  def show(conn, _params) do
-    channel = conn.assigns.channel
-    user = conn.assigns.current_user
-
-    Channels.clear_channel_notification(channel, user)
-
-    redirect(conn, external: channel_url(channel))
+  def show(conn, params) do
+    with {:ok, channel} <- Channels.show_channel(conn.assigns.actor, params["id"]) do
+      redirect(conn, external: channel_url(channel))
+    end
   end
 
   def new(conn, _params) do
-    changeset = Channels.change_channel(%Channel{})
-    render(conn, "new.html", title: "New Channel", changeset: changeset)
+    with {:ok, changeset} <- Channels.new_channel(conn.assigns.actor) do
+      render(conn, "new.html", title: "New Channel", changeset: changeset)
+    end
   end
 
   def create(conn, %{"channel" => channel_params}) do
-    case Channels.create_channel(channel_params) do
+    case Channels.create_channel(conn.assigns.actor, channel_params) do
       {:ok, _channel} ->
         conn
         |> put_flash(:info, "Channel created successfully.")
         |> redirect(to: ~p"/channels")
 
-      {:error, changeset} ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = Channels.change_channel(conn.assigns.channel)
-    render(conn, "edit.html", title: "Editing Channel", changeset: changeset)
+  def edit(conn, params) do
+    with {:ok, {channel, changeset}} <-
+           Channels.edit_channel(conn.assigns.actor, params["id"]) do
+      render(conn, "edit.html", title: "Editing Channel", channel: channel, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"channel" => channel_params}) do
-    case Channels.update_channel(conn.assigns.channel, channel_params) do
+  def update(conn, %{"id" => id, "channel" => channel_params}) do
+    case Channels.update_channel(conn.assigns.actor, id, channel_params) do
       {:ok, _channel} ->
         conn
         |> put_flash(:info, "Channel updated successfully.")
         |> redirect(to: ~p"/channels")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", channel: changeset.data, changeset: changeset)
+
+      {:error, _} = error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    {:ok, _channel} = Channels.delete_channel(conn.assigns.channel)
-
-    conn
-    |> put_flash(:info, "Channel destroyed successfully.")
-    |> redirect(to: ~p"/channels")
+  def delete(conn, params) do
+    with {:ok, _channel} <- Channels.delete_channel(conn.assigns.actor, params["id"]) do
+      conn
+      |> put_flash(:info, "Channel destroyed successfully.")
+      |> redirect(to: ~p"/channels")
+    end
   end
-
-  defp maybe_search(query, %{"cq" => cq}) when is_binary(cq) and cq != "" do
-    title_query = "#{cq}%"
-    tag_query = "%#{cq}%"
-
-    where(
-      query,
-      [c, t],
-      ilike(c.title, ^title_query) or ilike(c.short_name, ^title_query) or
-        ilike(t.name, ^tag_query)
-    )
-  end
-
-  defp maybe_search(query, _params), do: query
-
-  defp maybe_show_nsfw(query, true), do: query
-  defp maybe_show_nsfw(query, _falsy), do: where(query, [c], c.nsfw == false)
 
   defp channel_url(%{type: "LivestreamChannel", short_name: short_name}),
     do: "http://www.livestream.com/#{short_name}"

@@ -6,6 +6,7 @@ defmodule PhilomenaMedia.Analyzers do
   alias PhilomenaMedia.Analyzers.{Gif, Jpeg, Png, Svg, Webm}
   alias PhilomenaMedia.Analyzers.Result
   alias PhilomenaMedia.Mime
+  alias PhilomenaMedia.Upload
 
   @doc """
   Returns an `{:ok, analyzer}` tuple, with the analyzer being a module capable
@@ -40,17 +41,17 @@ defmodule PhilomenaMedia.Analyzers do
   def analyzer(_content_type), do: :error
 
   @doc """
-  Attempts a MIME type check and analysis on the given `m:Plug.Upload`.
+  Attempts a MIME type check and analysis on the given `m:PhilomenaMedia.Upload`.
 
   ## Examples
 
-      file = %Plug.Upload{...}
+      file = %PhilomenaMedia.Upload{...}
       {:ok, %Result{...}} = Analyzers.analyze_upload(file)
 
   """
-  @spec analyze_upload(Plug.Upload.t()) ::
+  @spec analyze_upload(Upload.t()) ::
           {:ok, Result.t()} | {:unsupported_mime, Mime.t()} | :error
-  def analyze_upload(%Plug.Upload{path: path}), do: analyze_path(path)
+  def analyze_upload(%Upload{path: path}), do: analyze_path(path)
   def analyze_upload(_upload), do: :error
 
   @doc """

@@ -5,5 +5,6 @@ h1
 = form_for @changeset, ~p"/admin/users/#{@user}/force_filter", [method: "post"], fn f ->
   .field
     => text_input f, :forced_filter_id, placeholder: "Filter ID", class: "input", required: true
+    = error_tag f, :forced_filter_id
   .field
     = submit "Force", class: "button button--state-primary"

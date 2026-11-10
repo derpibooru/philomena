@@ -4,6 +4,8 @@ defmodule Philomena.UserNameChanges.UserNameChange do
 
   alias Philomena.Users.User
 
+  @type t :: %__MODULE__{}
+
   schema "user_name_changes" do
     belongs_to :user, User
     field :name, :string

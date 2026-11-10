@@ -1,4 +1,4 @@
-import { Interaction, InteractionType, InteractionValue } from '../../types/booru-object';
+import { Interaction, InteractionType, InteractionValue } from '../booru';
 import { FieldMatcher } from './types';
 
 function interactionMatch(

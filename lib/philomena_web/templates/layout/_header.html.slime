@@ -71,7 +71,7 @@ header.header
         = form_for @user_changeset, ~p"/filters/current", [class: "header__filter-form", id: "filter-quick-form"], fn f ->
           = select f, :current_filter_id, @available_filters, name: "id", id: "filter-quick-menu", class: "input header__input", data: [change_submit: "#filter-quick-form"], autocomplete: "off"
 
-        = form_for @user_changeset, ~p"/filters/spoiler_type", [class: "header__filter-form hide-mobile hide-limited-desktop", id: "spoiler-quick-form"], fn f ->
+        = form_for @spoiler_changeset, ~p"/filters/spoiler_type", [class: "header__filter-form hide-mobile hide-limited-desktop", id: "spoiler-quick-form"], fn f ->
           = select f, :spoiler_type, @spoiler_types, id: "spoiler-quick-menu", class: "input header__input", data: [change_submit: "#spoiler-quick-form"], autocomplete: "off"
 
         .dropdown.header__dropdown

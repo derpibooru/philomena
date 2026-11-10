@@ -1,6 +1,6 @@
 // Request Utils
 
-type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH';
+export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export function fetchJson(verb: HttpMethod, endpoint: string, body?: Record<string, unknown>): Promise<Response> {
   const data: RequestInit = {

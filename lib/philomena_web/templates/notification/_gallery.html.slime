@@ -2,7 +2,7 @@
 
 .flex.flex--centered.flex__grow
   div
-    => render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: gallery.creator}, conn: @conn
+    => render PhilomenaWeb.UserAttributionView, "_anon_user.html", object: gallery, conn: @conn
     ' added images to
 
     strong>

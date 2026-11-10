@@ -39,6 +39,7 @@
   .block
     .block__header
       span.block__header__title General user flags
+    = error_tag f, :roles
     ul = collection_checkboxes f, :roles, filtered_roles(general_permissions(), @roles), mapper: &checkbox_mapper/6
 
   .block

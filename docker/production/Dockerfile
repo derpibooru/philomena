@@ -1,11 +1,11 @@
 # We need to grab "psql" from the Postgres image for database setup
-FROM postgres:17.11-alpine AS pg
+FROM postgres:18.6-alpine AS pg
 
 #
 # Step 1: Build Philomena release
 #
 
-FROM elixir:1.18.4-alpine AS builder
+FROM elixir:1.20.5-alpine AS builder
 
 WORKDIR /tmp/philomena
 
@@ -13,18 +13,11 @@ ENV MIX_ENV=prod
 ENV NODE_ENV=production
 ENV PATH=$PATH:/root/.cargo/bin
 
-ADD https://api.github.com/repos/philomena-dev/fiberglass-wrapper/git/refs/heads/master /tmp/fiberglass_wrapper_version.json
-
 # Install dependencies and build tools
 RUN apk update --allow-untrusted \
     && apk add build-base git npm nodejs wget rust cargo --allow-untrusted \
     && mix local.hex --force \
     && mix local.rebar --force
-
-# Build fiberglass-wrapper from source
-RUN git clone --depth 1 https://github.com/philomena-dev/fiberglass-wrapper /tmp/fiberglass_wrapper \
-    && cd /tmp/fiberglass_wrapper \
-    && cargo build --release
 
 # Copy repo files into the image
 COPY . /tmp/philomena
@@ -68,23 +61,19 @@ RUN addgroup -g 1000 -S philomena \
 COPY --from=builder --chown=1000:1000 /tmp/philomena/_build/prod/rel/philomena /srv/philomena
 COPY --from=builder --chown=1000:1000 /tmp/philomena/config /srv/philomena/config
 
-# Copy fiberglass-wrapper executable too
-COPY --from=builder /tmp/fiberglass_wrapper/target/release/fiberglass-wrapper /usr/local/bin/fiberglass-wrapper
-
 # ...and the production scripts from the repository
 COPY --chown=1000:1000 docker/production/purge-cache /usr/local/bin/purge-cache
 COPY --chown=1000:1000 docker/production/run-cron /usr/local/bin/run-cron
 COPY --chown=1000:1000 docker/production/run-cron-daily /usr/local/bin/run-cron-daily
 COPY --chown=1000:1000 docker/production/run-production /usr/local/bin/run-production
 COPY --chown=1000:1000 docker/production/setup-production /usr/local/bin/setup-production
-COPY --chown=1000:1000 docker/production/programs/* /usr/local/bin/
 
 # Copy postgres client.
 COPY --from=pg /usr/local/bin/psql /usr/local/bin/psql
 COPY --from=pg /usr/local/bin/pg_isready /usr/local/bin/pg_isready
 COPY --from=pg /usr/local/lib/libpq.so /usr/local/lib/libpq.so
 COPY --from=pg /usr/local/lib/libpq.so.5 /usr/local/lib/libpq.so.5
-COPY --from=pg /usr/local/lib/libpq.so.5.17 /usr/local/lib/libpq.so.5.17
+COPY --from=pg /usr/local/lib/libpq.so.5.18 /usr/local/lib/libpq.so.5.18
 
 # A "philomena" symlink for easier access
 RUN ln -sf /srv/philomena/bin/philomena /usr/local/bin/philomena

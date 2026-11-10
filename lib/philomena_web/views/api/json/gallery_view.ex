@@ -20,8 +20,8 @@ defmodule PhilomenaWeb.Api.Json.GalleryView do
       thumbnail_id: gallery.thumbnail_id,
       spoiler_warning: gallery.spoiler_warning,
       description: gallery.description,
-      user: gallery.creator.name,
-      user_id: gallery.creator_id
+      creator: if(!!gallery.user and !gallery.anonymous, do: gallery.user.name),
+      creator_id: if(!gallery.anonymous, do: gallery.user_id)
     }
   end
 end

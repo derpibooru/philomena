@@ -4,16 +4,14 @@ defmodule PhilomenaWeb.Autocomplete.CompiledController do
   alias Philomena.Autocomplete
 
   def show(conn, _params) do
-    autocomplete = Autocomplete.get_autocomplete()
-
-    case autocomplete do
-      nil ->
+    case Autocomplete.show_compiled_autocomplete() do
+      {:error, :not_found} ->
         conn
         |> put_status(:not_found)
         |> configure_session(drop: true)
         |> text("")
 
-      %{content: content} ->
+      {:ok, %{content: content}} ->
         conn
         |> put_resp_header("cache-control", "public, max-age=86400")
         |> configure_session(drop: true)

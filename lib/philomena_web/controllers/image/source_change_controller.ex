@@ -1,28 +1,33 @@
 defmodule PhilomenaWeb.Image.SourceChangeController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Images.Image
-  alias Philomena.SourceChanges.SourceChange
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.SourceChanges
+  alias Philomena.SourceChanges.SourceChangePage
 
-  plug PhilomenaWeb.CanaryMapPlug, index: :show
-  plug :load_and_authorize_resource, model: Image, id_name: "image_id", persisted: true
+  action_fallback PhilomenaWeb.FallbackController
 
-  def index(conn, _params) do
-    image = conn.assigns.image
+  def index(conn, %{"image_id" => image_id} = params) do
+    case SourceChanges.list_image_source_changes(
+           conn.assigns.actor,
+           image_id,
+           params,
+           conn.assigns.scrivener
+         ) do
+      {:ok, %SourceChangePage{target: image, source_changes: source_changes}, changeset} ->
+        render(conn, "index.html",
+          title: "Source Changes on Image #{image.id}",
+          image: image,
+          source_changes: source_changes,
+          changeset: changeset
+        )
 
-    source_changes =
-      SourceChange
-      |> where(image_id: ^image.id)
-      |> preload([:user, image: [:user, :sources, tags: :aliases]])
-      |> order_by(desc: :id)
-      |> Repo.paginate(conn.assigns.scrivener)
+      {:error, %Ecto.Changeset{}} ->
+        conn
+        |> put_flash(:error, "Invalid source change filter.")
+        |> redirect(to: "/")
 
-    render(conn, "index.html",
-      title: "Source Changes on Image #{image.id}",
-      image: image,
-      source_changes: source_changes
-    )
+      error ->
+        error
+    end
   end
 end

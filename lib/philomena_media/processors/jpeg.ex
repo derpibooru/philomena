@@ -3,7 +3,9 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   alias PhilomenaMedia.Intensities
   alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Remote
   alias PhilomenaMedia.Processors.Processor
+  alias PhilomenaMedia.Strip
   alias PhilomenaMedia.Processors
 
   @behaviour Processor
@@ -18,17 +20,15 @@ defmodule PhilomenaMedia.Processors.Jpeg do
 
   @spec process(Result.t(), Path.t(), Processors.version_list()) :: Processors.edit_script()
   def process(_analysis, file, versions) do
-    stripped = optimize(strip(file))
+    source = file |> strip() |> optimize()
 
-    {:ok, intensities} = Intensities.file(stripped)
+    {:ok, intensities} = Intensities.file(source)
 
-    scaled = Enum.flat_map(versions, &scale(stripped, &1))
+    scaled = Enum.flat_map(versions, &scale(source, &1))
 
-    [
-      replace_original: stripped,
-      intensities: intensities,
-      thumbnails: scaled
-    ]
+    replacement = if source != file, do: [replace_original: source], else: []
+
+    replacement ++ [intensities: intensities, thumbnails: scaled]
   end
 
   @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
@@ -40,45 +40,24 @@ defmodule PhilomenaMedia.Processors.Jpeg do
     intensities
   end
 
-  defp requires_lossy_transformation?(file) do
-    with {output, 0} <-
-           System.cmd("identify", ["-format", "%[orientation]\t%[profile:icc]", file]),
-         [orientation, profile] <- String.split(output, "\t") do
-      orientation not in ["Undefined", "TopLeft"] or profile != ""
-    else
-      _ ->
-        true
-    end
-  end
-
   defp strip(file) do
-    stripped = Briefly.create!(extname: ".jpg")
-
     # ImageMagick always reencodes the image, resulting in quality loss, so
     # be more clever
-    if requires_lossy_transformation?(file) do
-      # Transcode: strip EXIF, embedded profile and reorient image
-      {_output, 0} =
-        System.cmd("convert", [
-          file,
-          "-profile",
-          srgb_profile(),
-          "-auto-orient",
-          "-strip",
-          stripped
-        ])
+    if Strip.requires_strip?(file) do
+      # Transcode: normalize orientation, ICC profile and strip metadata
+      Strip.strip(file, ".jpg")
     else
-      # Transmux only: Strip EXIF without touching orientation
-      validate_return(System.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+      # Transmux only: Strip EXIF without touching pixel data
+      stripped = Briefly.create!(extname: ".jpg")
+      validate_return(Remote.cmd("jpegtran", ["-copy", "none", "-outfile", stripped, file]))
+      stripped
     end
-
-    stripped
   end
 
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".jpg")
 
-    validate_return(System.cmd("jpegtran", ["-optimize", "-outfile", optimized, file]))
+    validate_return(Remote.cmd("jpegtran", ["-optimize", "-outfile", optimized, file]))
 
     optimized
   end
@@ -88,7 +67,7 @@ defmodule PhilomenaMedia.Processors.Jpeg do
     scale_filter = "scale=w=#{width}:h=#{height}:force_original_aspect_ratio=decrease"
 
     {_output, 0} =
-      System.cmd("ffmpeg", [
+      Remote.cmd("ffmpeg", [
         "-loglevel",
         "0",
         "-y",
@@ -101,13 +80,9 @@ defmodule PhilomenaMedia.Processors.Jpeg do
         scaled
       ])
 
-    {_output, 0} = System.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
+    {_output, 0} = Remote.cmd("jpegtran", ["-optimize", "-outfile", scaled, scaled])
 
     [{:copy, scaled, "#{thumb_name}.jpg"}]
-  end
-
-  defp srgb_profile do
-    Path.join(File.cwd!(), "priv/icc/sRGB.icc")
   end
 
   defp validate_return({_output, ret}) when ret in [@exit_success, @exit_warning] do

@@ -2,82 +2,80 @@ defmodule PhilomenaWeb.ConversationController do
   use PhilomenaWeb, :controller
 
   alias PhilomenaWeb.NotificationCountPlug
-  alias Philomena.{Conversations, Conversations.Conversation, Conversations.Message}
+  alias PhilomenaWeb.RateLimitedResponse
+  alias Philomena.Conversations
+  alias Philomena.Conversations.ConversationIndex
   alias PhilomenaWeb.MarkdownRenderer
 
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create]
-
-  plug PhilomenaWeb.LimitPlug,
-       [time: 60, error: "You may only create a conversation once every minute."]
-       when action in [:create]
-
-  plug :load_and_authorize_resource,
-    model: Conversation,
-    id_field: "slug",
-    only: :show,
-    preload: [:to, :from]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, params) do
-    user = conn.assigns.current_user
-
-    conversations =
-      case params do
-        %{"with" => partner_id} ->
-          Conversations.list_conversations_with(partner_id, user, conn.assigns.scrivener)
-
-        _ ->
-          Conversations.list_conversations(user, conn.assigns.scrivener)
-      end
-
-    render(conn, "index.html", title: "Conversations", conversations: conversations)
+    with {:ok, %ConversationIndex{} = index} <-
+           Conversations.list_conversations(
+             conn.assigns.actor,
+             params,
+             conn.assigns.scrivener
+           ) do
+      render(conn, "index.html",
+        title: "Conversations",
+        conversations: index.conversations,
+        changeset: index.changeset
+      )
+    end
   end
 
-  def show(conn, _params) do
-    conversation = conn.assigns.conversation
-    user = conn.assigns.current_user
+  def show(conn, %{"id" => id}) do
+    with {:ok, page} <-
+           Conversations.show_conversation(
+             conn.assigns.actor,
+             id,
+             conn.assigns.scrivener
+           ) do
+      # The page load marked the conversation read; refresh the header
+      # notification ticker afterwards so it reflects the cleared state.
+      conn = NotificationCountPlug.call(conn)
 
-    messages =
-      Conversations.list_messages(
-        conversation,
-        user,
-        &MarkdownRenderer.render_collection(&1, conn),
-        conn.assigns.scrivener
+      rendered = MarkdownRenderer.render_collection(page.messages.entries, conn)
+      messages = %{page.messages | entries: Enum.zip(page.messages.entries, rendered)}
+
+      render(conn, "show.html",
+        title: "Showing Conversation",
+        conversation: page.conversation,
+        messages: messages,
+        changeset: page.changeset,
+        trusted?: Conversations.trusted_sender?(conn.assigns.actor)
       )
-
-    changeset = Conversations.change_message(%Message{})
-    Conversations.mark_conversation_read(conversation, user)
-
-    # Update the conversation ticker in the header
-    conn = NotificationCountPlug.call(conn)
-
-    render(conn, "show.html",
-      title: "Showing Conversation",
-      conversation: conversation,
-      messages: messages,
-      changeset: changeset
-    )
+    end
   end
 
   def new(conn, params) do
-    conversation =
-      %Conversation{recipient: params["recipient"], messages: [%Message{}]}
-
-    changeset = Conversations.change_conversation(conversation)
-
-    render(conn, "new.html", title: "New Conversation", changeset: changeset)
+    with {:ok, changeset} <- Conversations.new_conversation(conn.assigns.actor, params) do
+      render(conn, "new.html",
+        title: "New Conversation",
+        changeset: changeset,
+        trusted?: Conversations.trusted_sender?(conn.assigns.actor)
+      )
+    end
   end
 
-  def create(conn, %{"conversation" => conversation_params}) do
-    user = conn.assigns.current_user
-
-    case Conversations.create_conversation(user, conversation_params) do
+  def create(conn, params) do
+    case Conversations.create_conversation(conn.assigns.actor, params["conversation"] || %{}) do
       {:ok, conversation} ->
         conn
         |> put_flash(:info, "Conversation successfully created.")
         |> redirect(to: ~p"/conversations/#{conversation}")
 
-      {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "new.html",
+          changeset: changeset,
+          trusted?: Conversations.trusted_sender?(conn.assigns.actor)
+        )
+
+      {:error, :rate_limited} ->
+        RateLimitedResponse.call(conn, "You may only create a conversation once every minute.")
+
+      error ->
+        error
     end
   end
 end

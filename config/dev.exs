@@ -16,6 +16,7 @@ config :philomena, PhilomenaWeb.Endpoint,
   check_origin: false,
   watchers: [
     node: [
+      "watch.js",
       "node_modules/vite/bin/vite.js",
       "--mode",
       "development",
@@ -26,6 +27,7 @@ config :philomena, PhilomenaWeb.Endpoint,
       cd: Path.expand("../assets", __DIR__)
     ],
     node: [
+      "watch.js",
       "node_modules/vite/bin/vite.js",
       "build",
       "--mode",
@@ -75,8 +77,8 @@ config :philomena, PhilomenaWeb.Endpoint,
 # Disable Pwned Passwords API check in development
 config :philomena, pwned_passwords: false
 
-# Relax CSP rules in development
-config :philomena, csp_relaxed: true
+# Relax CSP on development error pages so Plug.Debugger can render
+config :philomena, csp_relax_on_error: true
 
 # Enable Vite HMR
 config :philomena, vite_reload: true

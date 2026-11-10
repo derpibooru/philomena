@@ -1,5 +1,35 @@
+- route = @pagination_route
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @tag_changes, route: route, conn: @conn, params: scope(@conn)
+
+h1 = @title
+
+= form_for :tag_changes, @path, [method: "get", class: "hform hform__wide", enforce_utf8: false], fn f ->
+  .field
+    = text_input f, :tcq, name: :tcq, value: @conn.params["tcq"],
+      class: "input hform__text",
+      placeholder: "Search tag changes",
+      autocapitalize: "none",
+      autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+      inputmode: "search",
+      data: [ \
+        autocomplete: "multi-tags",
+        autocomplete_condition: "enable_search_ac",
+      ]
+
+    = submit "Search", class: "hform__button button button--state-primary"
+
+    => select f, :sf, ["Sort by date": "created_at", "Sort by tag count": "tag_count", "Sort by added tag count": "added_tag_count", "Sort by removed tag count": "removed_tag_count"], name: :sf, class: "input input--separate-left", selected: @conn.params["sf"]
+    => select f, :sd, ["Descending": "desc", "Ascending": "asc"], name: :sd, class: "input input--separate-left", selected: @conn.params["sd"]
+
+  .fieldlabel
+    ' For more information, see the
+    a href="/pages/search_syntax" search syntax documentation
+    ' . Wildcards are supported in all literal fields.
+
+  br
+
 .block__header
-  .page__pagination = @pagination
+  .page__pagination = pagination
 
 = if reverts_tag_changes?(@conn) do
   .block__header.block__header--light.block__header--sub
@@ -61,15 +91,15 @@
                   = for tag <- removed_tags do
                     div class=non_retained_class(non_retained, tag)
                       = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          = if reverts_tag_changes?(@conn) or can?(@conn, :show, :ip_address) do
+          = if reverts_tag_changes?(@conn) or can?(@conn, :show, :identity_metadata) do
             .tag__change-tools
-              = if can?(@conn, :show, :ip_address) do
+              = if can?(@conn, :show, :identity_metadata) do
                 => link_to_ip @conn, tag_change.ip
                 => link_to_fingerprint @conn, tag_change.fingerprint
 
               = if reverts_tag_changes?(@conn) do
                 .flex.flex__grow
-                a.button.button--state-danger href=~p"/images/#{tag_change.image}/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
+                a.button.button--state-danger href=~p"/tag_changes/#{tag_change}" data-method="delete" data-confirm="Are you really, really sure?"
                   i.fa.fa-trash>
                   span.hide-mobile Delete from history
                   span.hide-desktop Delete
@@ -80,7 +110,90 @@
   p * Crossed out tags were reverted and thus are not retained
 
   .block__header.block__header--light
-    .page__pagination = @pagination
+    .page__pagination = pagination
 
   = if reverts_tag_changes?(@conn) do
     = submit "Revert selected", class: "button", data: [confirm: "Are you really, really sure?"]
+    br
+    br
+
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code tag
+      td Literal
+      td
+        ' Matches the name of the changed tag. You can also simply search for the tags without specifying the "tag" field. To search for an added/removed tag, use
+        code> added_tag
+        ' or
+        code removed_tag
+        | .
+      td
+        code> = link "tag:safe", to: ~p"/tag_changes?#{[tcq: "tag:safe"]}"
+        ' or
+        code = link "safe", to: ~p"/tag_changes?#{[tcq: "safe"]}"
+        ' , also try
+        code> = link "added_tag:safe", to: ~p"/tag_changes?#{[tcq: "added_tag:safe"]}"
+        ' and
+        code = link "removed_tag:safe", to: ~p"/tag_changes?#{[tcq: "removed_tag:safe"]}"
+    tr
+      td
+        code tag_count
+      td Numeric Range
+      td
+        ' Matches the number of changed tags in the tag change. To search for the number of added/removed tags, use
+        code> added_tag_count
+        ' or
+        code removed_tag_count
+        | .
+      td
+        code = link "tag_count.gte:3", to: ~p"/tag_changes?#{[tcq: "tag_count.gte:3"]}"
+        ' , also try
+        code> = link "added_tag_count.gte:3", to: ~p"/tag_changes?#{[tcq: "added_tag_count.gte:3"]}"
+        ' and
+        code = link "removed_tag_count.gte:3", to: ~p"/tag_changes?#{[tcq: "removed_tag_count.gte:3"]}"
+    tr
+      td
+        code created_at
+      td Date/Time Range
+      td Matches the creation time of the tag change.
+      td
+        code = link "created_at.gte:1 month ago", to: ~p"/tag_changes?#{[tcq: "created_at.gte:1 month ago"]}"
+    tr
+      td
+        code my
+      td Meta
+      td
+        code> my:changes
+        ' matches the tag changes you've made if you are signed in.
+      td
+        code = link "my:changes", to: ~p"/tag_changes?#{[tcq: "my:changes"]}"
+    tr
+      td
+        code anonymous
+      td Boolean
+      td Matches tag changes made by anonymous users, or users without an account.
+      td
+        code = link "anonymous:true", to: ~p"/tag_changes?#{[tcq: "anonymous:true"]}"
+    tr
+      td
+        code user
+      td Literal
+      td Matches the user who created the tag change.
+      td
+        code = link "user:LightningBolt", to: ~p"/tag_changes?#{[tcq: "user:LightningBolt"]}"
+    tr
+      td
+        code user_id
+      td Literal
+      td Matches tag changes made by a specific user ID.
+      td
+        code = link "user_id:217932", to: ~p"/tag_changes?#{[tcq: "user_id:217932"]}"

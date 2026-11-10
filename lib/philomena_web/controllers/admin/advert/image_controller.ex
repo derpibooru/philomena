@@ -1,44 +1,31 @@
 defmodule PhilomenaWeb.Admin.Advert.ImageController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Adverts.Advert
   alias Philomena.Adverts
 
-  plug :verify_authorized
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_and_authorize_resource,
-    model: Advert,
-    id_name: "advert_id",
-    persisted: true,
-    only: [:edit, :update, :delete]
-
-  def edit(conn, _params) do
-    changeset = Adverts.change_advert(conn.assigns.advert)
-    render(conn, "edit.html", title: "Editing Advert", changeset: changeset)
+  def edit(conn, %{"advert_id" => id}) do
+    with {:ok, {advert, changeset}} <-
+           Adverts.edit_advert(conn.assigns.actor, id) do
+      render(conn, "edit.html", title: "Editing Advert", advert: advert, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"advert" => advert_params}) do
-    case Adverts.update_advert_image(conn.assigns.advert, advert_params) do
-      {:ok, advert} ->
+  def update(conn, %{"advert_id" => id, "advert" => advert_params}) do
+    upload = PhilomenaMedia.Upload.cast(advert_params, "image")
+
+    case Adverts.update_advert_image(conn.assigns.actor, id, upload) do
+      {:ok, _advert} ->
         conn
         |> put_flash(:info, "Advert was successfully updated.")
-        |> moderation_log(details: &log_details/2, data: advert)
         |> redirect(to: ~p"/admin/adverts")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
-    end
-  end
+      {:error, %Ecto.Changeset{} = changeset} ->
+        render(conn, "edit.html", advert: changeset.data, changeset: changeset)
 
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, Advert) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+      error ->
+        error
     end
-  end
-
-  defp log_details(_action, advert) do
-    %{body: "Updated image for advert #{advert.id}", subject_path: ~p"/admin/adverts"}
   end
 end

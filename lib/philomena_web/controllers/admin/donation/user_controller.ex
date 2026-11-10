@@ -1,29 +1,19 @@
 defmodule PhilomenaWeb.Admin.Donation.UserController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Users.User
-  alias Philomena.Donations.Donation
   alias Philomena.Donations
 
-  plug :verify_authorized
-  plug :load_resource, model: User, id_field: "slug", persisted: true, preload: [donations: :user]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def show(conn, _params) do
-    user = conn.assigns.user
-    changeset = Donations.change_donation(%Donation{})
-
-    render(conn, "index.html",
-      title: "Donations for User `#{user.name}'",
-      donations: user.donations,
-      changeset: changeset
-    )
-  end
-
-  defp verify_authorized(conn, _opts) do
-    if Canada.Can.can?(conn.assigns.current_user, :index, Donation) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
+  def show(conn, %{"id" => slug}) do
+    with {:ok, {user, changeset}} <-
+           Donations.show_user_donations(conn.assigns.actor, slug) do
+      render(conn, "index.html",
+        title: "Donations for User `#{user.name}'",
+        user: user,
+        donations: user.donations,
+        changeset: changeset
+      )
     end
   end
 end

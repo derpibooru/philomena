@@ -87,6 +87,14 @@ describe('LocalAutocompleter', () => {
       `);
     });
 
+    it('should return a suggestion at the start of the index', () => {
+      expectLocalAutocomplete('artist').toMatchInlineSnapshot(`
+        [
+          "{artist}:test (1)",
+        ]
+      `);
+    });
+
     it('should return suggestion for an alias', () => {
       expectLocalAutocomplete('flowers').toMatchInlineSnapshot(`
         [

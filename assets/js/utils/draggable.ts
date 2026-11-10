@@ -1,3 +1,4 @@
+import { assertNotNull } from './assert';
 import { $$ } from './dom';
 import { delegate } from './events';
 
@@ -18,6 +19,7 @@ function dragStart(event: DragEvent, target: HTMLElement) {
 
 function dragOver(event: DragEvent) {
   event.preventDefault();
+
   if (event.dataTransfer) {
     event.dataTransfer.dropEffect = 'move';
   }
@@ -55,9 +57,7 @@ function drop(event: DragEvent, target: HTMLElement) {
 function dragEnd(_event: DragEvent, target: HTMLElement) {
   clearDragSource();
 
-  if (target.parentNode) {
-    $$('.over', target.parentNode).forEach(t => t.classList.remove('over'));
-  }
+  $$('.over', assertNotNull(target.parentNode)).forEach(t => t.classList.remove('over'));
 }
 
 export function initDraggables() {

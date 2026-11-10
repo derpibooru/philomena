@@ -4,22 +4,19 @@ defmodule PhilomenaWeb.Registration.TotpController do
   alias PhilomenaWeb.UserAuth
   alias Philomena.Users.User
   alias Philomena.Users
-  alias Philomena.Repo
 
   def edit(conn, _params) do
     user = conn.assigns.current_user
 
     case user.encrypted_otp_secret do
       nil ->
-        user
-        |> User.create_totp_secret_changeset()
-        |> Repo.update()
+        {:ok, _user} = Users.edit_totp(user)
 
         # Redirect to have the conn pick up the changes
         redirect(conn, to: ~p"/registrations/totp/edit")
 
       _ ->
-        changeset = Users.change_user(user)
+        changeset = Users.totp_changeset(user)
         secret = User.totp_secret(user)
         qrcode = User.totp_qrcode(user)
 
@@ -32,24 +29,32 @@ defmodule PhilomenaWeb.Registration.TotpController do
     end
   end
 
-  def update(conn, params) do
-    backup_codes = User.random_backup_codes()
+  def update(conn, %{"user" => %{"current_password" => _password}} = params) do
     user = conn.assigns.current_user
 
-    user
-    |> User.totp_changeset(params, backup_codes)
-    |> Repo.update()
-    |> case do
+    case Users.update_totp(user, params) do
       {:error, changeset} ->
-        secret = User.totp_secret(user)
-        qrcode = User.totp_qrcode(user)
-        render(conn, "edit.html", changeset: changeset, totp_secret: secret, totp_qrcode: qrcode)
+        render_edit(conn, user, changeset)
 
-      {:ok, user} ->
+      {:ok, user, backup_codes} ->
         conn
         |> put_flash(:totp_backup_codes, backup_codes)
         |> put_session(:user_return_to, ~p"/registrations/totp/edit")
         |> UserAuth.totp_auth_user(user, %{})
     end
+  end
+
+  def update(conn, _params), do: redirect(conn, to: ~p"/registrations/totp/edit")
+
+  # `edit` generates the secret; without one there is no QR code to re-render.
+  defp render_edit(conn, %{encrypted_otp_secret: nil}, _changeset),
+    do: redirect(conn, to: ~p"/registrations/totp/edit")
+
+  defp render_edit(conn, user, changeset) do
+    render(conn, "edit.html",
+      changeset: changeset,
+      totp_secret: User.totp_secret(user),
+      totp_qrcode: User.totp_qrcode(user)
+    )
   end
 end

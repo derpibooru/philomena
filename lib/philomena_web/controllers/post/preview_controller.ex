@@ -3,10 +3,10 @@ defmodule PhilomenaWeb.Post.PreviewController do
 
   alias PhilomenaWeb.MarkdownRenderer
   alias Philomena.Posts.Post
-  alias Philomena.Repo
+  alias Philomena.Users
 
   def create(conn, params) do
-    user = preload_awards(conn.assigns.current_user)
+    user = Users.preload_preview_awards(conn.assigns.current_user)
     body = to_string(params["body"])
     anonymous = params["anonymous"] == true
 
@@ -14,11 +14,5 @@ defmodule PhilomenaWeb.Post.PreviewController do
     rendered = MarkdownRenderer.render_one(post, conn)
 
     render(conn, "create.html", layout: false, post: post, body: rendered)
-  end
-
-  defp preload_awards(nil), do: nil
-
-  defp preload_awards(user) do
-    Repo.preload(user, awards: :badge)
   end
 end

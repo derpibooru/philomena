@@ -1,6 +1,6 @@
 defmodule PhilomenaWeb.Api.Json.Forum.TopicView do
   use PhilomenaWeb, :view
-  alias PhilomenaWeb.UserAttributionView
+  alias Philomena.Attribution.AnonymousName
 
   def render("index.json", %{topics: topics, total: total} = assigns) do
     %{
@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Api.Json.Forum.TopicView do
       user_id: if(not topic.anonymous, do: topic.user_id),
       author:
         if(topic.anonymous or is_nil(topic.user),
-          do: UserAttributionView.anonymous_name(topic),
+          do: AnonymousName.generate(topic),
           else: topic.user.name
         )
     }

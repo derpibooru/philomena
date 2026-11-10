@@ -1,148 +1,50 @@
 defmodule PhilomenaWeb.FilterController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.{Filters, Filters.Filter, Filters.Query, Tags.Tag}
-  alias PhilomenaQuery.Search
-  alias Philomena.Schema.TagList
-  alias Philomena.Repo
-  import Ecto.Query
+  alias Philomena.Filters
 
-  plug :load_and_authorize_resource, model: Filter, except: [:index], preload: :user
-  plug PhilomenaWeb.RequireUserPlug when action not in [:index, :show]
+  action_fallback PhilomenaWeb.FallbackController
 
   def index(conn, %{"fq" => fq}) do
-    user = conn.assigns.current_user
+    case Filters.query_filters(conn.assigns.actor, fq, conn.assigns.pagination) do
+      {:ok, filters} ->
+        render(conn, "index.html", title: "Filters", filters: filters)
 
-    fq
-    |> Query.compile(user: user)
-    |> render_index(conn, user)
-  end
-
-  def index(conn, _params) do
-    user = conn.assigns.current_user
-
-    my_filters =
-      if user do
-        Filter
-        |> where(user_id: ^user.id)
-        |> preload(:user)
-        |> Repo.all()
-      else
-        []
-      end
-
-    system_filters =
-      Filter
-      |> where(system: true)
-      |> preload(:user)
-      |> Repo.all()
-
-    render(conn, "index.html",
-      title: "Filters",
-      my_filters: my_filters,
-      system_filters: system_filters
-    )
-  end
-
-  defp render_index({:ok, query}, conn, user) do
-    filters =
-      Filter
-      |> Search.search_definition(
-        %{
-          query: %{
-            bool: %{
-              must: [query | filters(user)]
-            }
-          },
-          sort: [
-            %{name: :asc},
-            %{id: :desc}
-          ]
-        },
-        conn.assigns.pagination
-      )
-      |> Search.search_records(preload(Filter, [:user]))
-
-    render(conn, "index.html", title: "Filters", filters: filters)
-  end
-
-  defp render_index({:error, msg}, conn, _user) do
-    render(conn, "index.html", title: "Filters", error: msg, filters: [])
-  end
-
-  defp filters(user),
-    do: [%{bool: %{should: shoulds(user)}}]
-
-  defp shoulds(user) do
-    case user do
-      nil ->
-        anonymous_should()
-
-      user ->
-        user_should(user)
+      {:error, msg} ->
+        render(conn, "index.html", title: "Filters", error: msg, filters: [])
     end
   end
 
-  defp user_should(user),
-    do: anonymous_should() ++ [%{term: %{user_id: user.id}}]
-
-  defp anonymous_should(),
-    do: [%{term: %{public: true}}, %{term: %{system: true}}]
-
-  def show(conn, _params) do
-    filter = conn.assigns.filter
-
-    spoilered_tags =
-      Tag
-      |> where([t], t.id in ^filter.spoilered_tag_ids)
-      |> order_by(asc: :name)
-      |> Repo.all()
-
-    hidden_tags =
-      Tag
-      |> where([t], t.id in ^filter.hidden_tag_ids)
-      |> order_by(asc: :name)
-      |> Repo.all()
-
-    render(conn, "show.html",
-      title: "Showing Filter",
-      filter: filter,
-      spoilered_tags: spoilered_tags,
-      hidden_tags: hidden_tags
-    )
-  end
-
-  def new(conn, %{"based_on" => filter_id}) do
-    # The last line here is a hack to get Ecto to save a new
-    # model instead of trying to update the existing one.
-    filter =
-      Filter
-      |> where(id: ^filter_id)
-      |> where(
-        [f],
-        f.system == true or f.public == true or f.user_id == ^conn.assigns.current_user.id
+  def index(conn, _params) do
+    with {:ok, {my_filters, system_filters}} <-
+           Filters.list_filters(conn.assigns.actor, conn.assigns.scrivener) do
+      render(conn, "index.html",
+        title: "Filters",
+        my_filters: my_filters,
+        system_filters: system_filters
       )
-      |> Repo.one()
-      |> Kernel.||(%Filter{})
-      |> TagList.assign_tag_list(:spoilered_tag_ids, :spoilered_tag_list)
-      |> TagList.assign_tag_list(:hidden_tag_ids, :hidden_tag_list)
-      |> Map.put(:__meta__, %Ecto.Schema.Metadata{
-        state: :built,
-        source: "filters",
-        schema: Filter
-      })
-
-    changeset = Filters.change_filter(filter)
-    render(conn, "new.html", title: "New Filter", changeset: %{changeset | action: nil})
+    end
   end
 
-  def new(conn, _params) do
-    changeset = Filters.change_filter(%Filter{})
-    render(conn, "new.html", title: "New Filter", changeset: changeset)
+  def show(conn, %{"id" => id}) do
+    with {:ok, page} <- Filters.show_filter_page(conn.assigns.actor, id) do
+      render(conn, "show.html",
+        title: "Showing Filter",
+        filter: page.filter,
+        spoilered_tags: page.spoilered_tags,
+        hidden_tags: page.hidden_tags
+      )
+    end
+  end
+
+  def new(conn, params) do
+    with {:ok, changeset} <- Filters.new_filter(conn.assigns.actor, params["based_on"]) do
+      render(conn, "new.html", title: "New Filter", changeset: changeset)
+    end
   end
 
   def create(conn, %{"filter" => filter_params}) do
-    case Filters.create_filter(conn.assigns.current_user, filter_params) do
+    case Filters.create_filter(conn.assigns.actor, filter_params) do
       {:ok, filter} ->
         conn
         |> put_flash(:info, "Filter created successfully.")
@@ -150,47 +52,47 @@ defmodule PhilomenaWeb.FilterController do
 
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
+
+      error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    filter =
-      conn.assigns.filter
-      |> TagList.assign_tag_list(:spoilered_tag_ids, :spoilered_tag_list)
-      |> TagList.assign_tag_list(:hidden_tag_ids, :hidden_tag_list)
-
-    changeset = Filters.change_filter(filter)
-
-    render(conn, "edit.html", title: "Editing Filter", filter: filter, changeset: changeset)
+  def edit(conn, %{"id" => id}) do
+    with {:ok, {filter, changeset}} <- Filters.edit_filter(conn.assigns.actor, id) do
+      render(conn, "edit.html", title: "Editing Filter", filter: filter, changeset: changeset)
+    end
   end
 
-  def update(conn, %{"filter" => filter_params}) do
-    filter = conn.assigns.filter
-
-    case Filters.update_filter(filter, filter_params) do
+  def update(conn, %{"id" => id, "filter" => filter_params}) do
+    case Filters.update_filter(conn.assigns.actor, id, filter_params) do
       {:ok, filter} ->
         conn
         |> put_flash(:info, "Filter updated successfully.")
         |> redirect(to: ~p"/filters/#{filter}")
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", filter: filter, changeset: changeset)
+        render(conn, "edit.html", filter: changeset.data, changeset: changeset)
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    filter = conn.assigns.filter
-
-    case Filters.delete_filter(filter) do
+  def delete(conn, %{"id" => id}) do
+    case Filters.delete_filter(conn.assigns.actor, id) do
       {:ok, _filter} ->
         conn
         |> put_flash(:info, "Filter deleted successfully.")
         |> redirect(to: ~p"/filters")
 
-      _error ->
+      {:error, %Ecto.Changeset{} = changeset} ->
         conn
         |> put_flash(:error, "Filter is still in use, not deleted.")
-        |> redirect(to: ~p"/filters/#{filter}")
+        |> redirect(to: ~p"/filters/#{changeset.data}")
+
+      error ->
+        error
     end
   end
 end

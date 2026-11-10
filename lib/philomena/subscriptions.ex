@@ -8,7 +8,8 @@ defmodule Philomena.Subscriptions do
     This is the name of the object field in the subscription table.
     For `m:Philomena.Images`, this would be `:image_id`.
 
-  The following functions and documentation are produced in the calling module:
+  The following internal persistence functions are produced in the calling
+  module:
   - `subscribed?/2`
   - `subscriptions/2`
   - `create_subscription/2`
@@ -17,8 +18,8 @@ defmodule Philomena.Subscriptions do
   """
 
   import Ecto.Query, warn: false
-  alias Ecto.Multi
 
+  alias Philomena.Multi
   alias Philomena.Repo
 
   defmacro __using__(opts) do
@@ -41,15 +42,8 @@ defmodule Philomena.Subscriptions do
     subscription_module = Module.concat(__CALLER__.module, Subscription)
 
     quote do
-      @doc """
-      Returns whether the user is currently subscribed to this object.
-
-      ## Examples
-
-          iex> subscribed?(object, user)
-          false
-
-      """
+      @doc false
+      @spec subscribed?(struct(), Philomena.Users.User.t() | nil) :: boolean()
       def subscribed?(object, user) do
         Philomena.Subscriptions.subscribed?(
           unquote(subscription_module),
@@ -59,16 +53,10 @@ defmodule Philomena.Subscriptions do
         )
       end
 
-      @doc """
-      Returns a map containing whether the user is currently subscribed to any of
-      the provided objects.
-
-      ## Examples
-
-          iex> subscriptions([%{id: 1}, %{id: 2}], user)
-          %{2 => true}
-
-      """
+      @doc false
+      @spec subscriptions(Enumerable.t(), Philomena.Users.User.t() | nil) :: %{
+              optional(term()) => true
+            }
       def subscriptions(objects, user) do
         Philomena.Subscriptions.subscriptions(
           unquote(subscription_module),
@@ -78,18 +66,9 @@ defmodule Philomena.Subscriptions do
         )
       end
 
-      @doc """
-      Creates a subscription.
-
-      ## Examples
-
-          iex> create_subscription(object, user)
-          {:ok, %Subscription{}}
-
-          iex> create_subscription(object, user)
-          {:error, %Ecto.Changeset{}}
-
-      """
+      @doc false
+      @spec create_subscription(struct(), Philomena.Users.User.t()) ::
+              {:ok, struct()} | {:error, Ecto.Changeset.t()}
       def create_subscription(object, user) do
         Philomena.Subscriptions.create_subscription(
           unquote(subscription_module),
@@ -99,18 +78,8 @@ defmodule Philomena.Subscriptions do
         )
       end
 
-      @doc """
-      Deletes a subscription and removes notifications for it.
-
-      ## Examples
-
-          iex> delete_subscription(object, user)
-          {:ok, %Subscription{}}
-
-          iex> delete_subscription(object, user)
-          {:error, %Ecto.Changeset{}}
-
-      """
+      @doc false
+      @spec delete_subscription(struct(), Philomena.Users.User.t()) :: {:ok, struct()}
       def delete_subscription(object, user) do
         unquote(on_delete)
 
@@ -122,21 +91,13 @@ defmodule Philomena.Subscriptions do
         )
       end
 
-      @doc """
-      Creates a subscription inside the `m:Ecto.Multi` flow if `user` is not nil
-      and `field` in `user` is `true`.
-
-      Valid values for field are `:watch_on_reply`, `:watch_on_upload`, `:watch_on_new_topic`.
-
-      ## Examples
-
-          iex> maybe_subscribe_on(multi, :image, user, :watch_on_reply)
-          %Ecto.Multi{}
-
-          iex> maybe_subscribe_on(multi, :topic, nil, :watch_on_reply)
-          %Ecto.Multi{}
-
-      """
+      @doc false
+      @spec maybe_subscribe_on(
+              Philomena.Multi.t(),
+              Philomena.Multi.name(),
+              Philomena.Users.User.t() | nil,
+              :watch_on_reply | :watch_on_upload | :watch_on_new_topic
+            ) :: Philomena.Multi.t()
       def maybe_subscribe_on(multi, change_name, user, field) do
         Philomena.Subscriptions.maybe_subscribe_on(multi, __MODULE__, change_name, user, field)
       end
@@ -144,6 +105,7 @@ defmodule Philomena.Subscriptions do
   end
 
   @doc false
+  @spec subscribed?(module(), atom(), struct(), Philomena.Users.User.t() | nil) :: boolean()
   def subscribed?(subscription_module, field_name, object, user) do
     case user do
       nil ->
@@ -157,6 +119,9 @@ defmodule Philomena.Subscriptions do
   end
 
   @doc false
+  @spec subscriptions(module(), atom(), Enumerable.t(), Philomena.Users.User.t() | nil) :: %{
+          optional(term()) => true
+        }
   def subscriptions(subscription_module, field_name, objects, user) do
     case user do
       nil ->
@@ -173,6 +138,8 @@ defmodule Philomena.Subscriptions do
   end
 
   @doc false
+  @spec create_subscription(module(), atom(), struct(), Philomena.Users.User.t()) ::
+          {:ok, struct()} | {:error, Ecto.Changeset.t()}
   def create_subscription(subscription_module, field_name, object, user) do
     struct!(subscription_module, [{field_name, object.id}, {:user_id, user.id}])
     |> subscription_module.changeset(%{})
@@ -180,16 +147,30 @@ defmodule Philomena.Subscriptions do
   end
 
   @doc false
+  @spec delete_subscription(module(), atom(), struct(), Philomena.Users.User.t()) ::
+          {:ok, struct()}
   def delete_subscription(subscription_module, field_name, object, user) do
-    struct!(subscription_module, [{field_name, object.id}, {:user_id, user.id}])
-    |> Repo.delete()
+    subscription = struct!(subscription_module, [{field_name, object.id}, {:user_id, user.id}])
+
+    subscription_module
+    |> where([s], field(s, ^field_name) == ^object.id and s.user_id == ^user.id)
+    |> Repo.delete_all()
+
+    {:ok, subscription}
   end
 
   @doc false
+  @spec maybe_subscribe_on(
+          Multi.t(),
+          module(),
+          Multi.name(),
+          Philomena.Users.User.t() | nil,
+          :watch_on_reply | :watch_on_upload | :watch_on_new_topic
+        ) :: Multi.t()
   def maybe_subscribe_on(multi, module, change_name, user, field)
       when field in [:watch_on_reply, :watch_on_upload, :watch_on_new_topic] do
     case user do
-      %{^field => true} ->
+      %{settings: %{^field => true}} ->
         Multi.run(multi, :subscribe, fn _repo, changes ->
           object = Map.fetch!(changes, change_name)
           module.create_subscription(object, user)

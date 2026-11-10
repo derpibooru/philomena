@@ -3,44 +3,36 @@ defmodule PhilomenaWeb.Image.ReportController do
 
   alias PhilomenaWeb.ReportController
   alias PhilomenaWeb.ReportView
-  alias Philomena.Images.Image
-  alias Philomena.Reports.Report
   alias Philomena.Reports
 
-  plug PhilomenaWeb.FilterBannedUsersPlug
-  plug PhilomenaWeb.UserAttributionPlug
   plug PhilomenaWeb.CaptchaPlug
   plug PhilomenaWeb.CheckCaptchaPlug when action in [:create]
-  plug PhilomenaWeb.CanaryMapPlug, new: :show, create: :show
 
-  plug :load_and_authorize_resource,
-    model: Image,
-    id_name: "image_id",
-    persisted: true,
-    preload: [:sources, tags: :aliases]
+  action_fallback PhilomenaWeb.FallbackController
 
-  def new(conn, _params) do
-    image = conn.assigns.image
-    action = ~p"/images/#{image}/reports"
+  def new(conn, %{"image_id" => image_id}) do
+    with {:ok, form} <- Reports.new_report(conn.assigns.actor, {:image, image_id}) do
+      image = form.target
+      action = ~p"/images/#{image}/reports"
 
-    changeset =
-      %Report{reportable_type: "Image", reportable_id: image.id}
-      |> Reports.change_report()
-
-    conn
-    |> put_view(ReportView)
-    |> render("new.html",
-      title: "Reporting Image",
-      reportable: image,
-      changeset: changeset,
-      action: action
-    )
+      conn
+      |> put_view(ReportView)
+      |> render("new.html",
+        title: "Reporting Image",
+        subject: image,
+        changeset: form.changeset,
+        rules: form.rules,
+        action: action
+      )
+    end
   end
 
-  def create(conn, params) do
-    image = conn.assigns.image
-    action = ~p"/images/#{image}/reports"
-
-    ReportController.create(conn, action, "Image", image, params)
+  def create(conn, %{"image_id" => image_id} = params) do
+    ReportController.create(
+      conn,
+      {:image, image_id},
+      fn image -> ~p"/images/#{image}/reports" end,
+      params
+    )
   end
 end

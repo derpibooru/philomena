@@ -1,0 +1,9 @@
+h1 Deactivate Account
+- contact_email = "ops@derpibooru.org"
+.block
+    .block__content.warning
+        p.walloftext
+            ' Deactivating your account will prevent you from logging into your account. If you ever wish to re-activate your account later on, you may do so at any time. If you wish to wipe your personally identifiable data as well, please contact <a href="mailto:#{contact_email}">#{contact_email}</a>
+.deactivations__button-container
+    = button_to "Back", ~p"/registrations/edit", class: "button"
+    = button_to "Confirm", ~p"/deactivations", class: ["button", "button--state-danger", "button--separate-left"], method: :delete, data: [confirm: "Are you sure you want to deactivate your account?"]

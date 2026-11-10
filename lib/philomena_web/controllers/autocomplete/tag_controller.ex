@@ -1,9 +1,7 @@
 defmodule PhilomenaWeb.Autocomplete.TagController do
   use PhilomenaWeb, :controller
 
-  alias PhilomenaQuery.Search
-  alias Philomena.Tags.Tag
-  import Ecto.Query
+  alias Philomena.Tags
 
   def show(conn, %{"vsn" => "2"} = params), do: show_v2(conn, params)
   def show(conn, params), do: show_v1(conn, params)
@@ -16,7 +14,11 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
   defp show_v2(conn, params) do
     with {:ok, term} <- extract_term(params),
          {:ok, limit} <- extract_limit(params) do
-      suggestions = search(term, limit)
+      suggestions =
+        term
+        |> Tags.autocomplete_tags(limit)
+        |> Enum.map(&Map.from_struct/1)
+
       json(conn, %{suggestions: suggestions})
     else
       {:error, message} ->
@@ -55,39 +57,6 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
     end
   end
 
-  @spec search(String.t(), integer()) :: [map()]
-  defp search(term, limit) do
-    Tag
-    |> Search.search_definition(
-      %{
-        query: %{
-          bool: %{
-            should: [
-              %{prefix: %{name: term}},
-              %{prefix: %{name_in_namespace: term}}
-            ]
-          }
-        },
-        sort: %{images: :desc}
-      },
-      %{page_size: 10}
-    )
-    |> Search.search_records(preload(Tag, :aliased_tag))
-    |> Enum.map(
-      &%{
-        :alias => if(is_nil(&1.aliased_tag), do: nil, else: &1.name),
-        canonical: if(is_nil(&1.aliased_tag), do: &1.name, else: &1.aliased_tag.name),
-        images: if(is_nil(&1.aliased_tag), do: &1.images_count, else: &1.aliased_tag.images_count)
-      }
-    )
-    |> Enum.filter(&(&1.images > 0))
-    # Sometimes we have data desynchronization between OpenSearch and Postgres due
-    # to bugs. This client-side sort serves as a patch to make sure we have correct
-    # ranking of the autocomplete results even in the case of desynchronization.
-    |> Enum.sort_by(& &1.images, :desc)
-    |> Enum.take(limit)
-  end
-
   # Version 1 is kept for backwards compatibility with the older versions of
   # the frontend application that may still be cached in user's browsers. Don't
   # change this code! All the new development should be done in the `v2` version.
@@ -103,28 +72,16 @@ defmodule PhilomenaWeb.Autocomplete.TagController do
           []
 
         {:ok, term} ->
-          Tag
-          |> Search.search_definition(
-            %{
-              query: %{
-                bool: %{
-                  should: [
-                    %{prefix: %{name: term}},
-                    %{prefix: %{name_in_namespace: term}}
-                  ]
-                }
-              },
-              sort: %{images: :desc}
-            },
-            %{page_size: 10}
-          )
-          |> Search.search_records(preload(Tag, :aliased_tag))
-          |> Enum.map(&(&1.aliased_tag || &1))
-          |> Enum.uniq_by(& &1.id)
-          |> Enum.filter(&(&1.images_count > 0))
-          |> Enum.sort_by(&(-&1.images_count))
+          term
+          |> Tags.autocomplete_tags()
+          |> Enum.uniq_by(& &1.canonical)
           |> Enum.take(5)
-          |> Enum.map(&%{label: "#{&1.name} (#{&1.images_count})", value: &1.name})
+          |> Enum.map(
+            &%{
+              label: "#{&1.canonical} (#{&1.images})",
+              value: &1.canonical
+            }
+          )
       end
 
     conn

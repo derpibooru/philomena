@@ -1,5 +1,5 @@
 .flex.flex--centered.header--secondary__admin-links.stretched-mobile-links.js-staff-action
-  = if manages_users?(@conn) do
+  = if staff?(@conn) do
     .dropdown.hide-mobile
       a.header__link title="Admin"
         ' A

@@ -1,163 +1,137 @@
 defmodule PhilomenaWeb.Profile.CommissionController do
   use PhilomenaWeb, :controller
 
-  alias Philomena.Commissions.Commission
   alias Philomena.Commissions
   alias PhilomenaWeb.MarkdownRenderer
-  alias Philomena.Users.User
 
-  plug PhilomenaWeb.FilterBannedUsersPlug when action in [:new, :create, :edit, :update, :delete]
+  action_fallback PhilomenaWeb.FallbackController
 
-  plug :load_resource,
-    model: User,
-    id_name: "profile_id",
-    id_field: "slug",
-    preload: [
-      :verified_links,
-      commission: [
-        sheet_image: [:sources, tags: :aliases],
-        user: [awards: :badge],
-        items: [example_image: [:sources, tags: :aliases]]
-      ]
-    ],
-    persisted: true
+  def show(conn, %{"profile_id" => slug}) do
+    with {:ok, commission} <-
+           Commissions.show_commission(conn.assigns.actor, slug) do
+      item_descriptions =
+        commission.items
+        |> Enum.map(&%{body: &1.description})
+        |> MarkdownRenderer.render_collection(conn)
 
-  plug :ensure_commission when action in [:show, :edit, :update, :delete]
-  plug :ensure_no_commission when action in [:new, :create]
-  plug :ensure_correct_user when action in [:new, :create, :edit, :update, :delete]
-  plug :ensure_links_verified when action in [:new, :create, :edit, :update, :delete]
+      item_add_ons =
+        commission.items
+        |> Enum.map(&%{body: &1.add_ons})
+        |> MarkdownRenderer.render_collection(conn)
 
-  def show(conn, _params) do
-    commission = conn.assigns.user.commission
+      [information, contact, will_create, will_not_create] =
+        MarkdownRenderer.render_collection(
+          [
+            %{body: commission.information || ""},
+            %{body: commission.contact || ""},
+            %{body: commission.will_create || ""},
+            %{body: commission.will_not_create || ""}
+          ],
+          conn
+        )
 
-    items =
-      commission.items
-      |> Enum.sort(&(Decimal.compare(&1.base_price, &2.base_price) != :gt))
+      rendered = %{
+        information: information,
+        contact: contact,
+        will_create: will_create,
+        will_not_create: will_not_create
+      }
 
-    item_descriptions =
-      items
-      |> Enum.map(&%{body: &1.description})
-      |> MarkdownRenderer.render_collection(conn)
+      items = Enum.zip([item_descriptions, item_add_ons, commission.items])
 
-    item_add_ons =
-      items
-      |> Enum.map(&%{body: &1.add_ons})
-      |> MarkdownRenderer.render_collection(conn)
-
-    [information, contact, will_create, will_not_create] =
-      MarkdownRenderer.render_collection(
-        [
-          %{body: commission.information || ""},
-          %{body: commission.contact || ""},
-          %{body: commission.will_create || ""},
-          %{body: commission.will_not_create || ""}
-        ],
-        conn
+      render(conn, "show.html",
+        title: "Showing Commission",
+        user: commission.user,
+        rendered: rendered,
+        commission: commission,
+        items: items,
+        layout_class: "layout--wide"
       )
-
-    rendered = %{
-      information: information,
-      contact: contact,
-      will_create: will_create,
-      will_not_create: will_not_create
-    }
-
-    items = Enum.zip([item_descriptions, item_add_ons, items])
-
-    render(conn, "show.html",
-      title: "Showing Commission",
-      rendered: rendered,
-      commission: commission,
-      items: items,
-      layout_class: "layout--wide"
-    )
+    end
   end
 
-  def new(conn, _params) do
-    changeset = Commissions.change_commission(%Commission{})
-    render(conn, "new.html", title: "New Commission", changeset: changeset)
+  def new(conn, %{"profile_id" => slug}) do
+    case Commissions.new_commission(conn.assigns.actor, slug) do
+      {:ok, %Ecto.Changeset{data: commission} = changeset} ->
+        render(conn, "new.html",
+          title: "New Commission",
+          user: commission.user,
+          changeset: changeset
+        )
+
+      {:error, :no_verified_links} ->
+        require_verified_link(conn)
+
+      error ->
+        error
+    end
   end
 
-  def create(conn, %{"commission" => commission_params}) do
-    user = conn.assigns.current_user
-
-    case Commissions.create_commission(user, commission_params) do
-      {:ok, _commission} ->
+  def create(conn, %{"profile_id" => slug, "commission" => commission_params}) do
+    case Commissions.create_commission(conn.assigns.actor, slug, commission_params) do
+      {:ok, %{user: user} = _commission} ->
         conn
         |> put_flash(:info, "Commission successfully created.")
         |> redirect(to: ~p"/profiles/#{user}/commission")
 
-      {:error, changeset} ->
-        render(conn, "new.html", changeset: changeset)
+      {:error, %Ecto.Changeset{data: commission} = changeset} ->
+        render(conn, "new.html", user: commission.user, changeset: changeset)
+
+      {:error, :no_verified_links} ->
+        require_verified_link(conn)
+
+      error ->
+        error
     end
   end
 
-  def edit(conn, _params) do
-    changeset = Commissions.change_commission(conn.assigns.user.commission)
-    render(conn, "edit.html", title: "Editing Commission", changeset: changeset)
+  def edit(conn, %{"profile_id" => slug}) do
+    case Commissions.edit_commission(conn.assigns.actor, slug) do
+      {:ok, %Ecto.Changeset{data: commission} = changeset} ->
+        render(conn, "edit.html",
+          title: "Editing Commission",
+          user: commission.user,
+          changeset: changeset
+        )
+
+      error ->
+        error
+    end
   end
 
-  def update(conn, %{"commission" => commission_params}) do
-    commission = conn.assigns.user.commission
-
-    case Commissions.update_commission(commission, commission_params) do
-      {:ok, _commission} ->
+  def update(conn, %{"profile_id" => slug, "commission" => commission_params}) do
+    case Commissions.update_commission(conn.assigns.actor, slug, commission_params) do
+      {:ok, %{user: user} = _commission} ->
         conn
         |> put_flash(:info, "Commission successfully updated.")
-        |> redirect(to: ~p"/profiles/#{conn.assigns.user}/commission")
+        |> redirect(to: ~p"/profiles/#{user}/commission")
 
-      {:error, changeset} ->
-        render(conn, "edit.html", changeset: changeset)
+      {:error, %Ecto.Changeset{data: commission} = changeset} ->
+        render(conn, "edit.html", user: commission.user, changeset: changeset)
+
+      error ->
+        error
     end
   end
 
-  def delete(conn, _params) do
-    commission = conn.assigns.user.commission
+  def delete(conn, %{"profile_id" => slug}) do
+    case Commissions.delete_commission(conn.assigns.actor, slug) do
+      {:ok, _commission} ->
+        conn
+        |> put_flash(:info, "Commission deleted successfully.")
+        |> redirect(to: ~p"/commissions")
 
-    {:ok, _commission} = Commissions.delete_commission(commission)
+      error ->
+        error
+    end
+  end
 
+  defp require_verified_link(conn) do
     conn
-    |> put_flash(:info, "Commission deleted successfully.")
+    |> put_flash(
+      :error,
+      "You must have a verified artist link to create a commission listing."
+    )
     |> redirect(to: ~p"/commissions")
-  end
-
-  defp ensure_commission(conn, _opts) do
-    if is_nil(conn.assigns.user.commission) do
-      PhilomenaWeb.NotFoundPlug.call(conn)
-    else
-      conn
-    end
-  end
-
-  defp ensure_no_commission(conn, _opts) do
-    if is_nil(conn.assigns.user.commission) do
-      conn
-    else
-      PhilomenaWeb.NotAuthorizedPlug.call(conn)
-    end
-  end
-
-  defp ensure_correct_user(conn, _opts) do
-    user_id = conn.assigns.user.id
-
-    case conn.assigns.current_user do
-      %{id: ^user_id} -> conn
-      %{role: role} when role in ["admin", "moderator"] -> conn
-      _other -> PhilomenaWeb.NotAuthorizedPlug.call(conn)
-    end
-  end
-
-  defp ensure_links_verified(conn, _opts) do
-    if Enum.any?(conn.assigns.user.verified_links) do
-      conn
-    else
-      conn
-      |> put_flash(
-        :error,
-        "You must have a verified artist link to create a commission listing."
-      )
-      |> redirect(to: ~p"/commissions")
-      |> halt()
-    end
   end
 end

@@ -1,0 +1,9 @@
+[package]
+name = "mediaproc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tarpc = { version = "0.38", features = ["full"] }
+tokio = { version = "1.54", features = ["full"] }

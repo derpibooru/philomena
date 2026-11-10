@@ -1,22 +1,25 @@
 h2 Do-Not-Post Requests
 
-= form_for :dnp_entry, ~p"/admin/dnp_entries", [method: "get", class: "hform"], fn f ->
+= form_for @changeset, ~p"/admin/dnp_entries", [as: :eq, method: "get", class: "hform"], fn f ->
   .field
-    = text_input f, :eq, name: :eq, value: @conn.params["eq"], class: "input hform__text", placeholder: "Search query", autocapitalize: "none", spellcheck: "false"
+    = text_input f, :text, class: "input hform__text", placeholder: "Search query", autocapitalize: "none", spellcheck: "false"
+    = for state <- input_value(f, :states) || [] do
+      = hidden_input f, :states, name: "#{f.name}[states][]", value: state
     = submit "Search", class: "hform__button button"
 
 - route = fn p -> ~p"/admin/dnp_entries?#{p}" end
-- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, params: [states: state_param(@conn.params["states"])]
+- pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @dnp_entries, route: route, params: [eq: @conn.params["eq"]]
 
 .block
   .block__header
     .page__pagination = pagination
 
     span.block__header__title Display only:
-    => link "All Open", to: ~p"/admin/dnp_entries?#{[states: ~W(requested claimed rescinded acknowledged)]}"
-    => link "Listed", to: ~p"/admin/dnp_entries?#{[states: ~W(listed)]}"
-    => link "Rescinded", to: ~p"/admin/dnp_entries?#{[states: ~W(rescinded acknowledged)]}"
-    => link "Closed", to: ~p"/admin/dnp_entries?#{[states: ~W(closed)]}"
+    => link "All Entries", to: ~p"/admin/dnp_entries?#{[eq: [states: ~W(requested claimed listed rescinded acknowledged closed)]]}"
+    => link "All Open", to: ~p"/admin/dnp_entries?#{[eq: [states: ~W(requested claimed rescinded acknowledged)]]}"
+    => link "Listed", to: ~p"/admin/dnp_entries?#{[eq: [states: ~W(listed)]]}"
+    => link "Rescinded", to: ~p"/admin/dnp_entries?#{[eq: [states: ~W(rescinded acknowledged)]]}"
+    => link "Closed", to: ~p"/admin/dnp_entries?#{[eq: [states: ~W(closed)]]}"
 
   .block__content
     table.table

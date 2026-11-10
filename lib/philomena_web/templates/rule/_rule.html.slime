@@ -1,0 +1,70 @@
+- admin_only_rule = @rule.hidden or @rule.internal
+- modifiers = if @rule.highlight, do: " rule--important", else: ""
+- modifiers = if admin_only_rule, do: modifiers <> " rule--admin", else: modifiers
+
+article class="rule#{modifiers}" id="#{@rule.position}"
+  header.rule__header
+    h2.rule__title
+      = if admin_only_rule do
+        = @rule.name
+      - else
+        = @rule.name
+        ' :
+        = @rule.title
+
+    = if @rule.highlight or admin_only_rule do
+      .rule__badges
+        = if @rule.highlight do
+          span.rule__badge.rule__badge--important
+            i.fa.fa-exclamation-triangle>
+            ' Important
+        = if @rule.hidden do
+          span.rule__badge.rule__badge--admin
+            i.fa.fa-eye-slash>
+            ' Hidden
+        = if @rule.internal do
+          span.rule__badge.rule__badge--admin
+            i.fa.fa-gear>
+            ' Internal
+
+  .rule__body
+    = if admin_only_rule and @rule.short_description != "" do
+      p
+        strong = @rule.short_description
+    .walloftext
+      = @rule.description
+
+  = if @rule.example != "" do
+    .rule__example.hidden class="js-rule-example-toggle-#{@rule.id}"
+      h4 Examples
+      .walloftext = @rule.example
+
+  footer.rule__footer
+    = unless @show_timestamp do
+      a.button.button--state-primary href="##{@rule.position}" title="Link to Rule"
+        span.small-text
+          i.fa.fa-fw.fa-link
+
+    = if @rule.example != "" do
+      a.button.button--state-primary href="#" data-click-toggle=".js-rule-example-toggle-#{@rule.id}" title="View Examples"
+        span.small-text
+          i.fa.fa-eye>
+          span View Examples
+
+    = unless @show_timestamp do
+      = link to: ~p"/rules/#{@rule}", class: "button button--state-primary" do
+        span.small-text
+          i.fa.fa-circle-info>
+          ' More Details
+
+    = if can?(@conn, :edit, @rule) do
+      a.button.button--state-warning href=~p"/rules/#{@rule}/edit" title="Edit Rule"
+        span.small-text
+          i.fa.fa-edit>
+          ' Edit
+
+    = if @show_timestamp do
+      span.rule__timestamp.small-text
+        i.fa.fa-clock>
+        ' Last updated
+        = pretty_time @rule.updated_at

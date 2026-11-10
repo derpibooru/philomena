@@ -13,11 +13,19 @@ defmodule Philomena.Application do
       # Start the Ecto repository
       Philomena.Repo,
 
+      # Search write-target tracking, so document writes fan out to both
+      # indices during a search index migration. Must start before anything
+      # which writes documents (the endpoint and the Exq workers).
+      {PhilomenaQuery.Search.WriteTargets, []},
+
       # Background queueing system
       Philomena.ExqSupervisor,
 
       # Mailer
       {Task.Supervisor, name: Philomena.AsyncEmailSupervisor},
+
+      # Image upload processing
+      {Task.Supervisor, name: Philomena.ImageUploadSupervisor},
 
       # Starts a worker by calling: Philomena.Worker.start_link(arg)
       # {Philomena.Worker, arg},
@@ -32,12 +40,15 @@ defmodule Philomena.Application do
          ]
        ]},
 
-      # Advert update batching
+      # Updating certain high-traffic counters on every action is unnecessary
+      # and creates a large volume of dead database rows. These server modules
+      # collect updates asynchronously and submit periodic batches of updates
+      # to the database, reducing churn.
       Philomena.Adverts.Server,
+      Philomena.UserFingerprints.Server,
+      Philomena.UserIps.Server,
 
       # Start the endpoint when the application starts
-      PhilomenaWeb.UserFingerprintUpdater,
-      PhilomenaWeb.UserIpUpdater,
       PhilomenaWeb.Endpoint
     ]
 
@@ -56,8 +67,9 @@ defmodule Philomena.Application do
 
   # Redis adapter really really wants you to have a unique node name,
   # so just fake one if iex is being started
+  # sobelow_skip ["DOS.StringToAtom"]
   defp valid_node_name(node) when node in [nil, :nonode@nohost],
-    do: Base.encode16(:crypto.strong_rand_bytes(6))
+    do: String.to_atom(Base.encode16(:crypto.strong_rand_bytes(6)))
 
   defp valid_node_name(node), do: node
 

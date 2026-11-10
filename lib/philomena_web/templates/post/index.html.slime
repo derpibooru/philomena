@@ -2,7 +2,17 @@ h1 Posts
 
 = form_for :posts, ~p"/posts", [method: "get", class: "hform", enforce_utf8: false], fn f ->
   .field
-    = text_input f, :pq, name: :pq, value: @conn.params["pq"], class: "input hform__text", placeholder: "Search posts", autocapitalize: "none", spellcheck: "false"
+    = text_input f, :pq, name: :pq, value: @conn.params["pq"],
+      class: "input hform__text",
+      placeholder: "Search posts",
+      autocapitalize: "none",
+      spellcheck: "false",
+      autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+      inputmode: "search",
+      data: [ \
+        autocomplete: "properties",
+      ]
+
     = submit "Search", class: "hform__button button"
 
   .fieldlabel
@@ -17,7 +27,7 @@ h2 Search Results
     - route = fn p -> ~p"/posts?#{p}" end
     - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @posts, route: route, params: [pq: @conn.params["pq"]], conn: @conn
 
-    = for {body, post} <- @posts, post.topic.hidden_from_users == false and can_view_communication?(@conn, post) do
+    = for {body, post} <- @posts do
       div
         h3
           =<> link post.topic.forum.name, to: ~p"/forums/#{post.topic.forum}"
@@ -82,6 +92,13 @@ table.table
         code = link "author:Joey", to: ~p"/posts?#{[pq: "author:Joey"]}"
     tr
       td
+        code author_id
+      td Literal
+      td Matches posts with the specified author_id. Anonymous users will never match this term.
+      td
+        code = link "author_id:211190", to: ~p"/posts?#{[pq: "author_id:211190"]}"
+    tr
+      td
         code body
       td Full Text
       td Matches the body of this post. This is the default field.
@@ -138,13 +155,6 @@ table.table
       td Matches the creation or last edit time of this post.
       td
         code = link "updated_at.gte:2 weeks ago", to: ~p"/posts?#{[pq: "updated_at.gte:2 weeks ago"]}"
-    tr
-      td
-        code user_id
-      td Literal
-      td Matches posts with the specified user_id. Anonymous users will never match this term.
-      td
-        code = link "user_id:211190", to: ~p"/posts?#{[pq: "user_id:211190"]}"
     tr
       td
         code forum

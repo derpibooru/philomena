@@ -6,18 +6,21 @@ defmodule Philomena.Conversations.Message do
   alias Philomena.Users.User
   alias Philomena.Schema.Approval
 
+  @type t :: %__MODULE__{}
+
   schema "messages" do
     belongs_to :conversation, Conversation
     belongs_to :from, User
 
     field :body, :string
-    field :approved, :boolean, default: false
+    field :approved, :boolean, default: true
+    field :became_unapproved?, :boolean, virtual: true, default: false
 
     timestamps(inserted_at: :created_at, type: :utc_datetime)
   end
 
   @doc false
-  def changeset(message, attrs) do
+  def changeset(message, attrs \\ %{}) do
     message
     |> cast(attrs, [])
     |> validate_required([])
@@ -35,6 +38,8 @@ defmodule Philomena.Conversations.Message do
 
   @doc false
   def approve_changeset(message) do
-    change(message, approved: true)
+    message
+    |> change()
+    |> Approval.approve_changeset()
   end
 end

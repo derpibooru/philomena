@@ -40,6 +40,60 @@ defmodule PhilomenaQuery.Search.Api do
   end
 
   @doc """
+  Get the settings, mappings and aliases of the index named `name`.
+
+  `name` may be an index name, an alias name, or a comma-separated list of either;
+  the response maps each matched physical index name to its definition. Responds
+  with status 404 if no index matches.
+
+  https://opensearch.org/docs/latest/api-reference/index-apis/get-index/
+  """
+  @spec get_index(server_url(), index_name()) :: Client.result()
+  def get_index(url, name) do
+    url
+    |> prepare_url([name])
+    |> Client.get()
+  end
+
+  @doc """
+  Get every alias in the cluster, as a map of physical index name to its aliases.
+
+  https://opensearch.org/docs/latest/api-reference/index-apis/alias/
+  """
+  @spec get_all_aliases(server_url()) :: Client.result()
+  def get_all_aliases(url) do
+    url
+    |> prepare_url(["_alias"])
+    |> Client.get()
+  end
+
+  @doc """
+  Atomically update aliases with the given `%{actions: [...]}` body. All actions
+  (`add`, `remove`) apply in a single cluster state update, so readers never
+  observe an alias with zero or two indices mid-swap.
+
+  https://opensearch.org/docs/latest/api-reference/index-apis/update-alias/
+  """
+  @spec update_aliases(server_url(), map()) :: Client.result()
+  def update_aliases(url, body) do
+    url
+    |> prepare_url(["_aliases"])
+    |> Client.post(body)
+  end
+
+  @doc """
+  Refresh the index named `name`, making previously indexed documents visible to search.
+
+  https://opensearch.org/docs/latest/api-reference/index-apis/refresh/
+  """
+  @spec refresh_index(server_url(), index_name()) :: Client.result()
+  def refresh_index(url, name) do
+    url
+    |> prepare_url([name, "_refresh"])
+    |> Client.post(%{})
+  end
+
+  @doc """
   Update the index named `name` with the given `properties`.
 
   https://opensearch.org/docs/latest/api-reference/index-apis/put-mapping/
@@ -103,6 +157,22 @@ defmodule PhilomenaQuery.Search.Api do
   end
 
   @doc """
+  Synchronously delete every document matching `body` from the index named `name`.
+
+  Sets `conflicts` to `proceed` and `refresh` to `true`, so the deletions are visible to
+  search as soon as the call returns.
+
+  https://opensearch.org/docs/latest/api-reference/document-apis/delete-by-query/
+  """
+  @spec delete_by_query(server_url(), index_name(), map()) :: Client.result()
+  def delete_by_query(url, name, body) do
+    url
+    |> prepare_url([name, "_delete_by_query"])
+    |> append_query_string(%{conflicts: "proceed", refresh: "true"})
+    |> Client.post(body)
+  end
+
+  @doc """
   Search for documents in index named `name` with `query`.
 
   https://opensearch.org/docs/latest/api-reference/search/
@@ -111,7 +181,7 @@ defmodule PhilomenaQuery.Search.Api do
   def search(url, name, body) do
     url
     |> prepare_url([name, "_search"])
-    |> Client.get(body)
+    |> Client.post(body)
   end
 
   @doc """
@@ -123,7 +193,7 @@ defmodule PhilomenaQuery.Search.Api do
   def msearch(url, lines) do
     url
     |> prepare_url(["_msearch"])
-    |> Client.get(lines)
+    |> Client.post(lines)
   end
 
   @spec prepare_url(String.t(), [String.t()]) :: String.t()

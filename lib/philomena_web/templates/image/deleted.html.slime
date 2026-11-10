@@ -29,7 +29,7 @@
       ' Here's the
       => link "tagging guidelines", to: "/pages/tags"
       ' and
-      = link "rules of the site", to: "/pages/rules"
+      = link "rules of the site", to: "/rules"
       ' . Other useful links can be found at the bottom of the page.
 
 = if can?(@conn, :hide, @image) do

@@ -1,44 +1,45 @@
-elixir:
-  route = fn p -> ~p"/conversations?#{p}" end
-  pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @conversations, route: route, conn: @conn
-
 h1 My Conversations
-.block
-  .block__header.page__header
-    .page__pagination = pagination
+= if @changeset.action do
+  .alert.alert-danger Invalid conversation filter.
+= if not is_nil(@conversations) do
+  - route = fn p -> ~p"/conversations?#{p}" end
+  - pagination = render PhilomenaWeb.PaginationView, "_pagination.html", page: @conversations, route: route, conn: @conn
+  .block
+    .block__header.page__header
+      .page__pagination = pagination
 
-    .page__info
-      a href=~p"/conversations/new"
-        i.fa.fa-paper-plane>
-        ' Create New Conversation
+      .page__info
+        a href=~p"/conversations/new"
+          i.fa.fa-paper-plane>
+          ' Create New Conversation
 
-  .block__content
-    table.table.table--communication-list
-      thead
-        tr
-          th.table--communication-list__name Conversation
-          th.table--communication-list__stats With
-          th.table--communication-list__options Options
-      tbody
-        = for c <- @conversations do
-          tr class=conversation_class(@conn.assigns.current_user, c)
-            td.table--communication-list__name
-              => link c.title, to: ~p"/conversations/#{c}"
+    .block__content
+      table.table.table--communication-list
+        thead
+          tr
+            th.table--communication-list__name Conversation
+            th.table--communication-list__stats With
+            th.table--communication-list__options Options
+        tbody
+          = for c <- @conversations do
+            tr class=conversation_class(@conn.assigns.current_user, c)
+              td.table--communication-list__name
+                => link c.title, to: ~p"/conversations/#{c}"
 
-              .small-text.hide-mobile
-                => c.message_count
-                = pluralize("message", "messages", c.message_count)
-                ' ; started
-                = pretty_time(c.created_at)
-                ' , last message
-                = pretty_time(c.last_message_at)
+                .small-text.hide-mobile
+                  => c.message_count
+                  = pluralize("message", "messages", c.message_count)
+                  ' ; started
+                  = pretty_time(c.created_at)
+                  ' , last message
+                  = pretty_time(c.last_message_at)
 
-            td.table--communication-list__stats
-              = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user, c)}, conn: @conn
-            td.table--communication-list__options
-              => link "Last message", to: last_message_path(c, c.message_count)
-              ' &bull;
-              => link "Hide", to: ~p"/conversations/#{c}/hide", data: [method: "post"], data: [confirm: "Are you really, really sure?"]
+              td.table--communication-list__stats
+                = render PhilomenaWeb.UserAttributionView, "_user.html", object: %{user: other_party(@current_user, c)}, conn: @conn
+              td.table--communication-list__options
+                => link "Last message", to: last_message_path(c, c.message_count)
+                ' &bull;
+                => link "Hide", to: ~p"/conversations/#{c}/hide", data: [method: "post"], data: [confirm: "Are you really, really sure?"]
 
-  .block__header.block__header--light.page__header
-    .page__pagination = pagination
+    .block__header.block__header--light.page__header
+      .page__pagination = pagination

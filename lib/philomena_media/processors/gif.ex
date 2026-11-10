@@ -3,6 +3,7 @@ defmodule PhilomenaMedia.Processors.Gif do
 
   alias PhilomenaMedia.Intensities
   alias PhilomenaMedia.Analyzers.Result
+  alias PhilomenaMedia.Remote
   alias PhilomenaMedia.Processors.Processor
   alias PhilomenaMedia.Processors
 
@@ -46,7 +47,7 @@ defmodule PhilomenaMedia.Processors.Gif do
   defp optimize(file) do
     optimized = Briefly.create!(extname: ".gif")
 
-    {_output, 0} = System.cmd("gifsicle", ["--careful", "-O2", file, "-o", optimized])
+    {_output, 0} = Remote.cmd("gifsicle", ["--careful", "-O2", file, "-o", optimized])
 
     optimized
   end
@@ -54,7 +55,7 @@ defmodule PhilomenaMedia.Processors.Gif do
   defp preview(duration, file) do
     preview = Briefly.create!(extname: ".png")
 
-    {_output, 0} = System.cmd("mediathumb", [file, to_string(duration / 2), preview])
+    {_output, 0} = Remote.cmd("mediathumb", [file, to_string(duration / 2), preview])
 
     preview
   end
@@ -63,7 +64,7 @@ defmodule PhilomenaMedia.Processors.Gif do
     palette = Briefly.create!(extname: ".png")
 
     {_output, 0} =
-      System.cmd("ffmpeg", [
+      Remote.cmd("ffmpeg", [
         "-loglevel",
         "0",
         "-y",
@@ -88,7 +89,7 @@ defmodule PhilomenaMedia.Processors.Gif do
     filter_graph = "[0:v]#{scale_filter}[x];[x][1:v]#{palette_filter}"
 
     {_output, 0} =
-      System.cmd("ffmpeg", [
+      Remote.cmd("ffmpeg", [
         "-loglevel",
         "0",
         "-y",
@@ -109,7 +110,7 @@ defmodule PhilomenaMedia.Processors.Gif do
     mp4 = Briefly.create!(extname: ".mp4")
 
     {_output, 0} =
-      System.cmd("ffmpeg", [
+      Remote.cmd("ffmpeg", [
         "-loglevel",
         "0",
         "-y",
@@ -127,7 +128,7 @@ defmodule PhilomenaMedia.Processors.Gif do
       ])
 
     {_output, 0} =
-      System.cmd("ffmpeg", [
+      Remote.cmd("ffmpeg", [
         "-loglevel",
         "0",
         "-y",

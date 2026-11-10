@@ -1,10 +1,79 @@
-/* Post diffs */
-del.differ {
-  width: 670px;
+/* Markdown source diffs (comments, posts, pages, rules): a unified diff
+ * table with old/new line-number gutters and word-level highlights. */
+
+.diff {
+  padding: 0;
+  font-family: var(--font-family-monospace);
+}
+
+.diff td {
+  padding: 1px 6px;
+}
+
+/* Transparent context rows blend into striped parents (rules table,
+ * alternating post backgrounds) and beat the global even-odd table striping. */
+
+.diff .diff__row {
+  background: none;
+}
+
+.diff .diff__row--del {
   background: var(--danger-light-color);
 }
 
-ins.differ {
-  width: 670px;
+.diff .diff__row--ins {
   background: var(--success-light-color);
+}
+
+.diff .diff__row--gap {
+  background: none;
+  color: var(--foreground-half-color);
+}
+
+.diff__gutter {
+  min-width: 40px;
+  width: 1%;
+  text-align: right;
+  vertical-align: top;
+  color: var(--foreground-half-color);
+  user-select: none;
+}
+
+.diff__text {
+  width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Line markers live in generated content so copied text stays clean. */
+.diff__text:before {
+  content: " ";
+  display: inline-block;
+  width: 1ch;
+  margin-right: 6px;
+}
+
+.diff__row--del .diff__text:before {
+  content: "-";
+}
+
+.diff__row--ins .diff__text:before {
+  content: "+";
+}
+
+.diff__row--gap .diff__text:before {
+  content: "\22ef";
+}
+
+.diff__hl {
+  text-decoration: none;
+  border-radius: 2px;
+}
+
+del.diff__hl {
+  background: var(--danger-strong-color);
+}
+
+ins.diff__hl {
+  background: var(--success-strong-color);
 }

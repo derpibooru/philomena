@@ -6,6 +6,8 @@ defmodule Philomena.Forums.Forum do
   alias Philomena.Topics.Topic
   alias Philomena.Forums.Subscription
 
+  @type t :: %__MODULE__{}
+
   @derive {Phoenix.Param, key: :short_name}
   schema "forums" do
     belongs_to :last_post, Post
@@ -23,7 +25,7 @@ defmodule Philomena.Forums.Forum do
   end
 
   @doc false
-  def changeset(forum, attrs) do
+  def changeset(forum, attrs \\ %{}) do
     forum
     |> cast(attrs, [:name, :short_name, :description, :access_level])
     |> validate_required([:name, :short_name, :description, :access_level])

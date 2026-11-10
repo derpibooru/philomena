@@ -1,13 +1,23 @@
 defmodule Philomena.Images.SourceDiffer do
   import Ecto.Changeset
 
-  def diff_input(changeset, old_sources, new_sources) do
-    old_set = MapSet.new(flatten_input(old_sources))
-    new_set = MapSet.new(flatten_input(new_sources))
+  def diff_inputs(old_sources, new_sources) do
+    old_set = MapSet.new(old_sources || [], & &1.source)
+    new_set = MapSet.new(new_sources || [], & &1.source)
 
-    source_set = MapSet.new(get_field(changeset, :sources), & &1.source)
     added_sources = MapSet.difference(new_set, old_set)
     removed_sources = MapSet.difference(old_set, new_set)
+
+    %{
+      added: Enum.to_list(added_sources),
+      removed: Enum.to_list(removed_sources)
+    }
+  end
+
+  def apply(changeset, added_source_list, removed_source_list) do
+    source_set = MapSet.new(get_field(changeset, :sources), & &1.source)
+    added_sources = MapSet.new(added_source_list)
+    removed_sources = MapSet.new(removed_source_list)
 
     {sources, actually_added, actually_removed} =
       apply_changes(source_set, added_sources, removed_sources)
@@ -44,25 +54,5 @@ defmodule Philomena.Images.SourceDiffer do
 
   defp source_params(sources) do
     %{sources: Enum.map(sources, &%{source: &1})}
-  end
-
-  defp flatten_input(input) when is_map(input) do
-    Enum.flat_map(Map.values(input), fn
-      %{"source" => source} ->
-        source = String.trim(source)
-
-        if source != "" do
-          [source]
-        else
-          []
-        end
-
-      _ ->
-        []
-    end)
-  end
-
-  defp flatten_input(_input) do
-    []
   end
 end

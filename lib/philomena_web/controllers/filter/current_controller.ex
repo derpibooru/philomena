@@ -3,38 +3,23 @@ defmodule PhilomenaWeb.Filter.CurrentController do
 
   @cookie_opts [max_age: 788_923_800, same_site: "Lax"]
 
-  alias Philomena.{Filters, Filters.Filter, Users.User}
-  alias Philomena.Repo
+  alias Philomena.Filters
 
-  plug :load_resource, model: Filter
+  action_fallback PhilomenaWeb.FallbackController
 
-  def update(conn, _params) do
-    filter = conn.assigns.filter
+  def update(conn, params) do
     user = conn.assigns.current_user
 
-    filter =
-      if Canada.Can.can?(user, :show, filter) do
-        filter
-      else
-        Filters.default_filter()
-      end
-
-    conn
-    |> update_filter(user, filter)
-    |> put_flash(:info, "Switched to filter #{filter.name}")
-    |> redirect(external: conn.assigns.referrer)
+    with {:ok, filter} <- Filters.update_current_filter(conn.assigns.actor, params["id"]) do
+      conn
+      |> put_filter_cookie(user, filter)
+      |> put_flash(:info, "Switched to filter #{filter.name}")
+      |> redirect(external: conn.assigns.referrer)
+    end
   end
 
-  defp update_filter(conn, nil, filter) do
-    put_resp_cookie(conn, "filter_id", Integer.to_string(filter.id), @cookie_opts)
-  end
+  defp put_filter_cookie(conn, nil, filter),
+    do: put_resp_cookie(conn, "filter_id", Integer.to_string(filter.id), @cookie_opts)
 
-  defp update_filter(conn, user, filter) do
-    {:ok, _user} =
-      user
-      |> User.filter_changeset(filter)
-      |> Repo.update()
-
-    conn
-  end
+  defp put_filter_cookie(conn, _user, _filter), do: conn
 end
