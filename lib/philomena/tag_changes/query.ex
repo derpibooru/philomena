@@ -47,6 +47,27 @@ defmodule Philomena.TagChanges.Query do
     |> Parser.parse(query_string, context)
   end
 
+  # Returns the query string that matches exactly `value` in the literal
+  # `field`. A value the parser would reinterpret is escaped and quoted.
+  def literal_term(field, value) do
+    term = "#{field}:#{value}"
+
+    case compile(term) do
+      {:ok, %{term: %{^field => ^value}}} ->
+        term
+
+      _reinterpreted ->
+        # Wildcards and fuzz markers are escaped for the field parser, then
+        # backslashes and quotes once more for the quoted term.
+        value =
+          value
+          |> String.replace(~r/[\\*?~]/, "\\\\\\0")
+          |> String.replace(~r/[\\"]/, "\\\\\\0")
+
+        ~s|"#{field}:#{value}"|
+    end
+  end
+
   def compile(query_string, opts \\ []) do
     user = Keyword.get(opts, :user)
 

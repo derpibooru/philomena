@@ -19,6 +19,8 @@ defmodule PhilomenaWeb.TagChangeController do
           path: ~p"/tag_changes",
           pagination_route: fn query -> ~p"/tag_changes?#{query}" end,
           tag_changes: page.tag_changes,
+          added_query: page.added_query,
+          removed_query: page.removed_query,
           changeset: changeset
         )
 

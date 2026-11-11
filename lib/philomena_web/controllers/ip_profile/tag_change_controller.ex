@@ -8,7 +8,7 @@ defmodule PhilomenaWeb.IpProfile.TagChangeController do
 
   def index(conn, %{"ip_profile_id" => ip} = params) do
     case TagChanges.list_ip_tag_changes(conn.assigns.actor, ip, params, conn.assigns.pagination) do
-      {:ok, %TagChangePage{target: normalized_ip, tag_changes: tag_changes}, changeset} ->
+      {:ok, %TagChangePage{target: normalized_ip, tag_changes: tag_changes} = page, changeset} ->
         ip = to_string(normalized_ip)
         path = ~p"/ip_profiles/#{ip}/tag_changes"
 
@@ -19,6 +19,8 @@ defmodule PhilomenaWeb.IpProfile.TagChangeController do
           path: path,
           pagination_route: fn query -> "#{path}?#{Plug.Conn.Query.encode(query)}" end,
           tag_changes: tag_changes,
+          added_query: page.added_query,
+          removed_query: page.removed_query,
           changeset: changeset
         )
 
