@@ -183,6 +183,55 @@ defmodule Philomena.UsersTest do
     end
   end
 
+  defp email_changeset(:registration, email) do
+    User.registration_changeset(%User{}, fn _ -> false end, %{email: email})
+  end
+
+  defp email_changeset(:email_change, email) do
+    User.email_changeset(%User{}, %{email: email})
+  end
+
+  defp email_changeset(:staff_update, email) do
+    User.update_changeset(%User{}, %{email: email}, [])
+  end
+
+  for operation <- [:registration, :email_change, :staff_update] do
+    describe "#{operation} email validation" do
+      @operation operation
+
+      test "rejects addresses the mail renderer cannot deliver" do
+        for email <- [
+              "user@gmail.c",
+              "user@example.123",
+              "user@example.c0m",
+              "user@example." <> String.duplicate("a", 65),
+              "us!er@example.com",
+              "üser@example.com",
+              "user@ex_ample.com",
+              "user@exämple.com",
+              "user@example.com\n",
+              "user@example.com trailing",
+              "prefix user@example.com"
+            ] do
+          changeset = email_changeset(@operation, email)
+
+          assert "must be valid (e.g., user@example.com)" in errors_on(changeset).email
+        end
+      end
+
+      test "accepts supported characters and suffix lengths" do
+        for email <- [
+              "user.name_123-test@sub-domain.example.CO",
+              "user@example." <> String.duplicate("a", 64)
+            ] do
+          changeset = email_changeset(@operation, email)
+
+          refute Map.has_key?(errors_on(changeset), :email)
+        end
+      end
+    end
+  end
+
   describe "load_profile/2" do
     test "loads an active profile for an actor" do
       user = confirmed_user_fixture()
