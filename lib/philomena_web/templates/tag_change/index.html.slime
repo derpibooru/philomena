@@ -29,6 +29,11 @@ h1 = @title
   br
 
 .block__header
+  span.block__header__title Display only:
+  => link "Removed", to: route.(scope_with_query(@conn, @removed_query))
+  => link "Added", to: route.(scope_with_query(@conn, @added_query))
+  => link "All", to: @path
+
   .page__pagination = pagination
 
 = if reverts_tag_changes?(@conn) do
