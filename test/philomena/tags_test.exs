@@ -907,6 +907,41 @@ defmodule Philomena.TagsTest do
   end
 
   describe "cleanup!/0" do
+    test "removes empty tag changes and preserves changes with remaining tags" do
+      empty = tag_fixture()
+      kept = tag_fixture(category: "general")
+      image = image_fixture()
+      attribution = actor()
+
+      empty_change =
+        Repo.insert!(%Philomena.TagChanges.TagChange{
+          image_id: image.id,
+          ip: attribution.ip,
+          fingerprint: attribution.fingerprint
+        })
+
+      shared_change =
+        Repo.insert!(%Philomena.TagChanges.TagChange{
+          image_id: image.id,
+          ip: attribution.ip,
+          fingerprint: attribution.fingerprint
+        })
+
+      Repo.insert_all(Philomena.TagChanges.TagChangeTag, [
+        %{tag_change_id: empty_change.id, tag_id: empty.id, added: true},
+        %{tag_change_id: shared_change.id, tag_id: empty.id, added: false},
+        %{tag_change_id: shared_change.id, tag_id: kept.id, added: true}
+      ])
+
+      assert Tags.cleanup!() == [empty.id]
+
+      refute Repo.get(Philomena.TagChanges.TagChange, empty_change.id)
+      assert Repo.get(Philomena.TagChanges.TagChange, shared_change.id)
+      assert [%{tag_id: tag_id}] = Repo.all(Philomena.TagChanges.TagChangeTag)
+      assert tag_id == kept.id
+      assert Tags.cleanup!() == []
+    end
+
     test "deletes eligible tags once, returns their ids, and preserves meaningful tags" do
       empty = tag_fixture(name: "cleanup empty")
 

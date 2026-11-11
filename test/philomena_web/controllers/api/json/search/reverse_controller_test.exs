@@ -81,5 +81,23 @@ defmodule PhilomenaWeb.Api.Json.Search.ReverseControllerTest do
 
       assert json_response(conn, 200) == %{"images" => [], "interactions" => [], "total" => 0}
     end
+
+    # ScraperCachePlug copies `url` into `scraper_cache`. No Req.Test stub is
+    # registered, so these pass only if ScraperPlug sends no request.
+    test "returns empty results for a relative url", %{conn: conn} do
+      conn =
+        post(conn, ~p"/api/v1/json/search/reverse", %{"url" => "/images/download-preview.png"})
+
+      assert json_response(conn, 200) == %{"images" => [], "interactions" => [], "total" => 0}
+    end
+
+    test "returns empty results for a non-string scraper_cache", %{conn: conn} do
+      conn =
+        post(conn, ~p"/api/v1/json/search/reverse", %{
+          "scraper_cache" => %{"url" => "https://example.com/image.png"}
+        })
+
+      assert json_response(conn, 200) == %{"images" => [], "interactions" => [], "total" => 0}
+    end
   end
 end

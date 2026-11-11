@@ -1640,6 +1640,10 @@ defmodule Philomena.Tags do
 
     Multi.new()
     |> Multi.lock_all(:locked_tags, cleanup_query)
+    |> Multi.merge(fn %{locked_tags: tag_ids} ->
+      Multi.new()
+      |> put_delete_tag_change_tags_in_query(where(TagChangeTag, [t], t.tag_id in ^tag_ids))
+    end)
     |> Multi.delete_all(:tags, fn %{locked_tags: tag_ids} ->
       where(Tag, [tag], tag.id in ^tag_ids)
     end)

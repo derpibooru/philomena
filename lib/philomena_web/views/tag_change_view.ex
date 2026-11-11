@@ -10,6 +10,12 @@ defmodule PhilomenaWeb.TagChangeView do
     |> scope(conn, "sd", :sd)
   end
 
+  def scope_with_query(conn, tcq) do
+    conn
+    |> scope()
+    |> Keyword.put(:tcq, tcq)
+  end
+
   defp scope(list, conn, key, key_atom) do
     case conn.params[key] do
       nil -> list

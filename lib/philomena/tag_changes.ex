@@ -17,6 +17,7 @@ defmodule Philomena.TagChanges do
   alias Philomena.Multi
   alias Philomena.Repo
   alias Philomena.TagChangeRevertWorker
+  alias Philomena.TagChanges.Query
   alias Philomena.TagChanges.QueryBuilder
   alias Philomena.TagChanges.QueryForm
   alias Philomena.TagChanges.RevertForm
@@ -85,13 +86,25 @@ defmodule Philomena.TagChanges do
         |> Search.search_definition(body, pagination)
         |> Search.search_records(preload(TagChange, ^@history_preloads))
 
+      {added_query, removed_query} = added_removed_queries(target)
+
       page = %TagChangePage{
         target: target,
-        tag_changes: tag_changes
+        tag_changes: tag_changes,
+        added_query: added_query,
+        removed_query: removed_query
       }
 
       {:ok, page, QueryForm.changeset(query_form, user)}
     end
+  end
+
+  defp added_removed_queries(%Tag{name: name}) do
+    {Query.literal_term("added_tag", name), Query.literal_term("removed_tag", name)}
+  end
+
+  defp added_removed_queries(_target) do
+    {"added_tag_count.gt:0", "removed_tag_count.gt:0"}
   end
 
   defp revert_tag_change_ids(ids, attributes) do

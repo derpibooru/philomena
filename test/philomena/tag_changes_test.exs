@@ -20,6 +20,8 @@ defmodule Philomena.TagChangesTest do
   import Philomena.AttributionFixtures
   import Philomena.ImagesFixtures
   import Philomena.UsersFixtures
+  import Philomena.TagsFixtures
+  import Philomena.TagChangesFixtures
 
   import Ecto.Query
 
@@ -28,6 +30,7 @@ defmodule Philomena.TagChangesTest do
   alias Philomena.ModerationLogs.Paths
   alias Philomena.Repo
   alias Philomena.TagChanges
+  alias Philomena.TagChanges.Query
   alias Philomena.TagChanges.QueryForm
   alias Philomena.TagChanges.TagChange
   alias Philomena.TagChanges.TagChangePage
@@ -89,6 +92,29 @@ defmodule Philomena.TagChangesTest do
     SearchHelpers.reindex_all!(TagChange)
   end
 
+  # Applies a tag edit through the real tag-input path, creating any new tag
+  # names, and returns the TagChange row it recorded.
+  defp update_tags!(image, user, old_tag_input, tag_input) do
+    {:ok, _result} =
+      Images.update_image_tags(actor(%{user | bypass_rate_limits: true}), image.id, %{
+        "old_tag_input" => old_tag_input,
+        "tag_input" => tag_input
+      })
+
+    Repo.one!(
+      from tc in TagChange,
+        where: tc.image_id == ^image.id,
+        order_by: [desc: :id],
+        limit: 1
+    )
+  end
+
+  defp entry_ids({:ok, %TagChangePage{tag_changes: page}, _changeset}) do
+    page.entries
+    |> Enum.map(& &1.id)
+    |> Enum.sort()
+  end
+
   describe "actor-scoped history reads" do
     test "the global listing returns a typed page and normalized query form" do
       {_image, tag_change} = tag_change!(confirmed_user_fixture())
@@ -97,7 +123,9 @@ defmodule Philomena.TagChangesTest do
       assert {:ok,
               %TagChangePage{
                 target: nil,
-                tag_changes: page
+                tag_changes: page,
+                added_query: "added_tag_count.gt:0",
+                removed_query: "removed_tag_count.gt:0"
               }, %Ecto.Changeset{data: %QueryForm{sf: "tag_count", sd: "asc"}}} =
                TagChanges.list_tag_changes(
                  actor(),
@@ -333,6 +361,194 @@ defmodule Philomena.TagChangesTest do
     end
   end
 
+  describe "added and removed shortcut queries" do
+    test "listings other than a tag's narrow by added and removed tag counts" do
+      user = confirmed_user_fixture()
+      {image, _tag_change} = tag_change!(user)
+      moderator = actor(moderator_user_fixture())
+
+      results = [
+        TagChanges.list_tag_changes(actor(), %{}, @pagination),
+        TagChanges.list_image_tag_changes(actor(), image.id, %{}, @pagination),
+        TagChanges.list_user_tag_changes(actor(), user.slug, %{}, @pagination),
+        TagChanges.list_ip_tag_changes(moderator, "203.0.113.1", %{}, @pagination),
+        TagChanges.list_fingerprint_tag_changes(moderator, "d015c342859dde3", %{}, @pagination)
+      ]
+
+      for result <- results do
+        assert {:ok,
+                %TagChangePage{
+                  added_query: "added_tag_count.gt:0",
+                  removed_query: "removed_tag_count.gt:0"
+                }, %Ecto.Changeset{}} = result
+      end
+    end
+
+    test "the count queries select the changes that added and that removed any tag" do
+      user = confirmed_user_fixture()
+      image = image_fixture(tags: "safe, base one, base two")
+      tag = tag_fixture(name: unique_tag_name())
+      swapped_in = unique_tag_name()
+
+      adding = create_tag_change!(image, tag, user, true)
+      removing = create_tag_change!(image, tag, user, false)
+
+      swapping =
+        update_tags!(image, user, "safe, base one, base two", "safe, base one, #{swapped_in}")
+
+      reindex_tag_changes!()
+
+      assert {:ok, %TagChangePage{added_query: added_query, removed_query: removed_query}, _} =
+               result = TagChanges.list_image_tag_changes(actor(), image.id, %{}, @pagination)
+
+      assert entry_ids(result) == Enum.sort([adding.id, removing.id, swapping.id])
+
+      assert entry_ids(
+               TagChanges.list_image_tag_changes(
+                 actor(),
+                 image.id,
+                 %{"tcq" => added_query},
+                 @pagination
+               )
+             ) == Enum.sort([adding.id, swapping.id])
+
+      assert entry_ids(
+               TagChanges.list_image_tag_changes(
+                 actor(),
+                 image.id,
+                 %{"tcq" => removed_query},
+                 @pagination
+               )
+             ) == Enum.sort([removing.id, swapping.id])
+    end
+
+    test "a tag listing narrows by additions and removals of its own tag" do
+      user = confirmed_user_fixture()
+      tag = tag_fixture(name: unique_tag_name())
+
+      adding =
+        create_tag_change!(image_fixture(tags: "safe, base one, base two"), tag, user, true)
+
+      removing =
+        create_tag_change!(
+          image_fixture(tags: "safe, base one, base two, #{tag.name}"),
+          tag,
+          user,
+          false
+        )
+
+      reindex_tag_changes!()
+
+      assert {:ok,
+              %TagChangePage{
+                target: %Tag{},
+                added_query: added_query,
+                removed_query: removed_query
+              }, _} =
+               result = TagChanges.list_tag_tag_changes(actor(), tag.slug, %{}, @pagination)
+
+      assert added_query == "added_tag:#{tag.name}"
+      assert removed_query == "removed_tag:#{tag.name}"
+      assert entry_ids(result) == Enum.sort([adding.id, removing.id])
+
+      assert entry_ids(
+               TagChanges.list_tag_tag_changes(
+                 actor(),
+                 tag.slug,
+                 %{"tcq" => added_query},
+                 @pagination
+               )
+             ) == [adding.id]
+
+      assert entry_ids(
+               TagChanges.list_tag_tag_changes(
+                 actor(),
+                 tag.slug,
+                 %{"tcq" => removed_query},
+                 @pagination
+               )
+             ) == [removing.id]
+    end
+
+    test "a tag name the parser would reinterpret yields an escaped query for that tag only" do
+      user = confirmed_user_fixture()
+      n = System.unique_integer([:positive])
+      name = "wild*card :) #{n}"
+      # An unescaped `*` would make the tag's query a wildcard matching this name.
+      decoy = "wildxcard :) #{n}"
+
+      adding_image = image_fixture(tags: "safe, base one, base two")
+      decoy_image = image_fixture(tags: "safe, base one, base two")
+
+      adding =
+        update_tags!(
+          adding_image,
+          user,
+          "safe, base one, base two",
+          "safe, base one, base two, #{name}"
+        )
+
+      decoy_change =
+        update_tags!(
+          decoy_image,
+          user,
+          "safe, base one, base two",
+          "safe, base one, base two, #{decoy}"
+        )
+
+      tag = Repo.get_by!(Tag, name: name)
+
+      removing =
+        create_tag_change!(
+          image_fixture(tags: "safe, base one, base two, #{name}"),
+          tag,
+          user,
+          false
+        )
+
+      reindex_tag_changes!()
+
+      assert {:ok, %TagChangePage{added_query: added_query, removed_query: removed_query}, _} =
+               TagChanges.list_tag_tag_changes(actor(), tag.slug, %{}, @pagination)
+
+      assert added_query == ~s["added_tag:wild\\\\*card :) #{n}"]
+      assert removed_query == ~s["removed_tag:wild\\\\*card :) #{n}"]
+      assert Query.compile(added_query) == {:ok, %{term: %{"added_tag" => name}}}
+      assert Query.compile(removed_query) == {:ok, %{term: %{"removed_tag" => name}}}
+
+      assert entry_ids(
+               TagChanges.list_tag_tag_changes(
+                 actor(),
+                 tag.slug,
+                 %{"tcq" => added_query},
+                 @pagination
+               )
+             ) == [adding.id]
+
+      assert entry_ids(
+               TagChanges.list_tag_tag_changes(
+                 actor(),
+                 tag.slug,
+                 %{"tcq" => removed_query},
+                 @pagination
+               )
+             ) == [removing.id]
+
+      # The query alone, outside the tag's resource filter, excludes the decoy
+      # that the unescaped form matches.
+      assert entry_ids(TagChanges.list_tag_changes(actor(), %{"tcq" => added_query}, @pagination)) ==
+               [adding.id]
+
+      assert entry_ids(
+               TagChanges.list_tag_changes(
+                 actor(),
+                 %{"tcq" => ~s["added_tag:wild*card :) #{n}"]},
+                 @pagination
+               )
+             ) == Enum.sort([adding.id, decoy_change.id])
+    end
+  end
+
   describe "delete_tag_change/2" do
     test "denies an anonymous actor" do
       {_image, tc} = tag_change!(confirmed_user_fixture())
@@ -492,6 +708,26 @@ defmodule Philomena.TagChangesTest do
       assert changeset.errors[:ids]
 
       assert Repo.aggregate(ModerationLog, :count) == 0
+    end
+
+    test "reversion does not duplicate a source tagging" do
+      user = admin_user_fixture()
+      source = tag_fixture(name: unique_tag_name())
+      target = tag_fixture(name: unique_tag_name())
+      image = image_fixture(tags: "safe, base one, base two, #{source.name}")
+      removed_change = create_tag_change!(image, source, user, false)
+      _later_add = create_tag_change!(image, source, user, true)
+
+      source
+      |> Ecto.Changeset.change(aliased_tag_id: target.id, images_count: 1)
+      |> Repo.update!()
+
+      initial_change_count = Repo.aggregate(TagChange, :count)
+
+      assert {:ok, [_]} =
+               TagChanges.create_tag_change_revert(actor(user), %{ids: [removed_change.id]})
+
+      assert Repo.aggregate(TagChange, :count) == initial_change_count
     end
   end
 

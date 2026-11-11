@@ -1,7 +1,6 @@
 defmodule Philomena.VersionsConcurrencyTest do
   use Philomena.ConcurrentDataCase
 
-  alias Ecto.Adapters.SQL.Sandbox
   alias Philomena.Posts
   alias Philomena.Posts.Post
   alias Philomena.Posts.PostVersion
@@ -37,32 +36,16 @@ defmodule Philomena.VersionsConcurrencyTest do
   test "concurrent first edits create one initial row and ordered snapshots" do
     {post, _author} = post_fixture_with_body("v0")
     editor = moderator_user_fixture()
-    parent = self()
+    original = Repo.get!(Post, post.id)
 
-    tasks =
-      for body <- ["v1", "v2"] do
-        task =
-          Task.async(fn ->
-            original = Repo.get!(Post, post.id)
-            send(parent, {:ready, self()})
+    results =
+      concurrently(
+        for body <- ["v1", "v2"] do
+          fn -> update_post(original, actor(editor), %{"body" => body}) end
+        end
+      )
 
-            receive do
-              :edit -> update_post(original, actor(editor), %{"body" => body})
-            end
-          end)
-
-        Sandbox.allow(Repo, parent, task.pid)
-        task
-      end
-
-    task_pids =
-      for _ <- tasks do
-        assert_receive {:ready, task_pid}
-        task_pid
-      end
-
-    Enum.each(task_pids, &send(&1, :edit))
-    assert Enum.all?(tasks, &match?({:ok, _}, Task.await(&1, 5_000)))
+    assert Enum.all?(results, &match?({:ok, _}, &1))
 
     assert [initial, first_edit, second_edit] = post_versions(post)
     assert initial.body == "v0"

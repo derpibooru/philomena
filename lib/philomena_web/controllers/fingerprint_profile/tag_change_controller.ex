@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.FingerprintProfile.TagChangeController do
            params,
            conn.assigns.pagination
          ) do
-      {:ok, %TagChangePage{target: fingerprint, tag_changes: tag_changes}, changeset} ->
+      {:ok, %TagChangePage{target: fingerprint, tag_changes: tag_changes} = page, changeset} ->
         path = ~p"/fingerprint_profiles/#{fingerprint}/tag_changes"
 
         conn
@@ -23,6 +23,8 @@ defmodule PhilomenaWeb.FingerprintProfile.TagChangeController do
           path: path,
           pagination_route: fn query -> "#{path}?#{Plug.Conn.Query.encode(query)}" end,
           tag_changes: tag_changes,
+          added_query: page.added_query,
+          removed_query: page.removed_query,
           changeset: changeset
         )
 

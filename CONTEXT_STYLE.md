@@ -388,10 +388,10 @@ work. For implementation and refactor tests:
   not run on a rejected primary changeset where practical.
 - Add an `async: false` concurrency test whenever a workflow maintains a
   counter, cached pointer, uniqueness-dependent choice, or state transition
-  that can race. Start competing calls together through the SQL sandbox, then
-  assert the persisted invariant from base records rather than merely asserting
-  that each call returned an expected tuple. Include opposite-order operations
-  when a workflow locks multiple peer rows.
+  that can race. Start competing calls together, then assert the persisted
+  invariant from base records rather than merely asserting that each call
+  returned an expected tuple. Include opposite-order operations when a workflow
+  locks multiple peer rows.
 - Pin desired domain behavior with a regression test when correcting an
   accidental or unsafe behavior; do not preserve an accident merely because an
   old test described it.

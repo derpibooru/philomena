@@ -114,6 +114,36 @@ defmodule PhilomenaWeb.Search.ReverseControllerTest do
       refute response =~ "No images found!"
     end
 
+    # ScraperCachePlug copies `url` into `scraper_cache`. No Req.Test stub is
+    # registered, so these pass only if ScraperPlug sends no request.
+    test "renders the plain form for a relative url", %{conn: conn} do
+      conn = post(conn, ~p"/search/reverse", %{"url" => "/images/download-preview.png"})
+      response = html_response(conn, 200)
+
+      assert response =~ "Reverse Search"
+      refute response =~ "No images found!"
+    end
+
+    test "renders the plain form for a relative url on GET", %{conn: conn} do
+      conn = get(conn, ~p"/search/reverse?#{[url: "/images/download-preview.png"]}")
+      response = html_response(conn, 200)
+
+      assert response =~ "Reverse Search"
+      refute response =~ "No images found!"
+    end
+
+    test "renders the plain form for a non-string scraper_cache", %{conn: conn} do
+      conn =
+        post(conn, ~p"/search/reverse", %{
+          "scraper_cache" => %{"url" => "https://example.com/image.png"}
+        })
+
+      response = html_response(conn, 200)
+
+      assert response =~ "Reverse Search"
+      refute response =~ "No images found!"
+    end
+
     test "renders the plain form for an invalid distance", %{conn: conn} do
       image = image_fixture()
       insert_intensities(image, @png_intensity)

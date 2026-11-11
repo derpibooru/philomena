@@ -347,7 +347,7 @@ defmodule Philomena.Images do
         {:error, :rate_limited}
 
       {:ok, %{image: %Image{} = image}} ->
-        {:ok, image}
+        {:ok, Repo.preload(image, :tags, force: true)}
 
       {:error, :image, :no_change, _changes} ->
         {:error, :no_change}
@@ -545,7 +545,7 @@ defmodule Philomena.Images do
 
   ## Bulk operations
 
-  defp reversion_pairs(changes, locked_image_ids, families) do
+  defp reversion_pairs(changes, locked_image_ids, families, family_taggings) do
     changes
     |> Enum.group_by(& &1.image_id)
     |> Enum.filter(fn {image_id, _image_changes} -> image_id in locked_image_ids end)
@@ -571,6 +571,11 @@ defmodule Philomena.Images do
       added =
         operations
         |> Enum.reject(& &1.added)
+        |> Enum.reject(fn op ->
+          # An alias source still present on the image already represents this
+          # family, even when the migration has not inserted its canonical tag.
+          Enum.any?(op.tag_ids, &MapSet.member?(family_taggings, {image_id, &1}))
+        end)
         |> Enum.map(&%{image_id: image_id, tag_id: &1.canonical_id})
 
       {
@@ -655,9 +660,25 @@ defmodule Philomena.Images do
     |> Multi.lock_all(:locked_image_ids, select(image_query, [i], i.id))
     |> Multi.all(:visible_images, where(image_query, [i], i.hidden_from_users == false))
     |> Tags.put_lock_tag_alias_families(tag_ids)
+    |> Multi.all(:family_taggings, fn %{tag_alias_families: families} ->
+      tag_ids =
+        families
+        |> Map.values()
+        |> Enum.flat_map(& &1.tag_ids)
+        |> Enum.uniq()
+
+      from t in Tagging,
+        where: t.image_id in ^image_ids and t.tag_id in ^tag_ids,
+        select: {t.image_id, t.tag_id}
+    end)
     |> Multi.run(:pairs, fn
-      _repo, %{locked_image_ids: image_ids, tag_alias_families: families} ->
-        {:ok, reversion_pairs(changes, image_ids, families)}
+      _repo,
+      %{
+        locked_image_ids: image_ids,
+        tag_alias_families: families,
+        family_taggings: family_taggings
+      } ->
+        {:ok, reversion_pairs(changes, image_ids, families, MapSet.new(family_taggings))}
     end)
     |> put_perform_batch_update(attributes)
   end

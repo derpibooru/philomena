@@ -53,6 +53,33 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
     Repo.one!(from tc in TagChange, where: tc.image_id == ^image.id)
   end
 
+  # Maps each link label in the "Display only:" header to its unescaped href.
+  defp display_only_links(response) do
+    [header] =
+      Regex.run(~r{Display only:</span>(.*?)<div class="page__pagination">}s, response,
+        capture: :all_but_first
+      )
+
+    for [_, href, label] <- Regex.scan(~r{<a href="([^"]*)">([^<]*)</a>}, header), into: %{} do
+      {label, String.replace(href, "&amp;", "&")}
+    end
+  end
+
+  defp split_href(href) do
+    case String.split(href, "?", parts: 2) do
+      [path, query] -> {path, URI.decode_query(query)}
+      [path] -> {path, %{}}
+    end
+  end
+
+  defp count_links(path) do
+    %{
+      "Removed" => path <> "?tcq=removed_tag_count.gt%3A0",
+      "Added" => path <> "?tcq=added_tag_count.gt%3A0",
+      "All" => path
+    }
+  end
+
   describe "GET /tag_changes" do
     test "lists tag changes for anonymous users", %{conn: conn} do
       user = confirmed_user_fixture()
@@ -278,6 +305,108 @@ defmodule PhilomenaWeb.TagChangeControllerTest do
 
       assert redirected_to(conn) == "/"
       assert Phoenix.Flash.get(conn.assigns.flash, :error) =~ "Couldn't find"
+    end
+  end
+
+  describe "display-only links" do
+    test "the global listing links Added and Removed to tag-count queries", %{conn: conn} do
+      response = html_response(get(conn, ~p"/tag_changes"), 200)
+
+      assert display_only_links(response) == count_links(~p"/tag_changes")
+    end
+
+    test "Added and Removed replace tcq and keep the sort; All is the bare path",
+         %{conn: conn} do
+      response =
+        html_response(
+          get(conn, ~p"/tag_changes?#{[tcq: "safe", sf: "tag_count", sd: "asc"]}"),
+          200
+        )
+
+      links = display_only_links(response)
+
+      assert split_href(links["Added"]) ==
+               {"/tag_changes",
+                %{"tcq" => "added_tag_count.gt:0", "sf" => "tag_count", "sd" => "asc"}}
+
+      assert split_href(links["Removed"]) ==
+               {"/tag_changes",
+                %{"tcq" => "removed_tag_count.gt:0", "sf" => "tag_count", "sd" => "asc"}}
+
+      assert links["All"] == "/tag_changes"
+    end
+
+    test "resource listings link Added and Removed to tag-count queries", %{conn: conn} do
+      user = confirmed_user_fixture()
+      image = tag_change_fixture!(user)
+      moderator_conn = log_in_user(conn, moderator_user_fixture())
+
+      for {conn, path} <- [
+            {conn, ~p"/images/#{image}/tag_changes"},
+            {conn, ~p"/profiles/#{user}/tag_changes"},
+            {moderator_conn, ~p"/ip_profiles/203.0.113.1/tag_changes"},
+            {moderator_conn, ~p"/fingerprint_profiles/d015c342859dde3/tag_changes"}
+          ] do
+        assert {path, display_only_links(html_response(get(conn, path), 200))} ==
+                 {path, count_links(path)}
+      end
+    end
+
+    test "a tag listing links Added and Removed to that tag's additions and removals",
+         %{conn: conn} do
+      tag_change_fixture!(confirmed_user_fixture())
+      tag = Repo.get_by!(Tag, name: "added test tag")
+      path = ~p"/tags/#{tag}/tag_changes"
+
+      assert display_only_links(html_response(get(conn, path), 200)) == %{
+               "Removed" => path <> "?tcq=removed_tag%3Aadded+test+tag",
+               "Added" => path <> "?tcq=added_tag%3Aadded+test+tag",
+               "All" => path
+             }
+
+      links =
+        display_only_links(
+          html_response(
+            get(conn, ~p"/tags/#{tag}/tag_changes?#{[sf: "created_at", sd: "asc"]}"),
+            200
+          )
+        )
+
+      assert split_href(links["Added"]) ==
+               {path, %{"tcq" => "added_tag:added test tag", "sf" => "created_at", "sd" => "asc"}}
+
+      assert split_href(links["Removed"]) ==
+               {path,
+                %{"tcq" => "removed_tag:added test tag", "sf" => "created_at", "sd" => "asc"}}
+
+      assert links["All"] == path
+    end
+
+    test "a tag listing's Added and Removed links narrow to that tag for an escaped name",
+         %{conn: conn} do
+      user = confirmed_user_fixture()
+      name = "wild*card :) #{System.unique_integer([:positive])}"
+      adding_image = tag_change_fixture!(user, "#{name}, second tag")
+      tag = Repo.get_by!(Tag, name: name)
+      removing_image = image_fixture(tags: "safe, base one, base two, #{name}")
+
+      {:ok, _} =
+        Images.update_image_tags(actor(user), removing_image.id, %{
+          "old_tag_input" => "safe, base one, base two, #{name}",
+          "tag_input" => "safe, base one, base two"
+        })
+
+      SearchHelpers.reindex_all!(TagChange)
+
+      links = display_only_links(html_response(get(conn, ~p"/tags/#{tag}/tag_changes"), 200))
+
+      added_response = html_response(get(conn, links["Added"]), 200)
+      assert added_response =~ ~s(href="/images/#{adding_image.id}")
+      refute added_response =~ ~s(href="/images/#{removing_image.id}")
+
+      removed_response = html_response(get(conn, links["Removed"]), 200)
+      assert removed_response =~ ~s(href="/images/#{removing_image.id}")
+      refute removed_response =~ ~s(href="/images/#{adding_image.id}")
     end
   end
 
