@@ -236,7 +236,8 @@ defmodule PhilomenaQuery.Parse.Parser do
   end
 
   @doc """
-  Returns the values referenced by exact `term` clauses for `field`.
+  Returns the values referenced by exact `term` clauses for `field`, excluding
+  clauses beneath `must_not`.
 
   This metadata helper understands every query container emitted by the
   parser, so consumers do not need partial, domain-specific query-shape
@@ -265,12 +266,14 @@ defmodule PhilomenaQuery.Parse.Parser do
     own ++
       (query
        |> Map.delete(:term)
+       |> Map.delete(:must_not)
        |> Map.values()
        |> Enum.flat_map(&collect_term_values(&1, field)))
   end
 
   defp collect_term_values(map, field) when is_map(map) do
     map
+    |> Map.delete(:must_not)
     |> Map.values()
     |> Enum.flat_map(&collect_term_values(&1, field))
   end
