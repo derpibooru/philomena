@@ -42,9 +42,9 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
     do: JSON.decode!(body)
 
   defp process_response!(%{"response" => %{"posts" => [post | _rest]}}),
-    do: process_post!(post)
+    do: process_post(post)
 
-  defp process_post!(%{"type" => "photo"} = post) do
+  defp process_post(%{"type" => "photo"} = post) do
     images =
       post["photos"]
       |> Enum.map(fn photo ->
@@ -59,13 +59,13 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
     add_meta(post, images)
   end
 
-  defp process_post!(%{"type" => "text"} = post),
+  defp process_post(%{"type" => "text"} = post),
     do: add_meta(post, inline_images(post["body"]))
 
-  defp process_post!(%{"type" => "answer"} = post),
+  defp process_post(%{"type" => "answer"} = post),
     do: add_meta(post, inline_images(post["answer"]))
 
-  defp process_post!(_post), do: nil
+  defp process_post(_post), do: nil
 
   # Inline images appear once per srcset size; keep the widest of each,
   # in order of first appearance.
