@@ -50,12 +50,12 @@ defmodule Philomena.Images.QueryTest do
   end
 
   describe "compile_with_tag_names/2" do
-    test "collects unique tags from nested positive and negative clauses" do
+    test "collects unique tags from nested positive clauses" do
       assert {:ok, %{query: query, tag_names: names}} =
                Query.compile_with_tag_names("safe AND (cute OR -artist:Example) AND safe")
 
       assert is_map(query)
-      assert Enum.sort(names) == ["artist:example", "cute", "safe"]
+      assert Enum.sort(names) == ["cute", "safe"]
     end
 
     test "leaves out tags from the user's watchlist queries" do

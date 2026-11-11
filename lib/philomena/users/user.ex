@@ -157,7 +157,7 @@ defmodule Philomena.Users.User do
 
     changeset
     |> validate_required([:email])
-    |> validate_format(:email, ~r/^[^@,;\s]+@[^@,;\s]+\.[^@,;\s]+$/,
+    |> validate_format(:email, ~r/\A[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,64}\z/,
       message: "must be valid (e.g., user@example.com)"
     )
     |> validate_length(:email, max: 160)
@@ -296,6 +296,7 @@ defmodule Philomena.Users.User do
     |> validate_required([:name, :email, :role])
     |> validate_inclusion(:role, ["user", "assistant", "moderator", "admin"])
     |> validate_name()
+    |> validate_email()
     |> put_assoc(:roles, roles)
     |> put_slug()
     |> unique_constraints()

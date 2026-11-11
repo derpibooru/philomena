@@ -153,8 +153,9 @@ div.image-container video {
 }
 
 .image-scaled {
-  width: 100%;
-  height: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
 }
 
 /* Due to the address bar hiding/reappearing in mobile browsers, viewport

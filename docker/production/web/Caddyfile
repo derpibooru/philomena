@@ -130,7 +130,6 @@
 			header_up X-Forwarded-Ssl on
 
 			header_down X-Frame-Options SAMEORIGIN
-			header_down Cache-Control 'no-store, no-cache'
 		}
 	}
 
