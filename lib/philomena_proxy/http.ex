@@ -8,6 +8,9 @@ defmodule PhilomenaProxy.Http do
   If a proxy host is not specified in the configuration, then a proxy is not used and external
   traffic is originated from the same network as application.
 
+  Only absolute `http` and `https` URLs are requested. Any other URL returns
+  `{:error, %ArgumentError{}}` without making a request.
+
   Proxy options are read from environment variables at runtime by Philomena.
 
       config :philomena,
@@ -84,6 +87,21 @@ defmodule PhilomenaProxy.Http do
 
   @spec request(atom(), String.t(), iodata() | nil, header_list()) :: result()
   defp request(method, url, body, headers) do
+    if requestable_url?(url) do
+      send_request(method, url, body, headers)
+    else
+      {:error, ArgumentError.exception("URL must be absolute http or https")}
+    end
+  end
+
+  defp requestable_url?(url) when is_binary(url) do
+    %URI{scheme: scheme, host: host} = URI.parse(url)
+    scheme in ["http", "https"] and host not in [nil, ""]
+  end
+
+  defp requestable_url?(_url), do: false
+
+  defp send_request(method, url, body, headers) do
     [
       method: method,
       url: url,
