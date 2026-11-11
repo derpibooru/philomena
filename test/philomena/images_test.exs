@@ -4174,6 +4174,8 @@ defmodule Philomena.ImagesTest do
                )
 
       assert result.image.id == image.id
+      assert Enum.find(result.image.tags, &(&1.name == "added test tag")).images_count == 1
+      assert Enum.find(result.image.tags, &(&1.name == "other added tag")).images_count == 1
       assert result.tag_change_count >= 1
       assert result.tag_change_tag_count >= 1
 

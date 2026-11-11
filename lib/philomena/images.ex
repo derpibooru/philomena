@@ -346,7 +346,7 @@ defmodule Philomena.Images do
         {:error, :rate_limited}
 
       {:ok, %{image: %Image{} = image}} ->
-        {:ok, image}
+        {:ok, Repo.preload(image, :tags, force: true)}
 
       {:error, :image, :no_change, _changes} ->
         {:error, :no_change}
