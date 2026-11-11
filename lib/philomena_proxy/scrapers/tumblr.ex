@@ -7,7 +7,8 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
   @behaviour Scraper
 
   @url_regex ~r|\Ahttps?://(?:.*)/(?:image\|post)/(\d+)(?:\z\|[/?#])|
-  @media_regex ~r|https?://(?:\d+\.)?media\.tumblr\.com/[a-f\d]+/[a-f\d]+-[a-f\d]+/s\d+x\d+/[a-f\d]+\.(?:png\|jpe?g\|gif)|i
+  # Captures the path segments shared by every size of one image, then the width.
+  @media_regex ~r|https?://(?:\d+\.)?media\.tumblr\.com/([a-f\d]+/[a-f\d]+-[a-f\d]+)/s(\d+)x\d+/[a-f\d]+\.(?:png\|jpe?g\|gif)|i
   @size_regex ~r|_(\d+)(\..+)\z|
   @sizes [1280, 540, 500, 400, 250, 100, 75]
   @tumblr_ranges [
@@ -25,7 +26,7 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
     String.match?(url, @url_regex) and tumblr_domain?(uri.host)
   end
 
-  @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result()
+  @spec scrape(URI.t(), Scrapers.url()) :: Scrapers.scrape_result() | nil
   def scrape(uri, url) do
     [post_id] = Regex.run(@url_regex, url, capture: :all_but_first)
 
@@ -41,9 +42,9 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
     do: JSON.decode!(body)
 
   defp process_response!(%{"response" => %{"posts" => [post | _rest]}}),
-    do: process_post!(post)
+    do: process_post(post)
 
-  defp process_post!(%{"type" => "photo"} = post) do
+  defp process_post(%{"type" => "photo"} = post) do
     images =
       post["photos"]
       |> Enum.map(fn photo ->
@@ -58,16 +59,35 @@ defmodule PhilomenaProxy.Scrapers.Tumblr do
     add_meta(post, images)
   end
 
-  defp process_post!(%{"type" => "text"} = post) do
-    images =
-      @media_regex
-      |> Regex.scan(post["body"])
-      |> Enum.map(fn [url | _captures] ->
-        %{url: url, camo_url: PhilomenaProxy.Camo.image_url(url)}
+  defp process_post(%{"type" => "text"} = post),
+    do: add_meta(post, inline_images(post["body"]))
+
+  defp process_post(%{"type" => "answer"} = post),
+    do: add_meta(post, inline_images(post["answer"]))
+
+  defp process_post(_post), do: nil
+
+  # Inline images appear once per srcset size; keep the widest of each,
+  # in order of first appearance.
+  defp inline_images(html) when is_binary(html) do
+    matches = Regex.scan(@media_regex, html)
+
+    widest =
+      Enum.reduce(matches, %{}, fn [url, image, width], acc ->
+        candidate = {String.to_integer(width), url}
+        Map.update(acc, image, candidate, &max(&1, candidate))
       end)
 
-    add_meta(post, images)
+    matches
+    |> Enum.map(fn [_url, image, _width] -> image end)
+    |> Enum.uniq()
+    |> Enum.map(fn image ->
+      {_width, url} = widest[image]
+      %{url: url, camo_url: PhilomenaProxy.Camo.image_url(url)}
+    end)
   end
+
+  defp inline_images(_html), do: []
 
   defp upsize(image_url) do
     @sizes

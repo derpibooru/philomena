@@ -56,6 +56,15 @@ defmodule PhilomenaWeb.Image.ScrapeControllerTest do
       assert json_response(conn, 422) == %{"errors" => ["The URL is invalid."]}
     end
 
+    test "returns a 422 error for a non-http URL without any outbound request",
+         %{conn: conn} do
+      # The URL has a host, so it reaches scrape!/1, which rejects the scheme
+      # before any scraper runs. No HTTP stub required.
+      conn = post(conn, ~p"/images/scrape", %{"url" => "ftp://example.com/image.png"})
+
+      assert json_response(conn, 422) == %{"errors" => ["No images found at that URL."]}
+    end
+
     test "returns a 422 error when the url parameter is missing", %{conn: conn} do
       # A missing url becomes "" (nil |> to_string |> trim) and is rejected
       # up front. No HTTP stub required.
