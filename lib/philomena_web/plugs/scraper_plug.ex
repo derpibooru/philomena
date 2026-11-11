@@ -17,7 +17,7 @@ defmodule PhilomenaWeb.ScraperPlug do
 
       %{"scraper_cache" => url} when is_binary(url) and url != "" ->
         url
-        |> PhilomenaProxy.Http.get()
+        |> PhilomenaProxy.Scrapers.scrape_cached()
         |> maybe_fixup_params(url, opts, conn)
 
       _ ->
