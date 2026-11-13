@@ -50,8 +50,10 @@ defmodule Philomena.Images do
   alias Philomena.ImageHides
   alias Philomena.ImageFaves
   alias Philomena.SourceChanges
+  alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges
   alias Philomena.TagChanges.Limits
+  alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.UserStatistics
   alias Philomena.Tags.Tag
@@ -2218,6 +2220,82 @@ defmodule Philomena.Images do
       |> case do
         {:ok, _changes} -> {:ok, image}
         error -> error
+      end
+    end
+  end
+
+  @doc group: "Moderation and lifecycle"
+  @doc """
+  Removes canceling addition/removal pairs from an image's source history.
+  Unmatched changes and the image's current state are preserved.
+
+  ## Examples
+
+    iex> create_image_source_change_squash(moderator, image_id)
+    {:ok, %Image{}}
+
+    iex> create_image_source_change_squash(user, image_id)
+    {:error, :unauthorized}
+
+  """
+  @spec create_image_source_change_squash(Actor.t(), IntegerId.integer_id()) ::
+          {:ok, Image.t()} | {:error, :ban | :unauthorized | :not_found}
+  def create_image_source_change_squash(%Actor{} = actor, image_id) do
+    with :ok <- verify_write_access(actor),
+         :ok <- authorize(actor, :squash, SourceChange),
+         {:ok, image} <- Images.load_visible_image(actor, image_id) do
+      Multi.new()
+      |> Multi.lock_one(:image, where(Image, id: ^image.id))
+      |> SourceChanges.put_squash_source_changes(image.id)
+      |> Philomena.ModerationLogs.put_log(
+        :moderation_log,
+        actor,
+        "Image.SourceChange.Squash:create",
+        Philomena.ModerationLogs.Paths.image_path(image),
+        "Squashed source change history on image #{image.id}"
+      )
+      |> Multi.transact()
+      |> case do
+        {:ok, %{image: %Image{} = image}} ->
+          {:ok, image}
+      end
+    end
+  end
+
+  @doc group: "Moderation and lifecycle"
+  @doc """
+  Removes canceling addition/removal pairs from an image's tag history.
+  Unmatched changes and the image's current state are preserved.
+
+  ## Examples
+
+    iex> create_image_tag_change_squash(moderator, image_id)
+    {:ok, %Image{}}
+
+    iex> create_image_tag_change_squash(user, image_id)
+    {:error, :unauthorized}
+
+  """
+  @spec create_image_tag_change_squash(Actor.t(), Loader.integer_id()) ::
+          {:ok, Image.t()} | {:error, :ban | :unauthorized | :not_found}
+  def create_image_tag_change_squash(%Actor{} = actor, image_id) do
+    with :ok <- verify_write_access(actor),
+         :ok <- authorize(actor, :squash, TagChange),
+         {:ok, image} <- Images.load_visible_image(actor, image_id) do
+      Multi.new()
+      |> Multi.lock_one(:image, where(Image, id: ^image.id))
+      |> TagChanges.put_squash_tag_changes(image.id)
+      |> Philomena.ModerationLogs.put_log(
+        :moderation_log,
+        actor,
+        "Image.TagChange.Squash:create",
+        Philomena.ModerationLogs.Paths.image_path(image),
+        "Squashed tag change history on image #{image.id}"
+      )
+      |> Multi.transact()
+      |> case do
+        {:ok, %{image: %Image{} = image}} ->
+          {:ok, image}
       end
     end
   end

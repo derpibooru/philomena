@@ -312,6 +312,41 @@ defmodule Philomena.SourceChanges do
   end
 
   @doc """
+  Removes canceling addition/removal pairs from a locked image's source
+  history, as a workflow step.
+
+  Pairs are matched newest to oldest to preserve original attribution.
+  Unmatched changes and the image's current state are preserved.
+  """
+  @spec put_squash_source_changes(Multi.t(), Loader.integer_id()) :: Multi.t()
+  def put_squash_source_changes(%Multi{} = multi, image_id) do
+    multi
+    |> Multi.all(
+      {image_id, :history},
+      SourceChange
+      |> where(image_id: ^image_id)
+      |> order_by(desc: :created_at, desc: :id)
+      |> select([entry], %{id: entry.id, key: entry.source_url, added: entry.added})
+    )
+    |> Multi.delete_all({:deleted, image_id}, fn %{{^image_id, :history} => history} ->
+      # This logic intentionally matches TagChanges.put_squash_tag_changes/2.
+      {_pending, ids} =
+        Enum.reduce(history, {%{}, []}, fn entry, {pending, ids} ->
+          case Map.get(pending, entry.key, []) do
+            [previous | rest] when previous.added != entry.added ->
+              {Map.put(pending, entry.key, rest), [entry.id, previous.id | ids]}
+
+            entries ->
+              previous = %{id: entry.id, added: entry.added}
+              {Map.put(pending, entry.key, [previous | entries]), ids}
+          end
+        end)
+
+      where(SourceChange, [entry], entry.id in ^ids)
+    end)
+  end
+
+  @doc """
   Records added and removed source URLs from an image mutation in `multi`.
 
   The image owner can attach any image reindex needed by the surrounding
