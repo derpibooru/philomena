@@ -4239,7 +4239,13 @@ defmodule Philomena.ImagesTest do
 
       assert image_id == image.id
       assert Enum.sort(added) == ["another broadcast tag", "broadcast tag"]
-      assert_receive %Broadcast{event: "image:update"}
+
+      assert_receive %Broadcast{
+        event: "image:update",
+        payload: %{image: %{id: ^image_id, tags: tags}}
+      }
+
+      assert Enum.sort(tags) == ["another broadcast tag", "broadcast tag", "safe"]
     end
 
     test "a signed-in actor changes tags, recording an attributed change and bumping stats" do
