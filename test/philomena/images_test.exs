@@ -4180,6 +4180,29 @@ defmodule Philomena.ImagesTest do
       :ok
     end
 
+    @tag timeout: 120_000
+    test "adds thousands of new tags to a single image" do
+      image = image_fixture()
+      names = for n <- 1..6_000, do: "single image bulk tag #{n}"
+      tag_input = Enum.join(["safe" | names], ", ")
+
+      assert {:ok, _} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", tag_input)
+               )
+
+      assert MapSet.new(image_tag_names(image)) == MapSet.new(["safe" | names])
+      assert Repo.aggregate(Philomena.TagChanges.TagChangeTag, :count) == 6_000
+
+      assert Repo.aggregate(
+               from(t in Tag, where: t.name in ^names and t.images_count == 1),
+               :count
+             ) ==
+               6_000
+    end
+
     test "broadcasts tag and rendered image updates after persistence" do
       user = confirmed_user_fixture()
       image = image_fixture()

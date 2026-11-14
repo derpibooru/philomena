@@ -197,26 +197,35 @@ defmodule Philomena.Tags do
     do: multi
 
   defp maybe_insert_new_tags(%Multi{} = multi, tag_names) do
-    insert_rows =
+    tags =
       Enum.map(tag_names, fn tag_name ->
         %Tag{}
         |> Tag.creation_changeset(%{name: tag_name})
         |> Ecto.Changeset.apply_changes()
-        |> Map.take(Tag.insert_fields())
-        |> Map.merge(%{
-          created_at: {:placeholder, :timestamp},
-          updated_at: {:placeholder, :timestamp}
-        })
       end)
 
-    insert_options = [
-      placeholders: %{timestamp: DateTime.utc_now(:second)},
-      on_conflict: :nothing,
-      returning: [:id]
-    ]
+    now = DateTime.utc_now(:second)
+
+    query =
+      from row in unnest_maps(tags,
+             slug: :string,
+             name: :string,
+             category: :string,
+             namespace: :string,
+             name_in_namespace: :string
+           ),
+           select: %{
+             slug: row.slug,
+             name: row.name,
+             category: row.category,
+             namespace: row.namespace,
+             name_in_namespace: row.name_in_namespace,
+             created_at: type(^now, :utc_datetime),
+             updated_at: type(^now, :utc_datetime)
+           }
 
     multi
-    |> Multi.insert_all(:new_tags, Tag, insert_rows, insert_options)
+    |> Multi.insert_all(:new_tags, Tag, query, on_conflict: :nothing, returning: [:id])
     |> Multi.on_commit(fn %{new_tags: {_count, new_tags}} ->
       if Enum.any?(new_tags) do
         reindex_tags(new_tags)
