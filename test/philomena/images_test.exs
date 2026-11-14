@@ -4181,9 +4181,9 @@ defmodule Philomena.ImagesTest do
     end
 
     @tag timeout: 120_000
-    test "adds thousands of new tags to a single image" do
+    test "allows exactly 6000 tags on a single image" do
       image = image_fixture()
-      names = for n <- 1..6_000, do: "single image bulk tag #{n}"
+      names = for n <- 1..5_999, do: "single image bulk tag #{n}"
       tag_input = Enum.join(["safe" | names], ", ")
 
       assert {:ok, _} =
@@ -4194,13 +4194,30 @@ defmodule Philomena.ImagesTest do
                )
 
       assert MapSet.new(image_tag_names(image)) == MapSet.new(["safe" | names])
-      assert Repo.aggregate(Philomena.TagChanges.TagChangeTag, :count) == 6_000
+      assert Repo.aggregate(Philomena.TagChanges.TagChangeTag, :count) == 5_999
 
       assert Repo.aggregate(
                from(t in Tag, where: t.name in ^names and t.images_count == 1),
                :count
              ) ==
-               6_000
+               5_999
+    end
+
+    test "returns a tag form error above 6000 tags and rolls back new tags" do
+      image = image_fixture()
+      names = for n <- 1..6_000, do: "over limit tag #{n}"
+
+      assert {:error, changeset} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", Enum.join(["safe" | names], ", "))
+               )
+
+      assert "must contain at most 6000 tags" in errors_on(changeset).tag_input
+      assert image_tag_names(image) == ["safe"]
+      assert Repo.aggregate(Tag, :count) == 1
+      assert Repo.aggregate(TagChange, :count) == 0
     end
 
     test "broadcasts tag and rendered image updates after persistence" do
