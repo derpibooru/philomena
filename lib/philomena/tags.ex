@@ -9,6 +9,7 @@ defmodule Philomena.Tags do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
 
   import Philomena.Authorization,
     only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
@@ -1349,24 +1350,26 @@ defmodule Philomena.Tags do
           |> Enum.reduce(%{}, fn {tag_id, delta}, acc ->
             Map.update(acc, tag_id, delta, &(&1 + delta))
           end)
-          |> Enum.map(fn {tag_id, delta} ->
-            %{
-              id: tag_id,
+          |> Enum.sort()
+
+        query =
+          from row in unnest(rows, id: :integer, images_count: :integer),
+            select: %{
+              id: row.id,
               name: "",
               slug: "",
-              created_at: now,
-              updated_at: now,
-              images_count: delta
+              created_at: type(^now, :utc_datetime),
+              updated_at: type(^now, :utc_datetime),
+              images_count: row.images_count
             }
-          end)
 
         {_count, nil} =
-          repo.insert_all(Tag, rows,
+          repo.insert_all(Tag, query,
             on_conflict: update(Tag, inc: [images_count: fragment("EXCLUDED.images_count")]),
             conflict_target: [:id]
           )
 
-        {:ok, Enum.map(rows, & &1.id)}
+        {:ok, Enum.map(rows, &elem(&1, 0))}
     end)
     |> Multi.on_commit(fn %{batch_tag_counts: tag_ids} -> reindex_tag_ids(tag_ids) end)
   end

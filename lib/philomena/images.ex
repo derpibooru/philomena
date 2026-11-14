@@ -8,6 +8,7 @@ defmodule Philomena.Images do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
 
   import Philomena.Authorization,
     only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
@@ -606,7 +607,13 @@ defmodule Philomena.Images do
       Tagging,
       fn %{locked_image_ids: image_ids, pairs: {added, _removed}} ->
         # Scope insertions to existing, requested images.
-        Enum.filter(added, &(&1.image_id in image_ids))
+        pairs =
+          added
+          |> Enum.filter(&(&1.image_id in image_ids))
+          |> Enum.map(&{&1.image_id, &1.tag_id})
+
+        from pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          select: %{image_id: pair.image_id, tag_id: pair.tag_id}
       end,
       on_conflict: :nothing,
       returning: [:image_id, :tag_id]
@@ -614,21 +621,15 @@ defmodule Philomena.Images do
     |> Multi.delete_all(:deleted_taggings, fn
       %{locked_image_ids: image_ids, pairs: {_added, removed}} ->
         # Scope deletions to existing, requested images.
-        removed
-        |> Enum.filter(&(&1.image_id in image_ids))
-        |> case do
-          [] ->
-            # The values API rejects an empty list.
-            from t in Tagging,
-              where: false,
-              select: [t.image_id, t.tag_id]
+        pairs =
+          removed
+          |> Enum.filter(&(&1.image_id in image_ids))
+          |> Enum.map(&{&1.image_id, &1.tag_id})
 
-          pairs ->
-            from t in Tagging,
-              join: pair in values(pairs, %{image_id: :integer, tag_id: :integer}),
-              on: t.image_id == pair.image_id and t.tag_id == pair.tag_id,
-              select: [t.image_id, t.tag_id]
-        end
+        from t in Tagging,
+          join: pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          on: t.image_id == pair.image_id and t.tag_id == pair.tag_id,
+          select: [t.image_id, t.tag_id]
     end)
     |> TagChanges.put_batch_tag_changes(:inserted_taggings, :deleted_taggings, attributes)
     |> Tags.put_batch_image_count_changes(:inserted_taggings, :deleted_taggings, :visible_images)
