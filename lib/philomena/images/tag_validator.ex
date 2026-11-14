@@ -2,6 +2,12 @@ defmodule Philomena.Images.TagValidator do
   alias Philomena.Config
   import Ecto.Changeset
 
+  @max_tags 6_000
+
+  def validate_added_tag_names(changeset, names) do
+    validate_number_of_tags(changeset, MapSet.new(names), 0, @max_tags)
+  end
+
   def validate_tags(changeset) do
     tags = get_field(changeset, :desired_tags)
 
@@ -26,7 +32,7 @@ defmodule Philomena.Images.TagValidator do
     rating_set = ratings(tag_set)
 
     changeset
-    |> validate_number_of_tags(tag_set, 3, 6_000)
+    |> validate_number_of_tags(tag_set, 3, @max_tags)
     |> validate_bad_words(tag_set)
     |> validate_has_rating(rating_set)
     |> validate_safe(rating_set)

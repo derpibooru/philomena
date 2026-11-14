@@ -33,6 +33,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.SourceDiffer
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.TagInputForm
+  alias Philomena.Images.TagValidator
   alias Philomena.Images.BatchTagForm
   alias Philomena.Images.VoteForm
   alias Philomena.Images.Subscription
@@ -264,10 +265,7 @@ defmodule Philomena.Images do
     end)
   end
 
-  defp update_loaded_sources(%Image{} = image, %Actor{} = actor, %SourceInputForm{} = form) do
-    %{added: added_sources, removed: removed_sources} =
-      SourceDiffer.diff_inputs(form.old_sources, form.sources)
-
+  defp update_loaded_sources(%Image{} = image, %Actor{} = actor, added_sources, removed_sources) do
     Multi.new()
     |> Multi.reserve_action(
       fn -> RateLimiter.record_action(actor, :source_update, @source_update_window) end,
@@ -309,13 +307,7 @@ defmodule Philomena.Images do
     end
   end
 
-  defp update_loaded_tags(%Image{} = image, %Actor{} = actor, %TagInputForm{} = form) do
-    %{added: added_tag_names, removed: removed_tag_names} =
-      TagDiffer.diff_inputs(
-        form.old_tag_input,
-        form.tag_input
-      )
-
+  defp update_loaded_tags(%Image{} = image, %Actor{} = actor, added_tag_names, removed_tag_names) do
     Multi.new()
     |> Multi.reserve_action(
       fn -> RateLimiter.record_action(actor, :tag_update, @tag_update_window) end,
@@ -1567,10 +1559,14 @@ defmodule Philomena.Images do
          {:ok, source_input_form} <-
            %SourceInputForm{}
            |> SourceInputForm.changeset(params)
-           |> SourceInputForm.apply(%Image{}) do
-      %{added: added_tag_names} = TagDiffer.diff_inputs(nil, tag_input_form.tag_input)
-      %{added: added_sources} = SourceDiffer.diff_inputs(nil, source_input_form.sources)
-
+           |> SourceInputForm.apply(%Image{}),
+         %{added: added_tag_names} = TagDiffer.diff_inputs(nil, tag_input_form.tag_input),
+         %{added: added_sources} = SourceDiffer.diff_inputs(nil, source_input_form.sources),
+         {:ok, _image} <-
+           %Image{}
+           |> Ecto.Changeset.change()
+           |> TagValidator.validate_added_tag_names(added_tag_names)
+           |> Ecto.Changeset.apply_action(:insert) do
       image_changeset =
         %Image{}
         |> Image.creation_changeset(params, actor)
@@ -2542,7 +2538,13 @@ defmodule Philomena.Images do
            %SourceInputForm{}
            |> SourceInputForm.changeset(attrs)
            |> SourceInputForm.apply(image) do
-      case update_loaded_sources(image, actor, source_input_form) do
+      %{added: added_sources, removed: removed_sources} =
+        SourceDiffer.diff_inputs(
+          source_input_form.old_sources,
+          source_input_form.sources
+        )
+
+      case update_loaded_sources(image, actor, added_sources, removed_sources) do
         {:ok, %Image{} = image} ->
           {:ok,
            %{
@@ -2691,8 +2693,18 @@ defmodule Philomena.Images do
          {:ok, tag_input_form} <-
            %TagInputForm{}
            |> TagInputForm.changeset(attrs)
-           |> TagInputForm.apply(image) do
-      case update_loaded_tags(image, actor, tag_input_form) do
+           |> TagInputForm.apply(image),
+         %{added: added_tag_names, removed: removed_tag_names} =
+           TagDiffer.diff_inputs(
+             tag_input_form.old_tag_input,
+             tag_input_form.tag_input
+           ),
+         {:ok, _image} <-
+           image
+           |> Ecto.Changeset.change()
+           |> TagValidator.validate_added_tag_names(added_tag_names)
+           |> Ecto.Changeset.apply_action(:update) do
+      case update_loaded_tags(image, actor, added_tag_names, removed_tag_names) do
         {:ok, %Image{} = image} ->
           {tag_change_count, tag_change_tag_count} = TagChanges.count_for_image(image)
 
