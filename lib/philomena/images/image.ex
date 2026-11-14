@@ -90,6 +90,7 @@ defmodule Philomena.Images.Image do
     field :hides_count, :integer, default: 0
     field :approved, :boolean
 
+    field :desired_tags, {:array, :any}, default: [], virtual: true
     field :removed_tags, {:array, :any}, default: [], virtual: true
     field :added_tags, {:array, :any}, default: [], virtual: true
     field :removed_sources, {:array, :any}, default: [], virtual: true

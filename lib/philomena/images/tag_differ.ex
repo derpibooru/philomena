@@ -37,9 +37,9 @@ defmodule Philomena.Images.TagDiffer do
     {tags, actually_added, actually_removed} = apply_changes(tags, added_tag_set, removed_tag_set)
 
     changeset
+    |> put_change(:desired_tags, tags)
     |> put_change(:added_tags, actually_added)
     |> put_change(:removed_tags, actually_removed)
-    |> put_assoc(:tags, tags)
   end
 
   defp apply_changes(tags, added_set, removed_set) do

@@ -245,6 +245,25 @@ defmodule Philomena.Images do
     end
   end
 
+  defp apply_taggings(%Multi{} = multi, image_step) do
+    multi
+    |> Multi.insert_all(:inserted_taggings, Tagging, fn
+      %{^image_step => %{id: image_id, added_tags: added}} ->
+        pairs = Enum.map(added, &{image_id, &1.id})
+
+        from pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          select: %{image_id: pair.image_id, tag_id: pair.tag_id}
+    end)
+    |> Multi.delete_all(:deleted_taggings, fn
+      %{^image_step => %{id: image_id, removed_tags: removed}} ->
+        pairs = Enum.map(removed, &{image_id, &1.id})
+
+        from t in Tagging,
+          join: pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          on: t.image_id == pair.image_id and t.tag_id == pair.tag_id
+    end)
+  end
+
   defp update_loaded_sources(%Image{} = image, %Actor{} = actor, %SourceInputForm{} = form) do
     %{added: added_sources, removed: removed_sources} =
       SourceDiffer.diff_inputs(form.old_sources, form.sources)
@@ -321,6 +340,7 @@ defmodule Philomena.Images do
           {:error, :no_change}
         end
     end)
+    |> apply_taggings(:image)
     |> Multi.run(:check_limits, fn _repo, %{image: image} ->
       record_tag_change_limits(image, actor)
     end)
@@ -337,7 +357,7 @@ defmodule Philomena.Images do
     |> UserStatistics.put_increment(actor.user, :metadata_updates_count)
     |> put_reindex_image(:image)
     |> Multi.on_commit(fn %{image: %{added_tags: added, removed_tags: removed} = image} ->
-      image = Repo.preload(image, [:user, :sources, tags: :aliases])
+      image = Repo.preload(image, [:user, :sources, tags: :aliases], force: true)
       Comments.reindex_comments_on_image(image)
       broadcast_tag_update(image, added, removed)
     end)
@@ -1576,6 +1596,7 @@ defmodule Philomena.Images do
           |> Image.tag_changeset(added_tags, [])
           |> Image.dnp_changeset(user, tags_with_dnp)
       end)
+      |> apply_taggings(:image)
       |> Tags.put_image_count_delta(
         :added_tag_count,
         fn %{image: image} -> Enum.map(image.added_tags, & &1.id) end,
@@ -1589,7 +1610,7 @@ defmodule Philomena.Images do
         {:ok, %{image: %Image{} = image}} ->
           :ok = async_upload(image, upload)
 
-          image = Repo.preload(image, tags: :aliases)
+          image = Repo.preload(image, [tags: :aliases], force: true)
 
           broadcast_image_create(image)
 

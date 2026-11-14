@@ -3,7 +3,7 @@ defmodule Philomena.Images.TagValidator do
   import Ecto.Changeset
 
   def validate_tags(changeset) do
-    tags = changeset |> get_field(:tags)
+    tags = get_field(changeset, :desired_tags)
 
     changeset
     |> validate_tag_input(tags)
