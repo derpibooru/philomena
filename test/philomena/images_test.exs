@@ -25,11 +25,14 @@ defmodule Philomena.ImagesTest do
   alias Philomena.Notifications.ImageMergeNotification
   alias Philomena.Reports.Report
   alias Philomena.SourceChanges.SourceChange
+  alias Philomena.TagChanges
   alias Philomena.TagChanges.Limits
   alias Philomena.TagChanges.TagChange
+  alias Philomena.TagChanges.TagChangeTag
   alias Philomena.Images.Image
   alias Philomena.Images.ImagePage
   alias Philomena.Images.Search.Scope
+  alias Philomena.Images.Tagging
   alias Philomena.Tags.Tag
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
@@ -4177,6 +4180,46 @@ defmodule Philomena.ImagesTest do
       :ok
     end
 
+    @tag timeout: 120_000
+    test "allows exactly 6000 tags on a single image" do
+      image = image_fixture()
+      names = for n <- 1..5_999, do: "single image bulk tag #{n}"
+      tag_input = Enum.join(["safe" | names], ", ")
+
+      assert {:ok, _} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", tag_input)
+               )
+
+      assert MapSet.new(image_tag_names(image)) == MapSet.new(["safe" | names])
+      assert Repo.aggregate(Philomena.TagChanges.TagChangeTag, :count) == 5_999
+
+      assert Repo.aggregate(
+               from(t in Tag, where: t.name in ^names and t.images_count == 1),
+               :count
+             ) ==
+               5_999
+    end
+
+    test "returns a tag form error above 6000 tags and rolls back new tags" do
+      image = image_fixture()
+      names = for n <- 1..6_000, do: "over limit tag #{n}"
+
+      assert {:error, changeset} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", Enum.join(["safe" | names], ", "))
+               )
+
+      assert "must contain at most 6000 tags" in errors_on(changeset).tag_input
+      assert image_tag_names(image) == ["safe"]
+      assert Repo.aggregate(Tag, :count) == 1
+      assert Repo.aggregate(TagChange, :count) == 0
+    end
+
     test "broadcasts tag and rendered image updates after persistence" do
       user = confirmed_user_fixture()
       image = image_fixture()
@@ -4196,7 +4239,13 @@ defmodule Philomena.ImagesTest do
 
       assert image_id == image.id
       assert Enum.sort(added) == ["another broadcast tag", "broadcast tag"]
-      assert_receive %Broadcast{event: "image:update"}
+
+      assert_receive %Broadcast{
+        event: "image:update",
+        payload: %{image: %{id: ^image_id, tags: tags}}
+      }
+
+      assert Enum.sort(tags) == ["another broadcast tag", "broadcast tag", "safe"]
     end
 
     test "a signed-in actor changes tags, recording an attributed change and bumping stats" do
@@ -4942,6 +4991,46 @@ defmodule Philomena.ImagesTest do
       exceed_rate_limit(actor, :image_create)
 
       assert Images.create_image(actor, %{}, nil) == {:error, :rate_limited}
+    end
+  end
+
+  describe "large batch tag changes" do
+    @tag timeout: 120_000
+    test "batch tagging and reversion preserve pairs beyond the parameter limit" do
+      actor = actor(admin_user_fixture())
+      tags = for _ <- 1..128, do: tag_fixture()
+      images = for _ <- 1..256, do: image_fixture(tags: "")
+      image_ids = Enum.map(images, & &1.id)
+      tag_names = Enum.map_join(tags, ", ", & &1.name)
+      attributes = %{user_id: actor.user.id, ip: actor.ip, fingerprint: actor.fingerprint}
+
+      # 32k pairs requires 65k parameters in a single values query
+      assert {:ok, %{succeeded: 256, failed: 0}} =
+               Images.update_batch_tags(actor, %{image_ids: image_ids, tag_list: tag_names})
+
+      assert Repo.aggregate(Tagging, :count) == 32_768
+      assert Repo.aggregate(TagChangeTag, :count) == 32_768
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 256))
+
+      ids = Repo.all(from c in TagChange, select: c.id)
+      assert {:ok, _} = TagChanges.revert_for_worker(ids, attributes)
+      assert Repo.aggregate(Tagging, :count) == 0
+      assert Repo.aggregate(TagChangeTag, :count) == 65_536
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 0))
+
+      # Exercise insertion side of reversion
+      removal_ids = Repo.all(from c in TagChange, where: c.id not in ^ids, select: c.id)
+      assert {:ok, _} = TagChanges.revert_for_worker(removal_ids, attributes)
+      assert Repo.aggregate(Tagging, :count) == 32_768
+
+      removed_names = Enum.map_join(tags, ", ", &("-" <> &1.name))
+
+      assert {:ok, %{succeeded: 256, failed: 0}} =
+               Images.update_batch_tags(actor, %{image_ids: image_ids, tag_list: removed_names})
+
+      assert Repo.aggregate(Tagging, :count) == 0
+      assert Repo.aggregate(TagChangeTag, :count) == 131_072
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 0))
     end
   end
 

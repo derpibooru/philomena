@@ -1046,6 +1046,23 @@ defmodule Philomena.TagsTest do
   end
 
   describe "put_canonicalize_tag_name_sets/2" do
+    test "creates more new tags than fit in one PostgreSQL statement" do
+      names = for n <- 1..6_000, do: "bulk new tag #{n}"
+      existing = tag_fixture(name: hd(names))
+
+      assert {:ok, %{new_tags: {5_999, inserted}, canonical_tags: %{tags: tags}}} =
+               Multi.new()
+               |> Tags.put_canonicalize_tag_name_sets([
+                 {:tags, names, allow_insert_new?: true}
+               ])
+               |> Multi.transact()
+
+      assert length(inserted) == 5_999
+      assert MapSet.new(Enum.map(tags, & &1.name)) == MapSet.new(names)
+      assert Enum.any?(tags, &(&1.id == existing.id))
+      assert Repo.aggregate(Tag, :count) == 6_000
+    end
+
     test "does not create tags by default" do
       name = unique_tag_name()
 

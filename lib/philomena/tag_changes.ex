@@ -4,6 +4,7 @@ defmodule Philomena.TagChanges do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
   import Philomena.Authorization, only: [authorize: 3]
 
   alias Philomena.Attribution.Actor
@@ -757,21 +758,23 @@ defmodule Philomena.TagChanges do
         now = DateTime.utc_now(:second)
 
         # Create tag change batches for every image ID.
-        tag_change_rows =
+        image_ids =
           changes
           |> Enum.uniq_by(& &1.image_id)
-          |> Enum.map(fn %{image_id: image_id} ->
-            %{
-              image_id: image_id,
-              user_id: attributes[:user_id],
-              ip: attributes[:ip],
-              fingerprint: attributes[:fingerprint],
-              created_at: now
+          |> Enum.map(&{&1.image_id})
+
+        tag_change_query =
+          from row in unnest(image_ids, image_id: :integer),
+            select: %{
+              image_id: row.image_id,
+              user_id: type(^attributes[:user_id], :integer),
+              ip: type(^attributes[:ip], EctoNetwork.INET),
+              fingerprint: type(^attributes[:fingerprint], :string),
+              created_at: type(^now, :utc_datetime)
             }
-          end)
 
         {_count, tag_changes} =
-          repo.insert_all(TagChange, tag_change_rows, returning: [:image_id, :id])
+          repo.insert_all(TagChange, tag_change_query, returning: [:image_id, :id])
 
         tag_change_ids = Enum.map(tag_changes, & &1.id)
         tag_change_ids_by_image_id = Map.new(tag_changes, &{&1.image_id, &1.id})
@@ -779,14 +782,22 @@ defmodule Philomena.TagChanges do
         # Create tags belonging to tag changes.
         tag_change_tag_rows =
           Enum.map(changes, fn %{image_id: image_id, tag_id: tag_id, added: added} ->
-            %{
-              tag_change_id: tag_change_ids_by_image_id[image_id],
-              tag_id: tag_id,
-              added: added
-            }
+            {tag_change_ids_by_image_id[image_id], tag_id, added}
           end)
 
-        {_count, nil} = repo.insert_all(TagChangeTag, tag_change_tag_rows)
+        tag_change_tag_query =
+          from row in unnest(tag_change_tag_rows,
+                 tag_change_id: :integer,
+                 tag_id: :integer,
+                 added: :boolean
+               ),
+               select: %{
+                 tag_change_id: row.tag_change_id,
+                 tag_id: row.tag_id,
+                 added: row.added
+               }
+
+        {_count, nil} = repo.insert_all(TagChangeTag, tag_change_tag_query)
 
         {:ok, tag_change_ids}
     end)
