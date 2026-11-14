@@ -52,10 +52,11 @@ defmodule PhilomenaWeb.Image.ReadControllerTest do
 
     for subscriber <- [user, other_user] do
       {:ok, _} = Images.create_subscription(image, subscriber)
+      {:ok, _} = Images.create_subscription(source, subscriber)
     end
 
     {:ok, 2} = Notifications.broadcast_image_comment(author, image, comment)
-    {:ok, 3} = Notifications.broadcast_image_merge(image, source)
+    {:ok, 2} = Notifications.broadcast_image_merge(image, source)
     image |> Ecto.Changeset.change(hidden_from_users: true) |> Repo.update!()
 
     conn = post(conn, ~p"/images/#{image}/read")

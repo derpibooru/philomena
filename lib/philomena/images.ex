@@ -1278,7 +1278,7 @@ defmodule Philomena.Images do
     |> Notifications.put_migrate_image_notifications(image, duplicate_of_image)
     |> Interactions.migrate_loaded_images(image, duplicate_of_image)
     |> Multi.run(:notification, fn _repo, _changes ->
-      Notifications.broadcast_image_merge(image, duplicate_of_image)
+      Notifications.broadcast_image_merge(duplicate_of_image, image)
     end)
     |> Multi.on_commit(fn result ->
       reindex_image(duplicate_of_image)

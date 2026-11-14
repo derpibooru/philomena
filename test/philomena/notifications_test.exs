@@ -47,7 +47,7 @@ defmodule Philomena.NotificationsTest do
 
     merge_target = image_fixture()
     merge_source = image_fixture()
-    {:ok, _subscription} = Images.create_subscription(merge_target, subscriber)
+    {:ok, _subscription} = Images.create_subscription(merge_source, subscriber)
 
     [
       %{

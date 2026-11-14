@@ -91,10 +91,10 @@ defmodule Philomena.ImagesTest do
   end
 
   # Arranges a real unread image merge notification for `user`: subscribe the
-  # user to the target image, then merge a source image into it.
+  # user to the source image, then broadcast its merge into the target.
   defp arrange_merge_notification(image, user) do
     source = image_fixture()
-    {:ok, _} = Images.create_subscription(image, user)
+    {:ok, _} = Images.create_subscription(source, user)
     {:ok, _} = Notifications.broadcast_image_merge(image, source)
     :ok
   end
@@ -336,6 +336,43 @@ defmodule Philomena.ImagesTest do
 
       assert target_id == target.id
       assert Repo.reload!(gallery).image_count == 1
+    end
+  end
+
+  describe "merge image notifications" do
+    test "notifies only source subscribers and clears on viewing the retained image" do
+      moderator = user_fixture()
+      source = image_fixture()
+      target = image_fixture()
+      source_subscriber = confirmed_user_fixture()
+      target_subscriber = confirmed_user_fixture()
+      shared_subscriber = confirmed_user_fixture()
+
+      for subscriber <- [source_subscriber, shared_subscriber] do
+        {:ok, _} = Images.create_subscription(source, subscriber)
+      end
+
+      for subscriber <- [target_subscriber, shared_subscriber] do
+        {:ok, _} = Images.create_subscription(target, subscriber)
+      end
+
+      assert {:ok, _} =
+               Multi.new()
+               |> Images.put_merge_image(source, target, moderator)
+               |> Multi.transact()
+
+      notifications = Repo.all(ImageMergeNotification)
+
+      assert Enum.sort(Enum.map(notifications, & &1.user_id)) ==
+               Enum.sort([source_subscriber.id, shared_subscriber.id])
+
+      assert Enum.all?(notifications, fn notification ->
+               notification.source_id == source.id and notification.target_id == target.id
+             end)
+
+      assert {:ok, _} = Images.create_image_read(actor(source_subscriber), target.id)
+      refute merge_notification?(target, source_subscriber)
+      assert merge_notification?(target, shared_subscriber)
     end
   end
 
