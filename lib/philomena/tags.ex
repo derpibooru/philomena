@@ -183,14 +183,23 @@ defmodule Philomena.Tags do
   end
 
   defp update_image_count_changes(repo, image) do
-    image
-    |> image_count_deltas()
-    |> Enum.map(fn {tag_id, delta} ->
-      update_image_counts(repo, delta, [tag_id])
+    deltas = image_count_deltas(image)
+    tag_ids = Enum.map(deltas, &elem(&1, 0))
 
-      # Return the tag id for reindexing.
-      tag_id
-    end)
+    if deltas != [] do
+      # Acquire counter locks in key order before update
+      repo.all(locked_tag_ids(tag_ids))
+
+      query =
+        from tag in Tag,
+          join: delta in unnest(deltas, tag_id: :integer, count: :integer),
+          on: tag.id == delta.tag_id,
+          update: [inc: [images_count: delta.count]]
+
+      repo.update_all(query, [])
+    end
+
+    tag_ids
   end
 
   defp maybe_insert_new_tags(%Multi{} = multi, []),

@@ -48,6 +48,46 @@ defmodule Philomena.TagsConcurrencyTest do
     assert counts == List.duplicate(length(results), length(tags))
   end
 
+  test "overlapping mixed image counter changes preserve every delta" do
+    [added, removed, unchanged] =
+      for _ <- 1..3 do
+        tag_fixture()
+        |> Ecto.Changeset.change(images_count: 8)
+        |> Repo.update!()
+      end
+
+    results =
+      concurrently(
+        for reverse? <- List.duplicate(false, 4) ++ List.duplicate(true, 4) do
+          fn ->
+            added_tags = [added, unchanged]
+            removed_tags = [removed, unchanged]
+
+            image = %Philomena.Images.Image{
+              added_tags: if(reverse?, do: Enum.reverse(added_tags), else: added_tags),
+              removed_tags: if(reverse?, do: Enum.reverse(removed_tags), else: removed_tags),
+              hidden_from_users: false
+            }
+
+            Multi.new()
+            |> Multi.put(:image, image)
+            |> Tags.put_image_tag_count_changes()
+            |> Multi.transact()
+          end
+        end
+      )
+
+    ids = Enum.sort([added.id, removed.id])
+
+    assert Enum.all?(results, fn result ->
+             match?({:ok, %{image_tag_counts_tag_ids: ^ids}}, result)
+           end)
+
+    assert Repo.reload!(added).images_count == 16
+    assert Repo.reload!(removed).images_count == 0
+    assert Repo.reload!(unchanged).images_count == 8
+  end
+
   test "concurrent canonicalization creates one tag and returns it to every transaction" do
     name = unique_tag_name()
 
