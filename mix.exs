@@ -4,7 +4,7 @@ defmodule Philomena.MixProject do
   def project do
     [
       app: :philomena,
-      version: "1.3.0",
+      version: "1.3.1",
       elixir: "~> 1.18",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: Mix.compilers(),
