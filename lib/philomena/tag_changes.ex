@@ -593,6 +593,47 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
+  Removes canceling addition/removal pairs from a locked image's tag history,
+  as a workflow step.
+
+  Pairs are matched newest to oldest to preserve original attribution.
+  Unmatched changes and the image's current state are preserved.
+  """
+  @spec put_squash_tag_changes(Multi.t(), Loader.integer_id()) :: Multi.t()
+  def put_squash_tag_changes(%Multi{} = multi, image_id) do
+    multi
+    |> Multi.all(
+      {image_id, :history},
+      TagChangeTag
+      |> join(:inner, [entry], change in assoc(entry, :tag_change))
+      |> where([entry, change], change.image_id == ^image_id)
+      |> order_by([entry, change], desc: change.created_at, desc: change.id)
+      |> select([entry], %{id: entry.tag_change_id, key: entry.tag_id, added: entry.added})
+    )
+    |> Multi.merge(fn %{{^image_id, :history} => history} ->
+      # This logic intentionally matches SourceChanges.put_squash_source_changes/2.
+      {_pending, ids} =
+        Enum.reduce(history, {%{}, []}, fn entry, {pending, ids} ->
+          case Map.get(pending, entry.key, []) do
+            [previous | rest] when previous.added != entry.added ->
+              {Map.put(pending, entry.key, rest), [{entry.id, entry.key}, previous.id | ids]}
+
+            entries ->
+              previous = %{id: {entry.id, entry.key}, added: entry.added}
+              {Map.put(pending, entry.key, [previous | entries]), ids}
+          end
+        end)
+
+      query =
+        from entry in TagChangeTag,
+          join: pair in unnest(ids, tag_change_id: :integer, tag_id: :integer),
+          on: entry.tag_change_id == pair.tag_change_id and entry.tag_id == pair.tag_id
+
+      put_delete_tag_change_tags(Multi.new(), {:deleted, image_id}, query)
+    end)
+  end
+
+  @doc """
   Counts tag-change batches and changed tags for an already-loaded image.
 
   ## Examples
@@ -702,7 +743,9 @@ defmodule Philomena.TagChanges do
     multi
     |> Multi.all(
       tag_change_ids_step,
-      select(query, [tag_change_tag], tag_change_tag.tag_change_id)
+      query
+      |> select([tag_change_tag], tag_change_tag.tag_change_id)
+      |> distinct(true)
     )
     |> Multi.delete_all(step, query)
     |> Multi.delete_all(empty_tag_changes_step, fn %{^tag_change_ids_step => tag_change_ids} ->
@@ -724,7 +767,7 @@ defmodule Philomena.TagChanges do
                             ^tag_change_ids_step => tag_change_ids,
                             ^empty_tag_changes_step => {_count, empty_ids}
                           } ->
-      Enum.each(empty_ids, &Search.delete_document(&1, TagChange))
+      Search.delete_documents(empty_ids, TagChange)
       reindex_tag_changes(tag_change_ids -- empty_ids)
     end)
   end

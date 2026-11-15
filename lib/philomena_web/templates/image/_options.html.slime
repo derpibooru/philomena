@@ -156,3 +156,10 @@
           = button_to "Approve image", ~p"/images/#{@image}/approve", method: "post", class: "button button--state-success", data: [confirm: "Are you sure?"]
         = if @image.hidden_from_users and can?(@conn, :destroy, @image) do
           = button_to "Destroy image", ~p"/images/#{@image}/destroy", method: "post", class: "button button--state-danger", data: [confirm: "This action is IRREVERSIBLE. Are you sure?"]
+
+      br
+      .flex.flex--spaced-out
+        = if can?(@conn, :squash, Philomena.SourceChanges.SourceChange) do
+          = link "Squash source changes", to: ~p"/images/#{@image}/source_changes/squash", method: :post, class: "button", data: [confirm: "Are you really, really sure?"]
+        = if can?(@conn, :squash, Philomena.TagChanges.TagChange) do
+          = link "Squash tag changes", to: ~p"/images/#{@image}/tag_changes/squash", method: :post, class: "button", data: [confirm: "Are you really, really sure?"]

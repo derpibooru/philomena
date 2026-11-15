@@ -479,6 +479,15 @@ defmodule PhilomenaWeb.Router do
       resources "/tags", Image.TagController, only: [:update], singleton: true
       resources "/sources", Image.SourceController, only: [:update], singleton: true
       resources "/source_changes", Image.SourceChangeController, only: [:index]
+
+      resources "/source_changes/squash", Image.SourceChange.SquashController,
+        only: [:create],
+        singleton: true
+
+      resources "/tag_changes/squash", Image.TagChange.SquashController,
+        only: [:create],
+        singleton: true
+
       resources "/tag_changes", Image.TagChangeController, only: [:index]
       resources "/description", Image.DescriptionController, only: [:update], singleton: true
       resources "/navigate", Image.NavigateController, only: [:index]
