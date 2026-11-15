@@ -743,7 +743,9 @@ defmodule Philomena.TagChanges do
     multi
     |> Multi.all(
       tag_change_ids_step,
-      select(query, [tag_change_tag], tag_change_tag.tag_change_id)
+      query
+      |> select([tag_change_tag], tag_change_tag.tag_change_id)
+      |> distinct(true)
     )
     |> Multi.delete_all(step, query)
     |> Multi.delete_all(empty_tag_changes_step, fn %{^tag_change_ids_step => tag_change_ids} ->
