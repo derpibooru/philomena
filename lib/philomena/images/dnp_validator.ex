@@ -4,7 +4,7 @@ defmodule Philomena.Images.DnpValidator do
   def validate_dnp(changeset, uploader, tags_with_dnp) do
     tags =
       changeset
-      |> get_field(:tags)
+      |> get_field(:desired_tags)
       |> Enum.map(& &1.name)
 
     edit_present? = "edit" in tags

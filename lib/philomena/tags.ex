@@ -9,6 +9,7 @@ defmodule Philomena.Tags do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
 
   import Philomena.Authorization,
     only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
@@ -182,40 +183,58 @@ defmodule Philomena.Tags do
   end
 
   defp update_image_count_changes(repo, image) do
-    image
-    |> image_count_deltas()
-    |> Enum.map(fn {tag_id, delta} ->
-      update_image_counts(repo, delta, [tag_id])
+    deltas = image_count_deltas(image)
+    tag_ids = Enum.map(deltas, &elem(&1, 0))
 
-      # Return the tag id for reindexing.
-      tag_id
-    end)
+    if deltas != [] do
+      # Acquire counter locks in key order before update
+      repo.all(locked_tag_ids(tag_ids))
+
+      query =
+        from tag in Tag,
+          join: delta in unnest(deltas, tag_id: :integer, count: :integer),
+          on: tag.id == delta.tag_id,
+          update: [inc: [images_count: delta.count]]
+
+      repo.update_all(query, [])
+    end
+
+    tag_ids
   end
 
   defp maybe_insert_new_tags(%Multi{} = multi, []),
     do: multi
 
   defp maybe_insert_new_tags(%Multi{} = multi, tag_names) do
-    insert_rows =
+    tags =
       Enum.map(tag_names, fn tag_name ->
         %Tag{}
         |> Tag.creation_changeset(%{name: tag_name})
         |> Ecto.Changeset.apply_changes()
-        |> Map.take(Tag.insert_fields())
-        |> Map.merge(%{
-          created_at: {:placeholder, :timestamp},
-          updated_at: {:placeholder, :timestamp}
-        })
       end)
 
-    insert_options = [
-      placeholders: %{timestamp: DateTime.utc_now(:second)},
-      on_conflict: :nothing,
-      returning: [:id]
-    ]
+    now = DateTime.utc_now(:second)
+
+    query =
+      from row in unnest_maps(tags,
+             slug: :string,
+             name: :string,
+             category: :string,
+             namespace: :string,
+             name_in_namespace: :string
+           ),
+           select: %{
+             slug: row.slug,
+             name: row.name,
+             category: row.category,
+             namespace: row.namespace,
+             name_in_namespace: row.name_in_namespace,
+             created_at: type(^now, :utc_datetime),
+             updated_at: type(^now, :utc_datetime)
+           }
 
     multi
-    |> Multi.insert_all(:new_tags, Tag, insert_rows, insert_options)
+    |> Multi.insert_all(:new_tags, Tag, query, on_conflict: :nothing, returning: [:id])
     |> Multi.on_commit(fn %{new_tags: {_count, new_tags}} ->
       if Enum.any?(new_tags) do
         reindex_tags(new_tags)
@@ -1349,24 +1368,26 @@ defmodule Philomena.Tags do
           |> Enum.reduce(%{}, fn {tag_id, delta}, acc ->
             Map.update(acc, tag_id, delta, &(&1 + delta))
           end)
-          |> Enum.map(fn {tag_id, delta} ->
-            %{
-              id: tag_id,
+          |> Enum.sort()
+
+        query =
+          from row in unnest(rows, id: :integer, images_count: :integer),
+            select: %{
+              id: row.id,
               name: "",
               slug: "",
-              created_at: now,
-              updated_at: now,
-              images_count: delta
+              created_at: type(^now, :utc_datetime),
+              updated_at: type(^now, :utc_datetime),
+              images_count: row.images_count
             }
-          end)
 
         {_count, nil} =
-          repo.insert_all(Tag, rows,
+          repo.insert_all(Tag, query,
             on_conflict: update(Tag, inc: [images_count: fragment("EXCLUDED.images_count")]),
             conflict_target: [:id]
           )
 
-        {:ok, Enum.map(rows, & &1.id)}
+        {:ok, Enum.map(rows, &elem(&1, 0))}
     end)
     |> Multi.on_commit(fn %{batch_tag_counts: tag_ids} -> reindex_tag_ids(tag_ids) end)
   end

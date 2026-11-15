@@ -21,7 +21,7 @@ autocompleteTest('should suggest values for some properties', async ({ ctx, expe
     {
       "input": "my:<>",
       "suggestions": [
-        "(property) my:comments",
+        "(property) my:downvotes",
         "(property) my:faves",
         "(property) my:hidden",
         "(property) my:subs",

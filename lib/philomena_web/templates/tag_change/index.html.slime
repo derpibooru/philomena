@@ -167,11 +167,41 @@ table.table
         code = link "removed_tag_count.gte:3", to: ~p"/tag_changes?#{[tcq: "removed_tag_count.gte:3"]}"
     tr
       td
+        code tag_id
+      td Literal
+      td
+        ' Matches the numeric surrogate key for the changed tag. To search for the key of an added/removed tag, use
+        code> added_tag_id
+        ' or
+        code removed_tag_id
+        | .
+      td
+        code = link "tag_id:1337", to: ~p"/tag_changes?#{[tcq: "tag_id:1337"]}"
+        ' , also try
+        code> = link "added_tag_id:1337", to: ~p"/tag_changes?#{[tcq: "added_tag_id:1337"]}"
+        ' and
+        code = link "removed_tag_id:1337", to: ~p"/tag_changes?#{[tcq: "removed_tag_id:1337"]}"
+    tr
+      td
         code created_at
       td Date/Time Range
       td Matches the creation time of the tag change.
       td
         code = link "created_at.gte:1 month ago", to: ~p"/tag_changes?#{[tcq: "created_at.gte:1 month ago"]}"
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this tag change.
+      td
+        code = link "id:1000000", to: ~p"/tag_changes?#{[tcq: "id:1000000"]}"
+    tr
+      td
+        code image_id
+      td Literal
+      td Matches the numeric surrogate key for the image this tag change was made to.
+      td
+        code = link "image_id:1000000", to: ~p"/tag_changes?#{[tcq: "image_id:1000000"]}"
     tr
       td
         code my
@@ -202,3 +232,46 @@ table.table
       td Matches tag changes made by a specific user ID.
       td
         code = link "user_id:217932", to: ~p"/tag_changes?#{[tcq: "user_id:217932"]}"
+
+= if can?(@conn, :show, :identity_metadata) do
+  h3 Staff fields
+  table.table
+    thead
+      tr
+        th Field Selector
+        th Type
+        th Description
+        th Example
+    tbody
+      tr
+        td
+          code fingerprint
+        td Literal
+        td Matches fingerprint of the tag change author. Use wildcard to match only part of it.
+        td
+          code = link "fingerprint:d04d4199192fce2", to: ~p"/tag_changes?#{[tcq: "fingerprint:d04d4199192fce2"]}"
+          br
+          code = link "fingerprint:d04d4*", to: ~p"/tag_changes?#{[tcq: "fingerprint:d04d4*"]}"
+      tr
+        td
+          code ip
+        td Literal
+        td Matches the IP address this tag change was made from. CIDR notation is supported.
+        td
+          code = link "ip:195.133.5.9", to: ~p"/tag_changes?#{[tcq: "ip:195.133.5.9"]}"
+          br
+          code = link "ip:195.133.5.9/16", to: ~p"/tag_changes?#{[tcq: "ip:195.133.5.9/16"]}"
+      tr
+        td
+          code true_user
+        td Literal
+        td Matches the name of the user who actually made this tag change, even if they made it anonymously.
+        td
+          code = link "true_user:LightningBolt", to: ~p"/tag_changes?#{[tcq: "true_user:LightningBolt"]}"
+      tr
+        td
+          code true_user_id
+        td Literal
+        td Matches the user ID of whoever actually made this tag change, even if they made it anonymously.
+        td
+          code = link "true_user_id:217932", to: ~p"/tag_changes?#{[tcq: "true_user_id:217932"]}"

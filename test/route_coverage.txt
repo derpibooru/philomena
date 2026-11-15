@@ -396,6 +396,8 @@
 [x] PATCH  /images/:image_id/sources                                        Image.SourceController :update
 [x] PUT    /images/:image_id/sources                                        Image.SourceController :update
 [x] GET    /images/:image_id/source_changes                                 Image.SourceChangeController :index
+[x] POST   /images/:image_id/source_changes/squash                          Image.SourceChange.SquashController :create
+[x] POST   /images/:image_id/tag_changes/squash                             Image.TagChange.SquashController :create
 [x] GET    /images/:image_id/tag_changes                                    Image.TagChangeController :index
 [x] PATCH  /images/:image_id/description                                    Image.DescriptionController :update
 [x] PUT    /images/:image_id/description                                    Image.DescriptionController :update

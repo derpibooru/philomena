@@ -8,6 +8,7 @@ defmodule Philomena.Images do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
 
   import Philomena.Authorization,
     only: [authorize: 3, verify_not_banned: 1, verify_write_access: 1]
@@ -32,6 +33,7 @@ defmodule Philomena.Images do
   alias Philomena.Images.SourceDiffer
   alias Philomena.Images.TagDiffer
   alias Philomena.Images.TagInputForm
+  alias Philomena.Images.TagValidator
   alias Philomena.Images.BatchTagForm
   alias Philomena.Images.VoteForm
   alias Philomena.Images.Subscription
@@ -48,8 +50,10 @@ defmodule Philomena.Images do
   alias Philomena.ImageHides
   alias Philomena.ImageFaves
   alias Philomena.SourceChanges
+  alias Philomena.SourceChanges.SourceChange
   alias Philomena.TagChanges
   alias Philomena.TagChanges.Limits
+  alias Philomena.TagChanges.TagChange
   alias Philomena.Tags
   alias Philomena.UserStatistics
   alias Philomena.Tags.Tag
@@ -244,10 +248,26 @@ defmodule Philomena.Images do
     end
   end
 
-  defp update_loaded_sources(%Image{} = image, %Actor{} = actor, %SourceInputForm{} = form) do
-    %{added: added_sources, removed: removed_sources} =
-      SourceDiffer.diff_inputs(form.old_sources, form.sources)
+  defp apply_taggings(%Multi{} = multi, image_step) do
+    multi
+    |> Multi.insert_all(:inserted_taggings, Tagging, fn
+      %{^image_step => %{id: image_id, added_tags: added}} ->
+        pairs = Enum.map(added, &{image_id, &1.id})
 
+        from pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          select: %{image_id: pair.image_id, tag_id: pair.tag_id}
+    end)
+    |> Multi.delete_all(:deleted_taggings, fn
+      %{^image_step => %{id: image_id, removed_tags: removed}} ->
+        pairs = Enum.map(removed, &{image_id, &1.id})
+
+        from t in Tagging,
+          join: pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          on: t.image_id == pair.image_id and t.tag_id == pair.tag_id
+    end)
+  end
+
+  defp update_loaded_sources(%Image{} = image, %Actor{} = actor, added_sources, removed_sources) do
     Multi.new()
     |> Multi.reserve_action(
       fn -> RateLimiter.record_action(actor, :source_update, @source_update_window) end,
@@ -289,13 +309,7 @@ defmodule Philomena.Images do
     end
   end
 
-  defp update_loaded_tags(%Image{} = image, %Actor{} = actor, %TagInputForm{} = form) do
-    %{added: added_tag_names, removed: removed_tag_names} =
-      TagDiffer.diff_inputs(
-        form.old_tag_input,
-        form.tag_input
-      )
-
+  defp update_loaded_tags(%Image{} = image, %Actor{} = actor, added_tag_names, removed_tag_names) do
     Multi.new()
     |> Multi.reserve_action(
       fn -> RateLimiter.record_action(actor, :tag_update, @tag_update_window) end,
@@ -320,6 +334,7 @@ defmodule Philomena.Images do
           {:error, :no_change}
         end
     end)
+    |> apply_taggings(:image)
     |> Multi.run(:check_limits, fn _repo, %{image: image} ->
       record_tag_change_limits(image, actor)
     end)
@@ -336,7 +351,7 @@ defmodule Philomena.Images do
     |> UserStatistics.put_increment(actor.user, :metadata_updates_count)
     |> put_reindex_image(:image)
     |> Multi.on_commit(fn %{image: %{added_tags: added, removed_tags: removed} = image} ->
-      image = Repo.preload(image, [:user, :sources, tags: :aliases])
+      image = Repo.preload(image, [:user, :sources, tags: :aliases], force: true)
       Comments.reindex_comments_on_image(image)
       broadcast_tag_update(image, added, removed)
     end)
@@ -606,7 +621,13 @@ defmodule Philomena.Images do
       Tagging,
       fn %{locked_image_ids: image_ids, pairs: {added, _removed}} ->
         # Scope insertions to existing, requested images.
-        Enum.filter(added, &(&1.image_id in image_ids))
+        pairs =
+          added
+          |> Enum.filter(&(&1.image_id in image_ids))
+          |> Enum.map(&{&1.image_id, &1.tag_id})
+
+        from pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          select: %{image_id: pair.image_id, tag_id: pair.tag_id}
       end,
       on_conflict: :nothing,
       returning: [:image_id, :tag_id]
@@ -614,21 +635,15 @@ defmodule Philomena.Images do
     |> Multi.delete_all(:deleted_taggings, fn
       %{locked_image_ids: image_ids, pairs: {_added, removed}} ->
         # Scope deletions to existing, requested images.
-        removed
-        |> Enum.filter(&(&1.image_id in image_ids))
-        |> case do
-          [] ->
-            # The values API rejects an empty list.
-            from t in Tagging,
-              where: false,
-              select: [t.image_id, t.tag_id]
+        pairs =
+          removed
+          |> Enum.filter(&(&1.image_id in image_ids))
+          |> Enum.map(&{&1.image_id, &1.tag_id})
 
-          pairs ->
-            from t in Tagging,
-              join: pair in values(pairs, %{image_id: :integer, tag_id: :integer}),
-              on: t.image_id == pair.image_id and t.tag_id == pair.tag_id,
-              select: [t.image_id, t.tag_id]
-        end
+        from t in Tagging,
+          join: pair in unnest(pairs, image_id: :integer, tag_id: :integer),
+          on: t.image_id == pair.image_id and t.tag_id == pair.tag_id,
+          select: [t.image_id, t.tag_id]
     end)
     |> TagChanges.put_batch_tag_changes(:inserted_taggings, :deleted_taggings, attributes)
     |> Tags.put_batch_image_count_changes(:inserted_taggings, :deleted_taggings, :visible_images)
@@ -1278,7 +1293,7 @@ defmodule Philomena.Images do
     |> Notifications.put_migrate_image_notifications(image, duplicate_of_image)
     |> Interactions.migrate_loaded_images(image, duplicate_of_image)
     |> Multi.run(:notification, fn _repo, _changes ->
-      Notifications.broadcast_image_merge(image, duplicate_of_image)
+      Notifications.broadcast_image_merge(duplicate_of_image, image)
     end)
     |> Multi.on_commit(fn result ->
       reindex_image(duplicate_of_image)
@@ -1546,10 +1561,14 @@ defmodule Philomena.Images do
          {:ok, source_input_form} <-
            %SourceInputForm{}
            |> SourceInputForm.changeset(params)
-           |> SourceInputForm.apply(%Image{}) do
-      %{added: added_tag_names} = TagDiffer.diff_inputs(nil, tag_input_form.tag_input)
-      %{added: added_sources} = SourceDiffer.diff_inputs(nil, source_input_form.sources)
-
+           |> SourceInputForm.apply(%Image{}),
+         %{added: added_tag_names} = TagDiffer.diff_inputs(nil, tag_input_form.tag_input),
+         %{added: added_sources} = SourceDiffer.diff_inputs(nil, source_input_form.sources),
+         {:ok, _image} <-
+           %Image{}
+           |> Ecto.Changeset.change()
+           |> TagValidator.validate_added_tag_names(added_tag_names)
+           |> Ecto.Changeset.apply_action(:insert) do
       image_changeset =
         %Image{}
         |> Image.creation_changeset(params, actor)
@@ -1575,6 +1594,7 @@ defmodule Philomena.Images do
           |> Image.tag_changeset(added_tags, [])
           |> Image.dnp_changeset(user, tags_with_dnp)
       end)
+      |> apply_taggings(:image)
       |> Tags.put_image_count_delta(
         :added_tag_count,
         fn %{image: image} -> Enum.map(image.added_tags, & &1.id) end,
@@ -1588,7 +1608,7 @@ defmodule Philomena.Images do
         {:ok, %{image: %Image{} = image}} ->
           :ok = async_upload(image, upload)
 
-          image = Repo.preload(image, tags: :aliases)
+          image = Repo.preload(image, [tags: :aliases], force: true)
 
           broadcast_image_create(image)
 
@@ -2204,6 +2224,82 @@ defmodule Philomena.Images do
     end
   end
 
+  @doc group: "Moderation and lifecycle"
+  @doc """
+  Removes canceling addition/removal pairs from an image's source history.
+  Unmatched changes and the image's current state are preserved.
+
+  ## Examples
+
+    iex> create_image_source_change_squash(moderator, image_id)
+    {:ok, %Image{}}
+
+    iex> create_image_source_change_squash(user, image_id)
+    {:error, :unauthorized}
+
+  """
+  @spec create_image_source_change_squash(Actor.t(), IntegerId.integer_id()) ::
+          {:ok, Image.t()} | {:error, :ban | :unauthorized | :not_found}
+  def create_image_source_change_squash(%Actor{} = actor, image_id) do
+    with :ok <- verify_write_access(actor),
+         :ok <- authorize(actor, :squash, SourceChange),
+         {:ok, image} <- Images.load_visible_image(actor, image_id) do
+      Multi.new()
+      |> Multi.lock_one(:image, where(Image, id: ^image.id))
+      |> SourceChanges.put_squash_source_changes(image.id)
+      |> Philomena.ModerationLogs.put_log(
+        :moderation_log,
+        actor,
+        "Image.SourceChange.Squash:create",
+        Philomena.ModerationLogs.Paths.image_path(image),
+        "Squashed source change history on image #{image.id}"
+      )
+      |> Multi.transact()
+      |> case do
+        {:ok, %{image: %Image{} = image}} ->
+          {:ok, image}
+      end
+    end
+  end
+
+  @doc group: "Moderation and lifecycle"
+  @doc """
+  Removes canceling addition/removal pairs from an image's tag history.
+  Unmatched changes and the image's current state are preserved.
+
+  ## Examples
+
+    iex> create_image_tag_change_squash(moderator, image_id)
+    {:ok, %Image{}}
+
+    iex> create_image_tag_change_squash(user, image_id)
+    {:error, :unauthorized}
+
+  """
+  @spec create_image_tag_change_squash(Actor.t(), Loader.integer_id()) ::
+          {:ok, Image.t()} | {:error, :ban | :unauthorized | :not_found}
+  def create_image_tag_change_squash(%Actor{} = actor, image_id) do
+    with :ok <- verify_write_access(actor),
+         :ok <- authorize(actor, :squash, TagChange),
+         {:ok, image} <- Images.load_visible_image(actor, image_id) do
+      Multi.new()
+      |> Multi.lock_one(:image, where(Image, id: ^image.id))
+      |> TagChanges.put_squash_tag_changes(image.id)
+      |> Philomena.ModerationLogs.put_log(
+        :moderation_log,
+        actor,
+        "Image.TagChange.Squash:create",
+        Philomena.ModerationLogs.Paths.image_path(image),
+        "Squashed tag change history on image #{image.id}"
+      )
+      |> Multi.transact()
+      |> case do
+        {:ok, %{image: %Image{} = image}} ->
+          {:ok, image}
+      end
+    end
+  end
+
   @doc group: "Visibility and filtering"
   @doc """
   Returns whether `image` matches the viewer's compiled hide/spoiler policy.
@@ -2520,7 +2616,13 @@ defmodule Philomena.Images do
            %SourceInputForm{}
            |> SourceInputForm.changeset(attrs)
            |> SourceInputForm.apply(image) do
-      case update_loaded_sources(image, actor, source_input_form) do
+      %{added: added_sources, removed: removed_sources} =
+        SourceDiffer.diff_inputs(
+          source_input_form.old_sources,
+          source_input_form.sources
+        )
+
+      case update_loaded_sources(image, actor, added_sources, removed_sources) do
         {:ok, %Image{} = image} ->
           {:ok,
            %{
@@ -2669,8 +2771,18 @@ defmodule Philomena.Images do
          {:ok, tag_input_form} <-
            %TagInputForm{}
            |> TagInputForm.changeset(attrs)
-           |> TagInputForm.apply(image) do
-      case update_loaded_tags(image, actor, tag_input_form) do
+           |> TagInputForm.apply(image),
+         %{added: added_tag_names, removed: removed_tag_names} =
+           TagDiffer.diff_inputs(
+             tag_input_form.old_tag_input,
+             tag_input_form.tag_input
+           ),
+         {:ok, _image} <-
+           image
+           |> Ecto.Changeset.change()
+           |> TagValidator.validate_added_tag_names(added_tag_names)
+           |> Ecto.Changeset.apply_action(:update) do
+      case update_loaded_tags(image, actor, added_tag_names, removed_tag_names) do
         {:ok, %Image{} = image} ->
           {tag_change_count, tag_change_tag_count} = TagChanges.count_for_image(image)
 

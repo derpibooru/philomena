@@ -115,6 +115,13 @@ table.table
         code = link "image_id:1000000", to: ~p"/comments?#{[cq: "image_id:1000000"]}"
     tr
       td
+        code image.tags
+      td Literal
+      td Matches a tag on the image this comment belongs to.
+      td
+        code = link "image.tags:canine", to: ~p"/comments?#{[cq: "image.tags:canine"]}"
+    tr
+      td
         code my
       td Meta
       td
@@ -122,3 +129,109 @@ table.table
         ' matches comments you have posted if you are signed in.
       td
         code = link "my:comments", to: ~p"/comments?#{[cq: "my:comments"]}"
+    tr
+      td
+        code updated_at
+      td Date/Time Range
+      td Matches the creation or last edit time of this comment.
+      td
+        code = link "updated_at.gte:2 weeks ago", to: ~p"/comments?#{[cq: "updated_at.gte:2 weeks ago"]}"
+
+= if staff?(@conn.assigns.current_user) do
+  h3 Staff fields
+  table.table
+    thead
+      tr
+        th Field Selector
+        th Type
+        th Description
+        th Example
+    tbody
+      tr
+        td
+          code anonymous
+        td Boolean
+        td Matches comments made by anonymous users, or users without an account.
+        td
+          code = link "anonymous:true", to: ~p"/comments?#{[cq: "anonymous:true"]}"
+      tr
+        td
+          code approved
+        td Boolean
+        td Matches whether this comment has been approved.
+        td
+          code = link "approved:true", to: ~p"/comments?#{[cq: "approved:true"]}"
+      tr
+        td
+          code deleted
+        td Boolean
+        td Matches comments that have been deleted, and thus hidden from regular users.
+        td
+          code = link "deleted:true", to: ~p"/comments?#{[cq: "deleted:true"]}"
+      tr
+        td
+          code deleted_by_user
+        td Literal
+        td Matches the name of the staff member who deleted this comment.
+        td
+          code = link "deleted_by_user:Joey", to: ~p"/comments?#{[cq: "deleted_by_user:Joey"]}"
+      tr
+        td
+          code deleted_by_user_id
+        td Literal
+        td Matches the user ID of the staff member who deleted this comment.
+        td
+          code = link "deleted_by_user_id:211190", to: ~p"/comments?#{[cq: "deleted_by_user_id:211190"]}"
+      tr
+        td
+          code deletion_reason
+        td Full Text
+        td Matches the reason given when this comment was deleted.
+        td
+          code = link "deletion_reason:Rule #6", to: ~p"/comments?#{[cq: "deletion_reason:Rule #6"]}"
+      tr
+        td
+          code fingerprint
+        td Literal
+        td Matches fingerprint of the comment author. Use wildcard to match only part of it.
+        td
+          code = link "fingerprint:d04d4199192fce2", to: ~p"/comments?#{[cq: "fingerprint:d04d4199192fce2"]}"
+          br
+          code = link "fingerprint:d04d4*", to: ~p"/comments?#{[cq: "fingerprint:d04d4*"]}"
+      tr
+        td
+          code image.approved
+        td Boolean
+        td Matches whether the image this comment belongs to has been approved.
+        td
+          code = link "image.approved:false", to: ~p"/comments?#{[cq: "image.approved:false"]}"
+      tr
+        td
+          code image.deleted
+        td Boolean
+        td Matches whether the image this comment belongs to has been deleted.
+        td
+          code = link "image.deleted:true", to: ~p"/comments?#{[cq: "image.deleted:true"]}"
+      tr
+        td
+          code ip
+        td Literal
+        td Matches the IP address this comment was posted from. CIDR notation is supported.
+        td
+          code = link "ip:195.133.5.9", to: ~p"/comments?#{[cq: "ip:195.133.5.9"]}"
+          br
+          code = link "ip:195.133.5.9/16", to: ~p"/comments?#{[cq: "ip:195.133.5.9/16"]}"
+      tr
+        td
+          code true_author
+        td Literal
+        td Matches the name of the user who actually posted this comment, even if they posted it anonymously.
+        td
+          code = link "true_author:Joey", to: ~p"/comments?#{[cq: "true_author:Joey"]}"
+      tr
+        td
+          code true_author_id
+        td Literal
+        td Matches the user ID of whoever actually posted this comment, even if they posted it anonymously.
+        td
+          code = link "true_author_id:211190", to: ~p"/comments?#{[cq: "true_author_id:211190"]}"

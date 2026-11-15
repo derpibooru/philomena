@@ -25,11 +25,14 @@ defmodule Philomena.ImagesTest do
   alias Philomena.Notifications.ImageMergeNotification
   alias Philomena.Reports.Report
   alias Philomena.SourceChanges.SourceChange
+  alias Philomena.TagChanges
   alias Philomena.TagChanges.Limits
   alias Philomena.TagChanges.TagChange
+  alias Philomena.TagChanges.TagChangeTag
   alias Philomena.Images.Image
   alias Philomena.Images.ImagePage
   alias Philomena.Images.Search.Scope
+  alias Philomena.Images.Tagging
   alias Philomena.Tags.Tag
   alias PhilomenaQuery.Search
   alias PhilomenaQuery.SearchHelpers
@@ -43,6 +46,7 @@ defmodule Philomena.ImagesTest do
   import Philomena.AttributionFixtures
   import Philomena.CommentsFixtures
   import Philomena.RulesFixtures
+  import Philomena.TagChangesFixtures
   import Philomena.TagsFixtures
 
   # A truthy ban value in the shape production passes (the result of
@@ -91,10 +95,10 @@ defmodule Philomena.ImagesTest do
   end
 
   # Arranges a real unread image merge notification for `user`: subscribe the
-  # user to the target image, then merge a source image into it.
+  # user to the source image, then broadcast its merge into the target.
   defp arrange_merge_notification(image, user) do
     source = image_fixture()
-    {:ok, _} = Images.create_subscription(image, user)
+    {:ok, _} = Images.create_subscription(source, user)
     {:ok, _} = Notifications.broadcast_image_merge(image, source)
     :ok
   end
@@ -336,6 +340,43 @@ defmodule Philomena.ImagesTest do
 
       assert target_id == target.id
       assert Repo.reload!(gallery).image_count == 1
+    end
+  end
+
+  describe "merge image notifications" do
+    test "notifies only source subscribers and clears on viewing the retained image" do
+      moderator = user_fixture()
+      source = image_fixture()
+      target = image_fixture()
+      source_subscriber = confirmed_user_fixture()
+      target_subscriber = confirmed_user_fixture()
+      shared_subscriber = confirmed_user_fixture()
+
+      for subscriber <- [source_subscriber, shared_subscriber] do
+        {:ok, _} = Images.create_subscription(source, subscriber)
+      end
+
+      for subscriber <- [target_subscriber, shared_subscriber] do
+        {:ok, _} = Images.create_subscription(target, subscriber)
+      end
+
+      assert {:ok, _} =
+               Multi.new()
+               |> Images.put_merge_image(source, target, moderator)
+               |> Multi.transact()
+
+      notifications = Repo.all(ImageMergeNotification)
+
+      assert Enum.sort(Enum.map(notifications, & &1.user_id)) ==
+               Enum.sort([source_subscriber.id, shared_subscriber.id])
+
+      assert Enum.all?(notifications, fn notification ->
+               notification.source_id == source.id and notification.target_id == target.id
+             end)
+
+      assert {:ok, _} = Images.create_image_read(actor(source_subscriber), target.id)
+      refute merge_notification?(target, source_subscriber)
+      assert merge_notification?(target, shared_subscriber)
     end
   end
 
@@ -4140,6 +4181,46 @@ defmodule Philomena.ImagesTest do
       :ok
     end
 
+    @tag timeout: 120_000
+    test "allows exactly 6000 tags on a single image" do
+      image = image_fixture()
+      names = for n <- 1..5_999, do: "single image bulk tag #{n}"
+      tag_input = Enum.join(["safe" | names], ", ")
+
+      assert {:ok, _} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", tag_input)
+               )
+
+      assert MapSet.new(image_tag_names(image)) == MapSet.new(["safe" | names])
+      assert Repo.aggregate(Philomena.TagChanges.TagChangeTag, :count) == 5_999
+
+      assert Repo.aggregate(
+               from(t in Tag, where: t.name in ^names and t.images_count == 1),
+               :count
+             ) ==
+               5_999
+    end
+
+    test "returns a tag form error above 6000 tags and rolls back new tags" do
+      image = image_fixture()
+      names = for n <- 1..6_000, do: "over limit tag #{n}"
+
+      assert {:error, changeset} =
+               Images.update_image_tags(
+                 actor(admin_user_fixture()),
+                 image.id,
+                 tag_attrs("safe", Enum.join(["safe" | names], ", "))
+               )
+
+      assert "must contain at most 6000 tags" in errors_on(changeset).tag_input
+      assert image_tag_names(image) == ["safe"]
+      assert Repo.aggregate(Tag, :count) == 1
+      assert Repo.aggregate(TagChange, :count) == 0
+    end
+
     test "broadcasts tag and rendered image updates after persistence" do
       user = confirmed_user_fixture()
       image = image_fixture()
@@ -4159,7 +4240,13 @@ defmodule Philomena.ImagesTest do
 
       assert image_id == image.id
       assert Enum.sort(added) == ["another broadcast tag", "broadcast tag"]
-      assert_receive %Broadcast{event: "image:update"}
+
+      assert_receive %Broadcast{
+        event: "image:update",
+        payload: %{image: %{id: ^image_id, tags: tags}}
+      }
+
+      assert Enum.sort(tags) == ["another broadcast tag", "broadcast tag", "safe"]
     end
 
     test "a signed-in actor changes tags, recording an attributed change and bumping stats" do
@@ -4908,6 +4995,46 @@ defmodule Philomena.ImagesTest do
     end
   end
 
+  describe "large batch tag changes" do
+    @tag timeout: 120_000
+    test "batch tagging and reversion preserve pairs beyond the parameter limit" do
+      actor = actor(admin_user_fixture())
+      tags = for _ <- 1..128, do: tag_fixture()
+      images = for _ <- 1..256, do: image_fixture(tags: "")
+      image_ids = Enum.map(images, & &1.id)
+      tag_names = Enum.map_join(tags, ", ", & &1.name)
+      attributes = %{user_id: actor.user.id, ip: actor.ip, fingerprint: actor.fingerprint}
+
+      # 32k pairs requires 65k parameters in a single values query
+      assert {:ok, %{succeeded: 256, failed: 0}} =
+               Images.update_batch_tags(actor, %{image_ids: image_ids, tag_list: tag_names})
+
+      assert Repo.aggregate(Tagging, :count) == 32_768
+      assert Repo.aggregate(TagChangeTag, :count) == 32_768
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 256))
+
+      ids = Repo.all(from c in TagChange, select: c.id)
+      assert {:ok, _} = TagChanges.revert_for_worker(ids, attributes)
+      assert Repo.aggregate(Tagging, :count) == 0
+      assert Repo.aggregate(TagChangeTag, :count) == 65_536
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 0))
+
+      # Exercise insertion side of reversion
+      removal_ids = Repo.all(from c in TagChange, where: c.id not in ^ids, select: c.id)
+      assert {:ok, _} = TagChanges.revert_for_worker(removal_ids, attributes)
+      assert Repo.aggregate(Tagging, :count) == 32_768
+
+      removed_names = Enum.map_join(tags, ", ", &("-" <> &1.name))
+
+      assert {:ok, %{succeeded: 256, failed: 0}} =
+               Images.update_batch_tags(actor, %{image_ids: image_ids, tag_list: removed_names})
+
+      assert Repo.aggregate(Tagging, :count) == 0
+      assert Repo.aggregate(TagChangeTag, :count) == 131_072
+      assert Enum.all?(Repo.all(Tag), &(&1.images_count == 0))
+    end
+  end
+
   describe "list_approval_queue/2" do
     test "a moderator gets the unapproved images, oldest first, with tags preloaded" do
       approved = image_fixture(approved: true)
@@ -5199,6 +5326,90 @@ defmodule Philomena.ImagesTest do
       refute "batchhiddentag" in image_tag_names(hidden)
       assert "batchhiddentag" in image_tag_names(visible)
       assert Repo.get_by!(Tag, name: "batchhiddentag").images_count == 1
+    end
+  end
+
+  describe "create_image_source_change_squash/2" do
+    test "cancels a removal and revert, preserving the original source change and other images" do
+      image = image_fixture()
+      other = image_fixture()
+      contributor = user_fixture()
+      first = source_change_fixture(image, %{user_id: contributor.id}) |> Repo.reload!()
+      removed = source_change_fixture(image, %{added: false})
+      reverted = source_change_fixture(image)
+      unrelated = source_change_fixture(other, %{added: false})
+      moderator = actor(moderator_user_fixture())
+
+      assert {:ok, _} = Images.create_image_source_change_squash(moderator, image.id)
+      assert Repo.get!(SourceChange, first.id) == first
+      refute Repo.get(SourceChange, removed.id)
+      refute Repo.get(SourceChange, reverted.id)
+      assert Repo.get(SourceChange, unrelated.id)
+      assert {:ok, _} = Images.create_image_source_change_squash(moderator, image.id)
+    end
+  end
+
+  describe "create_image_tag_change_squash/2" do
+    test "removes canceled rows across deletion batches" do
+      base_tags = "safe, base one, base two"
+      image = image_fixture(tags: base_tags)
+      moderator = actor(moderator_user_fixture())
+      added_tags = Enum.map_join(1..1_001, ", ", &"squash batch tag #{&1}")
+      tag_input = base_tags <> ", " <> added_tags
+
+      assert {:ok, _} =
+               Images.update_image_tags(moderator, image.id, %{
+                 "old_tag_input" => base_tags,
+                 "tag_input" => tag_input
+               })
+
+      assert {:ok, _} =
+               Images.update_image_tags(moderator, image.id, %{
+                 "old_tag_input" => tag_input,
+                 "tag_input" => base_tags
+               })
+
+      assert Repo.aggregate(from(c in TagChange, where: c.image_id == ^image.id), :count) == 2
+      assert {:ok, _} = Images.create_image_tag_change_squash(moderator, image.id)
+      refute Repo.exists?(from c in TagChange, where: c.image_id == ^image.id)
+      assert {:ok, _} = Images.create_image_tag_change_squash(moderator, image.id)
+    end
+
+    test "cancels a removal and revert, preserving the original tag change" do
+      image = image_fixture(tags: "safe, base one, base two")
+      tag = tag_fixture()
+      user = moderator_user_fixture()
+      contributor = user_fixture()
+      first = create_tag_change!(image, tag, contributor, true)
+      removed = create_tag_change!(image, tag, user, false)
+      reverted = create_tag_change!(image, tag, user, true)
+
+      assert {:ok, _} = Images.create_image_tag_change_squash(actor(user), image.id)
+      assert Repo.get!(TagChange, first.id) == first
+      refute Repo.get(TagChange, removed.id)
+      refute Repo.get(TagChange, reverted.id)
+      assert {:ok, _} = Images.create_image_tag_change_squash(actor(user), image.id)
+    end
+
+    test "preserves the unmatched part of a batch" do
+      image = image_fixture(tags: "safe, base one, base two")
+      user = moderator_user_fixture()
+      tag = tag_fixture()
+      kept = tag_fixture()
+
+      {:ok, _} =
+        Images.update_image_tags(actor(user), image.id, %{
+          "old_tag_input" => "safe, base one, base two",
+          "tag_input" => "safe, base one, base two, #{tag.name}, #{kept.name}"
+        })
+
+      batch = Repo.one!(from c in TagChange, where: c.image_id == ^image.id)
+      removed = create_tag_change!(image, tag, user, false)
+
+      assert {:ok, _} = Images.create_image_tag_change_squash(actor(user), image.id)
+      refute Repo.get(TagChange, removed.id)
+      remaining = Repo.get!(TagChange, batch.id) |> Repo.preload(:tag_change_tags)
+      assert Enum.map(remaining.tag_change_tags, & &1.tag_id) == [kept.id]
     end
   end
 

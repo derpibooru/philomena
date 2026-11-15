@@ -2,7 +2,15 @@ h1 Users
 
 = form_for @changeset, ~p"/admin/users", [as: :uq, method: "get", class: "hform"], fn f ->
   .field
-    => text_input f, :query, class: "hform__text input", placeholder: "Search query", spellcheck: "false"
+    => text_input f, :query,
+      class: "hform__text input",
+      placeholder: "Search query",
+      spellcheck: "false",
+      autocomplete: if(@conn.cookies["enable_search_ac"], do: "on", else: "off"),
+      inputmode: "search",
+      data: [ \
+        autocomplete: "properties",
+      ]
     = submit "Search", class: "button hform__button"
   .field
     elixir:
@@ -66,7 +74,7 @@ table.table
     tr
       td
         code id
-      td Integer
+      td Numeric Range
       td Matches the user ID.
       td
         code = link "id:123", to: ~p"/admin/users?#{[uq: [query: "id:123"]]}"
@@ -97,6 +105,12 @@ table.table
       td Literal
       td Matches the role of the user.
       td
+        code = link "role:user", to: ~p"/admin/users?#{[uq: [query: "role:user"]]}"
+        br
+        code = link "role:assistant", to: ~p"/admin/users?#{[uq: [query: "role:assistant"]]}"
+        br
+        code = link "role:moderator", to: ~p"/admin/users?#{[uq: [query: "role:moderator"]]}"
+        br
         code = link "role:admin", to: ~p"/admin/users?#{[uq: [query: "role:admin"]]}"
     tr
       td
@@ -122,7 +136,7 @@ table.table
     tr
       td
         code created_at
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time the user account was created.
       td
         code = link "created_at.lt:2 weeks ago", to: ~p"/admin/users?#{[uq: [query: "created_at.lt:2 weeks ago"]]}"
@@ -136,7 +150,7 @@ table.table
     tr
       td
         code confirmed_at
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time the user account was confirmed.
       td
         code = link "confirmed_at.lt:2 weeks ago", to: ~p"/admin/users?#{[uq: [query: "confirmed_at.lt:2 weeks ago"]]}"
@@ -157,7 +171,7 @@ table.table
     tr
       td
         code locked_at
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time the user account was locked.
       td
         code = link "locked_at:2025", to: ~p"/admin/users?#{[uq: [query: "locked_at:2025"]]}"
@@ -171,14 +185,14 @@ table.table
     tr
       td
         code deleted_at
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time the user account was deactivated.
       td
         code = link "deleted_at.gt:1 week ago", to: ~p"/admin/users?#{[uq: [query: "deleted_at.gt:1 week ago"]]}"
     tr
       td
         code deleted_by_user_id
-      td Numeric
+      td Literal
       td Matches the user ID of the admin who deleted the user account.
       td
         code = link "deleted_by_user_id:123", to: ~p"/admin/users?#{[uq: [query: "deleted_by_user_id:123"]]}"
@@ -192,7 +206,7 @@ table.table
     tr
       td
         code banned_until
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time of any enabled bans on the user.
       td
         code = link "banned_until.gt:0 seconds ago", to: ~p"/admin/users?#{[uq: [query: "banned_until.gt:0 seconds ago"]]}"
@@ -206,63 +220,63 @@ table.table
     tr
       td
         code images_count
-      td Integer
+      td Numeric Range
       td Matches the number of uploads the user has made.
       td
         code = link "images_count.gte:200", to: ~p"/admin/users?#{[uq: [query: "images_count.gte:200"]]}"
     tr
       td
         code image_faves_count
-      td Integer
+      td Numeric Range
       td Matches the number of images the user has favourited.
       td
         code = link "image_faves_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_faves_count.gte:1000"]]}"
     tr
       td
         code image_votes_count
-      td Integer
+      td Numeric Range
       td Matches the number of votes the user has cast.
       td
         code = link "image_votes_count.gte:1000", to: ~p"/admin/users?#{[uq: [query: "image_votes_count.gte:1000"]]}"
     tr
       td
         code metadata_updates_count
-      td Integer
+      td Numeric Range
       td Matches the number of metadata updates the user has made.
       td
         code = link "metadata_updates_count.gte:500", to: ~p"/admin/users?#{[uq: [query: "metadata_updates_count.gte:500"]]}"
     tr
       td
         code comments_count
-      td Integer
+      td Numeric Range
       td Matches the number of comments the user has posted.
       td
         code = link "comments_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "comments_count.gte:100"]]}"
     tr
       td
         code posts_count
-      td Integer
+      td Numeric Range
       td Matches the number of forum posts the user has made.
       td
         code = link "posts_count.gte:100", to: ~p"/admin/users?#{[uq: [query: "posts_count.gte:100"]]}"
     tr
       td
         code topics_count
-      td Integer
+      td Numeric Range
       td Matches the number of topics the user has made.
       td
         code = link "topics_count.gte:10", to: ~p"/admin/users?#{[uq: [query: "topics_count.gte:10"]]}"
     tr
       td
         code current_filter_id
-      td Numeric
+      td Literal
       td Matches the ID of the filter the user is currently using.
       td
         code = link "current_filter_id:123", to: ~p"/admin/users?#{[uq: [query: "current_filter_id:123"]]}"
     tr
       td
         code forced_filter_id
-      td Numeric
+      td Literal
       td Matches the ID of the filter that was forced on the user.
       td
         code = link "forced_filter_id:123", to: ~p"/admin/users?#{[uq: [query: "forced_filter_id:123"]]}"
@@ -276,7 +290,7 @@ table.table
     tr
       td
         code last_renamed_at
-      td Date/Time
+      td Date/Time Range
       td Matches the date and time the user was last renamed.
       td
         code = link "last_renamed_at.gt:1 month ago", to: ~p"/admin/users?#{[uq: [query: "last_renamed_at.gt:1 month ago"]]}"
