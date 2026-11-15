@@ -47,8 +47,151 @@ h1 Reports
   .error
     = error_tag f, :query
 
-.field
-  label for="rq[query]"
-    ' Searchable fields: id, created_at, reason, state, open, user, user_id, admin, admin_id, ip, fingerprint, reportable_type, reportable_id, image_id
-    br
-    ' Report reason is used if you don't specify a field.
+h3 Allowed fields
+table.table
+  thead
+    tr
+      th Field Selector
+      th Type
+      th Description
+      th Example
+  tbody
+    tr
+      td
+        code admin
+      td Literal
+      td Matches the name of the staff member who last handled this report.
+      td
+        code = link "admin:Joey", to: ~p"/admin/reports?#{[rq: [query: "admin:Joey"]]}"
+    tr
+      td
+        code admin_id
+      td Literal
+      td Matches the user ID of the staff member who last handled this report.
+      td
+        code = link "admin_id:211190", to: ~p"/admin/reports?#{[rq: [query: "admin_id:211190"]]}"
+    tr
+      td
+        code created_at
+      td Date/Time Range
+      td Matches the time this report was opened.
+      td
+        code = link "created_at.gte:2 weeks ago", to: ~p"/admin/reports?#{[rq: [query: "created_at.gte:2 weeks ago"]]}"
+    tr
+      td
+        code fingerprint
+      td Literal
+      td Matches the fingerprint of the report author. Use wildcard to match only part of it.
+      td
+        code = link "fingerprint:d04d4199192fce2", to: ~p"/admin/reports?#{[rq: [query: "fingerprint:d04d4199192fce2"]]}"
+        br
+        code = link "fingerprint:d04d4*", to: ~p"/admin/reports?#{[rq: [query: "fingerprint:d04d4*"]]}"
+    tr
+      td
+        code id
+      td Numeric Range
+      td Matches the numeric surrogate key for this report.
+      td
+        code = link "id:1000000", to: ~p"/admin/reports?#{[rq: [query: "id:1000000"]]}"
+    tr
+      td
+        code image_id
+      td Literal
+      td Matches the numeric surrogate key for the image related to this report.
+      td
+        code = link "image_id:1000000", to: ~p"/admin/reports?#{[rq: [query: "image_id:1000000"]]}"
+    tr
+      td
+        code ip
+      td Literal
+      td Matches the IP address this report was submitted from. CIDR notation is supported.
+      td
+        code = link "ip:195.133.5.9", to: ~p"/admin/reports?#{[rq: [query: "ip:195.133.5.9"]]}"
+        br
+        code = link "ip:195.133.5.9/16", to: ~p"/admin/reports?#{[rq: [query: "ip:195.133.5.9/16"]]}"
+    tr
+      td
+        code open
+      td Boolean
+      td Matches whether this report is still open.
+      td
+        code = link "open:true", to: ~p"/admin/reports?#{[rq: [query: "open:true"]]}"
+    tr
+      td
+        code reason
+      td Full Text
+      td Matches the reason given in this report. This is the default field.
+      td
+        code = link "reason:spam", to: ~p"/admin/reports?#{[rq: [query: "reason:spam"]]}"
+    tr
+      td
+        code related
+      td Literal
+      td Matches the name of a user related to the reported content, such as the uploader of a reported image.
+      td
+        code = link "related:Joey", to: ~p"/admin/reports?#{[rq: [query: "related:Joey"]]}"
+    tr
+      td
+        code related_id
+      td Literal
+      td Matches the user ID of a user related to the reported content.
+      td
+        code = link "related_id:211190", to: ~p"/admin/reports?#{[rq: [query: "related_id:211190"]]}"
+    tr
+      td
+        code reportable_id
+      td Literal
+      td Matches the numeric surrogate key for the reported content itself.
+      td
+        code = link "reportable_id:1000000", to: ~p"/admin/reports?#{[rq: [query: "reportable_id:1000000"]]}"
+    tr
+      td
+        code reportable_type
+      td Literal
+      td Matches the type of the reported content. Matching is case-sensitive.
+      td
+        code = link "reportable_type:Comment", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Comment"]]}"
+        br
+        code = link "reportable_type:Commission", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Commission"]]}"
+        br
+        code = link "reportable_type:Conversation", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Conversation"]]}"
+        br
+        code = link "reportable_type:Gallery", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Gallery"]]}"
+        br
+        code = link "reportable_type:Image", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Image"]]}"
+        br
+        code = link "reportable_type:Post", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:Post"]]}"
+        br
+        code = link "reportable_type:User", to: ~p"/admin/reports?#{[rq: [query: "reportable_type:User"]]}"
+    tr
+      td
+        code state
+      td Literal
+      td Matches the state of this report.
+      td
+        code = link "state:open", to: ~p"/admin/reports?#{[rq: [query: "state:open"]]}"
+        br
+        code = link "state:in_progress", to: ~p"/admin/reports?#{[rq: [query: "state:in_progress"]]}"
+        br
+        code = link "state:closed", to: ~p"/admin/reports?#{[rq: [query: "state:closed"]]}"
+    tr
+      td
+        code system
+      td Boolean
+      td Matches whether this report was generated automatically by the system.
+      td
+        code = link "system:true", to: ~p"/admin/reports?#{[rq: [query: "system:true"]]}"
+    tr
+      td
+        code user
+      td Literal
+      td Matches the name of the user who submitted this report.
+      td
+        code = link "user:LightningBolt", to: ~p"/admin/reports?#{[rq: [query: "user:LightningBolt"]]}"
+    tr
+      td
+        code user_id
+      td Literal
+      td Matches the user ID of the user who submitted this report.
+      td
+        code = link "user_id:217932", to: ~p"/admin/reports?#{[rq: [query: "user_id:217932"]]}"

@@ -4,6 +4,9 @@ defmodule PhilomenaWeb.PostView do
 
   use PhilomenaWeb, :view
 
+  def staff?(%{role: role}), do: role != "user"
+  def staff?(_), do: false
+
   def markdown_safe_author(object) do
     Philomena.Markdown.escape("@" <> author_name(object))
   end

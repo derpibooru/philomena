@@ -14,10 +14,11 @@ article.block.communication
         br
         = render PhilomenaWeb.UserAttributionView, "_anon_user_title.html", object: @report, conn: @conn
       p
-        = @report.rule.name
-        |  (
-        = @report.rule.title
-        | )
+        => @report.rule.name
+        = if present?(@report.rule.title) do
+          | (
+          = @report.rule.title
+          | )
       .communication__body__text
         =<> @body
 

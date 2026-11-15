@@ -52,4 +52,52 @@ autocompleteTest('should show additional properties to staff', async ({ ctx, exp
       ],
     }
   `);
+
+  // Just making sure staff-only dotted properties are handled as well. Show only public by default.
+  await ctx.setName('cq');
+  await ctx.setInput('image.');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "image.<>",
+      "suggestions": [
+        "(property) image.tags",
+      ],
+    }
+  `);
+
+  // Once staff tools enabled, start showing the hidden properties.
+  window.booru.hideStaffTools = false;
+  await ctx.setInput('image.');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "image.<>",
+      "suggestions": [
+        "(property) image.approved",
+        "(property) image.deleted",
+        "(property) image.tags",
+      ],
+    }
+  `);
+
+  // And values...
+  await ctx.setInput('image.deleted:');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "image.deleted:<>",
+      "suggestions": [
+        "(property) image.deleted:true",
+        "(property) image.deleted:false",
+      ],
+    }
+  `);
+
+  await ctx.setInput('image.approved:t');
+  expect(ctx.snapUi()).toMatchInlineSnapshot(`
+    {
+      "input": "image.approved:t<>",
+      "suggestions": [
+        "(property) image.approved:true",
+      ],
+    }
+  `);
 });

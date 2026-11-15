@@ -387,7 +387,7 @@ defmodule Philomena.Notifications do
   end
 
   @doc """
-  Broadcasts an image merge event to subscribers of the target image.
+  Broadcasts an image merge event to subscribers of the source image.
 
   This write participates in the caller's ambient Repo transaction.
   The owning context is responsible for authorizing the merge.
@@ -401,7 +401,7 @@ defmodule Philomena.Notifications do
   @spec broadcast_image_merge(Image.t(), Image.t()) :: count_result()
   def broadcast_image_merge(%Image{} = target, %Image{} = source) do
     broadcast_notification(
-      from: {Images.Subscription, image_id: target.id},
+      from: {Images.Subscription, image_id: source.id},
       into: ImageMergeNotification,
       select: [target_id: target.id, source_id: source.id],
       unique_key: :target_id

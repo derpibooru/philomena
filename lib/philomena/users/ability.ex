@@ -24,6 +24,7 @@ defimpl Canada.Can, for: Philomena.Users.User do
   alias Philomena.Roles.Role
   alias Philomena.Rules.Rule
   alias Philomena.SiteNotices.SiteNotice
+  alias Philomena.SourceChanges.SourceChange
   alias Philomena.StaticPages.StaticPage
   alias Philomena.TagChanges.TagChange
   alias Philomena.Tags.Tag
@@ -258,6 +259,9 @@ defimpl Canada.Can, for: Philomena.Users.User do
     do: true
 
   # Revert tag changes
+  def can?(%User{role: "moderator"}, :squash, SourceChange), do: true
+  def can?(%User{role: "moderator"}, :squash, TagChange), do: true
+
   def can?(%User{role: "moderator"}, :index, TagChange), do: true
   def can?(%User{role: "moderator"}, :revert, TagChange), do: true
   def can?(%User{role: "moderator"}, :delete, %TagChange{}), do: true

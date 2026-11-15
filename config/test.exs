@@ -14,8 +14,8 @@ config :philomena, Philomena.Repo,
   # tests exist. Size the pool to match, and give checkouts more queue
   # headroom for bcrypt-heavy user fixtures.
   pool_size: System.schedulers_online() * 2,
-  queue_target: 200,
-  queue_interval: 2000
+  queue_target: 20_000,
+  queue_interval: 20_000
 
 config :philomena,
   pwned_passwords: false,

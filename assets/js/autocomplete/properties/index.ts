@@ -9,8 +9,7 @@ import {
 import { type LocalAutocompleter } from '../../utils/local-autocompleter';
 import { type TagSuggestion } from '../../utils/suggestions-model';
 
-const propertiesSyntaxRegExp =
-  /^(?<property_name>[a-z\d_]+)(?<operator_syntax>\.(?<operator>[a-z]*))?(?<value_syntax>:(?<value>.*))?$/;
+const propertyNamesRegExp = /^[a-z\d_.]+$/;
 
 export interface MatchedPropertyParts {
   propertyName: string;
@@ -20,22 +19,45 @@ export interface MatchedPropertyParts {
   value?: string;
 }
 
-function parsePropertyParts(term: string): MatchedPropertyParts | null {
-  propertiesSyntaxRegExp.lastIndex = 0;
+/**
+ * Parse property parts from the single term.
+ *
+ * @since 1.3.0 Properties now could contain the dot in the name, confusing previous RegExp-based parsing.
+ *
+ * @param term Tern to parse.
+ * @param propertiesMap Mapping of properties to match the names from.
+ */
+function parsePropertyParts(
+  term: string,
+  propertiesMap: Map<string, PropertyTypeOrValues>,
+): MatchedPropertyParts | null {
+  propertyNamesRegExp.lastIndex = 0;
 
-  const match = propertiesSyntaxRegExp.exec(term);
+  const valueSeparatorIndex = term.indexOf(':');
+  const hasValueSyntax = valueSeparatorIndex >= 0;
+  const namePart = hasValueSyntax ? term.slice(0, valueSeparatorIndex) : term;
+  const value = hasValueSyntax ? term.slice(valueSeparatorIndex + 1) : undefined;
 
-  if (!match?.groups) {
+  if (!propertyNamesRegExp.test(namePart)) {
     return null;
   }
 
-  return {
-    propertyName: match.groups.property_name,
-    hasOperatorSyntax: Boolean(match.groups.operator_syntax),
-    hasValueSyntax: Boolean(match.groups.value_syntax),
-    operator: match.groups.operator,
-    value: match.groups.value,
-  };
+  if (propertiesMap.has(namePart)) {
+    return { propertyName: namePart, hasOperatorSyntax: false, hasValueSyntax, value };
+  }
+
+  const lastDotIndex = namePart.lastIndexOf('.');
+
+  if (lastDotIndex > 0) {
+    const head = namePart.slice(0, lastDotIndex);
+    const operator = namePart.slice(lastDotIndex + 1);
+
+    if (propertiesMap.has(head)) {
+      return { propertyName: head, hasOperatorSyntax: true, hasValueSyntax, operator, value };
+    }
+  }
+
+  return { propertyName: namePart, hasOperatorSyntax: false, hasValueSyntax, value };
 }
 
 export class SuggestedProperty {
@@ -173,14 +195,18 @@ export function matchProperties(
   activeTerm: string,
   autocomplete: LocalAutocompleter,
 ): SuggestedProperty[] {
-  let propertiesMap = searchTypeToPropertiesMap.get(input.element.name);
-  const parsedTermParts = propertiesMap && parsePropertyParts(activeTerm);
+  const foundPropertiesMap = searchTypeToPropertiesMap.get(input.element.name);
 
-  if (!propertiesMap || !parsedTermParts) {
+  if (!foundPropertiesMap) {
     return [];
   }
 
-  propertiesMap = filterPropertiesMapByCurrentRole(propertiesMap);
+  const propertiesMap = filterPropertiesMapByCurrentRole(foundPropertiesMap);
+  const parsedTermParts = parsePropertyParts(activeTerm, propertiesMap);
+
+  if (!parsedTermParts) {
+    return [];
+  }
 
   const { hasOperatorSyntax, hasValueSyntax, propertyName, operator, value } = parsedTermParts;
 

@@ -4,6 +4,7 @@ defmodule Philomena.TagChanges do
   """
 
   import Ecto.Query, warn: false
+  import Philomena.Query.Unnest
   import Philomena.Authorization, only: [authorize: 3]
 
   alias Philomena.Attribution.Actor
@@ -592,6 +593,47 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
+  Removes canceling addition/removal pairs from a locked image's tag history,
+  as a workflow step.
+
+  Pairs are matched newest to oldest to preserve original attribution.
+  Unmatched changes and the image's current state are preserved.
+  """
+  @spec put_squash_tag_changes(Multi.t(), Loader.integer_id()) :: Multi.t()
+  def put_squash_tag_changes(%Multi{} = multi, image_id) do
+    multi
+    |> Multi.all(
+      {image_id, :history},
+      TagChangeTag
+      |> join(:inner, [entry], change in assoc(entry, :tag_change))
+      |> where([entry, change], change.image_id == ^image_id)
+      |> order_by([entry, change], desc: change.created_at, desc: change.id)
+      |> select([entry], %{id: entry.tag_change_id, key: entry.tag_id, added: entry.added})
+    )
+    |> Multi.merge(fn %{{^image_id, :history} => history} ->
+      # This logic intentionally matches SourceChanges.put_squash_source_changes/2.
+      {_pending, ids} =
+        Enum.reduce(history, {%{}, []}, fn entry, {pending, ids} ->
+          case Map.get(pending, entry.key, []) do
+            [previous | rest] when previous.added != entry.added ->
+              {Map.put(pending, entry.key, rest), [{entry.id, entry.key}, previous.id | ids]}
+
+            entries ->
+              previous = %{id: {entry.id, entry.key}, added: entry.added}
+              {Map.put(pending, entry.key, [previous | entries]), ids}
+          end
+        end)
+
+      query =
+        from entry in TagChangeTag,
+          join: pair in unnest(ids, tag_change_id: :integer, tag_id: :integer),
+          on: entry.tag_change_id == pair.tag_change_id and entry.tag_id == pair.tag_id
+
+      put_delete_tag_change_tags(Multi.new(), {:deleted, image_id}, query)
+    end)
+  end
+
+  @doc """
   Counts tag-change batches and changed tags for an already-loaded image.
 
   ## Examples
@@ -701,7 +743,9 @@ defmodule Philomena.TagChanges do
     multi
     |> Multi.all(
       tag_change_ids_step,
-      select(query, [tag_change_tag], tag_change_tag.tag_change_id)
+      query
+      |> select([tag_change_tag], tag_change_tag.tag_change_id)
+      |> distinct(true)
     )
     |> Multi.delete_all(step, query)
     |> Multi.delete_all(empty_tag_changes_step, fn %{^tag_change_ids_step => tag_change_ids} ->
@@ -723,7 +767,7 @@ defmodule Philomena.TagChanges do
                             ^tag_change_ids_step => tag_change_ids,
                             ^empty_tag_changes_step => {_count, empty_ids}
                           } ->
-      Enum.each(empty_ids, &Search.delete_document(&1, TagChange))
+      Search.delete_documents(empty_ids, TagChange)
       reindex_tag_changes(tag_change_ids -- empty_ids)
     end)
   end
@@ -757,21 +801,23 @@ defmodule Philomena.TagChanges do
         now = DateTime.utc_now(:second)
 
         # Create tag change batches for every image ID.
-        tag_change_rows =
+        image_ids =
           changes
           |> Enum.uniq_by(& &1.image_id)
-          |> Enum.map(fn %{image_id: image_id} ->
-            %{
-              image_id: image_id,
-              user_id: attributes[:user_id],
-              ip: attributes[:ip],
-              fingerprint: attributes[:fingerprint],
-              created_at: now
+          |> Enum.map(&{&1.image_id})
+
+        tag_change_query =
+          from row in unnest(image_ids, image_id: :integer),
+            select: %{
+              image_id: row.image_id,
+              user_id: type(^attributes[:user_id], :integer),
+              ip: type(^attributes[:ip], EctoNetwork.INET),
+              fingerprint: type(^attributes[:fingerprint], :string),
+              created_at: type(^now, :utc_datetime)
             }
-          end)
 
         {_count, tag_changes} =
-          repo.insert_all(TagChange, tag_change_rows, returning: [:image_id, :id])
+          repo.insert_all(TagChange, tag_change_query, returning: [:image_id, :id])
 
         tag_change_ids = Enum.map(tag_changes, & &1.id)
         tag_change_ids_by_image_id = Map.new(tag_changes, &{&1.image_id, &1.id})
@@ -779,14 +825,22 @@ defmodule Philomena.TagChanges do
         # Create tags belonging to tag changes.
         tag_change_tag_rows =
           Enum.map(changes, fn %{image_id: image_id, tag_id: tag_id, added: added} ->
-            %{
-              tag_change_id: tag_change_ids_by_image_id[image_id],
-              tag_id: tag_id,
-              added: added
-            }
+            {tag_change_ids_by_image_id[image_id], tag_id, added}
           end)
 
-        {_count, nil} = repo.insert_all(TagChangeTag, tag_change_tag_rows)
+        tag_change_tag_query =
+          from row in unnest(tag_change_tag_rows,
+                 tag_change_id: :integer,
+                 tag_id: :integer,
+                 added: :boolean
+               ),
+               select: %{
+                 tag_change_id: row.tag_change_id,
+                 tag_id: row.tag_id,
+                 added: row.added
+               }
+
+        {_count, nil} = repo.insert_all(TagChangeTag, tag_change_tag_query)
 
         {:ok, tag_change_ids}
     end)

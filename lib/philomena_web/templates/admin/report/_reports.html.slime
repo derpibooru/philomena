@@ -16,9 +16,10 @@ table.table
           = link_to_target report_target(report)
         td
           => report.rule.name
-          | (
-          = report.rule.title
-          | )
+          = if present?(report.rule.title) do
+            | (
+            = report.rule.title
+            | )
         td
           span title=report.reason
             = truncate(report.reason)

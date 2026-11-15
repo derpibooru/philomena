@@ -22,8 +22,9 @@ h1 Your Reports
             td = link_to_target(report_target(r))
             td
               => r.rule.name
-              | (
-              = r.rule.title
-              | )
+              = if present?(r.rule.title) do
+                | (
+                = r.rule.title
+                | )
             td = r.reason
             td = pretty_time(r.created_at)

@@ -113,6 +113,20 @@ table.table
         code = link "created_at:2015", to: ~p"/posts?#{[pq: "created_at:2015"]}"
     tr
       td
+        code forum
+      td Literal
+      td Matches the short name for the forum this post belongs to.
+      td
+        code = link "forum:meta", to: ~p"/posts?#{[pq: "forum:meta"]}"
+    tr
+      td
+        code forum_id
+      td Literal
+      td Matches the numeric surrogate key for the forum this post belongs to.
+      td
+        code = link "forum_id:2", to: ~p"/posts?#{[pq: "forum_id:2"]}"
+    tr
+      td
         code id
       td Numeric Range
       td Matches the numeric surrogate key for this post.
@@ -155,10 +169,88 @@ table.table
       td Matches the creation or last edit time of this post.
       td
         code = link "updated_at.gte:2 weeks ago", to: ~p"/posts?#{[pq: "updated_at.gte:2 weeks ago"]}"
-    tr
-      td
-        code forum
-      td Literal
-      td Matches the short name for the forum this post belongs to.
-      td
-        code = link "forum:meta", to: ~p"/posts?#{[pq: "forum:meta"]}"
+
+= if staff?(@conn.assigns.current_user) do
+  h3 Staff fields
+  table.table
+    thead
+      tr
+        th Field Selector
+        th Type
+        th Description
+        th Example
+    tbody
+      tr
+        td
+          code anonymous
+        td Boolean
+        td Matches posts made by anonymous users, or users without an account.
+        td
+          code = link "anonymous:true", to: ~p"/posts?#{[pq: "anonymous:true"]}"
+      tr
+        td
+          code deleted
+        td Boolean
+        td Matches posts that have been deleted, and thus hidden from regular users.
+        td
+          code = link "deleted:true", to: ~p"/posts?#{[pq: "deleted:true"]}"
+      tr
+        td
+          code deleted_by_user
+        td Literal
+        td Matches the name of the staff member who deleted this post.
+        td
+          code = link "deleted_by_user:Joey", to: ~p"/posts?#{[pq: "deleted_by_user:Joey"]}"
+      tr
+        td
+          code deleted_by_user_id
+        td Literal
+        td Matches the user ID of the staff member who deleted this post.
+        td
+          code = link "deleted_by_user_id:211190", to: ~p"/posts?#{[pq: "deleted_by_user_id:211190"]}"
+      tr
+        td
+          code deletion_reason
+        td Full Text
+        td Matches the reason given when this post was deleted.
+        td
+          code = link "deletion_reason:Rule #6", to: ~p"/posts?#{[pq: "deletion_reason:Rule #6"]}"
+      tr
+        td
+          code destroyed_content
+        td Boolean
+        td Matches posts whose contents have been destroyed, and are thus unrecoverable.
+        td
+          code = link "destroyed_content:true", to: ~p"/posts?#{[pq: "destroyed_content:true"]}"
+      tr
+        td
+          code fingerprint
+        td Literal
+        td Matches fingerprint of the post author. Use wildcard to match only part of it.
+        td
+          code = link "fingerprint:d04d4199192fce2", to: ~p"/posts?#{[pq: "fingerprint:d04d4199192fce2"]}"
+          br
+          code = link "fingerprint:d04d4*", to: ~p"/posts?#{[pq: "fingerprint:d04d4*"]}"
+      tr
+        td
+          code ip
+        td Literal
+        td Matches the IP address this post was posted from. CIDR notation is supported.
+        td
+          code = link "ip:195.133.5.9", to: ~p"/posts?#{[pq: "ip:195.133.5.9"]}"
+          br
+          code = link "ip:195.133.5.9/16", to: ~p"/posts?#{[pq: "ip:195.133.5.9/16"]}"
+      tr
+        td
+          code true_author
+        td Literal
+        td Matches the name of the user who actually posted this post, even if they posted it anonymously.
+        td
+          code = link "true_author:Joey", to: ~p"/posts?#{[pq: "true_author:Joey"]}"
+      tr
+        td
+          code true_author_id
+        td Literal
+        td Matches the user ID of whoever actually posted this post, even if they posted it anonymously.
+        td
+          code = link "true_author_id:211190", to: ~p"/posts?#{[pq: "true_author_id:211190"]}"

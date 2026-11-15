@@ -121,7 +121,7 @@ defmodule Philomena.TagWorkersTest do
   end
 
   test "the delete worker removes the tag and its image taggings" do
-    patch(Search, :delete_document, :ok)
+    patch(Search, :delete_documents, :ok)
     patch(Search, :reindex, :ok)
 
     tag = tag_fixture(name: "worker delete tag")
@@ -134,7 +134,7 @@ defmodule Philomena.TagWorkersTest do
   end
 
   test "the delete worker removes the tag from history and drops emptied tag changes" do
-    patch(Search, :delete_document, :ok)
+    patch(Search, :delete_documents, :ok)
 
     tag = tag_fixture(name: "worker delete history tag")
     other_tag = tag_fixture(name: "worker kept history tag")
@@ -166,9 +166,18 @@ defmodule Philomena.TagWorkersTest do
     emptied_id = emptied.id
     retained_id = retained.id
     unrelated_id = unrelated.id
-    assert_called(Search.delete_document(^emptied_id, TagChange))
-    refute_called(Search.delete_document(^retained_id, TagChange))
-    refute_called(Search.delete_document(^unrelated_id, TagChange))
+
+    bulk_deletions =
+      Search
+      |> history()
+      |> Enum.flat_map(fn
+        {:delete_documents, [args, TagChange]} -> args
+        _ -> []
+      end)
+
+    assert emptied_id in bulk_deletions
+    refute retained_id in bulk_deletions
+    refute unrelated_id in bulk_deletions
     assert Repo.get(TagChange, retained.id)
     assert Repo.get(TagChange, unrelated.id)
     refute Repo.get_by(TagChangeTag, tag_id: tag.id)

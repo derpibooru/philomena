@@ -111,24 +111,6 @@ defmodule Philomena.Tags.Tag do
   end
 
   @doc false
-  def insert_fields do
-    [
-      :slug,
-      :name,
-      :category,
-      :images_count,
-      :description,
-      :short_description,
-      :namespace,
-      :name_in_namespace,
-      :image,
-      :image_format,
-      :image_mime_type,
-      :mod_notes
-    ]
-  end
-
-  @doc false
   def changeset(tag, attrs \\ %{}) do
     tag
     |> cast(attrs, [:category, :description, :short_description, :mod_notes, :implied_tag_list])
