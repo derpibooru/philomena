@@ -275,13 +275,26 @@ defmodule PhilomenaWeb.ImageView do
   def image_source_icon(""), do: "fa fa-link"
 
   def image_source_icon(source) do
+    source
+    |> URI.parse()
+    |> Map.fetch!(:host)
+    |> image_source_site_icon()
+  end
+
+  defp image_source_site_icon(host) do
     site_domains =
       String.split(Application.get_env(:philomena, :site_domains), ",") ++
         [Application.get_env(:philomena, :cdn_host)]
 
-    uri = URI.parse(source)
+    if host in site_domains do
+      "favicon-home"
+    else
+      image_source_hostname_icon(host)
+    end
+  end
 
-    case uri.host do
+  defp image_source_hostname_icon(host) do
+    case host do
       "bsky.app" ->
         "fab fa-bluesky"
 
@@ -433,51 +446,52 @@ defmodule PhilomenaWeb.ImageView do
       u when u in ["etsy.com", "www.etsy.com"] ->
         "fab fa-etsy"
 
-      link ->
-        cond do
-          Enum.member?(site_domains, link) ->
-            "favicon-home"
+      host ->
+        image_source_hostname_suffix_icon(host)
+    end
+  end
 
-          String.ends_with?(link, ".tumblr.com") ->
-            "fab fa-tumblr"
+  defp image_source_hostname_suffix_icon(link) do
+    cond do
+      String.ends_with?(link, ".tumblr.com") ->
+        "fab fa-tumblr"
 
-          String.ends_with?(link, ".deviantart.com") or String.ends_with?(link, ".deviantart.net") ->
-            "fab fa-deviantart"
+      String.ends_with?(link, ".deviantart.com") or String.ends_with?(link, ".deviantart.net") ->
+        "fab fa-deviantart"
 
-          String.ends_with?(link, ".furaffinity.net") or String.ends_with?(link, ".sofurry.com") or
-              String.ends_with?(link, ".facdn.net") ->
-            "fa fa-paw"
+      String.ends_with?(link, ".furaffinity.net") or String.ends_with?(link, ".sofurry.com") or
+          String.ends_with?(link, ".facdn.net") ->
+        "fa fa-paw"
 
-          String.ends_with?(link, ".userapi.com") or String.ends_with?(link, ".vk.me") ->
-            "fab fa-vk"
+      String.ends_with?(link, ".userapi.com") or String.ends_with?(link, ".vk.me") ->
+        "fab fa-vk"
 
-          String.ends_with?(link, ".patreonusercontent.com") ->
-            "fab fa-patreon"
+      String.ends_with?(link, ".patreonusercontent.com") ->
+        "fab fa-patreon"
 
-          String.ends_with?(link, ".discordapp.net") ->
-            "fab fa-discord"
+      String.ends_with?(link, ".discordapp.net") ->
+        "fab fa-discord"
 
-          String.ends_with?(link, ".ytimg.com") ->
-            "fab fa-youtube"
+      String.ends_with?(link, ".ytimg.com") ->
+        "fab fa-youtube"
 
-          String.ends_with?(link, ".fbcdn.net") ->
-            "fab fa-facebook"
+      String.ends_with?(link, ".fbcdn.net") ->
+        "fab fa-facebook"
 
-          String.ends_with?(link, ".newgrounds.com") or String.ends_with?(link, ".ngfiles.com") ->
-            "fa fa-paintbrush"
+      String.ends_with?(link, ".newgrounds.com") or String.ends_with?(link, ".ngfiles.com") ->
+        "fa fa-paintbrush"
 
-          String.ends_with?(link, ".apple.com") ->
-            "fab fa-apple"
+      String.ends_with?(link, ".apple.com") ->
+        "fab fa-apple"
 
-          String.ends_with?(link, ".staticflickr.com") ->
-            "fab fa-flickr"
+      String.ends_with?(link, ".staticflickr.com") ->
+        "fab fa-flickr"
 
-          String.ends_with?(link, ".etsystatic.com") ->
-            "fab fa-etsy"
+      String.ends_with?(link, ".etsystatic.com") ->
+        "fab fa-etsy"
 
-          true ->
-            "fa fa-link"
-        end
+      true ->
+        "fa fa-link"
     end
   end
 end
