@@ -115,6 +115,35 @@ defmodule Philomena.TagChangesTest do
     |> Enum.sort()
   end
 
+  describe "cleanup!/0" do
+    test "deletes empty histories and their search documents, preserving histories with tags" do
+      {image, kept} = tag_change!(confirmed_user_fixture())
+      attribution = actor()
+
+      empty =
+        Repo.insert!(%TagChange{
+          image_id: image.id,
+          ip: attribution.ip,
+          fingerprint: attribution.fingerprint
+        })
+
+      reindex_tag_changes!()
+
+      assert TagChanges.list_tag_changes(actor(), %{}, @pagination)
+             |> entry_ids() == Enum.sort([empty.id, kept.id])
+
+      assert TagChanges.cleanup!() == [empty.id]
+      refute Repo.get(TagChange, empty.id)
+      assert Repo.get(TagChange, kept.id)
+      Search.refresh_index!(TagChange)
+
+      assert TagChanges.list_tag_changes(actor(), %{}, @pagination)
+             |> entry_ids() == [kept.id]
+
+      assert TagChanges.cleanup!() == []
+    end
+  end
+
   describe "actor-scoped history reads" do
     test "the global listing returns a typed page and normalized query form" do
       {_image, tag_change} = tag_change!(confirmed_user_fixture())
