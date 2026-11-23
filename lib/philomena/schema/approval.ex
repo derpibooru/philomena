@@ -3,6 +3,8 @@ defmodule Philomena.Schema.Approval do
 
   @image_embed_regex ~r/!+\[/
 
+  # site_domains is not a user-controlled input
+  # sobelow_skip ["DOS.Regex"]
   defp external_link_regex do
     site_domains =
       String.split(Application.get_env(:philomena, :site_domains), ",") ++
