@@ -169,6 +169,8 @@ defmodule PhilomenaQuery.Parse.Evaluator do
 
   defp last_bytes_different?(_s1, _s2), do: 1
 
+  # The user input to Regex compilation sanitized by construction
+  # sobelow_skip ["DOS.Regex"]
   defp wildcard_to_regex(input) do
     re =
       input

@@ -5,3 +5,4 @@ export RELEASE_NODE=philomena_daily
 
 philomena eval 'Philomena.Release.generate_autocomplete()'
 philomena eval 'Philomena.Release.clean_tags()'
+philomena eval 'Philomena.Release.clean_tag_changes()'

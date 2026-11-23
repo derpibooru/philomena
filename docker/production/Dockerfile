@@ -1,5 +1,5 @@
 # We need to grab "psql" from the Postgres image for database setup
-FROM postgres:18.6-alpine AS pg
+FROM postgres:18.7-alpine AS pg
 
 #
 # Step 1: Build Philomena release

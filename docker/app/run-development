@@ -22,6 +22,7 @@ background() {
     step mix run -e 'Philomena.Release.clean_moderation_logs()' > /dev/null
     step mix run -e 'Philomena.Release.generate_autocomplete()' > /dev/null
     step mix run -e 'Philomena.Release.clean_tags()' > /dev/null
+    step mix run -e 'Philomena.Release.clean_tag_changes()' > /dev/null
 
     sleep 300
   done
