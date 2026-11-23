@@ -773,6 +773,38 @@ defmodule Philomena.TagChanges do
   end
 
   @doc """
+  Deletes tag changes with no associated tag rows and removes their search
+  documents. Returns the deleted tag change IDs.
+
+  ## Examples
+
+      iex> cleanup!()
+      [1, 2, 3]
+
+  """
+  @spec cleanup!() :: [integer()]
+  def cleanup! do
+    query =
+      from tag_change in TagChange,
+        as: :tag_change,
+        where: not exists(where(TagChangeTag, tag_change_id: parent_as(:tag_change).id)),
+        select: tag_change.id
+
+    Multi.new()
+    |> Multi.delete_all(:tag_changes, query)
+    |> Multi.on_commit(fn %{tag_changes: {_count, ids}} ->
+      if Enum.any?(ids) do
+        Search.delete_documents(ids, TagChange)
+      end
+    end)
+    |> Multi.transact()
+    |> case do
+      {:ok, %{tag_changes: {_count, ids}}} ->
+        ids
+    end
+  end
+
+  @doc """
   Records tag changes from inserted and deleted image tagging rows in `multi`.
 
   Images supplies the two prior Multi steps. This function generates the tag

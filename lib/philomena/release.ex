@@ -74,6 +74,11 @@ defmodule Philomena.Release do
     Philomena.Tags.cleanup!()
   end
 
+  def clean_tag_changes do
+    start_app()
+    Philomena.TagChanges.cleanup!()
+  end
+
   def replace_aliases_in_implied_tags do
     start_app()
     Philomena.Tags.replace_aliases_in_implied_tags!()
