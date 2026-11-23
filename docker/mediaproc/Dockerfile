@@ -1,4 +1,4 @@
-FROM rust:1.99.1-slim-trixie AS builder
+FROM rust:1.100.0-slim-trixie AS builder
 
 RUN apt update \
     && apt install -y build-essential git libmagic-dev libturbojpeg0-dev libpng-dev \
